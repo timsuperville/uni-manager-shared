@@ -1,0 +1,33 @@
+{
+  "name": "uni-manager-shared",
+  "version": "1.0.0",
+  "description": "Shared utilities, components, and types for Uni-Manager applications",
+  "private": true,
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./components": "./components/index.js",
+    "./utils": "./utils/index.js",
+    "./types": "./types/index.js"
+  },
+  "scripts": {
+    "build": "echo 'Shared library build placeholder'",
+  "test": "echo 'Shared library test placeholder' && exit 0",
+    "lint": "echo 'Shared library lint placeholder'"
+  },
+  "peerDependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "@testing-library/jest-dom": "^6.4.2",
+    "@testing-library/react": "^16.0.0",
+    "@testing-library/user-event": "^14.5.2",
+    "@vitejs/plugin-react": "^4.3.1",
+    "jsdom": "^25.0.0",
+    "vitest": "^2.1.0"
+  }
+}

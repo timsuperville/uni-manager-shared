@@ -1,0 +1,91 @@
+/**
+ * ProtectedRoute Component
+ * Unified route protection with authentication checks
+ */
+import React from "react";
+import { useAuth } from "../context/AuthContext.jsx";
+import { getCurrentAppConfig } from "../config/appConfigs.js";
+
+const ProtectedRoute = ({
+  children,
+  requiredRoles = [],
+  fallback = null,
+  redirectTo = "/login",
+  showLoading = true,
+}) => {
+  const { user, loading, isAuthenticated } = useAuth();
+  const appConfig = getCurrentAppConfig();
+
+  // Show loading state
+  if (loading && showLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-400">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Not authenticated
+  if (!isAuthenticated) {
+    if (fallback) {
+      return fallback;
+    }
+
+    // Redirect to login (in a real app, you'd use your router here)
+    if (typeof window !== "undefined") {
+      window.location.href = redirectTo;
+    }
+    return null;
+  }
+
+  // Check role permissions
+  if (requiredRoles.length > 0 && user) {
+    const userRole = user.role;
+    const hasRequiredRole = requiredRoles.includes(userRole);
+
+    if (!hasRequiredRole) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+          <div className="text-center max-w-md mx-auto p-8">
+            <div className="mb-6">
+              <svg
+                className="w-16 h-16 mx-auto text-red-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
+                />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+              Access Denied
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              You don't have permission to access this page. Required role(s):{" "}
+              {requiredRoles.join(", ")}
+            </p>
+            <button
+              onClick={() => window.history.back()}
+              className={`inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r ${appConfig.branding.gradientFrom} ${appConfig.branding.gradientTo} hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 ${appConfig.branding.focusRing}`}
+            >
+              Go Back
+            </button>
+          </div>
+        </div>
+      );
+    }
+  }
+
+  // User is authenticated and has required permissions
+  return children;
+};
+
+export default ProtectedRoute;
