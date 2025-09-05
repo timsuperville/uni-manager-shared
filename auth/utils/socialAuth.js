@@ -313,6 +313,41 @@ export const sessionUtils = {
   },
 };
 
+/**
+ * Track user activity for analytics and security
+ */
+export const trackUserActivity = async (event, data = {}) => {
+  if (typeof window === "undefined") return;
+
+  try {
+    const activityData = {
+      event,
+      timestamp: new Date().toISOString(),
+      deviceFingerprint: sessionStorage.getItem("deviceFingerprint"),
+      sessionId: sessionStorage.getItem("sessionId"),
+      ...data,
+    };
+
+    // Store locally for now - could be sent to analytics service
+    const activities = JSON.parse(
+      sessionStorage.getItem("userActivities") || "[]"
+    );
+    activities.push(activityData);
+
+    // Keep only last 100 activities
+    if (activities.length > 100) {
+      activities.splice(0, activities.length - 100);
+    }
+
+    sessionStorage.setItem("userActivities", JSON.stringify(activities));
+
+    // Could send to analytics endpoint here
+    console.log("User activity tracked:", activityData);
+  } catch (error) {
+    console.warn("Failed to track user activity:", error);
+  }
+};
+
 export default {
   generateDeviceFingerprint,
   getDeviceInfo,
@@ -323,4 +358,5 @@ export default {
   isOAuthCallback,
   getOAuthRedirectUrl,
   sessionUtils,
+  trackUserActivity,
 };

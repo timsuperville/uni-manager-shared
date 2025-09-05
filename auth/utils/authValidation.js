@@ -195,15 +195,26 @@ export const validateAuthData = (authData) => {
 };
 
 /**
- * Sanitize user input
+ * Validate name field
  */
-export const sanitizeInput = (input) => {
-  if (typeof input !== "string") return input;
+export const validateName = (name, fieldName = "Name") => {
+  if (!name) return `${fieldName} is required`;
 
-  return input
-    .trim()
-    .replace(/[<>]/g, "") // Remove potential HTML tags
-    .substring(0, 1000); // Limit length
+  const trimmedName = name.trim();
+  if (trimmedName.length < 2) {
+    return `${fieldName} must be at least 2 characters`;
+  }
+
+  if (trimmedName.length > 50) {
+    return `${fieldName} must be less than 50 characters`;
+  }
+
+  // Check for valid characters (letters, spaces, hyphens, apostrophes)
+  if (!/^[a-zA-Z\s\-']+$/.test(trimmedName)) {
+    return `${fieldName} can only contain letters, spaces, hyphens, and apostrophes`;
+  }
+
+  return null; // No error
 };
 
 /**

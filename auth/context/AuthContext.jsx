@@ -258,11 +258,25 @@ export const AuthProvider = ({
   );
 
   /**
-   * Clear error state
+   * Check current authentication state
    */
-  const clearError = useCallback(() => {
-    updateAuthState({ error: null });
-  }, [updateAuthState]);
+  const checkAuthState = useCallback(async () => {
+    try {
+      const user = await authService.getCurrentUser();
+      const isAuthenticated = await authService.isAuthenticated();
+
+      updateAuthState({
+        user,
+        isAuthenticated,
+        isLoading: false,
+      });
+
+      return { user, isAuthenticated };
+    } catch (error) {
+      handleError(error);
+      return { user: null, isAuthenticated: false };
+    }
+  }, [authService, updateAuthState, handleError]);
 
   /**
    * Update last activity timestamp
@@ -324,7 +338,7 @@ export const AuthProvider = ({
     resetPassword,
     refreshAuth,
     updateUser,
-    clearError,
+    checkAuthState,
     updateActivity,
 
     // Utilities

@@ -1,0 +1,208 @@
+/* Uni-Manager Design System CSS Variables and Base Styles */
+
+/* CSS Custom Properties for Theme Support */
+:root {
+  /* Colors */
+  --color-primary: #2563eb;
+  --color-secondary: #64748b;
+  --color-success: #10b981;
+  --color-danger: #ef4444;
+  --color-warning: #f59e0b;
+  --color-info: #3b82f6;
+  --color-light: #f8fafc;
+  --color-dark: #1e293b;
+
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 3rem;
+
+  /* Typography */
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-xxl: 1.5rem;
+
+  /* Border Radius */
+  --border-radius-sm: 0.25rem;
+  --border-radius-md: 0.375rem;
+  --border-radius-lg: 0.5rem;
+  --border-radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+/* Button Components */
+@layer components {
+  /* Base Button */
+  .btn-base {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--border-radius-md);
+    font-weight: 500;
+    font-family: var(--font-family);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-base:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgb(59 130 246 / 0.4), 0 0 0 4px rgb(255 255 255);
+  }
+
+  .btn-base:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Button Sizes */
+  .btn-sm {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-sm);
+    line-height: 1.25rem;
+  }
+
+  .btn-md {
+    padding: var(--spacing-md) var(--spacing-lg);
+    font-size: var(--font-size-md);
+    line-height: 1.5rem;
+  }
+
+  .btn-lg {
+    padding: var(--spacing-lg) var(--spacing-xl);
+    font-size: var(--font-size-lg);
+    line-height: 1.75rem;
+  }
+
+  /* Button Variants */
+  .btn-primary {
+    background-color: var(--color-primary);
+    color: white;
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    background-color: rgb(37 99 235);
+  }
+
+  .btn-secondary {
+    background-color: var(--color-light);
+    color: var(--color-dark);
+    border: 1px solid rgb(209 213 219);
+  }
+
+  .btn-secondary:hover:not(:disabled) {
+    background-color: rgb(229 231 235);
+  }
+
+  .btn-outline {
+    background-color: transparent;
+    color: var(--color-primary);
+    border: 1px solid var(--color-primary);
+  }
+
+  .btn-outline:hover:not(:disabled) {
+    background-color: var(--color-primary);
+    color: white;
+  }
+
+  .btn-danger {
+    background-color: var(--color-danger);
+    color: white;
+  }
+
+  .btn-danger:hover:not(:disabled) {
+    background-color: rgb(220 38 38);
+  }
+
+  .btn-success {
+    background-color: var(--color-success);
+    color: white;
+  }
+
+  .btn-success:hover:not(:disabled) {
+    background-color: rgb(5 150 105);
+  }
+
+  .btn-warning {
+    background-color: var(--color-warning);
+    color: white;
+  }
+
+  .btn-warning:hover:not(:disabled) {
+    background-color: rgb(217 119 6);
+  }
+}
+
+/* Card Components */
+@layer components {
+  .card {
+    background-color: white;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid rgb(229 231 235);
+    overflow: hidden;
+  }
+
+  .card-header {
+    padding: var(--spacing-lg) var(--spacing-xl);
+    border-bottom: 1px solid rgb(229 231 235);
+  }
+
+  .card-content {
+    padding: var(--spacing-lg) var(--spacing-xl);
+  }
+
+  .card-title {
+    font-family: var(--font-family);
+    font-size: var(--font-size-xl);
+    font-weight: 600;
+    color: var(--color-dark);
+    margin: 0;
+  }
+
+  .card-elevated {
+    box-shadow: var(--shadow-lg);
+  }
+
+  .card-outlined {
+    background-color: transparent;
+    border-color: rgb(209 213 219);
+  }
+}
+
+/* Utility Classes */
+@layer utilities {
+  .text-primary { color: var(--color-primary); }
+  .text-secondary { color: var(--color-secondary); }
+  .text-success { color: var(--color-success); }
+  .text-danger { color: var(--color-danger); }
+  .text-warning { color: var(--color-warning); }
+  .text-info { color: var(--color-info); }
+
+  .bg-primary { background-color: var(--color-primary); }
+  .bg-secondary { background-color: var(--color-secondary); }
+  .bg-success { background-color: var(--color-success); }
+  .bg-danger { background-color: var(--color-danger); }
+  .bg-warning { background-color: var(--color-warning); }
+  .bg-info { background-color: var(--color-info); }
+
+  .border-primary { border-color: var(--color-primary); }
+  .border-secondary { border-color: var(--color-secondary); }
+  .border-success { border-color: var(--color-success); }
+  .border-danger { border-color: var(--color-danger); }
+  .border-warning { border-color: var(--color-warning); }
+  .border-info { border-color: var(--color-info); }
+}
