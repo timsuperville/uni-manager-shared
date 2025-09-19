@@ -2,7 +2,8 @@
  * ProtectedRoute Component
  * Unified route protection with authentication checks
  */
-import React from "react";
+import React, { useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { getCurrentAppConfig } from "../config/appConfigs.js";
 
@@ -10,11 +11,29 @@ const ProtectedRoute = ({
   children,
   requiredRoles = [],
   fallback = null,
-  redirectTo = "/login",
+  redirectTo = "/auth/login",
   showLoading = true,
 }) => {
   const { user, loading, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
   const appConfig = getCurrentAppConfig();
+
+  // Redirect unauthenticated users
+  useEffect(() => {
+    if (!loading && !isAuthenticated && !fallback) {
+      navigate(redirectTo, {
+        state: { from: location.pathname },
+      });
+    }
+  }, [
+    loading,
+    isAuthenticated,
+    navigate,
+    redirectTo,
+    fallback,
+    location.pathname,
+  ]);
 
   // Show loading state
   if (loading && showLoading) {
@@ -34,10 +53,7 @@ const ProtectedRoute = ({
       return fallback;
     }
 
-    // Redirect to login (in a real app, you'd use your router here)
-    if (typeof window !== "undefined") {
-      window.location.href = redirectTo;
-    }
+    // Return null and let useEffect handle the redirect
     return null;
   }
 
@@ -69,8 +85,8 @@ const ProtectedRoute = ({
               Access Denied
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              You don't have permission to access this page. Required role(s):{" "}
-              {requiredRoles.join(", ")}
+              You don&apos;t have permission to access this page. Required
+              role(s): {requiredRoles.join(", ")}
             </p>
             <button
               onClick={() => window.history.back()}

@@ -8,14 +8,14 @@
  * Validate email format
  */
 export const validateEmail = (email) => {
-  if (!email) return { isValid: false, error: "Email is required" };
+  if (!email) return "Email is required";
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
-    return { isValid: false, error: "Invalid email format" };
+    return "Please enter a valid email address";
   }
 
-  return { isValid: true };
+  return null; // No error
 };
 
 /**
@@ -30,7 +30,7 @@ export const validatePassword = (password, options = {}) => {
     requireSpecialChars = true,
   } = options;
 
-  if (!password) return { isValid: false, error: "Password is required" };
+  if (!password) return "Password is required";
 
   const errors = [];
 
@@ -39,26 +39,29 @@ export const validatePassword = (password, options = {}) => {
   }
 
   if (requireUppercase && !/[A-Z]/.test(password)) {
-    errors.push("Password must contain at least one uppercase letter");
+    errors.push("uppercase letter");
   }
 
   if (requireLowercase && !/[a-z]/.test(password)) {
-    errors.push("Password must contain at least one lowercase letter");
+    errors.push("lowercase letter");
   }
 
   if (requireNumbers && !/\d/.test(password)) {
-    errors.push("Password must contain at least one number");
+    errors.push("number");
   }
 
   if (requireSpecialChars && !/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-    errors.push("Password must contain at least one special character");
+    errors.push("special character");
   }
 
-  return {
-    isValid: errors.length === 0,
-    errors,
-    strength: calculatePasswordStrength(password),
-  };
+  if (errors.length > 1) {
+    const lastError = errors.pop();
+    return `Password must contain at least one ${errors.join(", ")} and ${lastError}`;
+  } else if (errors.length === 1) {
+    return `Password must contain at least one ${errors[0]}`;
+  }
+
+  return null; // No error
 };
 
 /**
@@ -69,18 +72,31 @@ export const calculatePasswordStrength = (password) => {
 
   let score = 0;
 
-  // Length bonus
-  score += Math.min(password.length * 2, 20);
+  // Length bonus - more generous scoring
+  if (password.length >= 8) score += 15;
+  if (password.length >= 12) score += 10;
+  if (password.length >= 16) score += 15;
 
   // Character variety bonus
-  if (/[a-z]/.test(password)) score += 5;
-  if (/[A-Z]/.test(password)) score += 5;
-  if (/\d/.test(password)) score += 5;
-  if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) score += 10;
+  if (/[a-z]/.test(password)) score += 10;
+  if (/[A-Z]/.test(password)) score += 10;
+  if (/\d/.test(password)) score += 10;
+  if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) score += 15;
+
+  // Complexity bonus
+  const varietyCount = [
+    /[a-z]/.test(password),
+    /[A-Z]/.test(password),
+    /\d/.test(password),
+    /[!@#$%^&*(),.?":{}|<>]/.test(password),
+  ].filter(Boolean).length;
+
+  if (varietyCount >= 3) score += 10;
+  if (varietyCount >= 4) score += 20;
 
   // Pattern penalties
-  if (/(.)\1{2,}/.test(password)) score -= 10; // Repeated characters
-  if (/123|abc|qwe/i.test(password)) score -= 10; // Common patterns
+  if (/(.)\1{2,}/.test(password)) score -= 15; // Repeated characters
+  if (/123|abc|qwe|password/i.test(password)) score -= 20; // Common patterns
 
   // Normalize to 0-100
   return Math.max(0, Math.min(100, score));
@@ -215,6 +231,14 @@ export const validateName = (name, fieldName = "Name") => {
   }
 
   return null; // No error
+};
+
+/**
+ * Get password strength assessment
+ */
+export const getPasswordStrength = (password) => {
+  const strength = calculatePasswordStrength(password);
+  return getPasswordStrengthLabel(strength);
 };
 
 /**
