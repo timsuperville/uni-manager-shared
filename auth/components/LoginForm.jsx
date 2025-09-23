@@ -37,9 +37,9 @@ const LoginForm = ({
         try {
           // Try multiple possible import paths for the auth service
           const possiblePaths = [
-            "../../../apps/church/src/features/auth/services/enhancedAuthService",
-            "../../src/features/auth/services/enhancedAuthService",
-            "../apps/church/src/features/auth/services/enhancedAuthService",
+            "../../../apps/church/src/features/auth/services/authService",
+            "../../src/features/auth/services/authService",
+            "../apps/church/src/features/auth/services/authService",
           ];
 
           for (const path of possiblePaths) {

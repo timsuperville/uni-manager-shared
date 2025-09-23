@@ -11,8 +11,9 @@ import React, {
   useState,
   useEffect,
   useCallback,
+  useMemo,
 } from "react";
-import UnifiedAuthService from "../services/UnifiedAuthService.js";
+import { ConsolidatedAuthService } from "../services/authService.js";
 import { tokenStorage } from "../utils/tokenStorage.js";
 
 const AuthContext = createContext(null);
@@ -31,8 +32,11 @@ export const AuthProvider = ({
   onAuthStateChange,
   onError,
 }) => {
-  // Initialize auth service with app-specific config
-  const authService = new UnifiedAuthService(config);
+  // Initialize auth service with app-specific config using useMemo for performance
+  const authService = useMemo(
+    () => new ConsolidatedAuthService(config),
+    [config]
+  );
 
   // Authentication state
   const [authState, setAuthState] = useState({

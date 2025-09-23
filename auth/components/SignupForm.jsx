@@ -16,11 +16,11 @@ import { getCurrentAppConfig } from "../config/appConfigs.js";
 // Dynamic import for enhanced auth service based on environment
 const getAuthService = async () => {
   try {
-    // Try to import the church app enhanced auth service from the correct path
-    const { default: enhancedAuthService } = await import(
-      "../../../apps/church/src/features/auth/services/enhancedAuthService.js"
+    // Try to import the church app auth service from the correct path
+    const { default: authService } = await import(
+      "../../../apps/church/src/features/auth/services/authService.js"
     );
-    return enhancedAuthService;
+    return authService;
   } catch (error) {
     console.warn("Enhanced auth service not available, using mock methods");
     return {
