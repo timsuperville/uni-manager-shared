@@ -1,42 +1,42 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from "react";
+import PropTypes from "prop-types";
 
-const Progress = ({ 
-  value = 0, 
-  max = 100, 
-  className = '',
-  size = 'default',
-  variant = 'default',
+const Progress = ({
+  value = 0,
+  max = 100,
+  className = "",
+  size = "default",
+  variant = "default",
   showLabel = false,
-  label = '',
-  ...props 
+  label = "",
+  ...props
 }) => {
   const percentage = Math.min(Math.max((value / max) * 100, 0), 100);
 
   const getSizeClasses = () => {
     switch (size) {
-      case 'sm':
-        return 'h-2';
-      case 'lg':
-        return 'h-4';
+      case "sm":
+        return "h-2";
+      case "lg":
+        return "h-4";
       default:
-        return 'h-3';
+        return "h-3";
     }
   };
 
   const getVariantClasses = () => {
     switch (variant) {
-      case 'success':
-        return 'bg-green-500';
-      case 'warning':
-        return 'bg-yellow-500';
-      case 'danger':
-      case 'error':
-        return 'bg-red-500';
-      case 'info':
-        return 'bg-blue-500';
+      case "success":
+        return "bg-green-500";
+      case "warning":
+        return "bg-yellow-500";
+      case "danger":
+      case "error":
+        return "bg-red-500";
+      case "info":
+        return "bg-blue-500";
       default:
-        return 'bg-blue-600';
+        return "bg-blue-600";
     }
   };
 
@@ -67,20 +67,20 @@ const Progress = ({
 const CircularProgress = ({
   value = 0,
   max = 100,
-  size = 'default',
-  variant = 'default',
+  size = "default",
+  variant = "default",
   showLabel = false,
   strokeWidth = 8,
-  className = '',
+  className = "",
   ...props
 }) => {
   const percentage = Math.min(Math.max((value / max) * 100, 0), 100);
-  
+
   const getSizeValue = () => {
     switch (size) {
-      case 'sm':
+      case "sm":
         return 64;
-      case 'lg':
+      case "lg":
         return 128;
       default:
         return 96;
@@ -89,17 +89,17 @@ const CircularProgress = ({
 
   const getVariantColor = () => {
     switch (variant) {
-      case 'success':
-        return '#10b981';
-      case 'warning':
-        return '#f59e0b';
-      case 'danger':
-      case 'error':
-        return '#ef4444';
-      case 'info':
-        return '#3b82f6';
+      case "success":
+        return "#10b981";
+      case "warning":
+        return "#f59e0b";
+      case "danger":
+      case "error":
+        return "#ef4444";
+      case "info":
+        return "#3b82f6";
       default:
-        return '#2563eb';
+        return "#2563eb";
     }
   };
 
@@ -109,7 +109,10 @@ const CircularProgress = ({
   const offset = circumference - (percentage / 100) * circumference;
 
   return (
-    <div className={`relative inline-flex items-center justify-center ${className}`} {...props}>
+    <div
+      className={`relative inline-flex items-center justify-center ${className}`}
+      {...props}
+    >
       <svg
         width={sizeValue}
         height={sizeValue}
@@ -151,8 +154,15 @@ Progress.propTypes = {
   value: PropTypes.number,
   max: PropTypes.number,
   className: PropTypes.string,
-  size: PropTypes.oneOf(['sm', 'default', 'lg']),
-  variant: PropTypes.oneOf(['default', 'success', 'warning', 'danger', 'error', 'info']),
+  size: PropTypes.oneOf(["sm", "default", "lg"]),
+  variant: PropTypes.oneOf([
+    "default",
+    "success",
+    "warning",
+    "danger",
+    "error",
+    "info",
+  ]),
   showLabel: PropTypes.bool,
   label: PropTypes.string,
 };
@@ -160,8 +170,15 @@ Progress.propTypes = {
 CircularProgress.propTypes = {
   value: PropTypes.number,
   max: PropTypes.number,
-  size: PropTypes.oneOf(['sm', 'default', 'lg']),
-  variant: PropTypes.oneOf(['default', 'success', 'warning', 'danger', 'error', 'info']),
+  size: PropTypes.oneOf(["sm", "default", "lg"]),
+  variant: PropTypes.oneOf([
+    "default",
+    "success",
+    "warning",
+    "danger",
+    "error",
+    "info",
+  ]),
   showLabel: PropTypes.bool,
   strokeWidth: PropTypes.number,
   className: PropTypes.string,

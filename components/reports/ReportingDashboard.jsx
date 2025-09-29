@@ -146,7 +146,7 @@ function ReportingDashboard() {
       setRunningReports((prev) => new Set([...prev, reportId]));
       const result = await reportingService.generateReport(
         reportId,
-        parameters
+        parameters,
       );
 
       showNotification("Report generated successfully", "success");
@@ -220,14 +220,14 @@ function ReportingDashboard() {
 
   const getCategoryColor = (category) => {
     const categoryConfig = REPORT_CATEGORIES.find(
-      (cat) => cat.value === category
+      (cat) => cat.value === category,
     );
     return categoryConfig ? categoryConfig.color : "default";
   };
 
   const getCategoryLabel = (category) => {
     const categoryConfig = REPORT_CATEGORIES.find(
-      (cat) => cat.value === category
+      (cat) => cat.value === category,
     );
     return categoryConfig ? categoryConfig.label : category;
   };

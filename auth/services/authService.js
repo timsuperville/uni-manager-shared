@@ -1,7 +1,7 @@
 /* global fetch, window, sessionStorage, localStorage, console, URLSearchParams, setInterval, clearInterval */
 /**
  * Consolidated Authentication Service
- * 
+ *
  * Unified service that combines OAuth and traditional authentication
  * Eliminates redundancy while preserving all functionality from:
  * - authService.js (OAuth, device fingerprinting, security features)
@@ -47,7 +47,7 @@ class ConsolidatedAuthService {
     };
 
     // Core auth state
-    this.apiEndpoint = this.config.endpoints.login.replace('/login', '');
+    this.apiEndpoint = this.config.endpoints.login.replace("/login", "");
     this.currentUser = null;
     this.sessionToken = null;
     this.deviceFingerprint = null;
@@ -268,7 +268,10 @@ class ConsolidatedAuthService {
         message: responseData.message,
       };
     } catch (error) {
-      console.error(`[Auth-${this.config.appType}] Forgot password error:`, error);
+      console.error(
+        `[Auth-${this.config.appType}] Forgot password error:`,
+        error,
+      );
       throw error;
     }
   }
@@ -294,7 +297,10 @@ class ConsolidatedAuthService {
         message: responseData.message,
       };
     } catch (error) {
-      console.error(`[Auth-${this.config.appType}] Reset password error:`, error);
+      console.error(
+        `[Auth-${this.config.appType}] Reset password error:`,
+        error,
+      );
       throw error;
     }
   }
@@ -312,7 +318,7 @@ class ConsolidatedAuthService {
 
     if (!providerConfig) {
       throw new Error(
-        `OAuth provider ${providerId} not supported for ${appConfig.name}`
+        `OAuth provider ${providerId} not supported for ${appConfig.name}`,
       );
     }
 
@@ -398,7 +404,7 @@ class ConsolidatedAuthService {
       const tokenResponse = await this.exchangeOAuthCode(
         providerId,
         code,
-        codeVerifier
+        codeVerifier,
       );
 
       // Store authentication data
@@ -463,7 +469,7 @@ class ConsolidatedAuthService {
     // Get user info from provider
     const userInfo = await this.getOAuthUserInfo(
       providerId,
-      tokenData.access_token
+      tokenData.access_token,
     );
 
     // Register user with our backend
@@ -632,7 +638,10 @@ class ConsolidatedAuthService {
    * Record login attempt
    */
   recordLoginAttempt(email) {
-    const attempts = this.loginAttempts.get(email) || { count: 0, lastAttempt: 0 };
+    const attempts = this.loginAttempts.get(email) || {
+      count: 0,
+      lastAttempt: 0,
+    };
     attempts.count++;
     attempts.lastAttempt = Date.now();
     this.loginAttempts.set(email, attempts);
@@ -713,7 +722,7 @@ class ConsolidatedAuthService {
    */
   async _makeRequest(endpoint, options = {}) {
     const url = `${this.config.apiBaseUrl}${this.config.endpoints[endpoint] || endpoint}`;
-    
+
     const defaultHeaders = {
       "Content-Type": "application/json",
       ...options.headers,

@@ -119,7 +119,7 @@ export const usePagination = ({
         setCurrentPage(page);
       }
     },
-    [totalPages]
+    [totalPages],
   );
 
   const nextPage = useCallback(() => {
@@ -345,9 +345,9 @@ export const searchUtils = {
       filteredData = filteredData.filter((item) =>
         searchTerms.some((term) =>
           searchFields.some((field) =>
-            item[field]?.toLowerCase().includes(term)
-          )
-        )
+            item[field]?.toLowerCase().includes(term),
+          ),
+        ),
       );
     }
 
@@ -418,7 +418,7 @@ export const processSearchData = ({
     data,
     searchValue,
     filters,
-    searchFields
+    searchFields,
   );
 
   // Sort data
@@ -431,7 +431,7 @@ export const processSearchData = ({
   const paginatedData = searchUtils.paginateData(
     processedData,
     currentPage,
-    pageSize
+    pageSize,
   );
 
   return {

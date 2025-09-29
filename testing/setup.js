@@ -159,7 +159,7 @@ if (!globalThis.Node) {
       const clone = new this.constructor();
       if (deep) {
         clone.childNodes = this.childNodes.map((child) =>
-          child.cloneNode(true)
+          child.cloneNode(true),
         );
       }
       return clone;
@@ -748,7 +748,7 @@ if (!globalThis.document?.createElement) {
     });
 
     element.hasAttribute = vi.fn((name) =>
-      Object.prototype.hasOwnProperty.call(element, name)
+      Object.prototype.hasOwnProperty.call(element, name),
     );
 
     // Add class handling
@@ -814,27 +814,27 @@ Object.setPrototypeOf(HTMLParagraphElement.prototype, HTMLElement.prototype);
 Object.setPrototypeOf(HTMLHeadingElement.prototype, HTMLElement.prototype);
 Object.setPrototypeOf(
   HTMLHeading1Element.prototype,
-  HTMLHeadingElement.prototype
+  HTMLHeadingElement.prototype,
 );
 Object.setPrototypeOf(
   HTMLHeading2Element.prototype,
-  HTMLHeadingElement.prototype
+  HTMLHeadingElement.prototype,
 );
 Object.setPrototypeOf(
   HTMLHeading3Element.prototype,
-  HTMLHeadingElement.prototype
+  HTMLHeadingElement.prototype,
 );
 Object.setPrototypeOf(
   HTMLHeading4Element.prototype,
-  HTMLHeadingElement.prototype
+  HTMLHeadingElement.prototype,
 );
 Object.setPrototypeOf(
   HTMLHeading5Element.prototype,
-  HTMLHeadingElement.prototype
+  HTMLHeadingElement.prototype,
 );
 Object.setPrototypeOf(
   HTMLHeading6Element.prototype,
-  HTMLHeadingElement.prototype
+  HTMLHeadingElement.prototype,
 );
 
 // Ensure HTMLElement inherits from Element

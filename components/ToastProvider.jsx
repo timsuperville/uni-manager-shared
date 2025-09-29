@@ -47,7 +47,7 @@ export const ToastProvider = ({
 
       return id;
     },
-    [maxToasts]
+    [maxToasts],
   );
 
   const removeToast = useCallback((id) => {
@@ -61,19 +61,19 @@ export const ToastProvider = ({
   // Convenience methods
   const showSuccess = useCallback(
     (message, options) => addToast(message, "success", options),
-    [addToast]
+    [addToast],
   );
   const showError = useCallback(
     (message, options) => addToast(message, "error", options),
-    [addToast]
+    [addToast],
   );
   const showWarning = useCallback(
     (message, options) => addToast(message, "warning", options),
-    [addToast]
+    [addToast],
   );
   const showInfo = useCallback(
     (message, options) => addToast(message, "info", options),
-    [addToast]
+    [addToast],
   );
 
   const value = {

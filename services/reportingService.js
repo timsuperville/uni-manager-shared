@@ -31,7 +31,7 @@ class ReportingService {
   async getReport(reportId) {
     try {
       const response = await apiClient.get(
-        `/api/reporting/reports/${reportId}`
+        `/api/reporting/reports/${reportId}`,
       );
       return response.data;
     } catch (error) {
@@ -47,7 +47,7 @@ class ReportingService {
     try {
       const response = await apiClient.post(
         "/api/reporting/reports",
-        reportData
+        reportData,
       );
       return response.data;
     } catch (error) {
@@ -63,7 +63,7 @@ class ReportingService {
     try {
       const response = await apiClient.put(
         `/api/reporting/reports/${reportId}`,
-        reportData
+        reportData,
       );
       return response.data;
     } catch (error) {
@@ -94,7 +94,7 @@ class ReportingService {
         {
           parameters,
           format: parameters.format || "pdf",
-        }
+        },
       );
       return response.data;
     } catch (error) {
@@ -109,7 +109,7 @@ class ReportingService {
   async getReportStatus(reportId, executionId) {
     try {
       const response = await apiClient.get(
-        `/api/reporting/reports/${reportId}/status/${executionId}`
+        `/api/reporting/reports/${reportId}/status/${executionId}`,
       );
       return response.data;
     } catch (error) {
@@ -128,7 +128,7 @@ class ReportingService {
         {
           params: { format },
           responseType: "blob",
-        }
+        },
       );
 
       // Create blob from response
@@ -152,7 +152,7 @@ class ReportingService {
         `/api/reporting/reports/${reportId}/preview`,
         {
           parameters,
-        }
+        },
       );
       return response.data;
     } catch (error) {
@@ -172,7 +172,7 @@ class ReportingService {
       if (filters.type) params.append("type", filters.type);
 
       const response = await apiClient.get(
-        `/api/reporting/templates?${params}`
+        `/api/reporting/templates?${params}`,
       );
       return response.data;
     } catch (error) {
@@ -187,7 +187,7 @@ class ReportingService {
   async getTemplate(templateId) {
     try {
       const response = await apiClient.get(
-        `/api/reporting/templates/${templateId}`
+        `/api/reporting/templates/${templateId}`,
       );
       return response.data;
     } catch (error) {
@@ -203,7 +203,7 @@ class ReportingService {
     try {
       const response = await apiClient.post(
         "/api/reporting/templates",
-        templateData
+        templateData,
       );
       return response.data;
     } catch (error) {
@@ -219,7 +219,7 @@ class ReportingService {
     try {
       const response = await apiClient.put(
         `/api/reporting/templates/${templateId}`,
-        templateData
+        templateData,
       );
       return response.data;
     } catch (error) {
@@ -250,7 +250,7 @@ class ReportingService {
         {
           sampleData,
           format,
-        }
+        },
       );
       return response.data;
     } catch (error) {
@@ -265,7 +265,7 @@ class ReportingService {
   async getRecentReports(limit = 10) {
     try {
       const response = await apiClient.get(
-        `/api/reporting/recent?limit=${limit}`
+        `/api/reporting/recent?limit=${limit}`,
       );
       return response.data;
     } catch (error) {
@@ -280,7 +280,7 @@ class ReportingService {
   async getReportAnalytics(period = "30d") {
     try {
       const response = await apiClient.get(
-        `/api/reporting/analytics?period=${period}`
+        `/api/reporting/analytics?period=${period}`,
       );
       return response.data;
     } catch (error) {
@@ -296,7 +296,7 @@ class ReportingService {
     try {
       const response = await apiClient.post(
         `/api/reporting/reports/${reportId}/schedule`,
-        scheduleData
+        scheduleData,
       );
       return response.data;
     } catch (error) {
@@ -337,7 +337,7 @@ class ReportingService {
     try {
       const response = await apiClient.post(
         "/api/reporting/validate",
-        reportData
+        reportData,
       );
       return response.data;
     } catch (error) {
@@ -366,7 +366,7 @@ class ReportingService {
     try {
       const response = await apiClient.post(
         "/api/reporting/data-sources/test",
-        dataSourceConfig
+        dataSourceConfig,
       );
       return response.data;
     } catch (error) {
@@ -382,7 +382,7 @@ class ReportingService {
     try {
       const params = table ? `?table=${table}` : "";
       const response = await apiClient.get(
-        `/api/reporting/data-sources/${dataSourceId}/fields${params}`
+        `/api/reporting/data-sources/${dataSourceId}/fields${params}`,
       );
       return response.data;
     } catch (error) {
@@ -401,7 +401,7 @@ class ReportingService {
         {
           query,
           limit,
-        }
+        },
       );
       return response.data;
     } catch (error) {
@@ -416,7 +416,7 @@ class ReportingService {
   async getReportPermissions(reportId) {
     try {
       const response = await apiClient.get(
-        `/api/reporting/reports/${reportId}/permissions`
+        `/api/reporting/reports/${reportId}/permissions`,
       );
       return response.data;
     } catch (error) {
@@ -432,7 +432,7 @@ class ReportingService {
     try {
       const response = await apiClient.put(
         `/api/reporting/reports/${reportId}/permissions`,
-        permissions
+        permissions,
       );
       return response.data;
     } catch (error) {
@@ -450,7 +450,7 @@ class ReportingService {
         `/api/reporting/reports/${reportId}/export`,
         {
           responseType: "blob",
-        }
+        },
       );
       return new Blob([response.data], { type: "application/json" });
     } catch (error) {
@@ -474,7 +474,7 @@ class ReportingService {
           headers: {
             "Content-Type": "multipart/form-data",
           },
-        }
+        },
       );
       return response.data;
     } catch (error) {
@@ -550,7 +550,7 @@ class ReportingService {
         const date = new Date(value);
         if (isNaN(date.getTime())) {
           errors.push(
-            `${paramDef.label || paramDef.name} must be a valid date`
+            `${paramDef.label || paramDef.name} must be a valid date`,
           );
         }
       }
@@ -558,7 +558,7 @@ class ReportingService {
       if (value && paramDef.type === "number") {
         if (isNaN(Number(value))) {
           errors.push(
-            `${paramDef.label || paramDef.name} must be a valid number`
+            `${paramDef.label || paramDef.name} must be a valid number`,
           );
         }
       }

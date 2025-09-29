@@ -1,7 +1,7 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from "react";
+import PropTypes from "prop-types";
 
-const Table = ({ children, className = '', ...props }) => {
+const Table = ({ children, className = "", ...props }) => {
   return (
     <div className="overflow-x-auto">
       <table
@@ -14,18 +14,15 @@ const Table = ({ children, className = '', ...props }) => {
   );
 };
 
-const TableHeader = ({ children, className = '', ...props }) => {
+const TableHeader = ({ children, className = "", ...props }) => {
   return (
-    <thead
-      className={`bg-gray-50 ${className}`}
-      {...props}
-    >
+    <thead className={`bg-gray-50 ${className}`} {...props}>
       {children}
     </thead>
   );
 };
 
-const TableBody = ({ children, className = '', ...props }) => {
+const TableBody = ({ children, className = "", ...props }) => {
   return (
     <tbody
       className={`bg-white divide-y divide-gray-200 ${className}`}
@@ -36,18 +33,15 @@ const TableBody = ({ children, className = '', ...props }) => {
   );
 };
 
-const TableRow = ({ children, className = '', ...props }) => {
+const TableRow = ({ children, className = "", ...props }) => {
   return (
-    <tr
-      className={`hover:bg-gray-50 ${className}`}
-      {...props}
-    >
+    <tr className={`hover:bg-gray-50 ${className}`} {...props}>
       {children}
     </tr>
   );
 };
 
-const TableHead = ({ children, className = '', ...props }) => {
+const TableHead = ({ children, className = "", ...props }) => {
   return (
     <th
       className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${className}`}
@@ -58,7 +52,7 @@ const TableHead = ({ children, className = '', ...props }) => {
   );
 };
 
-const TableCell = ({ children, className = '', ...props }) => {
+const TableCell = ({ children, className = "", ...props }) => {
   return (
     <td
       className={`px-6 py-4 whitespace-nowrap text-sm text-gray-900 ${className}`}

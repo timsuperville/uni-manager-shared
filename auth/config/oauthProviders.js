@@ -318,6 +318,6 @@ export const isProviderSupportedForApp = (providerId, appName) => {
  */
 export const getSupportedProvidersForApp = (appName) => {
   return Object.keys(oauthProviders).filter((providerId) =>
-    isProviderSupportedForApp(providerId, appName)
+    isProviderSupportedForApp(providerId, appName),
   );
 };

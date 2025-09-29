@@ -114,7 +114,7 @@ const SignupForm = ({
         setEmailChecking(true);
         try {
           const result = await authService.checkEmailAvailability(
-            formData.email
+            formData.email,
           );
           if (!result.available) {
             setErrors((prev) => ({

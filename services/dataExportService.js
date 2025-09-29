@@ -153,7 +153,7 @@ class DataExportService {
           }
           return value || "";
         })
-        .join(",")
+        .join(","),
     );
 
     const csvContent = [headers, ...rows].join("\n");
@@ -188,7 +188,7 @@ class DataExportService {
     const wsData = [
       exportColumns, // Headers
       ...data.map((item) =>
-        exportColumns.map((col) => this.getNestedValue(item, col))
+        exportColumns.map((col) => this.getNestedValue(item, col)),
       ),
     ];
 
@@ -262,7 +262,7 @@ class DataExportService {
       exportColumns.map((col) => {
         const value = this.getNestedValue(item, col);
         return value?.toString() || "";
-      })
+      }),
     );
 
     // Add table
@@ -390,7 +390,7 @@ class DataExportService {
 
     if (!this.supportedFormats.includes(format.toLowerCase())) {
       throw new Error(
-        `Unsupported format: ${format}. Supported formats: ${this.supportedFormats.join(", ")}`
+        `Unsupported format: ${format}. Supported formats: ${this.supportedFormats.join(", ")}`,
       );
     }
 

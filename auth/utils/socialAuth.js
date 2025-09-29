@@ -194,7 +194,7 @@ export const handleOAuthCallback = async (code, state, provider) => {
           provider,
           redirectUrl: window.location.origin,
         }),
-      }
+      },
     );
 
     if (!response.ok) {
@@ -330,7 +330,7 @@ export const trackUserActivity = async (event, data = {}) => {
 
     // Store locally for now - could be sent to analytics service
     const activities = JSON.parse(
-      sessionStorage.getItem("userActivities") || "[]"
+      sessionStorage.getItem("userActivities") || "[]",
     );
     activities.push(activityData);
 

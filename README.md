@@ -25,11 +25,11 @@ A standardized button component with multiple variants and sizes.
 **Usage:**
 
 ```jsx
-import { Button } from '../../../shared/components';
+import { Button } from "../../../shared/components";
 
 <Button variant="primary" size="medium">
   Click me
-</Button>
+</Button>;
 ```
 
 **Variants:** `default`, `primary`, `secondary`, `outline`, `danger`, `success`, `warning`
@@ -42,11 +42,11 @@ A reusable modal/dialog component with accessibility features.
 **Usage:**
 
 ```jsx
-import { Modal } from '../../../shared/components';
+import { Modal } from "../../../shared/components";
 
 <Modal isOpen={isOpen} onClose={handleClose} title="Modal Title" size="medium">
   <p>Modal content goes here</p>
-</Modal>
+</Modal>;
 ```
 
 ### LoadingSpinner
@@ -56,9 +56,9 @@ A customizable loading spinner component.
 **Usage:**
 
 ```jsx
-import { LoadingSpinner } from '../../../shared/components';
+import { LoadingSpinner } from "../../../shared/components";
 
-<LoadingSpinner size="medium" color="blue" text="Loading..." />
+<LoadingSpinner size="medium" color="blue" text="Loading..." />;
 ```
 
 ## Guidelines
@@ -83,12 +83,12 @@ When adding new shared components:
 
 ```javascript
 // Import from the main package
-import { someUtility } from 'uni-manager-shared';
+import { someUtility } from "uni-manager-shared";
 
 // Or import from specific modules
-import { SomeComponent } from 'uni-manager-shared/components';
-import { someHelper } from 'uni-manager-shared/utils';
-import { SomeType } from 'uni-manager-shared/types';
+import { SomeComponent } from "uni-manager-shared/components";
+import { someHelper } from "uni-manager-shared/utils";
+import { SomeType } from "uni-manager-shared/types";
 ```
 
 ## Development

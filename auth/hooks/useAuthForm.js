@@ -149,7 +149,7 @@ export const useAuthForm = (formType = "login") => {
           result = await login(
             formData.email,
             formData.password,
-            formData.rememberMe
+            formData.rememberMe,
           );
           break;
         }

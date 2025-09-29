@@ -3,7 +3,7 @@
   "description": "Template package.json for Uni-Manager apps with standardized testing",
   "scripts": {
     "dev": "vite",
-    "build": "vite build", 
+    "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",

@@ -146,7 +146,7 @@ const ActivityItem = ({ activity, expanded, onToggle, showDetails = true }) => {
           size="small"
           variant="outlined"
           sx={{ mr: 0.5, mb: 0.5 }}
-        />
+        />,
       );
     }
 
@@ -160,7 +160,7 @@ const ActivityItem = ({ activity, expanded, onToggle, showDetails = true }) => {
             color="info"
             variant="outlined"
             sx={{ mr: 0.5, mb: 0.5 }}
-          />
+          />,
         );
       });
     }
@@ -261,7 +261,7 @@ const ActivityItem = ({ activity, expanded, onToggle, showDetails = true }) => {
                               • {field}: {change.from} → {change.to}
                             </Typography>
                           </Box>
-                        )
+                        ),
                       )}
                     </Box>
                   )}
@@ -321,22 +321,22 @@ export const ActivityFeed = ({
 
     // Register WebSocket event listeners
     webSocketClient.on("member:created", (data) =>
-      handleMemberActivity({ ...data, action: "created" })
+      handleMemberActivity({ ...data, action: "created" }),
     );
     webSocketClient.on("member:updated", (data) =>
-      handleMemberActivity({ ...data, action: "updated" })
+      handleMemberActivity({ ...data, action: "updated" }),
     );
     webSocketClient.on("member:deleted", (data) =>
-      handleMemberActivity({ ...data, action: "deleted" })
+      handleMemberActivity({ ...data, action: "deleted" }),
     );
     webSocketClient.on("invitation:sent", (data) =>
-      handleInvitationActivity({ ...data, action: "sent" })
+      handleInvitationActivity({ ...data, action: "sent" }),
     );
     webSocketClient.on("invitation:accepted", (data) =>
-      handleInvitationActivity({ ...data, action: "accepted" })
+      handleInvitationActivity({ ...data, action: "accepted" }),
     );
     webSocketClient.on("invitation:declined", (data) =>
-      handleInvitationActivity({ ...data, action: "declined" })
+      handleInvitationActivity({ ...data, action: "declined" }),
     );
 
     return () => {
@@ -363,7 +363,7 @@ export const ActivityFeed = ({
   };
 
   const filteredActivities = activities.filter(
-    (activity) => filter === "all" || activity.type === filter
+    (activity) => filter === "all" || activity.type === filter,
   );
 
   const clearAll = () => {

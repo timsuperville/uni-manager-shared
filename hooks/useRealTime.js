@@ -57,7 +57,7 @@ export const useWebSocket = (token, options = {}) => {
     webSocketClient.on("auth_error", handleAuthError);
     webSocketClient.on(
       "max_reconnect_attempts_reached",
-      handleMaxReconnectAttempts
+      handleMaxReconnectAttempts,
     );
 
     connectWebSocket();
@@ -77,7 +77,7 @@ export const useWebSocket = (token, options = {}) => {
       webSocketClient.off("auth_error", handleAuthError);
       webSocketClient.off(
         "max_reconnect_attempts_reached",
-        handleMaxReconnectAttempts
+        handleMaxReconnectAttempts,
       );
 
       if (connectionRef.current) {
@@ -120,8 +120,8 @@ export const useRealTimeNotifications = () => {
         prev.map((notification) =>
           notification.id === data.notificationId
             ? { ...notification, read: true }
-            : notification
-        )
+            : notification,
+        ),
       );
       setUnreadCount((prev) => Math.max(0, prev - 1));
     };
@@ -173,8 +173,8 @@ export const useRealTimeMembers = (initialMembers = []) => {
     const handleMemberUpdated = (data) => {
       setMembers((prev) =>
         prev.map((member) =>
-          member.id === data.member.id ? { ...member, ...data.member } : member
-        )
+          member.id === data.member.id ? { ...member, ...data.member } : member,
+        ),
       );
       setRecentActivity((prev) => [
         { type: "updated", member: data.member, timestamp: data.timestamp },
@@ -184,7 +184,7 @@ export const useRealTimeMembers = (initialMembers = []) => {
 
     const handleMemberDeleted = (data) => {
       setMembers((prev) =>
-        prev.filter((member) => member.id !== data.member.id)
+        prev.filter((member) => member.id !== data.member.id),
       );
       setRecentActivity((prev) => [
         { type: "deleted", member: data.member, timestamp: data.timestamp },
@@ -232,7 +232,7 @@ export const useRealTimeInvitations = (initialInvitations = []) => {
   useEffect(() => {
     setInvitations(initialInvitations);
     setPendingCount(
-      initialInvitations.filter((inv) => inv.status === "pending").length
+      initialInvitations.filter((inv) => inv.status === "pending").length,
     );
   }, [initialInvitations]);
 
@@ -254,8 +254,8 @@ export const useRealTimeInvitations = (initialInvitations = []) => {
         prev.map((invitation) =>
           invitation.id === data.invitation.id
             ? { ...invitation, status: "accepted" }
-            : invitation
-        )
+            : invitation,
+        ),
       );
       setPendingCount((prev) => Math.max(0, prev - 1));
     };
@@ -265,8 +265,8 @@ export const useRealTimeInvitations = (initialInvitations = []) => {
         prev.map((invitation) =>
           invitation.id === data.invitation.id
             ? { ...invitation, status: "declined" }
-            : invitation
-        )
+            : invitation,
+        ),
       );
       setPendingCount((prev) => Math.max(0, prev - 1));
     };
@@ -320,8 +320,8 @@ export const useUserPresence = () => {
               status: "online",
               lastSeen: data.timestamp,
               userInfo: data.userInfo,
-            })
-          )
+            }),
+          ),
       );
     };
 
@@ -443,14 +443,14 @@ export const useTypingIndicator = (conversationId) => {
     (context = {}) => {
       webSocketClient.startTyping(conversationId, context);
     },
-    [conversationId]
+    [conversationId],
   );
 
   const stopTyping = useCallback(
     (context = {}) => {
       webSocketClient.stopTyping(conversationId, context);
     },
-    [conversationId]
+    [conversationId],
   );
 
   return {

@@ -227,7 +227,7 @@ class WebSocketClient {
     setTimeout(() => {
       if (!this.isConnected) {
         console.log(
-          `Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})`
+          `Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})`,
         );
         this.socket.connect();
       }

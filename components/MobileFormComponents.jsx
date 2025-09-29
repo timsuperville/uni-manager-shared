@@ -569,7 +569,7 @@ MobileSelectField.propTypes = {
       value: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
         .isRequired,
       label: PropTypes.string.isRequired,
-    })
+    }),
   ).isRequired,
   error: PropTypes.bool,
   helperText: PropTypes.string,

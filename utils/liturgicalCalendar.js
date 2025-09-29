@@ -283,7 +283,7 @@ export function getCurrentLiturgicalSeason(date = new Date()) {
       startDate: adventStart,
       endDate: new Date(christmas.getTime() - 1),
       weeksRemaining: Math.ceil(
-        (christmas - currentDate) / (7 * 24 * 60 * 60 * 1000)
+        (christmas - currentDate) / (7 * 24 * 60 * 60 * 1000),
       ),
     };
   }
@@ -294,7 +294,7 @@ export function getCurrentLiturgicalSeason(date = new Date()) {
       startDate: christmas,
       endDate: new Date(epiphany.getTime() - 1),
       daysRemaining: Math.ceil(
-        (epiphany - currentDate) / (24 * 60 * 60 * 1000)
+        (epiphany - currentDate) / (24 * 60 * 60 * 1000),
       ),
     };
   }
@@ -305,7 +305,7 @@ export function getCurrentLiturgicalSeason(date = new Date()) {
       startDate: epiphany,
       endDate: new Date(ashWednesday.getTime() - 1),
       weeksRemaining: Math.ceil(
-        (ashWednesday - currentDate) / (7 * 24 * 60 * 60 * 1000)
+        (ashWednesday - currentDate) / (7 * 24 * 60 * 60 * 1000),
       ),
     };
   }
@@ -316,7 +316,7 @@ export function getCurrentLiturgicalSeason(date = new Date()) {
       startDate: ashWednesday,
       endDate: new Date(palmSunday.getTime() - 1),
       daysRemaining: Math.ceil(
-        (palmSunday - currentDate) / (24 * 60 * 60 * 1000)
+        (palmSunday - currentDate) / (24 * 60 * 60 * 1000),
       ),
     };
   }
@@ -336,7 +336,7 @@ export function getCurrentLiturgicalSeason(date = new Date()) {
       startDate: easter,
       endDate: new Date(pentecost.getTime() - 1),
       daysRemaining: Math.ceil(
-        (pentecost - currentDate) / (24 * 60 * 60 * 1000)
+        (pentecost - currentDate) / (24 * 60 * 60 * 1000),
       ),
     };
   }
@@ -365,7 +365,7 @@ export function getCurrentLiturgicalSeason(date = new Date()) {
         ? new Date(nextAdvent.getTime() - 1)
         : new Date(ashWednesday.getTime() - 1),
     weeksRemaining: Math.ceil(
-      (nextAdvent - currentDate) / (7 * 24 * 60 * 60 * 1000)
+      (nextAdvent - currentDate) / (7 * 24 * 60 * 60 * 1000),
     ),
   };
 }
@@ -458,7 +458,7 @@ export function getSeasonalMinistryContent(seasonId, ministryType) {
 export function getUpcomingFeastDays(startDate = new Date(), daysAhead = 30) {
   const upcomingDays = [];
   const endDate = new Date(
-    startDate.getTime() + daysAhead * 24 * 60 * 60 * 1000
+    startDate.getTime() + daysAhead * 24 * 60 * 60 * 1000,
   );
 
   Object.entries(FEAST_DAYS).forEach(([name, feastInfo]) => {

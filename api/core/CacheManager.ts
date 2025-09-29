@@ -1,6 +1,6 @@
 /**
  * Cache Manager
- * 
+ *
  * Intelligent caching system for API responses with TTL support,
  * pattern-based invalidation, and memory management.
  */
@@ -37,9 +37,9 @@ export class CacheManager {
     misses: 0,
     sets: 0,
     deletes: 0,
-    cleanups: 0
+    cleanups: 0,
   };
-  
+
   private options: Required<CacheOptions>;
   private cleanupTimer?: NodeJS.Timeout;
 
@@ -48,7 +48,7 @@ export class CacheManager {
       maxSize: options.maxSize || 50, // 50MB default
       defaultTTL: options.defaultTTL || 300000, // 5 minutes default
       cleanupInterval: options.cleanupInterval || 60000, // 1 minute default
-      enableStats: options.enableStats !== false
+      enableStats: options.enableStats !== false,
     };
 
     // Start cleanup timer
@@ -62,18 +62,18 @@ export class CacheManager {
     const entry = this.cache.get(key);
 
     if (!entry) {
-      this.incrementStat('misses');
+      this.incrementStat("misses");
       return null;
     }
 
     // Check if entry has expired
     if (this.isExpired(entry)) {
       this.cache.delete(key);
-      this.incrementStat('misses');
+      this.incrementStat("misses");
       return null;
     }
 
-    this.incrementStat('hits');
+    this.incrementStat("hits");
     return entry.data as T;
   }
 
@@ -92,11 +92,11 @@ export class CacheManager {
       timestamp: Date.now(),
       ttl: entryTTL,
       key,
-      size
+      size,
     };
 
     this.cache.set(key, entry);
-    this.incrementStat('sets');
+    this.incrementStat("sets");
   }
 
   /**
@@ -105,7 +105,7 @@ export class CacheManager {
   delete(key: string): boolean {
     const deleted = this.cache.delete(key);
     if (deleted) {
-      this.incrementStat('deletes');
+      this.incrementStat("deletes");
     }
     return deleted;
   }
@@ -143,9 +143,9 @@ export class CacheManager {
       }
     }
 
-    keysToDelete.forEach(key => {
+    keysToDelete.forEach((key) => {
       this.cache.delete(key);
-      this.incrementStat('deletes');
+      this.incrementStat("deletes");
     });
   }
 
@@ -153,8 +153,8 @@ export class CacheManager {
    * Generate cache key from endpoint and parameters
    */
   generateKey(endpoint: string, params?: any): string {
-    const baseKey = endpoint.replace(/[^a-zA-Z0-9]/g, '_');
-    
+    const baseKey = endpoint.replace(/[^a-zA-Z0-9]/g, "_");
+
     if (!params) {
       return baseKey;
     }
@@ -173,18 +173,21 @@ export class CacheManager {
   getStats(): CacheStats {
     const entries = Array.from(this.cache.values());
     const totalSize = entries.reduce((sum, entry) => sum + entry.size, 0);
-    const timestamps = entries.map(entry => entry.timestamp);
+    const timestamps = entries.map((entry) => entry.timestamp);
 
     return {
       totalEntries: this.cache.size,
-      totalSize: Math.round(totalSize / (1024 * 1024) * 100) / 100, // Convert to MB
-      hitRate: this.stats.hits + this.stats.misses > 0 
-        ? Math.round((this.stats.hits / (this.stats.hits + this.stats.misses)) * 100) / 100 
-        : 0,
+      totalSize: Math.round((totalSize / (1024 * 1024)) * 100) / 100, // Convert to MB
+      hitRate:
+        this.stats.hits + this.stats.misses > 0
+          ? Math.round(
+              (this.stats.hits / (this.stats.hits + this.stats.misses)) * 100,
+            ) / 100
+          : 0,
       totalHits: this.stats.hits,
       totalMisses: this.stats.misses,
       oldestEntry: timestamps.length > 0 ? Math.min(...timestamps) : undefined,
-      newestEntry: timestamps.length > 0 ? Math.max(...timestamps) : undefined
+      newestEntry: timestamps.length > 0 ? Math.max(...timestamps) : undefined,
     };
   }
 
@@ -219,7 +222,7 @@ export class CacheManager {
       }
     }
 
-    this.incrementStat('cleanups');
+    this.incrementStat("cleanups");
     return cleaned;
   }
 
@@ -246,7 +249,7 @@ export class CacheManager {
 
   private ensureSpace(newEntrySize: number): void {
     const maxSizeBytes = this.options.maxSize * 1024 * 1024; // Convert MB to bytes
-    
+
     // Calculate current cache size
     let currentSize = 0;
     for (const entry of this.cache.values()) {
@@ -285,20 +288,20 @@ export class CacheManager {
   private createPatternRegex(pattern: string): RegExp {
     // Convert glob-like pattern to regex
     const escapedPattern = pattern
-      .replace(/[.+?^${}()|[\]\\]/g, '\\$&') // Escape special chars
-      .replace(/\*/g, '.*') // Convert * to .*
-      .replace(/\?/g, '.'); // Convert ? to .
+      .replace(/[.+?^${}()|[\]\\]/g, "\\$&") // Escape special chars
+      .replace(/\*/g, ".*") // Convert * to .*
+      .replace(/\?/g, "."); // Convert ? to .
 
-    return new RegExp(`^${escapedPattern}$`, 'i');
+    return new RegExp(`^${escapedPattern}$`, "i");
   }
 
   private sortObject(obj: any): any {
-    if (obj === null || typeof obj !== 'object') {
+    if (obj === null || typeof obj !== "object") {
       return obj;
     }
 
     if (Array.isArray(obj)) {
-      return obj.map(item => this.sortObject(item));
+      return obj.map((item) => this.sortObject(item));
     }
 
     const sortedKeys = Object.keys(obj).sort();
@@ -317,7 +320,7 @@ export class CacheManager {
 
     for (let i = 0; i < str.length; i++) {
       const char = str.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
+      hash = (hash << 5) - hash + char;
       hash = hash & hash; // Convert to 32-bit integer
     }
 

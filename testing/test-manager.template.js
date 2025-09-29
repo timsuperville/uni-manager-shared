@@ -133,7 +133,7 @@ class UnifiedTestManager {
           withFileTypes: true,
         })
           .filter(
-            (dirent) => dirent.isFile() && dirent.name.includes("test-runner")
+            (dirent) => dirent.isFile() && dirent.name.includes("test-runner"),
           )
           .map((dirent) => dirent.name);
 
@@ -141,7 +141,7 @@ class UnifiedTestManager {
           const runnerPath = join(this.testRunnersDir, runner);
           const runnerName = runner.replace(
             /[-.]test[-.]runner\.(js|cjs)$/,
-            ""
+            "",
           );
           this.discoveredSuites.set(`${runnerName}-modes`, {
             name: `${runnerName}-modes`,

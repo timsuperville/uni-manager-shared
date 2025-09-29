@@ -31,7 +31,7 @@ const useIntersectionObserver = (options = {}) => {
         threshold: 0.1,
         rootMargin: "50px",
         ...options,
-      }
+      },
     );
 
     if (ref.current) {
@@ -225,13 +225,13 @@ export const useWidgetPreloader = (widgets = []) => {
         setPreloadStatus((prev) => ({ ...prev, [id]: "error" }));
       }
     },
-    [cacheManager]
+    [cacheManager],
   );
 
   useEffect(() => {
     // Preload critical and high priority widgets
     const criticalWidgets = widgets.filter(
-      (w) => w.priority === "critical" || w.priority === "high"
+      (w) => w.priority === "critical" || w.priority === "high",
     );
 
     criticalWidgets.forEach((widget) => {
@@ -351,7 +351,7 @@ export class WidgetRegistry {
 
   getByCategory(category) {
     return Array.from(this.widgets.values()).filter(
-      (w) => w.category === category
+      (w) => w.category === category,
     );
   }
 

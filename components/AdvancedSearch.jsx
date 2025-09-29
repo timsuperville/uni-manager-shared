@@ -159,7 +159,7 @@ const FilterPanel = ({
       activeFilters[key] &&
       (Array.isArray(activeFilters[key])
         ? activeFilters[key].length > 0
-        : activeFilters[key] !== "")
+        : activeFilters[key] !== ""),
   ).length;
 
   return (
@@ -500,7 +500,7 @@ const AdvancedSearch = ({
       const debouncedFn = debounce((query) => onSearch(query), 300);
       return debouncedFn;
     })(),
-    [onSearch]
+    [onSearch],
   );
 
   useEffect(() => {
@@ -643,7 +643,7 @@ const QuickFilters = ({ filters, activeFilters, onFilterChange }) => {
                 height: 24,
               }}
             />
-          ))
+          )),
         )}
       </Box>
     </Box>

@@ -64,7 +64,7 @@ class ApiService {
   async healthCheck() {
     try {
       const response = await fetch(
-        `${this.baseURL.replace("/api", "")}/health`
+        `${this.baseURL.replace("/api", "")}/health`,
       );
       return await response.json();
     } catch (error) {

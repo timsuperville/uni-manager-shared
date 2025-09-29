@@ -483,7 +483,7 @@ class CacheManager {
       new IntelligentCache({
         maxSize: CACHE_CONFIG.SIZES.USER_PREFERENCES,
         strategy: CACHE_CONFIG.STRATEGIES.HYBRID,
-      })
+      }),
     );
 
     this.caches.set(
@@ -491,7 +491,7 @@ class CacheManager {
       new IntelligentCache({
         maxSize: CACHE_CONFIG.SIZES.MINISTRY_DATA,
         strategy: CACHE_CONFIG.STRATEGIES.LRU,
-      })
+      }),
     );
 
     this.caches.set(
@@ -499,7 +499,7 @@ class CacheManager {
       new IntelligentCache({
         maxSize: CACHE_CONFIG.SIZES.SEASONAL_CONTENT,
         strategy: CACHE_CONFIG.STRATEGIES.TTL,
-      })
+      }),
     );
 
     this.caches.set(
@@ -507,7 +507,7 @@ class CacheManager {
       new IntelligentCache({
         maxSize: CACHE_CONFIG.SIZES.RECOMMENDATIONS,
         strategy: CACHE_CONFIG.STRATEGIES.LFU,
-      })
+      }),
     );
 
     this.caches.set(
@@ -515,7 +515,7 @@ class CacheManager {
       new IntelligentCache({
         maxSize: CACHE_CONFIG.SIZES.ACTIVITY_PATTERNS,
         strategy: CACHE_CONFIG.STRATEGIES.HYBRID,
-      })
+      }),
     );
 
     this.caches.set(
@@ -523,7 +523,7 @@ class CacheManager {
       new IntelligentCache({
         maxSize: CACHE_CONFIG.SIZES.LITURGICAL_CALENDAR,
         strategy: CACHE_CONFIG.STRATEGIES.TTL,
-      })
+      }),
     );
 
     this.caches.set(
@@ -531,7 +531,7 @@ class CacheManager {
       new IntelligentCache({
         maxSize: CACHE_CONFIG.SIZES.DASHBOARD_CONFIG,
         strategy: CACHE_CONFIG.STRATEGIES.LRU,
-      })
+      }),
     );
 
     this.caches.set(
@@ -539,7 +539,7 @@ class CacheManager {
       new IntelligentCache({
         maxSize: CACHE_CONFIG.SIZES.WIDGETS,
         strategy: CACHE_CONFIG.STRATEGIES.HYBRID,
-      })
+      }),
     );
   }
 

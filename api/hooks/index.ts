@@ -1,14 +1,14 @@
 /**
  * React Hooks for API Integration
- * 
+ *
  * Provides React hooks for easy integration of the unified API layer
  * with React applications across the Uni-Manager ecosystem.
  */
 
-import { useCallback, useContext, useEffect, useState } from 'react';
-import { ApiServices } from '../services';
-import type { User } from '../types';
-import { ApiContext } from '../components/ApiProvider';
+import { useCallback, useContext, useEffect, useState } from "react";
+import { ApiServices } from "../services";
+import type { User } from "../types";
+import { ApiContext } from "../components/ApiProvider";
 
 // ==================== TYPES ====================
 
@@ -26,10 +26,10 @@ interface ApiContextValue {
 export const useApi = (): ApiServices => {
   const context = useContext(ApiContext);
   if (!context) {
-    throw new Error('useApi must be used within an ApiProvider');
+    throw new Error("useApi must be used within an ApiProvider");
   }
   if (!context.isInitialized) {
-    throw new Error('API services not yet initialized');
+    throw new Error("API services not yet initialized");
   }
   return context.apiServices;
 };
@@ -56,7 +56,9 @@ export const useAuth = () => {
       } catch (err) {
         setIsAuthenticated(false);
         setUser(null);
-        setError(err instanceof Error ? err.message : 'Authentication check failed');
+        setError(
+          err instanceof Error ? err.message : "Authentication check failed",
+        );
       } finally {
         setIsLoading(false);
       }
@@ -65,21 +67,24 @@ export const useAuth = () => {
     checkAuth();
   }, [api]);
 
-  const login = useCallback(async (credentials: any) => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      const response = await api.auth.login(credentials);
-      setUser(response.user);
-      setIsAuthenticated(true);
-      return response;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed');
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [api]);
+  const login = useCallback(
+    async (credentials: any) => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const response = await api.auth.login(credentials);
+        setUser(response.user);
+        setIsAuthenticated(true);
+        return response;
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Login failed");
+        throw err;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [api],
+  );
 
   const logout = useCallback(async () => {
     try {
@@ -87,7 +92,7 @@ export const useAuth = () => {
       await api.auth.logout();
     } catch (err) {
       // Log error but don't throw - logout should always succeed locally
-      console.error('Logout error:', err);
+      console.error("Logout error:", err);
     } finally {
       setUser(null);
       setIsAuthenticated(false);
@@ -96,21 +101,24 @@ export const useAuth = () => {
     }
   }, [api]);
 
-  const signup = useCallback(async (userData: any) => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      const response = await api.auth.signup(userData);
-      setUser(response.user);
-      setIsAuthenticated(true);
-      return response;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Signup failed');
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [api]);
+  const signup = useCallback(
+    async (userData: any) => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const response = await api.auth.signup(userData);
+        setUser(response.user);
+        setIsAuthenticated(true);
+        return response;
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Signup failed");
+        throw err;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [api],
+  );
 
   return {
     user,
@@ -120,7 +128,7 @@ export const useAuth = () => {
     login,
     logout,
     signup,
-    authService: api.auth
+    authService: api.auth,
   };
 };
 
@@ -130,25 +138,40 @@ export const useAuth = () => {
 export const useChurch = () => {
   const api = useApi();
 
-  const getChurches = useCallback(async (filters?: any, pagination?: any) => {
-    return api.church.getChurches(filters, pagination);
-  }, [api]);
+  const getChurches = useCallback(
+    async (filters?: any, pagination?: any) => {
+      return api.church.getChurches(filters, pagination);
+    },
+    [api],
+  );
 
-  const getChurch = useCallback(async (churchId: string) => {
-    return api.church.getChurch(churchId);
-  }, [api]);
+  const getChurch = useCallback(
+    async (churchId: string) => {
+      return api.church.getChurch(churchId);
+    },
+    [api],
+  );
 
-  const createChurch = useCallback(async (churchData: any) => {
-    return api.church.createChurch(churchData);
-  }, [api]);
+  const createChurch = useCallback(
+    async (churchData: any) => {
+      return api.church.createChurch(churchData);
+    },
+    [api],
+  );
 
-  const updateChurch = useCallback(async (churchId: string, updates: any) => {
-    return api.church.updateChurch(churchId, updates);
-  }, [api]);
+  const updateChurch = useCallback(
+    async (churchId: string, updates: any) => {
+      return api.church.updateChurch(churchId, updates);
+    },
+    [api],
+  );
 
-  const searchChurches = useCallback(async (query: string, filters?: any) => {
-    return api.church.searchChurches(query, filters);
-  }, [api]);
+  const searchChurches = useCallback(
+    async (query: string, filters?: any) => {
+      return api.church.searchChurches(query, filters);
+    },
+    [api],
+  );
 
   return {
     getChurches,
@@ -156,7 +179,7 @@ export const useChurch = () => {
     createChurch,
     updateChurch,
     searchChurches,
-    churchService: api.church
+    churchService: api.church,
   };
 };
 
@@ -170,7 +193,7 @@ export function useApiQuery<T>(
     enabled?: boolean;
     refetchOnMount?: boolean;
     cacheTime?: number;
-  }
+  },
 ) {
   const [data, setData] = useState<T | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -189,7 +212,7 @@ export function useApiQuery<T>(
       setData(result);
       setIsFetched(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Query failed');
+      setError(err instanceof Error ? err.message : "Query failed");
       setData(null);
     } finally {
       setIsLoading(false);
@@ -211,7 +234,7 @@ export function useApiQuery<T>(
     isLoading,
     error,
     isFetched,
-    refetch
+    refetch,
   };
 }
 
@@ -223,7 +246,7 @@ export function useApiMutation<TData, TVariables>(
   options?: {
     onSuccess?: (data: TData, variables: TVariables) => void;
     onError?: (error: Error, variables: TVariables) => void;
-  }
+  },
 ) {
   const [data, setData] = useState<TData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -231,23 +254,26 @@ export function useApiMutation<TData, TVariables>(
 
   const { onSuccess, onError } = options || {};
 
-  const mutate = useCallback(async (variables: TVariables) => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      const result = await mutationFn(variables);
-      setData(result);
-      onSuccess?.(result, variables);
-      return result;
-    } catch (err) {
-      const error = err instanceof Error ? err : new Error('Mutation failed');
-      setError(error.message);
-      onError?.(error, variables);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [mutationFn, onSuccess, onError]);
+  const mutate = useCallback(
+    async (variables: TVariables) => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const result = await mutationFn(variables);
+        setData(result);
+        onSuccess?.(result, variables);
+        return result;
+      } catch (err) {
+        const error = err instanceof Error ? err : new Error("Mutation failed");
+        setError(error.message);
+        onError?.(error, variables);
+        throw error;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [mutationFn, onSuccess, onError],
+  );
 
   const reset = useCallback(() => {
     setData(null);
@@ -260,7 +286,7 @@ export function useApiMutation<TData, TVariables>(
     data,
     isLoading,
     error,
-    reset
+    reset,
   };
 }
 
@@ -273,7 +299,7 @@ export const useFileUpload = (
     onProgress?: (progress: number) => void;
     onSuccess?: (result: any) => void;
     onError?: (error: Error) => void;
-  }
+  },
 ) => {
   const [isUploading, setIsUploading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -282,43 +308,55 @@ export const useFileUpload = (
 
   const { onProgress, onSuccess, onError } = options || {};
 
-  const upload = useCallback(async (file: File) => {
-    try {
-      setIsUploading(true);
-      setError(null);
-      setProgress(0);
+  const upload = useCallback(
+    async (file: File) => {
+      try {
+        setIsUploading(true);
+        setError(null);
+        setProgress(0);
 
-      // Listen for progress events
-      const progressHandler = (event: any) => {
-        const progress = event.detail?.progress || 0;
-        setProgress(progress);
-        onProgress?.(progress);
-      };
+        // Listen for progress events
+        const progressHandler = (event: any) => {
+          const progress = event.detail?.progress || 0;
+          setProgress(progress);
+          onProgress?.(progress);
+        };
 
-      window.addEventListener('avatar-upload-progress', progressHandler);
-      window.addEventListener('church-logo-upload-progress', progressHandler);
-      window.addEventListener('church-cover-upload-progress', progressHandler);
+        window.addEventListener("avatar-upload-progress", progressHandler);
+        window.addEventListener("church-logo-upload-progress", progressHandler);
+        window.addEventListener(
+          "church-cover-upload-progress",
+          progressHandler,
+        );
 
-      const uploadResult = await uploadFn(file);
-      setResult(uploadResult);
-      setProgress(100);
-      onSuccess?.(uploadResult);
+        const uploadResult = await uploadFn(file);
+        setResult(uploadResult);
+        setProgress(100);
+        onSuccess?.(uploadResult);
 
-      // Cleanup listeners
-      window.removeEventListener('avatar-upload-progress', progressHandler);
-      window.removeEventListener('church-logo-upload-progress', progressHandler);
-      window.removeEventListener('church-cover-upload-progress', progressHandler);
+        // Cleanup listeners
+        window.removeEventListener("avatar-upload-progress", progressHandler);
+        window.removeEventListener(
+          "church-logo-upload-progress",
+          progressHandler,
+        );
+        window.removeEventListener(
+          "church-cover-upload-progress",
+          progressHandler,
+        );
 
-      return uploadResult;
-    } catch (err) {
-      const error = err instanceof Error ? err : new Error('Upload failed');
-      setError(error.message);
-      onError?.(error);
-      throw error;
-    } finally {
-      setIsUploading(false);
-    }
-  }, [uploadFn, onProgress, onSuccess, onError]);
+        return uploadResult;
+      } catch (err) {
+        const error = err instanceof Error ? err : new Error("Upload failed");
+        setError(error.message);
+        onError?.(error);
+        throw error;
+      } finally {
+        setIsUploading(false);
+      }
+    },
+    [uploadFn, onProgress, onSuccess, onError],
+  );
 
   const reset = useCallback(() => {
     setProgress(0);
@@ -333,11 +371,9 @@ export const useFileUpload = (
     progress,
     error,
     result,
-    reset
+    reset,
   };
 };
 
 // Export types for external use
-export type { 
-  ApiContextValue
-};
+export type { ApiContextValue };

@@ -27,7 +27,7 @@ class TestInfrastructureGenerator {
     this.templatePath = join(
       this.sharedDir,
       "testing",
-      "test-manager.template.js"
+      "test-manager.template.js",
     );
     this.appsDir = join(this.sharedDir, "..", "apps");
 
@@ -419,12 +419,12 @@ export { UnifiedTestManager };`;
       writeFileSync(
         packageJsonPath,
         JSON.stringify(packageJson, null, 2),
-        "utf8"
+        "utf8",
       );
 
       console.log(`✅ Updated package.json for ${appName}`);
       console.log(
-        `   Old scripts: ${Object.keys(oldScripts).filter((k) => k.startsWith("test")).length}`
+        `   Old scripts: ${Object.keys(oldScripts).filter((k) => k.startsWith("test")).length}`,
       );
       console.log(`   New scripts: 4 unified commands`);
 
@@ -432,7 +432,7 @@ export { UnifiedTestManager };`;
     } catch (error) {
       console.error(
         `❌ Failed to update package.json for ${appName}:`,
-        error.message
+        error.message,
       );
       return false;
     }

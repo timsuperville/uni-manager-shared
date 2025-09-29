@@ -33,7 +33,7 @@ export const useCachedUserPreferences = (userId) => {
         ...options,
       });
     },
-    [cache, cacheKey, userId]
+    [cache, cacheKey, userId],
   );
 
   // Enhanced preferences with cache integration
@@ -84,7 +84,7 @@ export const useCachedUserPreferences = (userId) => {
       cacheManager,
       cache,
       cacheKey,
-    ]
+    ],
   );
 
   return {
@@ -117,7 +117,7 @@ export const useCachedMinistryContext = (churchId) => {
         ...options,
       });
     },
-    [cache, cacheKey, churchId]
+    [cache, cacheKey, churchId],
   );
 
   // Enhanced context with cache integration
@@ -169,7 +169,7 @@ export const useCachedSeasonalContext = () => {
         ...options,
       });
     },
-    [cache, cacheKey]
+    [cache, cacheKey],
   );
 
   // Enhanced context with cache integration
@@ -221,7 +221,7 @@ export const useCachedActivityContext = (userId) => {
         ...options,
       });
     },
-    [cache, cacheKey, userId]
+    [cache, cacheKey, userId],
   );
 
   // Enhanced context with cache integration
@@ -267,7 +267,7 @@ export const useCachedActivityContext = (userId) => {
         throw error;
       }
     },
-    [originalContext, context, setCachedContext, cacheManager, cache, cacheKey]
+    [originalContext, context, setCachedContext, cacheManager, cache, cacheKey],
   );
 
   return {
@@ -314,17 +314,17 @@ export const useCachedDashboardState = (userId, churchId) => {
         preferences,
         ministryContext,
         seasonalContext,
-        activityContext
+        activityContext,
       ),
       theme: preferences.theme || "light",
       personalizations: generatePersonalizations(
         activityContext,
-        seasonalContext
+        seasonalContext,
       ),
       recommendations: generateRecommendations(
         activityContext,
         ministryContext,
-        seasonalContext
+        seasonalContext,
       ),
       generatedAt: Date.now(),
       version: `${preferences.version}-${Date.now()}`,
@@ -368,7 +368,7 @@ export const useCachedDashboardState = (userId, churchId) => {
         return false;
       }
     },
-    [preferences, dashboardCache, dashboardCacheKey, cacheManager]
+    [preferences, dashboardCache, dashboardCacheKey, cacheManager],
   );
 
   // Clear all related caches
@@ -404,7 +404,7 @@ const generateWidgetConfiguration = (
   preferences,
   ministryContext,
   seasonalContext,
-  activityContext
+  activityContext,
 ) => {
   const baseWidgets = [
     { id: "welcome", priority: "high", category: "user" },
@@ -468,11 +468,11 @@ const generatePersonalizations = (activityContext, seasonalContext) => {
         acc[activity.type] = (acc[activity.type] || 0) + 1;
         return acc;
       },
-      {}
+      {},
     );
 
     const topActivity = Object.keys(mostCommonActivity).sort(
-      (a, b) => mostCommonActivity[b] - mostCommonActivity[a]
+      (a, b) => mostCommonActivity[b] - mostCommonActivity[a],
     )[0];
 
     personalizations.push({
@@ -498,7 +498,7 @@ const generatePersonalizations = (activityContext, seasonalContext) => {
 const generateRecommendations = (
   activityContext,
   ministryContext,
-  seasonalContext
+  seasonalContext,
 ) => {
   const recommendations = [];
 
@@ -511,7 +511,7 @@ const generateRecommendations = (
         description: `Based on your interests in ${ministry.categories.join(", ")}`,
         priority: "medium",
         action: { type: "navigate", target: `/ministries/${ministry.slug}` },
-      }))
+      })),
     );
   }
 
@@ -524,7 +524,7 @@ const generateRecommendations = (
         description: `${event.date} - ${event.description}`,
         priority: "high",
         action: { type: "navigate", target: `/events/${event.id}` },
-      }))
+      })),
     );
   }
 
@@ -537,7 +537,7 @@ const generateRecommendations = (
         description: action.description,
         priority: action.priority || "low",
         action: action.action,
-      }))
+      })),
     );
   }
 

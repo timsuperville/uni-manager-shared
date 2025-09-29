@@ -287,7 +287,7 @@ export function getAppConfig(appName) {
   if (!config) {
     // eslint-disable-next-line no-console
     console.warn(
-      `No configuration found for app: ${appName}. Using default config.`
+      `No configuration found for app: ${appName}. Using default config.`,
     );
     return APP_CONFIGS.church; // Default fallback
   }

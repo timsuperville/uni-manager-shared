@@ -1,10 +1,10 @@
 /**
  * Notification Management Service
- * 
+ *
  * Comprehensive notification service providing real-time messaging,
  * push notifications, email notifications, and in-app messaging
  * across the Uni-Manager ecosystem.
- * 
+ *
  * Features:
  * - Real-time notifications
  * - Push notification management
@@ -16,10 +16,15 @@
  * - Notification analytics
  */
 
-import { BaseService, ValidationSchema, PaginationParams, PaginatedResponse } from './BaseService';
-import { 
-  Notification, 
-  CreateNotificationRequest, 
+import {
+  BaseService,
+  ValidationSchema,
+  PaginationParams,
+  PaginatedResponse,
+} from "./BaseService";
+import {
+  Notification,
+  CreateNotificationRequest,
   UpdateNotificationRequest,
   NotificationTemplate,
   CreateTemplateRequest,
@@ -27,13 +32,13 @@ import {
   NotificationPreferences,
   BulkNotificationRequest,
   NotificationStats,
-  PushSubscription
-} from '../types';
-import { ApiClient } from '../core/ApiClient';
+  PushSubscription,
+} from "../types";
+import { ApiClient } from "../core/ApiClient";
 
 export class NotificationService extends BaseService {
   constructor(client: ApiClient) {
-    super(client, '/notifications', 'NotificationService');
+    super(client, "/notifications", "NotificationService");
   }
 
   // ===============================================
@@ -42,127 +47,129 @@ export class NotificationService extends BaseService {
 
   private static readonly SCHEMAS = {
     notificationId: {
-      notificationId: { 
-        type: 'string' as const, 
+      notificationId: {
+        type: "string" as const,
         required: true,
-        minLength: 1
-      }
+        minLength: 1,
+      },
     },
 
     createNotification: {
-      title: { 
-        type: 'string' as const, 
+      title: {
+        type: "string" as const,
         required: true,
         minLength: 1,
-        maxLength: 255
+        maxLength: 255,
       },
-      message: { 
-        type: 'string' as const, 
+      message: {
+        type: "string" as const,
         required: true,
         minLength: 1,
-        maxLength: 1000
+        maxLength: 1000,
       },
-      type: { 
-        type: 'string' as const, 
+      type: {
+        type: "string" as const,
         required: true,
-        validator: (value: string) => 
-          ['info', 'success', 'warning', 'error', 'announcement'].includes(value) || 
-          'Invalid notification type'
+        validator: (value: string) =>
+          ["info", "success", "warning", "error", "announcement"].includes(
+            value,
+          ) || "Invalid notification type",
       },
-      recipients: { type: 'array' as const, required: true },
-      scheduledFor: { type: 'string' as const },
-      templateId: { type: 'string' as const }
+      recipients: { type: "array" as const, required: true },
+      scheduledFor: { type: "string" as const },
+      templateId: { type: "string" as const },
     },
 
     updateNotification: {
-      title: { 
-        type: 'string' as const,
+      title: {
+        type: "string" as const,
         minLength: 1,
-        maxLength: 255
+        maxLength: 255,
       },
-      message: { 
-        type: 'string' as const,
+      message: {
+        type: "string" as const,
         minLength: 1,
-        maxLength: 1000
+        maxLength: 1000,
       },
-      status: { 
-        type: 'string' as const,
-        validator: (value: string) => 
-          ['draft', 'scheduled', 'sent', 'cancelled'].includes(value) || 
-          'Invalid notification status'
+      status: {
+        type: "string" as const,
+        validator: (value: string) =>
+          ["draft", "scheduled", "sent", "cancelled"].includes(value) ||
+          "Invalid notification status",
       },
-      scheduledFor: { type: 'string' as const }
+      scheduledFor: { type: "string" as const },
     },
 
     templateId: {
-      templateId: { 
-        type: 'string' as const, 
+      templateId: {
+        type: "string" as const,
         required: true,
-        minLength: 1
-      }
+        minLength: 1,
+      },
     },
 
     createTemplate: {
-      name: { 
-        type: 'string' as const, 
+      name: {
+        type: "string" as const,
         required: true,
         minLength: 1,
-        maxLength: 255
+        maxLength: 255,
       },
-      subject: { 
-        type: 'string' as const, 
+      subject: {
+        type: "string" as const,
         required: true,
         minLength: 1,
-        maxLength: 255
+        maxLength: 255,
       },
-      bodyTemplate: { 
-        type: 'string' as const, 
+      bodyTemplate: {
+        type: "string" as const,
         required: true,
-        minLength: 1
+        minLength: 1,
       },
-      type: { 
-        type: 'string' as const, 
+      type: {
+        type: "string" as const,
         required: true,
-        validator: (value: string) => 
-          ['email', 'push', 'sms', 'in-app'].includes(value) || 
-          'Invalid template type'
-      }
+        validator: (value: string) =>
+          ["email", "push", "sms", "in-app"].includes(value) ||
+          "Invalid template type",
+      },
     },
 
     updateTemplate: {
-      name: { 
-        type: 'string' as const,
+      name: {
+        type: "string" as const,
         minLength: 1,
-        maxLength: 255
+        maxLength: 255,
       },
-      subject: { 
-        type: 'string' as const,
+      subject: {
+        type: "string" as const,
         minLength: 1,
-        maxLength: 255
+        maxLength: 255,
       },
-      bodyTemplate: { 
-        type: 'string' as const,
-        minLength: 1
+      bodyTemplate: {
+        type: "string" as const,
+        minLength: 1,
       },
-      isActive: { type: 'boolean' as const }
+      isActive: { type: "boolean" as const },
     },
 
     bulkNotification: {
-      notifications: { 
-        type: 'array' as const, 
+      notifications: {
+        type: "array" as const,
         required: true,
-        validator: (value: any[]) => value.length > 0 || 'At least one notification is required'
+        validator: (value: any[]) =>
+          value.length > 0 || "At least one notification is required",
       },
-      templateId: { type: 'string' as const },
-      scheduledFor: { type: 'string' as const }
+      templateId: { type: "string" as const },
+      scheduledFor: { type: "string" as const },
     },
 
     preferences: {
-      emailNotifications: { type: 'boolean' as const },
-      pushNotifications: { type: 'boolean' as const },
-      smsNotifications: { type: 'boolean' as const },
-      inAppNotifications: { type: 'boolean' as const }
-    }
+      emailNotifications: { type: "boolean" as const },
+      pushNotifications: { type: "boolean" as const },
+      smsNotifications: { type: "boolean" as const },
+      inAppNotifications: { type: "boolean" as const },
+    },
   } as const;
 
   // ===============================================
@@ -173,9 +180,10 @@ export class NotificationService extends BaseService {
    * Create a new notification
    */
   async createNotification(
-    notificationData: CreateNotificationRequest
+    notificationData: CreateNotificationRequest,
   ): Promise<Notification> {
-    const schema: ValidationSchema = NotificationService.SCHEMAS.createNotification;
+    const schema: ValidationSchema =
+      NotificationService.SCHEMAS.createNotification;
     this.validateRequest(notificationData, schema);
 
     return this.post<Notification>(this.baseEndpoint, notificationData);
@@ -195,29 +203,34 @@ export class NotificationService extends BaseService {
    * Update notification
    */
   async updateNotification(
-    notificationId: string, 
-    updates: UpdateNotificationRequest
+    notificationId: string,
+    updates: UpdateNotificationRequest,
   ): Promise<Notification> {
     const schema: ValidationSchema = NotificationService.SCHEMAS.notificationId;
     this.validateRequest({ notificationId }, schema);
 
-    const updateSchema: ValidationSchema = NotificationService.SCHEMAS.updateNotification;
+    const updateSchema: ValidationSchema =
+      NotificationService.SCHEMAS.updateNotification;
     this.validateRequest(updates, updateSchema);
 
     return this.patch<Notification>(
       this.buildIdEndpoint(notificationId),
-      updates
+      updates,
     );
   }
 
   /**
    * Delete notification
    */
-  async deleteNotification(notificationId: string): Promise<{ success: boolean }> {
+  async deleteNotification(
+    notificationId: string,
+  ): Promise<{ success: boolean }> {
     const schema: ValidationSchema = NotificationService.SCHEMAS.notificationId;
     this.validateRequest({ notificationId }, schema);
 
-    return this.delete<{ success: boolean }>(this.buildIdEndpoint(notificationId));
+    return this.delete<{ success: boolean }>(
+      this.buildIdEndpoint(notificationId),
+    );
   }
 
   /**
@@ -235,19 +248,21 @@ export class NotificationService extends BaseService {
       sent: boolean;
       sentCount: number;
       failedCount: number;
-    }>(this.buildIdEndpoint(notificationId, '/send'), {});
+    }>(this.buildIdEndpoint(notificationId, "/send"), {});
   }
 
   /**
    * Cancel scheduled notification
    */
-  async cancelNotification(notificationId: string): Promise<{ success: boolean }> {
+  async cancelNotification(
+    notificationId: string,
+  ): Promise<{ success: boolean }> {
     const schema: ValidationSchema = NotificationService.SCHEMAS.notificationId;
     this.validateRequest({ notificationId }, schema);
 
     return this.post<{ success: boolean }>(
-      this.buildIdEndpoint(notificationId, '/cancel'),
-      {}
+      this.buildIdEndpoint(notificationId, "/cancel"),
+      {},
     );
   }
 
@@ -256,12 +271,12 @@ export class NotificationService extends BaseService {
    */
   async getUserNotifications(
     filters: {
-      status?: 'read' | 'unread' | 'archived';
+      status?: "read" | "unread" | "archived";
       type?: string;
       dateFrom?: string;
       dateTo?: string;
     } = {},
-    pagination?: PaginationParams
+    pagination?: PaginationParams,
   ): Promise<PaginatedResponse<Notification>> {
     const queryParams: Record<string, string> = {};
 
@@ -269,15 +284,15 @@ export class NotificationService extends BaseService {
     if (filters.status) {
       queryParams.status = filters.status;
     }
-    
+
     if (filters.type) {
       queryParams.type = filters.type;
     }
-    
+
     if (filters.dateFrom) {
       queryParams.dateFrom = filters.dateFrom;
     }
-    
+
     if (filters.dateTo) {
       queryParams.dateTo = filters.dateTo;
     }
@@ -285,12 +300,13 @@ export class NotificationService extends BaseService {
     // Add pagination parameters
     const paginationParams = this.buildPaginationParams(pagination);
     const allParams = { ...queryParams, ...paginationParams };
-    
-    const queryString = Object.keys(allParams).length > 0 
-      ? new URLSearchParams(allParams).toString() 
-      : '';
-      
-    const endpoint = queryString 
+
+    const queryString =
+      Object.keys(allParams).length > 0
+        ? new URLSearchParams(allParams).toString()
+        : "";
+
+    const endpoint = queryString
       ? `${this.baseEndpoint}/user?${queryString}`
       : `${this.baseEndpoint}/user`;
 
@@ -305,8 +321,8 @@ export class NotificationService extends BaseService {
     this.validateRequest({ notificationId }, schema);
 
     return this.post<{ success: boolean }>(
-      this.buildIdEndpoint(notificationId, '/read'),
-      {}
+      this.buildIdEndpoint(notificationId, "/read"),
+      {},
     );
   }
 
@@ -320,19 +336,21 @@ export class NotificationService extends BaseService {
     return this.post<{
       successful: string[];
       failed: string[];
-    }>(this.baseEndpoint + '/mark-read', { notificationIds });
+    }>(this.baseEndpoint + "/mark-read", { notificationIds });
   }
 
   /**
    * Archive notification
    */
-  async archiveNotification(notificationId: string): Promise<{ success: boolean }> {
+  async archiveNotification(
+    notificationId: string,
+  ): Promise<{ success: boolean }> {
     const schema: ValidationSchema = NotificationService.SCHEMAS.notificationId;
     this.validateRequest({ notificationId }, schema);
 
     return this.post<{ success: boolean }>(
-      this.buildIdEndpoint(notificationId, '/archive'),
-      {}
+      this.buildIdEndpoint(notificationId, "/archive"),
+      {},
     );
   }
 
@@ -343,13 +361,15 @@ export class NotificationService extends BaseService {
   /**
    * Create notification template
    */
-  async createTemplate(templateData: CreateTemplateRequest): Promise<NotificationTemplate> {
+  async createTemplate(
+    templateData: CreateTemplateRequest,
+  ): Promise<NotificationTemplate> {
     const schema: ValidationSchema = NotificationService.SCHEMAS.createTemplate;
     this.validateRequest(templateData, schema);
 
     return this.post<NotificationTemplate>(
-      this.baseEndpoint + '/templates',
-      templateData
+      this.baseEndpoint + "/templates",
+      templateData,
     );
   }
 
@@ -361,7 +381,7 @@ export class NotificationService extends BaseService {
     this.validateRequest({ templateId }, schema);
 
     return this.get<NotificationTemplate>(
-      this.buildIdEndpoint(templateId, '/templates')
+      this.buildIdEndpoint(templateId, "/templates"),
     );
   }
 
@@ -369,18 +389,19 @@ export class NotificationService extends BaseService {
    * Update template
    */
   async updateTemplate(
-    templateId: string, 
-    updates: UpdateTemplateRequest
+    templateId: string,
+    updates: UpdateTemplateRequest,
   ): Promise<NotificationTemplate> {
     const schema: ValidationSchema = NotificationService.SCHEMAS.templateId;
     this.validateRequest({ templateId }, schema);
 
-    const updateSchema: ValidationSchema = NotificationService.SCHEMAS.updateTemplate;
+    const updateSchema: ValidationSchema =
+      NotificationService.SCHEMAS.updateTemplate;
     this.validateRequest(updates, updateSchema);
 
     return this.patch<NotificationTemplate>(
-      this.buildIdEndpoint(templateId, '/templates'),
-      updates
+      this.buildIdEndpoint(templateId, "/templates"),
+      updates,
     );
   }
 
@@ -392,7 +413,7 @@ export class NotificationService extends BaseService {
     this.validateRequest({ templateId }, schema);
 
     return this.delete<{ success: boolean }>(
-      this.buildIdEndpoint(templateId, '/templates')
+      this.buildIdEndpoint(templateId, "/templates"),
     );
   }
 
@@ -404,14 +425,14 @@ export class NotificationService extends BaseService {
       type?: string;
       isActive?: boolean;
     } = {},
-    pagination?: PaginationParams
+    pagination?: PaginationParams,
   ): Promise<PaginatedResponse<NotificationTemplate>> {
     const queryParams: Record<string, string> = {};
 
     if (filters.type) {
       queryParams.type = filters.type;
     }
-    
+
     if (filters.isActive !== undefined) {
       queryParams.isActive = String(filters.isActive);
     }
@@ -419,12 +440,13 @@ export class NotificationService extends BaseService {
     // Add pagination parameters
     const paginationParams = this.buildPaginationParams(pagination);
     const allParams = { ...queryParams, ...paginationParams };
-    
-    const queryString = Object.keys(allParams).length > 0 
-      ? new URLSearchParams(allParams).toString() 
-      : '';
-      
-    const endpoint = queryString 
+
+    const queryString =
+      Object.keys(allParams).length > 0
+        ? new URLSearchParams(allParams).toString()
+        : "";
+
+    const endpoint = queryString
       ? `${this.baseEndpoint}/templates?${queryString}`
       : `${this.baseEndpoint}/templates`;
 
@@ -435,8 +457,8 @@ export class NotificationService extends BaseService {
    * Preview template with data
    */
   async previewTemplate(
-    templateId: string, 
-    data: Record<string, any>
+    templateId: string,
+    data: Record<string, any>,
   ): Promise<{
     subject: string;
     body: string;
@@ -449,10 +471,7 @@ export class NotificationService extends BaseService {
       subject: string;
       body: string;
       htmlBody?: string;
-    }>(
-      this.buildIdEndpoint(templateId, '/templates/preview'),
-      { data }
-    );
+    }>(this.buildIdEndpoint(templateId, "/templates/preview"), { data });
   }
 
   // ===============================================
@@ -462,21 +481,20 @@ export class NotificationService extends BaseService {
   /**
    * Send bulk notifications
    */
-  async sendBulkNotifications(
-    bulkRequest: BulkNotificationRequest
-  ): Promise<{
+  async sendBulkNotifications(bulkRequest: BulkNotificationRequest): Promise<{
     jobId: string;
     totalNotifications: number;
     estimatedCompletion: string;
   }> {
-    const schema: ValidationSchema = NotificationService.SCHEMAS.bulkNotification;
+    const schema: ValidationSchema =
+      NotificationService.SCHEMAS.bulkNotification;
     this.validateRequest(bulkRequest, schema);
 
     return this.post<{
       jobId: string;
       totalNotifications: number;
       estimatedCompletion: string;
-    }>(this.baseEndpoint + '/bulk', bulkRequest);
+    }>(this.baseEndpoint + "/bulk", bulkRequest);
   }
 
   /**
@@ -484,7 +502,7 @@ export class NotificationService extends BaseService {
    */
   async getBulkOperationStatus(jobId: string): Promise<{
     id: string;
-    status: 'pending' | 'processing' | 'completed' | 'failed';
+    status: "pending" | "processing" | "completed" | "failed";
     progress: {
       total: number;
       completed: number;
@@ -497,7 +515,7 @@ export class NotificationService extends BaseService {
   }> {
     return this.get<{
       id: string;
-      status: 'pending' | 'processing' | 'completed' | 'failed';
+      status: "pending" | "processing" | "completed" | "failed";
       progress: {
         total: number;
         completed: number;
@@ -518,31 +536,35 @@ export class NotificationService extends BaseService {
    * Get user notification preferences
    */
   async getUserPreferences(): Promise<NotificationPreferences> {
-    return this.get<NotificationPreferences>(this.baseEndpoint + '/preferences');
+    return this.get<NotificationPreferences>(
+      this.baseEndpoint + "/preferences",
+    );
   }
 
   /**
    * Update user notification preferences
    */
   async updateUserPreferences(
-    preferences: Partial<NotificationPreferences>
+    preferences: Partial<NotificationPreferences>,
   ): Promise<NotificationPreferences> {
     const schema: ValidationSchema = NotificationService.SCHEMAS.preferences;
     this.validateRequest(preferences, schema);
 
     return this.patch<NotificationPreferences>(
-      this.baseEndpoint + '/preferences',
-      preferences
+      this.baseEndpoint + "/preferences",
+      preferences,
     );
   }
 
   /**
    * Subscribe to push notifications
    */
-  async subscribeToPush(subscription: PushSubscription): Promise<{ success: boolean }> {
+  async subscribeToPush(
+    subscription: PushSubscription,
+  ): Promise<{ success: boolean }> {
     return this.post<{ success: boolean }>(
-      this.baseEndpoint + '/push/subscribe',
-      subscription
+      this.baseEndpoint + "/push/subscribe",
+      subscription,
     );
   }
 
@@ -551,8 +573,8 @@ export class NotificationService extends BaseService {
    */
   async unsubscribeFromPush(endpoint: string): Promise<{ success: boolean }> {
     return this.post<{ success: boolean }>(
-      this.baseEndpoint + '/push/unsubscribe',
-      { endpoint }
+      this.baseEndpoint + "/push/unsubscribe",
+      { endpoint },
     );
   }
 
@@ -568,27 +590,28 @@ export class NotificationService extends BaseService {
       dateFrom?: string;
       dateTo?: string;
       type?: string;
-    } = {}
+    } = {},
   ): Promise<NotificationStats> {
     const queryParams: Record<string, string> = {};
 
     if (filters.dateFrom) {
       queryParams.dateFrom = filters.dateFrom;
     }
-    
+
     if (filters.dateTo) {
       queryParams.dateTo = filters.dateTo;
     }
-    
+
     if (filters.type) {
       queryParams.type = filters.type;
     }
-    
-    const queryString = Object.keys(queryParams).length > 0 
-      ? new URLSearchParams(queryParams).toString() 
-      : '';
-      
-    const endpoint = queryString 
+
+    const queryString =
+      Object.keys(queryParams).length > 0
+        ? new URLSearchParams(queryParams).toString()
+        : "";
+
+    const endpoint = queryString
       ? `${this.baseEndpoint}/stats?${queryString}`
       : `${this.baseEndpoint}/stats`;
 
@@ -598,9 +621,7 @@ export class NotificationService extends BaseService {
   /**
    * Get notification delivery report
    */
-  async getDeliveryReport(
-    notificationId: string
-  ): Promise<{
+  async getDeliveryReport(notificationId: string): Promise<{
     notificationId: string;
     totalRecipients: number;
     delivered: number;
@@ -628,7 +649,7 @@ export class NotificationService extends BaseService {
         reason: string;
         timestamp: string;
       }>;
-    }>(this.buildIdEndpoint(notificationId, '/delivery-report'));
+    }>(this.buildIdEndpoint(notificationId, "/delivery-report"));
   }
 
   // ===============================================
@@ -639,16 +660,16 @@ export class NotificationService extends BaseService {
    * Get unread notification count
    */
   async getUnreadCount(): Promise<{ count: number }> {
-    return this.get<{ count: number }>(this.baseEndpoint + '/unread-count');
+    return this.get<{ count: number }>(this.baseEndpoint + "/unread-count");
   }
 
   /**
    * Test notification delivery
    */
   async testNotification(
-    type: 'email' | 'push' | 'sms',
+    type: "email" | "push" | "sms",
     recipient: string,
-    message: string
+    message: string,
   ): Promise<{
     sent: boolean;
     deliveryTime: number;
@@ -658,10 +679,10 @@ export class NotificationService extends BaseService {
       sent: boolean;
       deliveryTime: number;
       error?: string;
-    }>(this.baseEndpoint + '/test', {
+    }>(this.baseEndpoint + "/test", {
       type,
       recipient,
-      message
+      message,
     });
   }
 
@@ -670,14 +691,15 @@ export class NotificationService extends BaseService {
    */
   async getUserNotificationHistory(
     userId: string,
-    pagination?: PaginationParams
+    pagination?: PaginationParams,
   ): Promise<PaginatedResponse<Notification>> {
     const paginationParams = this.buildPaginationParams(pagination);
-    const queryString = Object.keys(paginationParams).length > 0 
-      ? new URLSearchParams(paginationParams).toString() 
-      : '';
-      
-    const endpoint = queryString 
+    const queryString =
+      Object.keys(paginationParams).length > 0
+        ? new URLSearchParams(paginationParams).toString()
+        : "";
+
+    const endpoint = queryString
       ? `${this.baseEndpoint}/users/${userId}/history?${queryString}`
       : `${this.baseEndpoint}/users/${userId}/history`;
 

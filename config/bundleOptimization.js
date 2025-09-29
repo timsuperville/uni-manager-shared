@@ -295,7 +295,7 @@ export class BundleAnalyzer {
     console.log("\n🎯 ADVANCED OPTIMIZATION RESULTS");
     console.log("============================================================");
     console.log(
-      `⏱️ Build time: ${Date.now() - global.buildStartTime || "N/A"}ms`
+      `⏱️ Build time: ${Date.now() - global.buildStartTime || "N/A"}ms`,
     );
     console.log(`📦 Total bundle size: ${totalSize} KB`);
     console.log(`🎯 Target size: ${targetSize} KB`);
@@ -324,7 +324,7 @@ export class BundleAnalyzer {
 
       if (totalSize > targetSize * 1.5) {
         console.log(
-          `  • Bundle exceeds target size - consider additional optimizations`
+          `  • Bundle exceeds target size - consider additional optimizations`,
         );
         console.log(`    Excess: ${totalSize - targetSize} KB`);
       }

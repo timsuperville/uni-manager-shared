@@ -1,12 +1,17 @@
 /**
  * Church Service
- * 
+ *
  * Handles all church-related API operations including church management,
  * member operations, and church discovery.
  */
 
-import { BaseService, ValidationSchema, PaginationParams, PaginatedResponse } from './BaseService';
-import { ApiClient } from '../core/ApiClient';
+import {
+  BaseService,
+  ValidationSchema,
+  PaginationParams,
+  PaginatedResponse,
+} from "./BaseService";
+import { ApiClient } from "../core/ApiClient";
 import {
   Church,
   CreateChurchRequest,
@@ -17,12 +22,12 @@ import {
   Member,
   JoinChurchRequest,
   MemberFilters,
-  UpdateRequest
-} from '../types';
+  UpdateRequest,
+} from "../types";
 
 export class ChurchService extends BaseService {
   constructor(client: ApiClient) {
-    super(client, '/churches', 'ChurchService');
+    super(client, "/churches", "ChurchService");
   }
 
   // ==================== CHURCH MANAGEMENT ====================
@@ -32,23 +37,26 @@ export class ChurchService extends BaseService {
    */
   async getChurches(
     filters?: ChurchFilters,
-    pagination?: PaginationParams
+    pagination?: PaginationParams,
   ): Promise<PaginatedResponse<Church>> {
     const params = {
       ...this.buildPaginationParams(pagination),
-      ...filters
+      ...filters,
     };
 
     const queryString = new URLSearchParams(
-      Object.entries(params).reduce((acc, [key, value]) => {
-        if (value !== undefined && value !== null && value !== '') {
-          acc[key] = value.toString();
-        }
-        return acc;
-      }, {} as Record<string, string>)
+      Object.entries(params).reduce(
+        (acc, [key, value]) => {
+          if (value !== undefined && value !== null && value !== "") {
+            acc[key] = value.toString();
+          }
+          return acc;
+        },
+        {} as Record<string, string>,
+      ),
     ).toString();
 
-    const endpoint = queryString 
+    const endpoint = queryString
       ? this.buildEndpoint(`?${queryString}`)
       : this.buildEndpoint();
 
@@ -61,10 +69,10 @@ export class ChurchService extends BaseService {
   async getChurch(churchId: string): Promise<Church> {
     const schema: ValidationSchema = {
       churchId: {
-        type: 'string',
+        type: "string",
         required: true,
-        minLength: 1
-      }
+        minLength: 1,
+      },
     };
 
     this.validateRequest({ churchId }, schema);
@@ -77,148 +85,156 @@ export class ChurchService extends BaseService {
   async createChurch(churchData: CreateChurchRequest): Promise<Church> {
     const schema: ValidationSchema = {
       name: {
-        type: 'string',
+        type: "string",
         required: true,
         minLength: 2,
-        maxLength: 100
+        maxLength: 100,
       },
       description: {
-        type: 'string',
+        type: "string",
         required: false,
-        maxLength: 500
+        maxLength: 500,
       },
       address: {
-        type: 'object',
+        type: "object",
         required: true,
         validator: (value) => {
-          const required = ['street', 'city', 'state', 'zipCode', 'country'];
-          const missing = required.filter(field => !value[field]);
+          const required = ["street", "city", "state", "zipCode", "country"];
+          const missing = required.filter((field) => !value[field]);
           if (missing.length > 0) {
-            return `Address is missing required fields: ${missing.join(', ')}`;
+            return `Address is missing required fields: ${missing.join(", ")}`;
           }
           return true;
-        }
+        },
       },
       contactInfo: {
-        type: 'object',
+        type: "object",
         required: true,
         validator: (value) => {
           if (!value.email) {
-            return 'Contact email is required';
+            return "Contact email is required";
           }
           const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
           if (!emailPattern.test(value.email)) {
-            return 'Valid contact email is required';
+            return "Valid contact email is required";
           }
           return true;
-        }
+        },
       },
       denomination: {
-        type: 'string',
+        type: "string",
         required: false,
-        maxLength: 50
+        maxLength: 50,
       },
       website: {
-        type: 'string',
+        type: "string",
         required: false,
         pattern: /^https?:\/\/.+/,
         validator: (value) => {
-          if (value && !value.startsWith('http')) {
-            return 'Website must be a valid URL starting with http:// or https://';
+          if (value && !value.startsWith("http")) {
+            return "Website must be a valid URL starting with http:// or https://";
           }
           return true;
-        }
-      }
+        },
+      },
     };
 
     const validatedData = this.validateRequest(churchData, schema);
-    return this.post<Church>(
-      this.buildEndpoint(),
-      validatedData,
-      { cache: false }
-    );
+    return this.post<Church>(this.buildEndpoint(), validatedData, {
+      cache: false,
+    });
   }
 
   /**
    * Update church information
    */
-  async updateChurch(churchId: string, updates: UpdateChurchRequest): Promise<Church> {
+  async updateChurch(
+    churchId: string,
+    updates: UpdateChurchRequest,
+  ): Promise<Church> {
     const schema: ValidationSchema = {
       name: {
-        type: 'string',
+        type: "string",
         required: false,
         minLength: 2,
-        maxLength: 100
+        maxLength: 100,
       },
       description: {
-        type: 'string',
+        type: "string",
         required: false,
-        maxLength: 500
+        maxLength: 500,
       },
       website: {
-        type: 'string',
+        type: "string",
         required: false,
-        pattern: /^https?:\/\/.+/
-      }
+        pattern: /^https?:\/\/.+/,
+      },
     };
 
-    this.validateRequest({ churchId }, { churchId: { type: 'string', required: true } });
+    this.validateRequest(
+      { churchId },
+      { churchId: { type: "string", required: true } },
+    );
     const validatedData = this.validateRequest(updates, schema);
 
-    return this.put<Church>(
-      this.buildIdEndpoint(churchId),
-      validatedData,
-      { cache: false }
-    );
+    return this.put<Church>(this.buildIdEndpoint(churchId), validatedData, {
+      cache: false,
+    });
   }
 
   /**
    * Delete church (admin only)
    */
   async deleteChurch(churchId: string): Promise<void> {
-    this.validateRequest({ churchId }, { churchId: { type: 'string', required: true } });
-    
-    await this.delete<void>(
-      this.buildIdEndpoint(churchId),
-      { 
-        cache: false,
-        headers: { 'X-Confirm-Delete': 'true' }
-      }
+    this.validateRequest(
+      { churchId },
+      { churchId: { type: "string", required: true } },
     );
+
+    await this.delete<void>(this.buildIdEndpoint(churchId), {
+      cache: false,
+      headers: { "X-Confirm-Delete": "true" },
+    });
   }
 
   /**
    * Search churches by query
    */
-  async searchChurches(query: string, filters?: ChurchFilters): Promise<SearchResult<Church>> {
+  async searchChurches(
+    query: string,
+    filters?: ChurchFilters,
+  ): Promise<SearchResult<Church>> {
     const schema: ValidationSchema = {
       query: {
-        type: 'string',
+        type: "string",
         required: true,
         minLength: 2,
-        maxLength: 100
-      }
+        maxLength: 100,
+      },
     };
 
     this.validateRequest({ query }, schema);
 
     const params = {
       q: query,
-      ...filters
+      ...filters,
     };
 
     const queryString = new URLSearchParams(
-      Object.entries(params).reduce((acc, [key, value]) => {
-        if (value !== undefined && value !== null && value !== '') {
-          acc[key] = value.toString();
-        }
-        return acc;
-      }, {} as Record<string, string>)
+      Object.entries(params).reduce(
+        (acc, [key, value]) => {
+          if (value !== undefined && value !== null && value !== "") {
+            acc[key] = value.toString();
+          }
+          return acc;
+        },
+        {} as Record<string, string>,
+      ),
     ).toString();
 
     return this.get<SearchResult<Church>>(
       this.buildEndpoint(`/search?${queryString}`),
-      { cacheTTL: 180000 } // 3 minutes cache for search results
+      { cacheTTL: 180000 }, // 3 minutes cache for search results
     );
   }
 
@@ -226,11 +242,14 @@ export class ChurchService extends BaseService {
    * Get church statistics
    */
   async getChurchStats(churchId: string): Promise<ChurchStats> {
-    this.validateRequest({ churchId }, { churchId: { type: 'string', required: true } });
-    
+    this.validateRequest(
+      { churchId },
+      { churchId: { type: "string", required: true } },
+    );
+
     return this.get<ChurchStats>(
-      this.buildIdEndpoint(churchId, '/stats'),
-      { cacheTTL: 600000 } // 10 minutes cache for stats
+      this.buildIdEndpoint(churchId, "/stats"),
+      { cacheTTL: 600000 }, // 10 minutes cache for stats
     );
   }
 
@@ -242,33 +261,36 @@ export class ChurchService extends BaseService {
   async requestJoinChurch(joinRequest: JoinChurchRequest): Promise<void> {
     const schema: ValidationSchema = {
       churchId: {
-        type: 'string',
+        type: "string",
         required: true,
-        minLength: 1
+        minLength: 1,
       },
       message: {
-        type: 'string',
+        type: "string",
         required: false,
-        maxLength: 500
+        maxLength: 500,
       },
       membershipType: {
-        type: 'string',
+        type: "string",
         required: false,
         validator: (value) => {
-          if (value && !['full', 'associate', 'visitor', 'child'].includes(value)) {
-            return 'Invalid membership type';
+          if (
+            value &&
+            !["full", "associate", "visitor", "child"].includes(value)
+          ) {
+            return "Invalid membership type";
           }
           return true;
-        }
-      }
+        },
+      },
     };
 
     const validatedData = this.validateRequest(joinRequest, schema);
-    
+
     await this.post<void>(
-      this.buildIdEndpoint(joinRequest.churchId, '/join'),
+      this.buildIdEndpoint(joinRequest.churchId, "/join"),
       validatedData,
-      { cache: false }
+      { cache: false },
     );
   }
 
@@ -276,15 +298,15 @@ export class ChurchService extends BaseService {
    * Leave a church
    */
   async leaveChurch(churchId: string, reason?: string): Promise<void> {
-    this.validateRequest({ churchId }, { churchId: { type: 'string', required: true } });
-    
-    await this.delete<void>(
-      this.buildIdEndpoint(churchId, '/leave'),
-      { 
-        cache: false,
-        headers: reason ? { 'X-Leave-Reason': reason } : undefined
-      }
+    this.validateRequest(
+      { churchId },
+      { churchId: { type: "string", required: true } },
     );
+
+    await this.delete<void>(this.buildIdEndpoint(churchId, "/leave"), {
+      cache: false,
+      headers: reason ? { "X-Leave-Reason": reason } : undefined,
+    });
   }
 
   /**
@@ -293,27 +315,33 @@ export class ChurchService extends BaseService {
   async getChurchMembers(
     churchId: string,
     filters?: MemberFilters,
-    pagination?: PaginationParams
+    pagination?: PaginationParams,
   ): Promise<PaginatedResponse<Member>> {
-    this.validateRequest({ churchId }, { churchId: { type: 'string', required: true } });
+    this.validateRequest(
+      { churchId },
+      { churchId: { type: "string", required: true } },
+    );
 
     const params = {
       ...this.buildPaginationParams(pagination),
-      ...filters
+      ...filters,
     };
 
     const queryString = new URLSearchParams(
-      Object.entries(params).reduce((acc, [key, value]) => {
-        if (value !== undefined && value !== null && value !== '') {
-          acc[key] = value.toString();
-        }
-        return acc;
-      }, {} as Record<string, string>)
+      Object.entries(params).reduce(
+        (acc, [key, value]) => {
+          if (value !== undefined && value !== null && value !== "") {
+            acc[key] = value.toString();
+          }
+          return acc;
+        },
+        {} as Record<string, string>,
+      ),
     ).toString();
 
-    const endpoint = queryString 
+    const endpoint = queryString
       ? this.buildIdEndpoint(churchId, `/members?${queryString}`)
-      : this.buildIdEndpoint(churchId, '/members');
+      : this.buildIdEndpoint(churchId, "/members");
 
     return this.getList<Member>(endpoint, undefined, { cacheTTL: 180000 }); // 3 minutes cache
   }
@@ -323,14 +351,14 @@ export class ChurchService extends BaseService {
    */
   async getChurchMember(churchId: string, memberId: string): Promise<Member> {
     const schema: ValidationSchema = {
-      churchId: { type: 'string', required: true },
-      memberId: { type: 'string', required: true }
+      churchId: { type: "string", required: true },
+      memberId: { type: "string", required: true },
     };
 
     this.validateRequest({ churchId, memberId }, schema);
-    
+
     return this.get<Member>(
-      this.buildIdEndpoint(churchId, `/members/${memberId}`)
+      this.buildIdEndpoint(churchId, `/members/${memberId}`),
     );
   }
 
@@ -340,11 +368,11 @@ export class ChurchService extends BaseService {
   async updateChurchMember(
     churchId: string,
     memberId: string,
-    updates: UpdateRequest<Member>
+    updates: UpdateRequest<Member>,
   ): Promise<Member> {
     const schema: ValidationSchema = {
-      churchId: { type: 'string', required: true },
-      memberId: { type: 'string', required: true }
+      churchId: { type: "string", required: true },
+      memberId: { type: "string", required: true },
     };
 
     this.validateRequest({ churchId, memberId }, schema);
@@ -352,43 +380,51 @@ export class ChurchService extends BaseService {
     // Validate updates
     const updateSchema: ValidationSchema = {
       role: {
-        type: 'string',
+        type: "string",
         required: false,
         validator: (value) => {
-          const validRoles = ['admin', 'pastor', 'elder', 'deacon', 'leader', 'member', 'visitor'];
+          const validRoles = [
+            "admin",
+            "pastor",
+            "elder",
+            "deacon",
+            "leader",
+            "member",
+            "visitor",
+          ];
           if (value && !validRoles.includes(value)) {
-            return 'Invalid member role';
+            return "Invalid member role";
           }
           return true;
-        }
+        },
       },
       status: {
-        type: 'string',
+        type: "string",
         required: false,
         validator: (value) => {
-          const validStatuses = ['active', 'inactive', 'pending', 'suspended'];
+          const validStatuses = ["active", "inactive", "pending", "suspended"];
           if (value && !validStatuses.includes(value)) {
-            return 'Invalid member status';
+            return "Invalid member status";
           }
           return true;
-        }
+        },
       },
       membershipType: {
-        type: 'string',
+        type: "string",
         required: false,
         validator: (value) => {
-          const validTypes = ['full', 'associate', 'visitor', 'child'];
+          const validTypes = ["full", "associate", "visitor", "child"];
           if (value && !validTypes.includes(value)) {
-            return 'Invalid membership type';
+            return "Invalid membership type";
           }
           return true;
-        }
+        },
       },
       notes: {
-        type: 'string',
+        type: "string",
         required: false,
-        maxLength: 1000
-      }
+        maxLength: 1000,
+      },
     };
 
     const validatedUpdates = this.validateRequest(updates, updateSchema);
@@ -396,27 +432,31 @@ export class ChurchService extends BaseService {
     return this.put<Member>(
       this.buildIdEndpoint(churchId, `/members/${memberId}`),
       validatedUpdates,
-      { cache: false }
+      { cache: false },
     );
   }
 
   /**
    * Remove member from church (admin only)
    */
-  async removeChurchMember(churchId: string, memberId: string, reason?: string): Promise<void> {
+  async removeChurchMember(
+    churchId: string,
+    memberId: string,
+    reason?: string,
+  ): Promise<void> {
     const schema: ValidationSchema = {
-      churchId: { type: 'string', required: true },
-      memberId: { type: 'string', required: true }
+      churchId: { type: "string", required: true },
+      memberId: { type: "string", required: true },
     };
 
     this.validateRequest({ churchId, memberId }, schema);
 
     await this.delete<void>(
       this.buildIdEndpoint(churchId, `/members/${memberId}`),
-      { 
+      {
         cache: false,
-        headers: reason ? { 'X-Remove-Reason': reason } : undefined
-      }
+        headers: reason ? { "X-Remove-Reason": reason } : undefined,
+      },
     );
   }
 
@@ -426,73 +466,91 @@ export class ChurchService extends BaseService {
    * Upload church logo
    */
   async uploadChurchLogo(churchId: string, file: File): Promise<Church> {
-    this.validateRequest({ churchId }, { churchId: { type: 'string', required: true } });
+    this.validateRequest(
+      { churchId },
+      { churchId: { type: "string", required: true } },
+    );
 
     // Validate file
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
     const maxSize = 5 * 1024 * 1024; // 5MB
 
     if (!allowedTypes.includes(file.type)) {
-      throw this.createValidationError('Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.');
+      throw this.createValidationError(
+        "Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.",
+      );
     }
 
     if (file.size > maxSize) {
-      throw this.createValidationError('File size too large. Maximum size is 5MB.');
+      throw this.createValidationError(
+        "File size too large. Maximum size is 5MB.",
+      );
     }
 
-    return this.upload<Church>(
-      this.buildIdEndpoint(churchId, '/logo'),
-      file,
-      { 
-        fieldName: 'logo',
-        cache: false,
-        onUploadProgress: (progressEvent) => {
-          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          // Emit progress event
-          if (typeof window !== 'undefined') {
-            window.dispatchEvent(new CustomEvent('church-logo-upload-progress', {
-              detail: { churchId, progress: percentCompleted }
-            }));
-          }
+    return this.upload<Church>(this.buildIdEndpoint(churchId, "/logo"), file, {
+      fieldName: "logo",
+      cache: false,
+      onUploadProgress: (progressEvent) => {
+        const percentCompleted = Math.round(
+          (progressEvent.loaded * 100) / progressEvent.total,
+        );
+        // Emit progress event
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(
+            new CustomEvent("church-logo-upload-progress", {
+              detail: { churchId, progress: percentCompleted },
+            }),
+          );
         }
-      }
-    );
+      },
+    });
   }
 
   /**
    * Upload church cover image
    */
   async uploadChurchCoverImage(churchId: string, file: File): Promise<Church> {
-    this.validateRequest({ churchId }, { churchId: { type: 'string', required: true } });
+    this.validateRequest(
+      { churchId },
+      { churchId: { type: "string", required: true } },
+    );
 
     // Validate file
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
     const maxSize = 10 * 1024 * 1024; // 10MB for cover images
 
     if (!allowedTypes.includes(file.type)) {
-      throw this.createValidationError('Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.');
+      throw this.createValidationError(
+        "Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.",
+      );
     }
 
     if (file.size > maxSize) {
-      throw this.createValidationError('File size too large. Maximum size is 10MB.');
+      throw this.createValidationError(
+        "File size too large. Maximum size is 10MB.",
+      );
     }
 
     return this.upload<Church>(
-      this.buildIdEndpoint(churchId, '/cover-image'),
+      this.buildIdEndpoint(churchId, "/cover-image"),
       file,
-      { 
-        fieldName: 'coverImage',
+      {
+        fieldName: "coverImage",
         cache: false,
         onUploadProgress: (progressEvent) => {
-          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          const percentCompleted = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total,
+          );
           // Emit progress event
-          if (typeof window !== 'undefined') {
-            window.dispatchEvent(new CustomEvent('church-cover-upload-progress', {
-              detail: { churchId, progress: percentCompleted }
-            }));
+          if (typeof window !== "undefined") {
+            window.dispatchEvent(
+              new CustomEvent("church-cover-upload-progress", {
+                detail: { churchId, progress: percentCompleted },
+              }),
+            );
           }
-        }
-      }
+        },
+      },
     );
   }
 
@@ -501,12 +559,17 @@ export class ChurchService extends BaseService {
   /**
    * Check if user can join church
    */
-  async canJoinChurch(churchId: string): Promise<{ canJoin: boolean; reason?: string }> {
-    this.validateRequest({ churchId }, { churchId: { type: 'string', required: true } });
-    
+  async canJoinChurch(
+    churchId: string,
+  ): Promise<{ canJoin: boolean; reason?: string }> {
+    this.validateRequest(
+      { churchId },
+      { churchId: { type: "string", required: true } },
+    );
+
     return this.get<{ canJoin: boolean; reason?: string }>(
-      this.buildIdEndpoint(churchId, '/can-join'),
-      { cacheTTL: 60000 } // 1 minute cache
+      this.buildIdEndpoint(churchId, "/can-join"),
+      { cacheTTL: 60000 }, // 1 minute cache
     );
   }
 
@@ -515,8 +578,8 @@ export class ChurchService extends BaseService {
    */
   async getUserChurches(): Promise<Church[]> {
     return this.get<Church[]>(
-      this.buildEndpoint('/my-churches'),
-      { cacheTTL: 300000 } // 5 minutes cache
+      this.buildEndpoint("/my-churches"),
+      { cacheTTL: 300000 }, // 5 minutes cache
     );
   }
 
@@ -526,24 +589,28 @@ export class ChurchService extends BaseService {
   async getNearbyChurches(
     latitude: number,
     longitude: number,
-    radius: number = 25
+    radius: number = 25,
   ): Promise<Church[]> {
     const schema: ValidationSchema = {
       latitude: {
-        type: 'number',
+        type: "number",
         required: true,
-        validator: (value) => value >= -90 && value <= 90 || 'Invalid latitude'
+        validator: (value) =>
+          (value >= -90 && value <= 90) || "Invalid latitude",
       },
       longitude: {
-        type: 'number',
+        type: "number",
         required: true,
-        validator: (value) => value >= -180 && value <= 180 || 'Invalid longitude'
+        validator: (value) =>
+          (value >= -180 && value <= 180) || "Invalid longitude",
       },
       radius: {
-        type: 'number',
+        type: "number",
         required: false,
-        validator: (value) => value > 0 && value <= 100 || 'Radius must be between 1 and 100 miles'
-      }
+        validator: (value) =>
+          (value > 0 && value <= 100) ||
+          "Radius must be between 1 and 100 miles",
+      },
     };
 
     this.validateRequest({ latitude, longitude, radius }, schema);
@@ -551,12 +618,12 @@ export class ChurchService extends BaseService {
     const params = new URLSearchParams({
       lat: latitude.toString(),
       lng: longitude.toString(),
-      radius: radius.toString()
+      radius: radius.toString(),
     });
 
     return this.get<Church[]>(
       this.buildEndpoint(`/nearby?${params}`),
-      { cacheTTL: 600000 } // 10 minutes cache for location-based results
+      { cacheTTL: 600000 }, // 10 minutes cache for location-based results
     );
   }
 }

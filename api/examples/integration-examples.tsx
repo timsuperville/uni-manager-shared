@@ -1,19 +1,19 @@
 /**
  * Unified API Integration Examples
- * 
+ *
  * This file demonstrates how to integrate the unified API layer
  * into React applications across the Uni-Manager ecosystem.
  */
 
-import React from 'react';
-import { 
-  ApiProvider, 
-  useApi, 
-  useAuth, 
-  useChurch, 
-  useApiQuery, 
-  useApiMutation 
-} from '../index';
+import React from "react";
+import {
+  ApiProvider,
+  useApi,
+  useAuth,
+  useChurch,
+  useApiQuery,
+  useApiMutation,
+} from "../index";
 
 // ==================== BASIC SETUP ====================
 
@@ -22,16 +22,16 @@ import {
  */
 const AppWithApiProvider: React.FC = () => {
   const apiConfig = {
-    baseURL: 'http://localhost:5000/api',
+    baseURL: "http://localhost:5000/api",
     timeout: 10000,
     enableCaching: true,
-    enableAuth: true
+    enableAuth: true,
   };
 
   return (
-    <ApiProvider 
+    <ApiProvider
       config={apiConfig}
-      onError={(error) => console.error('API Error:', error)}
+      onError={(error) => console.error("API Error:", error)}
     >
       <div className="app">
         <AuthSection />
@@ -48,36 +48,29 @@ const AppWithApiProvider: React.FC = () => {
  * Example: Authentication hook usage
  */
 const AuthSection: React.FC = () => {
-  const { 
-    user, 
-    isAuthenticated, 
-    isLoading, 
-    error, 
-    login, 
-    logout, 
-    signup 
-  } = useAuth();
+  const { user, isAuthenticated, isLoading, error, login, logout, signup } =
+    useAuth();
 
   const handleLogin = async () => {
     try {
       await login({
-        email: 'user@example.com',
-        password: 'password123'
+        email: "user@example.com",
+        password: "password123",
       });
     } catch (err) {
-      console.error('Login failed:', err);
+      console.error("Login failed:", err);
     }
   };
 
   const handleSignup = async () => {
     try {
       await signup({
-        name: 'New User',
-        email: 'newuser@example.com',
-        password: 'password123'
+        name: "New User",
+        email: "newuser@example.com",
+        password: "password123",
       });
     } catch (err) {
-      console.error('Signup failed:', err);
+      console.error("Signup failed:", err);
     }
   };
 
@@ -112,40 +105,35 @@ const AuthSection: React.FC = () => {
  * Example: Church operations hook usage
  */
 const ChurchSection: React.FC = () => {
-  const { 
-    getChurches, 
-    getChurch, 
-    createChurch, 
-    updateChurch, 
-    searchChurches 
-  } = useChurch();
+  const { getChurches, getChurch, createChurch, updateChurch, searchChurches } =
+    useChurch();
 
   const handleCreateChurch = async () => {
     try {
       const newChurch = await createChurch({
-        name: 'New Church',
-        denomination: 'Methodist',
+        name: "New Church",
+        denomination: "Methodist",
         address: {
-          street: '123 Church St',
-          city: 'Anytown',
-          state: 'ST',
-          zipCode: '12345'
-        }
+          street: "123 Church St",
+          city: "Anytown",
+          state: "ST",
+          zipCode: "12345",
+        },
       });
-      console.log('Church created:', newChurch);
+      console.log("Church created:", newChurch);
     } catch (err) {
-      console.error('Failed to create church:', err);
+      console.error("Failed to create church:", err);
     }
   };
 
   const handleSearchChurches = async () => {
     try {
-      const results = await searchChurches('Methodist', {
-        city: 'Anytown'
+      const results = await searchChurches("Methodist", {
+        city: "Anytown",
       });
-      console.log('Search results:', results);
+      console.log("Search results:", results);
     } catch (err) {
-      console.error('Search failed:', err);
+      console.error("Search failed:", err);
     }
   };
 
@@ -171,31 +159,24 @@ const QueryExample: React.FC = () => {
     data: churches,
     isLoading: churchesLoading,
     error: churchesError,
-    refetch: refetchChurches
-  } = useApiQuery(
-    'churches-list',
-    () => api.church.getChurches(),
-    {
-      enabled: true,
-      refetchOnMount: true,
-      cacheTime: 300000 // 5 minutes
-    }
-  );
+    refetch: refetchChurches,
+  } = useApiQuery("churches-list", () => api.church.getChurches(), {
+    enabled: true,
+    refetchOnMount: true,
+    cacheTime: 300000, // 5 minutes
+  });
 
   // Example: Fetch current user profile
   const {
     data: userProfile,
     isLoading: profileLoading,
-    error: profileError
-  } = useApiQuery(
-    'user-profile',
-    () => api.auth.getCurrentUser()
-  );
+    error: profileError,
+  } = useApiQuery("user-profile", () => api.auth.getCurrentUser());
 
   return (
     <div className="query-section">
       <h2>Data Queries</h2>
-      
+
       <div className="churches-query">
         <h3>Churches</h3>
         {churchesLoading && <div>Loading churches...</div>}
@@ -213,7 +194,10 @@ const QueryExample: React.FC = () => {
         {profileLoading && <div>Loading profile...</div>}
         {profileError && <div>Error: {profileError}</div>}
         {userProfile && (
-          <div>Profile loaded for: {userProfile.displayName || userProfile.firstName}</div>
+          <div>
+            Profile loaded for:{" "}
+            {userProfile.displayName || userProfile.firstName}
+          </div>
         )}
       </div>
     </div>
@@ -232,67 +216,68 @@ const MutationExample: React.FC = () => {
   const {
     mutate: updateProfile,
     isLoading: updateLoading,
-    error: updateError
+    error: updateError,
   } = useApiMutation(
     (profileData: any) => api.auth.updateProfile(profileData),
     {
       onSuccess: (data) => {
-        console.log('Profile updated successfully:', data);
+        console.log("Profile updated successfully:", data);
       },
       onError: (error) => {
-        console.error('Profile update failed:', error);
-      }
-    }
+        console.error("Profile update failed:", error);
+      },
+    },
   );
 
   // Example: Create church member (placeholder for future implementation)
   const {
     mutate: updateMember,
     isLoading: updateMemberLoading,
-    error: updateMemberError
+    error: updateMemberError,
   } = useApiMutation(
-    ({ churchId, memberId, memberData }: { churchId: string; memberId: string; memberData: any }) => 
-      api.church.updateChurchMember(churchId, memberId, memberData)
+    ({
+      churchId,
+      memberId,
+      memberData,
+    }: {
+      churchId: string;
+      memberId: string;
+      memberData: any;
+    }) => api.church.updateChurchMember(churchId, memberId, memberData),
   );
 
   const handleUpdateProfile = () => {
     updateProfile({
-      name: 'Updated Name',
-      bio: 'Updated bio information'
+      name: "Updated Name",
+      bio: "Updated bio information",
     });
   };
 
   const handleUpdateMember = () => {
     updateMember({
-      churchId: 'church-123',
-      memberId: 'member-456',
+      churchId: "church-123",
+      memberId: "member-456",
       memberData: {
-        role: 'deacon',
-        active: true
-      }
+        role: "deacon",
+        active: true,
+      },
     });
   };
 
   return (
     <div className="mutation-section">
       <h2>Data Mutations</h2>
-      
+
       <div className="profile-update">
-        <button 
-          onClick={handleUpdateProfile}
-          disabled={updateLoading}
-        >
-          {updateLoading ? 'Updating...' : 'Update Profile'}
+        <button onClick={handleUpdateProfile} disabled={updateLoading}>
+          {updateLoading ? "Updating..." : "Update Profile"}
         </button>
         {updateError && <div>Error: {updateError}</div>}
       </div>
 
       <div className="member-update">
-        <button 
-          onClick={handleUpdateMember}
-          disabled={updateMemberLoading}
-        >
-          {updateMemberLoading ? 'Updating...' : 'Update Member'}
+        <button onClick={handleUpdateMember} disabled={updateMemberLoading}>
+          {updateMemberLoading ? "Updating..." : "Update Member"}
         </button>
         {updateMemberError && <div>Error: {updateMemberError}</div>}
       </div>
@@ -312,30 +297,27 @@ const DirectApiExample: React.FC = () => {
     try {
       // Direct access to auth service
       const authStatus = await api.auth.checkAuthStatus();
-      console.log('Auth status:', authStatus);
+      console.log("Auth status:", authStatus);
 
       // Direct access to church service with custom options
       const churches = await api.church.getChurches(
-        { denomination: 'Methodist' }, // filters
-        { page: 1, limit: 10 } // pagination
+        { denomination: "Methodist" }, // filters
+        { page: 1, limit: 10 }, // pagination
       );
-      console.log('Churches:', churches);
+      console.log("Churches:", churches);
 
       // Access to auth service methods
       const currentUser = await api.auth.getCurrentUser();
-      console.log('Current user:', currentUser);
-
+      console.log("Current user:", currentUser);
     } catch (error) {
-      console.error('Direct API call failed:', error);
+      console.error("Direct API call failed:", error);
     }
   };
 
   return (
     <div className="direct-api-section">
       <h2>Direct API Access</h2>
-      <button onClick={handleDirectApiCall}>
-        Execute Direct API Calls
-      </button>
+      <button onClick={handleDirectApiCall}>Execute Direct API Calls</button>
     </div>
   );
 };
@@ -348,7 +330,7 @@ export {
   ChurchSection,
   QueryExample,
   MutationExample,
-  DirectApiExample
+  DirectApiExample,
 };
 
 export default AppWithApiProvider;

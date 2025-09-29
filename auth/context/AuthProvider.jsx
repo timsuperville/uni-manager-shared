@@ -61,7 +61,7 @@ export const AuthProvider = ({ children }) => {
 
       if (!supportedProviders.includes(providerId)) {
         throw new Error(
-          `OAuth provider ${providerId} is not supported for ${appConfig.name}`
+          `OAuth provider ${providerId} is not supported for ${appConfig.name}`,
         );
       }
 

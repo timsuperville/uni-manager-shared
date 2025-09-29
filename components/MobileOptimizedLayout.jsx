@@ -370,14 +370,14 @@ MobileOptimizedLayout.propTypes = {
       icon: PropTypes.node.isRequired,
       path: PropTypes.string,
       onClick: PropTypes.func,
-    })
+    }),
   ),
   bottomNavigation: PropTypes.arrayOf(
     PropTypes.shape({
       label: PropTypes.string.isRequired,
       icon: PropTypes.node.isRequired,
       value: PropTypes.string.isRequired,
-    })
+    }),
   ),
   onQuickAction: PropTypes.func,
   showBottomNav: PropTypes.bool,

@@ -35,7 +35,7 @@ export const AuthProvider = ({
   // Initialize auth service with app-specific config using useMemo for performance
   const authService = useMemo(
     () => new ConsolidatedAuthService(config),
-    [config]
+    [config],
   );
 
   // Authentication state
@@ -63,7 +63,7 @@ export const AuthProvider = ({
         return newState;
       });
     },
-    [onAuthStateChange]
+    [onAuthStateChange],
   );
 
   /**
@@ -82,7 +82,7 @@ export const AuthProvider = ({
         onError(error);
       }
     },
-    [updateAuthState, onError]
+    [updateAuthState, onError],
   );
 
   /**
@@ -129,7 +129,7 @@ export const AuthProvider = ({
         throw error;
       }
     },
-    [authService, updateAuthState, handleError]
+    [authService, updateAuthState, handleError],
   );
 
   /**
@@ -180,7 +180,7 @@ export const AuthProvider = ({
         throw error;
       }
     },
-    [authService, updateAuthState, handleError]
+    [authService, updateAuthState, handleError],
   );
 
   /**
@@ -201,7 +201,7 @@ export const AuthProvider = ({
         throw error;
       }
     },
-    [authService, updateAuthState, handleError]
+    [authService, updateAuthState, handleError],
   );
 
   /**
@@ -222,7 +222,7 @@ export const AuthProvider = ({
         throw error;
       }
     },
-    [authService, updateAuthState, handleError]
+    [authService, updateAuthState, handleError],
   );
 
   /**
@@ -258,7 +258,7 @@ export const AuthProvider = ({
         return false;
       }
     },
-    [authService, updateAuthState, handleError]
+    [authService, updateAuthState, handleError],
   );
 
   /**

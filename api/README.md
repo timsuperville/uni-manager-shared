@@ -30,27 +30,27 @@ The Unified API Service Layer provides:
 ### 1. Basic Setup
 
 ```typescript
-import { ApiProvider, setupDevApi } from '@shared/api';
+import { ApiProvider, setupDevApi } from "@shared/api";
 
 // For development
 const apiServices = setupDevApi();
 
 // For production
-const apiServices = setupProdApi('https://api.yourdomain.com');
+const apiServices = setupProdApi("https://api.yourdomain.com");
 ```
 
 ### 2. React Application Setup
 
 ```tsx
-import React from 'react';
-import { ApiProvider } from '@shared/api';
+import React from "react";
+import { ApiProvider } from "@shared/api";
 
 const App: React.FC = () => {
   const apiConfig = {
-    baseURL: 'http://localhost:5000/api',
+    baseURL: "http://localhost:5000/api",
     timeout: 10000,
     enableCaching: true,
-    enableAuth: true
+    enableAuth: true,
   };
 
   return (
@@ -64,22 +64,17 @@ const App: React.FC = () => {
 ### 3. Using Hooks in Components
 
 ```tsx
-import { useAuth, useChurch, useApiQuery } from '@shared/api';
+import { useAuth, useChurch, useApiQuery } from "@shared/api";
 
 const MyComponent: React.FC = () => {
   const { user, login, logout } = useAuth();
   const { getChurches, createChurch } = useChurch();
-  
-  const { data: churches, isLoading } = useApiQuery(
-    'churches-list',
-    () => getChurches()
+
+  const { data: churches, isLoading } = useApiQuery("churches-list", () =>
+    getChurches(),
   );
 
-  return (
-    <div>
-      {/* Your component JSX */}
-    </div>
-  );
+  return <div>{/* Your component JSX */}</div>;
 };
 ```
 
@@ -112,48 +107,52 @@ frontend/shared/api/
 ### Core Classes
 
 #### ApiClient
+
 HTTP client with automatic retries, request/response interceptors, and error handling.
 
 ```typescript
 const client = new ApiClient({
-  baseURL: 'http://localhost:5000/api',
+  baseURL: "http://localhost:5000/api",
   timeout: 10000,
   enableRetry: true,
-  maxRetries: 3
+  maxRetries: 3,
 });
 ```
 
 #### ErrorHandler
+
 Centralized error handling with user-friendly messages and retry logic.
 
 ```typescript
 const errorHandler = new ErrorHandler({
   enableUserFriendlyMessages: true,
   enableRetry: true,
-  logErrors: true
+  logErrors: true,
 });
 ```
 
 #### CacheManager
+
 Intelligent caching with TTL, pattern-based invalidation, and memory management.
 
 ```typescript
 const cacheManager = new CacheManager({
   defaultTTL: 300000, // 5 minutes
   maxSize: 100,
-  enablePatternInvalidation: true
+  enablePatternInvalidation: true,
 });
 ```
 
 ## React Integration
 
 ### ApiProvider
+
 Provides API services to your React application tree.
 
 ```tsx
-<ApiProvider 
+<ApiProvider
   config={apiConfig}
-  onError={(error) => console.error('API Error:', error)}
+  onError={(error) => console.error("API Error:", error)}
 >
   <App />
 </ApiProvider>
@@ -162,6 +161,7 @@ Provides API services to your React application tree.
 ### Core Hooks
 
 #### useApi
+
 Access to all API services.
 
 ```typescript
@@ -170,58 +170,47 @@ const churches = await api.church.getChurches();
 ```
 
 #### useAuth
+
 Authentication state and operations.
 
 ```typescript
-const { 
-  user, 
-  isAuthenticated, 
-  isLoading, 
-  login, 
-  logout, 
-  signup 
-} = useAuth();
+const { user, isAuthenticated, isLoading, login, logout, signup } = useAuth();
 ```
 
 #### useApiQuery
+
 Data fetching with loading states and caching.
 
 ```typescript
-const { 
-  data, 
-  isLoading, 
-  error, 
-  refetch 
-} = useApiQuery(
-  'unique-key',
+const { data, isLoading, error, refetch } = useApiQuery(
+  "unique-key",
   () => api.church.getChurches(),
-  { cacheTime: 300000 }
+  { cacheTime: 300000 },
 );
 ```
 
 #### useApiMutation
+
 Data mutations with loading states and callbacks.
 
 ```typescript
-const { 
-  mutate, 
-  isLoading, 
-  error 
-} = useApiMutation(
+const { mutate, isLoading, error } = useApiMutation(
   (churchData) => api.church.createChurch(churchData),
   {
-    onSuccess: (data) => console.log('Created:', data),
-    onError: (error) => console.error('Failed:', error)
-  }
+    onSuccess: (data) => console.log("Created:", data),
+    onError: (error) => console.error("Failed:", error),
+  },
 );
 ```
 
 ## Services
 
 ### AuthService
+
 Handles authentication operations.
 
 **Available Methods:**
+
 - `login(credentials)` - User login
 - `logout()` - User logout
 - `signup(userData)` - User registration
@@ -232,9 +221,11 @@ Handles authentication operations.
 - `checkAuthStatus()` - Check authentication status
 
 ### ChurchService
+
 Manages church-related operations.
 
 **Available Methods:**
+
 - `getChurches(filters?, pagination?)` - List churches
 - `getChurch(id)` - Get specific church
 - `createChurch(data)` - Create new church
@@ -247,9 +238,11 @@ Manages church-related operations.
 - `removeChurchMember(churchId, memberId)` - Remove member
 
 ### EventService
+
 Comprehensive event management system.
 
 **Available Methods:**
+
 - `createEvent(data)` - Create new event
 - `getEvent(id)` - Get event details
 - `updateEvent(id, updates)` - Update event
@@ -263,9 +256,11 @@ Comprehensive event management system.
 - `uploadEventImage(eventId, imageFile, onProgress?)` - Upload event image
 
 ### FileService
+
 Complete file management solution.
 
 **Available Methods:**
+
 - `uploadFile(request, onProgress?)` - Upload file with progress tracking
 - `getFile(id)` - Get file metadata
 - `downloadFile(id)` - Download file
@@ -281,9 +276,11 @@ Complete file management solution.
 - `getStorageAnalytics(folderId?)` - Get storage statistics
 
 ### NotificationService
+
 Advanced notification system.
 
 **Available Methods:**
+
 - `createNotification(data)` - Create new notification
 - `getNotification(id)` - Get notification details
 - `updateNotification(id, updates)` - Update notification
@@ -300,6 +297,7 @@ Advanced notification system.
 ## Error Handling
 
 ### Automatic Error Processing
+
 All API errors are automatically processed and transformed into user-friendly messages.
 
 ```typescript
@@ -312,25 +310,24 @@ try {
 ```
 
 ### Custom Error Handling
+
 ```typescript
-const { mutate } = useApiMutation(
-  (data) => api.church.createChurch(data),
-  {
-    onError: (error, variables) => {
-      // Custom error handling
-      if (error.type === 'VALIDATION_ERROR') {
-        showValidationErrors(error.details);
-      } else {
-        showGenericError(error.message);
-      }
+const { mutate } = useApiMutation((data) => api.church.createChurch(data), {
+  onError: (error, variables) => {
+    // Custom error handling
+    if (error.type === "VALIDATION_ERROR") {
+      showValidationErrors(error.details);
+    } else {
+      showGenericError(error.message);
     }
-  }
-);
+  },
+});
 ```
 
 ## Caching
 
 ### Automatic Caching
+
 API responses are automatically cached based on endpoints and parameters.
 
 ```typescript
@@ -342,41 +339,46 @@ const churches2 = await api.church.getChurches();
 ```
 
 ### Cache Invalidation
+
 ```typescript
 // Invalidate specific cache
-api.cache.invalidate('churches/list');
+api.cache.invalidate("churches/list");
 
 // Invalidate by pattern
-api.cache.invalidatePattern('churches/*');
+api.cache.invalidatePattern("churches/*");
 
 // Clear all cache
 api.cache.clear();
 ```
 
 ### Custom Cache TTL
+
 ```typescript
 const { data } = useApiQuery(
-  'churches',
+  "churches",
   () => api.church.getChurches(),
-  { cacheTime: 600000 } // 10 minutes
+  { cacheTime: 600000 }, // 10 minutes
 );
 ```
 
 ## Authentication
 
 ### Automatic Token Management
+
 Authentication tokens are automatically:
+
 - Attached to all requests
 - Refreshed when expired
 - Stored securely
 - Removed on logout
 
 ### Authentication Status
+
 ```typescript
 const { isAuthenticated, user } = useAuth();
 
 if (isAuthenticated) {
-  console.log('User:', user.displayName);
+  console.log("User:", user.displayName);
 } else {
   // Redirect to login
 }
@@ -387,26 +389,29 @@ if (isAuthenticated) {
 ### From Existing API Patterns
 
 #### Before (Direct Axios)
+
 ```typescript
-const response = await axios.get('/api/churches', {
-  headers: { Authorization: `Bearer ${token}` }
+const response = await axios.get("/api/churches", {
+  headers: { Authorization: `Bearer ${token}` },
 });
 const churches = response.data;
 ```
 
 #### After (Unified API)
+
 ```typescript
 const churches = await api.church.getChurches();
 ```
 
 #### Before (Manual Error Handling)
+
 ```typescript
 try {
-  const response = await axios.post('/api/churches', data);
+  const response = await axios.post("/api/churches", data);
   return response.data;
 } catch (error) {
   if (error.response?.status === 400) {
-    throw new Error('Validation failed');
+    throw new Error("Validation failed");
   } else if (error.response?.status === 401) {
     // Handle auth error
   }
@@ -415,6 +420,7 @@ try {
 ```
 
 #### After (Automatic Error Handling)
+
 ```typescript
 try {
   return await api.church.createChurch(data);
@@ -427,6 +433,7 @@ try {
 ### React Component Migration
 
 #### Before (useEffect + State)
+
 ```typescript
 const [churches, setChurches] = useState([]);
 const [loading, setLoading] = useState(true);
@@ -436,7 +443,7 @@ useEffect(() => {
   const fetchChurches = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('/api/churches');
+      const response = await axios.get("/api/churches");
       setChurches(response.data);
     } catch (err) {
       setError(err.message);
@@ -444,31 +451,31 @@ useEffect(() => {
       setLoading(false);
     }
   };
-  
+
   fetchChurches();
 }, []);
 ```
 
 #### After (useApiQuery)
+
 ```typescript
-const { 
-  data: churches, 
-  isLoading: loading, 
-  error 
-} = useApiQuery(
-  'churches',
-  () => api.church.getChurches()
-);
+const {
+  data: churches,
+  isLoading: loading,
+  error,
+} = useApiQuery("churches", () => api.church.getChurches());
 ```
 
 ## Best Practices
 
 ### 1. Use Appropriate Hooks
+
 - `useApiQuery` for data fetching
 - `useApiMutation` for data modifications
 - Direct service calls for imperative operations
 
 ### 2. Handle Loading States
+
 ```typescript
 const { data, isLoading, error } = useApiQuery(key, queryFn);
 
@@ -480,21 +487,23 @@ return <DataDisplay data={data} />;
 ```
 
 ### 3. Implement Optimistic Updates
+
 ```typescript
 const { mutate } = useApiMutation(
   (updates) => api.church.updateChurch(churchId, updates),
   {
     onSuccess: () => {
       // Invalidate and refetch
-      queryClient.invalidateQueries(['church', churchId]);
-    }
-  }
+      queryClient.invalidateQueries(["church", churchId]);
+    },
+  },
 );
 ```
 
 ### 4. Use TypeScript Types
+
 ```typescript
-import type { Church, CreateChurchRequest } from '@shared/api';
+import type { Church, CreateChurchRequest } from "@shared/api";
 
 const createChurch = (data: CreateChurchRequest): Promise<Church> => {
   return api.church.createChurch(data);
@@ -522,27 +531,31 @@ const createChurch = (data: CreateChurchRequest): Promise<Church> => {
    - Check cache TTL settings
 
 ### Debug Mode
+
 ```typescript
 const apiConfig = {
-  baseURL: 'http://localhost:5000/api',
+  baseURL: "http://localhost:5000/api",
   debug: true, // Enables detailed logging
-  enableRetry: false // Disable for debugging
+  enableRetry: false, // Disable for debugging
 };
 ```
 
 ## Performance Considerations
 
 ### 1. Cache Strategy
+
 - Default TTL: 5 minutes for lists, 1 minute for details
 - Automatic invalidation on mutations
 - Pattern-based cache clearing
 
 ### 2. Request Optimization
+
 - Automatic request deduplication
 - Configurable retry logic
 - Request/response compression
 
 ### 3. Bundle Size
+
 The unified API layer adds approximately 15KB gzipped to your bundle.
 
 ## Contributing

@@ -1,6 +1,6 @@
 /**
  * Core API Types
- * 
+ *
  * Shared types for API requests, responses, and entities
  * used across all services in the unified API layer.
  */
@@ -43,7 +43,7 @@ export interface UserProfile {
 }
 
 export interface UserPreferences {
-  theme: 'light' | 'dark' | 'auto';
+  theme: "light" | "dark" | "auto";
   emailNotifications: boolean;
   pushNotifications: boolean;
   marketingEmails: boolean;
@@ -102,7 +102,7 @@ export interface Church extends BaseEntity {
   socialMedia: SocialMediaLinks;
   logo?: string;
   coverImage?: string;
-  status: 'active' | 'inactive' | 'pending';
+  status: "active" | "inactive" | "pending";
   memberCount: number;
   adminCount: number;
 }
@@ -156,7 +156,7 @@ export interface ChurchFeatures {
 export interface CreateChurchRequest {
   name: string;
   description?: string;
-  address: Omit<Address, 'latitude' | 'longitude'>;
+  address: Omit<Address, "latitude" | "longitude">;
   contactInfo: ContactInfo;
   denomination?: string;
   website?: string;
@@ -185,9 +185,16 @@ export interface Member extends BaseEntity {
   notes?: string;
 }
 
-export type MemberRole = 'admin' | 'pastor' | 'elder' | 'deacon' | 'leader' | 'member' | 'visitor';
-export type MemberStatus = 'active' | 'inactive' | 'pending' | 'suspended';
-export type MembershipType = 'full' | 'associate' | 'visitor' | 'child';
+export type MemberRole =
+  | "admin"
+  | "pastor"
+  | "elder"
+  | "deacon"
+  | "leader"
+  | "member"
+  | "visitor";
+export type MemberStatus = "active" | "inactive" | "pending" | "suspended";
+export type MembershipType = "full" | "associate" | "visitor" | "child";
 
 export interface EmergencyContact {
   name: string;
@@ -222,8 +229,19 @@ export interface ChurchService extends BaseEntity {
   status: ServiceStatus;
 }
 
-export type ServiceType = 'regular' | 'special' | 'wedding' | 'funeral' | 'baptism' | 'conference';
-export type ServiceStatus = 'draft' | 'scheduled' | 'in-progress' | 'completed' | 'cancelled';
+export type ServiceType =
+  | "regular"
+  | "special"
+  | "wedding"
+  | "funeral"
+  | "baptism"
+  | "conference";
+export type ServiceStatus =
+  | "draft"
+  | "scheduled"
+  | "in-progress"
+  | "completed"
+  | "cancelled";
 
 export interface ServiceSegment {
   id: string;
@@ -235,10 +253,17 @@ export interface ServiceSegment {
   assignedTo?: string;
 }
 
-export type SegmentType = 'welcome' | 'worship' | 'prayer' | 'sermon' | 'offering' | 'announcements' | 'benediction';
+export type SegmentType =
+  | "welcome"
+  | "worship"
+  | "prayer"
+  | "sermon"
+  | "offering"
+  | "announcements"
+  | "benediction";
 
 export interface RecurringPattern {
-  frequency: 'weekly' | 'monthly' | 'yearly';
+  frequency: "weekly" | "monthly" | "yearly";
   interval: number;
   daysOfWeek?: number[];
   dayOfMonth?: number;
@@ -265,8 +290,21 @@ export interface Event extends BaseEntity {
   tags: string[];
 }
 
-export type EventCategory = 'worship' | 'social' | 'education' | 'outreach' | 'youth' | 'children' | 'seniors' | 'other';
-export type EventStatus = 'draft' | 'published' | 'ongoing' | 'completed' | 'cancelled';
+export type EventCategory =
+  | "worship"
+  | "social"
+  | "education"
+  | "outreach"
+  | "youth"
+  | "children"
+  | "seniors"
+  | "other";
+export type EventStatus =
+  | "draft"
+  | "published"
+  | "ongoing"
+  | "completed"
+  | "cancelled";
 
 // ==================== FILTERS & QUERIES ====================
 
@@ -339,9 +377,9 @@ export interface EventRegistration extends BaseEntity {
   user: User;
   attendeeCount: number;
   registrationDate: string;
-  status: 'registered' | 'attended' | 'cancelled';
+  status: "registered" | "attended" | "cancelled";
   notes?: string;
-  paymentStatus?: 'pending' | 'paid' | 'refunded';
+  paymentStatus?: "pending" | "paid" | "refunded";
 }
 
 export interface CreateEventRegistrationRequest {
@@ -352,7 +390,7 @@ export interface CreateEventRegistrationRequest {
 
 export interface UpdateEventRegistrationRequest {
   attendeeCount?: number;
-  status?: 'registered' | 'attended' | 'cancelled';
+  status?: "registered" | "attended" | "cancelled";
   notes?: string;
 }
 
@@ -401,7 +439,7 @@ export interface SearchResult<T> {
 }
 
 export interface BulkOperation<T> {
-  action: 'create' | 'update' | 'delete';
+  action: "create" | "update" | "delete";
   items: T[];
 }
 
@@ -531,14 +569,14 @@ export interface FileSearchParams {
 export interface FileShareRequest {
   fileId: string;
   shareWith: string[];
-  permissions: 'read' | 'write' | 'admin';
+  permissions: "read" | "write" | "admin";
   expiresAt?: string;
   message?: string;
 }
 
 export interface BulkFileOperation {
   fileIds: string[];
-  operation: 'move' | 'copy' | 'delete' | 'share' | 'tag';
+  operation: "move" | "copy" | "delete" | "share" | "tag";
   targetFolderId?: string;
   tags?: string[];
   shareWith?: string[];
@@ -582,9 +620,9 @@ export interface StorageAnalytics {
 export interface Notification extends BaseEntity {
   title: string;
   message: string;
-  type: 'info' | 'success' | 'warning' | 'error' | 'announcement';
-  status: 'sent' | 'pending' | 'failed' | 'read' | 'unread' | 'archived';
-  priority: 'low' | 'normal' | 'high' | 'urgent';
+  type: "info" | "success" | "warning" | "error" | "announcement";
+  status: "sent" | "pending" | "failed" | "read" | "unread" | "archived";
+  priority: "low" | "normal" | "high" | "urgent";
   recipients: string[];
   senderId: string;
   senderName: string;
@@ -594,33 +632,33 @@ export interface Notification extends BaseEntity {
   archivedAt?: string;
   templateId?: string;
   data?: Record<string, any>;
-  channels: Array<'email' | 'push' | 'sms' | 'in-app'>;
+  channels: Array<"email" | "push" | "sms" | "in-app">;
   deliveryStatus: {
-    email?: 'sent' | 'delivered' | 'failed' | 'bounced';
-    push?: 'sent' | 'delivered' | 'failed';
-    sms?: 'sent' | 'delivered' | 'failed';
-    inApp?: 'sent' | 'read' | 'dismissed';
+    email?: "sent" | "delivered" | "failed" | "bounced";
+    push?: "sent" | "delivered" | "failed";
+    sms?: "sent" | "delivered" | "failed";
+    inApp?: "sent" | "read" | "dismissed";
   };
 }
 
 export interface CreateNotificationRequest {
   title: string;
   message: string;
-  type: 'info' | 'success' | 'warning' | 'error' | 'announcement';
+  type: "info" | "success" | "warning" | "error" | "announcement";
   recipients: string[];
-  priority?: 'low' | 'normal' | 'high' | 'urgent';
+  priority?: "low" | "normal" | "high" | "urgent";
   scheduledFor?: string;
   templateId?: string;
   data?: Record<string, any>;
-  channels?: Array<'email' | 'push' | 'sms' | 'in-app'>;
+  channels?: Array<"email" | "push" | "sms" | "in-app">;
 }
 
 export interface UpdateNotificationRequest {
   title?: string;
   message?: string;
-  status?: 'sent' | 'pending' | 'failed' | 'cancelled';
+  status?: "sent" | "pending" | "failed" | "cancelled";
   scheduledFor?: string;
-  priority?: 'low' | 'normal' | 'high' | 'urgent';
+  priority?: "low" | "normal" | "high" | "urgent";
 }
 
 export interface NotificationTemplate extends BaseEntity {
@@ -628,7 +666,7 @@ export interface NotificationTemplate extends BaseEntity {
   subject: string;
   bodyTemplate: string;
   htmlTemplate?: string;
-  type: 'email' | 'push' | 'sms' | 'in-app';
+  type: "email" | "push" | "sms" | "in-app";
   category: string;
   variables: string[];
   isActive: boolean;
@@ -643,7 +681,7 @@ export interface CreateTemplateRequest {
   subject: string;
   bodyTemplate: string;
   htmlTemplate?: string;
-  type: 'email' | 'push' | 'sms' | 'in-app';
+  type: "email" | "push" | "sms" | "in-app";
   category?: string;
   variables?: string[];
   isActive?: boolean;
@@ -708,7 +746,7 @@ export interface PushSubscription {
     auth: string;
   };
   userAgent?: string;
-  deviceType?: 'desktop' | 'mobile' | 'tablet';
+  deviceType?: "desktop" | "mobile" | "tablet";
 }
 
 export default {

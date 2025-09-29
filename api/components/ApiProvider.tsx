@@ -1,12 +1,12 @@
 /**
  * ApiProvider React Component
- * 
+ *
  * React component that provides the unified API layer to the application tree.
  */
 
-import React, { useEffect, useState, useMemo } from 'react';
-import { ApiServices } from '../services';
-import type { ApiServiceConfig } from '../services';
+import React, { useEffect, useState, useMemo } from "react";
+import { ApiServices } from "../services";
+import type { ApiServiceConfig } from "../services";
 
 // ==================== CONTEXT TYPES ====================
 
@@ -28,10 +28,10 @@ interface ApiProviderProps {
   onError?: (error: Error) => void;
 }
 
-export const ApiProvider: React.FC<ApiProviderProps> = ({ 
-  children, 
-  config, 
-  onError 
+export const ApiProvider: React.FC<ApiProviderProps> = ({
+  children,
+  config,
+  onError,
 }) => {
   const [apiServices, setApiServices] = useState<ApiServices | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -44,7 +44,10 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({
       setIsInitialized(true);
       setError(null);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to initialize API services';
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "Failed to initialize API services";
       setError(errorMessage);
       onError?.(err instanceof Error ? err : new Error(errorMessage));
     }
@@ -52,16 +55,16 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({
 
   const contextValue = useMemo(() => {
     if (!apiServices) {
-      return { 
-        apiServices: null as any, 
-        isInitialized: false, 
-        error 
+      return {
+        apiServices: null as any,
+        isInitialized: false,
+        error,
       };
     }
-    return { 
-      apiServices, 
-      isInitialized, 
-      error 
+    return {
+      apiServices,
+      isInitialized,
+      error,
     };
   }, [apiServices, isInitialized, error]);
 
@@ -74,9 +77,7 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({
   }
 
   return (
-    <ApiContext.Provider value={contextValue}>
-      {children}
-    </ApiContext.Provider>
+    <ApiContext.Provider value={contextValue}>{children}</ApiContext.Provider>
   );
 };
 

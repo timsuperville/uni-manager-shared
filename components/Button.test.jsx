@@ -16,7 +16,7 @@ describe("Button Component", () => {
     render(
       <TestWrapper>
         <Button>Click me</Button>
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     const button = screen.getByRole("button", { name: /click me/i });
@@ -28,7 +28,7 @@ describe("Button Component", () => {
     const { rerender } = render(
       <TestWrapper>
         <Button variant="primary">Primary</Button>
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     expect(screen.getByRole("button")).toHaveClass("btn-primary");
@@ -36,7 +36,7 @@ describe("Button Component", () => {
     rerender(
       <TestWrapper>
         <Button variant="secondary">Secondary</Button>
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     expect(screen.getByRole("button")).toHaveClass("btn-secondary");
@@ -46,7 +46,7 @@ describe("Button Component", () => {
     const { rerender } = render(
       <TestWrapper>
         <Button size="small">Small</Button>
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     expect(screen.getByRole("button")).toHaveClass("btn-sm");
@@ -54,7 +54,7 @@ describe("Button Component", () => {
     rerender(
       <TestWrapper>
         <Button size="large">Large</Button>
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     expect(screen.getByRole("button")).toHaveClass("btn-lg");
@@ -66,7 +66,7 @@ describe("Button Component", () => {
     render(
       <TestWrapper>
         <Button onClick={handleClick}>Click me</Button>
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     const button = screen.getByRole("button");
@@ -79,7 +79,7 @@ describe("Button Component", () => {
     render(
       <TestWrapper>
         <Button disabled>Disabled</Button>
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     const button = screen.getByRole("button");
@@ -90,7 +90,7 @@ describe("Button Component", () => {
     render(
       <TestWrapper>
         <Button className="custom-class">Custom</Button>
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     const button = screen.getByRole("button");

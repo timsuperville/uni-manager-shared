@@ -25,7 +25,7 @@ export const withMemo = (Component, customCompare = null) => {
  */
 export const withLazyLoading = (
   importFunc,
-  fallback = <div>Loading...</div>
+  fallback = <div>Loading...</div>,
 ) => {
   const LazyComponent = lazy(importFunc);
 
@@ -75,7 +75,7 @@ export const useThrottle = (callback, delay) => {
         }, delay);
       }
     },
-    [callback, delay, isThrottled]
+    [callback, delay, isThrottled],
   );
 
   return throttledCallback;
@@ -91,7 +91,7 @@ export const useVirtualList = (items, containerHeight, itemHeight) => {
     const startIndex = Math.floor(scrollTop / itemHeight);
     const endIndex = Math.min(
       startIndex + Math.ceil(containerHeight / itemHeight) + 1,
-      items.length
+      items.length,
     );
 
     return { startIndex, endIndex };
@@ -138,7 +138,7 @@ export const useLazyImage = (src, placeholder) => {
           observer.disconnect();
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
     if (imgRef.current) {
@@ -158,7 +158,7 @@ export const createAsyncComponent = (importFunc) => {
   return lazy(() =>
     importFunc().then((module) => ({
       default: module.default || module,
-    }))
+    })),
   );
 };
 
@@ -216,7 +216,7 @@ export const PerformanceMonitor = ({ children, componentName }) => {
 
       if (renderTime > 16) {
         console.warn(
-          `[Performance] ${componentName} render took ${renderTime.toFixed(2)}ms`
+          `[Performance] ${componentName} render took ${renderTime.toFixed(2)}ms`,
         );
       }
     };
@@ -239,14 +239,14 @@ export const OptimizedList = memo(
     const { visibleItems, totalHeight, offsetY, setScrollTop } = useVirtualList(
       items,
       containerHeight,
-      itemHeight
+      itemHeight,
     );
 
     const handleScroll = useCallback(
       (e) => {
         setScrollTop(e.target.scrollTop);
       },
-      [setScrollTop]
+      [setScrollTop],
     );
 
     return (
@@ -268,7 +268,7 @@ export const OptimizedList = memo(
         </div>
       </div>
     );
-  }
+  },
 );
 
 OptimizedList.displayName = "OptimizedList";
@@ -298,7 +298,7 @@ export const OptimizedSearchInput = memo(
         {...props}
       />
     );
-  }
+  },
 );
 
 OptimizedSearchInput.displayName = "OptimizedSearchInput";

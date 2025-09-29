@@ -345,7 +345,7 @@ export const getIntegrationsByCategory = (category) => {
   if (category === "popular")
     return Object.values(INTEGRATION_DATABASE).filter((i) => i.popular);
   return Object.values(INTEGRATION_DATABASE).filter(
-    (i) => i.category === category
+    (i) => i.category === category,
   );
 };
 
@@ -358,8 +358,8 @@ export const searchIntegrations = (searchTerm) => {
       integration.name.toLowerCase().includes(term) ||
       integration.description.toLowerCase().includes(term) ||
       integration.features.some((feature) =>
-        feature.toLowerCase().includes(term)
-      )
+        feature.toLowerCase().includes(term),
+      ),
   );
 };
 

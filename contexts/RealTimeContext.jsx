@@ -23,7 +23,7 @@ export const useRealTimeContext = () => {
   const context = useContext(RealTimeContext);
   if (!context) {
     throw new Error(
-      "useRealTimeContext must be used within a RealTimeProvider"
+      "useRealTimeContext must be used within a RealTimeProvider",
     );
   }
   return context;
@@ -52,7 +52,7 @@ export const RealTimeProvider = ({ children, token, householdId }) => {
         if (householdId) {
           webSocketClient.subscribe(`household_${householdId}`);
           setSubscriptions(
-            (prev) => new Set(prev.add(`household_${householdId}`))
+            (prev) => new Set(prev.add(`household_${householdId}`)),
           );
         }
       } catch (error) {
@@ -80,14 +80,14 @@ export const RealTimeProvider = ({ children, token, householdId }) => {
     const handleMemberUpdated = (data) => {
       setMembers((prev) =>
         prev.map((member) =>
-          member.id === data.member.id ? { ...member, ...data.member } : member
-        )
+          member.id === data.member.id ? { ...member, ...data.member } : member,
+        ),
       );
     };
 
     const handleMemberDeleted = (data) => {
       setMembers((prev) =>
-        prev.filter((member) => member.id !== data.member.id)
+        prev.filter((member) => member.id !== data.member.id),
       );
     };
 
@@ -101,8 +101,8 @@ export const RealTimeProvider = ({ children, token, householdId }) => {
         prev.map((invitation) =>
           invitation.id === data.invitation.id
             ? { ...invitation, status: "accepted" }
-            : invitation
-        )
+            : invitation,
+        ),
       );
     };
 
@@ -111,8 +111,8 @@ export const RealTimeProvider = ({ children, token, householdId }) => {
         prev.map((invitation) =>
           invitation.id === data.invitation.id
             ? { ...invitation, status: "declined" }
-            : invitation
-        )
+            : invitation,
+        ),
       );
     };
 
@@ -126,8 +126,8 @@ export const RealTimeProvider = ({ children, token, householdId }) => {
         prev.map((notification) =>
           notification.id === data.notificationId
             ? { ...notification, read: true }
-            : notification
-        )
+            : notification,
+        ),
       );
     };
 
@@ -139,7 +139,7 @@ export const RealTimeProvider = ({ children, token, householdId }) => {
           return prev.map((user) =>
             user.id === data.userId
               ? { ...user, status: "online", lastSeen: data.timestamp }
-              : user
+              : user,
           );
         }
         return [
@@ -159,8 +159,8 @@ export const RealTimeProvider = ({ children, token, householdId }) => {
         prev.map((user) =>
           user.id === data.userId
             ? { ...user, status: "offline", lastSeen: data.timestamp }
-            : user
-        )
+            : user,
+        ),
       );
     };
 
@@ -174,8 +174,8 @@ export const RealTimeProvider = ({ children, token, householdId }) => {
                 activity: data.activity,
                 lastSeen: data.timestamp,
               }
-            : user
-        )
+            : user,
+        ),
       );
     };
 
