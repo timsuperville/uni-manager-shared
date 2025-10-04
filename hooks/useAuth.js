@@ -11,7 +11,7 @@ export function useAuth() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  
+
   // Use try-catch to handle test environments where router context might not exist
   let navigate;
   try {
@@ -27,7 +27,7 @@ export function useAuth() {
       try {
         const authStatus = localStorage.getItem("isAuthenticated");
         const userData = localStorage.getItem("user");
-        
+
         if (authStatus === "true" && userData) {
           setIsAuthenticated(true);
           setUser(JSON.parse(userData));
@@ -53,9 +53,9 @@ export function useAuth() {
       localStorage.setItem("user", JSON.stringify(userData));
       setIsAuthenticated(true);
       setUser(userData);
-      
+
       // Navigate only if navigate function is available (not in test environment)
-      if (navigate && typeof navigate === 'function') {
+      if (navigate && typeof navigate === "function") {
         navigate("/dashboard");
       }
     } catch (error) {
@@ -70,9 +70,9 @@ export function useAuth() {
       localStorage.removeItem("user");
       setIsAuthenticated(false);
       setUser(null);
-      
+
       // Navigate only if navigate function is available (not in test environment)
-      if (navigate && typeof navigate === 'function') {
+      if (navigate && typeof navigate === "function") {
         navigate("/login");
       }
     } catch (error) {

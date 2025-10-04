@@ -4,6 +4,7 @@
  */
 
 import { io } from "socket.io-client";
+import { getWebSocketUrl } from "../config/environment.ts";
 
 class WebSocketClient {
   constructor() {
@@ -20,10 +21,7 @@ class WebSocketClient {
 
   // Initialize WebSocket connection
   connect(token, options = {}) {
-    const socketUrl =
-      options.url ||
-      import.meta.env.VITE_WEBSOCKET_URL ||
-      "http://localhost:5000";
+    const socketUrl = options.url || getWebSocketUrl();
 
     this.socket = io(socketUrl, {
       auth: {
@@ -227,7 +225,7 @@ class WebSocketClient {
     setTimeout(() => {
       if (!this.isConnected) {
         console.log(
-          `Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})`,
+          `Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})`
         );
         this.socket.connect();
       }

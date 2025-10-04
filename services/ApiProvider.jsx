@@ -1,12 +1,17 @@
 import React, { createContext, useContext } from "react";
+import { getSharedEnvironmentConfig } from "../config/environment.ts";
 
 // Simple API provider for shared functionality
 const ApiContext = createContext({});
 
 export const ApiProvider = ({ children }) => {
+  const config = getSharedEnvironmentConfig();
+
   const apiValue = {
     // Basic API configuration that can be extended
-    baseURL: process.env.REACT_APP_API_URL || "http://localhost:5000",
+    baseURL: config.api.baseUrl,
+    timeout: config.api.timeout,
+    environment: config.environment,
     // Add common API methods here as needed
   };
 

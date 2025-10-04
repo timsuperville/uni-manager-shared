@@ -16,14 +16,14 @@ export function useLogin() {
   const [isLoading, setIsLoading] = useState(false);
 
   const updateField = (name, value) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
-    
+
     // Clear error when user starts typing
     if (errors[name]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
         [name]: "",
       }));
@@ -53,11 +53,11 @@ export function useLogin() {
 
   const simulateLogin = async (appType) => {
     setIsLoading(true);
-    
+
     try {
       // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       // Simulate login success for demo purposes
       if (formData.email && formData.password.length >= 8) {
         const userData = {

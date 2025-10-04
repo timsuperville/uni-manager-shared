@@ -59,6 +59,7 @@ import dayjs from "dayjs";
 
 import { useNotification } from "../../shared/hooks/useNotification";
 import LoadingSpinner from "../../shared/components/LoadingSpinner";
+import EnvironmentDebugBanner from "../EnvironmentDebugBanner.jsx";
 import reportingService from "../services/reportingService";
 
 const REPORT_TYPE_ICONS = {
@@ -146,7 +147,7 @@ function ReportingDashboard() {
       setRunningReports((prev) => new Set([...prev, reportId]));
       const result = await reportingService.generateReport(
         reportId,
-        parameters,
+        parameters
       );
 
       showNotification("Report generated successfully", "success");
@@ -220,14 +221,14 @@ function ReportingDashboard() {
 
   const getCategoryColor = (category) => {
     const categoryConfig = REPORT_CATEGORIES.find(
-      (cat) => cat.value === category,
+      (cat) => cat.value === category
     );
     return categoryConfig ? categoryConfig.color : "default";
   };
 
   const getCategoryLabel = (category) => {
     const categoryConfig = REPORT_CATEGORIES.find(
-      (cat) => cat.value === category,
+      (cat) => cat.value === category
     );
     return categoryConfig ? categoryConfig.label : category;
   };
@@ -244,6 +245,9 @@ function ReportingDashboard() {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Box sx={{ p: 3 }}>
+        {/* Environment Debug Banner */}
+        <EnvironmentDebugBanner />
+
         {/* Header */}
         <Box
           sx={{

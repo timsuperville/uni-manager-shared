@@ -1,10 +1,13 @@
 // Shared API Service for Uni-Manager applications
+import {
+  getApiBaseUrl,
+  getSharedEnvironmentConfig,
+} from "../config/environment.ts";
+
 class ApiService {
   constructor() {
-    // eslint-disable-next-line no-undef
-    this.baseURL =
-      (typeof process !== "undefined" && process.env.REACT_APP_API_URL) ||
-      "http://localhost:5000/api";
+    this.baseURL = getApiBaseUrl();
+    this.config = getSharedEnvironmentConfig();
     this.defaultHeaders = {
       "Content-Type": "application/json",
     };
@@ -64,7 +67,7 @@ class ApiService {
   async healthCheck() {
     try {
       const response = await fetch(
-        `${this.baseURL.replace("/api", "")}/health`,
+        `${this.baseURL.replace("/api", "")}/health`
       );
       return await response.json();
     } catch (error) {

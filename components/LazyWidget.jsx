@@ -31,7 +31,7 @@ const useIntersectionObserver = (options = {}) => {
         threshold: 0.1,
         rootMargin: "50px",
         ...options,
-      },
+      }
     );
 
     if (ref.current) {
@@ -225,13 +225,13 @@ export const useWidgetPreloader = (widgets = []) => {
         setPreloadStatus((prev) => ({ ...prev, [id]: "error" }));
       }
     },
-    [cacheManager],
+    [cacheManager]
   );
 
   useEffect(() => {
     // Preload critical and high priority widgets
     const criticalWidgets = widgets.filter(
-      (w) => w.priority === "critical" || w.priority === "high",
+      (w) => w.priority === "critical" || w.priority === "high"
     );
 
     criticalWidgets.forEach((widget) => {
@@ -283,9 +283,14 @@ export const LazyDashboardLayout = ({
       </div>
 
       {/* Preload status indicator for development */}
-      {process.env.NODE_ENV === "development" && (
-        <div className="mt-8 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
-          <h4 className="font-medium mb-2">Widget Preload Status:</h4>
+      {import.meta.env.DEV && (
+        <div
+          className="mt-8 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg"
+          data-testid="development-preload-status"
+        >
+          <h4 className="font-medium mb-2">
+            Widget Preload Status (Development Mode):
+          </h4>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
             {Object.entries(preloadStatus).map(([id, status]) => (
               <div
@@ -351,7 +356,7 @@ export class WidgetRegistry {
 
   getByCategory(category) {
     return Array.from(this.widgets.values()).filter(
-      (w) => w.category === category,
+      (w) => w.category === category
     );
   }
 
