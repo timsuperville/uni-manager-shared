@@ -4,8 +4,7 @@
  */
 
 // Base API URL - can be overridden per app if needed
-const BASE_API_URL =
-  import.meta.env.VITE_API_URL || "http://localhost:5000";
+const BASE_API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export const APP_CONFIGS = {
   church: {
@@ -287,7 +286,7 @@ export function getAppConfig(appName) {
   if (!config) {
     // eslint-disable-next-line no-console
     console.warn(
-      `No configuration found for app: ${appName}. Using default config.`,
+      `No configuration found for app: ${appName}. Using default config.`
     );
     return APP_CONFIGS.church; // Default fallback
   }
