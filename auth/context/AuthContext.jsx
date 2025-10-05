@@ -71,7 +71,7 @@ export const AuthProvider = ({
       const newState = { ...prev, ...updates };
       return newState;
     });
-    
+
     // Call callback after state update to avoid issues inside setState
     if (onAuthStateChangeRef.current) {
       setTimeout(() => {
@@ -86,13 +86,13 @@ export const AuthProvider = ({
    */
   const handleError = useCallback((error) => {
     const errorMessage = error?.message || "An authentication error occurred";
-    
+
     setAuthState((prev) => ({
       ...prev,
       error: errorMessage,
       isLoading: false,
     }));
-    
+
     // Call error callback after state update
     if (onErrorRef.current) {
       setTimeout(() => {
@@ -121,7 +121,7 @@ export const AuthProvider = ({
       };
 
       setAuthState((prev) => ({ ...prev, ...newState }));
-      
+
       // Call callback after state update
       if (onAuthStateChangeRef.current) {
         setTimeout(() => {
@@ -176,7 +176,7 @@ export const AuthProvider = ({
         return result;
       } catch (error) {
         const errorMessage = error?.message || "Login failed";
-        
+
         setAuthState((prev) => ({
           ...prev,
           error: errorMessage,
@@ -189,7 +189,7 @@ export const AuthProvider = ({
             onErrorRef.current(error);
           }, 0);
         }
-        
+
         throw error;
       }
     },
@@ -266,7 +266,7 @@ export const AuthProvider = ({
         return result;
       } catch (error) {
         const errorMessage = error?.message || "Signup failed";
-        
+
         setAuthState((prev) => ({
           ...prev,
           error: errorMessage,
@@ -279,7 +279,7 @@ export const AuthProvider = ({
             onErrorRef.current(error);
           }, 0);
         }
-        
+
         throw error;
       }
     },
@@ -302,7 +302,7 @@ export const AuthProvider = ({
         return result;
       } catch (error) {
         const errorMessage = error?.message || "Forgot password failed";
-        
+
         setAuthState((prev) => ({
           ...prev,
           error: errorMessage,
@@ -315,7 +315,7 @@ export const AuthProvider = ({
             onErrorRef.current(error);
           }, 0);
         }
-        
+
         throw error;
       }
     },
@@ -338,7 +338,7 @@ export const AuthProvider = ({
         return result;
       } catch (error) {
         const errorMessage = error?.message || "Reset password failed";
-        
+
         setAuthState((prev) => ({
           ...prev,
           error: errorMessage,
@@ -351,7 +351,7 @@ export const AuthProvider = ({
             onErrorRef.current(error);
           }, 0);
         }
-        
+
         throw error;
       }
     },
@@ -372,7 +372,7 @@ export const AuthProvider = ({
       return true;
     } catch (error) {
       const errorMessage = error?.message || "Refresh failed";
-      
+
       setAuthState((prev) => ({
         ...prev,
         error: errorMessage,
@@ -385,7 +385,7 @@ export const AuthProvider = ({
           onErrorRef.current(error);
         }, 0);
       }
-      
+
       return false;
     }
   }, [authService]); // Remove dependency on initializeAuth and handleError
@@ -400,7 +400,7 @@ export const AuthProvider = ({
 
         if (success) {
           const updatedUser = await authService.getCurrentUser();
-          
+
           // Direct setState to avoid circular dependency
           setAuthState((prev) => ({ ...prev, user: updatedUser }));
 
@@ -415,7 +415,7 @@ export const AuthProvider = ({
         return success;
       } catch (error) {
         const errorMessage = error?.message || "Update user failed";
-        
+
         setAuthState((prev) => ({
           ...prev,
           error: errorMessage,
@@ -428,7 +428,7 @@ export const AuthProvider = ({
             onErrorRef.current(error);
           }, 0);
         }
-        
+
         return false;
       }
     },
@@ -462,7 +462,7 @@ export const AuthProvider = ({
       return { user, isAuthenticated };
     } catch (error) {
       const errorMessage = error?.message || "Check auth state failed";
-      
+
       setAuthState((prev) => ({
         ...prev,
         error: errorMessage,
@@ -475,7 +475,7 @@ export const AuthProvider = ({
           onErrorRef.current(error);
         }, 0);
       }
-      
+
       return { user: null, isAuthenticated: false };
     }
   }, [authService]); // Only depend on authService
@@ -535,7 +535,7 @@ export const AuthProvider = ({
         await initializeAuth();
       } catch (error) {
         const errorMessage = error?.message || "Auto-refresh failed";
-        
+
         setAuthState((prev) => ({
           ...prev,
           error: errorMessage,
