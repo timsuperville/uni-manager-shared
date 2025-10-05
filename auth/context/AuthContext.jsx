@@ -12,6 +12,7 @@ import React, {
   useEffect,
   useCallback,
   useMemo,
+  useRef,
 } from "react";
 import { ConsolidatedAuthService } from "../services/authService.js";
 import { tokenStorage } from "../utils/tokenStorage.js";
@@ -35,8 +36,22 @@ export const AuthProvider = ({
   // Initialize auth service with app-specific config using useMemo for performance
   const authService = useMemo(
     () => new ConsolidatedAuthService(config),
-    [config],
+    [config]
   );
+
+  // Use refs for stable prop references to prevent infinite loops
+  const onAuthStateChangeRef = useRef(onAuthStateChange);
+  const onErrorRef = useRef(onError);
+  const isInitializedRef = useRef(false);
+
+  // Update refs when props change
+  useEffect(() => {
+    onAuthStateChangeRef.current = onAuthStateChange;
+  }, [onAuthStateChange]);
+
+  useEffect(() => {
+    onErrorRef.current = onError;
+  }, [onError]);
 
   // Authentication state
   const [authState, setAuthState] = useState({
@@ -49,62 +64,87 @@ export const AuthProvider = ({
 
   /**
    * Update authentication state
+   * Using useRef for stable prop references to prevent infinite loops
    */
-  const updateAuthState = useCallback(
-    (updates) => {
-      setAuthState((prev) => {
-        const newState = { ...prev, ...updates };
-
-        // Notify parent component of auth state changes
-        if (onAuthStateChange) {
-          onAuthStateChange(newState);
-        }
-
-        return newState;
-      });
-    },
-    [onAuthStateChange],
-  );
+  const updateAuthState = useCallback((updates) => {
+    setAuthState((prev) => {
+      const newState = { ...prev, ...updates };
+      return newState;
+    });
+    
+    // Call callback after state update to avoid issues inside setState
+    if (onAuthStateChangeRef.current) {
+      setTimeout(() => {
+        onAuthStateChangeRef.current(updates);
+      }, 0);
+    }
+  }, []); // Empty dependency array - stable reference
 
   /**
    * Handle authentication errors
+   * Using useRef for stable prop references to prevent infinite loops
    */
-  const handleError = useCallback(
-    (error) => {
-      const errorMessage = error?.message || "An authentication error occurred";
-
-      updateAuthState({
-        error: errorMessage,
-        isLoading: false,
-      });
-
-      if (onError) {
-        onError(error);
-      }
-    },
-    [updateAuthState, onError],
-  );
+  const handleError = useCallback((error) => {
+    const errorMessage = error?.message || "An authentication error occurred";
+    
+    setAuthState((prev) => ({
+      ...prev,
+      error: errorMessage,
+      isLoading: false,
+    }));
+    
+    // Call error callback after state update
+    if (onErrorRef.current) {
+      setTimeout(() => {
+        onErrorRef.current(error);
+      }, 0);
+    }
+  }, []); // Empty dependency array - stable reference
 
   /**
    * Initialize authentication state
+   * Using stable useRef references to prevent infinite loops
    */
   const initializeAuth = useCallback(async () => {
     try {
-      updateAuthState({ isLoading: true, error: null });
+      setAuthState((prev) => ({ ...prev, isLoading: true, error: null }));
 
       const user = await authService.getCurrentUser();
       const isAuthenticated = await authService.isAuthenticated();
 
-      updateAuthState({
+      const newState = {
         user,
         isAuthenticated,
         isLoading: false,
+        error: null,
         lastActivity: Date.now(),
-      });
+      };
+
+      setAuthState((prev) => ({ ...prev, ...newState }));
+      
+      // Call callback after state update
+      if (onAuthStateChangeRef.current) {
+        setTimeout(() => {
+          onAuthStateChangeRef.current(newState);
+        }, 0);
+      }
     } catch (error) {
-      handleError(error);
+      const errorMessage = error?.message || "An authentication error occurred";
+
+      setAuthState((prev) => ({
+        ...prev,
+        error: errorMessage,
+        isLoading: false,
+      }));
+
+      // Call error callback after state update
+      if (onErrorRef.current) {
+        setTimeout(() => {
+          onErrorRef.current(error);
+        }, 0);
+      }
     }
-  }, [authService, updateAuthState, handleError]);
+  }, [authService]); // Only depend on authService
 
   /**
    * Login user
@@ -112,24 +152,48 @@ export const AuthProvider = ({
   const login = useCallback(
     async (credentials) => {
       try {
-        updateAuthState({ isLoading: true, error: null });
+        // Direct setState to avoid circular dependency
+        setAuthState((prev) => ({ ...prev, isLoading: true, error: null }));
 
         const result = await authService.login(credentials);
 
-        updateAuthState({
+        const newState = {
           user: result.user,
           isAuthenticated: true,
           isLoading: false,
           lastActivity: Date.now(),
-        });
+        };
+
+        setAuthState((prev) => ({ ...prev, ...newState }));
+
+        // Notify callback after state update
+        if (onAuthStateChangeRef.current) {
+          setTimeout(() => {
+            onAuthStateChangeRef.current(newState);
+          }, 0);
+        }
 
         return result;
       } catch (error) {
-        handleError(error);
+        const errorMessage = error?.message || "Login failed";
+        
+        setAuthState((prev) => ({
+          ...prev,
+          error: errorMessage,
+          isLoading: false,
+        }));
+
+        // Notify error callback after state update
+        if (onErrorRef.current) {
+          setTimeout(() => {
+            onErrorRef.current(error);
+          }, 0);
+        }
+        
         throw error;
       }
     },
-    [authService, updateAuthState, handleError],
+    [authService] // Only depend on authService
   );
 
   /**
@@ -137,30 +201,54 @@ export const AuthProvider = ({
    */
   const logout = useCallback(async () => {
     try {
-      updateAuthState({ isLoading: true, error: null });
+      // Direct setState to avoid circular dependency
+      setAuthState((prev) => ({ ...prev, isLoading: true, error: null }));
 
       await authService.logout();
 
-      updateAuthState({
+      const newState = {
         user: null,
         isAuthenticated: false,
         isLoading: false,
         lastActivity: Date.now(),
-      });
+      };
+
+      setAuthState((prev) => ({ ...prev, ...newState }));
+
+      // Notify callback after state update
+      if (onAuthStateChangeRef.current) {
+        setTimeout(() => {
+          onAuthStateChangeRef.current(newState);
+        }, 0);
+      }
 
       return { success: true };
     } catch (error) {
       // Still update state even if logout fails
-      updateAuthState({
+      const newState = {
         user: null,
         isAuthenticated: false,
         isLoading: false,
-      });
+      };
 
-      handleError(error);
+      setAuthState((prev) => ({ ...prev, ...newState }));
+
+      // Notify callbacks after state update
+      if (onAuthStateChangeRef.current) {
+        setTimeout(() => {
+          onAuthStateChangeRef.current(newState);
+        }, 0);
+      }
+
+      if (onErrorRef.current) {
+        setTimeout(() => {
+          onErrorRef.current(error);
+        }, 0);
+      }
+
       return { success: true }; // Return success since user is logged out locally
     }
-  }, [authService, updateAuthState, handleError]);
+  }, [authService]); // Only depend on authService
 
   /**
    * Signup user
@@ -168,19 +256,34 @@ export const AuthProvider = ({
   const signup = useCallback(
     async (userData) => {
       try {
-        updateAuthState({ isLoading: true, error: null });
+        // Direct setState to avoid circular dependency
+        setAuthState((prev) => ({ ...prev, isLoading: true, error: null }));
 
         const result = await authService.signup(userData);
 
-        updateAuthState({ isLoading: false });
+        setAuthState((prev) => ({ ...prev, isLoading: false }));
 
         return result;
       } catch (error) {
-        handleError(error);
+        const errorMessage = error?.message || "Signup failed";
+        
+        setAuthState((prev) => ({
+          ...prev,
+          error: errorMessage,
+          isLoading: false,
+        }));
+
+        // Notify error callback after state update
+        if (onErrorRef.current) {
+          setTimeout(() => {
+            onErrorRef.current(error);
+          }, 0);
+        }
+        
         throw error;
       }
     },
-    [authService, updateAuthState, handleError],
+    [authService] // Only depend on authService
   );
 
   /**
@@ -189,19 +292,34 @@ export const AuthProvider = ({
   const forgotPassword = useCallback(
     async (email) => {
       try {
-        updateAuthState({ isLoading: true, error: null });
+        // Direct setState to avoid circular dependency
+        setAuthState((prev) => ({ ...prev, isLoading: true, error: null }));
 
         const result = await authService.forgotPassword(email);
 
-        updateAuthState({ isLoading: false });
+        setAuthState((prev) => ({ ...prev, isLoading: false }));
 
         return result;
       } catch (error) {
-        handleError(error);
+        const errorMessage = error?.message || "Forgot password failed";
+        
+        setAuthState((prev) => ({
+          ...prev,
+          error: errorMessage,
+          isLoading: false,
+        }));
+
+        // Notify error callback after state update
+        if (onErrorRef.current) {
+          setTimeout(() => {
+            onErrorRef.current(error);
+          }, 0);
+        }
+        
         throw error;
       }
     },
-    [authService, updateAuthState, handleError],
+    [authService] // Only depend on authService
   );
 
   /**
@@ -210,19 +328,34 @@ export const AuthProvider = ({
   const resetPassword = useCallback(
     async (token, newPassword) => {
       try {
-        updateAuthState({ isLoading: true, error: null });
+        // Direct setState to avoid circular dependency
+        setAuthState((prev) => ({ ...prev, isLoading: true, error: null }));
 
         const result = await authService.resetPassword(token, newPassword);
 
-        updateAuthState({ isLoading: false });
+        setAuthState((prev) => ({ ...prev, isLoading: false }));
 
         return result;
       } catch (error) {
-        handleError(error);
+        const errorMessage = error?.message || "Reset password failed";
+        
+        setAuthState((prev) => ({
+          ...prev,
+          error: errorMessage,
+          isLoading: false,
+        }));
+
+        // Notify error callback after state update
+        if (onErrorRef.current) {
+          setTimeout(() => {
+            onErrorRef.current(error);
+          }, 0);
+        }
+        
         throw error;
       }
     },
-    [authService, updateAuthState, handleError],
+    [authService] // Only depend on authService
   );
 
   /**
@@ -231,13 +364,31 @@ export const AuthProvider = ({
   const refreshAuth = useCallback(async () => {
     try {
       await authService.refreshToken();
+      // Call initializeAuth directly instead of depending on it
+      if (!isInitializedRef.current) {
+        isInitializedRef.current = true;
+      }
       await initializeAuth();
       return true;
     } catch (error) {
-      handleError(error);
+      const errorMessage = error?.message || "Refresh failed";
+      
+      setAuthState((prev) => ({
+        ...prev,
+        error: errorMessage,
+        isLoading: false,
+      }));
+
+      // Notify error callback after state update
+      if (onErrorRef.current) {
+        setTimeout(() => {
+          onErrorRef.current(error);
+        }, 0);
+      }
+      
       return false;
     }
-  }, [authService, initializeAuth, handleError]);
+  }, [authService]); // Remove dependency on initializeAuth and handleError
 
   /**
    * Update user data
@@ -249,16 +400,39 @@ export const AuthProvider = ({
 
         if (success) {
           const updatedUser = await authService.getCurrentUser();
-          updateAuthState({ user: updatedUser });
+          
+          // Direct setState to avoid circular dependency
+          setAuthState((prev) => ({ ...prev, user: updatedUser }));
+
+          // Notify callback after state update
+          if (onAuthStateChangeRef.current) {
+            setTimeout(() => {
+              onAuthStateChangeRef.current({ user: updatedUser });
+            }, 0);
+          }
         }
 
         return success;
       } catch (error) {
-        handleError(error);
+        const errorMessage = error?.message || "Update user failed";
+        
+        setAuthState((prev) => ({
+          ...prev,
+          error: errorMessage,
+          isLoading: false,
+        }));
+
+        // Notify error callback after state update
+        if (onErrorRef.current) {
+          setTimeout(() => {
+            onErrorRef.current(error);
+          }, 0);
+        }
+        
         return false;
       }
     },
-    [authService, updateAuthState, handleError],
+    [authService] // Only depend on authService
   );
 
   /**
@@ -269,36 +443,67 @@ export const AuthProvider = ({
       const user = await authService.getCurrentUser();
       const isAuthenticated = await authService.isAuthenticated();
 
-      updateAuthState({
+      const newState = {
         user,
         isAuthenticated,
         isLoading: false,
-      });
+      };
+
+      // Direct setState to avoid circular dependency
+      setAuthState((prev) => ({ ...prev, ...newState }));
+
+      // Notify callback after state update
+      if (onAuthStateChangeRef.current) {
+        setTimeout(() => {
+          onAuthStateChangeRef.current(newState);
+        }, 0);
+      }
 
       return { user, isAuthenticated };
     } catch (error) {
-      handleError(error);
+      const errorMessage = error?.message || "Check auth state failed";
+      
+      setAuthState((prev) => ({
+        ...prev,
+        error: errorMessage,
+        isLoading: false,
+      }));
+
+      // Notify error callback after state update
+      if (onErrorRef.current) {
+        setTimeout(() => {
+          onErrorRef.current(error);
+        }, 0);
+      }
+      
       return { user: null, isAuthenticated: false };
     }
-  }, [authService, updateAuthState, handleError]);
+  }, [authService]); // Only depend on authService
 
   /**
    * Update last activity timestamp
    */
   const updateActivity = useCallback(() => {
-    updateAuthState({ lastActivity: Date.now() });
-  }, [updateAuthState]);
+    // Direct setState to avoid circular dependency
+    setAuthState((prev) => ({ ...prev, lastActivity: Date.now() }));
+  }, []); // Empty dependency array - stable reference
 
-  // Initialize auth on mount
+  // Initialize auth on mount - use ref to prevent infinite loops
   useEffect(() => {
-    initializeAuth();
-  }, [initializeAuth]);
+    if (!isInitializedRef.current) {
+      isInitializedRef.current = true;
+      initializeAuth();
+    }
+  }, []); // Empty dependency array - run only once
 
   // Set up activity tracking
   useEffect(() => {
     if (!authState.isAuthenticated) return;
 
-    const handleActivity = () => updateActivity();
+    const handleActivity = () => {
+      // Direct setState call to avoid circular dependency
+      setAuthState((prev) => ({ ...prev, lastActivity: Date.now() }));
+    };
 
     const events = [
       "mousedown",
@@ -316,7 +521,7 @@ export const AuthProvider = ({
         document.removeEventListener(event, handleActivity, true);
       });
     };
-  }, [authState.isAuthenticated, updateActivity]);
+  }, [authState.isAuthenticated]); // Remove updateActivity dependency
 
   // Auto-refresh token before expiration
   useEffect(() => {
@@ -324,11 +529,30 @@ export const AuthProvider = ({
 
     const refreshInterval = config.tokenRefreshInterval || 15 * 60 * 1000; // 15 minutes
     const interval = setInterval(async () => {
-      await refreshAuth();
+      // Call refreshAuth directly to avoid circular dependency
+      try {
+        await authService.refreshToken();
+        await initializeAuth();
+      } catch (error) {
+        const errorMessage = error?.message || "Auto-refresh failed";
+        
+        setAuthState((prev) => ({
+          ...prev,
+          error: errorMessage,
+          isLoading: false,
+        }));
+
+        // Notify error callback after state update
+        if (onErrorRef.current) {
+          setTimeout(() => {
+            onErrorRef.current(error);
+          }, 0);
+        }
+      }
     }, refreshInterval);
 
     return () => clearInterval(interval);
-  }, [authState.isAuthenticated, refreshAuth, config.tokenRefreshInterval]);
+  }, [authState.isAuthenticated, authService, config.tokenRefreshInterval]); // Remove refreshAuth dependency
 
   const contextValue = {
     // State
