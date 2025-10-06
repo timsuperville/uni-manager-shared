@@ -8,3 +8,8 @@ export { useCachedPersonalization } from "./useCachedPersonalization.js";
 
 // Real-time hooks
 export { useRealTime } from "./useRealTime.js";
+
+// Notification hooks
+export { default as useNotifications } from "./useNotifications.js";
+export { default as useNotificationPreferences } from "./useNotificationPreferences.js";
+export { default as useWebSocket } from "./useWebSocket.js";
