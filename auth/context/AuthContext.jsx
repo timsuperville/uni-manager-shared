@@ -106,6 +106,9 @@ export const AuthProvider = ({
     try {
       setAuthState((prev) => ({ ...prev, isLoading: true, error: null }));
 
+      // Initialize the auth service first
+      await authService.initialize();
+
       const user = await authService.getCurrentUser();
       const isAuthenticated = await authService.isAuthenticated();
 
