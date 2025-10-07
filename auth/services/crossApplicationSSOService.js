@@ -19,7 +19,7 @@
 
 /* global window, localStorage, BroadcastChannel, URL, console, setInterval, clearInterval, URLSearchParams, fetch */
 
-import { ConsolidatedAuthService } from "./authService.js";
+import { AuthService } from "./authService.js";
 import { tokenStorage } from "../utils/tokenStorage.js";
 
 class CrossApplicationSSOService {
@@ -81,7 +81,7 @@ class CrossApplicationSSOService {
   async initialize() {
     try {
       // Initialize the core authentication service
-      this.authService = new ConsolidatedAuthService({
+      this.authService = new AuthService({
         apiBaseUrl: import.meta.env.VITE_API_URL || "http://localhost:5000/api",
         appType: "sso_unified",
       });

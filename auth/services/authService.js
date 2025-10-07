@@ -26,7 +26,7 @@ import {
   validateCredentials,
 } from "../utils/authValidation.js";
 
-class ConsolidatedAuthService {
+class AuthService {
   constructor(config = {}) {
     // Merge app-specific config with defaults
     this.config = {
@@ -270,7 +270,7 @@ class ConsolidatedAuthService {
     } catch (error) {
       console.error(
         `[Auth-${this.config.appType}] Forgot password error:`,
-        error,
+        error
       );
       throw error;
     }
@@ -299,7 +299,7 @@ class ConsolidatedAuthService {
     } catch (error) {
       console.error(
         `[Auth-${this.config.appType}] Reset password error:`,
-        error,
+        error
       );
       throw error;
     }
@@ -318,7 +318,7 @@ class ConsolidatedAuthService {
 
     if (!providerConfig) {
       throw new Error(
-        `OAuth provider ${providerId} not supported for ${appConfig.name}`,
+        `OAuth provider ${providerId} not supported for ${appConfig.name}`
       );
     }
 
@@ -404,7 +404,7 @@ class ConsolidatedAuthService {
       const tokenResponse = await this.exchangeOAuthCode(
         providerId,
         code,
-        codeVerifier,
+        codeVerifier
       );
 
       // Store authentication data
@@ -469,7 +469,7 @@ class ConsolidatedAuthService {
     // Get user info from provider
     const userInfo = await this.getOAuthUserInfo(
       providerId,
-      tokenData.access_token,
+      tokenData.access_token
     );
 
     // Register user with our backend
@@ -737,9 +737,10 @@ class ConsolidatedAuthService {
   }
 }
 
-// Export singleton instance
-const consolidatedAuthService = new ConsolidatedAuthService();
-export default consolidatedAuthService;
+// Export singleton instance as both default and named export
+const authService = new AuthService();
+export default authService;
+export { authService };
 
 // Also export the class for custom configurations
-export { ConsolidatedAuthService };
+export { AuthService };

@@ -14,7 +14,7 @@ import React, {
   useMemo,
   useRef,
 } from "react";
-import { ConsolidatedAuthService } from "../services/authService.js";
+import { AuthService } from "../services/authService.js";
 import { tokenStorage } from "../utils/tokenStorage.js";
 
 const AuthContext = createContext(null);
@@ -34,10 +34,7 @@ export const AuthProvider = ({
   onError,
 }) => {
   // Initialize auth service with app-specific config using useMemo for performance
-  const authService = useMemo(
-    () => new ConsolidatedAuthService(config),
-    [config]
-  );
+  const authService = useMemo(() => new AuthService(config), [config]);
 
   // Use refs for stable prop references to prevent infinite loops
   const onAuthStateChangeRef = useRef(onAuthStateChange);
