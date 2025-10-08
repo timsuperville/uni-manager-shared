@@ -1,4 +1,8 @@
 /**
+ * @jest-environment jsdom
+ */
+
+/**
  * Cross-App Authentication Testing Suite
  * Validates authentication flow across all 6 applications
  */

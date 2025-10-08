@@ -1,4 +1,8 @@
 /**
+ * @jest-environment jsdom
+ */
+
+/**
  * App Switcher Component Tests
  *
  * Tests for the SSO app switcher UI component
