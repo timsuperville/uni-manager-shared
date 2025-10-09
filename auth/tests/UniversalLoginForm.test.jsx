@@ -5,9 +5,9 @@
 import React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
 import userEvent from "@testing-library/user-event";
 import { UniversalLoginForm } from "../components/UniversalLoginForm";
+import { MemoryRouterV7 } from "../../testing/router-utils.jsx";
 
 // Mock the auth context
 vi.mock("../context/AuthContext.jsx", () => ({
@@ -43,9 +43,9 @@ describe("UniversalLoginForm", () => {
   describe("Basic Rendering", () => {
     it("renders with default configuration", () => {
       render(
-        <MemoryRouter>
+        <MemoryRouterV7>
           <UniversalLoginForm />
-        </MemoryRouter>
+        </MemoryRouterV7>
       );
 
       expect(screen.getByText("Sign In")).toBeInTheDocument();
@@ -62,9 +62,9 @@ describe("UniversalLoginForm", () => {
 
     it("renders admin app configuration correctly", () => {
       render(
-        <MemoryRouter>
+        <MemoryRouterV7>
           <UniversalLoginForm appType="admin" />
-        </MemoryRouter>
+        </MemoryRouterV7>
       );
 
       expect(screen.getByText("Admin Portal Access")).toBeInTheDocument();
@@ -76,9 +76,9 @@ describe("UniversalLoginForm", () => {
 
     it("renders church app configuration correctly", () => {
       render(
-        <MemoryRouter>
+        <MemoryRouterV7>
           <UniversalLoginForm appType="church" />
-        </MemoryRouter>
+        </MemoryRouterV7>
       );
 
       expect(screen.getByText("Church Management")).toBeInTheDocument();
@@ -90,13 +90,13 @@ describe("UniversalLoginForm", () => {
 
     it("allows custom title and description override", () => {
       render(
-        <MemoryRouter>
+        <MemoryRouterV7>
           <UniversalLoginForm
             appType="admin"
             appTitle="Custom Portal"
             appDescription="Custom description for testing"
           />
-        </MemoryRouter>
+        </MemoryRouterV7>
       );
 
       expect(screen.getByText("Custom Portal")).toBeInTheDocument();
@@ -110,9 +110,9 @@ describe("UniversalLoginForm", () => {
     it("updates email field when user types", async () => {
       const user = userEvent.setup();
       render(
-        <MemoryRouter>
+        <MemoryRouterV7>
           <UniversalLoginForm />
-        </MemoryRouter>
+        </MemoryRouterV7>
       );
 
       const emailInput = screen.getByPlaceholderText(
@@ -126,9 +126,9 @@ describe("UniversalLoginForm", () => {
     it("enables submit button when form is valid", async () => {
       const user = userEvent.setup();
       render(
-        <MemoryRouter>
+        <MemoryRouterV7>
           <UniversalLoginForm />
-        </MemoryRouter>
+        </MemoryRouterV7>
       );
 
       const emailInput = screen.getByPlaceholderText(
@@ -153,9 +153,9 @@ describe("UniversalLoginForm", () => {
       });
 
       render(
-        <MemoryRouter>
+        <MemoryRouterV7>
           <UniversalLoginForm appType="admin" />
-        </MemoryRouter>
+        </MemoryRouterV7>
       );
 
       await user.type(
