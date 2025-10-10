@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>You're Offline - Uni-Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .offline-container {
+            text-align: center;
+            max-width: 500px;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .offline-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            opacity: 0.8;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            font-weight: 300;
+        }
+
+        p {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .features-list {
+            text-align: left;
+            margin-bottom: 30px;
+        }
+
+        .features-list h3 {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .features-list ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .features-list li {
+            padding: 8px 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .features-list li::before {
+            content: "✓";
+            color: #4ade80;
+            font-weight: bold;
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+
+        .retry-button {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin: 10px;
+        }
+
+        .retry-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 20px;
+            border-radius: 25px;
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            margin-bottom: 20px;
+        }
+
+        .status-indicator.online {
+            background: rgba(34, 197, 94, 0.2);
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ef4444;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.online {
+            background: #22c55e;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .app-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .app-link {
+            padding: 15px 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            text-decoration: none;
+            color: white;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .app-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .app-link div {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .app-link span {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .offline-container {
+                padding: 30px 20px;
+                margin: 10px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            p {
+                font-size: 1.1rem;
+            }
+
+            .app-links {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <div class="offline-icon">📱</div>
+
+        <h1>You're Offline</h1>
+
+        <div class="status-indicator" id="connectionStatus">
+            <div class="status-dot" id="statusDot"></div>
+            <span id="statusText">No internet connection</span>
+        </div>
+
+        <p>
+            Don't worry! Uni-Manager works offline too.
+            You can continue using many features while disconnected.
+        </p>
+
+        <div class="features-list">
+            <h3>Available Offline:</h3>
+            <ul>
+                <li>View cached content and data</li>
+                <li>Create and edit entries (synced when online)</li>
+                <li>Access previously loaded pages</li>
+                <li>Use offline-enabled features</li>
+                <li>Review your recent activity</li>
+            </ul>
+        </div>
+
+        <button class="retry-button" onclick="checkConnection()">
+            🔄 Check Connection
+        </button>
+
+        <a href="/" class="retry-button">
+            🏠 Go to Home
+        </a>
+
+        <div class="app-links">
+            <a href="/church" class="app-link">
+                <div>⛪</div>
+                <span>Church</span>
+            </a>
+            <a href="/home" class="app-link">
+                <div>🏠</div>
+                <span>Home</span>
+            </a>
+            <a href="/admin" class="app-link">
+                <div>⚙️</div>
+                <span>Admin</span>
+            </a>
+            <a href="/business" class="app-link">
+                <div>💼</div>
+                <span>Business</span>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Check connection status
+        function updateConnectionStatus() {
+            const isOnline = navigator.onLine;
+            const statusIndicator = document.getElementById('connectionStatus');
+            const statusDot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
+
+            if (isOnline) {
+                statusIndicator.classList.add('online');
+                statusDot.classList.add('online');
+                statusText.textContent = 'Connection restored!';
+
+                // Auto-redirect after a moment
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 2000);
+            } else {
+                statusIndicator.classList.remove('online');
+                statusDot.classList.remove('online');
+                statusText.textContent = 'No internet connection';
+            }
+        }
+
+        function checkConnection() {
+            updateConnectionStatus();
+
+            // Also try to fetch a small resource
+            fetch('/manifest.json', {
+                method: 'HEAD',
+                cache: 'no-cache'
+            })
+            .then(() => {
+                // If successful, we're online
+                window.location.href = '/';
+            })
+            .catch(() => {
+                // Still offline
+                console.log('Still offline');
+            });
+        }
+
+        // Listen for online/offline events
+        window.addEventListener('online', updateConnectionStatus);
+        window.addEventListener('offline', updateConnectionStatus);
+
+        // Initial status check
+        updateConnectionStatus();
+
+        // Periodically check connection
+        setInterval(checkConnection, 10000);
+
+        // Add some interactivity
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate the offline icon
+            const icon = document.querySelector('.offline-icon');
+            setInterval(() => {
+                icon.style.transform = 'scale(1.1)';
+                setTimeout(() => {
+                    icon.style.transform = 'scale(1)';
+                }, 200);
+            }, 3000);
+
+            // Add click handlers for app links that work offline
+            document.querySelectorAll('.app-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    const href = this.getAttribute('href');
+
+                    // Try to navigate using service worker cache
+                    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+                        // Let the service worker handle it
+                        return true;
+                    }
+
+                    // Fallback for when service worker is not available
+                    e.preventDefault();
+                    alert('This section requires an internet connection or service worker support.');
+                });
+            });
+        });
+
+        // Report offline usage analytics when back online
+        window.addEventListener('online', function() {
+            if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+                navigator.serviceWorker.controller.postMessage({
+                    type: 'OFFLINE_PAGE_VIEW',
+                    payload: {
+                        timestamp: Date.now(),
+                        userAgent: navigator.userAgent,
+                        referrer: document.referrer
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
