@@ -64,9 +64,9 @@ import {
   Database,
   Server,
 } from "lucide-react";
-import { analyticsService } from "../services/analyticsService";
-import { LoadingSpinner } from "../../../shared/components/LoadingSpinner";
-import { ErrorBoundary } from "../../../shared/components/ErrorBoundary";
+import { analyticsService } from "../../services/analyticsService";
+import { LoadingSpinner } from "../LoadingSpinner";
+import { ErrorBoundary } from "../ErrorBoundary";
 
 // Color palette for charts
 const COLORS = {

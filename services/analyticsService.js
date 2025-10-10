@@ -15,11 +15,12 @@
 
 /* global window, document, localStorage, sessionStorage, WebSocket, fetch, URLSearchParams, console, navigator, setTimeout */
 
-import { apiClient } from "../../../shared/services/apiClient";
+import { ApiService } from "./apiService";
 
 class AnalyticsService {
   constructor() {
     this.baseUrl = "/api/analytics";
+    this.apiService = new ApiService();
     this.websocket = null;
     this.isConnected = false;
     this.retryCount = 0;
@@ -41,7 +42,7 @@ class AnalyticsService {
       if (userId) params.append("userId", userId);
       if (applicationId) params.append("applicationId", applicationId);
 
-      const response = await apiClient.get(
+      const response = await this.apiService.get(
         `${this.baseUrl}/dashboard?${params}`
       );
       return response.data;
@@ -65,7 +66,7 @@ class AnalyticsService {
       if (userId) params.append("userId", userId);
       if (applicationId) params.append("applicationId", applicationId);
 
-      const response = await apiClient.get(
+      const response = await this.apiService.get(
         `${this.baseUrl}/user-behavior?${params}`
       );
       return response.data;
@@ -88,9 +89,7 @@ class AnalyticsService {
 
       if (applicationId) params.append("applicationId", applicationId);
 
-      const response = await apiClient.get(
-        `${this.baseUrl}/performance?${params}`
-      );
+      const response = await this.apiService.get(`${this.baseUrl}/performance/metrics?${params}`);
       return response.data;
     } catch (error) {
       console.error("Failed to get performance analytics:", error);
