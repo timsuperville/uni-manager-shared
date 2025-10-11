@@ -77,8 +77,8 @@ export const useAuthForm = (formType = "login") => {
         const lastNameError = validateName(formData.lastName, "Last name");
         if (lastNameError) newErrors.lastName = lastNameError;
 
-        const emailError = validateEmail(formData.email);
-        if (emailError) newErrors.email = emailError;
+        const emailValidation = validateEmail(formData.email);
+        if (!emailValidation.isValid) newErrors.email = emailValidation.error;
 
         const passwordError = validatePassword(formData.password);
         if (passwordError) newErrors.password = passwordError;
@@ -93,14 +93,14 @@ export const useAuthForm = (formType = "login") => {
         break;
       }
       case "forgotPassword": {
-        const emailError = validateEmail(formData.email);
-        if (emailError) newErrors.email = emailError;
+        const emailValidation = validateEmail(formData.email);
+        if (!emailValidation.isValid) newErrors.email = emailValidation.error;
         break;
       }
       case "login":
       default: {
-        const emailError = validateEmail(formData.email);
-        if (emailError) newErrors.email = emailError;
+        const emailValidation = validateEmail(formData.email);
+        if (!emailValidation.isValid) newErrors.email = emailValidation.error;
 
         const passwordError = validatePassword(formData.password);
         if (passwordError) newErrors.password = passwordError;

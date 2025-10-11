@@ -28,19 +28,38 @@ import {
 
 class AuthService {
   constructor(config = {}) {
+    // Transform apiEndpoints to endpoints for compatibility
+    const endpoints = config.apiEndpoints || config.endpoints || {};
+    
+    // Convert full URLs to relative paths for _makeRequest
+    const transformedEndpoints = {};
+    Object.keys(endpoints).forEach(key => {
+      const url = endpoints[key];
+      if (url && url.startsWith('http')) {
+        // Extract path from full URL
+        try {
+          transformedEndpoints[key] = new globalThis.URL(url).pathname;
+        } catch {
+          transformedEndpoints[key] = url;
+        }
+      } else {
+        transformedEndpoints[key] = url;
+      }
+    });
+
     // Merge app-specific config with defaults
     this.config = {
-      apiBaseUrl: config.apiBaseUrl || "http://localhost:5000/api",
+      apiBaseUrl: config.apiBaseUrl || "http://localhost:5000",
       endpoints: {
-        login: "/auth/login",
-        logout: "/auth/logout",
-        signup: "/auth/signup",
-        forgotPassword: "/auth/forgot-password",
-        resetPassword: "/auth/reset-password",
-        refreshToken: "/auth/refresh-token",
-        validateToken: "/auth/validate-token",
-        verify: "/auth/verify",
-        ...config.endpoints,
+        login: "/api/auth/login",
+        logout: "/api/auth/logout",
+        signup: "/api/auth/signup",
+        forgotPassword: "/api/auth/forgot-password",
+        resetPassword: "/api/auth/reset-password",
+        refreshToken: "/api/auth/refresh-token",
+        validateToken: "/api/auth/validate-token",
+        verify: "/api/auth/verify",
+        ...transformedEndpoints,
       },
       appType: config.appType || "default",
       ...config,
@@ -386,10 +405,6 @@ class AuthService {
       const providerId =
         typeof sessionStorage !== "undefined"
           ? sessionStorage.getItem("oauth_provider")
-          : null;
-      const nonce =
-        typeof sessionStorage !== "undefined"
-          ? sessionStorage.getItem("oauth_nonce")
           : null;
       const codeVerifier =
         typeof sessionStorage !== "undefined"

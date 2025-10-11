@@ -1,367 +1,437 @@
-/**
- * LoginForm Component
- * Unified login form with app-specific branding and OAuth integration
- */
-import React, { useState, useEffect } from "react";
-import { validateEmail, validatePassword } from "../utils/authValidation.js";
-import { getCurrentAppConfig } from "../config/appConfigs.js";
+import React, { useState, useEffect, useCallback } from "react";
+import PropTypes from "prop-types";
+import { useAuth } from "../contexts/EnhancedAuthContext.jsx";
+import { useNavigate } from "react-router-dom";
+import { MFAVerification } from "./MFAVerification";
+import { MFASetup } from "./MFASetup";
 
-const LoginForm = ({
-  onSubmit,
-  onForgotPassword,
-  isLoading = false,
-  error = null,
+/**
+ * Enhanced Login Form with MFA Support
+ * Supports multi-factor authentication flow with device trust
+ */
+export function EnhancedLoginForm({
+  appType = "default",
+  appTitle,
+  appDescription,
+  onSuccess,
+  onError,
+  theme = "default",
+  redirectPath = "/dashboard",
   showRememberMe = true,
-  showForgotPassword = true,
-  showOAuth = true,
-  providedAuthService = null,
-  className = "",
-}) => {
-  const appConfig = getCurrentAppConfig();
+  showRegistration = false,
+}) {
+  const {
+    login,
+    verifyMFALogin,
+    isLoading,
+    error,
+    mfaRequired,
+    mfaSetupRequired,
+    clearError,
+  } = useAuth();
+
+  const navigate = useNavigate();
+  const [currentStep, setCurrentStep] = useState("login");
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     rememberMe: false,
   });
-  const [errors, setErrors] = useState({});
-  const [authService, setAuthService] = useState(null);
-  const [oauthLoading, setOauthLoading] = useState(false);
-  const [internalLoading, setInternalLoading] = useState(false);
+  const [mfaToken, setMfaToken] = useState("");
+  const [deviceFingerprint, setDeviceFingerprint] = useState(null);
+  const [trustDevice, setTrustDevice] = useState(false);
 
-  // Initialize auth service
+  // App-specific configurations
+  const appConfigs = {
+    admin: {
+      title: "Admin Portal Access",
+      description: "Sign in to access the administrative dashboard",
+      icon: "🔐",
+      primaryColor: "blue",
+      defaultRedirect: "/dashboard",
+    },
+    church: {
+      title: "Church Management",
+      description: "Sign in to manage church services and events",
+      icon: "⛪",
+      primaryColor: "purple",
+      defaultRedirect: "/services",
+    },
+    business: {
+      title: "Business Portal",
+      description: "Access your business management tools",
+      icon: "💼",
+      primaryColor: "emerald",
+      defaultRedirect: "/overview",
+    },
+    home: {
+      title: "Home Management",
+      description: "Manage your household and family activities",
+      icon: "🏠",
+      primaryColor: "amber",
+      defaultRedirect: "/dashboard",
+    },
+    personal: {
+      title: "Personal Dashboard",
+      description: "Access your personal productivity tools",
+      icon: "👤",
+      primaryColor: "indigo",
+      defaultRedirect: "/dashboard",
+    },
+    playback: {
+      title: "Media Playback",
+      description: "Control and manage media playback",
+      icon: "🎵",
+      primaryColor: "pink",
+      defaultRedirect: "/player",
+    },
+    default: {
+      title: "Sign In",
+      description: "Sign in to your account",
+      icon: "🔑",
+      primaryColor: "gray",
+      defaultRedirect: "/dashboard",
+    },
+  };
+
+  const config = appConfigs[appType] || appConfigs.default;
+  const finalTitle = appTitle || config.title;
+  const finalDescription = appDescription || config.description;
+  const finalRedirectPath = redirectPath || config.defaultRedirect;
+
+  // Theme configurations
+  const themes = {
+    default: {
+      background: "bg-gray-50",
+      container: "bg-white shadow-lg",
+      primary: `bg-${config.primaryColor}-600 hover:bg-${config.primaryColor}-700`,
+      text: "text-gray-900",
+      input: "border-gray-300 focus:ring-blue-500 focus:border-blue-500",
+    },
+    dark: {
+      background: "bg-gray-900",
+      container: "bg-gray-800 shadow-2xl",
+      primary: `bg-${config.primaryColor}-600 hover:bg-${config.primaryColor}-700`,
+      text: "text-white",
+      input:
+        "border-gray-600 bg-gray-700 text-white focus:ring-blue-500 focus:border-blue-500",
+    },
+    minimal: {
+      background: "bg-white",
+      container: "border-2 border-gray-200",
+      primary: `bg-${config.primaryColor}-600 hover:bg-${config.primaryColor}-700`,
+      text: "text-gray-900",
+      input: "border-b-2 border-gray-300 bg-transparent focus:border-blue-500",
+    },
+  };
+
+  const currentTheme = themes[theme] || themes.default;
+
+  // Generate device fingerprint function
+  const generateFingerprint = useCallback(() => {
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    ctx.textBaseline = "top";
+    ctx.font = "14px Arial";
+    ctx.fillText("Device fingerprint", 2, 2);
+
+    const fingerprint = [
+      navigator.userAgent,
+      navigator.language,
+      screen.width + "x" + screen.height,
+      new Date().getTimezoneOffset(),
+      canvas.toDataURL(),
+    ].join("|");
+
+    return btoa(fingerprint).slice(0, 32);
+  }, []);
+
+  // Generate device fingerprint on mount
   useEffect(() => {
-    const getAuthService = async () => {
-      if (providedAuthService) {
-        setAuthService(providedAuthService);
-      } else {
-        try {
-          // Try multiple possible import paths for the auth service
-          const possiblePaths = [
-            "../../../apps/church/src/features/auth/services/authService",
-            "../../src/features/auth/services/authService",
-            "../apps/church/src/features/auth/services/authService",
-          ];
+    setDeviceFingerprint(generateFingerprint());
+  }, [generateFingerprint]);
 
-          for (const path of possiblePaths) {
-            try {
-              const module = await import(path);
-              setAuthService(module.default);
-              break;
-            } catch (pathError) {
-              // Continue to next path
-            }
-          }
-        } catch (error) {
-          console.warn("Auth service not available:", error);
+  // Watch for MFA state changes
+  useEffect(() => {
+    if (mfaRequired) {
+      setCurrentStep("mfa-verification");
+    } else if (mfaSetupRequired) {
+      setCurrentStep("mfa-setup");
+    }
+  }, [mfaRequired, mfaSetupRequired]);
+
+  const handleLoginSubmit = async (e) => {
+    e.preventDefault();
+    clearError();
+
+    try {
+      const result = await login({
+        email: formData.email,
+        password: formData.password,
+        rememberMe: formData.rememberMe,
+        appType,
+      });
+
+      if (result.success && !result.mfaRequired && !result.mfaSetupRequired) {
+        if (onSuccess) {
+          onSuccess(result);
+        } else {
+          navigate(finalRedirectPath);
         }
       }
-    };
-    getAuthService();
-  }, [providedAuthService]);
+      // MFA flow will be handled by useEffect watching for state changes
+    } catch (err) {
+      if (onError) {
+        onError(err);
+      }
+    }
+  };
+
+  const handleMFAVerification = async (token) => {
+    clearError();
+    setMfaToken(token);
+
+    try {
+      const result = await verifyMFALogin(
+        token,
+        deviceFingerprint,
+        trustDevice
+      );
+
+      if (result.success) {
+        setCurrentStep("login");
+        if (onSuccess) {
+          onSuccess(result);
+        } else {
+          navigate(finalRedirectPath);
+        }
+      }
+    } catch (err) {
+      if (onError) {
+        onError(err);
+      }
+    }
+  };
+
+  const handleMFASetupComplete = () => {
+    setCurrentStep("login");
+    if (onSuccess) {
+      onSuccess({ success: true, mfaSetupCompleted: true });
+    } else {
+      navigate(finalRedirectPath);
+    }
+  };
 
   const handleChange = (e) => {
-    const { name, value, checked, type } = e.target;
+    const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
-
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: "",
-      }));
-    }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    // Clear previous errors
-    setErrors({});
-
-    // Validate form
-    const newErrors = {};
-
-    const emailError = validateEmail(formData.email);
-    if (emailError) newErrors.email = emailError;
-
-    const passwordError = validatePassword(formData.password);
-    if (passwordError) newErrors.password = passwordError;
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-
-    // Set loading state immediately
-    setInternalLoading(true);
-
-    try {
-      // Call onSubmit and handle promise
-      const result = onSubmit(formData);
-      if (result && typeof result.then === "function") {
-        await result;
-      }
-      // Reset loading on success
-      setInternalLoading(false);
-    } catch (error) {
-      setErrors({ general: error.message || "Login failed" });
-      setInternalLoading(false);
-    }
+  const handleBackToLogin = () => {
+    setCurrentStep("login");
+    clearError();
+    setMfaToken("");
   };
 
-  // OAuth login handlers
-  const handleGoogleLogin = async () => {
-    if (!authService) return;
+  const isFormValid = formData.email && formData.password;
 
-    try {
-      setOauthLoading(true);
-      setErrors({});
-      const result = await authService.googleLogin();
-      if (result.success) {
-        // OAuth success will be handled by the parent component
-        onSubmit({ oauth: true, provider: "google", ...result });
-      }
-    } catch (error) {
-      setErrors({
-        general: error.message || "Google login failed",
-      });
-    } finally {
-      setOauthLoading(false);
-    }
-  };
-
-  return (
-    <div className={`w-full max-w-md mx-auto ${className}`}>
-      <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-8">
-        {/* App branding */}
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-            Welcome to {appConfig.appName}
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Sign in to your account
-          </p>
-        </div>
-
-        {/* Error message */}
-        {error && (
-          <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
-            <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+  // Render different steps based on authentication flow
+  if (currentStep === "mfa-verification") {
+    return (
+      <div
+        className={`min-h-screen flex items-center justify-center ${currentTheme.background} py-12 px-4 sm:px-6 lg:px-8`}
+      >
+        <div className="max-w-md w-full space-y-8">
+          <div className={`${currentTheme.container} rounded-lg px-8 py-10`}>
+            <MFAVerification
+              onVerify={handleMFAVerification}
+              onBack={handleBackToLogin}
+              deviceTrust={{
+                available: true,
+                checked: trustDevice,
+                onChange: setTrustDevice,
+              }}
+              theme={currentTheme}
+              config={config}
+              isLoading={isLoading}
+              error={error}
+            />
           </div>
-        )}
+        </div>
+      </div>
+    );
+  }
 
-        {/* General errors from OAuth */}
-        {errors.general && (
-          <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
-            <p className="text-sm text-red-600 dark:text-red-400">
-              {errors.general}
+  if (currentStep === "mfa-setup") {
+    return (
+      <div
+        className={`min-h-screen flex items-center justify-center ${currentTheme.background} py-12 px-4 sm:px-6 lg:px-8`}
+      >
+        <div className="max-w-md w-full space-y-8">
+          <div className={`${currentTheme.container} rounded-lg px-8 py-10`}>
+            <MFASetup
+              onSetupComplete={handleMFASetupComplete}
+              onSkip={handleMFASetupComplete}
+              theme={currentTheme}
+              config={config}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Standard login form
+  return (
+    <div
+      className={`min-h-screen flex items-center justify-center ${currentTheme.background} py-12 px-4 sm:px-6 lg:px-8`}
+    >
+      <div className="max-w-md w-full space-y-8">
+        <div className={`${currentTheme.container} rounded-lg px-8 py-10`}>
+          {/* Header */}
+          <div className="text-center">
+            <div className="text-4xl mb-4">{config.icon}</div>
+            <h2 className={`text-3xl font-extrabold ${currentTheme.text}`}>
+              {finalTitle}
+            </h2>
+            <p className={`mt-2 text-sm ${currentTheme.text} opacity-75`}>
+              {finalDescription}
             </p>
           </div>
-        )}
 
-        {/* OAuth Login Buttons */}
-        {showOAuth && authService && (
-          <div className="mb-6">
-            <button
-              type="button"
-              onClick={handleGoogleLogin}
-              disabled={oauthLoading || isLoading}
-              className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {oauthLoading ? (
-                <div className="flex items-center">
-                  <div className="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-700 dark:text-gray-300">
-                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24">
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      />
-                    </svg>
-                  </div>
-                  Signing in with Google...
-                </div>
-              ) : (
-                <>
-                  <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
-                    <path
-                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                      fill="#4285F4"
-                    />
-                    <path
-                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                      fill="#34A853"
-                    />
-                    <path
-                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                      fill="#FBBC05"
-                    />
-                    <path
-                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                      fill="#EA4335"
-                    />
-                  </svg>
-                  Continue with Google
-                </>
-              )}
-            </button>
-
-            <div className="mt-6 relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300 dark:border-gray-600" />
+          {/* Form */}
+          <form className="mt-8 space-y-6" onSubmit={handleLoginSubmit}>
+            {/* Error Display */}
+            {error && (
+              <div
+                className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative"
+                role="alert"
+              >
+                <span className="block sm:inline">{error}</span>
               </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">
-                  Or continue with email
+            )}
+
+            {/* Email Field */}
+            <div>
+              <label
+                htmlFor="email"
+                className={`block text-sm font-medium ${currentTheme.text} mb-2`}
+              >
+                Email address
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                value={formData.email}
+                onChange={handleChange}
+                className={`w-full px-3 py-2 rounded-md ${currentTheme.input} placeholder-gray-400 focus:outline-none focus:ring-2`}
+                placeholder="Enter your email address"
+              />
+            </div>
+
+            {/* Password Field */}
+            <div>
+              <label
+                htmlFor="password"
+                className={`block text-sm font-medium ${currentTheme.text} mb-2`}
+              >
+                Password
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                required
+                value={formData.password}
+                onChange={handleChange}
+                className={`w-full px-3 py-2 rounded-md ${currentTheme.input} placeholder-gray-400 focus:outline-none focus:ring-2`}
+                placeholder="Enter your password"
+              />
+            </div>
+
+            {/* Remember Me */}
+            {showRememberMe && (
+              <div className="flex items-center">
+                <input
+                  id="rememberMe"
+                  name="rememberMe"
+                  type="checkbox"
+                  checked={formData.rememberMe}
+                  onChange={handleChange}
+                  className={`h-4 w-4 text-${config.primaryColor}-600 focus:ring-${config.primaryColor}-500 border-gray-300 rounded`}
+                />
+                <label
+                  htmlFor="rememberMe"
+                  className={`ml-2 block text-sm ${currentTheme.text}`}
+                >
+                  Remember me
+                </label>
+              </div>
+            )}
+
+            {/* Submit Button */}
+            <div>
+              <button
+                type="submit"
+                disabled={!isFormValid || isLoading}
+                className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white ${currentTheme.primary} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-${config.primaryColor}-500 disabled:opacity-50 disabled:cursor-not-allowed transition duration-150 ease-in-out`}
+              >
+                {isLoading ? (
+                  <div className="flex items-center">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Signing in...
+                  </div>
+                ) : (
+                  "Sign in"
+                )}
+              </button>
+            </div>
+
+            {/* Registration Link */}
+            {showRegistration && (
+              <div className="text-center">
+                <span className={`text-sm ${currentTheme.text} opacity-75`}>
+                  Don't have an account?{" "}
+                  <button
+                    type="button"
+                    className={`font-medium text-${config.primaryColor}-600 hover:text-${config.primaryColor}-500`}
+                    onClick={() => navigate("/auth/register")}
+                  >
+                    Sign up
+                  </button>
                 </span>
               </div>
-            </div>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-6" role="form">
-          {/* Email field */}
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-            >
-              Email address
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              required
-              disabled={isLoading || internalLoading}
-              value={formData.email}
-              onChange={handleChange}
-              className={`w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed ${
-                errors.email
-                  ? "border-red-300 focus:border-red-500 focus:ring-red-500"
-                  : `border-gray-300 ${appConfig.branding.focusRing} focus:border-brand-500`
-              }`}
-              placeholder="Enter your email"
-            />
-            {errors.email && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                {errors.email}
-              </p>
             )}
-          </div>
-
-          {/* Password field */}
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-            >
-              Password
-            </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              autoComplete="current-password"
-              required
-              disabled={isLoading || internalLoading}
-              value={formData.password}
-              onChange={handleChange}
-              className={`w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed ${
-                errors.password
-                  ? "border-red-300 focus:border-red-500 focus:ring-red-500"
-                  : `border-gray-300 ${appConfig.branding.focusRing} focus:border-brand-500`
-              }`}
-              placeholder="Enter your password"
-            />
-            {errors.password && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                {errors.password}
-              </p>
-            )}
-          </div>
-
-          {/* Remember me & Forgot password */}
-          {(showRememberMe || showForgotPassword) && (
-            <div className="flex items-center justify-between">
-              {showRememberMe && appConfig.features.rememberMe && (
-                <div className="flex items-center">
-                  <input
-                    id="rememberMe"
-                    name="rememberMe"
-                    type="checkbox"
-                    checked={formData.rememberMe}
-                    onChange={handleChange}
-                    className={`h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 rounded ${appConfig.branding.accentColor}`}
-                  />
-                  <label
-                    htmlFor="rememberMe"
-                    className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-                  >
-                    Remember me
-                  </label>
-                </div>
-              )}
-
-              {showForgotPassword && appConfig.features.passwordReset && (
-                <button
-                  type="button"
-                  onClick={onForgotPassword}
-                  className="text-sm text-brand-600 hover:text-brand-500 dark:text-brand-400 dark:hover:text-brand-300"
-                >
-                  Forgot your password?
-                </button>
-              )}
-            </div>
-          )}
-
-          {/* Submit button */}
-          <button
-            type="submit"
-            disabled={isLoading || internalLoading}
-            className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r ${appConfig.branding.gradientFrom} ${appConfig.branding.gradientTo} hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 ${appConfig.branding.focusRing} disabled:opacity-50 disabled:cursor-not-allowed`}
-          >
-            {isLoading || internalLoading ? (
-              <div className="flex items-center">
-                <div className="animate-spin -ml-1 mr-3 h-5 w-5 text-white">
-                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24">
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    />
-                  </svg>
-                </div>
-                Signing in...
-              </div>
-            ) : (
-              "Sign in"
-            )}
-          </button>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
   );
-};
+}
 
-export default LoginForm;
+EnhancedLoginForm.propTypes = {
+  appType: PropTypes.oneOf([
+    "admin",
+    "church",
+    "business",
+    "home",
+    "personal",
+    "playback",
+    "default",
+  ]),
+  appTitle: PropTypes.string,
+  appDescription: PropTypes.string,
+  onSuccess: PropTypes.func,
+  onError: PropTypes.func,
+  theme: PropTypes.oneOf(["default", "dark", "minimal"]),
+  redirectPath: PropTypes.string,
+  showRememberMe: PropTypes.bool,
+  showRegistration: PropTypes.bool,
+};

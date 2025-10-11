@@ -94,11 +94,11 @@ const SignupForm = ({
   const handleEmailBlur = async () => {
     if (formData.email) {
       // First validate email format
-      const emailError = validateEmail(formData.email);
-      if (emailError) {
+      const emailValidation = validateEmail(formData.email);
+      if (!emailValidation.isValid) {
         setErrors((prev) => ({
           ...prev,
-          email: emailError,
+          email: emailValidation.error,
         }));
         return;
       }
@@ -200,8 +200,8 @@ const SignupForm = ({
     const lastNameError = validateName(formData.lastName, "Last name");
     if (lastNameError) newErrors.lastName = lastNameError;
 
-    const emailError = validateEmail(formData.email);
-    if (emailError) newErrors.email = emailError;
+    const emailValidation = validateEmail(formData.email);
+    if (!emailValidation.isValid) newErrors.email = emailValidation.error;
 
     const passwordError = validatePassword(formData.password);
     if (passwordError) newErrors.password = passwordError;

@@ -57,14 +57,14 @@ export const APP_CONFIGS = {
     logo: "/admin-logo.png",
     favicon: "/admin-favicon.ico",
     apiEndpoints: {
-      login: `${BASE_API_URL}/admin/auth/login`,
-      signup: `${BASE_API_URL}/admin/auth/signup`,
-      logout: `${BASE_API_URL}/admin/auth/logout`,
-      refresh: `${BASE_API_URL}/admin/auth/refresh`,
-      profile: `${BASE_API_URL}/admin/auth/profile`,
-      updateProfile: `${BASE_API_URL}/admin/auth/profile`,
-      resetPassword: `${BASE_API_URL}/admin/auth/reset-password`,
-      changePassword: `${BASE_API_URL}/admin/auth/change-password`,
+      login: `${BASE_API_URL}/auth/admin/login`, // Dedicated admin authentication endpoint
+      signup: `${BASE_API_URL}/auth/admin/signup`, // Admin accounts created by super admin
+      logout: `${BASE_API_URL}/auth/admin/logout`, // Dedicated admin logout
+      refresh: `${BASE_API_URL}/auth/admin/refresh`, // Admin token refresh
+      profile: `${BASE_API_URL}/auth/me`,
+      updateProfile: `${BASE_API_URL}/auth/profile`,
+      resetPassword: `${BASE_API_URL}/auth/reset-password`,
+      changePassword: `${BASE_API_URL}/auth/change-password`,
     },
     features: {
       registration: false, // Admin accounts created by super admin

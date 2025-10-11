@@ -42,8 +42,8 @@ const ForgotPasswordForm = ({
     // Validate form
     const newErrors = {};
 
-    const emailError = validateEmail(formData.email);
-    if (emailError) newErrors.email = emailError;
+    const emailValidation = validateEmail(formData.email);
+    if (!emailValidation.isValid) newErrors.email = emailValidation.error;
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
