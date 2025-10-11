@@ -15,7 +15,7 @@
 
 /* global window, document, localStorage, sessionStorage, WebSocket, fetch, URLSearchParams, console, navigator, setTimeout */
 
-import { ApiService } from "./apiService";
+import ApiService from "./apiService";
 
 class AnalyticsService {
   constructor() {
@@ -110,7 +110,7 @@ class AnalyticsService {
 
       if (applicationId) params.append("applicationId", applicationId);
 
-      const response = await apiClient.get(
+      const response = await this.apiService.get(
         `${this.baseUrl}/security?${params}`
       );
       return response.data;
@@ -125,7 +125,7 @@ class AnalyticsService {
    */
   async getRealTimeMetrics() {
     try {
-      const response = await apiClient.get(`${this.baseUrl}/real-time/metrics`);
+      const response = await this.apiService.get(`${this.baseUrl}/real-time/metrics`);
       return response.data;
     } catch (error) {
       console.error("Failed to get real-time metrics:", error);
@@ -138,7 +138,7 @@ class AnalyticsService {
    */
   async getActiveAlerts() {
     try {
-      const response = await apiClient.get(`${this.baseUrl}/real-time/alerts`);
+      const response = await this.apiService.get(`${this.baseUrl}/real-time/alerts`);
       return response.data;
     } catch (error) {
       console.error("Failed to get active alerts:", error);
@@ -151,7 +151,7 @@ class AnalyticsService {
    */
   async trackUserBehavior(userId, eventType, eventData = {}) {
     try {
-      const response = await apiClient.post(
+      const response = await this.apiService.post(
         `${this.baseUrl}/track/user-behavior`,
         {
           userId,
@@ -177,7 +177,7 @@ class AnalyticsService {
    */
   async trackPerformanceMetric(metricType, value, context = {}) {
     try {
-      const response = await apiClient.post(
+      const response = await this.apiService.post(
         `${this.baseUrl}/track/performance`,
         {
           metricType,
@@ -202,7 +202,7 @@ class AnalyticsService {
    */
   async trackSecurityEvent(eventType, severity, details = {}) {
     try {
-      const response = await apiClient.post(`${this.baseUrl}/track/security`, {
+      const response = await this.apiService.post(`${this.baseUrl}/track/security`, {
         eventType,
         severity,
         details: {
@@ -230,7 +230,7 @@ class AnalyticsService {
         parameters = {},
       } = options;
 
-      const response = await apiClient.post(`${this.baseUrl}/ai/insights`, {
+      const response = await this.apiService.post(`${this.baseUrl}/ai/insights`, {
         type,
         timeframe,
         parameters,
@@ -253,7 +253,7 @@ class AnalyticsService {
       if (userId) params.append("userId", userId);
       if (applicationId) params.append("applicationId", applicationId);
 
-      const response = await apiClient.get(
+      const response = await this.apiService.get(
         `${this.baseUrl}/ai/recommendations?${params}`
       );
       return response.data;
@@ -268,7 +268,7 @@ class AnalyticsService {
    */
   async executeCustomQuery(query) {
     try {
-      const response = await apiClient.post(
+      const response = await this.apiService.post(
         `${this.baseUrl}/query/custom`,
         query
       );
@@ -323,7 +323,7 @@ class AnalyticsService {
    */
   async getServiceHealth() {
     try {
-      const response = await apiClient.get(`${this.baseUrl}/health`);
+      const response = await this.apiService.get(`${this.baseUrl}/health`);
       return response.data;
     } catch (error) {
       console.error("Failed to get service health:", error);
