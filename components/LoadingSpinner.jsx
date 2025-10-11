@@ -43,3 +43,4 @@ LoadingSpinner.propTypes = {
 };
 
 export default LoadingSpinner;
+export { LoadingSpinner };

@@ -58,7 +58,7 @@ import {
   Activity,
   Target,
   Cpu,
-  Memory,
+  MemoryStick,
   HardDrive,
   Wifi,
   Database,
@@ -636,7 +636,7 @@ export const AnalyticsDashboard = () => {
               <div className="text-sm text-gray-600">CPU Usage</div>
             </div>
             <div className="text-center">
-              <Memory className="h-8 w-8 text-green-500 mx-auto mb-2" />
+              <MemoryStick className="h-8 w-8 text-green-500 mx-auto mb-2" />
               <div className="text-2xl font-bold text-gray-900">
                 {realTimeMetrics.memoryUsage || "68"}%
               </div>
