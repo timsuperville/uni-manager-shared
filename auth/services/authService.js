@@ -30,7 +30,7 @@ class AuthService {
   constructor(config = {}) {
     // Transform apiEndpoints to endpoints for compatibility
     const endpoints = config.apiEndpoints || config.endpoints || {};
-    
+
     // Convert full URLs to relative paths for _makeRequest
     const transformedEndpoints = {};
     Object.keys(endpoints).forEach(key => {

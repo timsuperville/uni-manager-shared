@@ -6,12 +6,6 @@
 // Context
 export { AuthProvider, useAuth } from "./context/AuthContext.jsx";
 
-// Enhanced Authentication Context with Session Management
-export {
-  EnhancedAuthProvider,
-  useEnhancedAuth,
-} from "./EnhancedAuthContext.jsx";
-
 // Components
 export {
   LoginForm,
