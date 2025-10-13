@@ -11,14 +11,14 @@
  * @component SessionManagementDashboard
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   useSessionManagement,
   useUserSessions,
   useSessionSecurity,
   useSessionAnalytics,
-} from "../hooks/useSessionManagement";
-import "./SessionManagementDashboard.css";
+} from '../hooks/useSessionManagement';
+import './SessionManagementDashboard.css';
 
 const SessionManagementDashboard = ({
   userId,
@@ -81,24 +81,24 @@ const SessionManagementDashboard = ({
    * Get device type icon
    */
   const getDeviceIcon = (deviceInfo) => {
-    const platform = deviceInfo?.platform?.toLowerCase() || "";
+    const platform = deviceInfo?.platform?.toLowerCase() || '';
 
     if (
-      platform.includes("mobile") ||
-      platform.includes("android") ||
-      platform.includes("iphone")
+      platform.includes('mobile') ||
+      platform.includes('android') ||
+      platform.includes('iphone')
     ) {
-      return "📱";
-    } else if (platform.includes("tablet") || platform.includes("ipad")) {
-      return "📱";
-    } else if (platform.includes("mac") || platform.includes("darwin")) {
-      return "🖥️";
-    } else if (platform.includes("win")) {
-      return "💻";
-    } else if (platform.includes("linux")) {
-      return "🐧";
+      return '📱';
+    } else if (platform.includes('tablet') || platform.includes('ipad')) {
+      return '📱';
+    } else if (platform.includes('mac') || platform.includes('darwin')) {
+      return '🖥️';
+    } else if (platform.includes('win')) {
+      return '💻';
+    } else if (platform.includes('linux')) {
+      return '🐧';
     }
-    return "🖥️";
+    return '🖥️';
   };
 
   /**
@@ -107,32 +107,32 @@ const SessionManagementDashboard = ({
   const getStatusBadge = (session) => {
     if (!session.isActive) {
       return (
-        <span className="session-badge session-badge--inactive">Inactive</span>
+        <span className='session-badge session-badge--inactive'>Inactive</span>
       );
     }
 
     const now = Date.now();
     if (now > session.expiresAt) {
       return (
-        <span className="session-badge session-badge--expired">Expired</span>
+        <span className='session-badge session-badge--expired'>Expired</span>
       );
     }
 
     const timeSinceActivity = now - session.lastActivity;
     if (timeSinceActivity > 30 * 60 * 1000) {
       // 30 minutes
-      return <span className="session-badge session-badge--idle">Idle</span>;
+      return <span className='session-badge session-badge--idle'>Idle</span>;
     }
 
-    if (session.flags?.includes("suspicious")) {
+    if (session.flags?.includes('suspicious')) {
       return (
-        <span className="session-badge session-badge--suspicious">
+        <span className='session-badge session-badge--suspicious'>
           Suspicious
         </span>
       );
     }
 
-    return <span className="session-badge session-badge--active">Active</span>;
+    return <span className='session-badge session-badge--active'>Active</span>;
   };
 
   /**
@@ -167,11 +167,11 @@ const SessionManagementDashboard = ({
     if (selectedSessions.size === 0) return;
 
     setConfirmDialog({
-      title: "Terminate Sessions",
+      title: 'Terminate Sessions',
       message: `Are you sure you want to terminate ${selectedSessions.size} selected session(s)?`,
       onConfirm: async () => {
         for (const sessionId of selectedSessions) {
-          await invalidateSpecificSession(sessionId, "bulk_termination");
+          await invalidateSpecificSession(sessionId, 'bulk_termination');
         }
         setSelectedSessions(new Set());
         setConfirmDialog(null);
@@ -185,9 +185,9 @@ const SessionManagementDashboard = ({
    */
   const handleTerminateAllOthers = async () => {
     setConfirmDialog({
-      title: "Terminate All Other Sessions",
+      title: 'Terminate All Other Sessions',
       message:
-        "Are you sure you want to terminate all other sessions except the current one?",
+        'Are you sure you want to terminate all other sessions except the current one?',
       onConfirm: async () => {
         await invalidateAllSessions(currentSession?.sessionId);
         setConfirmDialog(null);
@@ -201,11 +201,11 @@ const SessionManagementDashboard = ({
    */
   const handleTerminateCurrentSession = () => {
     setConfirmDialog({
-      title: "Terminate Current Session",
+      title: 'Terminate Current Session',
       message:
-        "Are you sure you want to terminate your current session? You will be logged out.",
+        'Are you sure you want to terminate your current session? You will be logged out.',
       onConfirm: () => {
-        invalidateSession("manual_logout");
+        invalidateSession('manual_logout');
         setConfirmDialog(null);
       },
       onCancel: () => setConfirmDialog(null),
@@ -214,8 +214,8 @@ const SessionManagementDashboard = ({
 
   if (!userId) {
     return (
-      <div className="session-dashboard">
-        <div className="session-dashboard__error">
+      <div className='session-dashboard'>
+        <div className='session-dashboard__error'>
           <h3>Session Management Unavailable</h3>
           <p>Please log in to view session management.</p>
         </div>
@@ -224,25 +224,25 @@ const SessionManagementDashboard = ({
   }
 
   return (
-    <div className="session-dashboard">
+    <div className='session-dashboard'>
       {/* Header */}
-      <div className="session-dashboard__header">
+      <div className='session-dashboard__header'>
         <h2>Session Management</h2>
-        <div className="session-dashboard__stats">
-          <div className="stat-card">
-            <div className="stat-card__value">{activeSessionCount}</div>
-            <div className="stat-card__label">Active Sessions</div>
+        <div className='session-dashboard__stats'>
+          <div className='stat-card'>
+            <div className='stat-card__value'>{activeSessionCount}</div>
+            <div className='stat-card__label'>Active Sessions</div>
           </div>
-          <div className="stat-card">
-            <div className="stat-card__value">{totalSessionCount}</div>
-            <div className="stat-card__label">Total Sessions</div>
+          <div className='stat-card'>
+            <div className='stat-card__value'>{totalSessionCount}</div>
+            <div className='stat-card__label'>Total Sessions</div>
           </div>
           {analytics && (
-            <div className="stat-card">
-              <div className="stat-card__value">
+            <div className='stat-card'>
+              <div className='stat-card__value'>
                 {analytics.suspiciousSessionCount}
               </div>
-              <div className="stat-card__label">Suspicious</div>
+              <div className='stat-card__label'>Suspicious</div>
             </div>
           )}
         </div>
@@ -250,23 +250,23 @@ const SessionManagementDashboard = ({
 
       {/* Security Alerts */}
       {hasAlerts && (
-        <div className="session-dashboard__alerts">
-          <div className="alert alert--warning">
-            <div className="alert__header">
+        <div className='session-dashboard__alerts'>
+          <div className='alert alert--warning'>
+            <div className='alert__header'>
               <h4>🚨 Security Alerts</h4>
               <button
-                className="alert__close"
+                className='alert__close'
                 onClick={clearSecurityAlerts}
-                aria-label="Clear alerts"
+                aria-label='Clear alerts'
               >
                 ×
               </button>
             </div>
-            <div className="alert__content">
+            <div className='alert__content'>
               {securityAlerts.map((alert, index) => (
-                <div key={index} className="alert__item">
+                <div key={index} className='alert__item'>
                   <strong>{alert.type}:</strong> {alert.reason}
-                  <div className="alert__timestamp">
+                  <div className='alert__timestamp'>
                     {formatTimestamp(alert.timestamp)}
                   </div>
                 </div>
@@ -278,9 +278,9 @@ const SessionManagementDashboard = ({
 
       {/* Current Session */}
       {currentSession && (
-        <div className="session-dashboard__current">
-          <div className="session-card session-card--current">
-            <div className="session-card__header">
+        <div className='session-dashboard__current'>
+          <div className='session-card session-card--current'>
+            <div className='session-card__header'>
               <h3>Current Session</h3>
               {getStatusBadge({
                 isActive: isActive,
@@ -289,13 +289,13 @@ const SessionManagementDashboard = ({
                 flags: [],
               })}
             </div>
-            <div className="session-card__content">
-              <div className="session-info">
-                <div className="session-info__item">
+            <div className='session-card__content'>
+              <div className='session-info'>
+                <div className='session-info__item'>
                   <label>Session ID:</label>
-                  <span className="session-id">{currentSession.sessionId}</span>
+                  <span className='session-id'>{currentSession.sessionId}</span>
                 </div>
-                <div className="session-info__item">
+                <div className='session-info__item'>
                   <label>Status:</label>
                   <span
                     className={`session-status session-status--${sessionStatus}`}
@@ -303,22 +303,22 @@ const SessionManagementDashboard = ({
                     {sessionStatus}
                   </span>
                 </div>
-                <div className="session-info__item">
+                <div className='session-info__item'>
                   <label>Expires:</label>
                   <span>{formatTimestamp(currentSession.expiresAt)}</span>
                 </div>
                 {showDeviceDetails && deviceFingerprint && (
-                  <div className="session-info__item">
+                  <div className='session-info__item'>
                     <label>Device:</label>
-                    <span className="device-info">
+                    <span className='device-info'>
                       🖥️ {deviceFingerprint.slice(0, 8)}...
                     </span>
                   </div>
                 )}
               </div>
-              <div className="session-actions">
+              <div className='session-actions'>
                 <button
-                  className="btn btn--danger btn--sm"
+                  className='btn btn--danger btn--sm'
                   onClick={handleTerminateCurrentSession}
                 >
                   Terminate Session
@@ -331,28 +331,28 @@ const SessionManagementDashboard = ({
 
       {/* Bulk Actions */}
       {allowBulkActions && userSessions.length > 0 && (
-        <div className="session-dashboard__bulk-actions">
-          <div className="bulk-actions">
-            <div className="bulk-actions__selection">
-              <label className="checkbox-label">
+        <div className='session-dashboard__bulk-actions'>
+          <div className='bulk-actions'>
+            <div className='bulk-actions__selection'>
+              <label className='checkbox-label'>
                 <input
-                  type="checkbox"
+                  type='checkbox'
                   checked={selectedSessions.size === userSessions.length}
                   onChange={(e) => handleSelectAll(e.target.checked)}
                 />
                 Select All ({selectedSessions.size} selected)
               </label>
             </div>
-            <div className="bulk-actions__buttons">
+            <div className='bulk-actions__buttons'>
               <button
-                className="btn btn--secondary btn--sm"
+                className='btn btn--secondary btn--sm'
                 onClick={handleBulkTerminate}
                 disabled={selectedSessions.size === 0}
               >
                 Terminate Selected ({selectedSessions.size})
               </button>
               <button
-                className="btn btn--warning btn--sm"
+                className='btn btn--warning btn--sm'
                 onClick={handleTerminateAllOthers}
               >
                 Terminate All Others
@@ -363,30 +363,30 @@ const SessionManagementDashboard = ({
       )}
 
       {/* Sessions List */}
-      <div className="session-dashboard__sessions">
-        <div className="session-list">
-          <div className="session-list__header">
+      <div className='session-dashboard__sessions'>
+        <div className='session-list'>
+          <div className='session-list__header'>
             <h3>All Sessions</h3>
             <button
-              className="btn btn--ghost btn--sm"
+              className='btn btn--ghost btn--sm'
               onClick={() => setShowSecurityDetails(!showSecurityDetails)}
             >
-              {showSecurityDetails ? "Hide" : "Show"} Security Details
+              {showSecurityDetails ? 'Hide' : 'Show'} Security Details
             </button>
           </div>
 
           {sessionsLoading ? (
-            <div className="session-list__loading">Loading sessions...</div>
+            <div className='session-list__loading'>Loading sessions...</div>
           ) : userSessions.length === 0 ? (
-            <div className="session-list__empty">No sessions found</div>
+            <div className='session-list__empty'>No sessions found</div>
           ) : (
-            <div className="session-list__content">
+            <div className='session-list__content'>
               {userSessions.map((session) => (
-                <div key={session.sessionId} className="session-item">
+                <div key={session.sessionId} className='session-item'>
                   {allowBulkActions && (
-                    <div className="session-item__select">
+                    <div className='session-item__select'>
                       <input
-                        type="checkbox"
+                        type='checkbox'
                         checked={selectedSessions.has(session.sessionId)}
                         onChange={(e) =>
                           handleSessionSelect(
@@ -398,31 +398,31 @@ const SessionManagementDashboard = ({
                     </div>
                   )}
 
-                  <div className="session-item__icon">
+                  <div className='session-item__icon'>
                     {getDeviceIcon(session.deviceInfo)}
                   </div>
 
-                  <div className="session-item__content">
-                    <div className="session-item__header">
-                      <div className="session-item__title">
-                        {session.deviceInfo?.platform || "Unknown Device"}
+                  <div className='session-item__content'>
+                    <div className='session-item__header'>
+                      <div className='session-item__title'>
+                        {session.deviceInfo?.platform || 'Unknown Device'}
                       </div>
                       {getStatusBadge(session)}
                     </div>
 
-                    <div className="session-item__details">
-                      <div className="session-detail">
-                        <span className="session-detail__label">Created:</span>
+                    <div className='session-item__details'>
+                      <div className='session-detail'>
+                        <span className='session-detail__label'>Created:</span>
                         <span>{formatTimestamp(session.createdAt)}</span>
                       </div>
-                      <div className="session-detail">
-                        <span className="session-detail__label">
+                      <div className='session-detail'>
+                        <span className='session-detail__label'>
                           Last Activity:
                         </span>
                         <span>{formatTimestamp(session.lastActivity)}</span>
                       </div>
-                      <div className="session-detail">
-                        <span className="session-detail__label">Duration:</span>
+                      <div className='session-detail'>
+                        <span className='session-detail__label'>Duration:</span>
                         <span>
                           {formatDuration(
                             session.lastActivity - session.createdAt
@@ -431,23 +431,23 @@ const SessionManagementDashboard = ({
                       </div>
                       {showDeviceDetails && (
                         <>
-                          <div className="session-detail">
-                            <span className="session-detail__label">IP:</span>
+                          <div className='session-detail'>
+                            <span className='session-detail__label'>IP:</span>
                             <span>{session.ipAddress}</span>
                           </div>
-                          <div className="session-detail">
-                            <span className="session-detail__label">
+                          <div className='session-detail'>
+                            <span className='session-detail__label'>
                               User Agent:
                             </span>
-                            <span className="session-detail__user-agent">
+                            <span className='session-detail__user-agent'>
                               {session.userAgent?.slice(0, 60)}...
                             </span>
                           </div>
                         </>
                       )}
                       {showSecurityDetails && session.fraudAnalysis && (
-                        <div className="session-detail">
-                          <span className="session-detail__label">
+                        <div className='session-detail'>
+                          <span className='session-detail__label'>
                             Security Score:
                           </span>
                           <span
@@ -461,16 +461,16 @@ const SessionManagementDashboard = ({
                     </div>
                   </div>
 
-                  <div className="session-item__actions">
+                  <div className='session-item__actions'>
                     <button
-                      className="btn btn--danger btn--xs"
+                      className='btn btn--danger btn--xs'
                       onClick={() =>
                         invalidateSpecificSession(
                           session.sessionId,
-                          "manual_termination"
+                          'manual_termination'
                         )
                       }
-                      title="Terminate this session"
+                      title='Terminate this session'
                     >
                       Terminate
                     </button>
@@ -484,23 +484,23 @@ const SessionManagementDashboard = ({
 
       {/* Analytics */}
       {analytics && !analyticsLoading && (
-        <div className="session-dashboard__analytics">
-          <div className="analytics-panel">
+        <div className='session-dashboard__analytics'>
+          <div className='analytics-panel'>
             <h3>Session Analytics</h3>
-            <div className="analytics-grid">
-              <div className="analytics-card">
+            <div className='analytics-grid'>
+              <div className='analytics-card'>
                 <h4>Average Session Duration</h4>
-                <div className="analytics-value">
+                <div className='analytics-value'>
                   {formatDuration(analytics.averageSessionDuration)}
                 </div>
               </div>
 
-              <div className="analytics-card">
+              <div className='analytics-card'>
                 <h4>Device Distribution</h4>
-                <div className="analytics-list">
+                <div className='analytics-list'>
                   {Object.entries(analytics.deviceDistribution).map(
                     ([device, count]) => (
-                      <div key={device} className="analytics-item">
+                      <div key={device} className='analytics-item'>
                         <span>{device}:</span>
                         <span>{count}</span>
                       </div>
@@ -509,12 +509,12 @@ const SessionManagementDashboard = ({
                 </div>
               </div>
 
-              <div className="analytics-card">
+              <div className='analytics-card'>
                 <h4>Authentication Methods</h4>
-                <div className="analytics-list">
+                <div className='analytics-list'>
                   {Object.entries(analytics.authMethodDistribution).map(
                     ([method, count]) => (
-                      <div key={method} className="analytics-item">
+                      <div key={method} className='analytics-item'>
                         <span>{method}:</span>
                         <span>{count}</span>
                       </div>
@@ -529,23 +529,23 @@ const SessionManagementDashboard = ({
 
       {/* Confirmation Dialog */}
       {confirmDialog && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <div className="modal__header">
+        <div className='modal-overlay'>
+          <div className='modal'>
+            <div className='modal__header'>
               <h3>{confirmDialog.title}</h3>
             </div>
-            <div className="modal__content">
+            <div className='modal__content'>
               <p>{confirmDialog.message}</p>
             </div>
-            <div className="modal__actions">
+            <div className='modal__actions'>
               <button
-                className="btn btn--secondary"
+                className='btn btn--secondary'
                 onClick={confirmDialog.onCancel}
               >
                 Cancel
               </button>
               <button
-                className="btn btn--danger"
+                className='btn btn--danger'
                 onClick={confirmDialog.onConfirm}
               >
                 Confirm

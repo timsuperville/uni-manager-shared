@@ -13,7 +13,7 @@
 
 /* global console, navigator, document, window, setInterval, clearInterval, clearTimeout, setTimeout, Intl, CustomEvent */
 
-import securityService from "./securityService";
+import securityService from './securityService';
 
 class SessionManagementService {
   constructor() {
@@ -25,7 +25,7 @@ class SessionManagementService {
       maxConcurrentSessions: 5,
       sessionTimeout: 24 * 60 * 60 * 1000, // 24 hours
       inactivityTimeout: 30 * 60 * 1000, // 30 minutes
-      deviceFingerprintVersion: "1.0",
+      deviceFingerprintVersion: '1.0',
       heartbeatInterval: 60 * 1000, // 1 minute
       suspiciousActivityThreshold: 3,
     };
@@ -46,10 +46,10 @@ class SessionManagementService {
     try {
       const {
         userId,
-        authMethod = "password",
+        authMethod = 'password',
         deviceInfo = {},
-        ipAddress = "127.0.0.1",
-        userAgent = navigator?.userAgent || "Unknown",
+        ipAddress = '127.0.0.1',
+        userAgent = navigator?.userAgent || 'Unknown',
         rememberMe = false,
       } = sessionData;
 
@@ -83,8 +83,8 @@ class SessionManagementService {
         userAgent,
         deviceInfo: {
           ...deviceInfo,
-          platform: navigator?.platform || "Unknown",
-          language: navigator?.language || "en-US",
+          platform: navigator?.platform || 'Unknown',
+          language: navigator?.language || 'en-US',
           screen: {
             width: window?.screen?.width || 0,
             height: window?.screen?.height || 0,
@@ -103,9 +103,9 @@ class SessionManagementService {
       };
 
       // Check for suspicious activity
-      if (fraudAnalysis.riskLevel === "high") {
-        session.flags.push("high_risk_login");
-        securityService.logSecurityEvent("high_risk_session_created", {
+      if (fraudAnalysis.riskLevel === 'high') {
+        session.flags.push('high_risk_login');
+        securityService.logSecurityEvent('high_risk_session_created', {
           sessionId,
           userId,
           fraudAnalysis,
@@ -127,7 +127,7 @@ class SessionManagementService {
       this.startHeartbeat();
 
       // Log session creation
-      securityService.logSecurityEvent("session_created", {
+      securityService.logSecurityEvent('session_created', {
         sessionId,
         userId,
         authMethod,
@@ -139,10 +139,10 @@ class SessionManagementService {
         sessionId,
         deviceFingerprint,
         expiresAt: session.expiresAt,
-        requiresAdditionalVerification: fraudAnalysis.riskLevel === "high",
+        requiresAdditionalVerification: fraudAnalysis.riskLevel === 'high',
       };
-    } catch (error) {
-      console.error("Error creating session:", error);
+    } catch (_error) {
+      // console.error('Error creating session:', error);
       return {
         success: false,
         error: error.message,
@@ -162,7 +162,7 @@ class SessionManagementService {
       if (!session) {
         return {
           valid: false,
-          reason: "session_not_found",
+          reason: 'session_not_found',
         };
       }
 
@@ -170,20 +170,20 @@ class SessionManagementService {
 
       // Check if session is expired
       if (now > session.expiresAt) {
-        this.invalidateSession(sessionId, "expired");
+        this.invalidateSession(sessionId, 'expired');
         return {
           valid: false,
-          reason: "session_expired",
+          reason: 'session_expired',
         };
       }
 
       // Check for inactivity timeout
       const inactiveTime = now - session.lastActivity;
       if (inactiveTime > this.config.inactivityTimeout && !session.rememberMe) {
-        this.invalidateSession(sessionId, "inactive");
+        this.invalidateSession(sessionId, 'inactive');
         return {
           valid: false,
-          reason: "session_inactive",
+          reason: 'session_inactive',
         };
       }
 
@@ -201,11 +201,11 @@ class SessionManagementService {
           flags: session.flags,
         },
       };
-    } catch (error) {
-      console.error("Error validating session:", error);
+    } catch (_error) {
+      // console.error('Error validating session:', error);
       return {
         valid: false,
-        reason: "validation_error",
+        reason: 'validation_error',
         error: error.message,
       };
     }
@@ -217,7 +217,7 @@ class SessionManagementService {
    * @param {string} reason - Reason for invalidation
    * @returns {boolean} Success status
    */
-  invalidateSession(sessionId, reason = "manual") {
+  invalidateSession(sessionId, reason = 'manual') {
     try {
       const session = this.activeSessions.get(sessionId);
 
@@ -235,7 +235,7 @@ class SessionManagementService {
         }
 
         // Log session invalidation
-        securityService.logSecurityEvent("session_invalidated", {
+        securityService.logSecurityEvent('session_invalidated', {
           sessionId,
           userId: session.userId,
           reason,
@@ -256,8 +256,8 @@ class SessionManagementService {
       }
 
       return true;
-    } catch (error) {
-      console.error("Error invalidating session:", error);
+    } catch (_error) {
+      // console.error('Error invalidating session:', error);
       return false;
     }
   }
@@ -302,7 +302,7 @@ class SessionManagementService {
 
     sessions.forEach((session) => {
       if (session.sessionId !== exceptSessionId) {
-        if (this.invalidateSession(session.sessionId, "user_logout_all")) {
+        if (this.invalidateSession(session.sessionId, 'user_logout_all')) {
           invalidatedCount++;
         }
       }
@@ -324,9 +324,9 @@ class SessionManagementService {
 
       // Remove oldest session
       const oldestSession = sessions[0];
-      this.invalidateSession(oldestSession.sessionId, "session_limit_exceeded");
+      this.invalidateSession(oldestSession.sessionId, 'session_limit_exceeded');
 
-      securityService.logSecurityEvent("session_limit_enforced", {
+      securityService.logSecurityEvent('session_limit_enforced', {
         userId,
         removedSessionId: oldestSession.sessionId,
         totalSessions: sessions.length,
@@ -347,35 +347,35 @@ class SessionManagementService {
       const components = [];
 
       // Browser and platform info
-      if (typeof navigator !== "undefined") {
-        components.push(navigator.userAgent || "");
-        components.push(navigator.platform || "");
-        components.push(navigator.language || "");
-        components.push(navigator.hardwareConcurrency || 0);
-        components.push(navigator.deviceMemory || 0);
+      if (typeof navigator !== 'undefined') {
+        components.push(typeof navigator !== "undefined" && navigator.userAgent || '');
+        components.push(typeof navigator !== "undefined" && navigator.platform || '');
+        components.push(typeof navigator !== "undefined" && navigator.language || '');
+        components.push(typeof navigator !== "undefined" && navigator.hardwareConcurrency || 0);
+        components.push(typeof navigator !== "undefined" && navigator.deviceMemory || 0);
       }
 
       // Screen information
-      if (typeof window !== "undefined" && window.screen) {
-        components.push(window.screen.width || 0);
-        components.push(window.screen.height || 0);
-        components.push(window.screen.colorDepth || 0);
+      if (typeof window !== 'undefined' && typeof window !== "undefined" && window.screen) {
+        components.push(typeof window !== "undefined" && window.screen.width || 0);
+        components.push(typeof window !== "undefined" && window.screen.height || 0);
+        components.push(typeof window !== "undefined" && window.screen.colorDepth || 0);
       }
 
       // Timezone
-      components.push(Intl.DateTimeFormat().resolvedOptions().timeZone || "");
+      components.push(Intl.DateTimeFormat().resolvedOptions().timeZone || '');
 
       // Canvas fingerprinting (simplified)
       const canvasFingerprint = this.getCanvasFingerprint();
       components.push(canvasFingerprint);
 
       // Combine all components
-      const fingerprint = components.join("|");
+      const fingerprint = components.join('|');
 
       // Generate hash (simplified - in production use crypto.subtle)
       return this.simpleHash(fingerprint);
-    } catch (error) {
-      console.error("Error generating device fingerprint:", error);
+    } catch (_error) {
+      // console.error('Error generating device fingerprint:', error);
       return `fallback_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     }
   }
@@ -386,23 +386,23 @@ class SessionManagementService {
    */
   getCanvasFingerprint() {
     try {
-      if (typeof document === "undefined") return "no-canvas";
+      if (typeof document === 'undefined') return 'no-canvas';
 
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
+      const canvas = typeof document !== "undefined" && document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
 
-      if (!ctx) return "no-context";
+      if (!ctx) return 'no-context';
 
       // Draw some shapes and text
-      ctx.textBaseline = "top";
-      ctx.font = "14px Arial";
-      ctx.fillText("Device fingerprint canvas", 2, 2);
-      ctx.fillStyle = "rgba(102, 204, 0, 0.7)";
+      ctx.textBaseline = 'top';
+      ctx.font = '14px Arial';
+      ctx.fillText('Device fingerprint canvas', 2, 2);
+      ctx.fillStyle = 'rgba(102, 204, 0, 0.7)';
       ctx.fillRect(100, 5, 80, 20);
 
       return canvas.toDataURL().slice(-50); // Last 50 chars
-    } catch (error) {
-      return "canvas-error";
+    } catch (_error) {
+      return 'canvas-error';
     }
   }
 
@@ -459,8 +459,8 @@ class SessionManagementService {
     if (!validationResult.valid) {
       this.stopHeartbeat();
       // Notify application about session expiry
-      window.dispatchEvent(
-        new CustomEvent("sessionExpired", {
+      typeof window !== "undefined" && window.dispatchEvent(
+        new CustomEvent('sessionExpired', {
           detail: { reason: validationResult.reason },
         })
       );
@@ -483,7 +483,7 @@ class SessionManagementService {
       activityData.ipAddress &&
       activityData.ipAddress !== session.ipAddress
     ) {
-      suspiciousIndicators.push("ip_change");
+      suspiciousIndicators.push('ip_change');
     }
 
     // Check for unusual location changes
@@ -494,22 +494,22 @@ class SessionManagementService {
       );
       if (distance > 100) {
         // More than 100km
-        suspiciousIndicators.push("location_change");
+        suspiciousIndicators.push('location_change');
       }
     }
 
     // Check for rapid activity patterns
     const timeSinceLastActivity = Date.now() - session.lastActivity;
     if (timeSinceLastActivity < 1000 && session.activityCount > 100) {
-      suspiciousIndicators.push("rapid_activity");
+      suspiciousIndicators.push('rapid_activity');
     }
 
     if (
       suspiciousIndicators.length >= this.config.suspiciousActivityThreshold
     ) {
-      session.flags.push("suspicious_activity");
+      session.flags.push('suspicious_activity');
 
-      securityService.logSecurityEvent("suspicious_session_activity", {
+      securityService.logSecurityEvent('suspicious_session_activity', {
         sessionId,
         userId: session.userId,
         indicators: suspiciousIndicators,
@@ -519,7 +519,7 @@ class SessionManagementService {
       // Consider requiring re-authentication
       return {
         requiresReauth: true,
-        reason: "suspicious_activity",
+        reason: 'suspicious_activity',
         indicators: suspiciousIndicators,
       };
     }
@@ -602,7 +602,7 @@ class SessionManagementService {
    */
   setSessionTimeout(sessionId, timeoutMs) {
     const timeoutHandle = setTimeout(() => {
-      this.invalidateSession(sessionId, "timeout");
+      this.invalidateSession(sessionId, 'timeout');
     }, timeoutMs);
 
     this.sessionTimeouts.set(sessionId, timeoutHandle);
@@ -672,7 +672,7 @@ class SessionManagementService {
 
         // Device distribution
         targetSessions.forEach((session) => {
-          const platform = session.deviceInfo.platform || "Unknown";
+          const platform = session.deviceInfo.platform || 'Unknown';
           analytics.deviceDistribution[platform] =
             (analytics.deviceDistribution[platform] || 0) + 1;
         });
@@ -685,7 +685,7 @@ class SessionManagementService {
 
         // Suspicious session count
         analytics.suspiciousSessionCount = targetSessions.filter((session) =>
-          session.flags.some((flag) => flag.includes("suspicious"))
+          session.flags.some((flag) => flag.includes('suspicious'))
         ).length;
 
         // Recent activity (last 24 hours)
@@ -696,8 +696,8 @@ class SessionManagementService {
       }
 
       return analytics;
-    } catch (error) {
-      console.error("Error getting session analytics:", error);
+    } catch (_error) {
+      // console.error('Error getting session analytics:', error);
       return {
         totalSessions: 0,
         activeSessions: 0,
@@ -721,14 +721,14 @@ class SessionManagementService {
       }
 
       expiredSessions.forEach((sessionId) => {
-        this.invalidateSession(sessionId, "cleanup_expired");
+        this.invalidateSession(sessionId, 'cleanup_expired');
       });
 
-      console.log(
+      // console.log(
         `[SESSION] Cleaned up ${expiredSessions.length} expired sessions`
       );
-    } catch (error) {
-      console.error("Error during session cleanup:", error);
+    } catch (_error) {
+      // console.error('Error during session cleanup:', error);
     }
   }
 
@@ -754,7 +754,7 @@ class SessionManagementService {
 const sessionManagementService = new SessionManagementService();
 
 // Set up periodic cleanup
-if (typeof window !== "undefined") {
+if (typeof window !== 'undefined') {
   setInterval(() => sessionManagementService.cleanup(), 5 * 60 * 1000); // Every 5 minutes
 }
 

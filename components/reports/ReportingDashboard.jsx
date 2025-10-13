@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Box,
   Paper,
@@ -33,7 +33,7 @@ import {
   MenuList,
   MenuItem as MenuItemComponent,
   Badge,
-} from "@mui/material";
+} from '@mui/material';
 import {
   Add as AddIcon,
   PlayArrow as RunIcon,
@@ -51,16 +51,16 @@ import {
   Settings as SettingsIcon,
   Refresh as RefreshIcon,
   FileDownload as ExportIcon,
-} from "@mui/icons-material";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/adapters/dayjs";
-import dayjs from "dayjs";
+} from '@mui/icons-material';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/adapters/dayjs';
+import dayjs from 'dayjs';
 
-import { useNotification } from "../../shared/hooks/useNotification";
-import LoadingSpinner from "../../shared/components/LoadingSpinner";
-import EnvironmentDebugBanner from "../EnvironmentDebugBanner.jsx";
-import reportingService from "../services/reportingService";
+import { useNotification } from '../../shared/hooks/useNotification';
+import LoadingSpinner from '../../shared/components/LoadingSpinner';
+import EnvironmentDebugBanner from '../EnvironmentDebugBanner.jsx';
+import reportingService from '../services/reportingService';
 
 const REPORT_TYPE_ICONS = {
   tabular: TableIcon,
@@ -71,19 +71,19 @@ const REPORT_TYPE_ICONS = {
 };
 
 const REPORT_CATEGORIES = [
-  { value: "financial", label: "Financial", color: "success" },
-  { value: "membership", label: "Membership", color: "primary" },
-  { value: "events", label: "Events", color: "warning" },
-  { value: "executive", label: "Executive", color: "error" },
-  { value: "operational", label: "Operational", color: "info" },
-  { value: "custom", label: "Custom", color: "default" },
+  { value: 'financial', label: 'Financial', color: 'success' },
+  { value: 'membership', label: 'Membership', color: 'primary' },
+  { value: 'events', label: 'Events', color: 'warning' },
+  { value: 'executive', label: 'Executive', color: 'error' },
+  { value: 'operational', label: 'Operational', color: 'info' },
+  { value: 'custom', label: 'Custom', color: 'default' },
 ];
 
 const EXPORT_FORMATS = [
-  { value: "pdf", label: "PDF", icon: "📄" },
-  { value: "excel", label: "Excel", icon: "📊" },
-  { value: "csv", label: "CSV", icon: "📋" },
-  { value: "json", label: "JSON", icon: "🔧" },
+  { value: 'pdf', label: 'PDF', icon: '📄' },
+  { value: 'excel', label: 'Excel', icon: '📊' },
+  { value: 'csv', label: 'CSV', icon: '📋' },
+  { value: 'json', label: 'JSON', icon: '🔧' },
 ];
 
 /**
@@ -115,9 +115,9 @@ function ReportingDashboard() {
       setLoading(true);
       const data = await reportingService.getReports();
       setReports(data);
-    } catch (error) {
-      showNotification("Failed to load reports", "error");
-      console.error("Error loading reports:", error);
+    } catch (_error) {
+      showNotification('Failed to load reports', 'error');
+      // console.error('Error loading reports:', error);
     } finally {
       setLoading(false);
     }
@@ -127,9 +127,9 @@ function ReportingDashboard() {
     try {
       const data = await reportingService.getTemplates();
       setTemplates(data);
-    } catch (error) {
-      showNotification("Failed to load templates", "error");
-      console.error("Error loading templates:", error);
+    } catch (_error) {
+      showNotification('Failed to load templates', 'error');
+      // console.error('Error loading templates:', error);
     }
   };
 
@@ -137,8 +137,8 @@ function ReportingDashboard() {
     try {
       const data = await reportingService.getRecentReports();
       setRecentReports(data);
-    } catch (error) {
-      console.error("Error loading recent reports:", error);
+    } catch (_error) {
+      // console.error('Error loading recent reports:', error);
     }
   };
 
@@ -150,16 +150,16 @@ function ReportingDashboard() {
         parameters
       );
 
-      showNotification("Report generated successfully", "success");
+      showNotification('Report generated successfully', 'success');
       loadRecentReports();
 
       // Auto-download if requested
       if (parameters.autoDownload) {
-        await handleDownloadReport(result.reportId, parameters.format || "pdf");
+        await handleDownloadReport(result.reportId, parameters.format || 'pdf');
       }
-    } catch (error) {
-      showNotification("Failed to generate report", "error");
-      console.error("Error generating report:", error);
+    } catch (_error) {
+      showNotification('Failed to generate report', 'error');
+      // console.error('Error generating report:', error);
     } finally {
       setRunningReports((prev) => {
         const newSet = new Set(prev);
@@ -170,33 +170,33 @@ function ReportingDashboard() {
     }
   };
 
-  const handleDownloadReport = async (reportId, format = "pdf") => {
+  const handleDownloadReport = async (reportId, format = 'pdf') => {
     try {
       const blob = await reportingService.downloadReport(reportId, format);
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
+      const url = typeof window !== "undefined" && window.URL.createObjectURL(blob);
+      const link = typeof document !== "undefined" && document.createElement('a');
       link.href = url;
       link.download = `report-${reportId}.${format}`;
-      document.body.appendChild(link);
+      typeof document !== "undefined" && document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+      typeof document !== "undefined" && document.body.removeChild(link);
+      typeof window !== "undefined" && window.URL.revokeObjectURL(url);
 
-      showNotification("Report downloaded successfully", "success");
-    } catch (error) {
-      showNotification("Failed to download report", "error");
-      console.error("Error downloading report:", error);
+      showNotification('Report downloaded successfully', 'success');
+    } catch (_error) {
+      showNotification('Failed to download report', 'error');
+      // console.error('Error downloading report:', error);
     }
   };
 
   const handleDeleteReport = async (reportId) => {
     try {
       await reportingService.deleteReport(reportId);
-      showNotification("Report deleted successfully", "success");
+      showNotification('Report deleted successfully', 'success');
       loadReports();
-    } catch (error) {
-      showNotification("Failed to delete report", "error");
-      console.error("Error deleting report:", error);
+    } catch (_error) {
+      showNotification('Failed to delete report', 'error');
+      // console.error('Error deleting report:', error);
     }
   };
 
@@ -206,13 +206,13 @@ function ReportingDashboard() {
         case 0:
           return true; // All reports
         case 1:
-          return report.category === "financial";
+          return report.category === 'financial';
         case 2:
-          return report.category === "membership";
+          return report.category === 'membership';
         case 3:
-          return report.category === "events";
+          return report.category === 'events';
         case 4:
-          return report.category === "executive";
+          return report.category === 'executive';
         default:
           return true;
       }
@@ -223,7 +223,7 @@ function ReportingDashboard() {
     const categoryConfig = REPORT_CATEGORIES.find(
       (cat) => cat.value === category
     );
-    return categoryConfig ? categoryConfig.color : "default";
+    return categoryConfig ? categoryConfig.color : 'default';
   };
 
   const getCategoryLabel = (category) => {
@@ -239,7 +239,7 @@ function ReportingDashboard() {
   };
 
   if (loading) {
-    return <LoadingSpinner message="Loading reporting dashboard..." />;
+    return <LoadingSpinner message='Loading reporting dashboard...' />;
   }
 
   return (
@@ -251,23 +251,23 @@ function ReportingDashboard() {
         {/* Header */}
         <Box
           sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
             mb: 3,
           }}
         >
           <Typography
-            variant="h4"
-            component="h1"
-            sx={{ display: "flex", alignItems: "center", gap: 1 }}
+            variant='h4'
+            component='h1'
+            sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
           >
-            <ReportIcon color="primary" />
+            <ReportIcon color='primary' />
             Reporting Dashboard
           </Typography>
-          <Box sx={{ display: "flex", gap: 1 }}>
+          <Box sx={{ display: 'flex', gap: 1 }}>
             <Button
-              variant="outlined"
+              variant='outlined'
               startIcon={<RefreshIcon />}
               onClick={() => {
                 loadReports();
@@ -278,7 +278,7 @@ function ReportingDashboard() {
               Refresh
             </Button>
             <Button
-              variant="contained"
+              variant='contained'
               startIcon={<AddIcon />}
               onClick={() => setCreateDialogOpen(true)}
             >
@@ -292,41 +292,41 @@ function ReportingDashboard() {
           <Grid item xs={12} sm={6} md={3}>
             <Card>
               <CardContent>
-                <Typography color="textSecondary" gutterBottom>
+                <Typography color='textSecondary' gutterBottom>
                   Total Reports
                 </Typography>
-                <Typography variant="h4">{reports.length}</Typography>
+                <Typography variant='h4'>{reports.length}</Typography>
               </CardContent>
             </Card>
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
             <Card>
               <CardContent>
-                <Typography color="textSecondary" gutterBottom>
+                <Typography color='textSecondary' gutterBottom>
                   Templates Available
                 </Typography>
-                <Typography variant="h4">{templates.length}</Typography>
+                <Typography variant='h4'>{templates.length}</Typography>
               </CardContent>
             </Card>
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
             <Card>
               <CardContent>
-                <Typography color="textSecondary" gutterBottom>
+                <Typography color='textSecondary' gutterBottom>
                   Recent Executions
                 </Typography>
-                <Typography variant="h4">{recentReports.length}</Typography>
+                <Typography variant='h4'>{recentReports.length}</Typography>
               </CardContent>
             </Card>
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
             <Card>
               <CardContent>
-                <Typography color="textSecondary" gutterBottom>
+                <Typography color='textSecondary' gutterBottom>
                   Running Reports
                 </Typography>
-                <Typography variant="h4">
-                  <Badge badgeContent={runningReports.size} color="primary">
+                <Typography variant='h4'>
+                  <Badge badgeContent={runningReports.size} color='primary'>
                     {runningReports.size}
                   </Badge>
                 </Typography>
@@ -340,14 +340,14 @@ function ReportingDashboard() {
           <Tabs
             value={selectedTab}
             onChange={(e, newValue) => setSelectedTab(newValue)}
-            variant="scrollable"
-            scrollButtons="auto"
+            variant='scrollable'
+            scrollButtons='auto'
           >
-            <Tab label="All Reports" />
-            <Tab label="Financial" />
-            <Tab label="Membership" />
-            <Tab label="Events" />
-            <Tab label="Executive" />
+            <Tab label='All Reports' />
+            <Tab label='Financial' />
+            <Tab label='Membership' />
+            <Tab label='Events' />
+            <Tab label='Executive' />
           </Tabs>
         </Paper>
 
@@ -357,28 +357,28 @@ function ReportingDashboard() {
             <Grid item xs={12} sm={6} md={4} lg={3} key={report.id}>
               <Card
                 sx={{
-                  height: "100%",
-                  display: "flex",
-                  flexDirection: "column",
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
                 }}
               >
                 <CardContent sx={{ flexGrow: 1 }}>
                   <Box
                     sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
                       mb: 2,
                     }}
                   >
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       {getReportIcon(report.type)}
-                      <Typography variant="h6" component="h2" noWrap>
+                      <Typography variant='h6' component='h2' noWrap>
                         {report.name}
                       </Typography>
                     </Box>
                     <IconButton
-                      size="small"
+                      size='small'
                       onClick={(e) => {
                         setMenuAnchor(e.currentTarget);
                         setSelectedReport(report);
@@ -389,49 +389,49 @@ function ReportingDashboard() {
                   </Box>
 
                   <Typography
-                    variant="body2"
-                    color="textSecondary"
+                    variant='body2'
+                    color='textSecondary'
                     sx={{ mb: 2 }}
                   >
                     {report.description}
                   </Typography>
 
                   <Box
-                    sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 2 }}
+                    sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}
                   >
                     <Chip
                       label={getCategoryLabel(report.category)}
-                      size="small"
+                      size='small'
                       color={getCategoryColor(report.category)}
                     />
-                    <Chip label={report.type} size="small" variant="outlined" />
+                    <Chip label={report.type} size='small' variant='outlined' />
                   </Box>
 
                   {report.schedule && (
                     <Box
                       sx={{
-                        display: "flex",
-                        alignItems: "center",
+                        display: 'flex',
+                        alignItems: 'center',
                         gap: 1,
                         mb: 1,
                       }}
                     >
-                      <ScheduleIcon fontSize="small" color="action" />
-                      <Typography variant="caption" color="textSecondary">
+                      <ScheduleIcon fontSize='small' color='action' />
+                      <Typography variant='caption' color='textSecondary'>
                         {report.schedule.frequency}
                       </Typography>
                     </Box>
                   )}
 
-                  <Typography variant="caption" color="textSecondary">
-                    Last updated:{" "}
-                    {dayjs(report.updatedAt).format("MMM DD, YYYY")}
+                  <Typography variant='caption' color='textSecondary'>
+                    Last updated:{' '}
+                    {dayjs(report.updatedAt).format('MMM DD, YYYY')}
                   </Typography>
                 </CardContent>
 
                 <CardActions>
                   <Button
-                    size="small"
+                    size='small'
                     startIcon={
                       runningReports.has(report.id) ? (
                         <CircularProgress size={16} />
@@ -445,14 +445,14 @@ function ReportingDashboard() {
                       setRunDialogOpen(true);
                     }}
                   >
-                    {runningReports.has(report.id) ? "Running..." : "Run"}
+                    {runningReports.has(report.id) ? 'Running...' : 'Run'}
                   </Button>
                   <Button
-                    size="small"
+                    size='small'
                     startIcon={<PreviewIcon />}
                     onClick={() => {
                       // TODO: Implement preview functionality
-                      showNotification("Preview feature coming soon", "info");
+                      showNotification('Preview feature coming soon', 'info');
                     }}
                   >
                     Preview
@@ -464,17 +464,17 @@ function ReportingDashboard() {
         </Grid>
 
         {filteredReports.length === 0 && (
-          <Paper sx={{ p: 4, textAlign: "center" }}>
-            <ReportIcon sx={{ fontSize: 64, color: "text.secondary", mb: 2 }} />
-            <Typography variant="h6" color="textSecondary" gutterBottom>
+          <Paper sx={{ p: 4, textAlign: 'center' }}>
+            <ReportIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
+            <Typography variant='h6' color='textSecondary' gutterBottom>
               No reports found
             </Typography>
-            <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
+            <Typography variant='body2' color='textSecondary' sx={{ mb: 2 }}>
               Create your first report to get started with analytics and
               insights.
             </Typography>
             <Button
-              variant="contained"
+              variant='contained'
               startIcon={<AddIcon />}
               onClick={() => setCreateDialogOpen(true)}
             >
@@ -486,7 +486,7 @@ function ReportingDashboard() {
         {/* Recent Reports Section */}
         {recentReports.length > 0 && (
           <Paper sx={{ mt: 3, p: 2 }}>
-            <Typography variant="h6" gutterBottom>
+            <Typography variant='h6' gutterBottom>
               Recent Executions
             </Typography>
             <List>
@@ -498,9 +498,9 @@ function ReportingDashboard() {
                       secondary={`Generated ${dayjs(execution.createdAt).fromNow()} • ${execution.format.toUpperCase()}`}
                     />
                     <ListItemSecondaryAction>
-                      <Tooltip title="Download">
+                      <Tooltip title='Download'>
                         <IconButton
-                          edge="end"
+                          edge='end'
                           onClick={() =>
                             handleDownloadReport(execution.id, execution.format)
                           }
@@ -536,7 +536,7 @@ function ReportingDashboard() {
             <MenuItemComponent
               onClick={() => {
                 // TODO: Implement edit functionality
-                showNotification("Edit feature coming soon", "info");
+                showNotification('Edit feature coming soon', 'info');
                 setMenuAnchor(null);
               }}
             >
@@ -546,7 +546,7 @@ function ReportingDashboard() {
             <MenuItemComponent
               onClick={() => {
                 // TODO: Implement duplicate functionality
-                showNotification("Duplicate feature coming soon", "info");
+                showNotification('Duplicate feature coming soon', 'info');
                 setMenuAnchor(null);
               }}
             >
@@ -557,13 +557,13 @@ function ReportingDashboard() {
             <MenuItemComponent
               onClick={() => {
                 if (
-                  window.confirm("Are you sure you want to delete this report?")
+                  typeof window !== "undefined" && window.confirm('Are you sure you want to delete this report?')
                 ) {
                   handleDeleteReport(selectedReport.id);
                 }
                 setMenuAnchor(null);
               }}
-              sx={{ color: "error.main" }}
+              sx={{ color: 'error.main' }}
             >
               <DeleteIcon sx={{ mr: 1 }} />
               Delete
@@ -599,7 +599,7 @@ function ReportingDashboard() {
  */
 function RunReportDialog({ open, onClose, report, onRun }) {
   const [parameters, setParameters] = useState({});
-  const [format, setFormat] = useState("pdf");
+  const [format, setFormat] = useState('pdf');
   const [autoDownload, setAutoDownload] = useState(true);
 
   useEffect(() => {
@@ -608,15 +608,15 @@ function RunReportDialog({ open, onClose, report, onRun }) {
       const defaultParams = {};
       if (report.parameters) {
         report.parameters.forEach((param) => {
-          if (param.type === "date") {
-            defaultParams[param.name] = dayjs().format("YYYY-MM-DD");
-          } else if (param.type === "dateRange") {
+          if (param.type === 'date') {
+            defaultParams[param.name] = dayjs().format('YYYY-MM-DD');
+          } else if (param.type === 'dateRange') {
             defaultParams[`${param.name}_start`] = dayjs()
-              .subtract(30, "day")
-              .format("YYYY-MM-DD");
-            defaultParams[`${param.name}_end`] = dayjs().format("YYYY-MM-DD");
+              .subtract(30, 'day')
+              .format('YYYY-MM-DD');
+            defaultParams[`${param.name}_end`] = dayjs().format('YYYY-MM-DD');
           } else {
-            defaultParams[param.name] = param.defaultValue || "";
+            defaultParams[param.name] = param.defaultValue || '';
           }
         });
       }
@@ -635,20 +635,20 @@ function RunReportDialog({ open, onClose, report, onRun }) {
   if (!report) return null;
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+    <Dialog open={open} onClose={onClose} maxWidth='md' fullWidth>
       <DialogTitle>Run Report: {report.name}</DialogTitle>
       <DialogContent>
         <Box sx={{ pt: 2 }}>
           {/* Report Parameters */}
           {report.parameters && report.parameters.length > 0 && (
             <Box sx={{ mb: 3 }}>
-              <Typography variant="h6" gutterBottom>
+              <Typography variant='h6' gutterBottom>
                 Parameters
               </Typography>
               <Grid container spacing={2}>
                 {report.parameters.map((param) => (
                   <Grid item xs={12} sm={6} key={param.name}>
-                    {param.type === "date" && (
+                    {param.type === 'date' && (
                       <DatePicker
                         label={param.label}
                         value={
@@ -660,8 +660,8 @@ function RunReportDialog({ open, onClose, report, onRun }) {
                           setParameters((prev) => ({
                             ...prev,
                             [param.name]: newValue
-                              ? newValue.format("YYYY-MM-DD")
-                              : "",
+                              ? newValue.format('YYYY-MM-DD')
+                              : '',
                           }));
                         }}
                         renderInput={(params) => (
@@ -669,11 +669,11 @@ function RunReportDialog({ open, onClose, report, onRun }) {
                         )}
                       />
                     )}
-                    {param.type === "text" && (
+                    {param.type === 'text' && (
                       <TextField
                         fullWidth
                         label={param.label}
-                        value={parameters[param.name] || ""}
+                        value={parameters[param.name] || ''}
                         onChange={(e) => {
                           setParameters((prev) => ({
                             ...prev,
@@ -683,11 +683,11 @@ function RunReportDialog({ open, onClose, report, onRun }) {
                         helperText={param.description}
                       />
                     )}
-                    {param.type === "select" && (
+                    {param.type === 'select' && (
                       <FormControl fullWidth>
                         <InputLabel>{param.label}</InputLabel>
                         <Select
-                          value={parameters[param.name] || ""}
+                          value={parameters[param.name] || ''}
                           onChange={(e) => {
                             setParameters((prev) => ({
                               ...prev,
@@ -711,7 +711,7 @@ function RunReportDialog({ open, onClose, report, onRun }) {
 
           {/* Export Options */}
           <Box sx={{ mb: 2 }}>
-            <Typography variant="h6" gutterBottom>
+            <Typography variant='h6' gutterBottom>
               Export Options
             </Typography>
             <Grid container spacing={2}>
@@ -748,7 +748,7 @@ function RunReportDialog({ open, onClose, report, onRun }) {
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
-        <Button variant="contained" startIcon={<RunIcon />} onClick={handleRun}>
+        <Button variant='contained' startIcon={<RunIcon />} onClick={handleRun}>
           Run Report
         </Button>
       </DialogActions>
@@ -763,10 +763,10 @@ function CreateReportDialog({ open, onClose, templates, onCreated }) {
   const [step, setStep] = useState(0);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [reportData, setReportData] = useState({
-    name: "",
-    description: "",
-    category: "",
-    type: "tabular",
+    name: '',
+    description: '',
+    category: '',
+    type: 'tabular',
   });
 
   const { showNotification } = useNotification();
@@ -776,7 +776,7 @@ function CreateReportDialog({ open, onClose, templates, onCreated }) {
       setReportData((prev) => ({
         ...prev,
         category: selectedTemplate.category,
-        type: selectedTemplate.type || "tabular",
+        type: selectedTemplate.type || 'tabular',
       }));
     }
     setStep(step + 1);
@@ -789,32 +789,32 @@ function CreateReportDialog({ open, onClose, templates, onCreated }) {
         templateId: selectedTemplate?.id,
       });
 
-      showNotification("Report created successfully", "success");
+      showNotification('Report created successfully', 'success');
       onCreated();
 
       // Reset form
       setStep(0);
       setSelectedTemplate(null);
       setReportData({
-        name: "",
-        description: "",
-        category: "",
-        type: "tabular",
+        name: '',
+        description: '',
+        category: '',
+        type: 'tabular',
       });
-    } catch (error) {
-      showNotification("Failed to create report", "error");
-      console.error("Error creating report:", error);
+    } catch (_error) {
+      showNotification('Failed to create report', 'error');
+      // console.error('Error creating report:', error);
     }
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+    <Dialog open={open} onClose={onClose} maxWidth='md' fullWidth>
       <DialogTitle>Create New Report - Step {step + 1} of 3</DialogTitle>
       <DialogContent>
         <Box sx={{ pt: 2 }}>
           {step === 0 && (
             <Box>
-              <Typography variant="h6" gutterBottom>
+              <Typography variant='h6' gutterBottom>
                 Choose a Template
               </Typography>
               <Grid container spacing={2}>
@@ -822,29 +822,29 @@ function CreateReportDialog({ open, onClose, templates, onCreated }) {
                   <Grid item xs={12} sm={6} md={4} key={template.id}>
                     <Card
                       sx={{
-                        cursor: "pointer",
+                        cursor: 'pointer',
                         border: selectedTemplate?.id === template.id ? 2 : 1,
                         borderColor:
                           selectedTemplate?.id === template.id
-                            ? "primary.main"
-                            : "divider",
+                            ? 'primary.main'
+                            : 'divider',
                       }}
                       onClick={() => setSelectedTemplate(template)}
                     >
                       <CardContent>
-                        <Typography variant="h6" gutterBottom>
+                        <Typography variant='h6' gutterBottom>
                           {template.name}
                         </Typography>
                         <Typography
-                          variant="body2"
-                          color="textSecondary"
+                          variant='body2'
+                          color='textSecondary'
                           sx={{ mb: 1 }}
                         >
                           {template.description}
                         </Typography>
                         <Chip
                           label={getCategoryLabel(template.category)}
-                          size="small"
+                          size='small'
                           color={getCategoryColor(template.category)}
                         />
                       </CardContent>
@@ -857,14 +857,14 @@ function CreateReportDialog({ open, onClose, templates, onCreated }) {
 
           {step === 1 && (
             <Box>
-              <Typography variant="h6" gutterBottom>
+              <Typography variant='h6' gutterBottom>
                 Report Details
               </Typography>
               <Grid container spacing={2}>
                 <Grid item xs={12}>
                   <TextField
                     fullWidth
-                    label="Report Name"
+                    label='Report Name'
                     value={reportData.name}
                     onChange={(e) =>
                       setReportData((prev) => ({
@@ -879,7 +879,7 @@ function CreateReportDialog({ open, onClose, templates, onCreated }) {
                     fullWidth
                     multiline
                     rows={3}
-                    label="Description"
+                    label='Description'
                     value={reportData.description}
                     onChange={(e) =>
                       setReportData((prev) => ({
@@ -921,11 +921,11 @@ function CreateReportDialog({ open, onClose, templates, onCreated }) {
                         }))
                       }
                     >
-                      <MenuItem value="tabular">Tabular</MenuItem>
-                      <MenuItem value="chart">Chart</MenuItem>
-                      <MenuItem value="dashboard">Dashboard</MenuItem>
-                      <MenuItem value="analytical">Analytical</MenuItem>
-                      <MenuItem value="executive">Executive</MenuItem>
+                      <MenuItem value='tabular'>Tabular</MenuItem>
+                      <MenuItem value='chart'>Chart</MenuItem>
+                      <MenuItem value='dashboard'>Dashboard</MenuItem>
+                      <MenuItem value='analytical'>Analytical</MenuItem>
+                      <MenuItem value='executive'>Executive</MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>
@@ -935,35 +935,35 @@ function CreateReportDialog({ open, onClose, templates, onCreated }) {
 
           {step === 2 && (
             <Box>
-              <Typography variant="h6" gutterBottom>
+              <Typography variant='h6' gutterBottom>
                 Review and Create
               </Typography>
-              <Alert severity="info" sx={{ mb: 2 }}>
+              <Alert severity='info' sx={{ mb: 2 }}>
                 Review your report configuration before creating.
               </Alert>
               <Box
                 sx={{
                   p: 2,
-                  bgcolor: "background.paper",
+                  bgcolor: 'background.paper',
                   border: 1,
-                  borderColor: "divider",
+                  borderColor: 'divider',
                   borderRadius: 1,
                 }}
               >
-                <Typography variant="subtitle1" gutterBottom>
+                <Typography variant='subtitle1' gutterBottom>
                   <strong>Report Name:</strong> {reportData.name}
                 </Typography>
-                <Typography variant="body2" gutterBottom>
+                <Typography variant='body2' gutterBottom>
                   <strong>Description:</strong> {reportData.description}
                 </Typography>
-                <Typography variant="body2" gutterBottom>
+                <Typography variant='body2' gutterBottom>
                   <strong>Template:</strong> {selectedTemplate?.name}
                 </Typography>
-                <Typography variant="body2" gutterBottom>
-                  <strong>Category:</strong>{" "}
+                <Typography variant='body2' gutterBottom>
+                  <strong>Category:</strong>{' '}
                   {getCategoryLabel(reportData.category)}
                 </Typography>
-                <Typography variant="body2">
+                <Typography variant='body2'>
                   <strong>Type:</strong> {reportData.type}
                 </Typography>
               </Box>
@@ -976,7 +976,7 @@ function CreateReportDialog({ open, onClose, templates, onCreated }) {
         {step > 0 && <Button onClick={() => setStep(step - 1)}>Back</Button>}
         {step < 2 ? (
           <Button
-            variant="contained"
+            variant='contained'
             onClick={handleNext}
             disabled={step === 0 && !selectedTemplate}
           >
@@ -984,7 +984,7 @@ function CreateReportDialog({ open, onClose, templates, onCreated }) {
           </Button>
         ) : (
           <Button
-            variant="contained"
+            variant='contained'
             startIcon={<AddIcon />}
             onClick={handleCreate}
             disabled={!reportData.name || !selectedTemplate}

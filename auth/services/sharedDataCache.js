@@ -21,9 +21,9 @@ class SharedDataCache {
     // Start cleanup interval
     this.startCleanupInterval();
     // Listen for storage events to sync across tabs
-    if (typeof window !== "undefined") {
+    if (typeof window !== 'undefined') {
       this.boundStorageHandler = this.handleStorageSync.bind(this);
-      window.addEventListener("storage", this.boundStorageHandler);
+      typeof window !== "undefined" && window.addEventListener('storage', this.boundStorageHandler);
     }
   }
   // Register an application with the cache system
@@ -132,7 +132,7 @@ class SharedDataCache {
     }
     // Notify subscribers
     if (syncAcrossApps) {
-      this.notifySubscribers(key, value, "set");
+      this.notifySubscribers(key, value, 'set');
     }
     return true;
   }
@@ -143,7 +143,7 @@ class SharedDataCache {
     // Remove from localStorage
     this.removePersistedEntry(key);
     // Notify subscribers
-    this.notifySubscribers(key, null, "delete");
+    this.notifySubscribers(key, null, 'delete');
     return existed;
   }
   // Batch operations
@@ -165,7 +165,7 @@ class SharedDataCache {
     return results;
   }
   // Pattern-based operations
-  clearNamespace(appName, pattern = "*") {
+  clearNamespace(appName, pattern = '*') {
     const namespace = this.getNamespace(appName);
     const regex = this.patternToRegex(namespace + pattern);
     const keysToDelete = [];
@@ -192,7 +192,7 @@ class SharedDataCache {
   // Subscription system
   subscribe(appName, pattern, callback) {
     if (!this.subscribers.has(appName)) {
-      console.warn(`App ${appName} not registered with cache`);
+      // console.warn(`App ${appName} not registered with cache`);
       return null;
     }
     const appConfig = this.subscribers.get(appName);
@@ -228,8 +228,8 @@ class SharedDataCache {
                 timestamp: Date.now(),
                 appName,
               });
-            } catch (error) {
-              console.error(
+            } catch (_error) {
+              // console.error(
                 `Error in subscription callback for ${appName}:`,
                 error
               );
@@ -286,8 +286,8 @@ class SharedDataCache {
         const meta = this.metadata.get(key);
         this.set(key, newValue, { ttl: meta?.ttl });
       }
-    } catch (error) {
-      console.error(`Error refreshing cache entry ${key}:`, error);
+    } catch (_error) {
+      // console.error(`Error refreshing cache entry ${key}:`, error);
     } finally {
       this.pendingOperations.delete(key);
     }
@@ -303,28 +303,28 @@ class SharedDataCache {
           persistedAt: Date.now(),
         },
       };
-      localStorage.setItem(persistKey, JSON.stringify(persistData));
-    } catch (error) {
-      console.error("Error persisting cache entry:", error);
+      typeof localStorage !== "undefined" && localStorage.setItem(persistKey, JSON.stringify(persistData));
+    } catch (_error) {
+      // console.error('Error persisting cache entry:', error);
     }
   }
   removePersistedEntry(key) {
     try {
       const persistKey = `uni_cache_${key}`;
-      localStorage.removeItem(persistKey);
-    } catch (error) {
-      console.error("Error removing persisted cache entry:", error);
+      typeof localStorage !== "undefined" && localStorage.removeItem(persistKey);
+    } catch (_error) {
+      // console.error('Error removing persisted cache entry:', error);
     }
   }
   loadPersistedCache() {
     try {
       const keys = Object.keys(localStorage).filter((key) =>
-        key.startsWith("uni_cache_")
+        key.startsWith('uni_cache_')
       );
       for (const persistKey of keys) {
         try {
-          const persistData = JSON.parse(localStorage.getItem(persistKey));
-          const key = persistKey.replace("uni_cache_", "");
+          const persistData = JSON.parse(typeof localStorage !== "undefined" && localStorage.getItem(persistKey));
+          const key = persistKey.replace('uni_cache_', '');
           // Check if still valid
           if (!this.isExpired(persistData.metadata)) {
             this.cache.set(key, persistData.value);
@@ -334,23 +334,23 @@ class SharedDataCache {
             });
           } else {
             // Remove expired persisted entry
-            localStorage.removeItem(persistKey);
+            typeof localStorage !== "undefined" && localStorage.removeItem(persistKey);
           }
-        } catch (error) {
-          console.error(
+        } catch (_error) {
+          // console.error(
             `Error loading persisted cache entry ${persistKey}:`,
             error
           );
-          localStorage.removeItem(persistKey);
+          typeof localStorage !== "undefined" && localStorage.removeItem(persistKey);
         }
       }
-    } catch (error) {
-      console.error("Error loading persisted cache:", error);
+    } catch (_error) {
+      // console.error('Error loading persisted cache:', error);
     }
   }
   handleStorageSync(event) {
-    if (event.key && event.key.startsWith("uni_cache_")) {
-      const key = event.key.replace("uni_cache_", "");
+    if (event.key && event.key.startsWith('uni_cache_')) {
+      const key = event.key.replace('uni_cache_', '');
       if (event.newValue === null) {
         // Entry was deleted in another tab
         this.cache.delete(key);
@@ -360,8 +360,8 @@ class SharedDataCache {
           const persistData = JSON.parse(event.newValue);
           this.cache.set(key, persistData.value);
           this.metadata.set(key, persistData.metadata);
-        } catch (error) {
-          console.error("Error syncing cache from storage:", error);
+        } catch (_error) {
+          // console.error('Error syncing cache from storage:', error);
         }
       }
     }
@@ -377,7 +377,7 @@ class SharedDataCache {
   patternToRegex(pattern) {
     // Convert glob-like pattern to regex
     const escaped = pattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const regex = escaped.replace(/\\\*/g, ".*").replace(/\\\?/g, ".");
+    const regex = escaped.replace(/\\\*/g, '.*').replace(/\\\?/g, '.');
     return new RegExp(`^${regex}$`);
   }
   // Statistics and diagnostics
@@ -387,7 +387,7 @@ class SharedDataCache {
     for (const [key, meta] of this.metadata) {
       if (key.startsWith(namespace)) {
         entries.push({
-          key: key.replace(namespace, ""),
+          key: key.replace(namespace, ''),
           ...meta,
         });
       }
@@ -447,8 +447,8 @@ class SharedDataCache {
     }
 
     // Remove storage event listener
-    if (typeof window !== "undefined" && this.boundStorageHandler) {
-      window.removeEventListener("storage", this.boundStorageHandler);
+    if (typeof window !== 'undefined' && this.boundStorageHandler) {
+      typeof window !== "undefined" && window.removeEventListener('storage', this.boundStorageHandler);
       this.boundStorageHandler = null;
     }
 

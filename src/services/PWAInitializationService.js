@@ -32,7 +32,7 @@ class PWAInitializationService {
   async initialize(appConfig = {}) {
     try {
       if (this.initialized) {
-        console.log('PWA already initialized');
+        // console.log('PWA already initialized');
         return this.pwaManager;
       }
 
@@ -45,7 +45,7 @@ class PWAInitializationService {
 
       if (success) {
         this.initialized = true;
-        console.log('PWA initialized successfully');
+        // console.log('PWA initialized successfully');
 
         // Set up app-specific features
         await this.setupAppFeatures();
@@ -58,11 +58,11 @@ class PWAInitializationService {
 
         return this.pwaManager;
       } else {
-        console.warn('PWA initialization failed');
+        // console.warn('PWA initialization failed');
         return null;
       }
-    } catch (error) {
-      console.error('Failed to initialize PWA:', error);
+    } catch (_error) {
+      // console.error('Failed to initialize PWA:', error);
       return null;
     }
   }
@@ -98,9 +98,9 @@ class PWAInitializationService {
         await this.setupMainWebsiteFeatures();
       }
 
-      console.log(`PWA features set up for ${currentApp} app`);
-    } catch (error) {
-      console.error('Failed to set up app features:', error);
+      // console.log(`PWA features set up for ${currentApp} app`);
+    } catch (_error) {
+      // console.error('Failed to set up app features:', error);
     }
   }
 
@@ -253,10 +253,10 @@ class PWAInitializationService {
     try {
       if (this.pwaManager && urls.length > 0) {
         await this.pwaManager.cacheResources(urls);
-        console.log(`Cached ${urls.length} resources for offline access`);
+        // console.log(`Cached ${urls.length} resources for offline access`);
       }
-    } catch (error) {
-      console.error('Failed to cache resources:', error);
+    } catch (_error) {
+      // console.error('Failed to cache resources:', error);
     }
   }
 
@@ -265,22 +265,22 @@ class PWAInitializationService {
    */
   registerEventListeners() {
     // Connection status changes
-    window.addEventListener('connectionchange', (event) => {
+    typeof window !== "undefined" && window.addEventListener('connectionchange', (event) => {
       this.handleConnectionChange(event.detail.isOnline);
     });
 
     // App visibility changes
-    document.addEventListener('visibilitychange', () => {
+    typeof document !== "undefined" && document.addEventListener('visibilitychange', () => {
       this.handleVisibilityChange();
     });
 
     // Before unload (app closing)
-    window.addEventListener('beforeunload', () => {
+    typeof window !== "undefined" && window.addEventListener('beforeunload', () => {
       this.handleAppClosing();
     });
 
     // Handle app updates
-    window.addEventListener('appupdateavailable', () => {
+    typeof window !== "undefined" && window.addEventListener('appupdateavailable', () => {
       this.handleAppUpdateAvailable();
     });
   }
@@ -307,7 +307,7 @@ class PWAInitializationService {
    * Handle app visibility changes
    */
   handleVisibilityChange() {
-    if (!document.hidden) {
+    if (!typeof document !== "undefined" && document.hidden) {
       // App came to foreground - check for updates and sync
       this.checkForUpdatesAndSync();
     }
@@ -340,13 +340,13 @@ class PWAInitializationService {
    */
   async performInitialSync() {
     try {
-      if (navigator.onLine && this.pwaManager) {
+      if (typeof navigator !== "undefined" && navigator.onLine && this.pwaManager) {
         // Process any queued sync items
         await this.pwaManager.processSyncQueue();
-        console.log('Initial sync completed');
+        // console.log('Initial sync completed');
       }
-    } catch (error) {
-      console.error('Initial sync failed:', error);
+    } catch (_error) {
+      // console.error('Initial sync failed:', error);
     }
   }
 
@@ -358,12 +358,12 @@ class PWAInitializationService {
       if (this.pwaManager) {
         await this.pwaManager.checkForUpdates();
 
-        if (navigator.onLine) {
+        if (typeof navigator !== "undefined" && navigator.onLine) {
           await this.pwaManager.processSyncQueue();
         }
       }
-    } catch (error) {
-      console.error('Update check failed:', error);
+    } catch (_error) {
+      // console.error('Update check failed:', error);
     }
   }
 
@@ -376,11 +376,11 @@ class PWAInitializationService {
       const formData = this.collectUnsavedFormData();
 
       if (formData && Object.keys(formData).length > 0) {
-        localStorage.setItem('pendingFormData', JSON.stringify(formData));
-        console.log('Saved pending form data');
+        typeof localStorage !== "undefined" && localStorage.setItem('pendingFormData', JSON.stringify(formData));
+        // console.log('Saved pending form data');
       }
-    } catch (error) {
-      console.error('Failed to save pending data:', error);
+    } catch (_error) {
+      // console.error('Failed to save pending data:', error);
     }
   }
 
@@ -391,7 +391,7 @@ class PWAInitializationService {
     const formData = {};
 
     // Collect data from forms with data-persist attribute
-    const persistentForms = document.querySelectorAll('form[data-persist]');
+    const persistentForms = typeof document !== "undefined" && document.querySelectorAll('form[data-persist]');
 
     persistentForms.forEach((form, index) => {
       const formId = form.id || `form_${index}`;
@@ -413,19 +413,19 @@ class PWAInitializationService {
    */
   updateConnectionStatusUI(isOnline) {
     // Update status indicators
-    const statusElements = document.querySelectorAll('[data-connection-status]');
+    const statusElements = typeof document !== "undefined" && document.querySelectorAll('[data-connection-status]');
     statusElements.forEach(element => {
       element.textContent = isOnline ? 'Online' : 'Offline';
       element.className = isOnline ? 'status-online' : 'status-offline';
     });
 
     // Show/hide offline features
-    const offlineElements = document.querySelectorAll('[data-offline-only]');
+    const offlineElements = typeof document !== "undefined" && document.querySelectorAll('[data-offline-only]');
     offlineElements.forEach(element => {
       element.style.display = isOnline ? 'none' : 'block';
     });
 
-    const onlineElements = document.querySelectorAll('[data-online-only]');
+    const onlineElements = typeof document !== "undefined" && document.querySelectorAll('[data-online-only]');
     onlineElements.forEach(element => {
       element.style.display = isOnline ? 'block' : 'none';
     });
@@ -444,8 +444,8 @@ class PWAInitializationService {
 
         await this.pwaManager.showNotification(title, notificationOptions);
       }
-    } catch (error) {
-      console.error('Failed to show notification:', error);
+    } catch (_error) {
+      // console.error('Failed to show notification:', error);
     }
   }
 
@@ -458,8 +458,8 @@ class PWAInitializationService {
         return await this.pwaManager.addToSyncQueue(action, data);
       }
       return null;
-    } catch (error) {
-      console.error('Failed to add to sync queue:', error);
+    } catch (_error) {
+      // console.error('Failed to add to sync queue:', error);
       return null;
     }
   }
@@ -468,7 +468,7 @@ class PWAInitializationService {
    * Get current app from URL
    */
   getCurrentApp() {
-    const path = window.location.pathname;
+    const path = typeof window !== "undefined" && window.location.pathname;
 
     if (path.startsWith('/church')) return 'church';
     if (path.startsWith('/home')) return 'home';
@@ -485,7 +485,7 @@ class PWAInitializationService {
    */
   setupChurchNotifications() {
     // Set up service reminders, event notifications, etc.
-    console.log('Church notifications configured');
+    // console.log('Church notifications configured');
   }
 
   /**
@@ -493,7 +493,7 @@ class PWAInitializationService {
    */
   setupFamilyNotifications() {
     // Set up family event reminders, chore notifications, etc.
-    console.log('Family notifications configured');
+    // console.log('Family notifications configured');
   }
 
   /**
@@ -501,7 +501,7 @@ class PWAInitializationService {
    */
   setupAdminNotifications() {
     // Set up system alerts, user activity notifications, etc.
-    console.log('Admin notifications configured');
+    // console.log('Admin notifications configured');
   }
 
   /**
@@ -509,7 +509,7 @@ class PWAInitializationService {
    */
   setupBusinessNotifications() {
     // Set up project deadlines, client notifications, etc.
-    console.log('Business notifications configured');
+    // console.log('Business notifications configured');
   }
 
   /**
@@ -517,7 +517,7 @@ class PWAInitializationService {
    */
   setupPersonalNotifications() {
     // Set up goal reminders, personal task notifications, etc.
-    console.log('Personal notifications configured');
+    // console.log('Personal notifications configured');
   }
 
   /**
@@ -525,7 +525,7 @@ class PWAInitializationService {
    */
   setupMediaNotifications() {
     // Set up playback notifications, media updates, etc.
-    console.log('Media notifications configured');
+    // console.log('Media notifications configured');
   }
 
   /**
@@ -533,7 +533,7 @@ class PWAInitializationService {
    */
   setupMarketingNotifications() {
     // Set up feature announcements, newsletter notifications, etc.
-    console.log('Marketing notifications configured');
+    // console.log('Marketing notifications configured');
   }
 
   /**
@@ -541,7 +541,7 @@ class PWAInitializationService {
    */
   setupOfflineServiceSync() {
     // Handle offline service creation and sync
-    console.log('Offline service sync configured');
+    // console.log('Offline service sync configured');
   }
 
   /**
@@ -549,7 +549,7 @@ class PWAInitializationService {
    */
   setupOfflineBudgetSync() {
     // Handle offline budget changes and sync
-    console.log('Offline budget sync configured');
+    // console.log('Offline budget sync configured');
   }
 
   /**
@@ -557,7 +557,7 @@ class PWAInitializationService {
    */
   setupSystemMonitoring() {
     // Set up real-time system monitoring notifications
-    console.log('System monitoring configured');
+    // console.log('System monitoring configured');
   }
 
   /**
@@ -578,16 +578,16 @@ class PWAInitializationService {
   async cleanup() {
     try {
       // Remove event listeners
-      window.removeEventListener('connectionchange', this.handleConnectionChange);
-      document.removeEventListener('visibilitychange', this.handleVisibilityChange);
-      window.removeEventListener('beforeunload', this.handleAppClosing);
+      typeof window !== "undefined" && window.removeEventListener('connectionchange', this.handleConnectionChange);
+      typeof document !== "undefined" && document.removeEventListener('visibilitychange', this.handleVisibilityChange);
+      typeof window !== "undefined" && window.removeEventListener('beforeunload', this.handleAppClosing);
 
       // Save any pending data
       this.savePendingData();
 
-      console.log('PWA cleanup completed');
-    } catch (error) {
-      console.error('PWA cleanup failed:', error);
+      // console.log('PWA cleanup completed');
+    } catch (_error) {
+      // console.error('PWA cleanup failed:', error);
     }
   }
 }

@@ -1,4 +1,4 @@
-/// <reference types="vite/client" />
+/// <reference types='vite/client' />
 
 export const getSharedEnvironmentConfig = () => ({
   env: import.meta.env.VITE_ENV || 'development',

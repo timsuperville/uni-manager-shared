@@ -11,16 +11,16 @@ import React, {
   useEffect,
   useState,
   useCallback,
-} from "react";
-import { CrossApplicationSSOService } from "../services/crossApplicationSSOService.js";
-import { useAuth } from "./AuthContext.jsx";
+} from 'react';
+import { CrossApplicationSSOService } from '../services/crossApplicationSSOService.js';
+import { useAuth } from './AuthContext.jsx';
 
 const SSOContext = createContext(null);
 
 export const useSSO = () => {
   const context = useContext(SSOContext);
   if (!context) {
-    throw new Error("useSSO must be used within an SSOProvider");
+    throw new Error('useSSO must be used within an SSOProvider');
   }
   return context;
 };
@@ -51,8 +51,8 @@ export const SSOProvider = ({ children }) => {
         }
 
         setSSOError(null);
-      } catch (error) {
-        console.error("SSO initialization failed:", error);
+      } catch (_error) {
+        // console.error('SSO initialization failed:', error);
         setSSOError(error.message);
       } finally {
         setSSOLoading(false);
@@ -76,8 +76,8 @@ export const SSOProvider = ({ children }) => {
         try {
           const apps = await ssoService.getAvailableApps();
           setAvailableApps(apps);
-        } catch (error) {
-          console.error("Failed to update available apps:", error);
+        } catch (_error) {
+          // console.error('Failed to update available apps:', error);
         }
       } else {
         setAvailableApps([]);
@@ -91,14 +91,14 @@ export const SSOProvider = ({ children }) => {
    * Switch to a different application with SSO
    */
   const switchToApp = useCallback(
-    async (appId, path = "/") => {
+    async (appId, path = '/') => {
       if (!ssoService) {
-        throw new Error("SSO service not initialized");
+        throw new Error('SSO service not initialized');
       }
 
       try {
         await ssoService.switchToApp(appId, path);
-      } catch (error) {
+      } catch (_error) {
         setSSOError(error.message);
         throw error;
       }
@@ -112,7 +112,7 @@ export const SSOProvider = ({ children }) => {
   const loginWithSSO = useCallback(
     async (credentials) => {
       if (!ssoService) {
-        throw new Error("SSO service not initialized");
+        throw new Error('SSO service not initialized');
       }
 
       try {
@@ -126,7 +126,7 @@ export const SSOProvider = ({ children }) => {
         }
 
         return result;
-      } catch (error) {
+      } catch (_error) {
         setSSOError(error.message);
         throw error;
       }
@@ -139,7 +139,7 @@ export const SSOProvider = ({ children }) => {
    */
   const logoutWithSSO = useCallback(async () => {
     if (!ssoService) {
-      throw new Error("SSO service not initialized");
+      throw new Error('SSO service not initialized');
     }
 
     try {
@@ -147,7 +147,7 @@ export const SSOProvider = ({ children }) => {
       const result = await ssoService.logout();
       setAvailableApps([]);
       return result;
-    } catch (error) {
+    } catch (_error) {
       setSSOError(error.message);
       throw error;
     }
@@ -182,26 +182,26 @@ export const SSOProvider = ({ children }) => {
     const handleSSOParams = async () => {
       if (!ssoService) return;
 
-      const urlParams = new URLSearchParams(window.location.search);
-      const ssoSession = urlParams.get("sso_session");
-      const sourceApp = urlParams.get("source_app");
+      const urlParams = new URLSearchParams(typeof window !== "undefined" && window.location.search);
+      const ssoSession = urlParams.get('sso_session');
+      const sourceApp = urlParams.get('source_app');
 
       if (ssoSession && sourceApp) {
         try {
           // Verify SSO session and authenticate user
           const isAuth = await ssoService.isAuthenticated();
           if (isAuth) {
-            console.log(
+            // console.log(
               `SSO switch from ${sourceApp} to ${currentApp} successful`
             );
 
             // Clean up URL parameters
-            const cleanUrl = window.location.pathname;
-            window.history.replaceState({}, document.title, cleanUrl);
+            const cleanUrl = typeof window !== "undefined" && window.location.pathname;
+            typeof window !== "undefined" && window.history.replaceState({}, typeof document !== "undefined" && document.title, cleanUrl);
           }
-        } catch (error) {
-          console.error("SSO parameter handling failed:", error);
-          setSSOError("SSO session verification failed");
+        } catch (_error) {
+          // console.error('SSO parameter handling failed:', error);
+          setSSOError('SSO session verification failed');
         }
       }
     };

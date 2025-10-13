@@ -37,8 +37,8 @@ export function usePWA(options = {}) {
           setUpdateAvailable(status.updateAvailable);
           setSyncQueue(status.syncQueueLength || 0);
         }
-      } catch (error) {
-        console.error('Failed to initialize PWA in hook:', error);
+      } catch (_error) {
+        // console.error('Failed to initialize PWA in hook:', error);
       }
     };
 
@@ -68,19 +68,19 @@ export function usePWA(options = {}) {
     };
 
     // Add event listeners
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    window.addEventListener('appinstalled', handleAppInstalled);
-    window.addEventListener('connectionchange', handleConnectionChange);
+    typeof window !== "undefined" && window.addEventListener('online', handleOnline);
+    typeof window !== "undefined" && window.addEventListener('offline', handleOffline);
+    typeof window !== "undefined" && window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    typeof window !== "undefined" && window.addEventListener('appinstalled', handleAppInstalled);
+    typeof window !== "undefined" && window.addEventListener('connectionchange', handleConnectionChange);
 
     // Cleanup
     return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-      window.removeEventListener('appinstalled', handleAppInstalled);
-      window.removeEventListener('connectionchange', handleConnectionChange);
+      typeof window !== "undefined" && window.removeEventListener('online', handleOnline);
+      typeof window !== "undefined" && window.removeEventListener('offline', handleOffline);
+      typeof window !== "undefined" && window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      typeof window !== "undefined" && window.removeEventListener('appinstalled', handleAppInstalled);
+      typeof window !== "undefined" && window.removeEventListener('connectionchange', handleConnectionChange);
     };
   }, [isInitialized]);
 
@@ -92,7 +92,7 @@ export function usePWA(options = {}) {
       }
 
       const result = await installPrompt.prompt();
-      console.log('Install prompt result:', result.outcome);
+      // console.log('Install prompt result:', result.outcome);
 
       if (result.outcome === 'accepted') {
         setInstallPrompt(null);
@@ -100,8 +100,8 @@ export function usePWA(options = {}) {
       }
 
       return result.outcome;
-    } catch (error) {
-      console.error('Failed to install app:', error);
+    } catch (_error) {
+      // console.error('Failed to install app:', error);
       throw error;
     }
   }, [installPrompt]);
@@ -120,8 +120,8 @@ export function usePWA(options = {}) {
       setSyncQueue(status.syncQueueLength || 0);
 
       return syncId;
-    } catch (error) {
-      console.error('Failed to add to sync queue:', error);
+    } catch (_error) {
+      // console.error('Failed to add to sync queue:', error);
       throw error;
     }
   }, []);
@@ -146,8 +146,8 @@ export function usePWA(options = {}) {
       setNotifications(prev => [notification, ...prev.slice(0, 9)]); // Keep last 10
 
       return result;
-    } catch (error) {
-      console.error('Failed to show notification:', error);
+    } catch (_error) {
+      // console.error('Failed to show notification:', error);
       throw error;
     }
   }, []);
@@ -160,9 +160,9 @@ export function usePWA(options = {}) {
       }
 
       await pwaManagerRef.current.cacheResource(url);
-      console.log('Resource cached:', url);
-    } catch (error) {
-      console.error('Failed to cache resource:', error);
+      // console.log('Resource cached:', url);
+    } catch (_error) {
+      // console.error('Failed to cache resource:', error);
       throw error;
     }
   }, []);
@@ -179,8 +179,8 @@ export function usePWA(options = {}) {
       // Update status
       const status = pwaManagerRef.current.getStatus();
       setUpdateAvailable(status.updateAvailable);
-    } catch (error) {
-      console.error('Failed to check for updates:', error);
+    } catch (_error) {
+      // console.error('Failed to check for updates:', error);
       throw error;
     }
   }, []);
@@ -193,8 +193,8 @@ export function usePWA(options = {}) {
       }
 
       await pwaManagerRef.current.applyUpdate();
-    } catch (error) {
-      console.error('Failed to apply update:', error);
+    } catch (_error) {
+      // console.error('Failed to apply update:', error);
       throw error;
     }
   }, []);
@@ -258,12 +258,12 @@ export function useOffline() {
     const handleOnline = () => setIsOffline(false);
     const handleOffline = () => setIsOffline(true);
 
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
+    typeof window !== "undefined" && window.addEventListener('online', handleOnline);
+    typeof window !== "undefined" && window.addEventListener('offline', handleOffline);
 
     return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
+      typeof window !== "undefined" && window.removeEventListener('online', handleOnline);
+      typeof window !== "undefined" && window.removeEventListener('offline', handleOffline);
     };
   }, []);
 
@@ -279,11 +279,11 @@ export function useOffline() {
 
     // Store in localStorage for persistence
     try {
-      const stored = JSON.parse(localStorage.getItem('offlineQueue') || '[]');
+      const stored = JSON.parse(typeof localStorage !== "undefined" && localStorage.getItem('offlineQueue') || '[]');
       stored.push(queueItem);
-      localStorage.setItem('offlineQueue', JSON.stringify(stored));
-    } catch (error) {
-      console.error('Failed to store offline queue item:', error);
+      typeof localStorage !== "undefined" && localStorage.setItem('offlineQueue', JSON.stringify(stored));
+    } catch (_error) {
+      // console.error('Failed to store offline queue item:', error);
     }
 
     return queueItem.id;
@@ -300,8 +300,8 @@ export function useOffline() {
         // Process the queued action
         await processOfflineAction(item.action, item.data);
         results.push({ ...item, success: true });
-      } catch (error) {
-        console.error('Failed to process offline queue item:', error);
+      } catch (_error) {
+        // console.error('Failed to process offline queue item:', error);
         remainingItems.push(item);
         results.push({ ...item, success: false, error: error.message });
       }
@@ -311,9 +311,9 @@ export function useOffline() {
 
     // Update localStorage
     try {
-      localStorage.setItem('offlineQueue', JSON.stringify(remainingItems));
-    } catch (error) {
-      console.error('Failed to update offline queue in storage:', error);
+      typeof localStorage !== "undefined" && localStorage.setItem('offlineQueue', JSON.stringify(remainingItems));
+    } catch (_error) {
+      // console.error('Failed to update offline queue in storage:', error);
     }
 
     return results;
@@ -322,9 +322,9 @@ export function useOffline() {
   const clearOfflineQueue = useCallback(() => {
     setOfflineQueue([]);
     try {
-      localStorage.removeItem('offlineQueue');
-    } catch (error) {
-      console.error('Failed to clear offline queue from storage:', error);
+      typeof localStorage !== "undefined" && localStorage.removeItem('offlineQueue');
+    } catch (_error) {
+      // console.error('Failed to clear offline queue from storage:', error);
     }
   }, []);
 
@@ -338,10 +338,10 @@ export function useOffline() {
   // Load offline queue from localStorage on mount
   useEffect(() => {
     try {
-      const stored = JSON.parse(localStorage.getItem('offlineQueue') || '[]');
+      const stored = JSON.parse(typeof localStorage !== "undefined" && localStorage.getItem('offlineQueue') || '[]');
       setOfflineQueue(stored);
-    } catch (error) {
-      console.error('Failed to load offline queue from storage:', error);
+    } catch (_error) {
+      // console.error('Failed to load offline queue from storage:', error);
     }
   }, []);
 
@@ -375,18 +375,18 @@ export function useAppInstall() {
       setIsInstalled(true);
     };
 
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    window.addEventListener('appinstalled', handleAppInstalled);
+    typeof window !== "undefined" && window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    typeof window !== "undefined" && window.addEventListener('appinstalled', handleAppInstalled);
 
     // Check if already installed
-    if (window.matchMedia('(display-mode: standalone)').matches ||
-        window.navigator.standalone === true) {
+    if (typeof window !== "undefined" && window.matchMedia('(display-mode: standalone)').matches ||
+        typeof window !== "undefined" && window.typeof navigator !== "undefined" && navigator.standalone === true) {
       setIsInstalled(true);
     }
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-      window.removeEventListener('appinstalled', handleAppInstalled);
+      typeof window !== "undefined" && window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      typeof window !== "undefined" && window.removeEventListener('appinstalled', handleAppInstalled);
     };
   }, []);
 
@@ -446,7 +446,7 @@ async function processOfflineAction(action, data) {
   }
 
   // Get auth token
-  const authToken = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+  const authToken = typeof localStorage !== "undefined" && localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
 
   // Make the request
   const response = await fetch(endpoint, {

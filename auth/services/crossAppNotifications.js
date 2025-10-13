@@ -14,18 +14,18 @@ class CrossAppNotificationSystem {
   }
   init() {
     // Use BroadcastChannel for same-origin tab communication
-    if (typeof window !== "undefined" && "BroadcastChannel" in window) {
-      this.broadcastChannel = new window.BroadcastChannel(
-        "uni-manager-notifications"
+    if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+      this.broadcastChannel = new typeof window !== "undefined" && window.BroadcastChannel(
+        'uni-manager-notifications'
       );
       this.boundBroadcastHandler = this.handleBroadcastMessage.bind(this);
       this.broadcastChannel.addEventListener(
-        "message",
+        'message',
         this.boundBroadcastHandler
       );
     } else {
-      console.warn(
-        "BroadcastChannel not available, using localStorage fallback"
+      // console.warn(
+        'BroadcastChannel not available, using localStorage fallback'
       );
       this.initLocalStorageFallback();
     }
@@ -33,16 +33,16 @@ class CrossAppNotificationSystem {
   initLocalStorageFallback() {
     // Fallback to localStorage events for cross-tab communication
     this.boundStorageHandler = (event) => {
-      if (event.key && event.key.startsWith("uni_manager_notification_")) {
+      if (event.key && event.key.startsWith('uni_manager_notification_')) {
         try {
           const message = JSON.parse(event.newValue);
           this.handleBroadcastMessage({ data: message });
-        } catch (error) {
-          console.error("Error parsing localStorage notification:", error);
+        } catch (_error) {
+          // console.error('Error parsing localStorage notification:', error);
         }
       }
     };
-    window.addEventListener("storage", this.boundStorageHandler);
+    typeof window !== "undefined" && window.addEventListener('storage', this.boundStorageHandler);
   }
   // Register an application to receive notifications
   registerApplication(appName, handlers = {}) {
@@ -85,8 +85,8 @@ class CrossAppNotificationSystem {
   // Send notification to specific app or broadcast to all
   sendNotification(sourceApp, type, data, options = {}) {
     const {
-      targetApp = "all",
-      priority = "normal",
+      targetApp = 'all',
+      priority = 'normal',
       persistent = false,
       retryCount = 3,
       delay = 0,
@@ -112,7 +112,7 @@ class CrossAppNotificationSystem {
   }
   deliverNotification(message) {
     const { targetApp } = message;
-    if (targetApp === "all") {
+    if (targetApp === 'all') {
       // Broadcast to all registered applications
       this.broadcastToAll(message);
     } else {
@@ -145,7 +145,7 @@ class CrossAppNotificationSystem {
   deliverToSubscriber(appName, subscription, message) {
     try {
       const handler = subscription.handlers[message.type];
-      if (typeof handler === "function") {
+      if (typeof handler === 'function') {
         handler(message.data, {
           messageId: message.id,
           sourceApp: message.sourceApp,
@@ -154,11 +154,11 @@ class CrossAppNotificationSystem {
         });
         return true;
       } else {
-        console.warn(`No handler for ${message.type} in ${appName}`);
+        // console.warn(`No handler for ${message.type} in ${appName}`);
         return false;
       }
-    } catch (error) {
-      console.error(`Error delivering notification to ${appName}:`, error);
+    } catch (_error) {
+      // console.error(`Error delivering notification to ${appName}:`, error);
       // Retry if applicable
       if (message.retryCount < message.maxRetries) {
         message.retryCount++;
@@ -175,10 +175,10 @@ class CrossAppNotificationSystem {
     } else {
       // Fallback to localStorage
       const key = `uni_manager_notification_${message.id}`;
-      localStorage.setItem(key, JSON.stringify(message));
+      typeof localStorage !== "undefined" && localStorage.setItem(key, JSON.stringify(message));
       // Clean up after a short delay
       setTimeout(() => {
-        localStorage.removeItem(key);
+        typeof localStorage !== "undefined" && localStorage.removeItem(key);
       }, 5000);
     }
   }
@@ -189,7 +189,7 @@ class CrossAppNotificationSystem {
       return;
     }
     // Process the message for local subscribers
-    if (message.targetApp === "all") {
+    if (message.targetApp === 'all') {
       this.broadcastToAll(message);
     } else {
       this.sendToApp(message.targetApp, message);
@@ -225,10 +225,10 @@ class CrossAppNotificationSystem {
     );
   }
   // Predefined notification types with helpers
-  sendDataUpdate(sourceApp, updateType, data, targetApp = "all") {
+  sendDataUpdate(sourceApp, updateType, data, targetApp = 'all') {
     return this.sendNotification(
       sourceApp,
-      "dataUpdate",
+      'dataUpdate',
       {
         updateType,
         data,
@@ -237,39 +237,39 @@ class CrossAppNotificationSystem {
       { targetApp }
     );
   }
-  sendUserAction(sourceApp, action, context, targetApp = "all") {
+  sendUserAction(sourceApp, action, context, targetApp = 'all') {
     return this.sendNotification(
       sourceApp,
-      "userAction",
+      'userAction',
       {
         action,
         context,
         timestamp: new Date().toISOString(),
       },
-      { targetApp, priority: "high" }
+      { targetApp, priority: 'high' }
     );
   }
   sendSystemAlert(sourceApp, alertType, message, options = {}) {
     return this.sendNotification(
       sourceApp,
-      "systemAlert",
+      'systemAlert',
       {
         alertType,
         message,
-        level: options.level || "info",
+        level: options.level || 'info',
         timestamp: new Date().toISOString(),
       },
       {
-        targetApp: "all",
-        priority: "high",
+        targetApp: 'all',
+        priority: 'high',
         persistent: options.persistent || false,
       }
     );
   }
-  sendCustomEvent(sourceApp, eventName, eventData, targetApp = "all") {
+  sendCustomEvent(sourceApp, eventName, eventData, targetApp = 'all') {
     return this.sendNotification(
       sourceApp,
-      "customEvent",
+      'customEvent',
       {
         eventName,
         eventData,
@@ -307,7 +307,7 @@ class CrossAppNotificationSystem {
       activeSubscribers: this.getActiveSubscribers().length,
       totalSubscribers: this.subscribers.size,
       queuedMessages: this.getQueueStatus(),
-      systemStatus: "healthy",
+      systemStatus: 'healthy',
     };
   }
 
@@ -322,7 +322,7 @@ class CrossAppNotificationSystem {
     // Remove BroadcastChannel listener and close channel
     if (this.broadcastChannel && this.boundBroadcastHandler) {
       this.broadcastChannel.removeEventListener(
-        "message",
+        'message',
         this.boundBroadcastHandler
       );
       this.broadcastChannel.close();
@@ -330,8 +330,8 @@ class CrossAppNotificationSystem {
     }
 
     // Remove localStorage listener
-    if (typeof window !== "undefined" && this.boundStorageHandler) {
-      window.removeEventListener("storage", this.boundStorageHandler);
+    if (typeof window !== 'undefined' && this.boundStorageHandler) {
+      typeof window !== "undefined" && window.removeEventListener('storage', this.boundStorageHandler);
     }
 
     // Clear all data structures

@@ -11,8 +11,8 @@ import React, {
   useEffect,
   useState,
   useCallback,
-} from "react";
-import RealTimeSecurityMonitoringService from "../services/realTimeSecurityMonitoringService";
+} from 'react';
+import RealTimeSecurityMonitoringService from '../services/realTimeSecurityMonitoringService';
 
 const RealTimeSecurityContext = createContext(null);
 
@@ -20,7 +20,7 @@ export const useRealTimeSecurity = () => {
   const context = useContext(RealTimeSecurityContext);
   if (!context) {
     throw new Error(
-      "useRealTimeSecurity must be used within a RealTimeSecurityProvider"
+      'useRealTimeSecurity must be used within a RealTimeSecurityProvider'
     );
   }
   return context;
@@ -36,13 +36,13 @@ export const RealTimeSecurityProvider = ({ children }) => {
   // Security monitoring state
   const [activeThreats, setActiveThreats] = useState(new Map());
   const [recentAlerts, setRecentAlerts] = useState([]);
-  const [systemHealth, setSystemHealth] = useState("initializing");
+  const [systemHealth, setSystemHealth] = useState('initializing');
   const [riskScore, setRiskScore] = useState(0);
   const [metrics, setMetrics] = useState({
     alertsCount: 0,
     connectionsCount: 0,
     lastThreatDetected: null,
-    systemHealth: "initializing",
+    systemHealth: 'initializing',
   });
 
   // Real-time notifications
@@ -66,7 +66,7 @@ export const RealTimeSecurityProvider = ({ children }) => {
     async (userId = null, sessionId = null) => {
       try {
         setError(null);
-        setSystemHealth("initializing");
+        setSystemHealth('initializing');
 
         const service = new RealTimeSecurityMonitoringService();
 
@@ -79,19 +79,19 @@ export const RealTimeSecurityProvider = ({ children }) => {
         setSecurityService(service);
         setIsInitialized(true);
         setIsConnected(true);
-        setSystemHealth("healthy");
+        setSystemHealth('healthy');
         setMonitoringConfig(result.monitoringConfig);
 
-        console.log("Real-time security monitoring initialized successfully");
+        // console.log('Real-time security monitoring initialized successfully');
 
         return result;
-      } catch (error) {
-        console.error(
-          "Failed to initialize real-time security monitoring:",
+      } catch (_error) {
+        // console.error(
+          'Failed to initialize real-time security monitoring:',
           error
         );
         setError(error.message);
-        setSystemHealth("error");
+        setSystemHealth('error');
         throw error;
       }
     },
@@ -101,84 +101,84 @@ export const RealTimeSecurityProvider = ({ children }) => {
   // Setup event listeners for security service
   const setupEventListeners = useCallback((service) => {
     // Connection events
-    service.on("connected", () => {
+    service.on('connected', () => {
       setIsConnected(true);
-      setSystemHealth("healthy");
+      setSystemHealth('healthy');
       setError(null);
     });
 
-    service.on("disconnected", () => {
+    service.on('disconnected', () => {
       setIsConnected(false);
-      setSystemHealth("disconnected");
+      setSystemHealth('disconnected');
     });
 
-    service.on("error", (error) => {
-      setError(error.message || "Connection error");
-      setSystemHealth("error");
+    service.on('error', (_error) => {
+      setError(error.message || 'Connection error');
+      setSystemHealth('error');
     });
 
-    service.on("maxReconnectAttemptsReached", () => {
-      setError("Unable to maintain connection to security monitoring service");
-      setSystemHealth("critical");
+    service.on('maxReconnectAttemptsReached', () => {
+      setError('Unable to maintain connection to security monitoring service');
+      setSystemHealth('critical');
     });
 
     // Security events
-    service.on("threatDetected", (payload) => {
+    service.on('threatDetected', (payload) => {
       handleThreatDetected(payload);
     });
 
-    service.on("securityAlert", (payload) => {
+    service.on('securityAlert', (payload) => {
       handleSecurityAlert(payload);
     });
 
-    service.on("riskScoreUpdated", (payload) => {
+    service.on('riskScoreUpdated', (payload) => {
       handleRiskScoreUpdate(payload);
     });
 
-    service.on("behaviorAnomaly", (payload) => {
+    service.on('behaviorAnomaly', (payload) => {
       handleBehaviorAnomaly(payload);
     });
 
-    service.on("systemAlert", (payload) => {
+    service.on('systemAlert', (payload) => {
       handleSystemAlert(payload);
     });
 
-    service.on("automatedResponse", (payload) => {
+    service.on('automatedResponse', (payload) => {
       handleAutomatedResponse(payload);
     });
 
     // Metrics updates
-    service.on("metricsUpdated", (newMetrics) => {
+    service.on('metricsUpdated', (newMetrics) => {
       setMetrics(newMetrics);
     });
 
-    service.on("healthUpdate", (health) => {
+    service.on('healthUpdate', (health) => {
       setSystemHealth(health);
     });
 
     // Network events
-    service.on("networkOffline", () => {
-      setSystemHealth("offline");
+    service.on('networkOffline', () => {
+      setSystemHealth('offline');
     });
 
     // Action required events
-    service.on("additionalAuthRequired", (payload) => {
+    service.on('additionalAuthRequired', (payload) => {
       handleAdditionalAuthRequired(payload);
     });
 
-    service.on("mfaVerificationRequired", (payload) => {
+    service.on('mfaVerificationRequired', (payload) => {
       handleMFAVerificationRequired(payload);
     });
 
-    service.on("sessionAccessLimited", (payload) => {
+    service.on('sessionAccessLimited', (payload) => {
       handleSessionAccessLimited(payload);
     });
 
-    service.on("ipBlockRequested", (payload) => {
+    service.on('ipBlockRequested', (payload) => {
       handleIPBlockRequested(payload);
     });
 
-    service.on("securityLogoutInitiated", (payload) => {
+    service.on('securityLogoutInitiated', (payload) => {
       handleSecurityLogoutInitiated(payload);
     });
   }, []);
@@ -207,7 +207,7 @@ export const RealTimeSecurityProvider = ({ children }) => {
         target,
         timestamp: new Date(timestamp),
         metadata,
-        status: "active",
+        status: 'active',
       });
       return newThreats;
     });
@@ -215,9 +215,9 @@ export const RealTimeSecurityProvider = ({ children }) => {
     // Add to recent alerts
     const alert = {
       id: `threat_${threatId}`,
-      type: "threat",
+      type: 'threat',
       severity,
-      title: `${threatType.replace("_", " ").toUpperCase()} Detected`,
+      title: `${threatType.replace('_', ' ').toUpperCase()} Detected`,
       message: `${threatType} detected from ${source} targeting ${target} (confidence: ${Math.round(confidence * 100)}%)`,
       timestamp: new Date(timestamp),
       data: payload,
@@ -226,22 +226,22 @@ export const RealTimeSecurityProvider = ({ children }) => {
     setRecentAlerts((prev) => [alert, ...prev.slice(0, 49)]); // Keep last 50
 
     // Add critical alerts for high severity threats
-    if (severity === "critical" || severity === "high") {
+    if (severity === 'critical' || severity === 'high') {
       setCriticalAlerts((prev) => [alert, ...prev.slice(0, 9)]); // Keep last 10
     }
 
     // Create notification for user
     addNotification({
       id: `threat_notification_${threatId}`,
-      type: "threat",
+      type: 'threat',
       severity,
       title: alert.title,
       message: alert.message,
       timestamp: new Date(),
-      persistent: severity === "critical",
+      persistent: severity === 'critical',
     });
 
-    console.warn(`🚨 THREAT DETECTED: ${threatType} (${severity})`, payload);
+    // console.warn(`🚨 THREAT DETECTED: ${threatType} (${severity})`, payload);
   }, []);
 
   // Handle security alerts
@@ -250,7 +250,7 @@ export const RealTimeSecurityProvider = ({ children }) => {
 
     const alert = {
       id: `alert_${Date.now()}_${Math.random().toString(36).substring(2)}`,
-      type: "security",
+      type: 'security',
       severity,
       title: `Security Alert: ${alertType}`,
       message,
@@ -261,22 +261,22 @@ export const RealTimeSecurityProvider = ({ children }) => {
 
     setRecentAlerts((prev) => [alert, ...prev.slice(0, 49)]);
 
-    if (severity === "critical" || severity === "high") {
+    if (severity === 'critical' || severity === 'high') {
       setCriticalAlerts((prev) => [alert, ...prev.slice(0, 9)]);
     }
 
     addNotification({
       id: `security_notification_${alert.id}`,
-      type: "security",
+      type: 'security',
       severity,
       title: alert.title,
       message: alert.message,
       timestamp: new Date(),
       actionRequired,
-      persistent: severity === "critical" || actionRequired,
+      persistent: severity === 'critical' || actionRequired,
     });
 
-    console.log(`🔔 SECURITY ALERT: ${alertType} - ${message}`);
+    // console.log(`🔔 SECURITY ALERT: ${alertType} - ${message}`);
   }, []);
 
   // Handle risk score updates
@@ -289,16 +289,16 @@ export const RealTimeSecurityProvider = ({ children }) => {
     if (newRiskScore > previousRiskScore + 0.2) {
       addNotification({
         id: `risk_increase_${Date.now()}`,
-        type: "risk",
-        severity: newRiskScore >= 0.7 ? "high" : "medium",
-        title: "Risk Score Increased",
+        type: 'risk',
+        severity: newRiskScore >= 0.7 ? 'high' : 'medium',
+        title: 'Risk Score Increased',
         message: `Session risk score increased from ${Math.round(previousRiskScore * 100)}% to ${Math.round(newRiskScore * 100)}%`,
         timestamp: new Date(),
         persistent: newRiskScore >= 0.9,
       });
     }
 
-    console.log(
+    // console.log(
       `📊 Risk Score Update: ${Math.round(previousRiskScore * 100)}% → ${Math.round(newRiskScore * 100)}%`
     );
   }, []);
@@ -309,10 +309,10 @@ export const RealTimeSecurityProvider = ({ children }) => {
 
     const alert = {
       id: `anomaly_${Date.now()}_${Math.random().toString(36).substring(2)}`,
-      type: "anomaly",
-      severity: confidence >= 0.8 ? "high" : "medium",
-      title: "Behavior Anomaly Detected",
-      message: `${anomalyType.replace("_", " ")} anomaly detected (confidence: ${Math.round(confidence * 100)}%)`,
+      type: 'anomaly',
+      severity: confidence >= 0.8 ? 'high' : 'medium',
+      title: 'Behavior Anomaly Detected',
+      message: `${anomalyType.replace('_', ' ')} anomaly detected (confidence: ${Math.round(confidence * 100)}%)`,
       timestamp: new Date(),
       data: payload,
     };
@@ -322,7 +322,7 @@ export const RealTimeSecurityProvider = ({ children }) => {
     if (confidence >= 0.8) {
       addNotification({
         id: `anomaly_notification_${alert.id}`,
-        type: "anomaly",
+        type: 'anomaly',
         severity: alert.severity,
         title: alert.title,
         message: alert.message,
@@ -331,7 +331,7 @@ export const RealTimeSecurityProvider = ({ children }) => {
       });
     }
 
-    console.log(
+    // console.log(
       `🔍 Behavior Anomaly: ${anomalyType} (confidence: ${Math.round(confidence * 100)}%)`
     );
   }, []);
@@ -342,7 +342,7 @@ export const RealTimeSecurityProvider = ({ children }) => {
 
     const alert = {
       id: `system_${Date.now()}_${Math.random().toString(36).substring(2)}`,
-      type: "system",
+      type: 'system',
       severity,
       title: `System Alert: ${alertType}`,
       message,
@@ -352,12 +352,12 @@ export const RealTimeSecurityProvider = ({ children }) => {
 
     setRecentAlerts((prev) => [alert, ...prev.slice(0, 49)]);
 
-    if (severity === "critical") {
+    if (severity === 'critical') {
       setCriticalAlerts((prev) => [alert, ...prev.slice(0, 9)]);
 
       addNotification({
         id: `system_notification_${alert.id}`,
-        type: "system",
+        type: 'system',
         severity,
         title: alert.title,
         message: alert.message,
@@ -366,7 +366,7 @@ export const RealTimeSecurityProvider = ({ children }) => {
       });
     }
 
-    console.log(`⚙️ System Alert: ${alertType} - ${message}`);
+    // console.log(`⚙️ System Alert: ${alertType} - ${message}`);
   }, []);
 
   // Handle automated responses
@@ -375,28 +375,28 @@ export const RealTimeSecurityProvider = ({ children }) => {
 
     addNotification({
       id: `response_${Date.now()}_${Math.random().toString(36).substring(2)}`,
-      type: "response",
-      severity: "info",
-      title: "Automated Response",
-      message: `${responseType.replace("_", " ")} - ${action} applied to ${target}`,
+      type: 'response',
+      severity: 'info',
+      title: 'Automated Response',
+      message: `${responseType.replace('_', ' ')} - ${action} applied to ${target}`,
       timestamp: new Date(),
       persistent: false,
     });
 
-    console.log(`🤖 Automated Response: ${responseType} - ${action}`);
+    // console.log(`🤖 Automated Response: ${responseType} - ${action}`);
   }, []);
 
   // Handle action required events
   const handleAdditionalAuthRequired = useCallback((payload) => {
     addNotification({
       id: `auth_required_${Date.now()}`,
-      type: "action",
-      severity: "high",
-      title: "Additional Authentication Required",
-      message: "Please verify your identity to continue",
+      type: 'action',
+      severity: 'high',
+      title: 'Additional Authentication Required',
+      message: 'Please verify your identity to continue',
       timestamp: new Date(),
       persistent: true,
-      actionRequired: "additional_auth",
+      actionRequired: 'additional_auth',
       actionData: payload,
     });
   }, []);
@@ -404,13 +404,13 @@ export const RealTimeSecurityProvider = ({ children }) => {
   const handleMFAVerificationRequired = useCallback((payload) => {
     addNotification({
       id: `mfa_required_${Date.now()}`,
-      type: "action",
-      severity: "high",
-      title: "MFA Verification Required",
-      message: "Multi-factor authentication is required",
+      type: 'action',
+      severity: 'high',
+      title: 'MFA Verification Required',
+      message: 'Multi-factor authentication is required',
       timestamp: new Date(),
       persistent: true,
-      actionRequired: "mfa_verification",
+      actionRequired: 'mfa_verification',
       actionData: payload,
     });
   }, []);
@@ -418,10 +418,10 @@ export const RealTimeSecurityProvider = ({ children }) => {
   const handleSessionAccessLimited = useCallback((payload) => {
     addNotification({
       id: `access_limited_${Date.now()}`,
-      type: "warning",
-      severity: "medium",
-      title: "Session Access Limited",
-      message: "Your session access has been limited due to security concerns",
+      type: 'warning',
+      severity: 'medium',
+      title: 'Session Access Limited',
+      message: 'Your session access has been limited due to security concerns',
       timestamp: new Date(),
       persistent: true,
       actionData: payload,
@@ -431,10 +431,10 @@ export const RealTimeSecurityProvider = ({ children }) => {
   const handleIPBlockRequested = useCallback((payload) => {
     addNotification({
       id: `ip_block_${Date.now()}`,
-      type: "warning",
-      severity: "high",
-      title: "Suspicious Activity Detected",
-      message: "Your IP address has been flagged for suspicious activity",
+      type: 'warning',
+      severity: 'high',
+      title: 'Suspicious Activity Detected',
+      message: 'Your IP address has been flagged for suspicious activity',
       timestamp: new Date(),
       persistent: true,
       actionData: payload,
@@ -444,13 +444,13 @@ export const RealTimeSecurityProvider = ({ children }) => {
   const handleSecurityLogoutInitiated = useCallback((payload) => {
     addNotification({
       id: `security_logout_${Date.now()}`,
-      type: "action",
-      severity: "critical",
-      title: "Security Logout Initiated",
-      message: "You will be logged out due to security concerns",
+      type: 'action',
+      severity: 'critical',
+      title: 'Security Logout Initiated',
+      message: 'You will be logged out due to security concerns',
       timestamp: new Date(),
       persistent: true,
-      actionRequired: "security_logout",
+      actionRequired: 'security_logout',
       actionData: payload,
     });
   }, []);
@@ -508,7 +508,7 @@ export const RealTimeSecurityProvider = ({ children }) => {
       securityService.disconnect();
       setIsConnected(false);
       setIsInitialized(false);
-      setSystemHealth("disconnected");
+      setSystemHealth('disconnected');
     }
   }, [securityService]);
 

@@ -9,8 +9,8 @@ import {
   useEffect,
   useRef,
   Component,
-} from "react";
-import PropTypes from "prop-types";
+} from 'react';
+import PropTypes from 'prop-types';
 
 /**
  * HOC for memoizing components with shallow comparison
@@ -36,7 +36,7 @@ export const withLazyLoading = (
     </Suspense>
   );
 
-  LazyWrapper.displayName = "LazyWrapper";
+  LazyWrapper.displayName = 'LazyWrapper';
 
   return LazyWrapper;
 };
@@ -152,7 +152,7 @@ export const usePerformanceMonitor = (componentName) => {
 
       if (renderTime > 16) {
         // Warn if render takes longer than one frame
-        console.warn(
+        // console.warn(
           `[Performance] ${componentName} render took ${renderTime.toFixed(2)}ms`,
         );
       }
@@ -231,7 +231,7 @@ export const useOptimizedFetch = (url, options = {}) => {
       cache.set(cacheKey, result);
       setData(result);
       setError(null);
-    } catch (err) {
+    } catch (_err) {
       setError(err);
       setData(null);
     } finally {
@@ -262,7 +262,7 @@ export const createAsyncComponent = (importFunc) => {
  * Automatically applies common optimizations
  */
 export const OptimizedComponent = memo(
-  ({ children, trackPerformance = false, componentName = "Anonymous" }) => {
+  ({ children, trackPerformance = false, componentName = 'Anonymous' }) => {
     if (trackPerformance) {
       usePerformanceMonitor(componentName);
     }
@@ -285,11 +285,11 @@ export class PerformanceErrorBoundary extends Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    console.error("[Performance Error]:", error, errorInfo);
+    // console.error('[Performance Error]:', error, errorInfo);
 
     // Log performance impact
-    if (error.name === "ChunkLoadError") {
-      console.warn("Bundle loading failed - check network and caching");
+    if (error.name === 'ChunkLoadError') {
+      // console.warn('Bundle loading failed - check network and caching');
     }
   }
 
@@ -297,7 +297,7 @@ export class PerformanceErrorBoundary extends Component {
     if (this.state.hasError) {
       return (
         this.props.fallback || (
-          <div className="error-boundary">
+          <div className='error-boundary'>
             <h3>Something went wrong with this component</h3>
             <button
               onClick={() => this.setState({ hasError: false, error: null })}
@@ -313,6 +313,10 @@ export class PerformanceErrorBoundary extends Component {
   }
 }
 
+
+withMemo.propTypes = {
+  // TODO: Define specific prop types
+};
 export default {
   withMemo,
   withLazyLoading,

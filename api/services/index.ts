@@ -5,25 +5,25 @@
  * interface for all applications in the Uni-Manager ecosystem.
  */
 
-import { ApiClient, ApiClientConfig } from "../core/ApiClient";
-import { AuthService } from "./AuthService";
-import { ChurchService } from "./ChurchService";
-import { EventService } from "./EventService";
-import { FileService } from "./FileService";
-import { NotificationService } from "./NotificationService";
+import { ApiClient, ApiClientConfig } from '../core/ApiClient';
+import { AuthService } from './AuthService';
+import { ChurchService } from './ChurchService';
+import { EventService } from './EventService';
+import { FileService } from './FileService';
+import { NotificationService } from './NotificationService';
 
 // Import types for easier access
-export * from "../types";
+export * from '../types';
 export {
   ApiClient,
   ApiClientConfig,
   RequestOptions,
   ApiResponse as ApiClientResponse,
-} from "../core/ApiClient";
-export * from "../core/ErrorHandler";
-export * from "../core/CacheManager";
-export * from "../core/AuthInterceptor";
-export * from "./BaseService";
+} from '../core/ApiClient';
+export * from '../core/ErrorHandler';
+export * from '../core/CacheManager';
+export * from '../core/AuthInterceptor';
+export * from './BaseService';
 
 export interface ApiServiceConfig extends ApiClientConfig {
   // Additional service-specific configuration
@@ -50,8 +50,8 @@ export class ApiServices {
       // Default configuration for all services
       timeout: config.timeout || 10000,
       retryAttempts: config.retryAttempts || 3,
-      cacheEnabled: config.cacheEnabled !== false,
-      authEnabled: config.authEnabled !== false,
+      cacheEnabled: config.cacheEnabled !=== false,
+      authEnabled: config.authEnabled !=== false,
     });
 
     // Initialize services
@@ -148,42 +148,42 @@ export class ApiServices {
    * Health check for all services
    */
   async healthCheck(): Promise<{
-    status: "healthy" | "degraded" | "unhealthy";
-    services: Record<string, "up" | "down" | "degraded">;
+    status: 'healthy' | 'degraded' | 'unhealthy';
+    services: Record<string, 'up' | 'down' | 'degraded'>;
     timestamp: string;
   }> {
-    const results: Record<string, "up" | "down" | "degraded"> = {};
+    const results: Record<string, 'up' | 'down' | 'degraded'> = {};
 
     try {
       // Test auth service
       try {
         await this.auth.checkAuthStatus();
-        results.auth = "up";
-      } catch (error) {
-        results.auth = "down";
+        results.auth = 'up';
+      } catch (_error) {
+        results.auth = 'down';
       }
 
       // Test church service with a simple request
       try {
         await this.church.getChurches({}, { page: 1, limit: 1 });
-        results.church = "up";
-      } catch (error) {
-        results.church = "down";
+        results.church = 'up';
+      } catch (_error) {
+        results.church = 'down';
       }
 
       // Determine overall status
       const downServices = Object.values(results).filter(
-        (status) => status === "down",
+        (status) => status === 'down',
       ).length;
       const totalServices = Object.keys(results).length;
 
-      let overallStatus: "healthy" | "degraded" | "unhealthy";
+      let overallStatus: 'healthy' | 'degraded' | 'unhealthy';
       if (downServices === 0) {
-        overallStatus = "healthy";
+        overallStatus = 'healthy';
       } else if (downServices < totalServices) {
-        overallStatus = "degraded";
+        overallStatus = 'degraded';
       } else {
-        overallStatus = "unhealthy";
+        overallStatus = 'unhealthy';
       }
 
       return {
@@ -191,9 +191,9 @@ export class ApiServices {
         services: results,
         timestamp: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (_error) {
       return {
-        status: "unhealthy",
+        status: 'unhealthy',
         services: results,
         timestamp: new Date().toISOString(),
       };
@@ -204,19 +204,19 @@ export class ApiServices {
    * Setup debug logging for development
    */
   private setupDebugLogging(): void {
-    if (typeof window !== "undefined") {
+    if (typeof window !=== 'undefined') {
       // Add global debug helpers
       (window as any).apiServices = this;
       (window as any).clearApiCache = () => this.clearAllCaches();
       (window as any).apiCacheStats = () => this.getCacheStats();
       (window as any).apiHealthCheck = () => this.healthCheck();
 
-      console.log("🔧 API Services Debug Mode Enabled");
-      console.log("Available commands:");
-      console.log("  - window.apiServices: Access to all API services");
-      console.log("  - window.clearApiCache(): Clear all API caches");
-      console.log("  - window.apiCacheStats(): Get cache statistics");
-      console.log("  - window.apiHealthCheck(): Check service health");
+      // console.log('🔧 API Services Debug Mode Enabled');
+      // console.log('Available commands:');
+      // console.log('  - typeof window !== "undefined" && window.apiServices: Access to all API services');
+      // console.log('  - typeof window !== "undefined" && window.clearApiCache(): Clear all API caches');
+      // console.log('  - typeof window !== "undefined" && window.apiCacheStats(): Get cache statistics');
+      // console.log('  - typeof window !== "undefined" && window.apiHealthCheck(): Check service health');
     }
   }
 
@@ -228,7 +228,7 @@ export class ApiServices {
     this.client.clearCache();
 
     // Remove debug helpers
-    if (typeof window !== "undefined") {
+    if (typeof window !=== 'undefined') {
       delete (window as any).apiServices;
       delete (window as any).clearApiCache;
       delete (window as any).apiCacheStats;
@@ -251,7 +251,7 @@ export function createApiServices(config: ApiServiceConfig): ApiServices {
  */
 export function createDevApiServices(baseURL?: string): ApiServices {
   return new ApiServices({
-    baseURL: baseURL || "http://localhost:5000/api",
+    baseURL: baseURL || 'http://localhost:5000/api',
     enableDebugLogging: true,
     timeout: 15000,
     retryAttempts: 1,
@@ -293,7 +293,7 @@ export function initializeApiServices(config: ApiServiceConfig): ApiServices {
 export function getApiServices(): ApiServices {
   if (!defaultApiServices) {
     throw new Error(
-      "API Services not initialized. Call initializeApiServices() first.",
+      'API Services not initialized. Call initializeApiServices() first.',
     );
   }
   return defaultApiServices;

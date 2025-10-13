@@ -1,7 +1,7 @@
-import React, { useState } from "react";
-import PropTypes from "prop-types";
-import { MFAVerification } from "./MFAVerification.jsx";
-import { MFASetupWizard } from "./MFASetupWizard.jsx";
+import React, { useState } from 'react';
+import PropTypes from 'prop-types';
+import { MFAVerification } from './MFAVerification.jsx';
+import { MFASetupWizard } from './MFASetupWizard.jsx';
 
 /**
  * MFA Login Integration Component
@@ -76,10 +76,10 @@ export function MFALoginIntegration({
   // If MFA setup is suggested but not required
   if (isMFASetupPrompt && !showSetup) {
     return (
-      <div className="mfa-setup-prompt">
-        <div className="prompt-container">
-          <div className="prompt-header">
-            <div className="security-icon">🔒</div>
+      <div className='mfa-setup-prompt'>
+        <div className='prompt-container'>
+          <div className='prompt-header'>
+            <div className='security-icon'>🔒</div>
             <h2>Secure Your Account</h2>
             <p>
               Protect your account with two-factor authentication. This adds an
@@ -87,32 +87,32 @@ export function MFALoginIntegration({
             </p>
           </div>
 
-          <div className="benefits-list">
-            <div className="benefit-item">
-              <span className="benefit-icon">✅</span>
+          <div className='benefits-list'>
+            <div className='benefit-item'>
+              <span className='benefit-icon'>✅</span>
               <span>Prevent unauthorized access</span>
             </div>
-            <div className="benefit-item">
-              <span className="benefit-icon">✅</span>
+            <div className='benefit-item'>
+              <span className='benefit-icon'>✅</span>
               <span>Secure sensitive data</span>
             </div>
-            <div className="benefit-item">
-              <span className="benefit-icon">✅</span>
+            <div className='benefit-item'>
+              <span className='benefit-icon'>✅</span>
               <span>Peace of mind</span>
             </div>
           </div>
 
-          <div className="prompt-actions">
-            <button onClick={() => setShowSetup(true)} className="setup-button">
+          <div className='prompt-actions'>
+            <button onClick={() => setShowSetup(true)} className='setup-button'>
               Set Up Two-Factor Authentication
             </button>
 
-            <button onClick={handleSkipMFASetup} className="skip-button">
+            <button onClick={handleSkipMFASetup} className='skip-button'>
               Skip for now
             </button>
           </div>
 
-          <p className="skip-note">
+          <p className='skip-note'>
             You can always enable two-factor authentication later in your
             account settings.
           </p>

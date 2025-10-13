@@ -7,21 +7,21 @@
  * Validates authentication flow across all 6 applications
  */
 
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { vi } from "vitest";
-import { createElement } from "react";
-import { BrowserRouter } from "react-router-dom";
-import { EnhancedAuthContext } from "../../../shared/contexts/EnhancedAuthContext";
-import { UniversalLoginForm } from "../../../shared/components/auth/UniversalLoginForm";
-import { SessionManager } from "../../../shared/utils/SessionManager";
-import { rbacService } from "../../../shared/services/rbacService";
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { vi } from 'vitest';
+import { createElement } from 'react';
+import { BrowserRouter } from 'react-router-dom';
+import { EnhancedAuthContext } from '../../../shared/contexts/EnhancedAuthContext';
+import { UniversalLoginForm } from '../../../shared/components/auth/UniversalLoginForm';
+import { SessionManager } from '../../../shared/utils/SessionManager';
+import { rbacService } from '../../../shared/services/rbacService';
 
 // Mock all external dependencies
-vi.mock("../../../shared/utils/SessionManager");
-vi.mock("../../../shared/services/rbacService");
-vi.mock("../../../shared/services/authService");
+vi.mock('../../../shared/utils/SessionManager');
+vi.mock('../../../shared/services/rbacService');
+vi.mock('../../../shared/services/authService');
 
-describe("Cross-App Authentication Testing", () => {
+describe('Cross-App Authentication Testing', () => {
   let mockSessionManager;
   let mockAuthContext;
   let mockSetUser;
@@ -29,34 +29,34 @@ describe("Cross-App Authentication Testing", () => {
 
   const applications = [
     {
-      name: "church",
+      name: 'church',
       port: 5173,
-      roles: ["church_user", "church_manager", "church_admin"],
+      roles: ['church_user', 'church_manager', 'church_admin'],
     },
     {
-      name: "admin",
+      name: 'admin',
       port: 5174,
-      roles: ["admin_user", "admin_manager", "admin_admin"],
+      roles: ['admin_user', 'admin_manager', 'admin_admin'],
     },
     {
-      name: "home",
+      name: 'home',
       port: 5175,
-      roles: ["home_user", "home_manager", "home_admin"],
+      roles: ['home_user', 'home_manager', 'home_admin'],
     },
     {
-      name: "business",
+      name: 'business',
       port: 5176,
-      roles: ["business_user", "business_manager", "business_admin"],
+      roles: ['business_user', 'business_manager', 'business_admin'],
     },
     {
-      name: "personal",
+      name: 'personal',
       port: 5177,
-      roles: ["personal_user", "personal_manager", "personal_admin"],
+      roles: ['personal_user', 'personal_manager', 'personal_admin'],
     },
     {
-      name: "playback",
+      name: 'playback',
       port: 5178,
-      roles: ["playback_user", "playback_manager", "playback_admin"],
+      roles: ['playback_user', 'playback_manager', 'playback_admin'],
     },
   ];
 
@@ -94,7 +94,7 @@ describe("Cross-App Authentication Testing", () => {
 
     // Mock RBAC service
     rbacService.checkPermission.mockResolvedValue(true);
-    rbacService.getUserPermissions.mockResolvedValue(["view", "manage"]);
+    rbacService.getUserPermissions.mockResolvedValue(['view', 'manage']);
     rbacService.canUserAccessRoute.mockResolvedValue(true);
   });
 
@@ -117,13 +117,13 @@ describe("Cross-App Authentication Testing", () => {
     );
   };
 
-  describe("Universal Login Component Integration", () => {
+  describe('Universal Login Component Integration', () => {
     applications.forEach((app) => {
       it(`should handle ${app.name} app login flow`, async () => {
         const mockUser = {
-          id: "123",
-          email: "test@example.com",
-          name: "Test User",
+          id: '123',
+          email: 'test@example.com',
+          name: 'Test User',
           roles: [app.roles[0]], // Use basic user role for app
         };
 
@@ -149,16 +149,16 @@ describe("Cross-App Authentication Testing", () => {
         // Fill login form
         const emailInput = screen.getByLabelText(/email/i);
         const passwordInput = screen.getByLabelText(/password/i);
-        const submitButton = screen.getByRole("button", { name: /sign in/i });
+        const submitButton = screen.getByRole('button', { name: /sign in/i });
 
-        fireEvent.change(emailInput, { target: { value: "test@example.com" } });
-        fireEvent.change(passwordInput, { target: { value: "password123" } });
+        fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+        fireEvent.change(passwordInput, { target: { value: 'password123' } });
         fireEvent.click(submitButton);
 
         await waitFor(() => {
           expect(mockSessionManager.login).toHaveBeenCalledWith({
-            email: "test@example.com",
-            password: "password123",
+            email: 'test@example.com',
+            password: 'password123',
             application: app.name,
           });
         });
@@ -171,8 +171,8 @@ describe("Cross-App Authentication Testing", () => {
       it(`should deny ${app.name} app access for unauthorized users`, async () => {
         mockSessionManager.login.mockResolvedValue({
           success: false,
-          error: "ACCESS_DENIED",
-          message: "User does not have access to this application",
+          error: 'ACCESS_DENIED',
+          message: 'User does not have access to this application',
         });
 
         renderWithAuthContext(
@@ -183,12 +183,12 @@ describe("Cross-App Authentication Testing", () => {
 
         const emailInput = screen.getByLabelText(/email/i);
         const passwordInput = screen.getByLabelText(/password/i);
-        const submitButton = screen.getByRole("button", { name: /sign in/i });
+        const submitButton = screen.getByRole('button', { name: /sign in/i });
 
         fireEvent.change(emailInput, {
-          target: { value: "unauthorized@example.com" },
+          target: { value: 'unauthorized@example.com' },
         });
-        fireEvent.change(passwordInput, { target: { value: "password123" } });
+        fireEvent.change(passwordInput, { target: { value: 'password123' } });
         fireEvent.click(submitButton);
 
         await waitFor(() => {
@@ -198,12 +198,12 @@ describe("Cross-App Authentication Testing", () => {
     });
   });
 
-  describe("Cross-Tab Session Synchronization", () => {
-    it("should synchronize login across all application tabs", async () => {
+  describe('Cross-Tab Session Synchronization', () => {
+    it('should synchronize login across all application tabs', async () => {
       const mockUser = {
-        id: "123",
-        email: "test@example.com",
-        roles: ["church_user", "admin_user"], // Multi-app access
+        id: '123',
+        email: 'test@example.com',
+        roles: ['church_user', 'admin_user'], // Multi-app access
       };
 
       const sessionEventListeners = new Map();
@@ -218,24 +218,24 @@ describe("Cross-App Authentication Testing", () => {
       const adminAuthState = { ...mockAuthContext, isAuthenticated: false };
 
       renderWithAuthContext(
-        createElement("div", {}, "Church App"),
+        createElement('div', {}, 'Church App'),
         churchAuthState
       );
 
       renderWithAuthContext(
-        createElement("div", {}, "Admin App"),
+        createElement('div', {}, 'Admin App'),
         adminAuthState
       );
 
       // Simulate login in church app
-      const loginEventListener = sessionEventListeners.get("login");
+      const loginEventListener = sessionEventListeners.get('login');
       expect(loginEventListener).toBeDefined();
 
       // Trigger cross-tab login event
       loginEventListener({
-        type: "login",
+        type: 'login',
         user: mockUser,
-        application: "church",
+        application: 'church',
       });
 
       // Verify both app contexts are updated
@@ -245,7 +245,7 @@ describe("Cross-App Authentication Testing", () => {
       });
     });
 
-    it("should synchronize logout across all application tabs", async () => {
+    it('should synchronize logout across all application tabs', async () => {
       const sessionEventListeners = new Map();
       mockSessionManager.addEventListener.mockImplementation(
         (event, listener) => {
@@ -257,18 +257,18 @@ describe("Cross-App Authentication Testing", () => {
       const authState = {
         ...mockAuthContext,
         isAuthenticated: true,
-        user: { id: "123", email: "test@example.com" },
+        user: { id: '123', email: 'test@example.com' },
       };
 
-      renderWithAuthContext(createElement("div", {}, "Test App"), authState);
+      renderWithAuthContext(createElement('div', {}, 'Test App'), authState);
 
       // Simulate logout event from another tab
-      const logoutEventListener = sessionEventListeners.get("logout");
+      const logoutEventListener = sessionEventListeners.get('logout');
       expect(logoutEventListener).toBeDefined();
 
       logoutEventListener({
-        type: "logout",
-        reason: "user_initiated",
+        type: 'logout',
+        reason: 'user_initiated',
       });
 
       await waitFor(() => {
@@ -278,33 +278,33 @@ describe("Cross-App Authentication Testing", () => {
     });
   });
 
-  describe("Role-Based Application Access", () => {
+  describe('Role-Based Application Access', () => {
     const testUsersByRole = {
       user: {
-        id: "user123",
-        roles: ["church_user", "business_user"],
-        accessibleApps: ["church", "business"],
+        id: 'user123',
+        roles: ['church_user', 'business_user'],
+        accessibleApps: ['church', 'business'],
       },
       manager: {
-        id: "manager123",
-        roles: ["church_manager", "admin_manager"],
-        accessibleApps: ["church", "admin"],
+        id: 'manager123',
+        roles: ['church_manager', 'admin_manager'],
+        accessibleApps: ['church', 'admin'],
       },
       admin: {
-        id: "admin123",
-        roles: ["church_admin", "business_admin"],
-        accessibleApps: ["church", "business"],
+        id: 'admin123',
+        roles: ['church_admin', 'business_admin'],
+        accessibleApps: ['church', 'business'],
       },
       superAdmin: {
-        id: "super123",
-        roles: ["super_admin"],
+        id: 'super123',
+        roles: ['super_admin'],
         accessibleApps: [
-          "church",
-          "admin",
-          "home",
-          "business",
-          "personal",
-          "playback",
+          'church',
+          'admin',
+          'home',
+          'business',
+          'personal',
+          'playback',
         ],
       },
     };
@@ -319,7 +319,7 @@ describe("Cross-App Authentication Testing", () => {
           });
 
           renderWithAuthContext(
-            createElement("div", {}, `${app.name} App Test`),
+            createElement('div', {}, `${app.name} App Test`),
             {
               ...mockAuthContext,
               user: userData,
@@ -334,37 +334,37 @@ describe("Cross-App Authentication Testing", () => {
     });
   });
 
-  describe("Permission Validation Across Apps", () => {
+  describe('Permission Validation Across Apps', () => {
     const permissionMatrix = {
       church: {
-        user: ["church_view", "member_view", "service_view"],
+        user: ['church_view', 'member_view', 'service_view'],
         manager: [
-          "church_view",
-          "church_manage",
-          "member_create",
-          "service_create",
+          'church_view',
+          'church_manage',
+          'member_create',
+          'service_create',
         ],
         admin: [
-          "church_view",
-          "church_manage",
-          "church_admin",
-          "member_delete",
-          "service_delete",
+          'church_view',
+          'church_manage',
+          'church_admin',
+          'member_delete',
+          'service_delete',
         ],
       },
       admin: {
-        user: ["admin_view", "user_view"],
-        manager: ["admin_view", "admin_manage", "user_create"],
-        admin: ["admin_view", "admin_manage", "admin_admin", "user_delete"],
+        user: ['admin_view', 'user_view'],
+        manager: ['admin_view', 'admin_manage', 'user_create'],
+        admin: ['admin_view', 'admin_manage', 'admin_admin', 'user_delete'],
       },
       business: {
-        user: ["business_view", "inventory_view"],
-        manager: ["business_view", "business_manage", "inventory_create"],
+        user: ['business_view', 'inventory_view'],
+        manager: ['business_view', 'business_manage', 'inventory_create'],
         admin: [
-          "business_view",
-          "business_manage",
-          "business_admin",
-          "inventory_delete",
+          'business_view',
+          'business_manage',
+          'business_admin',
+          'inventory_delete',
         ],
       },
     };
@@ -378,7 +378,7 @@ describe("Cross-App Authentication Testing", () => {
             });
 
             renderWithAuthContext(
-              createElement("div", {}, `${appName} Permission Test`),
+              createElement('div', {}, `${appName} Permission Test`),
               {
                 ...mockAuthContext,
                 isAuthenticated: true,
@@ -404,28 +404,28 @@ describe("Cross-App Authentication Testing", () => {
     });
   });
 
-  describe("Token Refresh Across Applications", () => {
-    it("should refresh tokens consistently across all apps", async () => {
+  describe('Token Refresh Across Applications', () => {
+    it('should refresh tokens consistently across all apps', async () => {
       const refreshedUser = {
-        id: "123",
-        email: "test@example.com",
-        roles: ["church_user", "admin_user"],
+        id: '123',
+        email: 'test@example.com',
+        roles: ['church_user', 'admin_user'],
       };
 
       mockSessionManager.refreshToken.mockResolvedValue({
         success: true,
         user: refreshedUser,
         rbacData: {
-          accessibleApplications: ["church", "admin"],
-          permissions: ["church_view", "admin_view"],
+          accessibleApplications: ['church', 'admin'],
+          permissions: ['church_view', 'admin_view'],
         },
       });
 
       applications.forEach(async (app) => {
-        renderWithAuthContext(createElement("div", {}, `${app.name} App`), {
+        renderWithAuthContext(createElement('div', {}, `${app.name} App`), {
           ...mockAuthContext,
           isAuthenticated: true,
-          user: { id: "123", email: "test@example.com" },
+          user: { id: '123', email: 'test@example.com' },
         });
 
         // Trigger token refresh
@@ -437,13 +437,13 @@ describe("Cross-App Authentication Testing", () => {
       });
     });
 
-    it("should handle token refresh failures gracefully", async () => {
+    it('should handle token refresh failures gracefully', async () => {
       mockSessionManager.refreshToken.mockResolvedValue({
         success: false,
-        error: "TOKEN_EXPIRED",
+        error: 'TOKEN_EXPIRED',
       });
 
-      renderWithAuthContext(createElement("div", {}, "Test App"), {
+      renderWithAuthContext(createElement('div', {}, 'Test App'), {
         ...mockAuthContext,
         isAuthenticated: true,
       });
@@ -456,8 +456,8 @@ describe("Cross-App Authentication Testing", () => {
     });
   });
 
-  describe("Session Timeout Behavior", () => {
-    it("should handle session timeout consistently across all apps", async () => {
+  describe('Session Timeout Behavior', () => {
+    it('should handle session timeout consistently across all apps', async () => {
       const sessionEventListeners = new Map();
       mockSessionManager.addEventListener.mockImplementation(
         (event, listener) => {
@@ -466,20 +466,20 @@ describe("Cross-App Authentication Testing", () => {
       );
 
       applications.forEach((app) => {
-        renderWithAuthContext(createElement("div", {}, `${app.name} App`), {
+        renderWithAuthContext(createElement('div', {}, `${app.name} App`), {
           ...mockAuthContext,
           isAuthenticated: true,
-          user: { id: "123", email: "test@example.com" },
+          user: { id: '123', email: 'test@example.com' },
         });
       });
 
       // Simulate session timeout
-      const timeoutListener = sessionEventListeners.get("sessionTimeout");
+      const timeoutListener = sessionEventListeners.get('sessionTimeout');
       expect(timeoutListener).toBeDefined();
 
       timeoutListener({
-        type: "sessionTimeout",
-        reason: "inactivity",
+        type: 'sessionTimeout',
+        reason: 'inactivity',
       });
 
       await waitFor(() => {
@@ -489,15 +489,15 @@ describe("Cross-App Authentication Testing", () => {
     });
   });
 
-  describe("Error Handling Across Applications", () => {
+  describe('Error Handling Across Applications', () => {
     const commonErrors = [
-      { type: "NETWORK_ERROR", message: "Network connection failed" },
-      { type: "AUTH_ERROR", message: "Authentication failed" },
-      { type: "PERMISSION_ERROR", message: "Insufficient permissions" },
-      { type: "SESSION_ERROR", message: "Session expired" },
+      { type: 'NETWORK_ERROR', message: 'Network connection failed' },
+      { type: 'AUTH_ERROR', message: 'Authentication failed' },
+      { type: 'PERMISSION_ERROR', message: 'Insufficient permissions' },
+      { type: 'SESSION_ERROR', message: 'Session expired' },
     ];
 
-    commonErrors.forEach((error) => {
+    commonErrors.forEach((_error) => {
       it(`should handle ${error.type} consistently across all apps`, async () => {
         applications.forEach((app) => {
           mockSessionManager.login.mockRejectedValue(new Error(error.message));
@@ -509,13 +509,13 @@ describe("Cross-App Authentication Testing", () => {
           );
 
           // Attempt login that will fail
-          const submitButton = screen.getByRole("button", { name: /sign in/i });
+          const submitButton = screen.getByRole('button', { name: /sign in/i });
           fireEvent.click(submitButton);
 
           // Should display error message
           waitFor(() => {
             expect(
-              screen.getByText(new RegExp(error.message, "i"))
+              screen.getByText(new RegExp(error.message, 'i'))
             ).toBeInTheDocument();
           });
         });
@@ -523,8 +523,8 @@ describe("Cross-App Authentication Testing", () => {
     });
   });
 
-  describe("Performance Validation", () => {
-    it("should maintain authentication performance across all apps", async () => {
+  describe('Performance Validation', () => {
+    it('should maintain authentication performance across all apps', async () => {
       const performanceMetrics = {};
 
       for (const app of applications) {
@@ -532,7 +532,7 @@ describe("Cross-App Authentication Testing", () => {
 
         mockSessionManager.login.mockResolvedValue({
           success: true,
-          user: { id: "123", email: "test@example.com" },
+          user: { id: '123', email: 'test@example.com' },
           rbacData: { accessibleApplications: [app.name] },
         });
 
@@ -544,10 +544,10 @@ describe("Cross-App Authentication Testing", () => {
 
         const emailInput = screen.getByLabelText(/email/i);
         const passwordInput = screen.getByLabelText(/password/i);
-        const submitButton = screen.getByRole("button", { name: /sign in/i });
+        const submitButton = screen.getByRole('button', { name: /sign in/i });
 
-        fireEvent.change(emailInput, { target: { value: "test@example.com" } });
-        fireEvent.change(passwordInput, { target: { value: "password123" } });
+        fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+        fireEvent.change(passwordInput, { target: { value: 'password123' } });
         fireEvent.click(submitButton);
 
         await waitFor(() => {
@@ -565,39 +565,39 @@ describe("Cross-App Authentication Testing", () => {
     });
   });
 
-  describe("Security Validation", () => {
-    it("should prevent cross-app permission escalation", async () => {
+  describe('Security Validation', () => {
+    it('should prevent cross-app permission escalation', async () => {
       const restrictedUser = {
-        id: "123",
-        roles: ["church_user"], // Only church access
-        accessibleApplications: ["church"],
+        id: '123',
+        roles: ['church_user'], // Only church access
+        accessibleApplications: ['church'],
       };
 
       // Attempt to access admin functions with church user
       mockAuthContext.hasPermission.mockImplementation((permission) => {
-        return permission.startsWith("church_");
+        return permission.startsWith('church_');
       });
 
-      renderWithAuthContext(createElement("div", {}, "Security Test"), {
+      renderWithAuthContext(createElement('div', {}, 'Security Test'), {
         ...mockAuthContext,
         user: restrictedUser,
         isAuthenticated: true,
       });
 
       // Should not have admin permissions
-      expect(mockAuthContext.hasPermission("admin_delete")).toBe(false);
-      expect(mockAuthContext.hasPermission("business_admin")).toBe(false);
-      expect(mockAuthContext.hasPermission("super_admin")).toBe(false);
+      expect(mockAuthContext.hasPermission('admin_delete')).toBe(false);
+      expect(mockAuthContext.hasPermission('business_admin')).toBe(false);
+      expect(mockAuthContext.hasPermission('super_admin')).toBe(false);
 
       // Should have church permissions
-      expect(mockAuthContext.hasPermission("church_view")).toBe(true);
+      expect(mockAuthContext.hasPermission('church_view')).toBe(true);
     });
 
-    it("should validate session integrity across apps", async () => {
+    it('should validate session integrity across apps', async () => {
       const validUser = {
-        id: "123",
-        email: "test@example.com",
-        roles: ["church_user"],
+        id: '123',
+        email: 'test@example.com',
+        roles: ['church_user'],
       };
 
       mockSessionManager.getUser.mockReturnValue(validUser);
@@ -605,7 +605,7 @@ describe("Cross-App Authentication Testing", () => {
 
       applications.forEach((app) => {
         renderWithAuthContext(
-          createElement("div", {}, `${app.name} Security Test`),
+          createElement('div', {}, `${app.name} Security Test`),
           {
             ...mockAuthContext,
             user: validUser,

@@ -4,7 +4,7 @@
  */
 
 // Context
-export { AuthProvider, useAuth } from "./context/AuthContext.jsx";
+export { AuthProvider, useAuth } from './context/AuthContext.jsx';
 
 // Components
 export {
@@ -14,14 +14,14 @@ export {
   AuthLayout,
   ProtectedRoute,
   UserMenu,
-} from "./components/index.js";
+} from './components/index.js';
 
 // Universal Login Component
-export { default as UniversalLoginComponent } from "./components/UniversalLoginComponent.jsx";
+export { default as UniversalLoginComponent } from './components/UniversalLoginComponent.jsx';
 
 // Session Management
-export { default as SessionManager } from "./session/SessionManager.jsx";
-export { default as SessionWarning } from "./session/SessionWarning.jsx";
+export { default as SessionManager } from './session/SessionManager.jsx';
+export { default as SessionWarning } from './session/SessionWarning.jsx';
 
 // RBAC System Components
 export {
@@ -34,26 +34,26 @@ export {
   PermissionMenuItem,
   withPermissions,
   withRoles,
-} from "./rbac/RBACComponents.jsx";
+} from './rbac/RBACComponents.jsx';
 
 // RBAC System Utilities
-export { RBACUtils, PermissionUtils, RouteUtils } from "./rbac/utils.js";
+export { RBACUtils, PermissionUtils, RouteUtils } from './rbac/utils.js';
 export {
   PERMISSIONS,
   ROLES,
   APPLICATION_ROLES,
   PROTECTED_ROUTES,
-} from "./rbac/roles.js";
+} from './rbac/roles.js';
 
 // Hooks
-export { useAuthForm, usePermissions } from "./hooks/index.js";
+export { useAuthForm, usePermissions } from './hooks/index.js';
 
 // Services
-export { default as UnifiedAuthService } from "./services/UnifiedAuthService.js";
+export { default as UnifiedAuthService } from './services/UnifiedAuthService.js';
 
 // Utilities
-export * from "./utils/authValidation.js";
-export * from "./utils/tokenStorage.js";
+export * from './utils/authValidation.js';
+export * from './utils/tokenStorage.js';
 
 // Configuration
 export {
@@ -61,4 +61,4 @@ export {
   getAppConfig,
   getCurrentAppName,
   getCurrentAppConfig,
-} from "./config/appConfigs.js";
+} from './config/appConfigs.js';

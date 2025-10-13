@@ -10,8 +10,8 @@
 class RealTimeSecurityMonitoringService {
   constructor() {
     this.wsUrl = (
-      import.meta.env.VITE_API_URL || "http://localhost:5000"
-    ).replace(/^http/, "ws");
+      import.meta.env.VITE_API_URL || 'http://localhost:5000'
+    ).replace(/^http/, 'ws');
     this.websocket = null;
     this.isConnected = false;
     this.reconnectAttempts = 0;
@@ -60,7 +60,7 @@ class RealTimeSecurityMonitoringService {
       alertsCount: 0,
       connectionsCount: 0,
       lastThreatDetected: null,
-      systemHealth: "healthy",
+      systemHealth: 'healthy',
     };
 
     // Automated response configuration
@@ -93,16 +93,16 @@ class RealTimeSecurityMonitoringService {
       // Initialize threat detection
       this.initializeThreatDetection();
 
-      console.log("Real-time Security Monitoring initialized successfully");
+      // console.log('Real-time Security Monitoring initialized successfully');
 
       return {
         success: true,
-        connectionId: this.websocket?.id || "unknown",
+        connectionId: this.websocket?.id || 'unknown',
         monitoringConfig: this.monitoringConfig,
       };
-    } catch (error) {
-      console.error(
-        "Failed to initialize real-time security monitoring:",
+    } catch (_error) {
+      // console.error(
+        'Failed to initialize real-time security monitoring:',
         error
       );
       throw error;
@@ -116,12 +116,12 @@ class RealTimeSecurityMonitoringService {
     return new Promise((resolve, reject) => {
       try {
         const wsEndpoint = `${this.wsUrl}/api/security-monitoring/websocket`;
-        console.log("Connecting to security monitoring WebSocket:", wsEndpoint);
+        // console.log('Connecting to security monitoring WebSocket:', wsEndpoint);
 
         this.websocket = new WebSocket(wsEndpoint);
 
         this.websocket.onopen = (event) => {
-          console.log("Security monitoring WebSocket connected");
+          // console.log('Security monitoring WebSocket connected');
           this.isConnected = true;
           this.reconnectAttempts = 0;
           this.reconnectDelay = 1000;
@@ -132,7 +132,7 @@ class RealTimeSecurityMonitoringService {
           // Start heartbeat
           this.startHeartbeat();
 
-          this.emit("connected", event);
+          this.emit('connected', event);
           resolve();
         };
 
@@ -141,15 +141,15 @@ class RealTimeSecurityMonitoringService {
         };
 
         this.websocket.onclose = (event) => {
-          console.log(
-            "Security monitoring WebSocket disconnected:",
+          // console.log(
+            'Security monitoring WebSocket disconnected:',
             event.code,
             event.reason
           );
           this.isConnected = false;
           this.stopHeartbeat();
 
-          this.emit("disconnected", event);
+          this.emit('disconnected', event);
 
           // Attempt reconnection if not intentional
           if (event.code !== 1000) {
@@ -157,19 +157,19 @@ class RealTimeSecurityMonitoringService {
           }
         };
 
-        this.websocket.onerror = (error) => {
-          console.error("Security monitoring WebSocket error:", error);
-          this.emit("error", error);
+        this.websocket.onerror = (_error) => {
+          // console.error('Security monitoring WebSocket error:', error);
+          this.emit('error', error);
           reject(error);
         };
 
         // Connection timeout
         setTimeout(() => {
           if (this.websocket?.readyState !== WebSocket.OPEN) {
-            reject(new Error("WebSocket connection timeout"));
+            reject(new Error('WebSocket connection timeout'));
           }
         }, 10000);
-      } catch (error) {
+      } catch (_error) {
         reject(error);
       }
     });
@@ -180,7 +180,7 @@ class RealTimeSecurityMonitoringService {
    */
   authenticateConnection() {
     const authMessage = {
-      type: "authenticate",
+      type: 'authenticate',
       payload: {
         userId: this.userId,
         sessionId: this.sessionId,
@@ -200,53 +200,53 @@ class RealTimeSecurityMonitoringService {
       const message = JSON.parse(event.data);
 
       switch (message.type) {
-        case "threat_detected":
+        case 'threat_detected':
           this.handleThreatDetection(message.payload);
           break;
 
-        case "security_alert":
+        case 'security_alert':
           this.handleSecurityAlert(message.payload);
           break;
 
-        case "risk_score_update":
+        case 'risk_score_update':
           this.handleRiskScoreUpdate(message.payload);
           break;
 
-        case "behavior_anomaly":
+        case 'behavior_anomaly':
           this.handleBehaviorAnomaly(message.payload);
           break;
 
-        case "system_alert":
+        case 'system_alert':
           this.handleSystemAlert(message.payload);
           break;
 
-        case "automated_response":
+        case 'automated_response':
           this.handleAutomatedResponse(message.payload);
           break;
 
-        case "heartbeat_response":
+        case 'heartbeat_response':
           // Keep-alive response
           break;
 
-        case "authentication_success":
-          console.log("Security monitoring authentication successful");
+        case 'authentication_success':
+          // console.log('Security monitoring authentication successful');
           break;
 
-        case "authentication_failed":
-          console.error(
-            "Security monitoring authentication failed:",
+        case 'authentication_failed':
+          // console.error(
+            'Security monitoring authentication failed:',
             message.payload
           );
           break;
 
         default:
-          console.warn("Unknown message type:", message.type);
+          // console.warn('Unknown message type:', message.type);
       }
 
       // Emit generic message event
-      this.emit("message", message);
-    } catch (error) {
-      console.error("Failed to parse WebSocket message:", error);
+      this.emit('message', message);
+    } catch (_error) {
+      // console.error('Failed to parse WebSocket message:', error);
     }
   }
 
@@ -265,7 +265,7 @@ class RealTimeSecurityMonitoringService {
       metadata,
     } = payload;
 
-    console.warn(
+    // console.warn(
       `🚨 THREAT DETECTED: ${threatType} (Severity: ${severity}, Confidence: ${confidence})`
     );
 
@@ -278,7 +278,7 @@ class RealTimeSecurityMonitoringService {
       target,
       timestamp: new Date(timestamp),
       metadata,
-      status: "active",
+      status: 'active',
     });
 
     this.metrics.lastThreatDetected = new Date(timestamp);
@@ -289,10 +289,10 @@ class RealTimeSecurityMonitoringService {
     }
 
     // Emit threat detection event
-    this.emit("threatDetected", payload);
+    this.emit('threatDetected', payload);
 
     // Update UI if callback registered
-    this.emit("metricsUpdated", this.metrics);
+    this.emit('metricsUpdated', this.metrics);
   }
 
   /**
@@ -308,7 +308,7 @@ class RealTimeSecurityMonitoringService {
       actionRequired,
     } = payload;
 
-    console.log(`🔔 SECURITY ALERT: ${alertType} - ${message}`);
+    // console.log(`🔔 SECURITY ALERT: ${alertType} - ${message}`);
 
     this.metrics.alertsCount++;
 
@@ -320,7 +320,7 @@ class RealTimeSecurityMonitoringService {
     );
 
     // Emit alert event
-    this.emit("securityAlert", payload);
+    this.emit('securityAlert', payload);
 
     // Take action if required
     if (actionRequired) {
@@ -340,7 +340,7 @@ class RealTimeSecurityMonitoringService {
       _timestamp,
     } = payload;
 
-    console.log(`📊 Risk Score Update: ${previousRiskScore} → ${newRiskScore}`);
+    // console.log(`📊 Risk Score Update: ${previousRiskScore} → ${newRiskScore}`);
 
     // Check if risk score crossed critical threshold
     if (
@@ -350,7 +350,7 @@ class RealTimeSecurityMonitoringService {
       this.handleCriticalRiskScore(payload);
     }
 
-    this.emit("riskScoreUpdated", payload);
+    this.emit('riskScoreUpdated', payload);
   }
 
   /**
@@ -360,7 +360,7 @@ class RealTimeSecurityMonitoringService {
     const { anomalyType, _severity, confidence, _behaviorData, _timestamp } =
       payload;
 
-    console.log(
+    // console.log(
       `🔍 Behavior Anomaly: ${anomalyType} (Confidence: ${confidence})`
     );
 
@@ -369,7 +369,7 @@ class RealTimeSecurityMonitoringService {
       this.handleHighConfidenceAnomaly(payload);
     }
 
-    this.emit("behaviorAnomaly", payload);
+    this.emit('behaviorAnomaly', payload);
   }
 
   /**
@@ -379,16 +379,16 @@ class RealTimeSecurityMonitoringService {
     const { alertType, severity, message, _systemComponent, _timestamp } =
       payload;
 
-    console.log(`⚙️ System Alert: ${alertType} - ${message}`);
+    // console.log(`⚙️ System Alert: ${alertType} - ${message}`);
 
     // Update system health if critical
-    if (severity === "critical") {
-      this.metrics.systemHealth = "critical";
-    } else if (severity === "high" && this.metrics.systemHealth === "healthy") {
-      this.metrics.systemHealth = "degraded";
+    if (severity === 'critical') {
+      this.metrics.systemHealth = 'critical';
+    } else if (severity === 'high' && this.metrics.systemHealth === 'healthy') {
+      this.metrics.systemHealth = 'degraded';
     }
 
-    this.emit("systemAlert", payload);
+    this.emit('systemAlert', payload);
   }
 
   /**
@@ -397,11 +397,11 @@ class RealTimeSecurityMonitoringService {
   handleAutomatedResponse(payload) {
     const { responseType, action, target, _result, _timestamp } = payload;
 
-    console.log(
+    // console.log(
       `🤖 Automated Response: ${responseType} - ${action} on ${target}`
     );
 
-    this.emit("automatedResponse", payload);
+    this.emit('automatedResponse', payload);
   }
 
   /**
@@ -410,8 +410,8 @@ class RealTimeSecurityMonitoringService {
   shouldTriggerAutomatedResponse(severity, confidence) {
     // Trigger for high severity and high confidence threats
     return (
-      (severity === "critical" && confidence >= 0.8) ||
-      (severity === "high" && confidence >= 0.9)
+      (severity === 'critical' && confidence >= 0.8) ||
+      (severity === 'high' && confidence >= 0.9)
     );
   }
 
@@ -420,7 +420,7 @@ class RealTimeSecurityMonitoringService {
    */
   triggerAutomatedResponse(threatPayload) {
     const responseMessage = {
-      type: "trigger_automated_response",
+      type: 'trigger_automated_response',
       payload: {
         threatId: threatPayload.threatId,
         threatType: threatPayload.threatType,
@@ -437,20 +437,20 @@ class RealTimeSecurityMonitoringService {
    * Handle critical risk score
    */
   handleCriticalRiskScore(payload) {
-    console.error("🚨 CRITICAL RISK SCORE DETECTED:", payload);
+    // console.error('🚨 CRITICAL RISK SCORE DETECTED:', payload);
 
     // Request immediate additional authentication
     this.requestAdditionalAuthentication(payload);
 
     // Notify administrators
-    this.notifyAdministrators("critical_risk_score", payload);
+    this.notifyAdministrators('critical_risk_score', payload);
   }
 
   /**
    * Handle high confidence anomalies
    */
   handleHighConfidenceAnomaly(payload) {
-    console.warn("🔍 HIGH CONFIDENCE ANOMALY:", payload);
+    // console.warn('🔍 HIGH CONFIDENCE ANOMALY:', payload);
 
     // Flag session for enhanced monitoring
     this.flagSessionForEnhancedMonitoring(payload);
@@ -463,24 +463,24 @@ class RealTimeSecurityMonitoringService {
     const { actionType, actionData } = alertPayload;
 
     switch (actionType) {
-      case "require_mfa":
+      case 'require_mfa':
         this.requestMFAVerification(actionData);
         break;
 
-      case "limit_session":
+      case 'limit_session':
         this.limitSessionAccess(actionData);
         break;
 
-      case "block_ip":
+      case 'block_ip':
         this.requestIPBlock(actionData);
         break;
 
-      case "logout_user":
+      case 'logout_user':
         this.initiateSecurityLogout(actionData);
         break;
 
       default:
-        console.warn("Unknown action type:", actionType);
+        // console.warn('Unknown action type:', actionType);
     }
   }
 
@@ -489,13 +489,13 @@ class RealTimeSecurityMonitoringService {
    */
   registerSecurityEventListeners() {
     // Listen for security events from other parts of the application
-    window.addEventListener("securityEvent", (event) => {
+    typeof window !== "undefined" && window.addEventListener('securityEvent', (event) => {
       this.processSecurityEvent(event.detail);
     });
 
     // Listen for page visibility changes
-    document.addEventListener("visibilitychange", () => {
-      if (document.hidden) {
+    typeof document !== "undefined" && document.addEventListener('visibilitychange', () => {
+      if (typeof document !== "undefined" && document.hidden) {
         this.handlePageHidden();
       } else {
         this.handlePageVisible();
@@ -503,11 +503,11 @@ class RealTimeSecurityMonitoringService {
     });
 
     // Listen for network changes
-    window.addEventListener("online", () => {
+    typeof window !== "undefined" && window.addEventListener('online', () => {
       this.handleNetworkReconnect();
     });
 
-    window.addEventListener("offline", () => {
+    typeof window !== "undefined" && window.addEventListener('offline', () => {
       this.handleNetworkDisconnect();
     });
   }
@@ -517,10 +517,10 @@ class RealTimeSecurityMonitoringService {
    */
   processSecurityEvent(eventData) {
     const securityMessage = {
-      type: "security_event",
+      type: 'security_event',
       payload: {
         ...eventData,
-        source: "client",
+        source: 'client',
         timestamp: Date.now(),
       },
     };
@@ -535,14 +535,14 @@ class RealTimeSecurityMonitoringService {
     // Monitor WebSocket connection health
     setInterval(() => {
       if (!this.isConnected) {
-        this.metrics.systemHealth = "disconnected";
+        this.metrics.systemHealth = 'disconnected';
       } else if (this.metrics.activeThreats.size > 0) {
-        this.metrics.systemHealth = "threats_detected";
+        this.metrics.systemHealth = 'threats_detected';
       } else {
-        this.metrics.systemHealth = "healthy";
+        this.metrics.systemHealth = 'healthy';
       }
 
-      this.emit("healthUpdate", this.metrics.systemHealth);
+      this.emit('healthUpdate', this.metrics.systemHealth);
     }, 5000);
   }
 
@@ -562,9 +562,9 @@ class RealTimeSecurityMonitoringService {
   setupFailedLoginDetection() {
     const failedAttempts = new Map();
 
-    this.on("loginFailed", (data) => {
+    this.on('loginFailed', (data) => {
       const { userId, ip, timestamp } = data;
-      const key = `${userId || "unknown"}_${ip}`;
+      const key = `${userId || 'unknown'}_${ip}`;
 
       if (!failedAttempts.has(key)) {
         failedAttempts.set(key, []);
@@ -580,7 +580,7 @@ class RealTimeSecurityMonitoringService {
 
       // Check for brute force
       if (recentAttempts.length >= this.threatPatterns.bruteForce.attempts) {
-        this.reportThreat("brute_force_attack", {
+        this.reportThreat('brute_force_attack', {
           target: userId || ip,
           attempts: recentAttempts.length,
           timeWindow: this.threatPatterns.bruteForce.timeWindow,
@@ -593,11 +593,11 @@ class RealTimeSecurityMonitoringService {
    * Setup suspicious activity detection
    */
   setupSuspiciousActivityDetection() {
-    this.on("suspiciousActivity", (data) => {
+    this.on('suspiciousActivity', (data) => {
       const { activityType, confidence, metadata } = data;
 
       if (confidence >= this.threatPatterns.deviceAnomaly.confidence) {
-        this.reportThreat("suspicious_activity", {
+        this.reportThreat('suspicious_activity', {
           activityType,
           confidence,
           metadata,
@@ -610,12 +610,12 @@ class RealTimeSecurityMonitoringService {
    * Setup network anomaly detection
    */
   setupNetworkAnomalyDetection() {
-    this.on("networkAnomaly", (data) => {
+    this.on('networkAnomaly', (data) => {
       const { sourceIP, anomalyType, severity } = data;
 
       this.threatPatterns.networkAnomaly.suspiciousIPs.add(sourceIP);
 
-      this.reportThreat("network_anomaly", {
+      this.reportThreat('network_anomaly', {
         sourceIP,
         anomalyType,
         severity,
@@ -628,12 +628,12 @@ class RealTimeSecurityMonitoringService {
    */
   reportThreat(threatType, threatData) {
     const threatMessage = {
-      type: "report_threat",
+      type: 'report_threat',
       payload: {
         threatId: this.generateThreatId(),
         threatType,
         timestamp: Date.now(),
-        source: "client_detection",
+        source: 'client_detection',
         data: threatData,
       },
     };
@@ -655,7 +655,7 @@ class RealTimeSecurityMonitoringService {
     if (this.websocket && this.websocket.readyState === WebSocket.OPEN) {
       this.websocket.send(JSON.stringify(message));
     } else {
-      console.warn("Cannot send message - WebSocket not connected");
+      // console.warn('Cannot send message - WebSocket not connected');
     }
   }
 
@@ -666,7 +666,7 @@ class RealTimeSecurityMonitoringService {
     this.heartbeatTimer = setInterval(() => {
       if (this.isConnected) {
         this.sendMessage({
-          type: "heartbeat",
+          type: 'heartbeat',
           payload: { timestamp: Date.now() },
         });
       }
@@ -688,8 +688,8 @@ class RealTimeSecurityMonitoringService {
    */
   scheduleReconnect() {
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-      console.error("Max reconnection attempts reached");
-      this.emit("maxReconnectAttemptsReached");
+      // console.error('Max reconnection attempts reached');
+      this.emit('maxReconnectAttemptsReached');
       return;
     }
 
@@ -699,13 +699,13 @@ class RealTimeSecurityMonitoringService {
       this.maxReconnectDelay
     );
 
-    console.log(
+    // console.log(
       `Scheduling reconnection attempt ${this.reconnectAttempts} in ${delay}ms`
     );
 
     this.reconnectTimer = setTimeout(() => {
-      this.connect().catch((error) => {
-        console.error("Reconnection failed:", error);
+      this.connect().catch((_error) => {
+        // console.error('Reconnection failed:', error);
         this.scheduleReconnect();
       });
     }, delay);
@@ -715,13 +715,13 @@ class RealTimeSecurityMonitoringService {
    * Show browser notification
    */
   showBrowserNotification(title, message, severity) {
-    if ("Notification" in window && Notification.permission === "granted") {
+    if ('Notification' in window && Notification.permission === 'granted') {
       const options = {
         body: message,
         icon: this.getNotificationIcon(severity),
-        badge: "/icons/security-badge.png",
-        tag: "security-alert",
-        requireInteraction: severity === "critical",
+        badge: '/icons/security-badge.png',
+        tag: 'security-alert',
+        requireInteraction: severity === 'critical',
       };
 
       new Notification(title, options);
@@ -733,10 +733,10 @@ class RealTimeSecurityMonitoringService {
    */
   getNotificationIcon(severity) {
     const icons = {
-      critical: "/icons/alert-critical.png",
-      high: "/icons/alert-high.png",
-      medium: "/icons/alert-medium.png",
-      low: "/icons/alert-low.png",
+      critical: '/icons/alert-critical.png',
+      high: '/icons/alert-high.png',
+      medium: '/icons/alert-medium.png',
+      low: '/icons/alert-low.png',
     };
 
     return icons[severity] || icons.medium;
@@ -746,35 +746,35 @@ class RealTimeSecurityMonitoringService {
    * Request additional authentication
    */
   requestAdditionalAuthentication(payload) {
-    this.emit("additionalAuthRequired", payload);
+    this.emit('additionalAuthRequired', payload);
   }
 
   /**
    * Request MFA verification
    */
   requestMFAVerification(actionData) {
-    this.emit("mfaVerificationRequired", actionData);
+    this.emit('mfaVerificationRequired', actionData);
   }
 
   /**
    * Limit session access
    */
   limitSessionAccess(actionData) {
-    this.emit("sessionAccessLimited", actionData);
+    this.emit('sessionAccessLimited', actionData);
   }
 
   /**
    * Request IP block
    */
   requestIPBlock(actionData) {
-    this.emit("ipBlockRequested", actionData);
+    this.emit('ipBlockRequested', actionData);
   }
 
   /**
    * Initiate security logout
    */
   initiateSecurityLogout(actionData) {
-    this.emit("securityLogoutInitiated", actionData);
+    this.emit('securityLogoutInitiated', actionData);
   }
 
   /**
@@ -782,7 +782,7 @@ class RealTimeSecurityMonitoringService {
    */
   notifyAdministrators(alertType, payload) {
     const notificationMessage = {
-      type: "admin_notification",
+      type: 'admin_notification',
       payload: {
         alertType,
         timestamp: Date.now(),
@@ -798,7 +798,7 @@ class RealTimeSecurityMonitoringService {
    */
   flagSessionForEnhancedMonitoring(payload) {
     const flagMessage = {
-      type: "flag_enhanced_monitoring",
+      type: 'flag_enhanced_monitoring',
       payload: {
         sessionId: this.sessionId,
         reason: payload.anomalyType,
@@ -815,7 +815,7 @@ class RealTimeSecurityMonitoringService {
   handlePageHidden() {
     // Reduce monitoring frequency when page is hidden
     this.sendMessage({
-      type: "page_hidden",
+      type: 'page_hidden',
       payload: { timestamp: Date.now() },
     });
   }
@@ -826,7 +826,7 @@ class RealTimeSecurityMonitoringService {
   handlePageVisible() {
     // Resume normal monitoring when page becomes visible
     this.sendMessage({
-      type: "page_visible",
+      type: 'page_visible',
       payload: { timestamp: Date.now() },
     });
   }
@@ -835,10 +835,10 @@ class RealTimeSecurityMonitoringService {
    * Handle network reconnect
    */
   handleNetworkReconnect() {
-    console.log("Network reconnected - resuming security monitoring");
+    // console.log('Network reconnected - resuming security monitoring');
     if (!this.isConnected) {
-      this.connect().catch((error) => {
-        console.error("Failed to reconnect after network recovery:", error);
+      this.connect().catch((_error) => {
+        // console.error('Failed to reconnect after network recovery:', error);
       });
     }
   }
@@ -847,9 +847,9 @@ class RealTimeSecurityMonitoringService {
    * Handle network disconnect
    */
   handleNetworkDisconnect() {
-    console.log("Network disconnected - security monitoring offline");
-    this.metrics.systemHealth = "offline";
-    this.emit("networkOffline");
+    // console.log('Network disconnected - security monitoring offline');
+    this.metrics.systemHealth = 'offline';
+    this.emit('networkOffline');
   }
 
   /**
@@ -877,8 +877,8 @@ class RealTimeSecurityMonitoringService {
       this.eventListeners.get(eventType).forEach((callback) => {
         try {
           callback(data);
-        } catch (error) {
-          console.error(`Error in event listener for ${eventType}:`, error);
+        } catch (_error) {
+          // console.error(`Error in event listener for ${eventType}:`, error);
         }
       });
     }
@@ -902,7 +902,7 @@ class RealTimeSecurityMonitoringService {
     this.monitoringConfig = { ...this.monitoringConfig, ...newConfig };
 
     const configMessage = {
-      type: "update_configuration",
+      type: 'update_configuration',
       payload: {
         configuration: this.monitoringConfig,
         timestamp: Date.now(),
@@ -924,14 +924,14 @@ class RealTimeSecurityMonitoringService {
     this.stopHeartbeat();
 
     if (this.websocket) {
-      this.websocket.close(1000, "Client disconnect");
+      this.websocket.close(1000, 'Client disconnect');
       this.websocket = null;
     }
 
     this.isConnected = false;
     this.eventListeners.clear();
 
-    console.log("Real-time security monitoring disconnected");
+    // console.log('Real-time security monitoring disconnected');
   }
 
   /**

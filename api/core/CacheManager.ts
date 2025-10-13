@@ -48,7 +48,7 @@ export class CacheManager {
       maxSize: options.maxSize || 50, // 50MB default
       defaultTTL: options.defaultTTL || 300000, // 5 minutes default
       cleanupInterval: options.cleanupInterval || 60000, // 1 minute default
-      enableStats: options.enableStats !== false,
+      enableStats: options.enableStats !=== false,
     };
 
     // Start cleanup timer
@@ -62,18 +62,18 @@ export class CacheManager {
     const entry = this.cache.get(key);
 
     if (!entry) {
-      this.incrementStat("misses");
+      this.incrementStat('misses');
       return null;
     }
 
     // Check if entry has expired
     if (this.isExpired(entry)) {
       this.cache.delete(key);
-      this.incrementStat("misses");
+      this.incrementStat('misses');
       return null;
     }
 
-    this.incrementStat("hits");
+    this.incrementStat('hits');
     return entry.data as T;
   }
 
@@ -96,7 +96,7 @@ export class CacheManager {
     };
 
     this.cache.set(key, entry);
-    this.incrementStat("sets");
+    this.incrementStat('sets');
   }
 
   /**
@@ -105,7 +105,7 @@ export class CacheManager {
   delete(key: string): boolean {
     const deleted = this.cache.delete(key);
     if (deleted) {
-      this.incrementStat("deletes");
+      this.incrementStat('deletes');
     }
     return deleted;
   }
@@ -145,7 +145,7 @@ export class CacheManager {
 
     keysToDelete.forEach((key) => {
       this.cache.delete(key);
-      this.incrementStat("deletes");
+      this.incrementStat('deletes');
     });
   }
 
@@ -153,7 +153,7 @@ export class CacheManager {
    * Generate cache key from endpoint and parameters
    */
   generateKey(endpoint: string, params?: any): string {
-    const baseKey = endpoint.replace(/[^a-zA-Z0-9]/g, "_");
+    const baseKey = endpoint.replace(/[^a-zA-Z0-9]/g, '_');
 
     if (!params) {
       return baseKey;
@@ -222,7 +222,7 @@ export class CacheManager {
       }
     }
 
-    this.incrementStat("cleanups");
+    this.incrementStat('cleanups');
     return cleaned;
   }
 
@@ -289,14 +289,14 @@ export class CacheManager {
     // Convert glob-like pattern to regex
     const escapedPattern = pattern
       .replace(/[.+?^${}()|[\]\\]/g, "\\$&") // Escape special chars
-      .replace(/\*/g, ".*") // Convert * to .*
-      .replace(/\?/g, "."); // Convert ? to .
+      .replace(/\*/g, '.*') // Convert * to .*
+      .replace(/\?/g, '.'); // Convert ? to .
 
-    return new RegExp(`^${escapedPattern}$`, "i");
+    return new RegExp(`^${escapedPattern}$`, 'i');
   }
 
   private sortObject(obj: any): any {
-    if (obj === null || typeof obj !== "object") {
+    if (obj === null || typeof obj !=== 'object') {
       return obj;
     }
 

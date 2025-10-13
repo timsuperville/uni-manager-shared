@@ -3,10 +3,11 @@
  * Components for permission-based rendering and route protection
  */
 
-import React, { createContext, useContext } from "react";
-import { Navigate } from "react-router-dom";
-import { useAuth } from "../contexts/EnhancedAuthContext";
-import { RBACUtils, PermissionUtils } from "../rbac/utils";
+import React, { createContext, useContext } from 'react';
+import PropTypes from 'prop-types';
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '../contexts/EnhancedAuthContext';
+import { RBACUtils, PermissionUtils } from '../rbac/utils';
 
 // Create RBAC Context
 const RBACContext = createContext(null);
@@ -55,7 +56,7 @@ export function useRBAC() {
   const context = useContext(RBACContext);
 
   if (!context) {
-    throw new Error("useRBAC must be used within an RBACProvider");
+    throw new Error('useRBAC must be used within an RBACProvider');
   }
 
   return context;
@@ -140,13 +141,13 @@ export function RoleGuard({
  */
 export function ApplicationGuard({
   application,
-  fallback = <Navigate to="/unauthorized" replace />,
+  fallback = <Navigate to='/unauthorized' replace />,
   children,
 }) {
   const { canAccessApplication, isAuthenticated } = useRBAC();
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to='/login' replace />;
   }
 
   if (!canAccessApplication(application)) {
@@ -167,7 +168,7 @@ export function RouteGuard({
   roles,
   minimumLevel = null,
   requireAuth = true,
-  redirectTo = "/unauthorized",
+  redirectTo = '/unauthorized',
   children,
 }) {
   const {
@@ -182,7 +183,7 @@ export function RouteGuard({
 
   // Check authentication
   if (requireAuth && !isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to='/login' replace />;
   }
 
   // Check permissions
@@ -225,7 +226,7 @@ export function RouteGuard({
  */
 export function AdminGuard({
   application = null,
-  fallback = <Navigate to="/unauthorized" replace />,
+  fallback = <Navigate to='/unauthorized' replace />,
   children,
 }) {
   const { isApplicationAdmin, isAnyAdmin } = useRBAC();
@@ -401,4 +402,8 @@ export {
   withRoles,
   PermissionButton,
   PermissionMenuItem,
+};
+
+RBACContext.propTypes = {
+  // TODO: Define specific prop types
 };

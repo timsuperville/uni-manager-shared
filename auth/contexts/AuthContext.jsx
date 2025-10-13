@@ -11,54 +11,54 @@ import React, {
   useEffect,
   useCallback,
   useRef,
-} from "react";
-import { SessionManager } from "../services/SessionManager";
-import sessionManagementService from "../services/sessionManagementService";
-import mfaService from "../services/mfaService";
-import oauthService from "../services/oauthService";
-import webauthnService from "../services/webauthnService";
-import securityService from "../services/securityService";
+} from 'react';
+import { SessionManager } from '../services/SessionManager';
+import sessionManagementService from '../services/sessionManagementService';
+import mfaService from '../services/mfaService';
+import oauthService from '../services/oauthService';
+import webauthnService from '../services/webauthnService';
+import securityService from '../services/securityService';
 
 // Auth action types
 const AUTH_ACTIONS = {
-  LOGIN_START: "LOGIN_START",
-  LOGIN_SUCCESS: "LOGIN_SUCCESS",
-  LOGIN_FAILURE: "LOGIN_FAILURE",
-  LOGOUT: "LOGOUT",
-  SET_USER: "SET_USER",
-  SET_LOADING: "SET_LOADING",
-  SET_ERROR: "SET_ERROR",
-  CLEAR_ERROR: "CLEAR_ERROR",
-  SESSION_WARNING: "SESSION_WARNING",
-  SESSION_EXPIRED: "SESSION_EXPIRED",
-  TOKEN_REFRESHED: "TOKEN_REFRESHED",
-  CROSS_TAB_LOGIN: "CROSS_TAB_LOGIN",
-  CROSS_TAB_LOGOUT: "CROSS_TAB_LOGOUT",
+  LOGIN_START: 'LOGIN_START',
+  LOGIN_SUCCESS: 'LOGIN_SUCCESS',
+  LOGIN_FAILURE: 'LOGIN_FAILURE',
+  LOGOUT: 'LOGOUT',
+  SET_USER: 'SET_USER',
+  SET_LOADING: 'SET_LOADING',
+  SET_ERROR: 'SET_ERROR',
+  CLEAR_ERROR: 'CLEAR_ERROR',
+  SESSION_WARNING: 'SESSION_WARNING',
+  SESSION_EXPIRED: 'SESSION_EXPIRED',
+  TOKEN_REFRESHED: 'TOKEN_REFRESHED',
+  CROSS_TAB_LOGIN: 'CROSS_TAB_LOGIN',
+  CROSS_TAB_LOGOUT: 'CROSS_TAB_LOGOUT',
   // MFA actions
-  MFA_REQUIRED: "MFA_REQUIRED",
-  MFA_SETUP_REQUIRED: "MFA_SETUP_REQUIRED",
-  MFA_VERIFICATION_SUCCESS: "MFA_VERIFICATION_SUCCESS",
-  MFA_VERIFICATION_FAILURE: "MFA_VERIFICATION_FAILURE",
-  MFA_STATUS_UPDATED: "MFA_STATUS_UPDATED",
+  MFA_REQUIRED: 'MFA_REQUIRED',
+  MFA_SETUP_REQUIRED: 'MFA_SETUP_REQUIRED',
+  MFA_VERIFICATION_SUCCESS: 'MFA_VERIFICATION_SUCCESS',
+  MFA_VERIFICATION_FAILURE: 'MFA_VERIFICATION_FAILURE',
+  MFA_STATUS_UPDATED: 'MFA_STATUS_UPDATED',
   // Enhanced session management actions
-  SESSION_CREATED: "SESSION_CREATED",
-  SESSION_UPDATED: "SESSION_UPDATED",
-  SESSION_INVALIDATED: "SESSION_INVALIDATED",
-  DEVICE_FINGERPRINT_UPDATED: "DEVICE_FINGERPRINT_UPDATED",
+  SESSION_CREATED: 'SESSION_CREATED',
+  SESSION_UPDATED: 'SESSION_UPDATED',
+  SESSION_INVALIDATED: 'SESSION_INVALIDATED',
+  DEVICE_FINGERPRINT_UPDATED: 'DEVICE_FINGERPRINT_UPDATED',
   // WebAuthn actions
-  WEBAUTHN_AVAILABLE: "WEBAUTHN_AVAILABLE",
-  WEBAUTHN_CREDENTIALS_UPDATED: "WEBAUTHN_CREDENTIALS_UPDATED",
+  WEBAUTHN_AVAILABLE: 'WEBAUTHN_AVAILABLE',
+  WEBAUTHN_CREDENTIALS_UPDATED: 'WEBAUTHN_CREDENTIALS_UPDATED',
   // OAuth actions
-  OAUTH_PROVIDERS_LOADED: "OAUTH_PROVIDERS_LOADED",
-  OAUTH_STATE_UPDATED: "OAUTH_STATE_UPDATED",
+  OAUTH_PROVIDERS_LOADED: 'OAUTH_PROVIDERS_LOADED',
+  OAUTH_STATE_UPDATED: 'OAUTH_STATE_UPDATED',
   // Security actions
-  SECURITY_ALERT_ADDED: "SECURITY_ALERT_ADDED",
-  SECURITY_ALERTS_CLEARED: "SECURITY_ALERTS_CLEARED",
-  SECURITY_STATUS_UPDATED: "SECURITY_STATUS_UPDATED",
-  RATE_LIMIT_STATUS_UPDATED: "RATE_LIMIT_STATUS_UPDATED",
+  SECURITY_ALERT_ADDED: 'SECURITY_ALERT_ADDED',
+  SECURITY_ALERTS_CLEARED: 'SECURITY_ALERTS_CLEARED',
+  SECURITY_STATUS_UPDATED: 'SECURITY_STATUS_UPDATED',
+  RATE_LIMIT_STATUS_UPDATED: 'RATE_LIMIT_STATUS_UPDATED',
   // Analytics actions
-  SESSION_ANALYTICS_UPDATED: "SESSION_ANALYTICS_UPDATED",
-  AUTH_HISTORY_UPDATED: "AUTH_HISTORY_UPDATED",
+  SESSION_ANALYTICS_UPDATED: 'SESSION_ANALYTICS_UPDATED',
+  AUTH_HISTORY_UPDATED: 'AUTH_HISTORY_UPDATED',
 };
 
 // Initial auth state
@@ -77,7 +77,7 @@ const initialState = {
   pendingLoginCredentials: null,
   // Enhanced session management state
   currentSession: null,
-  sessionStatus: "inactive",
+  sessionStatus: 'inactive',
   deviceFingerprint: null,
   sessionAnalytics: null,
   // WebAuthn state
@@ -88,7 +88,7 @@ const initialState = {
   oauthState: null,
   // Security state
   securityAlerts: [],
-  securityStatus: "normal",
+  securityStatus: 'normal',
   rateLimitStatus: null,
   // Analytics state
   authHistory: [],
@@ -167,7 +167,7 @@ function authReducer(state, action) {
     case AUTH_ACTIONS.SESSION_EXPIRED:
       return {
         ...initialState,
-        error: "Your session has expired. Please log in again.",
+        error: 'Your session has expired. Please log in again.',
       };
 
     case AUTH_ACTIONS.TOKEN_REFRESHED:
@@ -231,7 +231,7 @@ function authReducer(state, action) {
       return {
         ...state,
         currentSession: action.payload.session,
-        sessionStatus: "active",
+        sessionStatus: 'active',
         deviceFingerprint: action.payload.deviceFingerprint,
       };
 
@@ -239,14 +239,14 @@ function authReducer(state, action) {
       return {
         ...state,
         currentSession: { ...state.currentSession, ...action.payload },
-        sessionStatus: "active",
+        sessionStatus: 'active',
       };
 
     case AUTH_ACTIONS.SESSION_INVALIDATED:
       return {
         ...state,
         currentSession: null,
-        sessionStatus: "inactive",
+        sessionStatus: 'inactive',
       };
 
     case AUTH_ACTIONS.DEVICE_FINGERPRINT_UPDATED:
@@ -332,8 +332,8 @@ const AuthContext = createContext(null);
 // AuthProvider component
 export function AuthProvider({
   children,
-  apiBaseUrl = "/api",
-  refreshTokenEndpoint = "/auth/refresh",
+  apiBaseUrl = '/api',
+  refreshTokenEndpoint = '/auth/refresh',
 }) {
   const [state, dispatch] = useReducer(authReducer, initialState);
   const sessionManager = useRef(null);
@@ -349,40 +349,40 @@ export function AuthProvider({
     // Set up session event listeners
     const unsubscribe = sessionManager.current.addListener((event, data) => {
       switch (event) {
-        case "session_start":
+        case 'session_start':
           dispatch({
             type: AUTH_ACTIONS.LOGIN_SUCCESS,
             payload: { user: data.user, token: data.token },
           });
           break;
 
-        case "session_end":
+        case 'session_end':
           dispatch({ type: AUTH_ACTIONS.LOGOUT });
           break;
 
-        case "session_warning":
+        case 'session_warning':
           dispatch({
             type: AUTH_ACTIONS.SESSION_WARNING,
             payload: { timeRemaining: data.timeRemaining },
           });
           break;
 
-        case "session_expired":
+        case 'session_expired':
           dispatch({ type: AUTH_ACTIONS.SESSION_EXPIRED });
           break;
 
-        case "auto_refresh_needed":
+        case 'auto_refresh_needed':
           handleAutoRefresh();
           break;
 
-        case "token_refreshed":
+        case 'token_refreshed':
           dispatch({
             type: AUTH_ACTIONS.TOKEN_REFRESHED,
             payload: { token: data.token },
           });
           break;
 
-        case "cross_tab_login":
+        case 'cross_tab_login':
           const user = sessionManager.current.getUser();
           dispatch({
             type: AUTH_ACTIONS.CROSS_TAB_LOGIN,
@@ -390,11 +390,11 @@ export function AuthProvider({
           });
           break;
 
-        case "cross_tab_logout":
+        case 'cross_tab_logout':
           dispatch({ type: AUTH_ACTIONS.CROSS_TAB_LOGOUT });
           break;
 
-        case "cross_tab_warning":
+        case 'cross_tab_warning':
           dispatch({
             type: AUTH_ACTIONS.SESSION_WARNING,
             payload: {
@@ -435,8 +435,8 @@ export function AuthProvider({
 
     try {
       await refreshToken();
-    } catch (error) {
-      console.error("Auto refresh failed:", error);
+    } catch (_error) {
+      // console.error('Auto refresh failed:', error);
       dispatch({ type: AUTH_ACTIONS.SESSION_EXPIRED });
     } finally {
       refreshInProgress.current = false;
@@ -450,9 +450,9 @@ export function AuthProvider({
 
       try {
         const response = await fetch(`${apiBaseUrl}/auth/login`, {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify(credentials),
         });
@@ -460,7 +460,7 @@ export function AuthProvider({
         const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(data.message || "Login failed");
+          throw new Error(data.message || 'Login failed');
         }
 
         // Check if MFA is required
@@ -472,7 +472,7 @@ export function AuthProvider({
           return {
             success: false,
             mfaRequired: true,
-            message: "MFA verification required",
+            message: 'MFA verification required',
           };
         }
 
@@ -500,7 +500,7 @@ export function AuthProvider({
             user: data.user,
             mfaSetupRequired: true,
             message:
-              "Login successful. Please set up MFA for enhanced security.",
+              'Login successful. Please set up MFA for enhanced security.',
           };
         }
 
@@ -519,8 +519,8 @@ export function AuthProvider({
         });
 
         return { success: true, user: data.user };
-      } catch (error) {
-        const errorMessage = error.message || "Login failed";
+      } catch (_error) {
+        const errorMessage = error.message || 'Login failed';
         dispatch({
           type: AUTH_ACTIONS.LOGIN_FAILURE,
           payload: { error: errorMessage },
@@ -537,15 +537,15 @@ export function AuthProvider({
       // Call logout endpoint if available
       if (state.token) {
         await fetch(`${apiBaseUrl}/auth/logout`, {
-          method: "POST",
+          method: 'POST',
           headers: {
             Authorization: `Bearer ${state.token}`,
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
         });
       }
-    } catch (error) {
-      console.warn("Logout endpoint failed:", error);
+    } catch (_error) {
+      // console.warn('Logout endpoint failed:', error);
     } finally {
       // Always clear local session
       sessionManager.current.clearSession();
@@ -558,14 +558,14 @@ export function AuthProvider({
     const refreshTokenValue = sessionManager.current.getRefreshToken();
 
     if (!refreshTokenValue) {
-      throw new Error("No refresh token available");
+      throw new Error('No refresh token available');
     }
 
     try {
       const response = await fetch(`${apiBaseUrl}${refreshTokenEndpoint}`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({ refreshToken: refreshTokenValue }),
       });
@@ -573,7 +573,7 @@ export function AuthProvider({
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Token refresh failed");
+        throw new Error(data.message || 'Token refresh failed');
       }
 
       // Update session with new token
@@ -589,8 +589,8 @@ export function AuthProvider({
       });
 
       return { success: true, token: data.token };
-    } catch (error) {
-      console.error("Token refresh failed:", error);
+    } catch (_error) {
+      // console.error('Token refresh failed:', error);
       // Don't clear session here, let session manager handle expiry
       throw error;
     }
@@ -608,11 +608,11 @@ export function AuthProvider({
       const token = sessionManager.current?.getToken();
 
       if (!token) {
-        throw new Error("No authentication token available");
+        throw new Error('No authentication token available');
       }
 
       const headers = {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
         ...options.headers,
       };
@@ -640,13 +640,13 @@ export function AuthProvider({
           } catch (refreshError) {
             // Refresh failed, logout user
             dispatch({ type: AUTH_ACTIONS.SESSION_EXPIRED });
-            throw new Error("Session expired. Please log in again.");
+            throw new Error('Session expired. Please log in again.');
           }
         }
 
         return response;
-      } catch (error) {
-        console.error("API request failed:", error);
+      } catch (_error) {
+        // console.error('API request failed:', error);
         throw error;
       }
     },
@@ -663,8 +663,8 @@ export function AuthProvider({
     try {
       await refreshToken();
       dispatch({ type: AUTH_ACTIONS.CLEAR_ERROR });
-    } catch (error) {
-      console.error("Failed to extend session:", error);
+    } catch (_error) {
+      // console.error('Failed to extend session:', error);
     }
   }, [refreshToken]);
 
@@ -685,14 +685,14 @@ export function AuthProvider({
   const verifyMFALogin = useCallback(
     async (token, deviceFingerprint = null, trustDevice = false) => {
       if (!state.pendingLoginCredentials) {
-        throw new Error("No pending login credentials");
+        throw new Error('No pending login credentials');
       }
 
       try {
         const response = await fetch(`${apiBaseUrl}/mfa/verify`, {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify({
             token,
@@ -706,11 +706,11 @@ export function AuthProvider({
         if (!response.ok) {
           dispatch({
             type: AUTH_ACTIONS.MFA_VERIFICATION_FAILURE,
-            payload: { error: data.message || "MFA verification failed" },
+            payload: { error: data.message || 'MFA verification failed' },
           });
           return {
             success: false,
-            error: data.message || "MFA verification failed",
+            error: data.message || 'MFA verification failed',
           };
         }
 
@@ -737,8 +737,8 @@ export function AuthProvider({
           user: data.user,
           usedBackupCode: data.usedBackupCode,
         };
-      } catch (error) {
-        const errorMessage = error.message || "MFA verification failed";
+      } catch (_error) {
+        const errorMessage = error.message || 'MFA verification failed';
         dispatch({
           type: AUTH_ACTIONS.MFA_VERIFICATION_FAILURE,
           payload: { error: errorMessage },
@@ -764,13 +764,13 @@ export function AuthProvider({
       } else {
         return {
           success: false,
-          error: data.message || "Failed to get MFA status",
+          error: data.message || 'Failed to get MFA status',
         };
       }
-    } catch (error) {
+    } catch (_error) {
       return {
         success: false,
-        error: error.message || "Failed to get MFA status",
+        error: error.message || 'Failed to get MFA status',
       };
     }
   }, [apiBaseUrl, apiRequest]);
@@ -779,7 +779,7 @@ export function AuthProvider({
   const setupMFA = useCallback(async () => {
     try {
       const response = await apiRequest(`${apiBaseUrl}/mfa/setup`, {
-        method: "POST",
+        method: 'POST',
       });
       const data = await response.json();
 
@@ -791,10 +791,10 @@ export function AuthProvider({
           backupCodes: data.data.backupCodes,
         };
       } else {
-        return { success: false, error: data.message || "MFA setup failed" };
+        return { success: false, error: data.message || 'MFA setup failed' };
       }
-    } catch (error) {
-      return { success: false, error: error.message || "MFA setup failed" };
+    } catch (_error) {
+      return { success: false, error: error.message || 'MFA setup failed' };
     }
   }, [apiBaseUrl, apiRequest]);
 
@@ -803,7 +803,7 @@ export function AuthProvider({
     async (token) => {
       try {
         const response = await apiRequest(`${apiBaseUrl}/mfa/verify-setup`, {
-          method: "POST",
+          method: 'POST',
           body: JSON.stringify({ token }),
         });
         const data = await response.json();
@@ -817,13 +817,13 @@ export function AuthProvider({
         } else {
           return {
             success: false,
-            error: data.message || "MFA verification failed",
+            error: data.message || 'MFA verification failed',
           };
         }
-      } catch (error) {
+      } catch (_error) {
         return {
           success: false,
-          error: error.message || "MFA verification failed",
+          error: error.message || 'MFA verification failed',
         };
       }
     },
@@ -835,7 +835,7 @@ export function AuthProvider({
     async (token) => {
       try {
         const response = await apiRequest(`${apiBaseUrl}/mfa/disable`, {
-          method: "POST",
+          method: 'POST',
           body: JSON.stringify({ token }),
         });
         const data = await response.json();
@@ -849,13 +849,13 @@ export function AuthProvider({
         } else {
           return {
             success: false,
-            error: data.message || "Failed to disable MFA",
+            error: data.message || 'Failed to disable MFA',
           };
         }
-      } catch (error) {
+      } catch (_error) {
         return {
           success: false,
-          error: error.message || "Failed to disable MFA",
+          error: error.message || 'Failed to disable MFA',
         };
       }
     },
@@ -869,7 +869,7 @@ export function AuthProvider({
         const response = await apiRequest(
           `${apiBaseUrl}/mfa/regenerate-codes`,
           {
-            method: "POST",
+            method: 'POST',
             body: JSON.stringify({ token }),
           }
         );
@@ -880,13 +880,13 @@ export function AuthProvider({
         } else {
           return {
             success: false,
-            error: data.message || "Failed to regenerate backup codes",
+            error: data.message || 'Failed to regenerate backup codes',
           };
         }
-      } catch (error) {
+      } catch (_error) {
         return {
           success: false,
-          error: error.message || "Failed to regenerate backup codes",
+          error: error.message || 'Failed to regenerate backup codes',
         };
       }
     },
@@ -904,13 +904,13 @@ export function AuthProvider({
       } else {
         return {
           success: false,
-          error: data.message || "Failed to get trusted devices",
+          error: data.message || 'Failed to get trusted devices',
         };
       }
-    } catch (error) {
+    } catch (_error) {
       return {
         success: false,
-        error: error.message || "Failed to get trusted devices",
+        error: error.message || 'Failed to get trusted devices',
       };
     }
   }, [apiBaseUrl, apiRequest]);
@@ -922,7 +922,7 @@ export function AuthProvider({
         const response = await apiRequest(
           `${apiBaseUrl}/mfa/trusted-devices/${fingerprint}`,
           {
-            method: "DELETE",
+            method: 'DELETE',
           }
         );
         const data = await response.json();
@@ -932,13 +932,13 @@ export function AuthProvider({
         } else {
           return {
             success: false,
-            error: data.message || "Failed to revoke device",
+            error: data.message || 'Failed to revoke device',
           };
         }
-      } catch (error) {
+      } catch (_error) {
         return {
           success: false,
-          error: error.message || "Failed to revoke device",
+          error: error.message || 'Failed to revoke device',
         };
       }
     },
@@ -968,7 +968,7 @@ export function AuthProvider({
       if (state.user?.id) {
         const sessionResult = await sessionManagementService.createSession({
           userId: state.user.id,
-          authMethod: "session_restore",
+          authMethod: 'session_restore',
         });
 
         if (sessionResult.success) {
@@ -981,21 +981,21 @@ export function AuthProvider({
           });
         }
       }
-    } catch (error) {
-      console.error("Enhanced features initialization error:", error);
+    } catch (_error) {
+      // console.error('Enhanced features initialization error:', error);
     }
   }, [state.user]);
 
   // Enhanced login with session tracking
   const enhancedLogin = useCallback(
     async (credentials, options = {}) => {
-      const { method = "password", rememberMe = false } = options;
+      const { method = 'password', rememberMe = false } = options;
 
       dispatch({ type: AUTH_ACTIONS.LOGIN_START });
 
       try {
         // Check rate limiting
-        const rateLimitResult = securityService.checkRateLimit("login", {
+        const rateLimitResult = securityService.checkRateLimit('login', {
           identifier: credentials.email || credentials.username,
         });
 
@@ -1020,7 +1020,7 @@ export function AuthProvider({
             authMethod: method,
             rememberMe,
             ipAddress: await getClientIP(),
-            userAgent: navigator.userAgent,
+            userAgent: typeof navigator !== "undefined" && navigator.userAgent,
           });
 
           if (sessionResult.success) {
@@ -1050,9 +1050,9 @@ export function AuthProvider({
         }
 
         return result;
-      } catch (error) {
+      } catch (_error) {
         // Record failed attempt
-        securityService.recordAttempt("login", {
+        securityService.recordAttempt('login', {
           identifier: credentials.email || credentials.username,
           success: false,
         });
@@ -1104,7 +1104,7 @@ export function AuthProvider({
         } else {
           return { success: false, error: result.error };
         }
-      } catch (error) {
+      } catch (_error) {
         return { success: false, error: error.message };
       }
     },
@@ -1124,7 +1124,7 @@ export function AuthProvider({
           userId: result.user.id,
           authMethod: `oauth_${provider}`,
           ipAddress: await getClientIP(),
-          userAgent: navigator.userAgent,
+          userAgent: typeof navigator !== "undefined" && navigator.userAgent,
         });
 
         if (sessionResult.success) {
@@ -1150,7 +1150,7 @@ export function AuthProvider({
         });
         return { success: false, error: result.error };
       }
-    } catch (error) {
+    } catch (_error) {
       dispatch({
         type: AUTH_ACTIONS.LOGIN_FAILURE,
         payload: { error: error.message },
@@ -1169,7 +1169,7 @@ export function AuthProvider({
         if (state.currentSession?.sessionId) {
           sessionManagementService.invalidateSession(
             state.currentSession.sessionId,
-            "user_logout"
+            'user_logout'
           );
         }
 
@@ -1184,8 +1184,8 @@ export function AuthProvider({
         dispatch({ type: AUTH_ACTIONS.SESSION_INVALIDATED });
 
         return { success: true };
-      } catch (error) {
-        console.error("Enhanced logout error:", error);
+      } catch (_error) {
+        // console.error('Enhanced logout error:', error);
         return { success: false, error: error.message };
       }
     },
@@ -1213,11 +1213,11 @@ export function AuthProvider({
   // Utility function to get client IP (simplified)
   const getClientIP = async () => {
     try {
-      const response = await fetch("https://api.ipify.org?format=json");
+      const response = await fetch('https://api.ipify.org?format=json');
       const data = await response.json();
       return data.ip;
     } catch {
-      return "127.0.0.1"; // Fallback
+      return '127.0.0.1'; // Fallback
     }
   };
 
@@ -1306,7 +1306,7 @@ export function AuthProvider({
     timeUntilExpiry: sessionManager.current?.getTimeUntilExpiry() || 0,
 
     // Enhanced session info
-    hasActiveSession: state.sessionStatus === "active",
+    hasActiveSession: state.sessionStatus === 'active',
     sessionAnalytics: state.sessionAnalytics,
     securityAlerts: state.securityAlerts,
     webauthnAvailable: state.webauthnAvailable,
@@ -1321,7 +1321,7 @@ export function useAuth() {
   const context = useContext(AuthContext);
 
   if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
+    throw new Error('useAuth must be used within an AuthProvider');
   }
 
   return context;
@@ -1345,3 +1345,7 @@ export function withAuth(Component) {
 }
 
 export { AUTH_ACTIONS };
+
+AUTH_ACTIONS.propTypes = {
+  // TODO: Define specific prop types
+};

@@ -3,8 +3,8 @@
  * Touch-friendly form elements with responsive design
  */
 
-import React, { useState, useRef } from "react";
-import PropTypes from "prop-types";
+import React, { useState, useRef } from 'react';
+import PropTypes from 'prop-types';
 import {
   Dialog,
   DialogTitle,
@@ -28,25 +28,25 @@ import {
   Switch,
   Chip,
   Autocomplete,
-} from "@mui/material";
+} from '@mui/material';
 import {
   Close as CloseIcon,
   Save as SaveIcon,
   Person as PersonIcon,
   Email as EmailIcon,
   Phone as PhoneIcon,
-} from "@mui/icons-material";
+} from '@mui/icons-material';
 import {
   useResponsive,
   useMobileForm,
   getSafeAreaPadding,
-} from "../utils/responsiveUtils";
+} from '../utils/responsiveUtils';
 
 // Slide transition for mobile dialogs
 const SlideTransition = React.forwardRef((props, ref) => (
-  <Slide direction="up" ref={ref} {...props} />
+  <Slide direction='up' ref={ref} {...props} />
 ));
-SlideTransition.displayName = "SlideTransition";
+SlideTransition.displayName = 'SlideTransition';
 
 const MobileFormDialog = ({
   open,
@@ -54,8 +54,8 @@ const MobileFormDialog = ({
   title,
   children,
   onSubmit,
-  submitLabel = "Save",
-  maxWidth = "sm",
+  submitLabel = 'Save',
+  maxWidth = 'sm',
   fullScreen: forceFullScreen = false,
 }) => {
   const { isMobile } = useResponsive();
@@ -70,7 +70,7 @@ const MobileFormDialog = ({
       fullScreen={fullScreen}
       TransitionComponent={fullScreen ? SlideTransition : undefined}
       sx={{
-        "& .MuiDialog-paper": {
+        '& .MuiDialog-paper': {
           ...(fullScreen && getSafeAreaPadding()),
           borderRadius: fullScreen ? 0 : 2,
         },
@@ -78,23 +78,23 @@ const MobileFormDialog = ({
     >
       {fullScreen ? (
         <>
-          <AppBar position="static" elevation={0}>
+          <AppBar position='static' elevation={0}>
             <Toolbar>
               <IconButton
-                edge="start"
-                color="inherit"
+                edge='start'
+                color='inherit'
                 onClick={onClose}
-                aria-label="close"
+                aria-label='close'
                 sx={{ minWidth: 44, minHeight: 44 }}
               >
                 <CloseIcon />
               </IconButton>
-              <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
+              <Typography sx={{ ml: 2, flex: 1 }} variant='h6' component='div'>
                 {title}
               </Typography>
               {onSubmit && (
                 <Button
-                  color="inherit"
+                  color='inherit'
                   onClick={onSubmit}
                   startIcon={<SaveIcon />}
                   sx={{ minHeight: 44 }}
@@ -111,12 +111,12 @@ const MobileFormDialog = ({
           <DialogTitle sx={{ pb: 1 }}>
             <Box
               sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
               }}
             >
-              <Typography variant="h6">{title}</Typography>
+              <Typography variant='h6'>{title}</Typography>
               <IconButton
                 onClick={onClose}
                 sx={{ minWidth: 40, minHeight: 40 }}
@@ -130,7 +130,7 @@ const MobileFormDialog = ({
             <DialogActions sx={{ px: 3, pb: 3 }}>
               <Button onClick={onClose}>Cancel</Button>
               <Button
-                variant="contained"
+                variant='contained'
                 onClick={onSubmit}
                 startIcon={<SaveIcon />}
               >
@@ -151,7 +151,7 @@ const MobileTextField = ({
   error,
   helperText,
   required = false,
-  type = "text",
+  type = 'text',
   multiline = false,
   rows = 4,
   startIcon,
@@ -175,30 +175,30 @@ const MobileTextField = ({
       type={type}
       multiline={multiline}
       rows={multiline ? rows : undefined}
-      variant="outlined"
+      variant='outlined'
       onFocus={() => handleFieldFocus(label)}
       onBlur={handleFieldBlur}
       sx={{
         mb: 2,
-        "& .MuiOutlinedInput-root": {
+        '& .MuiOutlinedInput-root': {
           minHeight: isMobile ? 56 : 40,
-          fontSize: isMobile ? "16px" : "14px", // Prevent zoom on iOS
-          "& input": {
+          fontSize: isMobile ? '16px' : '14px', // Prevent zoom on iOS
+          '& input': {
             minHeight: isMobile ? 24 : 20,
-            padding: isMobile ? "16px 14px" : "12px 14px",
+            padding: isMobile ? '16px 14px' : '12px 14px',
           },
-          "& textarea": {
-            fontSize: isMobile ? "16px" : "14px",
-          },
-        },
-        "& .MuiInputLabel-root": {
-          fontSize: isMobile ? "16px" : "14px",
-          "&.MuiInputLabel-shrunk": {
-            fontSize: "12px",
+          '& textarea': {
+            fontSize: isMobile ? '16px' : '14px',
           },
         },
-        "& .MuiFormHelperText-root": {
-          fontSize: isMobile ? "12px" : "11px",
+        '& .MuiInputLabel-root': {
+          fontSize: isMobile ? '16px' : '14px',
+          '&.MuiInputLabel-shrunk': {
+            fontSize: '12px',
+          },
+        },
+        '& .MuiFormHelperText-root': {
+          fontSize: isMobile ? '12px' : '11px',
         },
       }}
       InputProps={{
@@ -228,9 +228,9 @@ const MobileSelectField = ({
       <InputLabel
         required={required}
         sx={{
-          fontSize: isMobile ? "16px" : "14px",
-          "&.MuiInputLabel-shrunk": {
-            fontSize: "12px",
+          fontSize: isMobile ? '16px' : '14px',
+          '&.MuiInputLabel-shrunk': {
+            fontSize: '12px',
           },
         }}
       >
@@ -242,9 +242,9 @@ const MobileSelectField = ({
         label={label}
         sx={{
           minHeight: isMobile ? 56 : 40,
-          fontSize: isMobile ? "16px" : "14px",
-          "& .MuiSelect-select": {
-            padding: isMobile ? "16px 14px" : "12px 14px",
+          fontSize: isMobile ? '16px' : '14px',
+          '& .MuiSelect-select': {
+            padding: isMobile ? '16px 14px' : '12px 14px',
           },
         }}
         {...props}
@@ -254,7 +254,7 @@ const MobileSelectField = ({
             key={option.value}
             value={option.value}
             sx={{
-              fontSize: isMobile ? "16px" : "14px",
+              fontSize: isMobile ? '16px' : '14px',
               minHeight: isMobile ? 48 : 36,
             }}
           >
@@ -263,7 +263,7 @@ const MobileSelectField = ({
         ))}
       </Select>
       {helperText && (
-        <FormHelperText sx={{ fontSize: isMobile ? "12px" : "11px" }}>
+        <FormHelperText sx={{ fontSize: isMobile ? '12px' : '11px' }}>
           {helperText}
         </FormHelperText>
       )}
@@ -290,7 +290,7 @@ const MobileCheckbox = ({
           sx={{
             minWidth: isMobile ? 42 : 36,
             minHeight: isMobile ? 42 : 36,
-            "& .MuiSvgIcon-root": {
+            '& .MuiSvgIcon-root': {
               fontSize: isMobile ? 24 : 20,
             },
           }}
@@ -298,7 +298,7 @@ const MobileCheckbox = ({
         />
       }
       label={
-        <Typography sx={{ fontSize: isMobile ? "16px" : "14px" }}>
+        <Typography sx={{ fontSize: isMobile ? '16px' : '14px' }}>
           {label}
         </Typography>
       }
@@ -324,13 +324,13 @@ const MobileSwitch = ({
           onChange={onChange}
           disabled={disabled}
           sx={{
-            "& .MuiSwitch-switchBase": {
-              "& .MuiSwitch-thumb": {
+            '& .MuiSwitch-switchBase': {
+              '& .MuiSwitch-thumb': {
                 width: isMobile ? 20 : 18,
                 height: isMobile ? 20 : 18,
               },
             },
-            "& .MuiSwitch-track": {
+            '& .MuiSwitch-track': {
               height: isMobile ? 14 : 12,
             },
           }}
@@ -338,7 +338,7 @@ const MobileSwitch = ({
         />
       }
       label={
-        <Typography sx={{ fontSize: isMobile ? "16px" : "14px" }}>
+        <Typography sx={{ fontSize: isMobile ? '16px' : '14px' }}>
           {label}
         </Typography>
       }
@@ -356,7 +356,7 @@ const MobileAutocomplete = ({
   helperText,
   multiple = false,
   freeSolo = false,
-  getOptionLabel = (option) => option?.label || option || "",
+  getOptionLabel = (option) => option?.label || option || '',
   renderOption,
   ...props
 }) => {
@@ -379,18 +379,18 @@ const MobileAutocomplete = ({
           helperText={helperText}
           sx={{
             mb: 2,
-            "& .MuiOutlinedInput-root": {
+            '& .MuiOutlinedInput-root': {
               minHeight: isMobile ? 56 : 40,
-              fontSize: isMobile ? "16px" : "14px",
-              "& input": {
+              fontSize: isMobile ? '16px' : '14px',
+              '& input': {
                 minHeight: isMobile ? 24 : 20,
-                padding: isMobile ? "16px 14px" : "12px 14px",
+                padding: isMobile ? '16px 14px' : '12px 14px',
               },
             },
-            "& .MuiInputLabel-root": {
-              fontSize: isMobile ? "16px" : "14px",
-              "&.MuiInputLabel-shrunk": {
-                fontSize: "12px",
+            '& .MuiInputLabel-root': {
+              fontSize: isMobile ? '16px' : '14px',
+              '&.MuiInputLabel-shrunk': {
+                fontSize: '12px',
               },
             },
           }}
@@ -402,19 +402,19 @@ const MobileAutocomplete = ({
             {...getTagProps({ index })}
             key={option.value || option}
             label={getOptionLabel(option)}
-            size={isMobile ? "medium" : "small"}
+            size={isMobile ? 'medium' : 'small'}
             sx={{
               height: isMobile ? 32 : 24,
-              fontSize: isMobile ? "14px" : "12px",
+              fontSize: isMobile ? '14px' : '12px',
             }}
           />
         ))
       }
       sx={{
-        "& .MuiAutocomplete-listbox": {
-          "& .MuiAutocomplete-option": {
+        '& .MuiAutocomplete-listbox': {
+          '& .MuiAutocomplete-option': {
             minHeight: isMobile ? 48 : 36,
-            fontSize: isMobile ? "16px" : "14px",
+            fontSize: isMobile ? '16px' : '14px',
           },
         },
       }}
@@ -432,10 +432,10 @@ const MobileMemberForm = ({
   roles = [],
 }) => {
   const [formData, setFormData] = useState({
-    name: member.name || "",
-    email: member.email || "",
-    phone: member.phone || "",
-    role: member.role || "member",
+    name: member.name || '',
+    email: member.email || '',
+    phone: member.phone || '',
+    role: member.role || 'member',
     isActive: member.isActive !== false,
     permissions: member.permissions || [],
   });
@@ -455,10 +455,10 @@ const MobileMemberForm = ({
   const handleSubmit = () => {
     const newErrors = {};
 
-    if (!formData.name.trim()) newErrors.name = "Name is required";
-    if (!formData.email.trim()) newErrors.email = "Email is required";
+    if (!formData.name.trim()) newErrors.name = 'Name is required';
+    if (!formData.email.trim()) newErrors.email = 'Email is required';
     else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Invalid email format";
+      newErrors.email = 'Invalid email format';
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -471,9 +471,9 @@ const MobileMemberForm = ({
   };
 
   const roleOptions = [
-    { value: "member", label: "Member" },
-    { value: "admin", label: "Administrator" },
-    { value: "moderator", label: "Moderator" },
+    { value: 'member', label: 'Member' },
+    { value: 'admin', label: 'Administrator' },
+    { value: 'moderator', label: 'Moderator' },
     ...roles.map((role) => ({ value: role.id, label: role.name })),
   ];
 
@@ -481,52 +481,52 @@ const MobileMemberForm = ({
     <MobileFormDialog
       open={open}
       onClose={onClose}
-      title={member.id ? "Edit Member" : "Add Member"}
+      title={member.id ? 'Edit Member' : 'Add Member'}
       onSubmit={handleSubmit}
-      submitLabel={member.id ? "Update" : "Add Member"}
+      submitLabel={member.id ? 'Update' : 'Add Member'}
     >
       <Box sx={{ pt: 1 }}>
         <MobileTextField
-          label="Full Name"
+          label='Full Name'
           value={formData.name}
-          onChange={handleChange("name")}
+          onChange={handleChange('name')}
           error={!!errors.name}
           helperText={errors.name}
           required
-          startIcon={<PersonIcon sx={{ color: "text.secondary", mr: 1 }} />}
+          startIcon={<PersonIcon sx={{ color: 'text.secondary', mr: 1 }} />}
         />
 
         <MobileTextField
-          label="Email Address"
+          label='Email Address'
           value={formData.email}
-          onChange={handleChange("email")}
+          onChange={handleChange('email')}
           error={!!errors.email}
           helperText={errors.email}
           required
-          type="email"
-          startIcon={<EmailIcon sx={{ color: "text.secondary", mr: 1 }} />}
+          type='email'
+          startIcon={<EmailIcon sx={{ color: 'text.secondary', mr: 1 }} />}
         />
 
         <MobileTextField
-          label="Phone Number"
+          label='Phone Number'
           value={formData.phone}
-          onChange={handleChange("phone")}
-          type="tel"
-          startIcon={<PhoneIcon sx={{ color: "text.secondary", mr: 1 }} />}
+          onChange={handleChange('phone')}
+          type='tel'
+          startIcon={<PhoneIcon sx={{ color: 'text.secondary', mr: 1 }} />}
         />
 
         <MobileSelectField
-          label="Role"
+          label='Role'
           value={formData.role}
-          onChange={handleChange("role")}
+          onChange={handleChange('role')}
           options={roleOptions}
           required
         />
 
         <MobileSwitch
-          label="Active Member"
+          label='Active Member'
           checked={formData.isActive}
-          onChange={(e) => handleChange("isActive")(e.target.checked)}
+          onChange={(e) => handleChange('isActive')(e.target.checked)}
         />
       </Box>
     </MobileFormDialog>
@@ -619,4 +619,8 @@ export {
   MobileSwitch,
   MobileAutocomplete,
   MobileMemberForm,
+};
+
+SlideTransition.propTypes = {
+  // TODO: Define specific prop types
 };

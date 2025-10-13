@@ -51,9 +51,9 @@ export const useAnalyticsDashboard = (applicationId, options = {}) => {
 
       setDashboardData(data);
       setLastUpdated(new Date());
-    } catch (err) {
+    } catch (_err) {
       setError(err.message);
-      console.error('Failed to fetch dashboard data:', err);
+      // console.error('Failed to fetch dashboard data:', err);
     } finally {
       setLoading(false);
     }
@@ -70,8 +70,8 @@ export const useAnalyticsDashboard = (applicationId, options = {}) => {
       });
 
       setRealTimeMetrics(data);
-    } catch (err) {
-      console.error('Failed to fetch real-time metrics:', err);
+    } catch (_err) {
+      // console.error('Failed to fetch real-time metrics:', err);
     }
   }, [applicationId, userId, organizationId, enableRealTime]);
 
@@ -207,9 +207,9 @@ export const useAnalyticsCategory = (applicationId, category, options = {}) => {
 
       setData(result);
       setLastUpdated(new Date());
-    } catch (err) {
+    } catch (_err) {
       setError(err.message);
-      console.error(`Failed to fetch ${category} analytics:`, err);
+      // console.error(`Failed to fetch ${category} analytics:`, err);
     } finally {
       setLoading(false);
     }
@@ -270,8 +270,8 @@ export const useAnalyticsTracking = () => {
     try {
       setIsTracking(true);
       await analyticsDashboardAPI.trackEvent(eventData);
-    } catch (error) {
-      console.error('Failed to track analytics event:', error);
+    } catch (_error) {
+      // console.error('Failed to track analytics event:', error);
       throw error;
     } finally {
       setIsTracking(false);
@@ -352,9 +352,9 @@ export const useAvailableApplications = () => {
 
       const data = await analyticsDashboardAPI.getAvailableApplications();
       setApplications(data.applications || []);
-    } catch (err) {
+    } catch (_err) {
       setError(err.message);
-      console.error('Failed to fetch available applications:', err);
+      // console.error('Failed to fetch available applications:', err);
     } finally {
       setLoading(false);
     }
@@ -386,19 +386,19 @@ export const useAnalyticsExport = () => {
       // Create download if format is CSV
       if (options.format === 'csv' && typeof data === 'string') {
         const blob = new Blob([data], { type: 'text/csv' });
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
+        const url = typeof window !== "undefined" && window.URL.createObjectURL(blob);
+        const link = typeof document !== "undefined" && document.createElement('a');
         link.href = url;
         link.download = `analytics-${applicationId}-${options.dateRange || '30d'}.csv`;
-        document.body.appendChild(link);
+        typeof document !== "undefined" && document.body.appendChild(link);
         link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
+        typeof document !== "undefined" && document.body.removeChild(link);
+        typeof window !== "undefined" && window.URL.revokeObjectURL(url);
       }
 
       return data;
-    } catch (error) {
-      console.error('Failed to export analytics data:', error);
+    } catch (_error) {
+      // console.error('Failed to export analytics data:', error);
       throw error;
     } finally {
       setIsExporting(false);

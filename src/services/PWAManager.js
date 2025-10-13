@@ -9,7 +9,7 @@ class PWAManager {
   constructor() {
     this.serviceWorker = null;
     this.registration = null;
-    this.isOnline = navigator.onLine;
+    this.isOnline = typeof navigator !== "undefined" && navigator.onLine;
     this.cacheName = 'uni-manager-v1';
     this.initialized = false;
     this.updateAvailable = false;
@@ -24,7 +24,7 @@ class PWAManager {
     try {
       // Check if service workers are supported
       if (!('serviceWorker' in navigator)) {
-        console.warn('Service Workers not supported');
+        // console.warn('Service Workers not supported');
         return false;
       }
 
@@ -44,10 +44,10 @@ class PWAManager {
       this.checkForUpdates();
 
       this.initialized = true;
-      console.log('PWA Manager initialized successfully');
+      // console.log('PWA Manager initialized successfully');
       return true;
-    } catch (error) {
-      console.error('Failed to initialize PWA Manager:', error);
+    } catch (_error) {
+      // console.error('Failed to initialize PWA Manager:', error);
       return false;
     }
   }
@@ -57,17 +57,17 @@ class PWAManager {
    */
   async registerServiceWorker() {
     try {
-      this.registration = await navigator.serviceWorker.register('/sw.js', {
+      this.registration = await typeof navigator !== "undefined" && navigator.serviceWorker.register('/sw.js', {
         scope: '/'
       });
 
-      console.log('Service Worker registered:', this.registration.scope);
+      // console.log('Service Worker registered:', this.registration.scope);
 
       // Listen for updates
       this.registration.addEventListener('updatefound', () => {
         const newWorker = this.registration.installing;
         newWorker.addEventListener('statechange', () => {
-          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+          if (newWorker.state === 'installed' && typeof navigator !== "undefined" && navigator.serviceWorker.controller) {
             this.updateAvailable = true;
             this.notifyUpdateAvailable();
           }
@@ -75,8 +75,8 @@ class PWAManager {
       });
 
       return this.registration;
-    } catch (error) {
-      console.error('Service Worker registration failed:', error);
+    } catch (_error) {
+      // console.error('Service Worker registration failed:', error);
       throw error;
     }
   }
@@ -86,29 +86,29 @@ class PWAManager {
    */
   setupEventListeners() {
     // Online/offline status
-    window.addEventListener('online', () => {
+    typeof window !== "undefined" && window.addEventListener('online', () => {
       this.isOnline = true;
       this.handleOnlineStatusChange(true);
     });
 
-    window.addEventListener('offline', () => {
+    typeof window !== "undefined" && window.addEventListener('offline', () => {
       this.isOnline = false;
       this.handleOnlineStatusChange(false);
     });
 
     // App installation prompt
-    window.addEventListener('beforeinstallprompt', (event) => {
+    typeof window !== "undefined" && window.addEventListener('beforeinstallprompt', (event) => {
       event.preventDefault();
       this.handleInstallPrompt(event);
     });
 
     // App was installed
-    window.addEventListener('appinstalled', () => {
+    typeof window !== "undefined" && window.addEventListener('appinstalled', () => {
       this.handleAppInstalled();
     });
 
     // Visibility change (app focus)
-    document.addEventListener('visibilitychange', () => {
+    typeof document !== "undefined" && document.addEventListener('visibilitychange', () => {
       this.handleVisibilityChange();
     });
   }
@@ -119,7 +119,7 @@ class PWAManager {
   async initializeNotifications() {
     try {
       if (!('Notification' in window)) {
-        console.warn('Notifications not supported');
+        // console.warn('Notifications not supported');
         return false;
       }
 
@@ -131,7 +131,7 @@ class PWAManager {
       }
 
       if (permission === 'granted') {
-        console.log('Notification permission granted');
+        // console.log('Notification permission granted');
 
         // Subscribe to push notifications if supported
         if ('PushManager' in window && this.registration) {
@@ -140,11 +140,11 @@ class PWAManager {
 
         return true;
       } else {
-        console.log('Notification permission denied');
+        // console.log('Notification permission denied');
         return false;
       }
-    } catch (error) {
-      console.error('Failed to initialize notifications:', error);
+    } catch (_error) {
+      // console.error('Failed to initialize notifications:', error);
       return false;
     }
   }
@@ -163,14 +163,14 @@ class PWAManager {
         applicationServerKey: applicationServerKey
       });
 
-      console.log('Push subscription:', subscription);
+      // console.log('Push subscription:', subscription);
 
       // Send subscription to server
       await this.sendSubscriptionToServer(subscription);
 
       return subscription;
-    } catch (error) {
-      console.error('Failed to subscribe to push notifications:', error);
+    } catch (_error) {
+      // console.error('Failed to subscribe to push notifications:', error);
       throw error;
     }
   }
@@ -192,9 +192,9 @@ class PWAManager {
         throw new Error('Failed to send subscription to server');
       }
 
-      console.log('Subscription sent to server');
-    } catch (error) {
-      console.error('Failed to send subscription to server:', error);
+      // console.log('Subscription sent to server');
+    } catch (_error) {
+      // console.error('Failed to send subscription to server:', error);
     }
   }
 
@@ -202,17 +202,17 @@ class PWAManager {
    * Initialize background sync
    */
   initializeBackgroundSync() {
-    if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
+    if ('serviceWorker' in navigator && 'sync' in typeof window !== "undefined" && window.ServiceWorkerRegistration.prototype) {
       // Listen for sync events from service worker
-      navigator.serviceWorker.addEventListener('message', (event) => {
+      typeof navigator !== "undefined" && navigator.serviceWorker.addEventListener('message', (event) => {
         if (event.data && event.data.type === 'SYNC_COMPLETE') {
           this.handleSyncComplete(event.data.payload);
         }
       });
 
-      console.log('Background sync initialized');
+      // console.log('Background sync initialized');
     } else {
-      console.warn('Background sync not supported');
+      // console.warn('Background sync not supported');
     }
   }
 
@@ -242,8 +242,8 @@ class PWAManager {
       }
 
       return syncItem.id;
-    } catch (error) {
-      console.error('Failed to add to sync queue:', error);
+    } catch (_error) {
+      // console.error('Failed to add to sync queue:', error);
       throw error;
     }
   }
@@ -259,20 +259,20 @@ class PWAManager {
       for (const item of pendingItems) {
         try {
           await this.processSyncItem(item);
-        } catch (error) {
-          console.error('Failed to process sync item:', error);
+        } catch (_error) {
+          // console.error('Failed to process sync item:', error);
 
           // Retry logic
           if (item.retryCount < 3) {
             item.retryCount++;
             this.syncQueue.push(item);
           } else {
-            console.error('Max retries exceeded for sync item:', item);
+            // console.error('Max retries exceeded for sync item:', item);
           }
         }
       }
-    } catch (error) {
-      console.error('Failed to process sync queue:', error);
+    } catch (_error) {
+      // console.error('Failed to process sync queue:', error);
     }
   }
 
@@ -315,10 +315,10 @@ class PWAManager {
         throw new Error(`Sync request failed: ${response.status}`);
       }
 
-      console.log(`Sync item processed: ${item.action}`);
+      // console.log(`Sync item processed: ${item.action}`);
       return await response.json();
-    } catch (error) {
-      console.error('Failed to process sync item:', error);
+    } catch (_error) {
+      // console.error('Failed to process sync item:', error);
       throw error;
     }
   }
@@ -329,7 +329,7 @@ class PWAManager {
   async showNotification(title, options = {}) {
     try {
       if (Notification.permission !== 'granted') {
-        console.warn('Notification permission not granted');
+        // console.warn('Notification permission not granted');
         return false;
       }
 
@@ -361,10 +361,10 @@ class PWAManager {
         }
       }
 
-      console.log('Notification shown:', title);
+      // console.log('Notification shown:', title);
       return true;
-    } catch (error) {
-      console.error('Failed to show notification:', error);
+    } catch (_error) {
+      // console.error('Failed to show notification:', error);
       return false;
     }
   }
@@ -376,9 +376,9 @@ class PWAManager {
     try {
       const cache = await caches.open(cacheName);
       await cache.add(url);
-      console.log(`Cached resource: ${url}`);
-    } catch (error) {
-      console.error('Failed to cache resource:', error);
+      // console.log(`Cached resource: ${url}`);
+    } catch (_error) {
+      // console.error('Failed to cache resource:', error);
     }
   }
 
@@ -389,9 +389,9 @@ class PWAManager {
     try {
       const cache = await caches.open(cacheName);
       await cache.addAll(urls);
-      console.log(`Cached ${urls.length} resources`);
-    } catch (error) {
-      console.error('Failed to cache resources:', error);
+      // console.log(`Cached ${urls.length} resources`);
+    } catch (_error) {
+      // console.error('Failed to cache resources:', error);
     }
   }
 
@@ -403,8 +403,8 @@ class PWAManager {
       const cache = await caches.open(this.cacheName);
       const response = await cache.match(url);
       return response;
-    } catch (error) {
-      console.error('Failed to get cached resource:', error);
+    } catch (_error) {
+      // console.error('Failed to get cached resource:', error);
       return null;
     }
   }
@@ -415,9 +415,9 @@ class PWAManager {
   async clearCache(cacheName = this.cacheName) {
     try {
       await caches.delete(cacheName);
-      console.log(`Cache cleared: ${cacheName}`);
-    } catch (error) {
-      console.error('Failed to clear cache:', error);
+      // console.log(`Cache cleared: ${cacheName}`);
+    } catch (_error) {
+      // console.error('Failed to clear cache:', error);
     }
   }
 
@@ -425,7 +425,7 @@ class PWAManager {
    * Handle online status change
    */
   handleOnlineStatusChange(isOnline) {
-    console.log(`Connection status changed: ${isOnline ? 'online' : 'offline'}`);
+    // console.log(`Connection status changed: ${isOnline ? 'online' : 'offline'}`);
 
     if (isOnline) {
       // Process sync queue when back online
@@ -445,7 +445,7 @@ class PWAManager {
     }
 
     // Dispatch custom event
-    window.dispatchEvent(new CustomEvent('connectionchange', {
+    typeof window !== "undefined" && window.dispatchEvent(new CustomEvent('connectionchange', {
       detail: { isOnline }
     }));
   }
@@ -463,21 +463,21 @@ class PWAManager {
    */
   showInstallPrompt(deferredPrompt) {
     // Create custom install UI
-    const installPrompt = document.createElement('div');
+    const installPrompt = typeof document !== "undefined" && document.createElement('div');
     installPrompt.className = 'install-prompt';
     installPrompt.innerHTML = `
-      <div class="install-prompt-content">
+      <div class='install-prompt-content'>
         <h3>Install Uni-Manager</h3>
         <p>Install our app for a better experience with offline support!</p>
-        <button id="install-button">Install</button>
-        <button id="dismiss-button">Maybe Later</button>
+        <button id='install-button'>Install</button>
+        <button id='dismiss-button'>Maybe Later</button>
       </div>
     `;
 
-    document.body.appendChild(installPrompt);
+    typeof document !== "undefined" && document.body.appendChild(installPrompt);
 
     // Handle install button click
-    document.getElementById('install-button').addEventListener('click', async () => {
+    typeof document !== "undefined" && document.getElementById('install-button').addEventListener('click', async () => {
       // Hide the prompt
       installPrompt.remove();
 
@@ -486,11 +486,11 @@ class PWAManager {
 
       // Wait for the user to respond
       const { outcome } = await deferredPrompt.userChoice;
-      console.log(`Install prompt outcome: ${outcome}`);
+      // console.log(`Install prompt outcome: ${outcome}`);
     });
 
     // Handle dismiss button click
-    document.getElementById('dismiss-button').addEventListener('click', () => {
+    typeof document !== "undefined" && document.getElementById('dismiss-button').addEventListener('click', () => {
       installPrompt.remove();
     });
   }
@@ -499,7 +499,7 @@ class PWAManager {
    * Handle app installed
    */
   handleAppInstalled() {
-    console.log('App was installed');
+    // console.log('App was installed');
 
     this.showNotification('App Installed', {
       body: 'Uni-Manager has been installed successfully!',
@@ -514,11 +514,11 @@ class PWAManager {
    * Handle visibility change (app focus/blur)
    */
   handleVisibilityChange() {
-    if (document.hidden) {
-      console.log('App went to background');
+    if (typeof document !== "undefined" && document.hidden) {
+      // console.log('App went to background');
       this.trackEvent('app_backgrounded');
     } else {
-      console.log('App came to foreground');
+      // console.log('App came to foreground');
       this.trackEvent('app_foregrounded');
 
       // Check for updates when app comes back to foreground
@@ -530,7 +530,7 @@ class PWAManager {
    * Handle sync completion
    */
   handleSyncComplete(payload) {
-    console.log('Background sync completed:', payload);
+    // console.log('Background sync completed:', payload);
 
     this.showNotification('Sync Complete', {
       body: 'Your changes have been synchronized.',
@@ -550,8 +550,8 @@ class PWAManager {
       if (this.updateAvailable) {
         this.notifyUpdateAvailable();
       }
-    } catch (error) {
-      console.error('Failed to check for updates:', error);
+    } catch (_error) {
+      // console.error('Failed to check for updates:', error);
     }
   }
 
@@ -577,7 +577,7 @@ class PWAManager {
 
     // Listen for notification actions
     if (this.registration) {
-      navigator.serviceWorker.addEventListener('message', (event) => {
+      typeof navigator !== "undefined" && navigator.serviceWorker.addEventListener('message', (event) => {
         if (event.data && event.data.type === 'NOTIFICATION_ACTION') {
           if (event.data.action === 'update') {
             this.applyUpdate();
@@ -600,9 +600,9 @@ class PWAManager {
       this.registration.waiting.postMessage({ type: 'SKIP_WAITING' });
 
       // Reload the page to apply the update
-      window.location.reload();
-    } catch (error) {
-      console.error('Failed to apply update:', error);
+      typeof window !== "undefined" && window.location.reload();
+    } catch (_error) {
+      // console.error('Failed to apply update:', error);
     }
   }
 
@@ -630,7 +630,7 @@ class PWAManager {
       .replace(/-/g, '+')
       .replace(/_/g, '/');
 
-    const rawData = window.atob(base64);
+    const rawData = typeof window !== "undefined" && window.atob(base64);
     const outputArray = new Uint8Array(rawData.length);
 
     for (let i = 0; i < rawData.length; ++i) {
@@ -650,7 +650,7 @@ class PWAManager {
    * Get authentication token
    */
   getAuthToken() {
-    return localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+    return typeof localStorage !== "undefined" && localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
   }
 
   /**
@@ -658,11 +658,11 @@ class PWAManager {
    */
   trackEvent(eventName, data = {}) {
     // Send to analytics service
-    console.log('PWA Event:', eventName, data);
+    // console.log('PWA Event:', eventName, data);
 
     // Could integrate with Google Analytics, custom analytics, etc.
-    if (window.gtag) {
-      window.gtag('event', eventName, data);
+    if (typeof window !== "undefined" && window.gtag) {
+      typeof window !== "undefined" && window.gtag('event', eventName, data);
     }
   }
 }

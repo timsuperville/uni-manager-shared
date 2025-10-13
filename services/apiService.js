@@ -2,14 +2,14 @@
 import {
   getApiBaseUrl,
   getSharedEnvironmentConfig,
-} from "../config/environment.ts";
+} from '../config/environment.ts';
 
 class ApiService {
   constructor() {
     this.baseURL = getApiBaseUrl();
     this.config = getSharedEnvironmentConfig();
     this.defaultHeaders = {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     };
   }
 
@@ -29,8 +29,8 @@ class ApiService {
       }
 
       return await response.json();
-    } catch (error) {
-      console.error(`API request failed: ${endpoint}`, error);
+    } catch (_error) {
+      // console.error(`API request failed: ${endpoint}`, error);
       throw error;
     }
   }
@@ -39,13 +39,13 @@ class ApiService {
   async get(endpoint, params = {}) {
     const queryString = new URLSearchParams(params).toString();
     const url = queryString ? `${endpoint}?${queryString}` : endpoint;
-    return this.request(url, { method: "GET" });
+    return this.request(url, { method: 'GET' });
   }
 
   // POST request
   async post(endpoint, data = {}) {
     return this.request(endpoint, {
-      method: "POST",
+      method: 'POST',
       body: JSON.stringify(data),
     });
   }
@@ -53,26 +53,26 @@ class ApiService {
   // PUT request
   async put(endpoint, data = {}) {
     return this.request(endpoint, {
-      method: "PUT",
+      method: 'PUT',
       body: JSON.stringify(data),
     });
   }
 
   // DELETE request
   async delete(endpoint) {
-    return this.request(endpoint, { method: "DELETE" });
+    return this.request(endpoint, { method: 'DELETE' });
   }
 
   // Health check
   async healthCheck() {
     try {
       const response = await fetch(
-        `${this.baseURL.replace("/api", "")}/health`
+        `${this.baseURL.replace('/api', '')}/health`
       );
       return await response.json();
-    } catch (error) {
-      console.error("Health check failed:", error);
-      return { status: "error", message: error.message };
+    } catch (_error) {
+      // console.error('Health check failed:', error);
+      return { status: 'error', message: error.message };
     }
   }
 }
@@ -81,11 +81,11 @@ class ApiService {
 export class BusinessApiService extends ApiService {
   // Client management
   async getClients() {
-    return this.get("/clients");
+    return this.get('/clients');
   }
 
   async createClient(clientData) {
-    return this.post("/clients", clientData);
+    return this.post('/clients', clientData);
   }
 
   async updateClient(clientId, clientData) {
@@ -98,11 +98,11 @@ export class BusinessApiService extends ApiService {
 
   // Project management
   async getProjects() {
-    return this.get("/projects");
+    return this.get('/projects');
   }
 
   async createProject(projectData) {
-    return this.post("/projects", projectData);
+    return this.post('/projects', projectData);
   }
 
   async updateProject(projectId, projectData) {
@@ -115,11 +115,11 @@ export class BusinessApiService extends ApiService {
 
   // Invoice management
   async getInvoices() {
-    return this.get("/invoices");
+    return this.get('/invoices');
   }
 
   async createInvoice(invoiceData) {
-    return this.post("/invoices", invoiceData);
+    return this.post('/invoices', invoiceData);
   }
 
   async updateInvoice(invoiceId, invoiceData) {
@@ -132,7 +132,7 @@ export class BusinessApiService extends ApiService {
 
   // Reports
   async getReports() {
-    return this.get("/reports");
+    return this.get('/reports');
   }
 
   async generateReport(reportType, params = {}) {
@@ -144,11 +144,11 @@ export class BusinessApiService extends ApiService {
 export class PersonalApiService extends ApiService {
   // Task management
   async getTasks() {
-    return this.get("/tasks");
+    return this.get('/tasks');
   }
 
   async createTask(taskData) {
-    return this.post("/tasks", taskData);
+    return this.post('/tasks', taskData);
   }
 
   async updateTask(taskId, taskData) {
@@ -161,11 +161,11 @@ export class PersonalApiService extends ApiService {
 
   // Notes management
   async getNotes() {
-    return this.get("/notes");
+    return this.get('/notes');
   }
 
   async createNote(noteData) {
-    return this.post("/notes", noteData);
+    return this.post('/notes', noteData);
   }
 
   async updateNote(noteId, noteData) {
@@ -178,11 +178,11 @@ export class PersonalApiService extends ApiService {
 
   // Calendar events
   async getEvents() {
-    return this.get("/events");
+    return this.get('/events');
   }
 
   async createEvent(eventData) {
-    return this.post("/events", eventData);
+    return this.post('/events', eventData);
   }
 
   async updateEvent(eventId, eventData) {
@@ -195,11 +195,11 @@ export class PersonalApiService extends ApiService {
 
   // Goals management
   async getGoals() {
-    return this.get("/goals");
+    return this.get('/goals');
   }
 
   async createGoal(goalData) {
-    return this.post("/goals", goalData);
+    return this.post('/goals', goalData);
   }
 
   async updateGoal(goalId, goalData) {

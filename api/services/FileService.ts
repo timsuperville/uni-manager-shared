@@ -19,7 +19,7 @@ import {
   ValidationSchema,
   PaginationParams,
   PaginatedResponse,
-} from "./BaseService";
+} from './BaseService';
 import {
   FileMetadata,
   Folder,
@@ -30,12 +30,12 @@ import {
   FileShareRequest,
   BulkFileOperation,
   StorageAnalytics,
-} from "../types";
-import { ApiClient } from "../core/ApiClient";
+} from '../types';
+import { ApiClient } from '../core/ApiClient';
 
 export class FileService extends BaseService {
   constructor(client: ApiClient) {
-    super(client, "/files", "FileService");
+    super(client, '/files', 'FileService');
   }
 
   // ===============================================
@@ -44,16 +44,16 @@ export class FileService extends BaseService {
 
   private static readonly SCHEMAS = {
     fileUpload: {
-      file: { type: "object" as const, required: true },
-      folderId: { type: "string" as const },
-      category: { type: "string" as const },
-      tags: { type: "array" as const },
-      isPublic: { type: "boolean" as const },
+      file: { type: 'object' as const, required: true },
+      folderId: { type: 'string' as const },
+      category: { type: 'string' as const },
+      tags: { type: 'array' as const },
+      isPublic: { type: 'boolean' as const },
     },
 
     fileId: {
       fileId: {
-        type: "string" as const,
+        type: 'string' as const,
         required: true,
         minLength: 1,
       },
@@ -61,7 +61,7 @@ export class FileService extends BaseService {
 
     folderId: {
       folderId: {
-        type: "string" as const,
+        type: 'string' as const,
         required: true,
         minLength: 1,
       },
@@ -69,57 +69,57 @@ export class FileService extends BaseService {
 
     createFolder: {
       name: {
-        type: "string" as const,
+        type: 'string' as const,
         required: true,
         minLength: 1,
         maxLength: 255,
       },
-      parentId: { type: "string" as const },
-      description: { type: "string" as const, maxLength: 1000 },
-      isPublic: { type: "boolean" as const },
+      parentId: { type: 'string' as const },
+      description: { type: 'string' as const, maxLength: 1000 },
+      isPublic: { type: 'boolean' as const },
     },
 
     updateFolder: {
       name: {
-        type: "string" as const,
+        type: 'string' as const,
         minLength: 1,
         maxLength: 255,
       },
-      description: { type: "string" as const, maxLength: 1000 },
-      isPublic: { type: "boolean" as const },
+      description: { type: 'string' as const, maxLength: 1000 },
+      isPublic: { type: 'boolean' as const },
     },
 
     bulkOperation: {
       fileIds: {
-        type: "array" as const,
+        type: 'array' as const,
         required: true,
         validator: (value: any[]) =>
-          value.length > 0 || "At least one file ID is required",
+          value.length > 0 || 'At least one file ID is required',
       },
       operation: {
-        type: "string" as const,
+        type: 'string' as const,
         required: true,
         validator: (value: string) =>
-          ["move", "copy", "delete", "share", "tag"].includes(value) ||
-          "Invalid operation type",
+          ['move', 'copy', 'delete', 'share', 'tag'].includes(value) ||
+          'Invalid operation type',
       },
     },
 
     shareFile: {
       fileId: {
-        type: "string" as const,
+        type: 'string' as const,
         required: true,
         minLength: 1,
       },
-      shareWith: { type: "array" as const, required: true },
+      shareWith: { type: 'array' as const, required: true },
       permissions: {
-        type: "string" as const,
+        type: 'string' as const,
         required: true,
         validator: (value: string) =>
-          ["read", "write", "admin"].includes(value) ||
-          "Invalid permission level",
+          ['read', 'write', 'admin'].includes(value) ||
+          'Invalid permission level',
       },
-      expiresAt: { type: "string" as const },
+      expiresAt: { type: 'string' as const },
     },
   } as const;
 
@@ -138,35 +138,35 @@ export class FileService extends BaseService {
     this.validateRequest(request, schema);
 
     const formData = new FormData();
-    formData.append("file", request.file);
+    formData.append('file', request.file);
 
     if (request.folderId) {
-      formData.append("folderId", request.folderId);
+      formData.append('folderId', request.folderId);
     }
 
     if (request.category) {
-      formData.append("category", request.category);
+      formData.append('category', request.category);
     }
 
     if (request.tags && request.tags.length > 0) {
-      formData.append("tags", JSON.stringify(request.tags));
+      formData.append('tags', JSON.stringify(request.tags));
     }
 
-    if (request.isPublic !== undefined) {
-      formData.append("isPublic", String(request.isPublic));
+    if (request.isPublic !=== undefined) {
+      formData.append('isPublic', String(request.isPublic));
     }
 
     if (request.description) {
-      formData.append("description", request.description);
+      formData.append('description', request.description);
     }
 
-    return this.upload<FileMetadata>(this.baseEndpoint + "/upload", formData, {
+    return this.upload<FileMetadata>(this.baseEndpoint + '/upload', formData, {
       onUploadProgress: (progress: ProgressEvent) => {
         onProgress?.(progress);
 
         // Emit global progress event
-        window.dispatchEvent(
-          new CustomEvent("file-upload-progress", {
+        typeof window !== "undefined" && window.dispatchEvent(
+          new CustomEvent('file-upload-progress', {
             detail: { progress, fileName: request.file.name },
           }),
         );
@@ -191,7 +191,7 @@ export class FileService extends BaseService {
     const schema: ValidationSchema = FileService.SCHEMAS.fileId;
     this.validateRequest({ fileId }, schema);
 
-    return this.download(this.buildIdEndpoint(fileId, "/download"));
+    return this.download(this.buildIdEndpoint(fileId, '/download'));
   }
 
   /**
@@ -202,7 +202,7 @@ export class FileService extends BaseService {
     this.validateRequest({ fileId }, schema);
 
     return this.get<{ previewUrl: string }>(
-      this.buildIdEndpoint(fileId, "/preview"),
+      this.buildIdEndpoint(fileId, '/preview'),
     );
   }
 
@@ -214,7 +214,7 @@ export class FileService extends BaseService {
     updates: Partial<
       Pick<
         FileMetadata,
-        "name" | "description" | "tags" | "category" | "isPublic"
+        'name' | 'description' | 'tags' | 'category' | 'isPublic'
       >
     >,
   ): Promise<FileMetadata> {
@@ -253,7 +253,7 @@ export class FileService extends BaseService {
     }
 
     if (searchParams.tags && searchParams.tags.length > 0) {
-      queryParams.tags = searchParams.tags.join(",");
+      queryParams.tags = searchParams.tags.join(',');
     }
 
     if (searchParams.folderId) {
@@ -264,11 +264,11 @@ export class FileService extends BaseService {
       queryParams.mimeType = searchParams.mimeType;
     }
 
-    if (searchParams.sizeMin !== undefined) {
+    if (searchParams.sizeMin !=== undefined) {
       queryParams.sizeMin = String(searchParams.sizeMin);
     }
 
-    if (searchParams.sizeMax !== undefined) {
+    if (searchParams.sizeMax !=== undefined) {
       queryParams.sizeMax = String(searchParams.sizeMax);
     }
 
@@ -280,7 +280,7 @@ export class FileService extends BaseService {
       queryParams.createdBefore = searchParams.createdBefore;
     }
 
-    if (searchParams.isPublic !== undefined) {
+    if (searchParams.isPublic !=== undefined) {
       queryParams.isPublic = String(searchParams.isPublic);
     }
 
@@ -291,7 +291,7 @@ export class FileService extends BaseService {
     const queryString =
       Object.keys(allParams).length > 0
         ? new URLSearchParams(allParams).toString()
-        : "";
+        : '';
 
     const endpoint = queryString
       ? `${this.baseEndpoint}/search?${queryString}`
@@ -311,7 +311,7 @@ export class FileService extends BaseService {
     const schema: ValidationSchema = FileService.SCHEMAS.createFolder;
     this.validateRequest(folderData, schema);
 
-    return this.post<Folder>(this.baseEndpoint + "/folders", folderData);
+    return this.post<Folder>(this.baseEndpoint + '/folders', folderData);
   }
 
   /**
@@ -328,11 +328,11 @@ export class FileService extends BaseService {
     const queryString =
       Object.keys(paginationParams).length > 0
         ? new URLSearchParams(paginationParams).toString()
-        : "";
+        : '';
 
     const endpoint = queryString
       ? this.buildIdEndpoint(folderId, `/folders?${queryString}`)
-      : this.buildIdEndpoint(folderId, "/folders");
+      : this.buildIdEndpoint(folderId, '/folders');
 
     return this.get<Folder & { files: PaginatedResponse<FileMetadata> }>(
       endpoint,
@@ -353,7 +353,7 @@ export class FileService extends BaseService {
     this.validateRequest(updates, updateSchema);
 
     return this.patch<Folder>(
-      this.buildIdEndpoint(folderId, "/folders"),
+      this.buildIdEndpoint(folderId, '/folders'),
       updates,
     );
   }
@@ -370,17 +370,17 @@ export class FileService extends BaseService {
 
     const queryParams: Record<string, string> = {};
     if (options.recursive) {
-      queryParams.recursive = "true";
+      queryParams.recursive = 'true';
     }
 
     const queryString =
       Object.keys(queryParams).length > 0
         ? new URLSearchParams(queryParams).toString()
-        : "";
+        : '';
 
     const endpoint = queryString
       ? this.buildIdEndpoint(folderId, `/folders?${queryString}`)
-      : this.buildIdEndpoint(folderId, "/folders");
+      : this.buildIdEndpoint(folderId, '/folders');
 
     return this.delete<{ success: boolean; deletedFiles: number }>(endpoint);
   }
@@ -397,7 +397,7 @@ export class FileService extends BaseService {
     const queryString =
       Object.keys(queryParams).length > 0
         ? new URLSearchParams(queryParams).toString()
-        : "";
+        : '';
 
     const endpoint = queryString
       ? `${this.baseEndpoint}/folders/tree?${queryString}`
@@ -425,7 +425,7 @@ export class FileService extends BaseService {
       shareId: string;
       shareUrl?: string;
       expiresAt?: string;
-    }>(this.buildIdEndpoint(shareRequest.fileId, "/share"), shareRequest);
+    }>(this.buildIdEndpoint(shareRequest.fileId, '/share'), shareRequest);
   }
 
   /**
@@ -451,7 +451,7 @@ export class FileService extends BaseService {
         createdAt: string;
         expiresAt?: string;
       }>;
-    }>(this.buildIdEndpoint(fileId, "/shares"));
+    }>(this.buildIdEndpoint(fileId, '/shares'));
   }
 
   /**
@@ -486,7 +486,7 @@ export class FileService extends BaseService {
     return this.post<{
       successful: string[];
       failed: Array<{ fileId: string; error: string }>;
-    }>(this.baseEndpoint + "/bulk", operation);
+    }>(this.baseEndpoint + '/bulk', operation);
   }
 
   /**
@@ -501,7 +501,7 @@ export class FileService extends BaseService {
   }> {
     return this.bulkFileOperation({
       fileIds,
-      operation: "move",
+      operation: 'move',
       targetFolderId,
     });
   }
@@ -518,7 +518,7 @@ export class FileService extends BaseService {
   }> {
     return this.bulkFileOperation({
       fileIds,
-      operation: "copy",
+      operation: 'copy',
       targetFolderId,
     });
   }
@@ -532,7 +532,7 @@ export class FileService extends BaseService {
   }> {
     return this.bulkFileOperation({
       fileIds,
-      operation: "delete",
+      operation: 'delete',
     });
   }
 
@@ -548,7 +548,7 @@ export class FileService extends BaseService {
   }> {
     return this.bulkFileOperation({
       fileIds,
-      operation: "tag",
+      operation: 'tag',
       tags,
     });
   }
@@ -569,7 +569,7 @@ export class FileService extends BaseService {
     const queryString =
       Object.keys(queryParams).length > 0
         ? new URLSearchParams(queryParams).toString()
-        : "";
+        : '';
 
     const endpoint = queryString
       ? `${this.baseEndpoint}/analytics?${queryString}`
@@ -613,11 +613,11 @@ export class FileService extends BaseService {
     const queryString =
       Object.keys(paginationParams).length > 0
         ? new URLSearchParams(paginationParams).toString()
-        : "";
+        : '';
 
     const endpoint = queryString
       ? this.buildIdEndpoint(fileId, `/activity?${queryString}`)
-      : this.buildIdEndpoint(fileId, "/activity");
+      : this.buildIdEndpoint(fileId, '/activity');
 
     return this.get<
       PaginatedResponse<{
@@ -649,11 +649,11 @@ export class FileService extends BaseService {
     const queryString =
       Object.keys(queryParams).length > 0
         ? new URLSearchParams(queryParams).toString()
-        : "";
+        : '';
 
     const endpoint = queryString
       ? this.buildIdEndpoint(fileId, `/thumbnail?${queryString}`)
-      : this.buildIdEndpoint(fileId, "/thumbnail");
+      : this.buildIdEndpoint(fileId, '/thumbnail');
 
     return this.post<{ thumbnailUrl: string }>(endpoint, {});
   }
@@ -672,11 +672,11 @@ export class FileService extends BaseService {
     const queryString =
       Object.keys(paginationParams).length > 0
         ? new URLSearchParams(paginationParams).toString()
-        : "";
+        : '';
 
     const endpoint = queryString
       ? this.buildIdEndpoint(fileId, `/versions?${queryString}`)
-      : this.buildIdEndpoint(fileId, "/versions");
+      : this.buildIdEndpoint(fileId, '/versions');
 
     return this.get<PaginatedResponse<FileMetadata>>(endpoint);
   }

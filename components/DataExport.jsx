@@ -3,7 +3,8 @@
  * User interface for data export functionality
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import {
   Dialog,
   DialogTitle,
@@ -40,7 +41,7 @@ import {
   Tooltip,
   useTheme,
   alpha,
-} from "@mui/material";
+} from '@mui/material';
 import {
   GetApp as DownloadIcon,
   FilterList as FilterIcon,
@@ -52,16 +53,16 @@ import {
   Description as FileIcon,
   ExpandMore as ExpandMoreIcon,
   Delete as DeleteIcon,
-} from "@mui/icons-material";
-import { formatDistanceToNow } from "date-fns";
-import dataExportService from "../services/dataExportService";
+} from '@mui/icons-material';
+import { formatDistanceToNow } from 'date-fns';
+import dataExportService from '../services/dataExportService';
 
 const ExportFormatSelector = ({ value, onChange, disabled = false }) => {
   const formats = [
-    { value: "csv", label: "CSV", description: "Comma-separated values" },
-    { value: "xlsx", label: "Excel", description: "Microsoft Excel format" },
-    { value: "pdf", label: "PDF", description: "Portable document format" },
-    { value: "json", label: "JSON", description: "JavaScript object notation" },
+    { value: 'csv', label: 'CSV', description: 'Comma-separated values' },
+    { value: 'xlsx', label: 'Excel', description: 'Microsoft Excel format' },
+    { value: 'pdf', label: 'PDF', description: 'Portable document format' },
+    { value: 'json', label: 'JSON', description: 'JavaScript object notation' },
   ];
 
   return (
@@ -70,13 +71,13 @@ const ExportFormatSelector = ({ value, onChange, disabled = false }) => {
       <Select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        label="Export Format"
+        label='Export Format'
       >
         {formats.map((format) => (
           <MenuItem key={format.value} value={format.value}>
             <Box>
-              <Typography variant="body2">{format.label}</Typography>
-              <Typography variant="caption" color="textSecondary">
+              <Typography variant='body2'>{format.label}</Typography>
+              <Typography variant='caption' color='textSecondary'>
                 {format.description}
               </Typography>
             </Box>
@@ -112,16 +113,16 @@ const ColumnSelector = ({
     <Box>
       <Box
         sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
           mb: 2,
         }}
       >
-        <Typography variant="subtitle2">Select Columns</Typography>
+        <Typography variant='subtitle2'>Select Columns</Typography>
         <Box>
           <Button
-            size="small"
+            size='small'
             onClick={handleSelectAll}
             disabled={
               disabled || selectedColumns.length === availableColumns.length
@@ -130,7 +131,7 @@ const ColumnSelector = ({
             Select All
           </Button>
           <Button
-            size="small"
+            size='small'
             onClick={handleDeselectAll}
             disabled={disabled || selectedColumns.length === 0}
             sx={{ ml: 1 }}
@@ -143,9 +144,9 @@ const ColumnSelector = ({
       <Box
         sx={{
           maxHeight: 200,
-          overflow: "auto",
+          overflow: 'auto',
           border: 1,
-          borderColor: "divider",
+          borderColor: 'divider',
           borderRadius: 1,
           p: 1,
         }}
@@ -161,15 +162,15 @@ const ColumnSelector = ({
               />
             }
             label={column}
-            sx={{ display: "block", width: "100%" }}
+            sx={{ display: 'block', width: '100%' }}
           />
         ))}
       </Box>
 
       <Typography
-        variant="caption"
-        color="textSecondary"
-        sx={{ mt: 1, display: "block" }}
+        variant='caption'
+        color='textSecondary'
+        sx={{ mt: 1, display: 'block' }}
       >
         {selectedColumns.length} of {availableColumns.length} columns selected
       </Typography>
@@ -182,7 +183,7 @@ const ExportPreview = ({ data, columns, maxRows = 5 }) => {
 
   if (!data || data.length === 0) {
     return (
-      <Alert severity="info">
+      <Alert severity='info'>
         No data to preview. Apply filters to see preview.
       </Alert>
     );
@@ -193,19 +194,19 @@ const ExportPreview = ({ data, columns, maxRows = 5 }) => {
 
   return (
     <Box>
-      <Typography variant="subtitle2" gutterBottom>
+      <Typography variant='subtitle2' gutterBottom>
         Export Preview ({previewData.length} of {data.length} records)
       </Typography>
 
-      <Box sx={{ overflow: "auto", maxHeight: 300 }}>
-        <Table size="small">
+      <Box sx={{ overflow: 'auto', maxHeight: 300 }}>
+        <Table size='small'>
           <TableHead>
             <TableRow>
               {displayColumns.map((column) => (
                 <TableCell
                   key={column}
                   sx={{
-                    fontWeight: "bold",
+                    fontWeight: 'bold',
                     bgcolor: alpha(theme.palette.primary.main, 0.1),
                   }}
                 >
@@ -219,7 +220,7 @@ const ExportPreview = ({ data, columns, maxRows = 5 }) => {
               <TableRow key={index}>
                 {displayColumns.map((column) => (
                   <TableCell key={column}>
-                    {row[column]?.toString() || ""}
+                    {row[column]?.toString() || ''}
                   </TableCell>
                 ))}
               </TableRow>
@@ -230,9 +231,9 @@ const ExportPreview = ({ data, columns, maxRows = 5 }) => {
 
       {data.length > maxRows && (
         <Typography
-          variant="caption"
-          color="textSecondary"
-          sx={{ mt: 1, display: "block" }}
+          variant='caption'
+          color='textSecondary'
+          sx={{ mt: 1, display: 'block' }}
         >
           ... and {data.length - maxRows} more records
         </Typography>
@@ -256,70 +257,70 @@ const ExportHistory = ({ onClearHistory }) => {
   };
 
   const getFormatIcon = (format) => {
-    return <FileIcon fontSize="small" />;
+    return <FileIcon fontSize='small' />;
   };
 
   const getFormatColor = (format) => {
     switch (format.toLowerCase()) {
-      case "csv":
-        return "success";
-      case "xlsx":
-        return "primary";
-      case "pdf":
-        return "error";
-      case "json":
-        return "warning";
+      case 'csv':
+        return 'success';
+      case 'xlsx':
+        return 'primary';
+      case 'pdf':
+        return 'error';
+      case 'json':
+        return 'warning';
       default:
-        return "default";
+        return 'default';
     }
   };
 
   if (history.length === 0) {
-    return <Alert severity="info">No export history available.</Alert>;
+    return <Alert severity='info'>No export history available.</Alert>;
   }
 
   return (
     <Box>
       <Box
         sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
           mb: 2,
         }}
       >
-        <Typography variant="subtitle2">Export History</Typography>
+        <Typography variant='subtitle2'>Export History</Typography>
         <Button
-          size="small"
+          size='small'
           onClick={handleClearHistory}
           startIcon={<DeleteIcon />}
-          color="error"
+          color='error'
         >
           Clear History
         </Button>
       </Box>
 
-      <List sx={{ maxHeight: 300, overflow: "auto" }}>
+      <List sx={{ maxHeight: 300, overflow: 'auto' }}>
         {history.map((export_item, index) => (
           <ListItem key={index} divider>
             <ListItemIcon>{getFormatIcon(export_item.format)}</ListItemIcon>
             <ListItemText
               primary={
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <Typography variant="body2">
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Typography variant='body2'>
                     {export_item.filename}
                   </Typography>
                   <Chip
                     label={export_item.format.toUpperCase()}
-                    size="small"
+                    size='small'
                     color={getFormatColor(export_item.format)}
-                    variant="outlined"
+                    variant='outlined'
                   />
                 </Box>
               }
               secondary={
-                <Typography variant="caption" color="textSecondary">
-                  {export_item.recordCount} records •{" "}
+                <Typography variant='caption' color='textSecondary'>
+                  {export_item.recordCount} records •{' '}
                   {formatDistanceToNow(new Date(export_item.timestamp), {
                     addSuffix: true,
                   })}
@@ -337,11 +338,11 @@ export const DataExportDialog = ({
   open,
   onClose,
   data = [],
-  title = "Export Data",
-  defaultFilename = "export",
+  title = 'Export Data',
+  defaultFilename = 'export',
   availableColumns = [],
 }) => {
-  const [format, setFormat] = useState("csv");
+  const [format, setFormat] = useState('csv');
   const [filename, setFilename] = useState(defaultFilename);
   const [selectedColumns, setSelectedColumns] = useState(availableColumns);
   const [filters, setFilters] = useState({});
@@ -381,7 +382,7 @@ export const DataExportDialog = ({
         columns: selectedColumns.length > 0 ? selectedColumns : undefined,
         filters,
         metadata: {
-          exportedBy: "Home Manager",
+          exportedBy: 'Home Manager',
           totalRecords: data.length,
           exportFormat: format,
         },
@@ -391,7 +392,7 @@ export const DataExportDialog = ({
 
       // Close dialog on successful export
       onClose();
-    } catch (error) {
+    } catch (_error) {
       setExportError(error.message);
     } finally {
       setIsExporting(false);
@@ -411,14 +412,14 @@ export const DataExportDialog = ({
     <Dialog
       open={open}
       onClose={onClose}
-      maxWidth="md"
+      maxWidth='md'
       fullWidth
       PaperProps={{
-        sx: { minHeight: "60vh" },
+        sx: { minHeight: '60vh' },
       }}
     >
       <DialogTitle>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <DownloadIcon />
           {title}
         </Box>
@@ -429,15 +430,15 @@ export const DataExportDialog = ({
           {/* Export Configuration */}
           <Card sx={{ mb: 3 }}>
             <CardContent>
-              <Typography variant="h6" gutterBottom>
+              <Typography variant='h6' gutterBottom>
                 Export Configuration
               </Typography>
 
               <Box
                 sx={{
-                  display: "grid",
+                  display: 'grid',
                   gap: 3,
-                  gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+                  gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
                 }}
               >
                 <ExportFormatSelector
@@ -447,11 +448,11 @@ export const DataExportDialog = ({
                 />
 
                 <TextField
-                  label="Filename"
+                  label='Filename'
                   value={filename}
                   onChange={(e) => setFilename(e.target.value)}
                   disabled={isExporting}
-                  helperText="File extension will be added automatically"
+                  helperText='File extension will be added automatically'
                   fullWidth
                 />
               </Box>
@@ -462,14 +463,14 @@ export const DataExportDialog = ({
           {availableColumns.length > 0 && (
             <Accordion>
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <SettingsIcon />
                   <Typography>Column Selection</Typography>
                   <Chip
                     label={`${selectedColumns.length} selected`}
-                    size="small"
-                    color="primary"
-                    variant="outlined"
+                    size='small'
+                    color='primary'
+                    variant='outlined'
                   />
                 </Box>
               </AccordionSummary>
@@ -490,15 +491,15 @@ export const DataExportDialog = ({
             onChange={(e, expanded) => setShowPreview(expanded)}
           >
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <PreviewIcon />
                 <Typography>Export Preview</Typography>
                 {previewData && (
                   <Chip
                     label={`${previewData.totalRecords} records`}
-                    size="small"
-                    color="info"
-                    variant="outlined"
+                    size='small'
+                    color='info'
+                    variant='outlined'
                   />
                 )}
               </Box>
@@ -510,7 +511,7 @@ export const DataExportDialog = ({
                   columns={selectedColumns}
                 />
               ) : (
-                <Typography color="textSecondary">
+                <Typography color='textSecondary'>
                   Enable preview to see export data
                 </Typography>
               )}
@@ -523,7 +524,7 @@ export const DataExportDialog = ({
             onChange={(e, expanded) => setShowHistory(expanded)}
           >
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <HistoryIcon />
                 <Typography>Export History</Typography>
               </Box>
@@ -536,7 +537,7 @@ export const DataExportDialog = ({
           {/* Export Status */}
           {isExporting && (
             <Box sx={{ mt: 3 }}>
-              <Typography variant="body2" gutterBottom>
+              <Typography variant='body2' gutterBottom>
                 Exporting data...
               </Typography>
               <LinearProgress />
@@ -545,16 +546,16 @@ export const DataExportDialog = ({
 
           {/* Export Error */}
           {exportError && (
-            <Alert severity="error" sx={{ mt: 2 }}>
+            <Alert severity='error' sx={{ mt: 2 }}>
               Export failed: {exportError}
             </Alert>
           )}
 
           {/* Data Summary */}
-          <Card sx={{ mt: 3, bgcolor: alpha("#1976d2", 0.05) }}>
+          <Card sx={{ mt: 3, bgcolor: alpha('#1976d2', 0.05) }}>
             <CardContent>
-              <Typography variant="body2" color="textSecondary">
-                <strong>Data Summary:</strong> {data.length} total records •{" "}
+              <Typography variant='body2' color='textSecondary'>
+                <strong>Data Summary:</strong> {data.length} total records •{' '}
                 {selectedColumns.length} columns selected
                 {Object.keys(filters).length > 0 &&
                   ` • ${Object.keys(filters).length} filters applied`}
@@ -571,10 +572,10 @@ export const DataExportDialog = ({
         <Button
           onClick={handleExport}
           disabled={isExportDisabled()}
-          variant="contained"
+          variant='contained'
           startIcon={isExporting ? null : <DownloadIcon />}
         >
-          {isExporting ? "Exporting..." : "Export"}
+          {isExporting ? 'Exporting...' : 'Export'}
         </Button>
       </DialogActions>
     </Dialog>
@@ -583,10 +584,10 @@ export const DataExportDialog = ({
 
 export const ExportButton = ({
   data = [],
-  title = "Export Data",
-  filename = "export",
-  variant = "contained",
-  size = "medium",
+  title = 'Export Data',
+  filename = 'export',
+  variant = 'contained',
+  size = 'medium',
   ...props
 }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -618,4 +619,8 @@ export const ExportButton = ({
   );
 };
 
+
+ExportFormatSelector.propTypes = {
+  // TODO: Define specific prop types
+};
 export default DataExportDialog;

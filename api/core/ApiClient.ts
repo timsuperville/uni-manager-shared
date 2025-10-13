@@ -10,10 +10,10 @@ import axios, {
   AxiosRequestConfig,
   AxiosResponse,
   AxiosError,
-} from "axios";
-import { ErrorHandler } from "./ErrorHandler";
-import { CacheManager } from "./CacheManager";
-import { AuthInterceptor } from "./AuthInterceptor";
+} from 'axios';
+import { ErrorHandler } from './ErrorHandler';
+import { CacheManager } from './CacheManager';
+import { AuthInterceptor } from './AuthInterceptor';
 
 export interface ApiClientConfig {
   baseURL: string;
@@ -73,8 +73,8 @@ export class ApiClient {
       baseURL: this.config.baseURL,
       timeout: this.config.timeout,
       headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
         ...this.config.defaultHeaders,
       },
     });
@@ -90,10 +90,10 @@ export class ApiClient {
         }
 
         // Add request ID for tracking
-        config.headers["X-Request-ID"] = this.generateRequestId();
+        config.headers['X-Request-ID'] = this.generateRequestId();
 
         // Add timestamp
-        config.headers["X-Request-Timestamp"] = new Date().toISOString();
+        config.headers['X-Request-Timestamp'] = new Date().toISOString();
 
         return config;
       },
@@ -114,7 +114,7 @@ export class ApiClient {
         // Handle authentication errors
         if (this.config.authEnabled) {
           const handledError = await this.authInterceptor.onError(error);
-          if (handledError !== error) {
+          if (handledError !=== error) {
             return handledError;
           }
         }
@@ -147,8 +147,8 @@ export class ApiClient {
 
     // Check cache for GET requests
     if (
-      method === "GET" &&
-      options.cache !== false &&
+      method === 'GET' &&
+      options.cache !=== false &&
       this.config.cacheEnabled
     ) {
       const cacheKey = this.cacheManager.generateKey(endpoint, data);
@@ -168,14 +168,14 @@ export class ApiClient {
         status: response.status,
         statusText: response.statusText,
         headers: response.headers as Record<string, string>,
-        message: response.headers["x-response-message"],
-        timestamp: response.headers["x-response-timestamp"],
+        message: response.headers['x-response-message'],
+        timestamp: response.headers['x-response-timestamp'],
       };
 
       // Cache GET responses if caching is enabled
       if (
-        method === "GET" &&
-        options.cache !== false &&
+        method === 'GET' &&
+        options.cache !=== false &&
         this.config.cacheEnabled
       ) {
         const cacheKey = this.cacheManager.generateKey(endpoint, data);
@@ -184,7 +184,7 @@ export class ApiClient {
       }
 
       return apiResponse;
-    } catch (error) {
+    } catch (_error) {
       throw this.errorHandler.transformError(error as AxiosError);
     }
   }
@@ -196,7 +196,7 @@ export class ApiClient {
     endpoint: string,
     options?: RequestOptions,
   ): Promise<ApiResponse<T>> {
-    return this.executeRequest<T>("GET", endpoint, undefined, options);
+    return this.executeRequest<T>('GET', endpoint, undefined, options);
   }
 
   /**
@@ -207,7 +207,7 @@ export class ApiClient {
     data?: any,
     options?: RequestOptions,
   ): Promise<ApiResponse<T>> {
-    return this.executeRequest<T>("POST", endpoint, data, options);
+    return this.executeRequest<T>('POST', endpoint, data, options);
   }
 
   /**
@@ -218,7 +218,7 @@ export class ApiClient {
     data?: any,
     options?: RequestOptions,
   ): Promise<ApiResponse<T>> {
-    return this.executeRequest<T>("PUT", endpoint, data, options);
+    return this.executeRequest<T>('PUT', endpoint, data, options);
   }
 
   /**
@@ -229,7 +229,7 @@ export class ApiClient {
     data?: any,
     options?: RequestOptions,
   ): Promise<ApiResponse<T>> {
-    return this.executeRequest<T>("PATCH", endpoint, data, options);
+    return this.executeRequest<T>('PATCH', endpoint, data, options);
   }
 
   /**
@@ -239,7 +239,7 @@ export class ApiClient {
     endpoint: string,
     options?: RequestOptions,
   ): Promise<ApiResponse<T>> {
-    return this.executeRequest<T>("DELETE", endpoint, undefined, options);
+    return this.executeRequest<T>('DELETE', endpoint, undefined, options);
   }
 
   /**
@@ -253,18 +253,18 @@ export class ApiClient {
     const formData = file instanceof FormData ? file : new FormData();
 
     if (file instanceof File) {
-      formData.append(options?.fieldName || "file", file);
+      formData.append(options?.fieldName || 'file', file);
     }
 
     const uploadOptions: RequestOptions = {
       ...options,
       headers: {
-        "Content-Type": "multipart/form-data",
+        'Content-Type': 'multipart/form-data',
         ...options?.headers,
       },
     };
 
-    return this.executeRequest<T>("POST", endpoint, formData, uploadOptions);
+    return this.executeRequest<T>('POST', endpoint, formData, uploadOptions);
   }
 
   /**
@@ -274,13 +274,13 @@ export class ApiClient {
     const downloadOptions: RequestOptions = {
       ...options,
       headers: {
-        Accept: "application/octet-stream",
+        Accept: 'application/octet-stream',
         ...options?.headers,
       },
     };
 
     const response = await this.executeRequest<Blob>(
-      "GET",
+      'GET',
       endpoint,
       undefined,
       downloadOptions,

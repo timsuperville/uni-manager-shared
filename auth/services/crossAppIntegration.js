@@ -1,9 +1,9 @@
 // Cross-App Integration Layer for Uni-Manager
 // Orchestrates shared authentication, notifications, and data caching
 /* global setTimeout, setInterval, clearInterval */
-import sharedAuthService from "./CrossAppService.js";
-import crossAppNotifications from "./crossAppNotifications.js";
-import sharedDataCache from "./sharedDataCache.js";
+import sharedAuthService from './CrossAppService.js';
+import crossAppNotifications from './crossAppNotifications.js';
+import sharedDataCache from './sharedDataCache.js';
 class CrossAppIntegration {
   constructor() {
     this.registeredApps = new Map();
@@ -168,11 +168,11 @@ class CrossAppIntegration {
   }
   setupServiceIntegration() {
     // Auth service events
-    this.crossAppService.on("auth-login", (data) => {
+    this.crossAppService.on('auth-login', (data) => {
       // Notify all apps about authentication change
       crossAppNotifications.sendSystemAlert(
-        "integration",
-        "user-authenticated",
+        'integration',
+        'user-authenticated',
         {
           user: data.user,
           source: data.source,
@@ -181,24 +181,24 @@ class CrossAppIntegration {
       );
       // Cache user data across apps
       if (sharedDataCache) {
-        sharedDataCache.set("global:current_user", data.user, {
+        sharedDataCache.set('global:current_user', data.user, {
           ttl: 24 * 60 * 60 * 1000, // 24 hours
           syncAcrossApps: true,
           persist: true,
         });
       }
     });
-    this.crossAppService.on("auth-logout", (data) => {
+    this.crossAppService.on('auth-logout', (data) => {
       // Clear cached user data
       if (sharedDataCache) {
-        sharedDataCache.delete("global:current_user");
+        sharedDataCache.delete('global:current_user');
         // Clear all user-specific cached data
         for (const [appName] of this.registeredApps) {
-          sharedDataCache.clearNamespace(appName, "user:*");
+          sharedDataCache.clearNamespace(appName, 'user:*');
         }
       }
       // Notify all apps about logout
-      crossAppNotifications.sendSystemAlert("integration", "user-logged-out", {
+      crossAppNotifications.sendSystemAlert('integration', 'user-logged-out', {
         source: data.source,
         timestamp: data.timestamp,
       });
@@ -207,11 +207,11 @@ class CrossAppIntegration {
     if (sharedDataCache) {
       // Monitor cache changes for cross-app synchronization
       for (const [appName] of this.registeredApps) {
-        sharedDataCache.subscribe(appName, "*", (event) => {
-          if (event.operation === "set") {
+        sharedDataCache.subscribe(appName, '*', (event) => {
+          if (event.operation === 'set') {
             crossAppNotifications.sendDataUpdate(
-              "integration",
-              "cache-updated",
+              'integration',
+              'cache-updated',
               {
                 key: event.key,
                 appName: event.appName,
@@ -277,7 +277,7 @@ class CrossAppIntegration {
   }
   handleSystemAlert(appName, data) {
     // Handle critical system alerts
-    if (data.level === "critical") {
+    if (data.level === 'critical') {
       // Broadcast to all apps
       for (const [otherAppName] of this.registeredApps) {
         if (otherAppName !== appName) {
@@ -287,7 +287,7 @@ class CrossAppIntegration {
             data.message,
             {
               targetApp: otherAppName,
-              priority: "high",
+              priority: 'high',
             }
           );
         }
@@ -296,8 +296,8 @@ class CrossAppIntegration {
   }
   handleCustomEvent(appName, data, context) {
     // Process custom cross-app events
-    if (data.eventName.startsWith("cross-app:")) {
-      const eventType = data.eventName.replace("cross-app:", "");
+    if (data.eventName.startsWith('cross-app:')) {
+      const eventType = data.eventName.replace('cross-app:', '');
       this.processCrossAppEvent(appName, eventType, data.eventData, context);
     }
   }
@@ -314,7 +314,7 @@ class CrossAppIntegration {
     // Notify target app
     crossAppNotifications.sendCustomEvent(
       sourceApp,
-      "data-shared",
+      'data-shared',
       {
         key,
         sourceApp,
@@ -331,7 +331,7 @@ class CrossAppIntegration {
       // Set up response handler
       const responseHandler = (data) => {
         if (
-          data.eventName === "data-response" &&
+          data.eventName === 'data-response' &&
           data.eventData.requestId === requestId
         ) {
           resolve(data.eventData.data);
@@ -347,7 +347,7 @@ class CrossAppIntegration {
         // Send data request
         crossAppNotifications.sendCustomEvent(
           requestingApp,
-          "data-request",
+          'data-request',
           {
             requestId,
             key,
@@ -366,7 +366,7 @@ class CrossAppIntegration {
       }
     });
   }
-  broadcastEvent(sourceApp, eventName, eventData, targetApps = "all") {
+  broadcastEvent(sourceApp, eventName, eventData, targetApps = 'all') {
     crossAppNotifications.sendCustomEvent(
       sourceApp,
       `cross-app:${eventName}`,
@@ -392,13 +392,13 @@ class CrossAppIntegration {
   }
   processCrossAppEvent(sourceApp, eventType, eventData) {
     switch (eventType) {
-      case "sync-data":
+      case 'sync-data':
         this.handleDataSync(sourceApp, eventData);
         break;
-      case "share-state":
+      case 'share-state':
         this.handleStateShare(sourceApp, eventData);
         break;
-      case "request-sync":
+      case 'request-sync':
         this.handleSyncRequest(sourceApp, eventData);
         break;
       default:
@@ -460,18 +460,18 @@ class CrossAppIntegration {
   }
   performHealthCheck() {
     const health = {
-      integration: "healthy",
+      integration: 'healthy',
       services: {
-        auth: this.crossAppService ? "healthy" : "unavailable",
-        notifications: crossAppNotifications ? "healthy" : "unavailable",
-        cache: sharedDataCache ? "healthy" : "unavailable",
+        auth: this.crossAppService ? 'healthy' : 'unavailable',
+        notifications: crossAppNotifications ? 'healthy' : 'unavailable',
+        cache: sharedDataCache ? 'healthy' : 'unavailable',
       },
       apps: this.getRegisteredApps().length,
       timestamp: new Date(),
     };
     // Store health status in cache
     if (sharedDataCache) {
-      sharedDataCache.set("global:health_status", health, {
+      sharedDataCache.set('global:health_status', health, {
         ttl: 120000, // 2 minutes
         persist: false,
       });
@@ -482,7 +482,7 @@ class CrossAppIntegration {
     if (!appConfig) return null;
     return {
       appName,
-      status: "healthy",
+      status: 'healthy',
       services: Object.keys(appConfig.services),
       uptime: Date.now() - appConfig.registeredAt.getTime(),
       lastActivity: new Date(),
@@ -507,10 +507,10 @@ class CrossAppIntegration {
   }
   // Utility methods
   onAuthChange(appName, callback) {
-    this.crossAppService.on("auth-state-changed", callback);
+    this.crossAppService.on('auth-state-changed', callback);
     return {
       unsubscribe: () =>
-        this.crossAppService.off("auth-state-changed", callback),
+        this.crossAppService.off('auth-state-changed', callback),
     };
   }
   setupNotificationHandlers(appName, handlers) {

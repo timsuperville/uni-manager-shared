@@ -6,8 +6,8 @@ import React, {
   useCallback,
   useRef,
   useMemo,
-} from "react";
-import PropTypes from "prop-types";
+} from 'react';
+import PropTypes from 'prop-types';
 
 // Import UI components (these would be your actual UI components)
 import {
@@ -28,11 +28,11 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "../../../shared/ui";
+} from '../../../shared/ui';
 
 // Import hooks
-import useContentManagement from "../hooks/useContentManagement";
-import useContentGeneration from "../hooks/useContentGeneration";
+import useContentManagement from '../hooks/useContentManagement';
+import useContentGeneration from '../hooks/useContentGeneration';
 
 /**
  * ContentEditor Component
@@ -57,24 +57,24 @@ const ContentEditor = ({
   readOnly = false,
   collaborationEnabled = true,
   aiAssistanceEnabled = true,
-  className = "",
+  className = '',
 }) => {
   // State management
   const [content, setContent] = useState(
     initialContent || {
-      title: "",
-      body: "",
-      excerpt: "",
+      title: '',
+      body: '',
+      excerpt: '',
       tags: [],
       keywords: [],
-      category: "",
-      language: "en",
-      format: "markdown",
+      category: '',
+      language: 'en',
+      format: 'markdown',
       metadata: {},
     }
   );
 
-  const [editingMode, setEditingMode] = useState("visual"); // visual, markdown, code
+  const [editingMode, setEditingMode] = useState('visual'); // visual, markdown, code
   const [unsavedChanges, setUnsavedChanges] = useState(false);
   const [lastSaved, setLastSaved] = useState(null);
   const [collaborators, setCollaborators] = useState([]);
@@ -140,8 +140,8 @@ const ContentEditor = ({
 
         setUnsavedChanges(false);
         setLastSaved(new Date());
-      } catch (error) {
-        console.error("Save failed:", error);
+      } catch (_error) {
+        // console.error('Save failed:', error);
       }
     },
     [content, contentId, onSave, updateContent, wordCount, readingTime]
@@ -176,7 +176,7 @@ const ContentEditor = ({
           field,
           value,
           timestamp: new Date().toISOString(),
-          userId: "current-user", // This would come from auth context
+          userId: 'current-user', // This would come from auth context
           cursor: cursorPositionRef.current,
         };
 
@@ -208,7 +208,7 @@ const ContentEditor = ({
 
   // Update metrics when content changes
   useEffect(() => {
-    calculateMetrics(content.body || "");
+    calculateMetrics(content.body || '');
   }, [content.body, calculateMetrics]);
 
   // AI content analysis
@@ -224,8 +224,8 @@ const ContentEditor = ({
       if (analysis?.suggestions) {
         setAiSuggestions(analysis.suggestions);
       }
-    } catch (error) {
-      console.error("Content analysis failed:", error);
+    } catch (_error) {
+      // console.error('Content analysis failed:', error);
     }
   }, [aiAssistanceEnabled, contentId, analyzeContent]);
 
@@ -239,15 +239,15 @@ const ContentEditor = ({
 
   // AI content suggestions
   const generateAISuggestions = useCallback(
-    async (type = "improvement") => {
+    async (type = 'improvement') => {
       if (!aiAssistanceEnabled) return;
 
       try {
         const suggestions = await generateContent({
           prompt: `Analyze and suggest ${type} for: ${content.title}\n\n${content.body.slice(0, 1000)}...`,
-          contentType: "suggestions",
-          format: "json",
-          tone: "helpful",
+          contentType: 'suggestions',
+          format: 'json',
+          tone: 'helpful',
           customInstructions: `Provide specific, actionable suggestions for ${type}.`,
         });
 
@@ -255,8 +255,8 @@ const ContentEditor = ({
           const parsedSuggestions = JSON.parse(suggestions.content);
           setAiSuggestions((prev) => [...prev, ...parsedSuggestions]);
         }
-      } catch (error) {
-        console.error("AI suggestions failed:", error);
+      } catch (_error) {
+        // console.error('AI suggestions failed:', error);
       }
     },
     [aiAssistanceEnabled, content.title, content.body, generateContent]
@@ -269,12 +269,12 @@ const ContentEditor = ({
         handleContentChange(suggestion.field, suggestion.replacement);
       } else if (suggestion.insertText) {
         // Insert text at current cursor position
-        const currentBody = content.body || "";
+        const currentBody = content.body || '';
         const newBody =
           currentBody.slice(0, cursorPositionRef.current.start) +
           suggestion.insertText +
           currentBody.slice(cursorPositionRef.current.end);
-        handleContentChange("body", newBody);
+        handleContentChange('body', newBody);
       }
 
       // Remove applied suggestion
@@ -289,23 +289,23 @@ const ContentEditor = ({
 
     // Basic format conversion (you'd want a proper markdown/HTML converter)
     switch (`${fromFormat}-${toFormat}`) {
-      case "markdown-html":
+      case 'markdown-html':
         return text
-          .replace(/^# (.*$)/gim, "<h1>$1</h1>")
-          .replace(/^## (.*$)/gim, "<h2>$1</h2>")
-          .replace(/^### (.*$)/gim, "<h3>$1</h3>")
-          .replace(/\*\*(.*)\*\*/gim, "<strong>$1</strong>")
-          .replace(/\*(.*)\*/gim, "<em>$1</em>")
-          .replace(/\n/gim, "<br>");
+          .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+          .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+          .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+          .replace(/\*\*(.*)\*\*/gim, '<strong>$1</strong>')
+          .replace(/\*(.*)\*/gim, '<em>$1</em>')
+          .replace(/\n/gim, '<br>');
 
-      case "html-markdown":
+      case 'html-markdown':
         return text
-          .replace(/<h1>(.*?)<\/h1>/gim, "# $1")
-          .replace(/<h2>(.*?)<\/h2>/gim, "## $1")
-          .replace(/<h3>(.*?)<\/h3>/gim, "### $1")
-          .replace(/<strong>(.*?)<\/strong>/gim, "**$1**")
-          .replace(/<em>(.*?)<\/em>/gim, "*$1*")
-          .replace(/<br>/gim, "\n");
+          .replace(/<h1>(.*?)<\/h1>/gim, '# $1')
+          .replace(/<h2>(.*?)<\/h2>/gim, '## $1')
+          .replace(/<h3>(.*?)<\/h3>/gim, '### $1')
+          .replace(/<strong>(.*?)<\/strong>/gim, '**$1**')
+          .replace(/<em>(.*?)<\/em>/gim, '*$1*')
+          .replace(/<br>/gim, "\n');
 
       default:
         return text;
@@ -337,19 +337,19 @@ const ContentEditor = ({
     (event) => {
       if (event.ctrlKey || event.metaKey) {
         switch (event.key) {
-          case "s":
+          case 's':
             event.preventDefault();
             saveContent(true);
             break;
-          case "b":
+          case 'b':
             event.preventDefault();
             // Bold formatting
             break;
-          case "i":
+          case 'i':
             event.preventDefault();
             // Italic formatting
             break;
-          case "z":
+          case 'z':
             event.preventDefault();
             // Undo functionality
             break;
@@ -363,7 +363,7 @@ const ContentEditor = ({
   const addTag = useCallback(
     (tag) => {
       if (tag && !content.tags.includes(tag)) {
-        handleContentChange("tags", [...content.tags, tag]);
+        handleContentChange('tags', [...content.tags, tag]);
       }
     },
     [content.tags, handleContentChange]
@@ -372,7 +372,7 @@ const ContentEditor = ({
   const removeTag = useCallback(
     (tagToRemove) => {
       handleContentChange(
-        "tags",
+        'tags',
         content.tags.filter((tag) => tag !== tagToRemove)
       );
     },
@@ -382,7 +382,7 @@ const ContentEditor = ({
   const addKeyword = useCallback(
     (keyword) => {
       if (keyword && !content.keywords.includes(keyword)) {
-        handleContentChange("keywords", [...content.keywords, keyword]);
+        handleContentChange('keywords', [...content.keywords, keyword]);
       }
     },
     [content.keywords, handleContentChange]
@@ -391,7 +391,7 @@ const ContentEditor = ({
   const removeKeyword = useCallback(
     (keywordToRemove) => {
       handleContentChange(
-        "keywords",
+        'keywords',
         content.keywords.filter((keyword) => keyword !== keywordToRemove)
       );
     },
@@ -401,25 +401,25 @@ const ContentEditor = ({
   // Render editor toolbar
   const renderToolbar = useMemo(
     () => (
-      <div className="flex items-center justify-between p-3 border-b bg-gray-50">
-        <div className="flex items-center space-x-2">
+      <div className='flex items-center justify-between p-3 border-b bg-gray-50'>
+        <div className='flex items-center space-x-2'>
           {/* Mode switcher */}
           <Select value={editingMode} onValueChange={handleModeChange}>
-            <option value="visual">Visual</option>
-            <option value="markdown">Markdown</option>
-            <option value="code">HTML</option>
+            <option value='visual'>Visual</option>
+            <option value='markdown'>Markdown</option>
+            <option value='code'>HTML</option>
           </Select>
 
-          <Separator orientation="vertical" className="h-6" />
+          <Separator orientation='vertical' className='h-6' />
 
           {/* Formatting buttons */}
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => console.log("Bold")}
+                  variant='ghost'
+                  size='sm'
+                  onClick={() => // console.log('Bold')}
                 >
                   <strong>B</strong>
                 </Button>
@@ -432,9 +432,9 @@ const ContentEditor = ({
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => console.log("Italic")}
+                  variant='ghost'
+                  size='sm'
+                  onClick={() => // console.log('Italic')}
                 >
                   <em>I</em>
                 </Button>
@@ -443,15 +443,15 @@ const ContentEditor = ({
             </Tooltip>
           </TooltipProvider>
 
-          <Separator orientation="vertical" className="h-6" />
+          <Separator orientation='vertical' className='h-6' />
 
           {/* AI assistance */}
           {aiAssistanceEnabled && (
             <Button
-              variant="ghost"
-              size="sm"
+              variant='ghost'
+              size='sm'
               onClick={() => setShowAiAssistant(!showAiAssistant)}
-              className={showAiAssistant ? "bg-blue-100" : ""}
+              className={showAiAssistant ? 'bg-blue-100' : ''}
             >
               AI Assistant
             </Button>
@@ -459,47 +459,47 @@ const ContentEditor = ({
 
           {/* Analysis */}
           <Button
-            variant="ghost"
-            size="sm"
+            variant='ghost'
+            size='sm'
             onClick={() => setShowAnalysis(!showAnalysis)}
-            className={showAnalysis ? "bg-green-100" : ""}
+            className={showAnalysis ? 'bg-green-100' : ''}
           >
             Analysis
           </Button>
 
           {/* Preview */}
           <Button
-            variant="ghost"
-            size="sm"
+            variant='ghost'
+            size='sm'
             onClick={() => setShowPreview(!showPreview)}
-            className={showPreview ? "bg-purple-100" : ""}
+            className={showPreview ? 'bg-purple-100' : ''}
           >
             Preview
           </Button>
         </div>
 
-        <div className="flex items-center space-x-4 text-sm text-gray-600">
+        <div className='flex items-center space-x-4 text-sm text-gray-600'>
           <span>{wordCount} words</span>
           <span>{readingTime} min read</span>
           {seoScore > 0 && (
             <Badge
               variant={
                 seoScore > 80
-                  ? "success"
+                  ? 'success'
                   : seoScore > 60
-                    ? "warning"
-                    : "destructive"
+                    ? 'warning'
+                    : 'destructive'
               }
             >
               SEO: {seoScore}%
             </Badge>
           )}
           {lastSaved && (
-            <span className="text-xs">
+            <span className='text-xs'>
               Saved {new Date(lastSaved).toLocaleTimeString()}
             </span>
           )}
-          {unsavedChanges && <Badge variant="outline">Unsaved</Badge>}
+          {unsavedChanges && <Badge variant='outline'>Unsaved</Badge>}
         </div>
       </div>
     ),
@@ -521,38 +521,38 @@ const ContentEditor = ({
   // Render content editor
   const renderEditor = useMemo(
     () => (
-      <div className="flex-1 flex">
-        <div className={`flex-1 ${showPreview ? "w-1/2" : "w-full"}`}>
-          <div className="p-4 space-y-4">
+      <div className='flex-1 flex'>
+        <div className={`flex-1 ${showPreview ? 'w-1/2' : 'w-full'}`}>
+          <div className='p-4 space-y-4'>
             {/* Title */}
             <Input
-              placeholder="Content title..."
+              placeholder='Content title...'
               value={content.title}
-              onChange={(e) => handleContentChange("title", e.target.value)}
-              className="text-2xl font-bold border-none px-0 focus:ring-0"
+              onChange={(e) => handleContentChange('title', e.target.value)}
+              className='text-2xl font-bold border-none px-0 focus:ring-0'
               disabled={readOnly}
             />
 
             {/* Body editor */}
-            <div className="relative">
+            <div className='relative'>
               <TextArea
                 ref={editorRef}
-                placeholder="Start writing your content..."
+                placeholder='Start writing your content...'
                 value={content.body}
-                onChange={(e) => handleContentChange("body", e.target.value)}
+                onChange={(e) => handleContentChange('body', e.target.value)}
                 onKeyDown={handleKeyDown}
                 onFocus={() => setEditorFocus(true)}
                 onBlur={() => setEditorFocus(false)}
-                className="min-h-96 resize-y"
+                className='min-h-96 resize-y'
                 disabled={readOnly}
               />
 
               {collaborators.length > 0 && (
-                <div className="absolute top-2 right-2 flex -space-x-1">
+                <div className='absolute top-2 right-2 flex -space-x-1'>
                   {collaborators.map((collaborator, index) => (
                     <div
                       key={index}
-                      className="w-6 h-6 rounded-full bg-blue-500 text-white text-xs flex items-center justify-center"
+                      className='w-6 h-6 rounded-full bg-blue-500 text-white text-xs flex items-center justify-center'
                       title={collaborator.name}
                     >
                       {collaborator.name.charAt(0)}
@@ -564,25 +564,25 @@ const ContentEditor = ({
 
             {/* Excerpt */}
             <TextArea
-              placeholder="Content excerpt (optional)..."
+              placeholder='Content excerpt (optional)...'
               value={content.excerpt}
-              onChange={(e) => handleContentChange("excerpt", e.target.value)}
-              className="h-20 resize-none"
+              onChange={(e) => handleContentChange('excerpt', e.target.value)}
+              className='h-20 resize-none'
               disabled={readOnly}
             />
 
             {/* Tags and keywords */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
               <div>
-                <label className="text-sm font-medium mb-2 block">Tags</label>
-                <div className="flex flex-wrap gap-1 mb-2">
+                <label className='text-sm font-medium mb-2 block'>Tags</label>
+                <div className='flex flex-wrap gap-1 mb-2'>
                   {content.tags.map((tag, index) => (
-                    <Badge key={index} variant="secondary" className="text-xs">
+                    <Badge key={index} variant='secondary' className='text-xs'>
                       {tag}
                       {!readOnly && (
                         <button
                           onClick={() => removeTag(tag)}
-                          className="ml-1 text-gray-500 hover:text-gray-700"
+                          className='ml-1 text-gray-500 hover:text-gray-700'
                         >
                           ×
                         </button>
@@ -592,30 +592,30 @@ const ContentEditor = ({
                 </div>
                 {!readOnly && (
                   <Input
-                    placeholder="Add tag..."
+                    placeholder='Add tag...'
                     onKeyDown={(e) => {
-                      if (e.key === "Enter" && e.target.value.trim()) {
+                      if (e.key === 'Enter' && e.target.value.trim()) {
                         addTag(e.target.value.trim());
-                        e.target.value = "";
+                        e.target.value = '';
                       }
                     }}
-                    className="text-sm"
+                    className='text-sm'
                   />
                 )}
               </div>
 
               <div>
-                <label className="text-sm font-medium mb-2 block">
+                <label className='text-sm font-medium mb-2 block'>
                   Keywords
                 </label>
-                <div className="flex flex-wrap gap-1 mb-2">
+                <div className='flex flex-wrap gap-1 mb-2'>
                   {content.keywords.map((keyword, index) => (
-                    <Badge key={index} variant="outline" className="text-xs">
+                    <Badge key={index} variant='outline' className='text-xs'>
                       {keyword}
                       {!readOnly && (
                         <button
                           onClick={() => removeKeyword(keyword)}
-                          className="ml-1 text-gray-500 hover:text-gray-700"
+                          className='ml-1 text-gray-500 hover:text-gray-700'
                         >
                           ×
                         </button>
@@ -625,57 +625,57 @@ const ContentEditor = ({
                 </div>
                 {!readOnly && (
                   <Input
-                    placeholder="Add keyword..."
+                    placeholder='Add keyword...'
                     onKeyDown={(e) => {
-                      if (e.key === "Enter" && e.target.value.trim()) {
+                      if (e.key === 'Enter' && e.target.value.trim()) {
                         addKeyword(e.target.value.trim());
-                        e.target.value = "";
+                        e.target.value = '';
                       }
                     }}
-                    className="text-sm"
+                    className='text-sm'
                   />
                 )}
               </div>
             </div>
 
             {/* Category and language */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
               <div>
-                <label className="text-sm font-medium mb-2 block">
+                <label className='text-sm font-medium mb-2 block'>
                   Category
                 </label>
                 <Select
                   value={content.category}
                   onValueChange={(value) =>
-                    handleContentChange("category", value)
+                    handleContentChange('category', value)
                   }
                   disabled={readOnly}
                 >
-                  <option value="">Select category...</option>
-                  <option value="blog">Blog Post</option>
-                  <option value="article">Article</option>
-                  <option value="news">News</option>
-                  <option value="tutorial">Tutorial</option>
-                  <option value="documentation">Documentation</option>
+                  <option value=''>Select category...</option>
+                  <option value='blog'>Blog Post</option>
+                  <option value='article'>Article</option>
+                  <option value='news'>News</option>
+                  <option value='tutorial'>Tutorial</option>
+                  <option value='documentation'>Documentation</option>
                 </Select>
               </div>
 
               <div>
-                <label className="text-sm font-medium mb-2 block">
+                <label className='text-sm font-medium mb-2 block'>
                   Language
                 </label>
                 <Select
                   value={content.language}
                   onValueChange={(value) =>
-                    handleContentChange("language", value)
+                    handleContentChange('language', value)
                   }
                   disabled={readOnly}
                 >
-                  <option value="en">English</option>
-                  <option value="es">Spanish</option>
-                  <option value="fr">French</option>
-                  <option value="de">German</option>
-                  <option value="zh">Chinese</option>
+                  <option value='en'>English</option>
+                  <option value='es'>Spanish</option>
+                  <option value='fr'>French</option>
+                  <option value='de'>German</option>
+                  <option value='zh'>Chinese</option>
                 </Select>
               </div>
             </div>
@@ -684,17 +684,17 @@ const ContentEditor = ({
 
         {/* Preview panel */}
         {showPreview && (
-          <div className="w-1/2 border-l">
-            <div className="p-4">
-              <h3 className="font-semibold mb-3">Preview</h3>
-              <div className="prose max-w-none">
+          <div className='w-1/2 border-l'>
+            <div className='p-4'>
+              <h3 className='font-semibold mb-3'>Preview</h3>
+              <div className='prose max-w-none'>
                 <h1>{content.title}</h1>
                 {content.excerpt && (
-                  <p className="text-gray-600 italic">{content.excerpt}</p>
+                  <p className='text-gray-600 italic'>{content.excerpt}</p>
                 )}
                 <div
                   dangerouslySetInnerHTML={{
-                    __html: formatContent(content.body, content.format, "html"),
+                    __html: formatContent(content.body, content.format, 'html'),
                   }}
                 />
               </div>
@@ -721,22 +721,22 @@ const ContentEditor = ({
   // Render AI assistant panel
   const renderAIAssistant = () =>
     showAiAssistant && (
-      <div className="w-80 border-l bg-gray-50 p-4">
-        <h3 className="font-semibold mb-3">AI Assistant</h3>
+      <div className='w-80 border-l bg-gray-50 p-4'>
+        <h3 className='font-semibold mb-3'>AI Assistant</h3>
 
         {aiSuggestions.length > 0 && (
-          <div className="space-y-2 mb-4">
-            <h4 className="text-sm font-medium">Suggestions</h4>
+          <div className='space-y-2 mb-4'>
+            <h4 className='text-sm font-medium'>Suggestions</h4>
             {aiSuggestions.map((suggestion, index) => (
-              <div key={index} className="p-2 bg-white rounded border text-sm">
+              <div key={index} className='p-2 bg-white rounded border text-sm'>
                 <p>{suggestion.text}</p>
-                <div className="mt-2 flex space-x-2">
-                  <Button size="xs" onClick={() => applySuggestion(suggestion)}>
+                <div className='mt-2 flex space-x-2'>
+                  <Button size='xs' onClick={() => applySuggestion(suggestion)}>
                     Apply
                   </Button>
                   <Button
-                    size="xs"
-                    variant="ghost"
+                    size='xs'
+                    variant='ghost'
                     onClick={() =>
                       setAiSuggestions((prev) =>
                         prev.filter((_, i) => i !== index)
@@ -751,40 +751,40 @@ const ContentEditor = ({
           </div>
         )}
 
-        <div className="space-y-2">
+        <div className='space-y-2'>
           <Button
-            size="sm"
-            variant="outline"
-            onClick={() => generateAISuggestions("improvement")}
+            size='sm'
+            variant='outline'
+            onClick={() => generateAISuggestions('improvement')}
             disabled={generating}
-            className="w-full"
+            className='w-full'
           >
             Suggest Improvements
           </Button>
           <Button
-            size="sm"
-            variant="outline"
-            onClick={() => generateAISuggestions("seo")}
+            size='sm'
+            variant='outline'
+            onClick={() => generateAISuggestions('seo')}
             disabled={generating}
-            className="w-full"
+            className='w-full'
           >
             SEO Optimization
           </Button>
           <Button
-            size="sm"
-            variant="outline"
-            onClick={() => generateAISuggestions("readability")}
+            size='sm'
+            variant='outline'
+            onClick={() => generateAISuggestions('readability')}
             disabled={generating}
-            className="w-full"
+            className='w-full'
           >
             Improve Readability
           </Button>
         </div>
 
         {generating && (
-          <div className="mt-4">
-            <Progress value={75} className="w-full" />
-            <p className="text-xs text-gray-600 mt-1">
+          <div className='mt-4'>
+            <Progress value={75} className='w-full' />
+            <p className='text-xs text-gray-600 mt-1'>
               Generating suggestions...
             </p>
           </div>
@@ -795,37 +795,37 @@ const ContentEditor = ({
   // Render analysis panel
   const renderAnalysis = () =>
     showAnalysis && (
-      <div className="w-80 border-l bg-gray-50 p-4">
-        <h3 className="font-semibold mb-3">Content Analysis</h3>
+      <div className='w-80 border-l bg-gray-50 p-4'>
+        <h3 className='font-semibold mb-3'>Content Analysis</h3>
 
         {analysisResults && (
-          <div className="space-y-3">
+          <div className='space-y-3'>
             <div>
-              <h4 className="text-sm font-medium">SEO Score</h4>
-              <Progress value={seoScore} className="w-full mt-1" />
-              <p className="text-xs text-gray-600 mt-1">
+              <h4 className='text-sm font-medium'>SEO Score</h4>
+              <Progress value={seoScore} className='w-full mt-1' />
+              <p className='text-xs text-gray-600 mt-1'>
                 {seoScore}% optimized
               </p>
             </div>
 
             <div>
-              <h4 className="text-sm font-medium">Readability</h4>
+              <h4 className='text-sm font-medium'>Readability</h4>
               <Progress
                 value={analysisResults.readability?.score || 0}
-                className="w-full mt-1"
+                className='w-full mt-1'
               />
-              <p className="text-xs text-gray-600 mt-1">
-                {analysisResults.readability?.level || "Analyzing..."}
+              <p className='text-xs text-gray-600 mt-1'>
+                {analysisResults.readability?.level || 'Analyzing...'}
               </p>
             </div>
 
             <div>
-              <h4 className="text-sm font-medium">Engagement</h4>
+              <h4 className='text-sm font-medium'>Engagement</h4>
               <Progress
                 value={analysisResults.engagement?.score || 0}
-                className="w-full mt-1"
+                className='w-full mt-1'
               />
-              <p className="text-xs text-gray-600 mt-1">
+              <p className='text-xs text-gray-600 mt-1'>
                 Estimated engagement potential
               </p>
             </div>
@@ -833,11 +833,11 @@ const ContentEditor = ({
         )}
 
         <Button
-          size="sm"
-          variant="outline"
+          size='sm'
+          variant='outline'
           onClick={runContentAnalysis}
           disabled={contentLoading}
-          className="w-full mt-4"
+          className='w-full mt-4'
         >
           Re-analyze Content
         </Button>
@@ -849,16 +849,16 @@ const ContentEditor = ({
     <div className={`flex flex-col h-full bg-white ${className}`}>
       {/* Error alerts */}
       {(contentError || generationError) && (
-        <Alert variant="destructive" className="m-4">
+        <Alert variant='destructive' className='m-4'>
           {contentError || generationError}
         </Alert>
       )}
 
       {/* Conflicts alert */}
       {conflicts.length > 0 && (
-        <Alert className="m-4">
+        <Alert className='m-4'>
           <p>Content conflicts detected. Please review and resolve.</p>
-          <Button size="sm" variant="outline" className="mt-2">
+          <Button size='sm' variant='outline' className='mt-2'>
             Resolve Conflicts
           </Button>
         </Alert>
@@ -868,26 +868,26 @@ const ContentEditor = ({
       {renderToolbar}
 
       {/* Main editor area */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className='flex flex-1 overflow-hidden'>
         {renderEditor}
         {renderAIAssistant()}
         {renderAnalysis()}
       </div>
 
       {/* Action buttons */}
-      <div className="flex items-center justify-between p-4 border-t bg-gray-50">
-        <div className="flex items-center space-x-2">
+      <div className='flex items-center justify-between p-4 border-t bg-gray-50'>
+        <div className='flex items-center space-x-2'>
           {collaborationEnabled && (
-            <Badge variant="outline">
-              Collaborative Editing{" "}
-              {collaborators.length > 0 ? "Active" : "Enabled"}
+            <Badge variant='outline'>
+              Collaborative Editing{' '}
+              {collaborators.length > 0 ? 'Active' : 'Enabled'}
             </Badge>
           )}
         </div>
 
-        <div className="flex items-center space-x-2">
+        <div className='flex items-center space-x-2'>
           {onCancel && (
-            <Button variant="ghost" onClick={onCancel}>
+            <Button variant='ghost' onClick={onCancel}>
               Cancel
             </Button>
           )}
@@ -895,7 +895,7 @@ const ContentEditor = ({
             onClick={() => saveContent(true)}
             disabled={contentLoading || readOnly}
           >
-            {contentLoading ? "Saving..." : "Save"}
+            {contentLoading ? 'Saving...' : 'Save"}
           </Button>
         </div>
       </div>

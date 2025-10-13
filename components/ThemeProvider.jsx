@@ -1,42 +1,42 @@
 // Theme Provider for Uni-Manager Design System
-import React, { createContext, useContext } from "react";
-import PropTypes from "prop-types";
+import React, { createContext, useContext } from 'react';
+import PropTypes from 'prop-types';
 
 // Default theme tokens
 const defaultTokens = {
   colors: {
-    primary: "#2563eb",
-    secondary: "#64748b",
-    success: "#10b981",
-    danger: "#ef4444",
-    warning: "#f59e0b",
-    info: "#3b82f6",
-    light: "#f8fafc",
-    dark: "#1e293b",
+    primary: '#2563eb',
+    secondary: '#64748b',
+    success: '#10b981',
+    danger: '#ef4444',
+    warning: '#f59e0b',
+    info: '#3b82f6',
+    light: '#f8fafc',
+    dark: '#1e293b',
   },
   spacing: {
-    xs: "0.25rem",
-    sm: "0.5rem",
-    md: "1rem",
-    lg: "1.5rem",
-    xl: "3rem",
+    xs: '0.25rem',
+    sm: '0.5rem',
+    md: '1rem',
+    lg: '1.5rem',
+    xl: '3rem',
   },
   typography: {
-    fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, sans-serif',
+    fontFamily: ''Inter', -apple-system, BlinkMacSystemFont, sans-serif',
     fontSize: {
-      xs: "0.75rem",
-      sm: "0.875rem",
-      md: "1rem",
-      lg: "1.125rem",
-      xl: "1.25rem",
-      xxl: "1.5rem",
+      xs: '0.75rem',
+      sm: '0.875rem',
+      md: '1rem',
+      lg: '1.125rem',
+      xl: '1.25rem',
+      xxl: '1.5rem',
     },
   },
   borderRadius: {
-    sm: "0.25rem",
-    md: "0.375rem",
-    lg: "0.5rem",
-    full: "9999px",
+    sm: '0.25rem',
+    md: '0.375rem',
+    lg: '0.5rem',
+    full: '9999px',
   },
 };
 
@@ -83,7 +83,7 @@ ThemeProvider.propTypes = {
 export const useTheme = () => {
   const context = useContext(ThemeContext);
   if (!context) {
-    console.warn("useTheme must be used within a ThemeProvider");
+    // console.warn('useTheme must be used within a ThemeProvider');
     return defaultTokens;
   }
   return context;

@@ -5,10 +5,10 @@
  * with React applications across the Uni-Manager ecosystem.
  */
 
-import { useCallback, useContext, useEffect, useState } from "react";
-import { ApiServices } from "../services";
-import type { User } from "../types";
-import { ApiContext } from "../components/ApiProvider";
+import { useCallback, useContext, useEffect, useState } from 'react';
+import { ApiServices } from '../services';
+import type { User } from '../types';
+import { ApiContext } from '../components/ApiProvider';
 
 // ==================== TYPES ====================
 
@@ -26,10 +26,10 @@ interface ApiContextValue {
 export const useApi = (): ApiServices => {
   const context = useContext(ApiContext);
   if (!context) {
-    throw new Error("useApi must be used within an ApiProvider");
+    throw new Error('useApi must be used within an ApiProvider');
   }
   if (!context.isInitialized) {
-    throw new Error("API services not yet initialized");
+    throw new Error('API services not yet initialized');
   }
   return context.apiServices;
 };
@@ -53,11 +53,11 @@ export const useAuth = () => {
         setIsAuthenticated(authStatus.isAuthenticated);
         setUser(authStatus.user || null);
         setError(null);
-      } catch (err) {
+      } catch (_err) {
         setIsAuthenticated(false);
         setUser(null);
         setError(
-          err instanceof Error ? err.message : "Authentication check failed",
+          err instanceof Error ? err.message : 'Authentication check failed',
         );
       } finally {
         setIsLoading(false);
@@ -76,8 +76,8 @@ export const useAuth = () => {
         setUser(response.user);
         setIsAuthenticated(true);
         return response;
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Login failed");
+      } catch (_err) {
+        setError(err instanceof Error ? err.message : 'Login failed');
         throw err;
       } finally {
         setIsLoading(false);
@@ -90,9 +90,9 @@ export const useAuth = () => {
     try {
       setIsLoading(true);
       await api.auth.logout();
-    } catch (err) {
+    } catch (_err) {
       // Log error but don't throw - logout should always succeed locally
-      console.error("Logout error:", err);
+      // console.error('Logout error:', err);
     } finally {
       setUser(null);
       setIsAuthenticated(false);
@@ -110,8 +110,8 @@ export const useAuth = () => {
         setUser(response.user);
         setIsAuthenticated(true);
         return response;
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Signup failed");
+      } catch (_err) {
+        setError(err instanceof Error ? err.message : 'Signup failed');
         throw err;
       } finally {
         setIsLoading(false);
@@ -211,8 +211,8 @@ export function useApiQuery<T>(
       const result = await queryFn();
       setData(result);
       setIsFetched(true);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Query failed");
+    } catch (_err) {
+      setError(err instanceof Error ? err.message : 'Query failed');
       setData(null);
     } finally {
       setIsLoading(false);
@@ -263,8 +263,8 @@ export function useApiMutation<TData, TVariables>(
         setData(result);
         onSuccess?.(result, variables);
         return result;
-      } catch (err) {
-        const error = err instanceof Error ? err : new Error("Mutation failed");
+      } catch (_err) {
+        const error = err instanceof Error ? err : new Error('Mutation failed');
         setError(error.message);
         onError?.(error, variables);
         throw error;
@@ -322,10 +322,10 @@ export const useFileUpload = (
           onProgress?.(progress);
         };
 
-        window.addEventListener("avatar-upload-progress", progressHandler);
-        window.addEventListener("church-logo-upload-progress", progressHandler);
-        window.addEventListener(
-          "church-cover-upload-progress",
+        typeof window !== "undefined" && window.addEventListener('avatar-upload-progress', progressHandler);
+        typeof window !== "undefined" && window.addEventListener('church-logo-upload-progress', progressHandler);
+        typeof window !== "undefined" && window.addEventListener(
+          'church-cover-upload-progress',
           progressHandler,
         );
 
@@ -335,19 +335,19 @@ export const useFileUpload = (
         onSuccess?.(uploadResult);
 
         // Cleanup listeners
-        window.removeEventListener("avatar-upload-progress", progressHandler);
-        window.removeEventListener(
-          "church-logo-upload-progress",
+        typeof window !== "undefined" && window.removeEventListener('avatar-upload-progress', progressHandler);
+        typeof window !== "undefined" && window.removeEventListener(
+          'church-logo-upload-progress',
           progressHandler,
         );
-        window.removeEventListener(
-          "church-cover-upload-progress",
+        typeof window !== "undefined" && window.removeEventListener(
+          'church-cover-upload-progress',
           progressHandler,
         );
 
         return uploadResult;
-      } catch (err) {
-        const error = err instanceof Error ? err : new Error("Upload failed");
+      } catch (_err) {
+        const error = err instanceof Error ? err : new Error('Upload failed');
         setError(error.message);
         onError?.(error);
         throw error;

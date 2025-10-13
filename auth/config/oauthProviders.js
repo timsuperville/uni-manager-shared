@@ -10,13 +10,13 @@
  */
 export const oauthProviders = {
   google: {
-    name: "Google",
-    iconName: "google",
-    authUrl: "https://accounts.google.com/oauth2/v2/auth",
-    scope: "openid email profile",
-    responseType: "code",
+    name: 'Google',
+    iconName: 'google',
+    authUrl: 'https://accounts.google.com/oauth2/v2/auth',
+    scope: 'openid email profile',
+    responseType: 'code',
     includeGrantedScopes: true,
-    accessType: "offline",
+    accessType: 'offline',
     state: true, // Include CSRF protection
 
     // Enhanced security features from Church app
@@ -31,54 +31,54 @@ export const oauthProviders = {
     configs: {
       church: {
         scope:
-          "openid email profile https://www.googleapis.com/auth/userinfo.email",
+          'openid email profile https://www.googleapis.com/auth/userinfo.email',
         additionalParams: {
-          prompt: "consent", // Force consent screen for refresh tokens
-          access_type: "offline",
+          prompt: 'consent', // Force consent screen for refresh tokens
+          access_type: 'offline',
         },
       },
       admin: {
-        scope: "openid email profile",
+        scope: 'openid email profile',
         additionalParams: {
           hd:
-            typeof process !== "undefined" && process.env
+            typeof process !== 'undefined' && process.env
               ? process.env.GOOGLE_HOSTED_DOMAIN
               : undefined, // Optional domain restriction
         },
       },
       business: {
-        scope: "openid email profile",
+        scope: 'openid email profile',
         additionalParams: {
-          prompt: "select_account",
+          prompt: 'select_account',
         },
       },
       personal: {
-        scope: "openid email profile",
+        scope: 'openid email profile',
         additionalParams: {
-          prompt: "select_account",
+          prompt: 'select_account',
         },
       },
       home: {
-        scope: "openid email profile",
+        scope: 'openid email profile',
         additionalParams: {
-          prompt: "select_account",
+          prompt: 'select_account',
         },
       },
       playback: {
-        scope: "openid email profile",
+        scope: 'openid email profile',
         additionalParams: {
-          prompt: "select_account",
+          prompt: 'select_account',
         },
       },
     },
   },
 
   microsoft: {
-    name: "Microsoft",
-    iconName: "microsoft",
-    authUrl: "https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
-    scope: "openid email profile User.Read",
-    responseType: "code",
+    name: 'Microsoft',
+    iconName: 'microsoft',
+    authUrl: 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize',
+    scope: 'openid email profile User.Read',
+    responseType: 'code',
     state: true,
 
     security: {
@@ -90,26 +90,26 @@ export const oauthProviders = {
 
     configs: {
       admin: {
-        scope: "openid email profile User.Read Directory.Read.All",
+        scope: 'openid email profile User.Read Directory.Read.All',
         additionalParams: {
-          prompt: "select_account",
+          prompt: 'select_account',
         },
       },
       business: {
-        scope: "openid email profile User.Read",
+        scope: 'openid email profile User.Read',
         additionalParams: {
-          prompt: "select_account",
+          prompt: 'select_account',
         },
       },
     },
   },
 
   linkedin: {
-    name: "LinkedIn",
-    iconName: "linkedin",
-    authUrl: "https://www.linkedin.com/oauth/v2/authorization",
-    scope: "r_liteprofile r_emailaddress",
-    responseType: "code",
+    name: 'LinkedIn',
+    iconName: 'linkedin',
+    authUrl: 'https://www.linkedin.com/oauth/v2/authorization',
+    scope: 'r_liteprofile r_emailaddress',
+    responseType: 'code',
     state: true,
 
     security: {
@@ -121,18 +121,18 @@ export const oauthProviders = {
 
     configs: {
       business: {
-        scope: "r_liteprofile r_emailaddress w_member_social",
+        scope: 'r_liteprofile r_emailaddress w_member_social',
         additionalParams: {},
       },
     },
   },
 
   github: {
-    name: "GitHub",
-    iconName: "github",
-    authUrl: "https://github.com/login/oauth/authorize",
-    scope: "user:email read:user",
-    responseType: "code",
+    name: 'GitHub',
+    iconName: 'github',
+    authUrl: 'https://github.com/login/oauth/authorize',
+    scope: 'user:email read:user',
+    responseType: 'code',
     state: true,
 
     security: {
@@ -144,20 +144,20 @@ export const oauthProviders = {
 
     configs: {
       personal: {
-        scope: "user:email read:user repo",
+        scope: 'user:email read:user repo',
         additionalParams: {
-          allow_signup: "false",
+          allow_signup: 'false',
         },
       },
     },
   },
 
   spotify: {
-    name: "Spotify",
-    iconName: "spotify",
-    authUrl: "https://accounts.spotify.com/authorize",
-    scope: "user-read-email user-read-private",
-    responseType: "code",
+    name: 'Spotify',
+    iconName: 'spotify',
+    authUrl: 'https://accounts.spotify.com/authorize',
+    scope: 'user-read-email user-read-private',
+    responseType: 'code',
     state: true,
 
     security: {
@@ -170,21 +170,21 @@ export const oauthProviders = {
     configs: {
       playback: {
         scope:
-          "user-read-email user-read-private user-read-playback-state user-modify-playback-state",
+          'user-read-email user-read-private user-read-playback-state user-modify-playback-state',
         additionalParams: {
-          show_dialog: "true",
+          show_dialog: 'true',
         },
       },
     },
   },
 
   apple: {
-    name: "Apple",
-    iconName: "apple",
-    authUrl: "https://appleid.apple.com/auth/authorize",
-    scope: "email name",
-    responseType: "code",
-    responseMode: "form_post",
+    name: 'Apple',
+    iconName: 'apple',
+    authUrl: 'https://appleid.apple.com/auth/authorize',
+    scope: 'email name',
+    responseType: 'code',
+    responseMode: 'form_post',
     state: true,
 
     security: {
@@ -196,9 +196,9 @@ export const oauthProviders = {
 
     configs: {
       playback: {
-        scope: "email name",
+        scope: 'email name',
         additionalParams: {
-          response_mode: "form_post",
+          response_mode: 'form_post',
         },
       },
     },
@@ -210,9 +210,9 @@ export const oauthProviders = {
  */
 export const generatePKCE = async () => {
   if (
-    typeof window === "undefined" ||
-    !window.crypto ||
-    !window.crypto.subtle
+    typeof window === 'undefined' ||
+    !typeof window !== "undefined" && window.crypto ||
+    !typeof window !== "undefined" && window.crypto.subtle
   ) {
     // Fallback for environments without Web Crypto API
     const verifier =
@@ -229,7 +229,7 @@ export const generatePKCE = async () => {
   const codeVerifier = generateRandomString(128);
   const encoder = new TextEncoder();
   const data = encoder.encode(codeVerifier);
-  const digest = await window.crypto.subtle.digest("SHA-256", data);
+  const digest = await typeof window !== "undefined" && window.crypto.subtle.digest('SHA-256', data);
   const codeChallenge = base64URLEncode(digest);
 
   return {
@@ -243,8 +243,8 @@ export const generatePKCE = async () => {
  */
 const generateRandomString = (length) => {
   const charset =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~";
-  let result = "";
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
+  let result = '';
   for (let i = 0; i < length; i++) {
     result += charset.charAt(Math.floor(Math.random() * charset.length));
   }
@@ -256,11 +256,11 @@ const generateRandomString = (length) => {
  */
 const base64URLEncode = (buffer) => {
   const bytes = new Uint8Array(buffer);
-  let binary = "";
+  let binary = '';
   for (let i = 0; i < bytes.byteLength; i++) {
     binary += String.fromCharCode(bytes[i]);
   }
-  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 };
 
 /**

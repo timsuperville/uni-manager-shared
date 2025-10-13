@@ -166,9 +166,9 @@ const InteractiveDashboard = ({
       } else {
         setError(response.message || 'Failed to load dashboard data');
       }
-    } catch (err) {
+    } catch (_err) {
       setError('Failed to load dashboard data');
-      console.error('Dashboard data loading error:', err);
+      // console.error('Dashboard data loading error:', err);
     } finally {
       setLoading(false);
     }
@@ -256,7 +256,7 @@ const InteractiveDashboard = ({
     });
 
     const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
+    const link = typeof document !== "undefined" && document.createElement('a');
     link.href = url;
     link.download = `dashboard-${title.replace(/\s+/g, '_').toLowerCase()}-${Date.now()}.json`;
     link.click();
@@ -302,23 +302,23 @@ const InteractiveDashboard = ({
           <CardContent>
             {widget.data ? (
               <Box sx={{ textAlign: 'center' }}>
-                <Typography variant="h3" color="primary">
+                <Typography variant='h3' color='primary'>
                   {widget.data.value?.toLocaleString() || '—'}
                 </Typography>
-                <Typography variant="body2" color="textSecondary">
+                <Typography variant='body2' color='textSecondary'>
                   {widget.data.label || 'Metric'}
                 </Typography>
                 {widget.data.change && (
                   <Chip
                     label={`${widget.data.change > 0 ? '+' : ''}${widget.data.change}%`}
                     color={widget.data.change > 0 ? 'success' : 'error'}
-                    size="small"
+                    size='small'
                     sx={{ mt: 1 }}
                   />
                 )}
               </Box>
             ) : (
-              <Skeleton variant="rectangular" height={60} />
+              <Skeleton variant='rectangular' height={60} />
             )}
           </CardContent>
         </Card>
@@ -346,7 +346,7 @@ const InteractiveDashboard = ({
                 <Typography>Table data: {JSON.stringify(widget.data, null, 2)}</Typography>
               </Box>
             ) : (
-              <Skeleton variant="rectangular" height={widget.config.height - 100} />
+              <Skeleton variant='rectangular' height={widget.config.height - 100} />
             )}
           </CardContent>
         </Card>
@@ -405,25 +405,25 @@ const InteractiveDashboard = ({
         mb: 3
       }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <DashboardIcon fontSize="large" color="primary" />
+          <DashboardIcon fontSize='large' color='primary' />
           <Box>
-            <Typography variant="h4">{title}</Typography>
+            <Typography variant='h4'>{title}</Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
               {!isOnline && (
-                <Chip label="Offline" size="small" color="warning" />
+                <Chip label='Offline' size='small' color='warning' />
               )}
               {autoRefresh && isOnline && (
                 <Chip
                   label={`Auto-refresh • ${lastUpdated.toLocaleTimeString()}`}
-                  size="small"
-                  color="primary"
+                  size='small'
+                  color='primary'
                 />
               )}
               {syncQueue.length > 0 && (
                 <Chip
                   label={`${syncQueue.length} pending`}
-                  size="small"
-                  color="info"
+                  size='small'
+                  color='info'
                 />
               )}
             </Box>
@@ -432,17 +432,17 @@ const InteractiveDashboard = ({
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           {/* Date Range Selector */}
-          <FormControl size="small" sx={{ minWidth: 120 }}>
+          <FormControl size='small' sx={{ minWidth: 120 }}>
             <InputLabel>Time Range</InputLabel>
             <Select
               value={dateRange}
               onChange={(e) => setDateRange(e.target.value)}
-              label="Time Range"
+              label='Time Range'
             >
-              <MenuItem value="1d">Last 24 Hours</MenuItem>
-              <MenuItem value="7d">Last 7 Days</MenuItem>
-              <MenuItem value="30d">Last 30 Days</MenuItem>
-              <MenuItem value="90d">Last 90 Days</MenuItem>
+              <MenuItem value='1d'>Last 24 Hours</MenuItem>
+              <MenuItem value='7d'>Last 7 Days</MenuItem>
+              <MenuItem value='30d'>Last 30 Days</MenuItem>
+              <MenuItem value='90d'>Last 90 Days</MenuItem>
             </Select>
           </FormControl>
 
@@ -474,21 +474,21 @@ const InteractiveDashboard = ({
 
       {/* Error Alert */}
       {error && (
-        <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError('')}>
+        <Alert severity='error' sx={{ mb: 2 }} onClose={() => setError('')}>
           {error}
         </Alert>
       )}
 
       {/* Offline Warning */}
       {!isOnline && (
-        <Alert severity="warning" sx={{ mb: 2 }}>
+        <Alert severity='warning' sx={{ mb: 2 }}>
           You are offline. Dashboard data may be outdated. {syncQueue.length > 0 && `${syncQueue.length} updates are queued for when you reconnect.`}
         </Alert>
       )}
 
       {/* Widgets Grid */}
       <DragDropContext onDragEnd={handleDragEnd}>
-        <Droppable droppableId="dashboard-widgets">
+        <Droppable droppableId='dashboard-widgets'>
           {(provided) => (
             <div {...provided.droppableProps} ref={provided.innerRef}>
               <Grid container spacing={3}>
@@ -512,14 +512,14 @@ const InteractiveDashboard = ({
           }}
         >
           <DashboardIcon sx={{ fontSize: 64, color: 'grey.400', mb: 2 }} />
-          <Typography variant="h6" gutterBottom color="textSecondary">
+          <Typography variant='h6' gutterBottom color='textSecondary'>
             No widgets configured
           </Typography>
-          <Typography variant="body2" color="textSecondary" paragraph>
+          <Typography variant='body2' color='textSecondary' paragraph>
             Add widgets to start visualizing your data
           </Typography>
           <Button
-            variant="contained"
+            variant='contained'
             startIcon={<AddIcon />}
             onClick={() => setAddWidgetOpen(true)}
           >
@@ -531,8 +531,8 @@ const InteractiveDashboard = ({
       {/* Add Widget FAB */}
       {widgets.length > 0 && enableCustomization && (
         <Fab
-          color="primary"
-          aria-label="add widget"
+          color='primary'
+          aria-label='add widget'
           sx={{ position: 'fixed', bottom: 16, right: 16 }}
           onClick={() => setAddWidgetOpen(true)}
         >
@@ -555,7 +555,7 @@ const InteractiveDashboard = ({
           }
           setWidgetMenuAnchor(null);
         }}>
-          <SettingsIcon fontSize="small" sx={{ mr: 1 }} />
+          <SettingsIcon fontSize='small' sx={{ mr: 1 }} />
           Edit Widget
         </MenuItem>
         <MenuItem onClick={() => {
@@ -568,7 +568,7 @@ const InteractiveDashboard = ({
       </Menu>
 
       {/* Add Widget Dialog */}
-      <Dialog open={addWidgetOpen} onClose={() => setAddWidgetOpen(false)} maxWidth="md" fullWidth>
+      <Dialog open={addWidgetOpen} onClose={() => setAddWidgetOpen(false)} maxWidth='md' fullWidth>
         <DialogTitle>Add Widget</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
@@ -582,10 +582,10 @@ const InteractiveDashboard = ({
                   onClick={() => addWidget(type)}
                 >
                   <CardContent>
-                    <Typography variant="h6" gutterBottom>
+                    <Typography variant='h6' gutterBottom>
                       {type.name}
                     </Typography>
-                    <Typography variant="body2" color="textSecondary">
+                    <Typography variant='body2' color='textSecondary'>
                       {type.description}
                     </Typography>
                   </CardContent>
@@ -600,7 +600,7 @@ const InteractiveDashboard = ({
       </Dialog>
 
       {/* Settings Dialog */}
-      <Dialog open={settingsOpen} onClose={() => setSettingsOpen(false)} maxWidth="sm" fullWidth>
+      <Dialog open={settingsOpen} onClose={() => setSettingsOpen(false)} maxWidth='sm' fullWidth>
         <DialogTitle>Dashboard Settings</DialogTitle>
         <DialogContent>
           <Box sx={{ mt: 2 }}>
@@ -611,7 +611,7 @@ const InteractiveDashboard = ({
                   onChange={(e) => setAutoRefresh(e.target.checked)}
                 />
               }
-              label="Auto-refresh data"
+              label='Auto-refresh data'
             />
 
             <FormControlLabel
@@ -621,7 +621,7 @@ const InteractiveDashboard = ({
                   onChange={(e) => setShowFilters(e.target.checked)}
                 />
               }
-              label="Show filters"
+              label='Show filters'
             />
           </Box>
         </DialogContent>

@@ -3,12 +3,12 @@
  * Seamless integration between intelligent caching and existing personalization system
  */
 
-import { useCallback, useMemo } from "react";
-import { useCacheManager } from "../utils/intelligentCache";
-import { useUserPreferences } from "./useUserPreferences";
-import { useMinistryContext } from "./useMinistryContext";
-import { useSeasonalContext } from "./useSeasonalContext";
-import { useActivityContext } from "./useActivityContext";
+import { useCallback, useMemo } from 'react';
+import { useCacheManager } from '../utils/intelligentCache';
+import { useUserPreferences } from './useUserPreferences';
+import { useMinistryContext } from './useMinistryContext';
+import { useSeasonalContext } from './useSeasonalContext';
+import { useActivityContext } from './useActivityContext';
 
 // Enhanced User Preferences with Intelligent Caching
 export const useCachedUserPreferences = (userId) => {
@@ -16,7 +16,7 @@ export const useCachedUserPreferences = (userId) => {
   const originalPrefs = useUserPreferences(userId);
 
   const cacheKey = `user-preferences-${userId}`;
-  const cache = cacheManager.getCache("userPreferences");
+  const cache = cacheManager.getCache('userPreferences');
 
   // Get cached preferences
   const getCachedPreferences = useCallback(() => {
@@ -28,8 +28,8 @@ export const useCachedUserPreferences = (userId) => {
     (preferences, options = {}) => {
       cache.set(cacheKey, preferences, {
         ttl: 15 * 60 * 1000, // 15 minutes
-        priority: "high",
-        tags: ["user-data", `user-${userId}`],
+        priority: 'high',
+        tags: ['user-data', `user-${userId}`],
         ...options,
       });
     },
@@ -68,10 +68,10 @@ export const useCachedUserPreferences = (userId) => {
         setCachedPreferences(newPreferences);
 
         // Invalidate related caches
-        cacheManager.invalidateRelated("userPreferences", cacheKey);
+        cacheManager.invalidateRelated('userPreferences', cacheKey);
 
         return newPreferences;
-      } catch (error) {
+      } catch (_error) {
         // Remove invalid cache entry
         cache.delete(cacheKey);
         throw error;
@@ -100,7 +100,7 @@ export const useCachedMinistryContext = (churchId) => {
   const originalContext = useMinistryContext(churchId);
 
   const cacheKey = `ministry-context-${churchId}`;
-  const cache = cacheManager.getCache("ministryData");
+  const cache = cacheManager.getCache('ministryData');
 
   // Get cached ministry context
   const getCachedContext = useCallback(() => {
@@ -112,8 +112,8 @@ export const useCachedMinistryContext = (churchId) => {
     (context, options = {}) => {
       cache.set(cacheKey, context, {
         ttl: 30 * 60 * 1000, // 30 minutes
-        priority: "normal",
-        tags: ["ministry-data", `church-${churchId}`],
+        priority: 'normal',
+        tags: ['ministry-data', `church-${churchId}`],
         ...options,
       });
     },
@@ -152,7 +152,7 @@ export const useCachedSeasonalContext = () => {
   const originalContext = useSeasonalContext();
 
   const cacheKey = `seasonal-context-${new Date().toDateString()}`;
-  const cache = cacheManager.getCache("seasonalData");
+  const cache = cacheManager.getCache('seasonalData');
 
   // Get cached seasonal context
   const getCachedContext = useCallback(() => {
@@ -164,8 +164,8 @@ export const useCachedSeasonalContext = () => {
     (context, options = {}) => {
       cache.set(cacheKey, context, {
         ttl: 6 * 60 * 60 * 1000, // 6 hours (seasonal data changes less frequently)
-        priority: "normal",
-        tags: ["seasonal-data"],
+        priority: 'normal',
+        tags: ['seasonal-data'],
         ...options,
       });
     },
@@ -204,7 +204,7 @@ export const useCachedActivityContext = (userId) => {
   const originalContext = useActivityContext(userId);
 
   const cacheKey = `activity-context-${userId}`;
-  const cache = cacheManager.getCache("recommendations");
+  const cache = cacheManager.getCache('recommendations');
 
   // Get cached activity context
   const getCachedContext = useCallback(() => {
@@ -216,8 +216,8 @@ export const useCachedActivityContext = (userId) => {
     (context, options = {}) => {
       cache.set(cacheKey, context, {
         ttl: 10 * 60 * 1000, // 10 minutes (activity data changes frequently)
-        priority: "high",
-        tags: ["activity-data", `user-${userId}`],
+        priority: 'high',
+        tags: ['activity-data', `user-${userId}`],
         ...options,
       });
     },
@@ -258,10 +258,10 @@ export const useCachedActivityContext = (userId) => {
         setCachedContext(updatedContext);
 
         // Invalidate related caches for recommendations
-        cacheManager.invalidateRelated("recommendations", cacheKey);
+        cacheManager.invalidateRelated('recommendations', cacheKey);
 
         return updatedContext;
-      } catch (error) {
+      } catch (_error) {
         // Remove invalid cache entry
         cache.delete(cacheKey);
         throw error;
@@ -287,7 +287,7 @@ export const useCachedDashboardState = (userId, churchId) => {
 
   // Combined dashboard state cache key
   const dashboardCacheKey = `dashboard-state-${userId}-${churchId}`;
-  const dashboardCache = cacheManager.getCache("dashboardConfig");
+  const dashboardCache = cacheManager.getCache('dashboardConfig');
 
   // Generate dashboard configuration
   const dashboardConfig = useMemo(() => {
@@ -309,14 +309,14 @@ export const useCachedDashboardState = (userId, churchId) => {
 
     // Generate new dashboard configuration
     const config = {
-      layout: preferences.layout || "default",
+      layout: preferences.layout || 'default',
       widgets: generateWidgetConfiguration(
         preferences,
         ministryContext,
         seasonalContext,
         activityContext,
       ),
-      theme: preferences.theme || "light",
+      theme: preferences.theme || 'light',
       personalizations: generatePersonalizations(
         activityContext,
         seasonalContext,
@@ -333,8 +333,8 @@ export const useCachedDashboardState = (userId, churchId) => {
     // Cache the generated configuration
     dashboardCache.set(dashboardCacheKey, config, {
       ttl: 5 * 60 * 1000, // 5 minutes
-      priority: "high",
-      tags: ["dashboard-config", `user-${userId}`, `church-${churchId}`],
+      priority: 'high',
+      tags: ['dashboard-config', `user-${userId}`, `church-${churchId}`],
     });
 
     return config;
@@ -360,10 +360,10 @@ export const useCachedDashboardState = (userId, churchId) => {
         dashboardCache.delete(dashboardCacheKey);
 
         // Invalidate related caches
-        cacheManager.invalidateRelated("dashboardConfig", dashboardCacheKey);
+        cacheManager.invalidateRelated('dashboardConfig', dashboardCacheKey);
 
         return true;
-      } catch (error) {
+      } catch (_error) {
         // Failed to update dashboard config - silently handle
         return false;
       }
@@ -407,18 +407,18 @@ const generateWidgetConfiguration = (
   activityContext,
 ) => {
   const baseWidgets = [
-    { id: "welcome", priority: "high", category: "user" },
-    { id: "quickActions", priority: "high", category: "actions" },
-    { id: "upcomingEvents", priority: "normal", category: "events" },
-    { id: "prayer-requests", priority: "normal", category: "ministry" },
+    { id: 'welcome', priority: 'high', category: 'user' },
+    { id: 'quickActions', priority: 'high', category: 'actions' },
+    { id: 'upcomingEvents', priority: 'normal', category: 'events' },
+    { id: 'prayer-requests', priority: 'normal', category: 'ministry' },
   ];
 
   // Add seasonal widgets
   if (seasonalContext?.currentSeason) {
     baseWidgets.push({
       id: `${seasonalContext.currentSeason}-content`,
-      priority: "normal",
-      category: "seasonal",
+      priority: 'normal',
+      category: 'seasonal',
     });
   }
 
@@ -427,8 +427,8 @@ const generateWidgetConfiguration = (
     ministryContext.activeMinistries.forEach((ministry) => {
       baseWidgets.push({
         id: `${ministry.slug}-ministry`,
-        priority: "low",
-        category: "ministry",
+        priority: 'low',
+        category: 'ministry',
       });
     });
   }
@@ -441,8 +441,8 @@ const generateWidgetConfiguration = (
     activityTypes.forEach((type) => {
       baseWidgets.push({
         id: `${type}-recommendations`,
-        priority: "low",
-        category: "recommendations",
+        priority: 'low',
+        category: 'recommendations',
       });
     });
   }
@@ -476,7 +476,7 @@ const generatePersonalizations = (activityContext, seasonalContext) => {
     )[0];
 
     personalizations.push({
-      type: "activity-focus",
+      type: 'activity-focus',
       value: topActivity,
       message: `Based on your recent ${topActivity} activity`,
     });
@@ -485,7 +485,7 @@ const generatePersonalizations = (activityContext, seasonalContext) => {
   // Seasonal personalizations
   if (seasonalContext?.currentSeason) {
     personalizations.push({
-      type: "seasonal-content",
+      type: 'seasonal-content',
       value: seasonalContext.currentSeason,
       message: `${seasonalContext.currentSeason} content and resources`,
     });
@@ -506,11 +506,11 @@ const generateRecommendations = (
   if (ministryContext?.suggestedMinistries?.length > 0) {
     recommendations.push(
       ...ministryContext.suggestedMinistries.map((ministry) => ({
-        type: "ministry",
+        type: 'ministry',
         title: `Join ${ministry.name}`,
-        description: `Based on your interests in ${ministry.categories.join(", ")}`,
-        priority: "medium",
-        action: { type: "navigate", target: `/ministries/${ministry.slug}` },
+        description: `Based on your interests in ${ministry.categories.join(', ')}`,
+        priority: 'medium',
+        action: { type: 'navigate', target: `/ministries/${ministry.slug}` },
       })),
     );
   }
@@ -519,11 +519,11 @@ const generateRecommendations = (
   if (seasonalContext?.upcomingEvents?.length > 0) {
     recommendations.push(
       ...seasonalContext.upcomingEvents.slice(0, 2).map((event) => ({
-        type: "event",
+        type: 'event',
         title: event.name,
         description: `${event.date} - ${event.description}`,
-        priority: "high",
-        action: { type: "navigate", target: `/events/${event.id}` },
+        priority: 'high',
+        action: { type: 'navigate', target: `/events/${event.id}` },
       })),
     );
   }
@@ -532,10 +532,10 @@ const generateRecommendations = (
   if (activityContext?.suggestedActions?.length > 0) {
     recommendations.push(
       ...activityContext.suggestedActions.slice(0, 3).map((action) => ({
-        type: "action",
+        type: 'action',
         title: action.title,
         description: action.description,
-        priority: action.priority || "low",
+        priority: action.priority || 'low',
         action: action.action,
       })),
     );

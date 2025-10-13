@@ -14,7 +14,8 @@
   "scripts": {
     "build": "echo 'Shared library build placeholder'",
     "test": "echo 'Shared library test placeholder' && exit 0",
-    "lint": "echo 'Shared library lint placeholder'"
+    "lint": "echo 'Shared library lint placeholder'",
+    "lint:fix": "echo 'Shared library lint placeholder'"
   },
   "peerDependencies": {
     "react": "^18.3.1",

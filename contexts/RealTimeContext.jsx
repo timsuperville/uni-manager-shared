@@ -3,8 +3,8 @@
  * Centralized real-time updates management
  */
 
-import React, { createContext, useContext, useEffect, useState } from "react";
-import webSocketClient from "../services/webSocketClient";
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import webSocketClient from '../services/webSocketClient';
 
 const RealTimeContext = createContext({
   isConnected: false,
@@ -23,7 +23,7 @@ export const useRealTimeContext = () => {
   const context = useContext(RealTimeContext);
   if (!context) {
     throw new Error(
-      "useRealTimeContext must be used within a RealTimeProvider",
+      'useRealTimeContext must be used within a RealTimeProvider',
     );
   }
   return context;
@@ -55,7 +55,7 @@ export const RealTimeProvider = ({ children, token, householdId }) => {
             (prev) => new Set(prev.add(`household_${householdId}`)),
           );
         }
-      } catch (error) {
+      } catch (_error) {
         setConnectionError(error.message);
         setIsConnected(false);
       }
@@ -100,7 +100,7 @@ export const RealTimeProvider = ({ children, token, householdId }) => {
       setInvitations((prev) =>
         prev.map((invitation) =>
           invitation.id === data.invitation.id
-            ? { ...invitation, status: "accepted" }
+            ? { ...invitation, status: 'accepted' }
             : invitation,
         ),
       );
@@ -110,7 +110,7 @@ export const RealTimeProvider = ({ children, token, householdId }) => {
       setInvitations((prev) =>
         prev.map((invitation) =>
           invitation.id === data.invitation.id
-            ? { ...invitation, status: "declined" }
+            ? { ...invitation, status: 'declined' }
             : invitation,
         ),
       );
@@ -138,7 +138,7 @@ export const RealTimeProvider = ({ children, token, householdId }) => {
         if (existing) {
           return prev.map((user) =>
             user.id === data.userId
-              ? { ...user, status: "online", lastSeen: data.timestamp }
+              ? { ...user, status: 'online', lastSeen: data.timestamp }
               : user,
           );
         }
@@ -146,7 +146,7 @@ export const RealTimeProvider = ({ children, token, householdId }) => {
           ...prev,
           {
             id: data.userId,
-            status: "online",
+            status: 'online',
             lastSeen: data.timestamp,
             ...data.userInfo,
           },
@@ -158,7 +158,7 @@ export const RealTimeProvider = ({ children, token, householdId }) => {
       setOnlineUsers((prev) =>
         prev.map((user) =>
           user.id === data.userId
-            ? { ...user, status: "offline", lastSeen: data.timestamp }
+            ? { ...user, status: 'offline', lastSeen: data.timestamp }
             : user,
         ),
       );
@@ -190,41 +190,41 @@ export const RealTimeProvider = ({ children, token, householdId }) => {
       });
     };
 
-    const handleAuthError = (error) => {
+    const handleAuthError = (_error) => {
       setConnectionError(error.message);
       setIsConnected(false);
     };
 
     // Register event listeners
-    webSocketClient.on("member:created", handleMemberCreated);
-    webSocketClient.on("member:updated", handleMemberUpdated);
-    webSocketClient.on("member:deleted", handleMemberDeleted);
-    webSocketClient.on("invitation:sent", handleInvitationSent);
-    webSocketClient.on("invitation:accepted", handleInvitationAccepted);
-    webSocketClient.on("invitation:declined", handleInvitationDeclined);
-    webSocketClient.on("notification:created", handleNotificationCreated);
-    webSocketClient.on("notification:read", handleNotificationRead);
-    webSocketClient.on("user:connected", handleUserConnected);
-    webSocketClient.on("user:disconnected", handleUserDisconnected);
-    webSocketClient.on("presence:updated", handlePresenceUpdated);
-    webSocketClient.on("reconnected", handleReconnected);
-    webSocketClient.on("auth_error", handleAuthError);
+    webSocketClient.on('member:created', handleMemberCreated);
+    webSocketClient.on('member:updated', handleMemberUpdated);
+    webSocketClient.on('member:deleted', handleMemberDeleted);
+    webSocketClient.on('invitation:sent', handleInvitationSent);
+    webSocketClient.on('invitation:accepted', handleInvitationAccepted);
+    webSocketClient.on('invitation:declined', handleInvitationDeclined);
+    webSocketClient.on('notification:created', handleNotificationCreated);
+    webSocketClient.on('notification:read', handleNotificationRead);
+    webSocketClient.on('user:connected', handleUserConnected);
+    webSocketClient.on('user:disconnected', handleUserDisconnected);
+    webSocketClient.on('presence:updated', handlePresenceUpdated);
+    webSocketClient.on('reconnected', handleReconnected);
+    webSocketClient.on('auth_error', handleAuthError);
 
     return () => {
       // Cleanup event listeners
-      webSocketClient.off("member:created", handleMemberCreated);
-      webSocketClient.off("member:updated", handleMemberUpdated);
-      webSocketClient.off("member:deleted", handleMemberDeleted);
-      webSocketClient.off("invitation:sent", handleInvitationSent);
-      webSocketClient.off("invitation:accepted", handleInvitationAccepted);
-      webSocketClient.off("invitation:declined", handleInvitationDeclined);
-      webSocketClient.off("notification:created", handleNotificationCreated);
-      webSocketClient.off("notification:read", handleNotificationRead);
-      webSocketClient.off("user:connected", handleUserConnected);
-      webSocketClient.off("user:disconnected", handleUserDisconnected);
-      webSocketClient.off("presence:updated", handlePresenceUpdated);
-      webSocketClient.off("reconnected", handleReconnected);
-      webSocketClient.off("auth_error", handleAuthError);
+      webSocketClient.off('member:created', handleMemberCreated);
+      webSocketClient.off('member:updated', handleMemberUpdated);
+      webSocketClient.off('member:deleted', handleMemberDeleted);
+      webSocketClient.off('invitation:sent', handleInvitationSent);
+      webSocketClient.off('invitation:accepted', handleInvitationAccepted);
+      webSocketClient.off('invitation:declined', handleInvitationDeclined);
+      webSocketClient.off('notification:created', handleNotificationCreated);
+      webSocketClient.off('notification:read', handleNotificationRead);
+      webSocketClient.off('user:connected', handleUserConnected);
+      webSocketClient.off('user:disconnected', handleUserDisconnected);
+      webSocketClient.off('presence:updated', handlePresenceUpdated);
+      webSocketClient.off('reconnected', handleReconnected);
+      webSocketClient.off('auth_error', handleAuthError);
     };
   }, [subscriptions]);
 
@@ -234,7 +234,7 @@ export const RealTimeProvider = ({ children, token, householdId }) => {
       await webSocketClient.connect(newToken || token);
       setIsConnected(true);
       setConnectionError(null);
-    } catch (error) {
+    } catch (_error) {
       setConnectionError(error.message);
       setIsConnected(false);
     }

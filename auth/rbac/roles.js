@@ -6,69 +6,69 @@
 // Core permission definitions
 export const PERMISSIONS = {
   // User Management
-  USER_CREATE: "user:create",
-  USER_READ: "user:read",
-  USER_UPDATE: "user:update",
-  USER_DELETE: "user:delete",
-  USER_LIST: "user:list",
+  USER_CREATE: 'user:create',
+  USER_READ: 'user:read',
+  USER_UPDATE: 'user:update',
+  USER_DELETE: 'user:delete',
+  USER_LIST: 'user:list',
 
   // Role Management
-  ROLE_CREATE: "role:create",
-  ROLE_READ: "role:read",
-  ROLE_UPDATE: "role:update",
-  ROLE_DELETE: "role:delete",
-  ROLE_ASSIGN: "role:assign",
+  ROLE_CREATE: 'role:create',
+  ROLE_READ: 'role:read',
+  ROLE_UPDATE: 'role:update',
+  ROLE_DELETE: 'role:delete',
+  ROLE_ASSIGN: 'role:assign',
 
   // Church App Permissions
-  CHURCH_VIEW: "church:view",
-  CHURCH_MANAGE: "church:manage",
-  CHURCH_ADMIN: "church:admin",
-  SERVICE_CREATE: "service:create",
-  SERVICE_EDIT: "service:edit",
-  SERVICE_DELETE: "service:delete",
-  MEMBER_VIEW: "member:view",
-  MEMBER_MANAGE: "member:manage",
-  DONATION_VIEW: "donation:view",
-  DONATION_MANAGE: "donation:manage",
+  CHURCH_VIEW: 'church:view',
+  CHURCH_MANAGE: 'church:manage',
+  CHURCH_ADMIN: 'church:admin',
+  SERVICE_CREATE: 'service:create',
+  SERVICE_EDIT: 'service:edit',
+  SERVICE_DELETE: 'service:delete',
+  MEMBER_VIEW: 'member:view',
+  MEMBER_MANAGE: 'member:manage',
+  DONATION_VIEW: 'donation:view',
+  DONATION_MANAGE: 'donation:manage',
 
   // Admin App Permissions
-  ADMIN_VIEW: "admin:view",
-  ADMIN_MANAGE: "admin:manage",
-  SYSTEM_CONFIG: "system:config",
-  AUDIT_VIEW: "audit:view",
-  ANALYTICS_VIEW: "analytics:view",
+  ADMIN_VIEW: 'admin:view',
+  ADMIN_MANAGE: 'admin:manage',
+  SYSTEM_CONFIG: 'system:config',
+  AUDIT_VIEW: 'audit:view',
+  ANALYTICS_VIEW: 'analytics:view',
 
   // Business App Permissions
-  BUSINESS_VIEW: "business:view",
-  BUSINESS_MANAGE: "business:manage",
-  FINANCE_VIEW: "finance:view",
-  FINANCE_MANAGE: "finance:manage",
-  INVENTORY_VIEW: "inventory:view",
-  INVENTORY_MANAGE: "inventory:manage",
+  BUSINESS_VIEW: 'business:view',
+  BUSINESS_MANAGE: 'business:manage',
+  FINANCE_VIEW: 'finance:view',
+  FINANCE_MANAGE: 'finance:manage',
+  INVENTORY_VIEW: 'inventory:view',
+  INVENTORY_MANAGE: 'inventory:manage',
 
   // Home App Permissions
-  HOME_VIEW: "home:view",
-  HOME_MANAGE: "home:manage",
-  TASK_CREATE: "task:create",
-  TASK_ASSIGN: "task:assign",
-  SCHEDULE_VIEW: "schedule:view",
-  SCHEDULE_MANAGE: "schedule:manage",
+  HOME_VIEW: 'home:view',
+  HOME_MANAGE: 'home:manage',
+  TASK_CREATE: 'task:create',
+  TASK_ASSIGN: 'task:assign',
+  SCHEDULE_VIEW: 'schedule:view',
+  SCHEDULE_MANAGE: 'schedule:manage',
 
   // Personal App Permissions
-  PERSONAL_VIEW: "personal:view",
-  PERSONAL_MANAGE: "personal:manage",
-  GOAL_CREATE: "goal:create",
-  GOAL_EDIT: "goal:edit",
-  NOTE_CREATE: "note:create",
-  NOTE_EDIT: "note:edit",
+  PERSONAL_VIEW: 'personal:view',
+  PERSONAL_MANAGE: 'personal:manage',
+  GOAL_CREATE: 'goal:create',
+  GOAL_EDIT: 'goal:edit',
+  NOTE_CREATE: 'note:create',
+  NOTE_EDIT: 'note:edit',
 
   // Playback App Permissions
-  PLAYBACK_VIEW: "playback:view",
-  PLAYBACK_MANAGE: "playback:manage",
-  MEDIA_UPLOAD: "media:upload",
-  MEDIA_DELETE: "media:delete",
-  PLAYLIST_CREATE: "playlist:create",
-  PLAYLIST_MANAGE: "playlist:manage",
+  PLAYBACK_VIEW: 'playback:view',
+  PLAYBACK_MANAGE: 'playback:manage',
+  MEDIA_UPLOAD: 'media:upload',
+  MEDIA_DELETE: 'media:delete',
+  PLAYLIST_CREATE: 'playlist:create',
+  PLAYLIST_MANAGE: 'playlist:manage',
 };
 
 // Permission groups for easier management
@@ -120,9 +120,9 @@ export const PERMISSION_GROUPS = {
 export const ROLES = {
   // System-wide roles
   SUPER_ADMIN: {
-    id: "super_admin",
-    name: "Super Administrator",
-    description: "Full system access across all applications",
+    id: 'super_admin',
+    name: 'Super Administrator',
+    description: 'Full system access across all applications',
     level: 100,
     permissions: Object.values(PERMISSIONS),
     inherits: [],
@@ -130,9 +130,9 @@ export const ROLES = {
   },
 
   SYSTEM_ADMIN: {
-    id: "system_admin",
-    name: "System Administrator",
-    description: "Administrative access to system configuration",
+    id: 'system_admin',
+    name: 'System Administrator',
+    description: 'Administrative access to system configuration',
     level: 90,
     permissions: [
       ...PERMISSION_GROUPS.USER_MANAGEMENT,
@@ -147,9 +147,9 @@ export const ROLES = {
 
   // Church App roles
   CHURCH_ADMIN: {
-    id: "church_admin",
-    name: "Church Administrator",
-    description: "Full administrative access to church application",
+    id: 'church_admin',
+    name: 'Church Administrator',
+    description: 'Full administrative access to church application',
     level: 80,
     permissions: [
       PERMISSIONS.CHURCH_ADMIN,
@@ -162,14 +162,14 @@ export const ROLES = {
       PERMISSIONS.DONATION_VIEW,
       PERMISSIONS.DONATION_MANAGE,
     ],
-    inherits: ["church_manager"],
-    applicationScope: ["church"],
+    inherits: ['church_manager'],
+    applicationScope: ['church'],
   },
 
   CHURCH_MANAGER: {
-    id: "church_manager",
-    name: "Church Manager",
-    description: "Management access to church services and members",
+    id: 'church_manager',
+    name: 'Church Manager',
+    description: 'Management access to church services and members',
     level: 70,
     permissions: [
       PERMISSIONS.CHURCH_MANAGE,
@@ -179,25 +179,25 @@ export const ROLES = {
       PERMISSIONS.MEMBER_MANAGE,
       PERMISSIONS.DONATION_VIEW,
     ],
-    inherits: ["church_user"],
-    applicationScope: ["church"],
+    inherits: ['church_user'],
+    applicationScope: ['church'],
   },
 
   CHURCH_USER: {
-    id: "church_user",
-    name: "Church User",
-    description: "Basic access to church application",
+    id: 'church_user',
+    name: 'Church User',
+    description: 'Basic access to church application',
     level: 50,
     permissions: [PERMISSIONS.CHURCH_VIEW, PERMISSIONS.MEMBER_VIEW],
     inherits: [],
-    applicationScope: ["church"],
+    applicationScope: ['church'],
   },
 
   // Business App roles
   BUSINESS_ADMIN: {
-    id: "business_admin",
-    name: "Business Administrator",
-    description: "Full administrative access to business application",
+    id: 'business_admin',
+    name: 'Business Administrator',
+    description: 'Full administrative access to business application',
     level: 80,
     permissions: [
       PERMISSIONS.BUSINESS_MANAGE,
@@ -206,14 +206,14 @@ export const ROLES = {
       PERMISSIONS.INVENTORY_VIEW,
       PERMISSIONS.INVENTORY_MANAGE,
     ],
-    inherits: ["business_manager"],
-    applicationScope: ["business"],
+    inherits: ['business_manager'],
+    applicationScope: ['business'],
   },
 
   BUSINESS_MANAGER: {
-    id: "business_manager",
-    name: "Business Manager",
-    description: "Management access to business operations",
+    id: 'business_manager',
+    name: 'Business Manager',
+    description: 'Management access to business operations',
     level: 70,
     permissions: [
       PERMISSIONS.BUSINESS_MANAGE,
@@ -221,25 +221,25 @@ export const ROLES = {
       PERMISSIONS.INVENTORY_VIEW,
       PERMISSIONS.INVENTORY_MANAGE,
     ],
-    inherits: ["business_user"],
-    applicationScope: ["business"],
+    inherits: ['business_user'],
+    applicationScope: ['business'],
   },
 
   BUSINESS_USER: {
-    id: "business_user",
-    name: "Business User",
-    description: "Basic access to business application",
+    id: 'business_user',
+    name: 'Business User',
+    description: 'Basic access to business application',
     level: 50,
     permissions: [PERMISSIONS.BUSINESS_VIEW, PERMISSIONS.INVENTORY_VIEW],
     inherits: [],
-    applicationScope: ["business"],
+    applicationScope: ['business'],
   },
 
   // Personal App roles
   PERSONAL_USER: {
-    id: "personal_user",
-    name: "Personal User",
-    description: "Full access to personal application",
+    id: 'personal_user',
+    name: 'Personal User',
+    description: 'Full access to personal application',
     level: 50,
     permissions: [
       PERMISSIONS.PERSONAL_VIEW,
@@ -250,14 +250,14 @@ export const ROLES = {
       PERMISSIONS.NOTE_EDIT,
     ],
     inherits: [],
-    applicationScope: ["personal"],
+    applicationScope: ['personal'],
   },
 
   // Home App roles
   HOME_ADMIN: {
-    id: "home_admin",
-    name: "Home Administrator",
-    description: "Full administrative access to home application",
+    id: 'home_admin',
+    name: 'Home Administrator',
+    description: 'Full administrative access to home application',
     level: 80,
     permissions: [
       PERMISSIONS.HOME_MANAGE,
@@ -266,14 +266,14 @@ export const ROLES = {
       PERMISSIONS.SCHEDULE_VIEW,
       PERMISSIONS.SCHEDULE_MANAGE,
     ],
-    inherits: ["home_user"],
-    applicationScope: ["home"],
+    inherits: ['home_user'],
+    applicationScope: ['home'],
   },
 
   HOME_USER: {
-    id: "home_user",
-    name: "Home User",
-    description: "Basic access to home application",
+    id: 'home_user',
+    name: 'Home User',
+    description: 'Basic access to home application',
     level: 50,
     permissions: [
       PERMISSIONS.HOME_VIEW,
@@ -281,14 +281,14 @@ export const ROLES = {
       PERMISSIONS.SCHEDULE_VIEW,
     ],
     inherits: [],
-    applicationScope: ["home"],
+    applicationScope: ['home'],
   },
 
   // Playback App roles
   PLAYBACK_ADMIN: {
-    id: "playback_admin",
-    name: "Playback Administrator",
-    description: "Full administrative access to playback application",
+    id: 'playback_admin',
+    name: 'Playback Administrator',
+    description: 'Full administrative access to playback application',
     level: 80,
     permissions: [
       PERMISSIONS.PLAYBACK_MANAGE,
@@ -297,25 +297,25 @@ export const ROLES = {
       PERMISSIONS.PLAYLIST_CREATE,
       PERMISSIONS.PLAYLIST_MANAGE,
     ],
-    inherits: ["playback_user"],
-    applicationScope: ["playback"],
+    inherits: ['playback_user'],
+    applicationScope: ['playback'],
   },
 
   PLAYBACK_USER: {
-    id: "playback_user",
-    name: "Playback User",
-    description: "Basic access to playback application",
+    id: 'playback_user',
+    name: 'Playback User',
+    description: 'Basic access to playback application',
     level: 50,
     permissions: [PERMISSIONS.PLAYBACK_VIEW, PERMISSIONS.PLAYLIST_CREATE],
     inherits: [],
-    applicationScope: ["playback"],
+    applicationScope: ['playback'],
   },
 
   // Cross-app roles
   GUEST: {
-    id: "guest",
-    name: "Guest",
-    description: "Limited read-only access",
+    id: 'guest',
+    name: 'Guest',
+    description: 'Limited read-only access',
     level: 10,
     permissions: [],
     inherits: [],
@@ -325,37 +325,37 @@ export const ROLES = {
 
 // Application role mappings
 export const APPLICATION_ROLES = {
-  church: ["church_admin", "church_manager", "church_user"],
-  admin: ["super_admin", "system_admin"],
-  business: ["business_admin", "business_manager", "business_user"],
-  home: ["home_admin", "home_user"],
-  personal: ["personal_user"],
-  playback: ["playback_admin", "playback_user"],
+  church: ['church_admin', 'church_manager', 'church_user'],
+  admin: ['super_admin', 'system_admin'],
+  business: ['business_admin', 'business_manager', 'business_user'],
+  home: ['home_admin', 'home_user'],
+  personal: ['personal_user'],
+  playback: ['playback_admin', 'playback_user'],
 };
 
 // Default roles for new users by application
 export const DEFAULT_ROLES = {
-  church: "church_user",
-  business: "business_user",
-  home: "home_user",
-  personal: "personal_user",
-  playback: "playback_user",
+  church: 'church_user',
+  business: 'business_user',
+  home: 'home_user',
+  personal: 'personal_user',
+  playback: 'playback_user',
 };
 
 // Role hierarchy for inheritance resolution
 export const ROLE_HIERARCHY = {
   super_admin: [],
   system_admin: [],
-  church_admin: ["church_manager"],
-  church_manager: ["church_user"],
+  church_admin: ['church_manager'],
+  church_manager: ['church_user'],
   church_user: [],
-  business_admin: ["business_manager"],
-  business_manager: ["business_user"],
+  business_admin: ['business_manager'],
+  business_manager: ['business_user'],
   business_user: [],
-  home_admin: ["home_user"],
+  home_admin: ['home_user'],
   home_user: [],
   personal_user: [],
-  playback_admin: ["playback_user"],
+  playback_admin: ['playback_user'],
   playback_user: [],
   guest: [],
 };
@@ -363,52 +363,52 @@ export const ROLE_HIERARCHY = {
 // Protected routes by application
 export const PROTECTED_ROUTES = {
   church: {
-    "/admin": [PERMISSIONS.CHURCH_ADMIN],
-    "/services/create": [PERMISSIONS.SERVICE_CREATE],
-    "/services/edit/:id": [PERMISSIONS.SERVICE_EDIT],
-    "/services/delete/:id": [PERMISSIONS.SERVICE_DELETE],
-    "/members": [PERMISSIONS.MEMBER_VIEW],
-    "/members/manage": [PERMISSIONS.MEMBER_MANAGE],
-    "/donations": [PERMISSIONS.DONATION_VIEW],
-    "/donations/manage": [PERMISSIONS.DONATION_MANAGE],
+    '/admin': [PERMISSIONS.CHURCH_ADMIN],
+    '/services/create': [PERMISSIONS.SERVICE_CREATE],
+    '/services/edit/:id': [PERMISSIONS.SERVICE_EDIT],
+    '/services/delete/:id': [PERMISSIONS.SERVICE_DELETE],
+    '/members': [PERMISSIONS.MEMBER_VIEW],
+    '/members/manage': [PERMISSIONS.MEMBER_MANAGE],
+    '/donations': [PERMISSIONS.DONATION_VIEW],
+    '/donations/manage': [PERMISSIONS.DONATION_MANAGE],
   },
 
   admin: {
-    "/users": [PERMISSIONS.USER_LIST],
-    "/users/create": [PERMISSIONS.USER_CREATE],
-    "/users/edit/:id": [PERMISSIONS.USER_UPDATE],
-    "/roles": [PERMISSIONS.ROLE_READ],
-    "/system": [PERMISSIONS.SYSTEM_CONFIG],
-    "/audit": [PERMISSIONS.AUDIT_VIEW],
-    "/analytics": [PERMISSIONS.ANALYTICS_VIEW],
+    '/users': [PERMISSIONS.USER_LIST],
+    '/users/create': [PERMISSIONS.USER_CREATE],
+    '/users/edit/:id': [PERMISSIONS.USER_UPDATE],
+    '/roles': [PERMISSIONS.ROLE_READ],
+    '/system': [PERMISSIONS.SYSTEM_CONFIG],
+    '/audit': [PERMISSIONS.AUDIT_VIEW],
+    '/analytics': [PERMISSIONS.ANALYTICS_VIEW],
   },
 
   business: {
-    "/admin": [PERMISSIONS.BUSINESS_MANAGE],
-    "/finance": [PERMISSIONS.FINANCE_VIEW],
-    "/finance/manage": [PERMISSIONS.FINANCE_MANAGE],
-    "/inventory": [PERMISSIONS.INVENTORY_VIEW],
-    "/inventory/manage": [PERMISSIONS.INVENTORY_MANAGE],
+    '/admin': [PERMISSIONS.BUSINESS_MANAGE],
+    '/finance': [PERMISSIONS.FINANCE_VIEW],
+    '/finance/manage': [PERMISSIONS.FINANCE_MANAGE],
+    '/inventory': [PERMISSIONS.INVENTORY_VIEW],
+    '/inventory/manage': [PERMISSIONS.INVENTORY_MANAGE],
   },
 
   home: {
-    "/admin": [PERMISSIONS.HOME_MANAGE],
-    "/tasks/create": [PERMISSIONS.TASK_CREATE],
-    "/tasks/assign": [PERMISSIONS.TASK_ASSIGN],
-    "/schedule": [PERMISSIONS.SCHEDULE_VIEW],
-    "/schedule/manage": [PERMISSIONS.SCHEDULE_MANAGE],
+    '/admin': [PERMISSIONS.HOME_MANAGE],
+    '/tasks/create': [PERMISSIONS.TASK_CREATE],
+    '/tasks/assign': [PERMISSIONS.TASK_ASSIGN],
+    '/schedule': [PERMISSIONS.SCHEDULE_VIEW],
+    '/schedule/manage': [PERMISSIONS.SCHEDULE_MANAGE],
   },
 
   personal: {
-    "/": [PERMISSIONS.PERSONAL_VIEW],
-    "/goals": [PERMISSIONS.GOAL_CREATE],
-    "/notes": [PERMISSIONS.NOTE_CREATE],
+    '/': [PERMISSIONS.PERSONAL_VIEW],
+    '/goals': [PERMISSIONS.GOAL_CREATE],
+    '/notes': [PERMISSIONS.NOTE_CREATE],
   },
 
   playback: {
-    "/admin": [PERMISSIONS.PLAYBACK_MANAGE],
-    "/upload": [PERMISSIONS.MEDIA_UPLOAD],
-    "/playlists/create": [PERMISSIONS.PLAYLIST_CREATE],
-    "/playlists/manage": [PERMISSIONS.PLAYLIST_MANAGE],
+    '/admin': [PERMISSIONS.PLAYBACK_MANAGE],
+    '/upload': [PERMISSIONS.MEDIA_UPLOAD],
+    '/playlists/create': [PERMISSIONS.PLAYLIST_CREATE],
+    '/playlists/manage': [PERMISSIONS.PLAYLIST_MANAGE],
   },
 };

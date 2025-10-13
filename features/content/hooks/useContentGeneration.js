@@ -1,6 +1,6 @@
 /* eslint-env browser, es2020 */
 /* global fetch, localStorage, console, URLSearchParams, AbortController, setInterval, clearInterval */
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect } from 'react';
 
 /**
  * Content Generation Hook
@@ -40,7 +40,7 @@ const useContentGeneration = () => {
   const generationCacheRef = useRef(new Map());
 
   // API configuration
-  const API_BASE = "/api/content";
+  const API_BASE = '/api/content';
 
   // Generic API request handler
   const apiRequest = useCallback(async (endpoint, options = {}) => {
@@ -57,8 +57,8 @@ const useContentGeneration = () => {
         ...options,
         signal,
         headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${typeof localStorage !== "undefined" && localStorage.getItem('token')}`,
           ...options.headers,
         },
       });
@@ -72,11 +72,11 @@ const useContentGeneration = () => {
 
       const data = await response.json();
       return data;
-    } catch (error) {
-      if (error.name === "AbortError") {
+    } catch (_error) {
+      if (error.name === 'AbortError') {
         return null;
       }
-      console.error("API request failed:", error);
+      // console.error('API request failed:', error);
       throw error;
     }
   }, []);
@@ -107,7 +107,7 @@ const useContentGeneration = () => {
       try {
         // Validate required parameters
         if (!generationConfig.prompt || !generationConfig.contentType) {
-          throw new Error("Prompt and content type are required");
+          throw new Error('Prompt and content type are required');
         }
 
         // Check cache for similar generation
@@ -135,22 +135,22 @@ const useContentGeneration = () => {
         const generationPayload = {
           prompt: generationConfig.prompt,
           contentType: generationConfig.contentType,
-          format: generationConfig.format || "markdown",
-          tone: generationConfig.tone || "professional",
-          style: generationConfig.style || "informative",
-          targetAudience: generationConfig.targetAudience || "general",
+          format: generationConfig.format || 'markdown',
+          tone: generationConfig.tone || 'professional',
+          style: generationConfig.style || 'informative',
+          targetAudience: generationConfig.targetAudience || 'general',
           keywords: generationConfig.keywords || [],
-          length: generationConfig.length || "medium",
+          length: generationConfig.length || 'medium',
           creativity: generationConfig.creativity || 0.7,
           includeOutline: generationConfig.includeOutline || false,
           seoOptimize: generationConfig.seoOptimize || false,
-          language: generationConfig.language || "en",
-          customInstructions: generationConfig.customInstructions || "",
+          language: generationConfig.language || 'en',
+          customInstructions: generationConfig.customInstructions || '',
           templateId: generationConfig.templateId || null,
         };
 
-        const result = await apiRequest("/generate", {
-          method: "POST",
+        const result = await apiRequest('/generate', {
+          method: 'POST',
           body: JSON.stringify(generationPayload),
         });
 
@@ -192,8 +192,8 @@ const useContentGeneration = () => {
           return generatedContent;
         }
 
-        throw new Error(result?.message || "Content generation failed");
-      } catch (error) {
+        throw new Error(result?.message || 'Content generation failed');
+      } catch (_error) {
         clearInterval(progressIntervalRef.current);
         setError(error.message);
         setProgress(0);
@@ -209,8 +209,8 @@ const useContentGeneration = () => {
   const optimizePrompt = useCallback(
     async (originalPrompt, contentType, context = {}) => {
       try {
-        const result = await apiRequest("/optimize-prompt", {
-          method: "POST",
+        const result = await apiRequest('/optimize-prompt', {
+          method: 'POST',
           body: JSON.stringify({
             prompt: originalPrompt,
             contentType,
@@ -237,9 +237,9 @@ const useContentGeneration = () => {
           return optimization;
         }
 
-        throw new Error(result?.message || "Prompt optimization failed");
-      } catch (error) {
-        console.error("Prompt optimization error:", error);
+        throw new Error(result?.message || 'Prompt optimization failed');
+      } catch (_error) {
+        // console.error('Prompt optimization error:', error);
         return null;
       }
     },
@@ -267,7 +267,7 @@ const useContentGeneration = () => {
               Math.min(1.0, baseConfig.creativity + (Math.random() - 0.5) * 0.4)
             ),
             customInstructions:
-              `${baseConfig.customInstructions || ""} Generate variation ${i + 1} with unique approach.`.trim(),
+              `${baseConfig.customInstructions || ''} Generate variation ${i + 1} with unique approach.`.trim(),
           };
 
           const variation = await generateContent(variationConfig);
@@ -291,7 +291,7 @@ const useContentGeneration = () => {
           completed: true,
         });
         return variations;
-      } catch (error) {
+      } catch (_error) {
         setError(error.message);
         throw error;
       } finally {
@@ -305,8 +305,8 @@ const useContentGeneration = () => {
   const analyzeGeneration = useCallback(
     async (generatedContent) => {
       try {
-        const result = await apiRequest("/analyze-generation", {
-          method: "POST",
+        const result = await apiRequest('/analyze-generation', {
+          method: 'POST',
           body: JSON.stringify({
             content: generatedContent.content,
             metadata: generatedContent.metadata || {},
@@ -317,9 +317,9 @@ const useContentGeneration = () => {
           return result.data;
         }
 
-        throw new Error(result?.message || "Generation analysis failed");
-      } catch (error) {
-        console.error("Generation analysis error:", error);
+        throw new Error(result?.message || 'Generation analysis failed');
+      } catch (_error) {
+        // console.error('Generation analysis error:', error);
         return null;
       }
     },
@@ -332,7 +332,7 @@ const useContentGeneration = () => {
       try {
         const queryParams = new URLSearchParams();
         if (category) {
-          queryParams.append("category", category);
+          queryParams.append('category', category);
         }
 
         const result = await apiRequest(`/templates?${queryParams}`);
@@ -343,8 +343,8 @@ const useContentGeneration = () => {
         }
 
         return [];
-      } catch (error) {
-        console.error("Template loading error:", error);
+      } catch (_error) {
+        // console.error('Template loading error:', error);
         return [];
       }
     },
@@ -355,8 +355,8 @@ const useContentGeneration = () => {
   const saveTemplate = useCallback(
     async (templateData) => {
       try {
-        const result = await apiRequest("/templates", {
-          method: "POST",
+        const result = await apiRequest('/templates', {
+          method: 'POST',
           body: JSON.stringify(templateData),
         });
 
@@ -365,9 +365,9 @@ const useContentGeneration = () => {
           return result.data;
         }
 
-        throw new Error(result?.message || "Failed to save template");
-      } catch (error) {
-        console.error("Template save error:", error);
+        throw new Error(result?.message || 'Failed to save template');
+      } catch (_error) {
+        // console.error('Template save error:', error);
         throw error;
       }
     },
@@ -387,8 +387,8 @@ const useContentGeneration = () => {
         setSavedPrompts((prev) => [savedPrompt, ...prev.slice(0, 49)]); // Keep last 50 saved prompts
 
         // Optionally save to backend
-        const result = await apiRequest("/prompts", {
-          method: "POST",
+        const result = await apiRequest('/prompts', {
+          method: 'POST',
           body: JSON.stringify(savedPrompt),
         });
 
@@ -397,8 +397,8 @@ const useContentGeneration = () => {
         }
 
         return savedPrompt;
-      } catch (error) {
-        console.error("Prompt save error:", error);
+      } catch (_error) {
+        // console.error('Prompt save error:', error);
         // Still return local save even if backend fails
         return {
           id: Date.now().toString(),
@@ -412,7 +412,7 @@ const useContentGeneration = () => {
 
   // Get generation analytics
   const getGenerationAnalytics = useCallback(
-    async (timeframe = "30d") => {
+    async (timeframe = '30d') => {
       try {
         const result = await apiRequest(
           `/generation-analytics?timeframe=${timeframe}`
@@ -424,8 +424,8 @@ const useContentGeneration = () => {
         }
 
         return null;
-      } catch (error) {
-        console.error("Analytics error:", error);
+      } catch (_error) {
+        // console.error('Analytics error:', error);
         return null;
       }
     },
@@ -448,11 +448,11 @@ const useContentGeneration = () => {
           ...config,
           prompt: optimizedPrompt?.optimizedPrompt || config.prompt,
           customInstructions: [
-            config.customInstructions || "",
+            config.customInstructions || '',
             ...(optimizedPrompt?.improvements || []),
           ]
             .filter(Boolean)
-            .join(" "),
+            .join(' '),
         };
 
         // Generate content
@@ -468,10 +468,10 @@ const useContentGeneration = () => {
           qualityAnalysis,
           enhanced: true,
         };
-      } catch (error) {
+      } catch (_error) {
         // Fallback to standard generation
-        console.error(
-          "Enhanced generation failed, falling back to standard:",
+        // console.error(
+          'Enhanced generation failed, falling back to standard:',
           error
         );
         return await generateContent(config);
@@ -501,7 +501,7 @@ const useContentGeneration = () => {
           try {
             const result = await generateContent(generationConfigs[i]);
             results.push({ success: true, data: result, index: i });
-          } catch (error) {
+          } catch (_error) {
             results.push({ success: false, error: error.message, index: i });
           }
 
@@ -514,7 +514,7 @@ const useContentGeneration = () => {
 
         setBatchProgress((prev) => ({ ...prev, completed: true }));
         return results;
-      } catch (error) {
+      } catch (_error) {
         setError(error.message);
         throw error;
       } finally {

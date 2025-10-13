@@ -6,169 +6,169 @@
 // Liturgical seasons and their characteristics
 export const LITURGICAL_SEASONS = {
   ADVENT: {
-    id: "advent",
-    name: "Advent",
-    color: "#663399", // Purple
-    description: "Season of preparation for Christmas",
-    duration: "weeks", // 4 weeks typically
-    themes: ["hope", "peace", "joy", "love"],
+    id: 'advent',
+    name: 'Advent',
+    color: '#663399', // Purple
+    description: 'Season of preparation for Christmas',
+    duration: 'weeks', // 4 weeks typically
+    themes: ['hope', 'peace', 'joy', 'love'],
     ministryFocus: {
-      worship: "Advent wreaths, special music, scripture readings",
-      outreach: "Community service projects, giving campaigns",
-      youth: "Advent calendars, service projects, Christmas preparation",
-      children: "Advent activities, nativity preparation, crafts",
-      evangelism: "Christmas invitation campaigns, community events",
+      worship: 'Advent wreaths, special music, scripture readings',
+      outreach: 'Community service projects, giving campaigns',
+      youth: 'Advent calendars, service projects, Christmas preparation',
+      children: 'Advent activities, nativity preparation, crafts',
+      evangelism: 'Christmas invitation campaigns, community events',
     },
   },
   CHRISTMAS: {
-    id: "christmas",
-    name: "Christmas",
-    color: "#FFD700", // Gold/White
-    description: "Celebration of Christ's birth",
-    duration: "days", // 12 days typically
-    themes: ["incarnation", "light", "joy", "peace"],
+    id: 'christmas',
+    name: 'Christmas',
+    color: '#FFD700', // Gold/White
+    description: "Celebration of Christ's birth',
+    duration: 'days', // 12 days typically
+    themes: ['incarnation', 'light', 'joy', 'peace'],
     ministryFocus: {
-      worship: "Christmas services, special music, nativity scenes",
-      outreach: "Gift giving, community meals, family support",
-      youth: "Christmas events, gift drives, family activities",
-      children: "Christmas pageants, gift activities, celebration",
-      evangelism: "Christmas services, community outreach events",
+      worship: 'Christmas services, special music, nativity scenes',
+      outreach: 'Gift giving, community meals, family support',
+      youth: 'Christmas events, gift drives, family activities',
+      children: 'Christmas pageants, gift activities, celebration',
+      evangelism: 'Christmas services, community outreach events',
     },
   },
   EPIPHANY: {
-    id: "epiphany",
-    name: "Epiphany",
-    color: "#228B22", // Green
-    description: "Manifestation of Christ to the world",
-    duration: "weeks", // Variable length
-    themes: ["revelation", "light", "mission", "calling"],
+    id: 'epiphany',
+    name: 'Epiphany',
+    color: '#228B22', // Green
+    description: 'Manifestation of Christ to the world',
+    duration: 'weeks', // Variable length
+    themes: ['revelation', 'light', 'mission', 'calling'],
     ministryFocus: {
-      worship: "Baptism of Christ, ordinary time worship",
-      outreach: "Mission emphasis, global awareness",
-      youth: "Mission trips planning, service learning",
-      children: "Stories of Jesus' ministry, mission activities",
-      evangelism: "Outreach planning, evangelism training",
+      worship: 'Baptism of Christ, ordinary time worship',
+      outreach: 'Mission emphasis, global awareness',
+      youth: 'Mission trips planning, service learning',
+      children: 'Stories of Jesus' ministry, mission activities',
+      evangelism: 'Outreach planning, evangelism training',
     },
   },
   LENT: {
-    id: "lent",
-    name: "Lent",
-    color: "#663399", // Purple
-    description: "Season of repentance and preparation for Easter",
-    duration: "days", // 40 days (excluding Sundays)
-    themes: ["repentance", "fasting", "prayer", "almsgiving"],
+    id: 'lent',
+    name: 'Lent',
+    color: '#663399', // Purple
+    description: 'Season of repentance and preparation for Easter',
+    duration: 'days', // 40 days (excluding Sundays)
+    themes: ['repentance', 'fasting', 'prayer', 'almsgiving'],
     ministryFocus: {
-      worship: "Ash Wednesday, Lenten services, stations of cross",
-      outreach: "Lenten giving, justice initiatives, service projects",
-      youth: "Lenten disciplines, service learning, retreat",
-      children: "Lenten activities, simple prayers, giving projects",
-      evangelism: "Alpha courses, seeker studies, invitation to faith",
+      worship: 'Ash Wednesday, Lenten services, stations of cross',
+      outreach: 'Lenten giving, justice initiatives, service projects',
+      youth: 'Lenten disciplines, service learning, retreat',
+      children: 'Lenten activities, simple prayers, giving projects',
+      evangelism: 'Alpha courses, seeker studies, invitation to faith',
     },
   },
   HOLY_WEEK: {
-    id: "holy_week",
-    name: "Holy Week",
-    color: "#8B0000", // Deep Red
-    description: "The week before Easter, commemorating Christ's passion",
-    duration: "days", // 7 days
-    themes: ["sacrifice", "suffering", "love", "commitment"],
+    id: 'holy_week',
+    name: 'Holy Week',
+    color: '#8B0000', // Deep Red
+    description: 'The week before Easter, commemorating Christ's passion',
+    duration: 'days', // 7 days
+    themes: ['sacrifice', 'suffering', 'love', 'commitment'],
     ministryFocus: {
-      worship: "Palm Sunday, Maundy Thursday, Good Friday services",
-      outreach: "Community passion plays, prayer walks",
-      youth: "Passion Week activities, service emphasis",
-      children: "Holy Week stories, simple ceremonies",
-      evangelism: "Good Friday services, Easter invitation preparation",
+      worship: 'Palm Sunday, Maundy Thursday, Good Friday services',
+      outreach: 'Community passion plays, prayer walks',
+      youth: 'Passion Week activities, service emphasis',
+      children: 'Holy Week stories, simple ceremonies',
+      evangelism: 'Good Friday services, Easter invitation preparation',
     },
   },
   EASTER: {
-    id: "easter",
-    name: "Easter",
-    color: "#FFFFFF", // White/Gold
-    description: "Celebration of Christ's resurrection",
-    duration: "days", // 50 days (Easter season)
-    themes: ["resurrection", "new life", "hope", "victory"],
+    id: 'easter',
+    name: 'Easter',
+    color: '#FFFFFF', // White/Gold
+    description: 'Celebration of Christ's resurrection',
+    duration: 'days', // 50 days (Easter season)
+    themes: ['resurrection', 'new life', 'hope', 'victory'],
     ministryFocus: {
-      worship: "Easter services, baptisms, celebration music",
-      outreach: "Easter egg hunts, community celebration",
-      youth: "Easter events, baptism preparation, celebration",
-      children: "Easter activities, resurrection stories, joy celebration",
-      evangelism: "Easter services, new member integration",
+      worship: 'Easter services, baptisms, celebration music',
+      outreach: 'Easter egg hunts, community celebration',
+      youth: 'Easter events, baptism preparation, celebration',
+      children: 'Easter activities, resurrection stories, joy celebration',
+      evangelism: 'Easter services, new member integration',
     },
   },
   PENTECOST: {
-    id: "pentecost",
-    name: "Pentecost",
-    color: "#FF0000", // Red
-    description: "Coming of the Holy Spirit",
-    duration: "day", // Single day, followed by ordinary time
-    themes: ["spirit", "gifts", "empowerment", "mission"],
+    id: 'pentecost',
+    name: 'Pentecost',
+    color: '#FF0000', // Red
+    description: 'Coming of the Holy Spirit',
+    duration: 'day', // Single day, followed by ordinary time
+    themes: ['spirit', 'gifts', 'empowerment', 'mission'],
     ministryFocus: {
-      worship: "Pentecost service, spiritual gifts emphasis",
-      outreach: "Mission emphasis, evangelism launch",
-      youth: "Spiritual gifts discovery, mission trips",
-      children: "Holy Spirit activities, gifts exploration",
-      evangelism: "Outreach campaigns, spiritual gifts in evangelism",
+      worship: 'Pentecost service, spiritual gifts emphasis',
+      outreach: 'Mission emphasis, evangelism launch',
+      youth: 'Spiritual gifts discovery, mission trips',
+      children: 'Holy Spirit activities, gifts exploration',
+      evangelism: 'Outreach campaigns, spiritual gifts in evangelism',
     },
   },
   ORDINARY_TIME: {
-    id: "ordinary_time",
-    name: "Ordinary Time",
-    color: "#228B22", // Green
-    description: "Seasons of spiritual growth and discipleship",
-    duration: "weeks", // Two periods totaling ~33-34 weeks
-    themes: ["growth", "discipleship", "service", "community"],
+    id: 'ordinary_time',
+    name: 'Ordinary Time',
+    color: '#228B22', // Green
+    description: 'Seasons of spiritual growth and discipleship',
+    duration: 'weeks', // Two periods totaling ~33-34 weeks
+    themes: ['growth', 'discipleship', 'service', 'community'],
     ministryFocus: {
-      worship: "Teaching series, discipleship emphasis",
-      outreach: "Ongoing community service, relationship building",
-      youth: "Regular programs, leadership development",
-      children: "Sunday school, spiritual formation",
-      evangelism: "Ongoing outreach, relationship evangelism",
+      worship: 'Teaching series, discipleship emphasis',
+      outreach: 'Ongoing community service, relationship building',
+      youth: 'Regular programs, leadership development',
+      children: 'Sunday school, spiritual formation',
+      evangelism: 'Ongoing outreach, relationship evangelism',
     },
   },
 };
 
 // Major feast days and special occasions
 export const FEAST_DAYS = {
-  CHRISTMAS_EVE: { date: "12-24", season: "christmas", significance: "high" },
-  CHRISTMAS_DAY: { date: "12-25", season: "christmas", significance: "high" },
-  NEW_YEARS_EVE: { date: "12-31", season: "christmas", significance: "medium" },
-  EPIPHANY: { date: "01-06", season: "epiphany", significance: "high" },
-  ASH_WEDNESDAY: { date: "calculated", season: "lent", significance: "high" },
+  CHRISTMAS_EVE: { date: '12-24', season: 'christmas', significance: 'high' },
+  CHRISTMAS_DAY: { date: '12-25', season: 'christmas', significance: 'high' },
+  NEW_YEARS_EVE: { date: '12-31', season: 'christmas', significance: 'medium' },
+  EPIPHANY: { date: '01-06', season: 'epiphany', significance: 'high' },
+  ASH_WEDNESDAY: { date: 'calculated', season: 'lent', significance: 'high' },
   PALM_SUNDAY: {
-    date: "calculated",
-    season: "holy_week",
-    significance: "high",
+    date: 'calculated',
+    season: 'holy_week',
+    significance: 'high',
   },
   MAUNDY_THURSDAY: {
-    date: "calculated",
-    season: "holy_week",
-    significance: "high",
+    date: 'calculated',
+    season: 'holy_week',
+    significance: 'high',
   },
   GOOD_FRIDAY: {
-    date: "calculated",
-    season: "holy_week",
-    significance: "high",
+    date: 'calculated',
+    season: 'holy_week',
+    significance: 'high',
   },
-  EASTER_SUNDAY: { date: "calculated", season: "easter", significance: "high" },
+  EASTER_SUNDAY: { date: 'calculated', season: 'easter', significance: 'high' },
   PENTECOST_SUNDAY: {
-    date: "calculated",
-    season: "pentecost",
-    significance: "high",
+    date: 'calculated',
+    season: 'pentecost',
+    significance: 'high',
   },
   TRINITY_SUNDAY: {
-    date: "calculated",
-    season: "ordinary_time",
-    significance: "medium",
+    date: 'calculated',
+    season: 'ordinary_time',
+    significance: 'medium',
   },
   ALL_SAINTS_DAY: {
-    date: "11-01",
-    season: "ordinary_time",
-    significance: "medium",
+    date: '11-01',
+    season: 'ordinary_time',
+    significance: 'medium',
   },
   CHRIST_THE_KING: {
-    date: "calculated",
-    season: "ordinary_time",
-    significance: "medium",
+    date: 'calculated',
+    season: 'ordinary_time',
+    significance: 'medium',
   },
 };
 
@@ -176,78 +176,78 @@ export const FEAST_DAYS = {
 export const SEASONAL_MINISTRY_THEMES = {
   advent: {
     evangelism: {
-      primary: "Christmas Invitation Campaign",
+      primary: 'Christmas Invitation Campaign',
       activities: [
-        "Community Christmas events",
-        "Christmas service invitations",
-        "Advent community dinners",
+        'Community Christmas events',
+        'Christmas service invitations',
+        'Advent community dinners',
       ],
-      messaging: "Come experience the hope of Christmas",
+      messaging: 'Come experience the hope of Christmas',
     },
     worship: {
-      primary: "Advent Worship Series",
+      primary: 'Advent Worship Series',
       activities: [
-        "Advent wreath lighting",
-        "Special music preparation",
-        "Christmas cantata",
+        'Advent wreath lighting',
+        'Special music preparation',
+        'Christmas cantata',
       ],
-      messaging: "Preparing our hearts for Christ's coming",
+      messaging: 'Preparing our hearts for Christ's coming',
     },
     outreach: {
-      primary: "Christmas Giving Campaign",
+      primary: 'Christmas Giving Campaign',
       activities: [
-        "Toy drives",
-        "Family adoption program",
-        "Community meal service",
+        'Toy drives',
+        'Family adoption program',
+        'Community meal service',
       ],
-      messaging: "Sharing Christ's love through giving",
+      messaging: 'Sharing Christ's love through giving',
     },
     youth: {
-      primary: "Advent Service Challenge",
+      primary: 'Advent Service Challenge',
       activities: [
-        "Service project countdown",
-        "Advent calendar activities",
-        "Christmas event planning",
+        'Service project countdown',
+        'Advent calendar activities',
+        'Christmas event planning',
       ],
-      messaging: "Growing in service during Advent",
+      messaging: 'Growing in service during Advent',
     },
   },
   lent: {
     evangelism: {
-      primary: "Journey to Easter Series",
+      primary: 'Journey to Easter Series',
       activities: [
-        "Alpha course launch",
-        "Seeker-friendly Lenten services",
-        "Easter invitation preparation",
+        'Alpha course launch',
+        'Seeker-friendly Lenten services',
+        'Easter invitation preparation',
       ],
-      messaging: "Discover the transforming power of Easter",
+      messaging: 'Discover the transforming power of Easter',
     },
     worship: {
-      primary: "Lenten Disciplines",
+      primary: 'Lenten Disciplines',
       activities: [
-        "Ash Wednesday service",
-        "Weekly Lenten services",
-        "Stations of the Cross",
+        'Ash Wednesday service',
+        'Weekly Lenten services',
+        'Stations of the Cross',
       ],
-      messaging: "Drawing closer to God through spiritual disciplines",
+      messaging: 'Drawing closer to God through spiritual disciplines',
     },
     outreach: {
-      primary: "Lenten Justice Initiative",
+      primary: 'Lenten Justice Initiative',
       activities: [
-        "40 days of service",
-        "Community justice projects",
-        "Advocacy campaigns",
+        '40 days of service',
+        'Community justice projects',
+        'Advocacy campaigns',
       ],
-      messaging: "Living out justice during Lent",
+      messaging: 'Living out justice during Lent',
     },
     youth: {
-      primary: "Lenten Challenge",
+      primary: 'Lenten Challenge',
       activities: [
-        "40-day spiritual challenge",
-        "Service learning projects",
-        "Easter preparation",
+        '40-day spiritual challenge',
+        'Service learning projects',
+        'Easter preparation',
       ],
-      messaging: "Growing spiritually through Lenten practices",
+      messaging: 'Growing spiritually through Lenten practices",
     },
   },
 };
@@ -427,14 +427,14 @@ export function getSeasonalMinistryContent(seasonId, ministryType) {
 
   if (!seasonThemes || !seasonInfo) {
     return {
-      primary: "Regular Ministry Activities",
+      primary: 'Regular Ministry Activities',
       activities: [
-        "Ongoing programs",
-        "Regular services",
-        "Community engagement",
+        'Ongoing programs',
+        'Regular services',
+        'Community engagement',
       ],
-      messaging: "Faithful ministry in all seasons",
-      themes: ["service", "community", "growth"],
+      messaging: 'Faithful ministry in all seasons',
+      themes: ['service', 'community', 'growth'],
     };
   }
 
@@ -464,34 +464,34 @@ export function getUpcomingFeastDays(startDate = new Date(), daysAhead = 30) {
   Object.entries(FEAST_DAYS).forEach(([name, feastInfo]) => {
     let feastDate;
 
-    if (feastInfo.date === "calculated") {
+    if (feastInfo.date === 'calculated') {
       // Handle calculated dates (Easter-based)
       const year = startDate.getFullYear();
       const easter = calculateEasterDate(year);
 
       switch (name) {
-        case "ASH_WEDNESDAY":
+        case 'ASH_WEDNESDAY':
           feastDate = new Date(easter.getTime() - 46 * 24 * 60 * 60 * 1000);
           break;
-        case "PALM_SUNDAY":
+        case 'PALM_SUNDAY':
           feastDate = new Date(easter.getTime() - 7 * 24 * 60 * 60 * 1000);
           break;
-        case "MAUNDY_THURSDAY":
+        case 'MAUNDY_THURSDAY':
           feastDate = new Date(easter.getTime() - 3 * 24 * 60 * 60 * 1000);
           break;
-        case "GOOD_FRIDAY":
+        case 'GOOD_FRIDAY':
           feastDate = new Date(easter.getTime() - 2 * 24 * 60 * 60 * 1000);
           break;
-        case "EASTER_SUNDAY":
+        case 'EASTER_SUNDAY':
           feastDate = easter;
           break;
-        case "PENTECOST_SUNDAY":
+        case 'PENTECOST_SUNDAY':
           feastDate = new Date(easter.getTime() + 49 * 24 * 60 * 60 * 1000);
           break;
-        case "TRINITY_SUNDAY":
+        case 'TRINITY_SUNDAY':
           feastDate = new Date(easter.getTime() + 56 * 24 * 60 * 60 * 1000);
           break;
-        case "CHRIST_THE_KING": {
+        case 'CHRIST_THE_KING': {
           // Last Sunday before Advent
           const advent = calculateAdventStart(year);
           feastDate = new Date(advent.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -502,7 +502,7 @@ export function getUpcomingFeastDays(startDate = new Date(), daysAhead = 30) {
       }
     } else {
       // Handle fixed dates
-      const [month, day] = feastInfo.date.split("-").map(Number);
+      const [month, day] = feastInfo.date.split('-').map(Number);
       feastDate = new Date(startDate.getFullYear(), month - 1, day);
 
       // If the date has passed this year, check next year
@@ -515,7 +515,7 @@ export function getUpcomingFeastDays(startDate = new Date(), daysAhead = 30) {
     if (feastDate >= startDate && feastDate <= endDate) {
       upcomingDays.push({
         name: name
-          .replace(/_/g, " ")
+          .replace(/_/g, ' ')
           .toLowerCase()
           .replace(/\b\w/g, (l) => l.toUpperCase()),
         date: feastDate,
@@ -537,7 +537,7 @@ export function getUpcomingFeastDays(startDate = new Date(), daysAhead = 30) {
  */
 export function getSeasonalTheme(seasonId) {
   const season = LITURGICAL_SEASONS[seasonId];
-  if (!season) return getSeasonalTheme("ordinary_time");
+  if (!season) return getSeasonalTheme('ordinary_time');
 
   return {
     primaryColor: season.color,
@@ -545,10 +545,10 @@ export function getSeasonalTheme(seasonId) {
     description: season.description,
     themes: season.themes,
     cssVariables: {
-      "--seasonal-primary": season.color,
-      "--seasonal-accent": adjustColorLightness(season.color, 20),
-      "--seasonal-light": adjustColorLightness(season.color, 40),
-      "--seasonal-background": adjustColorLightness(season.color, 95),
+      '--seasonal-primary': season.color,
+      '--seasonal-accent': adjustColorLightness(season.color, 20),
+      '--seasonal-light': adjustColorLightness(season.color, 40),
+      '--seasonal-background': adjustColorLightness(season.color, 95),
     },
   };
 }
@@ -561,7 +561,7 @@ export function getSeasonalTheme(seasonId) {
  */
 function adjustColorLightness(color, percent) {
   // Simple lightness adjustment - in production, use a proper color library
-  const hex = color.replace("#", "");
+  const hex = color.replace('#', '');
   const num = parseInt(hex, 16);
   const amt = Math.round(2.55 * percent);
   const R = (num >> 16) + amt;
@@ -569,7 +569,7 @@ function adjustColorLightness(color, percent) {
   const B = (num & 0x0000ff) + amt;
 
   return (
-    "#" +
+    '#' +
     (
       0x1000000 +
       (R < 255 ? (R < 1 ? 0 : R) : 255) * 0x10000 +

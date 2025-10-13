@@ -10,12 +10,12 @@
  * - Integration with security service
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import sessionManagementService from "../services/sessionManagementService";
-import securityService from "../services/securityService";
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import sessionManagementService from '../services/sessionManagementService';
+import securityService from '../services/securityService';
 
 // Mock dependencies
-vi.mock("../services/securityService", () => ({
+vi.mock('../services/securityService', () => ({
   default: {
     analyzeFraudRisk: vi.fn(),
     logSecurityEvent: vi.fn(),
@@ -23,18 +23,18 @@ vi.mock("../services/securityService", () => ({
 }));
 
 // Mock globals
-Object.defineProperty(global, "navigator", {
+Object.defineProperty(global, 'navigator', {
   value: {
-    userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-    platform: "Win32",
-    language: "en-US",
+    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+    platform: 'Win32',
+    language: 'en-US',
     hardwareConcurrency: 8,
     deviceMemory: 8,
   },
   writable: true,
 });
 
-Object.defineProperty(global, "window", {
+Object.defineProperty(global, 'window', {
   value: {
     screen: {
       width: 1920,
@@ -46,32 +46,32 @@ Object.defineProperty(global, "window", {
   writable: true,
 });
 
-Object.defineProperty(global, "document", {
+Object.defineProperty(global, 'document', {
   value: {
     createElement: vi.fn(() => ({
       getContext: vi.fn(() => ({
-        textBaseline: "",
-        font: "",
+        textBaseline: '',
+        font: '',
         fillText: vi.fn(),
-        fillStyle: "",
+        fillStyle: '',
         fillRect: vi.fn(),
       })),
-      toDataURL: vi.fn(() => "data:image/png;base64,mock-canvas-data"),
+      toDataURL: vi.fn(() => 'data:image/png;base64,mock-canvas-data'),
     })),
   },
   writable: true,
 });
 
-Object.defineProperty(global, "Intl", {
+Object.defineProperty(global, 'Intl', {
   value: {
     DateTimeFormat: vi.fn(() => ({
-      resolvedOptions: vi.fn(() => ({ timeZone: "America/New_York" })),
+      resolvedOptions: vi.fn(() => ({ timeZone: 'America/New_York' })),
     })),
   },
   writable: true,
 });
 
-describe("SessionManagementService", () => {
+describe('SessionManagementService', () => {
   beforeEach(() => {
     // Reset service state
     sessionManagementService.reset();
@@ -79,7 +79,7 @@ describe("SessionManagementService", () => {
     // Setup default mocks
     securityService.analyzeFraudRisk.mockReturnValue({
       score: 0.2,
-      riskLevel: "low",
+      riskLevel: 'low',
       factors: [],
     });
 
@@ -90,13 +90,13 @@ describe("SessionManagementService", () => {
     sessionManagementService.reset();
   });
 
-  describe("Session Creation", () => {
-    it("should create a new session successfully", async () => {
+  describe('Session Creation', () => {
+    it('should create a new session successfully', async () => {
       const sessionData = {
-        userId: "user123",
-        authMethod: "password",
-        ipAddress: "192.168.1.100",
-        userAgent: "Test Browser",
+        userId: 'user123',
+        authMethod: 'password',
+        ipAddress: '192.168.1.100',
+        userAgent: 'Test Browser',
         rememberMe: false,
       };
 
@@ -109,10 +109,10 @@ describe("SessionManagementService", () => {
       expect(result.requiresAdditionalVerification).toBe(false);
     });
 
-    it("should create session with remember me functionality", async () => {
+    it('should create session with remember me functionality', async () => {
       const sessionData = {
-        userId: "user123",
-        authMethod: "password",
+        userId: 'user123',
+        authMethod: 'password',
         rememberMe: true,
       };
 
@@ -129,17 +129,17 @@ describe("SessionManagementService", () => {
       expect(sessionDuration).toBeGreaterThan(24 * 60 * 60 * 1000); // More than 24 hours
     });
 
-    it("should detect high risk sessions and flag them", async () => {
+    it('should detect high risk sessions and flag them', async () => {
       securityService.analyzeFraudRisk.mockReturnValue({
         score: 0.9,
-        riskLevel: "high",
-        factors: ["unusual_location", "suspicious_ip"],
+        riskLevel: 'high',
+        factors: ['unusual_location', 'suspicious_ip'],
       });
 
       const sessionData = {
-        userId: "user123",
-        authMethod: "password",
-        ipAddress: "1.2.3.4", // Suspicious IP
+        userId: 'user123',
+        authMethod: 'password',
+        ipAddress: '1.2.3.4', // Suspicious IP
       };
 
       const result = await sessionManagementService.createSession(sessionData);
@@ -147,59 +147,59 @@ describe("SessionManagementService", () => {
       expect(result.success).toBe(true);
       expect(result.requiresAdditionalVerification).toBe(true);
       expect(securityService.logSecurityEvent).toHaveBeenCalledWith(
-        "high_risk_session_created",
+        'high_risk_session_created',
         expect.objectContaining({
           sessionId: result.sessionId,
-          userId: "user123",
+          userId: 'user123',
         })
       );
     });
 
-    it("should handle session creation errors gracefully", async () => {
+    it('should handle session creation errors gracefully', async () => {
       securityService.analyzeFraudRisk.mockImplementation(() => {
-        throw new Error("Fraud analysis failed");
+        throw new Error('Fraud analysis failed');
       });
 
       const sessionData = {
-        userId: "user123",
-        authMethod: "password",
+        userId: 'user123',
+        authMethod: 'password',
       };
 
       const result = await sessionManagementService.createSession(sessionData);
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe("Fraud analysis failed");
+      expect(result.error).toBe('Fraud analysis failed');
     });
   });
 
-  describe("Session Validation", () => {
+  describe('Session Validation', () => {
     let sessionId;
 
     beforeEach(async () => {
       const result = await sessionManagementService.createSession({
-        userId: "user123",
-        authMethod: "password",
+        userId: 'user123',
+        authMethod: 'password',
       });
       sessionId = result.sessionId;
     });
 
-    it("should validate active sessions", () => {
+    it('should validate active sessions', () => {
       const validation = sessionManagementService.validateSession(sessionId);
 
       expect(validation.valid).toBe(true);
       expect(validation.session.sessionId).toBe(sessionId);
-      expect(validation.session.userId).toBe("user123");
+      expect(validation.session.userId).toBe('user123');
     });
 
-    it("should reject non-existent sessions", () => {
+    it('should reject non-existent sessions', () => {
       const validation =
-        sessionManagementService.validateSession("invalid-session-id");
+        sessionManagementService.validateSession('invalid-session-id');
 
       expect(validation.valid).toBe(false);
-      expect(validation.reason).toBe("session_not_found");
+      expect(validation.reason).toBe('session_not_found');
     });
 
-    it("should reject expired sessions", () => {
+    it('should reject expired sessions', () => {
       // Manually expire the session
       const session = sessionManagementService.activeSessions.get(sessionId);
       session.expiresAt = Date.now() - 1000; // Expired 1 second ago
@@ -207,10 +207,10 @@ describe("SessionManagementService", () => {
       const validation = sessionManagementService.validateSession(sessionId);
 
       expect(validation.valid).toBe(false);
-      expect(validation.reason).toBe("session_expired");
+      expect(validation.reason).toBe('session_expired');
     });
 
-    it("should reject inactive sessions", () => {
+    it('should reject inactive sessions', () => {
       // Manually set last activity to long ago
       const session = sessionManagementService.activeSessions.get(sessionId);
       session.lastActivity = Date.now() - 35 * 60 * 1000; // 35 minutes ago
@@ -219,10 +219,10 @@ describe("SessionManagementService", () => {
       const validation = sessionManagementService.validateSession(sessionId);
 
       expect(validation.valid).toBe(false);
-      expect(validation.reason).toBe("session_inactive");
+      expect(validation.reason).toBe('session_inactive');
     });
 
-    it("should update activity timestamp on validation", () => {
+    it('should update activity timestamp on validation', () => {
       const beforeValidation = Date.now();
       const validation = sessionManagementService.validateSession(sessionId);
 
@@ -232,32 +232,32 @@ describe("SessionManagementService", () => {
       );
     });
 
-    it("should handle validation errors gracefully", () => {
+    it('should handle validation errors gracefully', () => {
       // Corrupt session data to trigger error
       sessionManagementService.activeSessions.set(sessionId, null);
 
       const validation = sessionManagementService.validateSession(sessionId);
 
       expect(validation.valid).toBe(false);
-      expect(validation.reason).toBe("validation_error");
+      expect(validation.reason).toBe('validation_error');
     });
   });
 
-  describe("Session Invalidation", () => {
+  describe('Session Invalidation', () => {
     let sessionId;
 
     beforeEach(async () => {
       const result = await sessionManagementService.createSession({
-        userId: "user123",
-        authMethod: "password",
+        userId: 'user123',
+        authMethod: 'password',
       });
       sessionId = result.sessionId;
     });
 
-    it("should invalidate sessions successfully", () => {
+    it('should invalidate sessions successfully', () => {
       const result = sessionManagementService.invalidateSession(
         sessionId,
-        "manual"
+        'manual'
       );
 
       expect(result).toBe(true);
@@ -267,23 +267,23 @@ describe("SessionManagementService", () => {
       expect(validation.valid).toBe(false);
     });
 
-    it("should log session invalidation events", () => {
+    it('should log session invalidation events', () => {
       sessionManagementService.invalidateSession(
         sessionId,
-        "security_violation"
+        'security_violation'
       );
 
       expect(securityService.logSecurityEvent).toHaveBeenCalledWith(
-        "session_invalidated",
+        'session_invalidated',
         expect.objectContaining({
           sessionId,
-          userId: "user123",
-          reason: "security_violation",
+          userId: 'user123',
+          reason: 'security_violation',
         })
       );
     });
 
-    it("should clean up session from all tracking structures", () => {
+    it('should clean up session from all tracking structures', () => {
       const session = sessionManagementService.activeSessions.get(sessionId);
       const userId = session.userId;
       const deviceFingerprint = session.deviceFingerprint;
@@ -302,17 +302,17 @@ describe("SessionManagementService", () => {
       ).not.toContain(sessionId);
     });
 
-    it("should handle invalidation of non-existent sessions gracefully", () => {
+    it('should handle invalidation of non-existent sessions gracefully', () => {
       const result = sessionManagementService.invalidateSession(
-        "non-existent-session"
+        'non-existent-session'
       );
 
       expect(result).toBe(true); // Should not throw error
     });
   });
 
-  describe("Device Fingerprinting", () => {
-    it("should generate consistent device fingerprints", async () => {
+  describe('Device Fingerprinting', () => {
+    it('should generate consistent device fingerprints', async () => {
       const fingerprint1 =
         await sessionManagementService.generateDeviceFingerprint();
       const fingerprint2 =
@@ -320,10 +320,10 @@ describe("SessionManagementService", () => {
 
       expect(fingerprint1).toBe(fingerprint2);
       expect(fingerprint1).toBeDefined();
-      expect(typeof fingerprint1).toBe("string");
+      expect(typeof fingerprint1).toBe('string');
     });
 
-    it("should generate fallback fingerprint when browser APIs unavailable", async () => {
+    it('should generate fallback fingerprint when browser APIs unavailable', async () => {
       // Mock undefined navigator
       const originalNavigator = global.navigator;
       global.navigator = undefined;
@@ -332,40 +332,40 @@ describe("SessionManagementService", () => {
         await sessionManagementService.generateDeviceFingerprint();
 
       expect(fingerprint).toBeDefined();
-      expect(fingerprint.startsWith("fallback_")).toBe(true);
+      expect(fingerprint.startsWith('fallback_')).toBe(true);
 
       global.navigator = originalNavigator;
     });
 
-    it("should include canvas fingerprinting", () => {
+    it('should include canvas fingerprinting', () => {
       const canvasFingerprint = sessionManagementService.getCanvasFingerprint();
 
       expect(canvasFingerprint).toBeDefined();
-      expect(typeof canvasFingerprint).toBe("string");
+      expect(typeof canvasFingerprint).toBe('string');
     });
 
-    it("should handle canvas errors gracefully", () => {
+    it('should handle canvas errors gracefully', () => {
       // Mock canvas error
-      document.createElement.mockReturnValue({
+      typeof document !== "undefined" && document.createElement.mockReturnValue({
         getContext: () => null,
       });
 
       const canvasFingerprint = sessionManagementService.getCanvasFingerprint();
 
-      expect(canvasFingerprint).toBe("no-context");
+      expect(canvasFingerprint).toBe('no-context');
     });
   });
 
-  describe("Concurrent Session Management", () => {
-    it("should track multiple sessions per user", async () => {
-      const userId = "user123";
+  describe('Concurrent Session Management', () => {
+    it('should track multiple sessions per user', async () => {
+      const userId = 'user123';
       const sessions = [];
 
       // Create multiple sessions
       for (let i = 0; i < 3; i++) {
         const result = await sessionManagementService.createSession({
           userId,
-          authMethod: "password",
+          authMethod: 'password',
           deviceInfo: { platform: `Device${i}` },
         });
         sessions.push(result.sessionId);
@@ -375,8 +375,8 @@ describe("SessionManagementService", () => {
       expect(userSessions).toHaveLength(3);
     });
 
-    it("should enforce session limits", async () => {
-      const userId = "user123";
+    it('should enforce session limits', async () => {
+      const userId = 'user123';
       const originalLimit =
         sessionManagementService.config.maxConcurrentSessions;
       sessionManagementService.config.maxConcurrentSessions = 2;
@@ -384,17 +384,17 @@ describe("SessionManagementService", () => {
       // Create sessions up to limit
       await sessionManagementService.createSession({
         userId,
-        deviceInfo: { platform: "Device1" },
+        deviceInfo: { platform: 'Device1' },
       });
       await sessionManagementService.createSession({
         userId,
-        deviceInfo: { platform: "Device2" },
+        deviceInfo: { platform: 'Device2' },
       });
 
       // Creating third session should remove oldest
       await sessionManagementService.createSession({
         userId,
-        deviceInfo: { platform: "Device3" },
+        deviceInfo: { platform: 'Device3' },
       });
 
       const userSessions = sessionManagementService.getUserSessions(userId);
@@ -403,35 +403,35 @@ describe("SessionManagementService", () => {
       sessionManagementService.config.maxConcurrentSessions = originalLimit;
     });
 
-    it("should invalidate all user sessions except specified", () => {
-      const userId = "user123";
+    it('should invalidate all user sessions except specified', () => {
+      const userId = 'user123';
 
       // Create test sessions
       sessionManagementService.userSessions.set(userId, [
-        "session1",
-        "session2",
-        "session3",
+        'session1',
+        'session2',
+        'session3',
       ]);
-      sessionManagementService.activeSessions.set("session1", {
-        sessionId: "session1",
+      sessionManagementService.activeSessions.set('session1', {
+        sessionId: 'session1',
         userId,
-        deviceFingerprint: "device1",
+        deviceFingerprint: 'device1',
         isActive: true,
         createdAt: Date.now(),
         lastActivity: Date.now(),
       });
-      sessionManagementService.activeSessions.set("session2", {
-        sessionId: "session2",
+      sessionManagementService.activeSessions.set('session2', {
+        sessionId: 'session2',
         userId,
-        deviceFingerprint: "device2",
+        deviceFingerprint: 'device2',
         isActive: true,
         createdAt: Date.now(),
         lastActivity: Date.now(),
       });
-      sessionManagementService.activeSessions.set("session3", {
-        sessionId: "session3",
+      sessionManagementService.activeSessions.set('session3', {
+        sessionId: 'session3',
         userId,
-        deviceFingerprint: "device3",
+        deviceFingerprint: 'device3',
         isActive: true,
         createdAt: Date.now(),
         lastActivity: Date.now(),
@@ -439,46 +439,46 @@ describe("SessionManagementService", () => {
 
       const invalidatedCount = sessionManagementService.invalidateUserSessions(
         userId,
-        "session2"
+        'session2'
       );
 
       expect(invalidatedCount).toBe(2);
-      expect(sessionManagementService.activeSessions.has("session2")).toBe(
+      expect(sessionManagementService.activeSessions.has('session2')).toBe(
         true
       );
-      expect(sessionManagementService.activeSessions.has("session1")).toBe(
+      expect(sessionManagementService.activeSessions.has('session1')).toBe(
         false
       );
-      expect(sessionManagementService.activeSessions.has("session3")).toBe(
+      expect(sessionManagementService.activeSessions.has('session3')).toBe(
         false
       );
     });
   });
 
-  describe("Security Monitoring", () => {
+  describe('Security Monitoring', () => {
     let sessionId;
 
     beforeEach(async () => {
       const result = await sessionManagementService.createSession({
-        userId: "user123",
-        authMethod: "password",
-        ipAddress: "192.168.1.100",
+        userId: 'user123',
+        authMethod: 'password',
+        ipAddress: '192.168.1.100',
       });
       sessionId = result.sessionId;
     });
 
-    it("should detect IP address changes", () => {
+    it('should detect IP address changes', () => {
       const result = sessionManagementService.detectSuspiciousActivity(
         sessionId,
         {
-          ipAddress: "10.0.0.1", // Different IP
+          ipAddress: '10.0.0.1', // Different IP
         }
       );
 
       expect(result.requiresReauth).toBe(false); // Not enough indicators yet
     });
 
-    it("should detect location changes", () => {
+    it('should detect location changes', () => {
       const session = sessionManagementService.activeSessions.get(sessionId);
       session.geolocation = { lat: 40.7128, lng: -74.006 }; // NYC
 
@@ -492,7 +492,7 @@ describe("SessionManagementService", () => {
       expect(result.requiresReauth).toBe(false); // Distance < threshold for testing
     });
 
-    it("should detect rapid activity patterns", () => {
+    it('should detect rapid activity patterns', () => {
       const session = sessionManagementService.activeSessions.get(sessionId);
       session.lastActivity = Date.now() - 500; // 500ms ago
       session.activityCount = 150; // High activity count
@@ -505,7 +505,7 @@ describe("SessionManagementService", () => {
       expect(result.requiresReauth).toBe(false); // Need more indicators
     });
 
-    it("should require re-authentication for high suspicion", () => {
+    it('should require re-authentication for high suspicion', () => {
       const session = sessionManagementService.activeSessions.get(sessionId);
       session.lastActivity = Date.now() - 500;
       session.activityCount = 150;
@@ -514,21 +514,21 @@ describe("SessionManagementService", () => {
       const result = sessionManagementService.detectSuspiciousActivity(
         sessionId,
         {
-          ipAddress: "10.0.0.1",
+          ipAddress: '10.0.0.1',
           geolocation: { lat: 51.5074, lng: -0.1278 }, // London - far from NYC
         }
       );
 
       // This should trigger multiple indicators and require reauth
       if (result.requiresReauth) {
-        expect(result.reason).toBe("suspicious_activity");
+        expect(result.reason).toBe('suspicious_activity');
         expect(result.indicators).toBeDefined();
       }
     });
 
-    it("should handle missing session gracefully", () => {
+    it('should handle missing session gracefully', () => {
       const result = sessionManagementService.detectSuspiciousActivity(
-        "non-existent",
+        'non-existent',
         {}
       );
 
@@ -536,29 +536,29 @@ describe("SessionManagementService", () => {
     });
   });
 
-  describe("Session Analytics", () => {
+  describe('Session Analytics', () => {
     beforeEach(async () => {
       // Create test sessions
       await sessionManagementService.createSession({
-        userId: "user1",
-        authMethod: "password",
-        deviceInfo: { platform: "Windows" },
+        userId: 'user1',
+        authMethod: 'password',
+        deviceInfo: { platform: 'Windows' },
       });
 
       await sessionManagementService.createSession({
-        userId: "user1",
-        authMethod: "webauthn",
-        deviceInfo: { platform: "macOS" },
+        userId: 'user1',
+        authMethod: 'webauthn',
+        deviceInfo: { platform: 'macOS' },
       });
 
       await sessionManagementService.createSession({
-        userId: "user2",
-        authMethod: "oauth",
-        deviceInfo: { platform: "Windows" },
+        userId: 'user2',
+        authMethod: 'oauth',
+        deviceInfo: { platform: 'Windows' },
       });
     });
 
-    it("should provide overall analytics", () => {
+    it('should provide overall analytics', () => {
       const analytics = sessionManagementService.getSessionAnalytics();
 
       expect(analytics.totalSessions).toBe(3);
@@ -575,8 +575,8 @@ describe("SessionManagementService", () => {
       });
     });
 
-    it("should provide user-specific analytics", () => {
-      const analytics = sessionManagementService.getSessionAnalytics("user1");
+    it('should provide user-specific analytics', () => {
+      const analytics = sessionManagementService.getSessionAnalytics('user1');
 
       expect(analytics.totalSessions).toBe(2);
       expect(analytics.activeSessions).toBe(2);
@@ -586,9 +586,9 @@ describe("SessionManagementService", () => {
       });
     });
 
-    it("should handle analytics errors gracefully", () => {
+    it('should handle analytics errors gracefully', () => {
       // Corrupt session data
-      sessionManagementService.activeSessions.set("corrupt", "invalid-data");
+      sessionManagementService.activeSessions.set('corrupt', 'invalid-data');
 
       const analytics = sessionManagementService.getSessionAnalytics();
 
@@ -597,12 +597,12 @@ describe("SessionManagementService", () => {
     });
   });
 
-  describe("Session Cleanup", () => {
-    it("should clean up expired sessions", async () => {
+  describe('Session Cleanup', () => {
+    it('should clean up expired sessions', async () => {
       // Create session and immediately expire it
       const result = await sessionManagementService.createSession({
-        userId: "user123",
-        authMethod: "password",
+        userId: 'user123',
+        authMethod: 'password',
       });
 
       const session = sessionManagementService.activeSessions.get(
@@ -617,10 +617,10 @@ describe("SessionManagementService", () => {
       expect(afterCleanup).toBe(beforeCleanup - 1);
     });
 
-    it("should preserve active sessions during cleanup", async () => {
+    it('should preserve active sessions during cleanup', async () => {
       await sessionManagementService.createSession({
-        userId: "user123",
-        authMethod: "password",
+        userId: 'user123',
+        authMethod: 'password',
       });
 
       const beforeCleanup = sessionManagementService.activeSessions.size;
@@ -631,17 +631,17 @@ describe("SessionManagementService", () => {
     });
   });
 
-  describe("Utility Functions", () => {
-    it("should generate unique session IDs", () => {
+  describe('Utility Functions', () => {
+    it('should generate unique session IDs', () => {
       const id1 = sessionManagementService.generateSessionId();
       const id2 = sessionManagementService.generateSessionId();
 
       expect(id1).not.toBe(id2);
-      expect(id1.startsWith("ses_")).toBe(true);
-      expect(id2.startsWith("ses_")).toBe(true);
+      expect(id1.startsWith('ses_')).toBe(true);
+      expect(id2.startsWith('ses_')).toBe(true);
     });
 
-    it("should calculate distance correctly", () => {
+    it('should calculate distance correctly', () => {
       const nyc = { lat: 40.7128, lng: -74.006 };
       const la = { lat: 34.0522, lng: -118.2437 };
 
@@ -651,27 +651,27 @@ describe("SessionManagementService", () => {
       expect(distance).toBeLessThan(4000);
     });
 
-    it("should create simple hashes", () => {
-      const hash1 = sessionManagementService.simpleHash("test string");
-      const hash2 = sessionManagementService.simpleHash("test string");
-      const hash3 = sessionManagementService.simpleHash("different string");
+    it('should create simple hashes', () => {
+      const hash1 = sessionManagementService.simpleHash('test string');
+      const hash2 = sessionManagementService.simpleHash('test string');
+      const hash3 = sessionManagementService.simpleHash('different string');
 
       expect(hash1).toBe(hash2); // Same input, same hash
       expect(hash1).not.toBe(hash3); // Different input, different hash
     });
 
-    it("should convert degrees to radians", () => {
+    it('should convert degrees to radians', () => {
       const radians = sessionManagementService.toRadians(180);
       expect(radians).toBeCloseTo(Math.PI, 5);
     });
   });
 
-  describe("Session State Management", () => {
-    it("should reset all session data", async () => {
+  describe('Session State Management', () => {
+    it('should reset all session data', async () => {
       // Create some sessions
       await sessionManagementService.createSession({
-        userId: "user123",
-        authMethod: "password",
+        userId: 'user123',
+        authMethod: 'password',
       });
 
       expect(sessionManagementService.activeSessions.size).toBeGreaterThan(0);
@@ -684,125 +684,125 @@ describe("SessionManagementService", () => {
       expect(sessionManagementService.currentSession).toBeNull();
     });
 
-    it("should manage user session lists correctly", () => {
-      sessionManagementService.addUserSession("user123", "session1");
-      sessionManagementService.addUserSession("user123", "session2");
+    it('should manage user session lists correctly', () => {
+      sessionManagementService.addUserSession('user123', 'session1');
+      sessionManagementService.addUserSession('user123', 'session2');
 
-      expect(sessionManagementService.userSessions.get("user123")).toEqual([
-        "session1",
-        "session2",
+      expect(sessionManagementService.userSessions.get('user123')).toEqual([
+        'session1',
+        'session2',
       ]);
 
-      sessionManagementService.removeUserSession("user123", "session1");
+      sessionManagementService.removeUserSession('user123', 'session1');
 
-      expect(sessionManagementService.userSessions.get("user123")).toEqual([
-        "session2",
+      expect(sessionManagementService.userSessions.get('user123')).toEqual([
+        'session2',
       ]);
     });
 
-    it("should manage device session lists correctly", () => {
-      sessionManagementService.addDeviceSession("device123", "session1");
-      sessionManagementService.addDeviceSession("device123", "session2");
+    it('should manage device session lists correctly', () => {
+      sessionManagementService.addDeviceSession('device123', 'session1');
+      sessionManagementService.addDeviceSession('device123', 'session2');
 
-      expect(sessionManagementService.deviceSessions.get("device123")).toEqual([
-        "session1",
-        "session2",
+      expect(sessionManagementService.deviceSessions.get('device123')).toEqual([
+        'session1',
+        'session2',
       ]);
 
-      sessionManagementService.removeDeviceSession("device123", "session1");
+      sessionManagementService.removeDeviceSession('device123', 'session1');
 
-      expect(sessionManagementService.deviceSessions.get("device123")).toEqual([
-        "session2",
+      expect(sessionManagementService.deviceSessions.get('device123')).toEqual([
+        'session2',
       ]);
     });
   });
 
-  describe("Integration with Security Service", () => {
-    it("should call fraud analysis during session creation", async () => {
+  describe('Integration with Security Service', () => {
+    it('should call fraud analysis during session creation', async () => {
       const sessionData = {
-        userId: "user123",
-        authMethod: "password",
-        ipAddress: "192.168.1.100",
-        userAgent: "Test Browser",
+        userId: 'user123',
+        authMethod: 'password',
+        ipAddress: '192.168.1.100',
+        userAgent: 'Test Browser',
       };
 
       await sessionManagementService.createSession(sessionData);
 
       expect(securityService.analyzeFraudRisk).toHaveBeenCalledWith(
         expect.objectContaining({
-          ipAddress: "192.168.1.100",
-          userId: "user123",
-          userAgent: "Test Browser",
+          ipAddress: '192.168.1.100',
+          userId: 'user123',
+          userAgent: 'Test Browser',
         })
       );
     });
 
-    it("should log security events appropriately", async () => {
+    it('should log security events appropriately', async () => {
       const sessionData = {
-        userId: "user123",
-        authMethod: "password",
+        userId: 'user123',
+        authMethod: 'password',
       };
 
       const result = await sessionManagementService.createSession(sessionData);
 
       expect(securityService.logSecurityEvent).toHaveBeenCalledWith(
-        "session_created",
+        'session_created',
         expect.objectContaining({
           sessionId: result.sessionId,
-          userId: "user123",
-          authMethod: "password",
+          userId: 'user123',
+          authMethod: 'password',
         })
       );
     });
   });
 });
 
-describe("SessionManagementService Edge Cases", () => {
+describe('SessionManagementService Edge Cases', () => {
   beforeEach(() => {
     sessionManagementService.reset();
     vi.clearAllMocks();
   });
 
-  it("should handle missing device fingerprint gracefully", async () => {
+  it('should handle missing device fingerprint gracefully', async () => {
     // Mock fingerprinting failure
     vi.spyOn(
       sessionManagementService,
-      "generateDeviceFingerprint"
+      'generateDeviceFingerprint'
     ).mockResolvedValue(null);
 
     const result = await sessionManagementService.createSession({
-      userId: "user123",
-      authMethod: "password",
+      userId: 'user123',
+      authMethod: 'password',
     });
 
     expect(result.success).toBe(true);
     expect(result.deviceFingerprint).toBeNull();
   });
 
-  it("should handle session timeout errors", () => {
+  it('should handle session timeout errors', () => {
     // Mock setTimeout to throw
     const originalSetTimeout = global.setTimeout;
     global.setTimeout = vi.fn().mockImplementation(() => {
-      throw new Error("setTimeout failed");
+      throw new Error('setTimeout failed');
     });
 
     // This should not crash the service
     expect(() => {
-      sessionManagementService.setSessionTimeout("test-session", 1000);
+      sessionManagementService.setSessionTimeout('test-session', 1000);
     }).not.toThrow();
 
     global.setTimeout = originalSetTimeout;
   });
 
-  it("should handle heartbeat failures gracefully", () => {
+  it('should handle heartbeat failures gracefully', () => {
     sessionManagementService.currentSession = {
-      sessionId: "test-session",
+      sessionId: 'test-session',
     };
 
     // Mock validation to throw
-    vi.spyOn(sessionManagementService, "validateSession").mockImplementation(
+    vi.spyOn(sessionManagementService, 'validateSession').mockImplementation(
       () => {
-        throw new Error("Validation failed");
+        throw new Error('Validation failed');
       }
     );
 
@@ -812,15 +812,15 @@ describe("SessionManagementService Edge Cases", () => {
     }).not.toThrow();
   });
 
-  it("should handle corrupted session data", () => {
+  it('should handle corrupted session data', () => {
     // Add corrupted session data
-    sessionManagementService.activeSessions.set("corrupt", {
+    sessionManagementService.activeSessions.set('corrupt', {
       // Missing required fields
-      sessionId: "corrupt",
+      sessionId: 'corrupt',
     });
 
     expect(() => {
-      sessionManagementService.getUserSessions("test-user");
+      sessionManagementService.getUserSessions('test-user');
     }).not.toThrow();
 
     expect(() => {
@@ -828,7 +828,7 @@ describe("SessionManagementService Edge Cases", () => {
     }).not.toThrow();
   });
 
-  it("should handle browser API failures", async () => {
+  it('should handle browser API failures', async () => {
     // Mock all browser APIs to fail
     global.navigator = undefined;
     global.window = undefined;
@@ -838,6 +838,6 @@ describe("SessionManagementService Edge Cases", () => {
       await sessionManagementService.generateDeviceFingerprint();
 
     expect(fingerprint).toBeDefined();
-    expect(fingerprint.startsWith("fallback_")).toBe(true);
+    expect(fingerprint.startsWith('fallback_')).toBe(true);
   });
 });

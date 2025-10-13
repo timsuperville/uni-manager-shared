@@ -12,19 +12,19 @@ import {
   generateDeviceFingerprint,
   getDeviceInfo,
   trackUserActivity,
-} from "../utils/socialAuth.js";
+} from '../utils/socialAuth.js';
 import {
   getProviderConfig,
   generatePKCE,
   generateNonce,
   generateState,
-} from "../config/oauthProviders.js";
-import { getCurrentAppConfig } from "../config/appConfigs.js";
-import { tokenStorage } from "../utils/tokenStorage.js";
+} from '../config/oauthProviders.js';
+import { getCurrentAppConfig } from '../config/appConfigs.js';
+import { tokenStorage } from '../utils/tokenStorage.js';
 import {
   validateAuthData,
   validateCredentials,
-} from "../utils/authValidation.js";
+} from '../utils/authValidation.js';
 
 class AuthService {
   constructor(config = {}) {
@@ -49,24 +49,24 @@ class AuthService {
 
     // Merge app-specific config with defaults
     this.config = {
-      apiBaseUrl: config.apiBaseUrl || "http://localhost:5000",
+      apiBaseUrl: config.apiBaseUrl || 'http://localhost:5000',
       endpoints: {
-        login: "/api/auth/login",
-        logout: "/api/auth/logout",
-        signup: "/api/auth/signup",
-        forgotPassword: "/api/auth/forgot-password",
-        resetPassword: "/api/auth/reset-password",
-        refreshToken: "/api/auth/refresh-token",
-        validateToken: "/api/auth/validate-token",
-        verify: "/api/auth/verify",
+        login: '/api/auth/login',
+        logout: '/api/auth/logout',
+        signup: '/api/auth/signup',
+        forgotPassword: '/api/auth/forgot-password',
+        resetPassword: '/api/auth/reset-password',
+        refreshToken: '/api/auth/refresh-token',
+        validateToken: '/api/auth/validate-token',
+        verify: '/api/auth/verify',
         ...transformedEndpoints,
       },
-      appType: config.appType || "default",
+      appType: config.appType || 'default',
       ...config,
     };
 
     // Core auth state
-    this.apiEndpoint = this.config.endpoints.login.replace("/login", "");
+    this.apiEndpoint = this.config.endpoints.login.replace('/login', '');
     this.currentUser = null;
     this.sessionToken = null;
     this.deviceFingerprint = null;
@@ -91,8 +91,8 @@ class AuthService {
       this.startActivityTracking();
 
       return true;
-    } catch (error) {
-      console.error("Auth service initialization failed:", error);
+    } catch (_error) {
+      // console.error('Auth service initialization failed:', error);
       return false;
     }
   }
@@ -105,8 +105,8 @@ class AuthService {
     if (!token) return null;
 
     try {
-      const response = await this._makeRequest("verify", {
-        method: "POST",
+      const response = await this._makeRequest('verify', {
+        method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -126,8 +126,8 @@ class AuthService {
         await this.clearStoredAuth();
         return null;
       }
-    } catch (error) {
-      console.error("Session verification failed:", error);
+    } catch (_error) {
+      // console.error('Session verification failed:', error);
       await this.clearStoredAuth();
       return null;
     }
@@ -145,18 +145,18 @@ class AuthService {
 
     // Check rate limiting
     if (this.isRateLimited(email)) {
-      throw new Error("Too many login attempts. Please try again later.");
+      throw new Error('Too many login attempts. Please try again later.');
     }
 
     try {
       // Validate credentials client-side
       const validation = validateCredentials(credentials);
       if (!validation.isValid) {
-        throw new Error(validation.errors.join(", "));
+        throw new Error(validation.errors.join(', '));
       }
 
-      const response = await this._makeRequest("login", {
-        method: "POST",
+      const response = await this._makeRequest('login', {
+        method: 'POST',
         body: JSON.stringify({
           ...credentials,
           appType: this.config.appType,
@@ -190,9 +190,9 @@ class AuthService {
 
       // Record failed login attempt
       this.recordLoginAttempt(email);
-      throw new Error(responseData.message || "Login failed");
-    } catch (error) {
-      console.error(`[Auth-${this.config.appType}] Login error:`, error);
+      throw new Error(responseData.message || 'Login failed');
+    } catch (_error) {
+      // console.error(`[Auth-${this.config.appType}] Login error:`, error);
       this.recordLoginAttempt(email);
       throw error;
     }
@@ -207,8 +207,8 @@ class AuthService {
 
       if (token) {
         // Notify backend of logout
-        await this._makeRequest("logout", {
-          method: "POST",
+        await this._makeRequest('logout', {
+          method: 'POST',
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -224,8 +224,8 @@ class AuthService {
       this.stopActivityTracking();
 
       return { success: true };
-    } catch (error) {
-      console.error(`[Auth-${this.config.appType}] Logout error:`, error);
+    } catch (_error) {
+      // console.error(`[Auth-${this.config.appType}] Logout error:`, error);
       // Still clear local storage even if backend call fails
       await this.clearStoredAuth();
       this.currentUser = null;
@@ -239,8 +239,8 @@ class AuthService {
    */
   async signup(userData) {
     try {
-      const response = await this._makeRequest("signup", {
-        method: "POST",
+      const response = await this._makeRequest('signup', {
+        method: 'POST',
         body: JSON.stringify({
           ...userData,
           appType: this.config.appType,
@@ -260,9 +260,9 @@ class AuthService {
         };
       }
 
-      throw new Error(responseData.message || "Signup failed");
-    } catch (error) {
-      console.error(`[Auth-${this.config.appType}] Signup error:`, error);
+      throw new Error(responseData.message || 'Signup failed');
+    } catch (_error) {
+      // console.error(`[Auth-${this.config.appType}] Signup error:`, error);
       throw error;
     }
   }
@@ -272,8 +272,8 @@ class AuthService {
    */
   async forgotPassword(email) {
     try {
-      const response = await this._makeRequest("forgotPassword", {
-        method: "POST",
+      const response = await this._makeRequest('forgotPassword', {
+        method: 'POST',
         body: JSON.stringify({
           email,
           appType: this.config.appType,
@@ -286,12 +286,12 @@ class AuthService {
         success: responseData.success,
         message: responseData.message,
       };
-    } catch (error) {
-      console.error(
-        `[Auth-${this.config.appType}] Forgot password error:`,
-        error
-      );
-      throw error;
+    } catch (_error) {
+      // console.error(
+      //   `[Auth-${this.config.appType}] Forgot password error:`,
+      //   error
+      // );
+      throw _error;
     }
   }
 
@@ -300,8 +300,8 @@ class AuthService {
    */
   async resetPassword(token, newPassword) {
     try {
-      const response = await this._makeRequest("resetPassword", {
-        method: "POST",
+      const response = await this._makeRequest('resetPassword', {
+        method: 'POST',
         body: JSON.stringify({
           token,
           newPassword,
@@ -315,12 +315,12 @@ class AuthService {
         success: responseData.success,
         message: responseData.message,
       };
-    } catch (error) {
-      console.error(
-        `[Auth-${this.config.appType}] Reset password error:`,
-        error
-      );
-      throw error;
+    } catch (_error) {
+      // console.error(
+      //   `[Auth-${this.config.appType}] Reset password error:`,
+      //   error
+      // );
+      throw _error;
     }
   }
 
@@ -348,22 +348,22 @@ class AuthService {
       const nonce = generateNonce();
 
       // Store PKCE parameters and state
-      if (typeof sessionStorage !== "undefined") {
-        sessionStorage.setItem("pkce_verifier", codeVerifier);
-        sessionStorage.setItem("oauth_state", state);
-        sessionStorage.setItem("oauth_nonce", nonce);
-        sessionStorage.setItem("oauth_provider", providerId);
+      if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.setItem('pkce_verifier', codeVerifier);
+        sessionStorage.setItem('oauth_state', state);
+        sessionStorage.setItem('oauth_nonce', nonce);
+        sessionStorage.setItem('oauth_provider', providerId);
       }
 
       // Build authorization URL
       const authParams = new URLSearchParams({
-        response_type: "code",
+        response_type: 'code',
         client_id: providerConfig.clientId,
         redirect_uri: providerConfig.redirectUri,
-        scope: providerConfig.scopes.join(" "),
+        scope: providerConfig.scopes.join(' '),
         state: state,
         code_challenge: codeChallenge,
-        code_challenge_method: "S256",
+        code_challenge_method: 'S256',
         nonce: nonce,
         ...options.additionalParams,
       });
@@ -371,15 +371,15 @@ class AuthService {
       const authUrl = `${providerConfig.authorizationEndpoint}?${authParams.toString()}`;
 
       // Track OAuth initiation
-      trackUserActivity("oauth_init", {
+      trackUserActivity('oauth_init', {
         provider: providerId,
         app: appConfig.name,
         deviceFingerprint: this.deviceFingerprint,
       });
 
       return { authUrl, state };
-    } catch (error) {
-      console.error("OAuth flow initiation failed:", error);
+    } catch (_error) {
+      // console.error('OAuth flow initiation failed:', error);
       throw error;
     }
   }
@@ -395,24 +395,24 @@ class AuthService {
     try {
       // Verify state parameter
       const storedState =
-        typeof sessionStorage !== "undefined"
-          ? sessionStorage.getItem("oauth_state")
+        typeof sessionStorage !== 'undefined'
+          ? sessionStorage.getItem('oauth_state')
           : null;
       if (state !== storedState) {
-        throw new Error("Invalid OAuth state parameter");
+        throw new Error('Invalid OAuth state parameter');
       }
 
       const providerId =
-        typeof sessionStorage !== "undefined"
-          ? sessionStorage.getItem("oauth_provider")
+        typeof sessionStorage !== 'undefined'
+          ? sessionStorage.getItem('oauth_provider')
           : null;
       const codeVerifier =
-        typeof sessionStorage !== "undefined"
-          ? sessionStorage.getItem("pkce_verifier")
+        typeof sessionStorage !== 'undefined'
+          ? sessionStorage.getItem('pkce_verifier')
           : null;
 
       if (!providerId || !codeVerifier) {
-        throw new Error("Missing OAuth session data");
+        throw new Error('Missing OAuth session data');
       }
 
       // Exchange code for tokens
@@ -433,11 +433,11 @@ class AuthService {
       this.sessionToken = tokenResponse.accessToken;
 
       // Clear OAuth session data
-      if (typeof sessionStorage !== "undefined") {
-        sessionStorage.removeItem("pkce_verifier");
-        sessionStorage.removeItem("oauth_state");
-        sessionStorage.removeItem("oauth_nonce");
-        sessionStorage.removeItem("oauth_provider");
+      if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.removeItem('pkce_verifier');
+        sessionStorage.removeItem('oauth_state');
+        sessionStorage.removeItem('oauth_nonce');
+        sessionStorage.removeItem('oauth_provider');
       }
 
       return {
@@ -445,8 +445,8 @@ class AuthService {
         user: tokenResponse.user,
         provider: providerId,
       };
-    } catch (error) {
-      console.error("OAuth callback handling failed:", error);
+    } catch (_error) {
+      // console.error('OAuth callback handling failed:', error);
       throw error;
     }
   }
@@ -459,7 +459,7 @@ class AuthService {
     const providerConfig = getProviderConfig(providerId, appConfig.name);
 
     const tokenParams = {
-      grant_type: "authorization_code",
+      grant_type: 'authorization_code',
       client_id: providerConfig.clientId,
       code: code,
       redirect_uri: providerConfig.redirectUri,
@@ -467,10 +467,10 @@ class AuthService {
     };
 
     const response = await fetch(providerConfig.tokenEndpoint, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        Accept: "application/json",
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Accept: 'application/json',
       },
       body: new URLSearchParams(tokenParams).toString(),
     });
@@ -488,10 +488,10 @@ class AuthService {
     );
 
     // Register user with our backend
-    const authResponse = await this._makeRequest("login", {
-      method: "POST",
+    const authResponse = await this._makeRequest('login', {
+      method: 'POST',
       body: JSON.stringify({
-        authType: "oauth",
+        authType: 'oauth',
         provider: providerId,
         oauthToken: tokenData.access_token,
         userInfo: userInfo,
@@ -504,7 +504,7 @@ class AuthService {
     const authData = await authResponse.json();
 
     if (!authResponse.ok || !authData.success) {
-      throw new Error(authData.message || "OAuth authentication failed");
+      throw new Error(authData.message || 'OAuth authentication failed');
     }
 
     return {
@@ -524,7 +524,7 @@ class AuthService {
     const response = await fetch(providerConfig.userInfoEndpoint, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
-        Accept: "application/json",
+        Accept: 'application/json',
       },
     });
 
@@ -545,8 +545,8 @@ class AuthService {
   async getStoredToken() {
     try {
       return await tokenStorage.getAccessToken();
-    } catch (error) {
-      console.error("Failed to get stored token:", error);
+    } catch (_error) {
+      // console.error('Failed to get stored token:', error);
       return null;
     }
   }
@@ -558,11 +558,11 @@ class AuthService {
     try {
       const refreshToken = await tokenStorage.getRefreshToken();
       if (!refreshToken) {
-        throw new Error("No refresh token available");
+        throw new Error('No refresh token available');
       }
 
-      const response = await this._makeRequest("refreshToken", {
-        method: "POST",
+      const response = await this._makeRequest('refreshToken', {
+        method: 'POST',
         body: JSON.stringify({
           refreshToken,
           deviceFingerprint: this.deviceFingerprint,
@@ -588,9 +588,9 @@ class AuthService {
         };
       }
 
-      throw new Error(responseData.message || "Token refresh failed");
-    } catch (error) {
-      console.error("Token refresh failed:", error);
+      throw new Error(responseData.message || 'Token refresh failed');
+    } catch (_error) {
+      // console.error('Token refresh failed:', error);
       await this.clearStoredAuth();
       throw error;
     }
@@ -604,8 +604,8 @@ class AuthService {
       const token = await this.getStoredToken();
       if (!token) return false;
 
-      const response = await this._makeRequest("validateToken", {
-        method: "POST",
+      const response = await this._makeRequest('validateToken', {
+        method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -613,8 +613,8 @@ class AuthService {
 
       const responseData = await response.json();
       return response.ok && responseData.valid;
-    } catch (error) {
-      console.error("Token validation failed:", error);
+    } catch (_error) {
+      // console.error('Token validation failed:', error);
       return false;
     }
   }
@@ -625,8 +625,8 @@ class AuthService {
   async clearStoredAuth() {
     try {
       await tokenStorage.clearTokens();
-    } catch (error) {
-      console.error("Failed to clear stored auth:", error);
+    } catch (_error) {
+      // console.error('Failed to clear stored auth:', error);
     }
   }
 
@@ -697,13 +697,13 @@ class AuthService {
     if (!this.currentUser) return;
 
     try {
-      trackUserActivity("session_active", {
+      trackUserActivity('session_active', {
         userId: this.currentUser.id,
         app: this.config.appType,
         deviceFingerprint: this.deviceFingerprint,
       });
-    } catch (error) {
-      console.error("Activity update failed:", error);
+    } catch (_error) {
+      // console.error('Activity update failed:', error);
     }
   }
 
@@ -739,7 +739,7 @@ class AuthService {
     const url = `${this.config.apiBaseUrl}${this.config.endpoints[endpoint] || endpoint}`;
 
     const defaultHeaders = {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
       ...options.headers,
     };
 

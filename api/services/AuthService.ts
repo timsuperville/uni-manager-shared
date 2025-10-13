@@ -5,8 +5,8 @@
  * login, signup, password reset, and user profile management.
  */
 
-import { BaseService, ValidationSchema } from "./BaseService";
-import { ApiClient } from "../core/ApiClient";
+import { BaseService, ValidationSchema } from './BaseService';
+import { ApiClient } from '../core/ApiClient';
 import {
   User,
   LoginRequest,
@@ -14,7 +14,7 @@ import {
   AuthResponse,
   UserProfile,
   UpdateRequest,
-} from "../types";
+} from '../types';
 
 export interface ForgotPasswordRequest {
   email: string;
@@ -42,7 +42,7 @@ export interface ResendVerificationRequest {
 
 export class AuthService extends BaseService {
   constructor(client: ApiClient) {
-    super(client, "/auth", "AuthService");
+    super(client, '/auth', 'AuthService');
   }
 
   /**
@@ -51,26 +51,26 @@ export class AuthService extends BaseService {
   async login(credentials: LoginRequest): Promise<AuthResponse> {
     const schema: ValidationSchema = {
       email: {
-        type: "string",
+        type: 'string',
         required: true,
         pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
         validator: (value) =>
-          value.length >= 3 || "Email must be at least 3 characters",
+          value.length >= 3 || 'Email must be at least 3 characters',
       },
       password: {
-        type: "string",
+        type: 'string',
         required: true,
         minLength: 6,
       },
       rememberMe: {
-        type: "boolean",
+        type: 'boolean',
         required: false,
       },
     };
 
     const validatedData = this.validateRequest(credentials, schema);
     const response = await this.post<AuthResponse>(
-      this.buildEndpoint("/login"),
+      this.buildEndpoint('/login'),
       validatedData,
       { cache: false },
     );
@@ -87,12 +87,12 @@ export class AuthService extends BaseService {
   async signup(userData: SignupRequest): Promise<AuthResponse> {
     const schema: ValidationSchema = {
       email: {
-        type: "string",
+        type: 'string',
         required: true,
         pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
       },
       password: {
-        type: "string",
+        type: 'string',
         required: true,
         minLength: 8,
         validator: (value) => {
@@ -100,37 +100,37 @@ export class AuthService extends BaseService {
           const hasUpper = /[A-Z]/.test(value);
           const hasLower = /[a-z]/.test(value);
           const hasNumber = /\d/.test(value);
-          const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(value);
+          const hasSpecial = /[!@#$%^&*(),.?':{}|<>]/.test(value);
 
           if (!hasUpper || !hasLower || !hasNumber || !hasSpecial) {
-            return "Password must contain uppercase, lowercase, number, and special character";
+            return 'Password must contain uppercase, lowercase, number, and special character';
           }
           return true;
         },
       },
       firstName: {
-        type: "string",
+        type: 'string',
         required: true,
         minLength: 1,
         maxLength: 50,
       },
       lastName: {
-        type: "string",
+        type: 'string',
         required: true,
         minLength: 1,
         maxLength: 50,
       },
       acceptTerms: {
-        type: "boolean",
+        type: 'boolean',
         required: true,
         validator: (value) =>
-          value === true || "You must accept the terms and conditions",
+          value === true || 'You must accept the terms and conditions',
       },
     };
 
     const validatedData = this.validateRequest(userData, schema);
     const response = await this.post<AuthResponse>(
-      this.buildEndpoint("/signup"),
+      this.buildEndpoint('/signup'),
       validatedData,
       { cache: false },
     );
@@ -147,7 +147,7 @@ export class AuthService extends BaseService {
   async logout(): Promise<void> {
     try {
       await this.post<void>(
-        this.buildEndpoint("/logout"),
+        this.buildEndpoint('/logout'),
         {},
         { cache: false, retry: false },
       );
@@ -162,7 +162,7 @@ export class AuthService extends BaseService {
    */
   async refreshToken(refreshToken: string): Promise<AuthResponse> {
     const response = await this.post<AuthResponse>(
-      this.buildEndpoint("/refresh"),
+      this.buildEndpoint('/refresh'),
       { refreshToken },
       { cache: false },
     );
@@ -177,7 +177,7 @@ export class AuthService extends BaseService {
    * Get current user profile
    */
   async getCurrentUser(): Promise<User> {
-    return this.get<User>(this.buildEndpoint("/me"));
+    return this.get<User>(this.buildEndpoint('/me'));
   }
 
   /**
@@ -186,45 +186,45 @@ export class AuthService extends BaseService {
   async updateProfile(updates: UpdateRequest<UserProfile>): Promise<User> {
     const schema: ValidationSchema = {
       firstName: {
-        type: "string",
+        type: 'string',
         required: false,
         minLength: 1,
         maxLength: 50,
       },
       lastName: {
-        type: "string",
+        type: 'string',
         required: false,
         minLength: 1,
         maxLength: 50,
       },
       displayName: {
-        type: "string",
+        type: 'string',
         required: false,
         maxLength: 100,
       },
       phoneNumber: {
-        type: "string",
+        type: 'string",
         required: false,
         pattern: /^[\+]?[1-9][\d]{0,15}$/,
       },
       bio: {
-        type: "string",
+        type: 'string',
         required: false,
         maxLength: 500,
       },
       location: {
-        type: "string",
+        type: 'string',
         required: false,
         maxLength: 100,
       },
       timezone: {
-        type: "string",
+        type: 'string',
         required: false,
       },
     };
 
     const validatedData = this.validateRequest(updates, schema);
-    return this.put<User>(this.buildEndpoint("/profile"), validatedData, {
+    return this.put<User>(this.buildEndpoint('/profile'), validatedData, {
       cache: false,
     });
   }
@@ -235,12 +235,12 @@ export class AuthService extends BaseService {
   async changePassword(passwordData: ChangePasswordRequest): Promise<void> {
     const schema: ValidationSchema = {
       currentPassword: {
-        type: "string",
+        type: 'string',
         required: true,
         minLength: 1,
       },
       newPassword: {
-        type: "string",
+        type: 'string',
         required: true,
         minLength: 8,
         validator: (value) => {
@@ -248,20 +248,20 @@ export class AuthService extends BaseService {
           const hasUpper = /[A-Z]/.test(value);
           const hasLower = /[a-z]/.test(value);
           const hasNumber = /\d/.test(value);
-          const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(value);
+          const hasSpecial = /[!@#$%^&*(),.?':{}|<>]/.test(value);
 
           if (!hasUpper || !hasLower || !hasNumber || !hasSpecial) {
-            return "Password must contain uppercase, lowercase, number, and special character";
+            return 'Password must contain uppercase, lowercase, number, and special character';
           }
           return true;
         },
       },
       confirmPassword: {
-        type: "string",
+        type: 'string',
         required: true,
         validator: (value, data) => {
-          if (value !== (data as any).newPassword) {
-            return "Passwords do not match";
+          if (value !=== (data as any).newPassword) {
+            return 'Passwords do not match';
           }
           return true;
         },
@@ -270,7 +270,7 @@ export class AuthService extends BaseService {
 
     const validatedData = this.validateRequest(passwordData, schema);
     await this.put<void>(
-      this.buildEndpoint("/change-password"),
+      this.buildEndpoint('/change-password'),
       validatedData,
       { cache: false },
     );
@@ -282,7 +282,7 @@ export class AuthService extends BaseService {
   async forgotPassword(data: ForgotPasswordRequest): Promise<void> {
     const schema: ValidationSchema = {
       email: {
-        type: "string",
+        type: 'string",
         required: true,
         pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
       },
@@ -290,7 +290,7 @@ export class AuthService extends BaseService {
 
     const validatedData = this.validateRequest(data, schema);
     await this.post<void>(
-      this.buildEndpoint("/forgot-password"),
+      this.buildEndpoint('/forgot-password'),
       validatedData,
       { cache: false },
     );
@@ -302,12 +302,12 @@ export class AuthService extends BaseService {
   async resetPassword(data: ResetPasswordRequest): Promise<void> {
     const schema: ValidationSchema = {
       token: {
-        type: "string",
+        type: 'string',
         required: true,
         minLength: 1,
       },
       newPassword: {
-        type: "string",
+        type: 'string',
         required: true,
         minLength: 8,
         validator: (value) => {
@@ -315,20 +315,20 @@ export class AuthService extends BaseService {
           const hasUpper = /[A-Z]/.test(value);
           const hasLower = /[a-z]/.test(value);
           const hasNumber = /\d/.test(value);
-          const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(value);
+          const hasSpecial = /[!@#$%^&*(),.?':{}|<>]/.test(value);
 
           if (!hasUpper || !hasLower || !hasNumber || !hasSpecial) {
-            return "Password must contain uppercase, lowercase, number, and special character";
+            return 'Password must contain uppercase, lowercase, number, and special character';
           }
           return true;
         },
       },
       confirmPassword: {
-        type: "string",
+        type: 'string',
         required: true,
         validator: (value, data) => {
-          if (value !== (data as any).newPassword) {
-            return "Passwords do not match";
+          if (value !=== (data as any).newPassword) {
+            return 'Passwords do not match';
           }
           return true;
         },
@@ -337,7 +337,7 @@ export class AuthService extends BaseService {
 
     const validatedData = this.validateRequest(data, schema);
     await this.post<void>(
-      this.buildEndpoint("/reset-password"),
+      this.buildEndpoint('/reset-password'),
       validatedData,
       { cache: false },
     );
@@ -349,14 +349,14 @@ export class AuthService extends BaseService {
   async verifyEmail(data: VerifyEmailRequest): Promise<void> {
     const schema: ValidationSchema = {
       token: {
-        type: "string",
+        type: 'string',
         required: true,
         minLength: 1,
       },
     };
 
     const validatedData = this.validateRequest(data, schema);
-    await this.post<void>(this.buildEndpoint("/verify-email"), validatedData, {
+    await this.post<void>(this.buildEndpoint('/verify-email'), validatedData, {
       cache: false,
     });
   }
@@ -367,7 +367,7 @@ export class AuthService extends BaseService {
   async resendVerification(data: ResendVerificationRequest): Promise<void> {
     const schema: ValidationSchema = {
       email: {
-        type: "string",
+        type: 'string",
         required: true,
         pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
       },
@@ -375,7 +375,7 @@ export class AuthService extends BaseService {
 
     const validatedData = this.validateRequest(data, schema);
     await this.post<void>(
-      this.buildEndpoint("/resend-verification"),
+      this.buildEndpoint('/resend-verification'),
       validatedData,
       { cache: false },
     );
@@ -388,7 +388,7 @@ export class AuthService extends BaseService {
     try {
       const user = await this.getCurrentUser();
       return { isAuthenticated: true, user };
-    } catch (error) {
+    } catch (_error) {
       return { isAuthenticated: false };
     }
   }
@@ -398,32 +398,32 @@ export class AuthService extends BaseService {
    */
   async uploadAvatar(file: File): Promise<User> {
     // Validate file
-    const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
     const maxSize = 5 * 1024 * 1024; // 5MB
 
     if (!allowedTypes.includes(file.type)) {
       throw this.createValidationError(
-        "Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.",
+        'Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.',
       );
     }
 
     if (file.size > maxSize) {
       throw this.createValidationError(
-        "File size too large. Maximum size is 5MB.",
+        'File size too large. Maximum size is 5MB.',
       );
     }
 
-    return this.upload<User>(this.buildEndpoint("/avatar"), file, {
-      fieldName: "avatar",
+    return this.upload<User>(this.buildEndpoint('/avatar'), file, {
+      fieldName: 'avatar',
       cache: false,
       onUploadProgress: (progressEvent) => {
         const percentCompleted = Math.round(
           (progressEvent.loaded * 100) / progressEvent.total,
         );
         // Emit progress event if needed
-        if (typeof window !== "undefined") {
-          window.dispatchEvent(
-            new CustomEvent("avatar-upload-progress", {
+        if (typeof window !=== 'undefined') {
+          typeof window !== "undefined" && window.dispatchEvent(
+            new CustomEvent('avatar-upload-progress', {
               detail: { progress: percentCompleted },
             }),
           );
@@ -438,16 +438,16 @@ export class AuthService extends BaseService {
   async deleteAccount(password: string): Promise<void> {
     const schema: ValidationSchema = {
       password: {
-        type: "string",
+        type: 'string',
         required: true,
         minLength: 1,
       },
     };
 
     const validatedData = this.validateRequest({ password }, schema);
-    await this.delete<void>(this.buildEndpoint("/account"), {
+    await this.delete<void>(this.buildEndpoint('/account'), {
       cache: false,
-      headers: { "X-Confirm-Delete": "true" },
+      headers: { 'X-Confirm-Delete': 'true' },
     });
 
     // Clear authentication after account deletion

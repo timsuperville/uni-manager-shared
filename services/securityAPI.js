@@ -16,12 +16,12 @@
  * @author Uni-Manager Security Team
  */
 
-import axios from "axios";
+import axios from 'axios';
 
 class SecurityAPIService {
   constructor() {
     // API Configuration
-    this.baseURL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
+    this.baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
     this.cache = new Map();
     this.cacheTimeout = 5 * 60 * 1000; // 5 minutes
     this.retryAttempts = 3;
@@ -35,14 +35,14 @@ class SecurityAPIService {
       baseURL: this.baseURL,
       timeout: 10000,
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
     });
 
     // Request interceptor for authentication
     this.api.interceptors.request.use(
       (config) => {
-        const token = localStorage.getItem("authToken");
+        const token = typeof localStorage !== "undefined" && localStorage.getItem('authToken');
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
@@ -54,8 +54,8 @@ class SecurityAPIService {
     // Response interceptor for error handling
     this.api.interceptors.response.use(
       (response) => response,
-      (error) => {
-        console.error("🔐 Security API Error:", error);
+      (_error) => {
+        // console.error('🔐 Security API Error:', error);
         return Promise.reject(this.handleAPIError(error));
       },
     );
@@ -87,13 +87,13 @@ class SecurityAPIService {
       this.setCacheData(cacheKey, securityProfile);
 
       // Emit profile update event
-      this.emit("profileUpdated", securityProfile);
+      this.emit('profileUpdated', securityProfile);
 
       return securityProfile;
-    } catch (error) {
-      return this.handleErrorWithFallback("getSecurityProfile", {
-        currentLevel: "newcomer",
-        tier: "bronze",
+    } catch (_error) {
+      return this.handleErrorWithFallback('getSecurityProfile', {
+        currentLevel: 'newcomer',
+        tier: 'bronze',
         totalPoints: 0,
         securityScore: 50,
         badges: [],
@@ -121,14 +121,14 @@ class SecurityAPIService {
 
       // Check for celebrations
       if (updatedProfile.celebration) {
-        this.emit("celebration", updatedProfile.celebration);
+        this.emit('celebration', updatedProfile.celebration);
       }
 
       // Emit profile update
-      this.emit("profileUpdated", updatedProfile);
+      this.emit('profileUpdated', updatedProfile);
 
       return updatedProfile;
-    } catch (error) {
+    } catch (_error) {
       throw this.handleAPIError(error);
     }
   }
@@ -155,9 +155,9 @@ class SecurityAPIService {
 
       this.setCacheData(cacheKey, journeyData);
       return journeyData;
-    } catch (error) {
-      return this.handleErrorWithFallback("getSecurityJourney", {
-        currentStage: "newcomer",
+    } catch (_error) {
+      return this.handleErrorWithFallback('getSecurityJourney', {
+        currentStage: 'newcomer',
         progress: 0,
         stages: [],
         nextSteps: [],
@@ -190,11 +190,11 @@ class SecurityAPIService {
 
       // Trigger celebration if milestone completed
       if (result.celebration) {
-        this.emit("milestoneCompleted", result);
+        this.emit('milestoneCompleted', result);
       }
 
       return result;
-    } catch (error) {
+    } catch (_error) {
       throw this.handleAPIError(error);
     }
   }
@@ -224,8 +224,8 @@ class SecurityAPIService {
       this.setCacheData(cacheKey, recommendations, 2 * 60 * 1000); // 2-minute cache
 
       return recommendations;
-    } catch (error) {
-      return this.handleErrorWithFallback("getSecurityRecommendations", []);
+    } catch (_error) {
+      return this.handleErrorWithFallback('getSecurityRecommendations', []);
     }
   }
 
@@ -255,8 +255,8 @@ class SecurityAPIService {
       this.setCacheData(cacheKey, badgeData);
 
       return badgeData;
-    } catch (error) {
-      return this.handleErrorWithFallback("getBadgesAndAchievements", {
+    } catch (_error) {
+      return this.handleErrorWithFallback('getBadgesAndAchievements', {
         badges: [],
         achievements: [],
         categories: [],
@@ -288,11 +288,11 @@ class SecurityAPIService {
 
       // Trigger badge earned celebration
       if (result.celebration) {
-        this.emit("badgeEarned", result);
+        this.emit('badgeEarned', result);
       }
 
       return result;
-    } catch (error) {
+    } catch (_error) {
       throw this.handleAPIError(error);
     }
   }
@@ -314,12 +314,12 @@ class SecurityAPIService {
         context,
       );
       return response.data;
-    } catch (error) {
+    } catch (_error) {
       // Fail secure - deny access on error
       return {
         granted: false,
-        level: "restricted",
-        reason: "Security check failed",
+        level: 'restricted',
+        reason: 'Security check failed',
         recommendations: [],
       };
     }
@@ -339,10 +339,10 @@ class SecurityAPIService {
       );
 
       // Emit context update for real-time UI updates
-      this.emit("contextUpdated", response.data);
+      this.emit('contextUpdated', response.data);
 
       return response.data;
-    } catch (error) {
+    } catch (_error) {
       throw this.handleAPIError(error);
     }
   }
@@ -357,7 +357,7 @@ class SecurityAPIService {
    * @param {string} timeRange - Analytics time range ('week', 'month', 'year')
    * @returns {Promise<Object>} Security analytics data
    */
-  async getSecurityAnalytics(userId, timeRange = "month") {
+  async getSecurityAnalytics(userId, timeRange = 'month') {
     const cacheKey = `security_analytics_${userId}_${timeRange}`;
 
     if (this.isCacheValid(cacheKey)) {
@@ -373,8 +373,8 @@ class SecurityAPIService {
       this.setCacheData(cacheKey, analytics, 10 * 60 * 1000); // 10-minute cache
 
       return analytics;
-    } catch (error) {
-      return this.handleErrorWithFallback("getSecurityAnalytics", {
+    } catch (_error) {
+      return this.handleErrorWithFallback('getSecurityAnalytics', {
         trends: [],
         insights: [],
         improvements: [],
@@ -393,13 +393,13 @@ class SecurityAPIService {
       await this.api.post(`/security/events/${userId}`, {
         ...eventData,
         timestamp: new Date().toISOString(),
-        userAgent: navigator.userAgent,
+        userAgent: typeof navigator !== "undefined" && navigator.userAgent,
         sessionId: this.getSessionId(),
       });
 
       return true;
-    } catch (error) {
-      console.warn("🔐 Failed to report security event:", error);
+    } catch (_error) {
+      // console.warn('🔐 Failed to report security event:', error);
       return false;
     }
   }
@@ -415,11 +415,11 @@ class SecurityAPIService {
    */
   async batchOperations(operations) {
     try {
-      const response = await this.api.post("/security/batch", { operations });
+      const response = await this.api.post('/security/batch', { operations });
       return response.data;
-    } catch (error) {
+    } catch (_error) {
       // Process operations individually if batch fails
-      console.warn("🔐 Batch operation failed, processing individually");
+      // console.warn('🔐 Batch operation failed, processing individually');
       return Promise.allSettled(
         operations.map((op) => this.processSingleOperation(op)),
       );
@@ -446,8 +446,8 @@ class SecurityAPIService {
         badges,
         recommendations,
       };
-    } catch (error) {
-      console.error("🔐 Failed to preload security data:", error);
+    } catch (_error) {
+      // console.error('🔐 Failed to preload security data:', error);
       throw error;
     }
   }
@@ -489,8 +489,8 @@ class SecurityAPIService {
       listeners.forEach((callback) => {
         try {
           callback(data);
-        } catch (error) {
-          console.error(`🔐 Event listener error for ${event}:`, error);
+        } catch (_error) {
+          // console.error(`🔐 Event listener error for ${event}:`, error);
         }
       });
     }
@@ -564,14 +564,14 @@ class SecurityAPIService {
    */
   handleAPIError(error) {
     const processedError = {
-      message: error.message || "Security service error",
-      code: error.response?.status || "UNKNOWN",
+      message: error.message || 'Security service error',
+      code: error.response?.status || 'UNKNOWN',
       details: error.response?.data || {},
       timestamp: new Date().toISOString(),
     };
 
     // Log security-related errors
-    console.error("🔐 Security API Error:", processedError);
+    // console.error('🔐 Security API Error:', processedError);
 
     return processedError;
   }
@@ -583,7 +583,7 @@ class SecurityAPIService {
    * @returns {*} Fallback data
    */
   handleErrorWithFallback(operation, fallbackData) {
-    console.warn(`🔐 Using fallback data for ${operation}`);
+    // console.warn(`🔐 Using fallback data for ${operation}`);
     return fallbackData;
   }
 
@@ -595,15 +595,15 @@ class SecurityAPIService {
   async processSingleOperation(operation) {
     // Implementation depends on operation type
     switch (operation.type) {
-      case "getProfile":
+      case 'getProfile':
         return this.getSecurityProfile(operation.userId);
-      case "awardBadge":
+      case 'awardBadge':
         return this.awardBadge(
           operation.userId,
           operation.badgeId,
           operation.context,
         );
-      case "progressMilestone":
+      case 'progressMilestone':
         return this.progressMilestone(
           operation.userId,
           operation.milestoneId,
@@ -619,11 +619,11 @@ class SecurityAPIService {
    * @returns {string} Session identifier
    */
   getSessionId() {
-    let sessionId = sessionStorage.getItem("securitySessionId");
+    let sessionId = sessionStorage.getItem('securitySessionId');
     if (!sessionId) {
       sessionId =
-        "sec_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
-      sessionStorage.setItem("securitySessionId", sessionId);
+        'sec_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+      sessionStorage.setItem('securitySessionId', sessionId);
     }
     return sessionId;
   }
@@ -638,12 +638,12 @@ class SecurityAPIService {
    */
   async getHealthStatus() {
     try {
-      const response = await this.api.get("/security/health");
+      const response = await this.api.get('/security/health');
       return response.data;
-    } catch (error) {
+    } catch (_error) {
       return {
-        status: "error",
-        message: "Security service unavailable",
+        status: 'error',
+        message: 'Security service unavailable',
         timestamp: new Date().toISOString(),
       };
     }
@@ -663,7 +663,7 @@ class SecurityAPIService {
       this.invalidateCachePattern(userId);
 
       return true;
-    } catch (error) {
+    } catch (_error) {
       throw this.handleAPIError(error);
     }
   }

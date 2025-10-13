@@ -1,36 +1,36 @@
 // Shared Button component for all Uni-Manager applications
-import React from "react";
-import PropTypes from "prop-types";
-import { useTheme } from "./ThemeProvider";
+import React from 'react';
+import PropTypes from 'prop-types';
+import { useTheme } from './ThemeProvider';
 
 const Button = ({
   children,
-  variant = "primary",
-  size = "medium",
+  variant = 'primary',
+  size = 'medium',
   disabled = false,
-  className = "",
+  className = '',
   ...props
 }) => {
   const theme = useTheme();
-  const baseStyles = "btn-base";
+  const baseStyles = 'btn-base';
 
   const variants = {
-    primary: "btn-primary",
-    secondary: "btn-secondary",
-    outline: "btn-outline",
-    danger: "btn-danger",
-    success: "btn-success",
-    warning: "btn-warning",
+    primary: 'btn-primary',
+    secondary: 'btn-secondary',
+    outline: 'btn-outline',
+    danger: 'btn-danger',
+    success: 'btn-success',
+    warning: 'btn-warning',
     // alias commonly used in app to a reasonable style
-    ghost: "btn-outline",
+    ghost: 'btn-outline',
   };
 
   const sizes = {
-    small: "btn-sm",
-    medium: "", // Default size
-    large: "btn-lg",
+    small: 'btn-sm',
+    medium: '', // Default size
+    large: 'btn-lg',
     // alias shorthand often used in code/tests
-    sm: "btn-sm",
+    sm: 'btn-sm',
   };
 
   // Generate dynamic styles based on theme
@@ -54,15 +54,15 @@ const Button = ({
 Button.propTypes = {
   children: PropTypes.node.isRequired,
   variant: PropTypes.oneOf([
-    "primary",
-    "secondary",
-    "outline",
-    "danger",
-    "success",
-    "warning",
-    "ghost",
+    'primary',
+    'secondary',
+    'outline',
+    'danger',
+    'success',
+    'warning',
+    'ghost',
   ]),
-  size: PropTypes.oneOf(["small", "medium", "large", "sm"]),
+  size: PropTypes.oneOf(['small', 'medium', 'large', 'sm']),
   disabled: PropTypes.bool,
   className: PropTypes.string,
 };

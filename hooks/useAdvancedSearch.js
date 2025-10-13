@@ -3,14 +3,14 @@
  * Custom hooks for search functionality, filtering, and pagination
  */
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback } from 'react';
 
 // Custom hook for managing search state
 export const useAdvancedSearch = ({
-  initialSearchValue = "",
+  initialSearchValue = '',
   initialFilters = {},
-  initialSortBy = "",
-  initialSortOrder = "asc",
+  initialSortBy = '',
+  initialSortOrder = 'asc',
   searchFunction,
   debounceDelay = 300,
 }) => {
@@ -40,8 +40,8 @@ export const useAdvancedSearch = ({
           setResults(response.results || []);
           setTotalCount(response.totalCount || 0);
           setSuggestions(response.suggestions || []);
-        } catch (error) {
-          console.error("Search error:", error);
+        } catch (_error) {
+          // console.error('Search error:', error);
           setResults([]);
           setTotalCount(0);
         } finally {
@@ -67,7 +67,7 @@ export const useAdvancedSearch = ({
   }, []);
 
   const clearSearch = useCallback(() => {
-    setSearchValue("");
+    setSearchValue('');
     setFilters(initialFilters);
     setSortBy(initialSortBy);
     setSortOrder(initialSortOrder);
@@ -165,10 +165,10 @@ export const usePagination = ({
 // Search filter utilities
 export const createSearchFilters = {
   // Create a text filter
-  text: (key, label, placeholder = "") => ({
+  text: (key, label, placeholder = '') => ({
     key,
     label,
-    type: "text",
+    type: 'text',
     placeholder,
   }),
 
@@ -176,7 +176,7 @@ export const createSearchFilters = {
   select: (key, label, options, multiple = false) => ({
     key,
     label,
-    type: "select",
+    type: 'select',
     options,
     multiple,
   }),
@@ -185,7 +185,7 @@ export const createSearchFilters = {
   autocomplete: (key, label, options, multiple = false) => ({
     key,
     label,
-    type: "autocomplete",
+    type: 'autocomplete',
     options,
     multiple,
   }),
@@ -194,7 +194,7 @@ export const createSearchFilters = {
   checkbox: (key, label, options) => ({
     key,
     label,
-    type: "checkbox",
+    type: 'checkbox',
     options,
     multiple: true,
   }),
@@ -203,21 +203,21 @@ export const createSearchFilters = {
   date: (key, label) => ({
     key,
     label,
-    type: "date",
+    type: 'date',
   }),
 
   // Create a date range filter
   dateRange: (key, label) => ({
     key,
     label,
-    type: "dateRange",
+    type: 'dateRange',
   }),
 
   // Create a quick filter (appears as chips)
   quickFilter: (key, label, options) => ({
     key,
     label,
-    type: "select",
+    type: 'select',
     options,
     multiple: true,
     quickFilter: true,
@@ -228,7 +228,7 @@ export const createSearchFilters = {
 // Search sort utilities
 export const createSortOptions = {
   // Create basic sort option
-  field: (value, label, defaultOrder = "asc") => ({
+  field: (value, label, defaultOrder = 'asc') => ({
     value,
     label,
     defaultOrder,
@@ -236,17 +236,17 @@ export const createSortOptions = {
 
   // Create multiple sort options for common fields
   common: () => [
-    { value: "name", label: "Name", defaultOrder: "asc" },
-    { value: "createdAt", label: "Date Created", defaultOrder: "desc" },
-    { value: "updatedAt", label: "Last Modified", defaultOrder: "desc" },
-    { value: "status", label: "Status", defaultOrder: "asc" },
+    { value: 'name', label: 'Name', defaultOrder: 'asc' },
+    { value: 'createdAt', label: 'Date Created', defaultOrder: 'desc' },
+    { value: 'updatedAt', label: 'Last Modified', defaultOrder: 'desc' },
+    { value: 'status', label: 'Status', defaultOrder: 'asc' },
   ],
 };
 
 // Search suggestion utilities
 export const createSuggestions = {
   // Create search suggestions from data
-  fromData: (data, fields = ["name", "title", "email"]) => {
+  fromData: (data, fields = ['name', 'title', 'email']) => {
     const suggestions = [];
 
     data.forEach((item) => {
@@ -255,7 +255,7 @@ export const createSuggestions = {
           suggestions.push({
             text: item[field],
             category: field,
-            type: "data",
+            type: 'data',
           });
         }
       });
@@ -277,7 +277,7 @@ export const createSuggestions = {
           suggestions.push({
             text: option.label,
             category: filter.label,
-            type: "filter",
+            type: 'filter',
             filters: { [filter.key]: option.value },
           });
         });
@@ -294,8 +294,8 @@ export const createSuggestions = {
       .reverse()
       .map((search) => ({
         text: search.query,
-        category: "Recent",
-        type: "history",
+        category: 'Recent',
+        type: 'history',
         filters: search.filters,
       }));
   },
@@ -307,8 +307,8 @@ export const searchUtils = {
   highlightText: (text, searchTerm) => {
     if (!searchTerm || !text) return text;
 
-    const regex = new RegExp(`(${searchTerm})`, "gi");
-    return text.replace(regex, "<mark>$1</mark>");
+    const regex = new RegExp(`(${searchTerm})`, 'gi');
+    return text.replace(regex, '<mark>$1</mark>');
   },
 
   // Extract search terms from query
@@ -325,7 +325,7 @@ export const searchUtils = {
 
     searchTerms.forEach((term) => {
       fields.forEach((field) => {
-        const value = item[field]?.toLowerCase() || "";
+        const value = item[field]?.toLowerCase() || '';
         if (value.includes(term)) {
           score += value.indexOf(term) === 0 ? 3 : 1; // Higher score for prefix matches
         }
@@ -353,14 +353,14 @@ export const searchUtils = {
 
     // Apply filters
     Object.entries(filters).forEach(([key, value]) => {
-      if (value && (Array.isArray(value) ? value.length > 0 : value !== "")) {
+      if (value && (Array.isArray(value) ? value.length > 0 : value !== '')) {
         filteredData = filteredData.filter((item) => {
           if (Array.isArray(value)) {
             return value.includes(item[key]);
           }
           return (
             item[key] === value ||
-            (typeof item[key] === "string" &&
+            (typeof item[key] === 'string' &&
               item[key].toLowerCase().includes(value.toLowerCase()))
           );
         });
@@ -382,7 +382,7 @@ export const searchUtils = {
 
       if (aValue === null || aValue === undefined) comparison = 1;
       else if (bValue === null || bValue === undefined) comparison = -1;
-      else if (typeof aValue === "string" && typeof bValue === "string") {
+      else if (typeof aValue === 'string' && typeof bValue === 'string') {
         comparison = aValue.localeCompare(bValue);
       } else if (aValue instanceof Date && bValue instanceof Date) {
         comparison = aValue.getTime() - bValue.getTime();
@@ -390,7 +390,7 @@ export const searchUtils = {
         comparison = aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
       }
 
-      return sortOrder === "desc" ? -comparison : comparison;
+      return sortOrder === 'desc' ? -comparison : comparison;
     });
   },
 
@@ -411,7 +411,7 @@ export const processSearchData = ({
   sortOrder,
   currentPage,
   pageSize,
-  searchFields = ["name", "email", "title"],
+  searchFields = ['name', 'email', 'title'],
 }) => {
   // Filter data
   let processedData = searchUtils.filterData(
@@ -445,63 +445,63 @@ export const processSearchData = ({
 // Member-specific search configuration
 export const memberSearchConfig = {
   filters: [
-    createSearchFilters.text("name", "Name"),
-    createSearchFilters.text("email", "Email"),
-    createSearchFilters.select("role", "Role", [
-      { value: "admin", label: "Administrator" },
-      { value: "moderator", label: "Moderator" },
-      { value: "member", label: "Member" },
+    createSearchFilters.text('name', 'Name'),
+    createSearchFilters.text('email', 'Email'),
+    createSearchFilters.select('role', 'Role', [
+      { value: 'admin', label: 'Administrator' },
+      { value: 'moderator', label: 'Moderator' },
+      { value: 'member', label: 'Member' },
     ]),
-    createSearchFilters.quickFilter("status", "Status", [
-      { value: "active", label: "Active" },
-      { value: "inactive", label: "Inactive" },
-      { value: "pending", label: "Pending" },
+    createSearchFilters.quickFilter('status', 'Status', [
+      { value: 'active', label: 'Active' },
+      { value: 'inactive', label: 'Inactive' },
+      { value: 'pending', label: 'Pending' },
     ]),
-    createSearchFilters.date("joinedAfter", "Joined After"),
-    createSearchFilters.checkbox("permissions", "Permissions", [
-      { value: "read", label: "Read" },
-      { value: "write", label: "Write" },
-      { value: "delete", label: "Delete" },
-      { value: "admin", label: "Admin" },
+    createSearchFilters.date('joinedAfter', 'Joined After'),
+    createSearchFilters.checkbox('permissions', 'Permissions', [
+      { value: 'read', label: 'Read' },
+      { value: 'write', label: 'Write' },
+      { value: 'delete', label: 'Delete' },
+      { value: 'admin', label: 'Admin' },
     ]),
   ],
   sortOptions: [
-    { value: "name", label: "Name" },
-    { value: "email", label: "Email" },
-    { value: "role", label: "Role" },
-    { value: "joinedAt", label: "Join Date" },
-    { value: "lastActive", label: "Last Active" },
+    { value: 'name', label: 'Name' },
+    { value: 'email', label: 'Email' },
+    { value: 'role', label: 'Role' },
+    { value: 'joinedAt', label: 'Join Date' },
+    { value: 'lastActive', label: 'Last Active' },
   ],
-  searchFields: ["name", "email", "phone"],
-  defaultSort: { field: "name", order: "asc" },
+  searchFields: ['name', 'email', 'phone'],
+  defaultSort: { field: 'name', order: 'asc' },
 };
 
 // Invitation-specific search configuration
 export const invitationSearchConfig = {
   filters: [
-    createSearchFilters.text("email", "Email"),
-    createSearchFilters.text("name", "Name"),
-    createSearchFilters.quickFilter("status", "Status", [
-      { value: "pending", label: "Pending" },
-      { value: "accepted", label: "Accepted" },
-      { value: "declined", label: "Declined" },
-      { value: "expired", label: "Expired" },
+    createSearchFilters.text('email', 'Email'),
+    createSearchFilters.text('name', 'Name'),
+    createSearchFilters.quickFilter('status', 'Status', [
+      { value: 'pending', label: 'Pending' },
+      { value: 'accepted', label: 'Accepted' },
+      { value: 'declined', label: 'Declined' },
+      { value: 'expired', label: 'Expired' },
     ]),
-    createSearchFilters.select("role", "Role", [
-      { value: "admin", label: "Administrator" },
-      { value: "moderator", label: "Moderator" },
-      { value: "member", label: "Member" },
+    createSearchFilters.select('role', 'Role', [
+      { value: 'admin', label: 'Administrator' },
+      { value: 'moderator', label: 'Moderator' },
+      { value: 'member', label: 'Member' },
     ]),
-    createSearchFilters.date("sentAfter", "Sent After"),
-    createSearchFilters.date("expiresBefore", "Expires Before"),
+    createSearchFilters.date('sentAfter', 'Sent After'),
+    createSearchFilters.date('expiresBefore', 'Expires Before'),
   ],
   sortOptions: [
-    { value: "recipientEmail", label: "Email" },
-    { value: "recipientName", label: "Name" },
-    { value: "status", label: "Status" },
-    { value: "sentAt", label: "Sent Date" },
-    { value: "expiresAt", label: "Expiry Date" },
+    { value: 'recipientEmail', label: 'Email' },
+    { value: 'recipientName', label: 'Name' },
+    { value: 'status', label: 'Status' },
+    { value: 'sentAt', label: 'Sent Date' },
+    { value: 'expiresAt', label: 'Expiry Date' },
   ],
-  searchFields: ["recipientEmail", "recipientName"],
-  defaultSort: { field: "sentAt", order: "desc" },
+  searchFields: ['recipientEmail', 'recipientName'],
+  defaultSort: { field: 'sentAt', order: 'desc' },
 };

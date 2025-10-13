@@ -4,17 +4,17 @@ import React, {
   useEffect,
   useState,
   useCallback,
-} from "react";
-import { authService } from "../services/authService.js";
-import { getSupportedProvidersForApp } from "../config/oauthProviders.js";
-import { getCurrentAppConfig } from "../config/appConfigs.js";
+} from 'react';
+import { authService } from '../services/authService.js';
+import { getSupportedProvidersForApp } from '../config/oauthProviders.js';
+import { getCurrentAppConfig } from '../config/appConfigs.js';
 
 const AuthContext = createContext(null);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
+    throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 };
@@ -39,9 +39,9 @@ export const AuthProvider = ({ children }) => {
         }
 
         setIsInitialized(true);
-      } catch (err) {
+      } catch (_err) {
         setError(err.message);
-        console.error("Auth initialization failed:", err);
+        // console.error('Auth initialization failed:', err);
       } finally {
         setLoading(false);
       }
@@ -66,9 +66,9 @@ export const AuthProvider = ({ children }) => {
       }
 
       await authService.startOAuthFlow(providerId, options);
-    } catch (err) {
+    } catch (_err) {
       setError(err.message);
-      console.error("OAuth login failed:", err);
+      // console.error('OAuth login failed:', err);
     } finally {
       setLoading(false);
     }
@@ -84,9 +84,9 @@ export const AuthProvider = ({ children }) => {
       setUser(authData.user);
 
       return authData;
-    } catch (err) {
+    } catch (_err) {
       setError(err.message);
-      console.error("OAuth callback failed:", err);
+      // console.error('OAuth callback failed:', err);
       throw err;
     } finally {
       setLoading(false);
@@ -103,9 +103,9 @@ export const AuthProvider = ({ children }) => {
       setUser(authData.user);
 
       return authData;
-    } catch (err) {
+    } catch (_err) {
       setError(err.message);
-      console.error("Email login failed:", err);
+      // console.error('Email login failed:', err);
       throw err;
     } finally {
       setLoading(false);
@@ -124,9 +124,9 @@ export const AuthProvider = ({ children }) => {
       }
 
       return authData;
-    } catch (err) {
+    } catch (_err) {
       setError(err.message);
-      console.error("Registration failed:", err);
+      // console.error('Registration failed:', err);
       throw err;
     } finally {
       setLoading(false);
@@ -139,9 +139,9 @@ export const AuthProvider = ({ children }) => {
       setError(null);
       await authService.logout();
       setUser(null);
-    } catch (err) {
+    } catch (_err) {
       setError(err.message);
-      console.error("Logout failed:", err);
+      // console.error('Logout failed:', err);
     }
   }, []);
 
@@ -151,9 +151,9 @@ export const AuthProvider = ({ children }) => {
       const authData = await authService.refreshToken();
       setUser(authData.user);
       return authData;
-    } catch (err) {
+    } catch (_err) {
       setError(err.message);
-      console.error("Token refresh failed:", err);
+      // console.error('Token refresh failed:', err);
       await logout();
       throw err;
     }

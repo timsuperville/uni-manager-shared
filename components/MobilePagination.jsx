@@ -3,8 +3,8 @@
  * Responsive pagination with touch-friendly controls
  */
 
-import React from "react";
-import PropTypes from "prop-types";
+import React from 'react';
+import PropTypes from 'prop-types';
 import {
   Box,
   Pagination,
@@ -14,14 +14,14 @@ import {
   FormControl,
   InputLabel,
   IconButton,
-} from "@mui/material";
+} from '@mui/material';
 import {
   FirstPage as FirstPageIcon,
   LastPage as LastPageIcon,
   NavigateBefore as PrevIcon,
   NavigateNext as NextIcon,
-} from "@mui/icons-material";
-import { useResponsive } from "../utils/responsiveUtils";
+} from '@mui/icons-material';
+import { useResponsive } from '../utils/responsiveUtils';
 
 const MobilePagination = ({
   currentPage,
@@ -46,9 +46,9 @@ const MobilePagination = ({
     return (
       <Box
         sx={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
           gap: 2,
           py: 2,
           px: 1,
@@ -57,22 +57,22 @@ const MobilePagination = ({
         {/* Page Info */}
         {showInfo && (
           <Typography
-            variant="body2"
-            color="text.secondary"
-            align="center"
-            sx={{ fontSize: "14px" }}
+            variant='body2'
+            color='text.secondary'
+            align='center'
+            sx={{ fontSize: '14px' }}
           >
             {totalCount > 0
               ? `${startItem}-${endItem} of ${totalCount.toLocaleString()}`
-              : "No items"}
+              : 'No items'}
           </Typography>
         )}
 
         {/* Navigation Controls */}
         <Box
           sx={{
-            display: "flex",
-            alignItems: "center",
+            display: 'flex',
+            alignItems: 'center',
             gap: 1,
           }}
         >
@@ -81,13 +81,13 @@ const MobilePagination = ({
             <IconButton
               onClick={() => onPageChange(1)}
               disabled={currentPage === 1}
-              size="large"
+              size='large'
               sx={{
                 minWidth: 48,
                 minHeight: 48,
                 borderRadius: 2,
-                border: "1px solid",
-                borderColor: "divider",
+                border: '1px solid',
+                borderColor: 'divider',
               }}
             >
               <FirstPageIcon />
@@ -98,13 +98,13 @@ const MobilePagination = ({
           <IconButton
             onClick={() => onPageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            size="large"
+            size='large'
             sx={{
               minWidth: 48,
               minHeight: 48,
               borderRadius: 2,
-              border: "1px solid",
-              borderColor: "divider",
+              border: '1px solid',
+              borderColor: 'divider',
             }}
           >
             <PrevIcon />
@@ -115,14 +115,14 @@ const MobilePagination = ({
             sx={{
               px: 3,
               py: 1.5,
-              bgcolor: "primary.main",
-              color: "primary.contrastText",
+              bgcolor: 'primary.main',
+              color: 'primary.contrastText',
               borderRadius: 2,
               minWidth: 80,
-              textAlign: "center",
+              textAlign: 'center',
             }}
           >
-            <Typography variant="body2" fontWeight="medium">
+            <Typography variant='body2' fontWeight='medium'>
               {currentPage} / {totalPages}
             </Typography>
           </Box>
@@ -131,13 +131,13 @@ const MobilePagination = ({
           <IconButton
             onClick={() => onPageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
-            size="large"
+            size='large'
             sx={{
               minWidth: 48,
               minHeight: 48,
               borderRadius: 2,
-              border: "1px solid",
-              borderColor: "divider",
+              border: '1px solid',
+              borderColor: 'divider',
             }}
           >
             <NextIcon />
@@ -148,13 +148,13 @@ const MobilePagination = ({
             <IconButton
               onClick={() => onPageChange(totalPages)}
               disabled={currentPage === totalPages}
-              size="large"
+              size='large'
               sx={{
                 minWidth: 48,
                 minHeight: 48,
                 borderRadius: 2,
-                border: "1px solid",
-                borderColor: "divider",
+                border: '1px solid',
+                borderColor: 'divider',
               }}
             >
               <LastPageIcon />
@@ -164,15 +164,15 @@ const MobilePagination = ({
 
         {/* Page Size Selector */}
         {showPageSize && (
-          <FormControl size="small" sx={{ minWidth: 120 }}>
+          <FormControl size='small' sx={{ minWidth: 120 }}>
             <InputLabel>Items per page</InputLabel>
             <Select
               value={pageSize}
               onChange={(e) => onPageSizeChange(e.target.value)}
-              label="Items per page"
+              label='Items per page'
               sx={{
-                fontSize: "14px",
-                "& .MuiSelect-select": {
+                fontSize: '14px',
+                '& .MuiSelect-select': {
                   py: 1,
                 },
               }}
@@ -182,7 +182,7 @@ const MobilePagination = ({
                   key={size}
                   value={size}
                   sx={{
-                    fontSize: "14px",
+                    fontSize: '14px',
                     minHeight: 40,
                   }}
                 >
@@ -201,9 +201,9 @@ const MobilePagination = ({
     return (
       <Box
         sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
           py: 1,
           px: 2,
         }}
@@ -212,14 +212,14 @@ const MobilePagination = ({
         <IconButton
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          size="medium"
+          size='medium'
           sx={{ minWidth: 44, minHeight: 44 }}
         >
           <PrevIcon />
         </IconButton>
 
         {/* Page Info */}
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant='body2' color='text.secondary'>
           {currentPage} / {totalPages}
         </Typography>
 
@@ -227,7 +227,7 @@ const MobilePagination = ({
         <IconButton
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          size="medium"
+          size='medium'
           sx={{ minWidth: 44, minHeight: 44 }}
         >
           <NextIcon />
@@ -240,10 +240,10 @@ const MobilePagination = ({
   return (
     <Box
       sx={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        flexWrap: "wrap",
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
         gap: 2,
         py: 2,
         px: isTablet ? 1 : 0,
@@ -252,13 +252,13 @@ const MobilePagination = ({
       {/* Results Info */}
       {showInfo && (
         <Typography
-          variant="body2"
-          color="text.secondary"
+          variant='body2'
+          color='text.secondary'
           sx={{
-            fontSize: isTablet ? "13px" : "14px",
+            fontSize: isTablet ? '13px' : '14px',
             order: isTablet ? 2 : 1,
-            width: isTablet ? "100%" : "auto",
-            textAlign: isTablet ? "center" : "left",
+            width: isTablet ? '100%' : 'auto',
+            textAlign: isTablet ? 'center' : 'left',
           }}
         >
           Showing {startItem}-{endItem} of {totalCount.toLocaleString()} results
@@ -269,8 +269,8 @@ const MobilePagination = ({
       <Box
         sx={{
           order: isTablet ? 1 : 2,
-          display: "flex",
-          alignItems: "center",
+          display: 'flex',
+          alignItems: 'center',
           gap: 2,
         }}
       >
@@ -282,27 +282,27 @@ const MobilePagination = ({
           boundaryCount={isTablet ? 1 : 2}
           showFirstButton={!isTablet && showFirstLast}
           showLastButton={!isTablet && showFirstLast}
-          size={isTablet ? "small" : "medium"}
+          size={isTablet ? 'small' : 'medium'}
           sx={{
-            "& .MuiPaginationItem-root": {
+            '& .MuiPaginationItem-root': {
               minWidth: isTablet ? 32 : 36,
               height: isTablet ? 32 : 36,
-              fontSize: isTablet ? "12px" : "14px",
+              fontSize: isTablet ? '12px' : '14px',
             },
           }}
         />
 
         {/* Page Size Selector */}
         {showPageSize && (
-          <FormControl size="small" sx={{ minWidth: isTablet ? 100 : 120 }}>
+          <FormControl size='small' sx={{ minWidth: isTablet ? 100 : 120 }}>
             <InputLabel>Per page</InputLabel>
             <Select
               value={pageSize}
               onChange={(e) => onPageSizeChange(e.target.value)}
-              label="Per page"
+              label='Per page'
               sx={{
-                fontSize: isTablet ? "13px" : "14px",
-                "& .MuiSelect-select": {
+                fontSize: isTablet ? '13px' : '14px',
+                '& .MuiSelect-select': {
                   py: isTablet ? 0.5 : 1,
                 },
               }}
@@ -312,7 +312,7 @@ const MobilePagination = ({
                   key={size}
                   value={size}
                   sx={{
-                    fontSize: isTablet ? "13px" : "14px",
+                    fontSize: isTablet ? '13px' : '14px',
                     minHeight: isTablet ? 36 : 40,
                   }}
                 >
@@ -332,8 +332,8 @@ const InfiniteScrollPagination = ({
   hasNextPage,
   loading,
   onLoadMore,
-  loadMoreText = "Load More",
-  loadingText = "Loading...",
+  loadMoreText = 'Load More',
+  loadingText = 'Loading...',
 }) => {
   const { isMobile } = useResponsive();
 
@@ -344,30 +344,30 @@ const InfiniteScrollPagination = ({
   return (
     <Box
       sx={{
-        display: "flex",
-        justifyContent: "center",
+        display: 'flex',
+        justifyContent: 'center',
         py: 3,
       }}
     >
       {loading ? (
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant='body2' color='text.secondary'>
           {loadingText}
         </Typography>
       ) : (
         <IconButton
           onClick={onLoadMore}
           disabled={loading}
-          size={isMobile ? "large" : "medium"}
+          size={isMobile ? 'large' : 'medium'}
           sx={{
             minWidth: isMobile ? 48 : 44,
             minHeight: isMobile ? 48 : 44,
             borderRadius: 2,
-            border: "1px solid",
-            borderColor: "divider",
+            border: '1px solid',
+            borderColor: 'divider',
             px: 3,
           }}
         >
-          <Typography variant="body2">{loadMoreText}</Typography>
+          <Typography variant='body2'>{loadMoreText}</Typography>
         </IconButton>
       )}
     </Box>
@@ -379,13 +379,13 @@ const PaginationSummary = ({
   currentPage,
   pageSize,
   totalCount,
-  noun = "items",
+  noun = 'items',
 }) => {
   const startItem = totalCount > 0 ? (currentPage - 1) * pageSize + 1 : 0;
   const endItem = Math.min(currentPage * pageSize, totalCount);
 
   return (
-    <Typography variant="body2" color="text.secondary">
+    <Typography variant='body2' color='text.secondary'>
       {totalCount > 0
         ? `Showing ${startItem}-${endItem} of ${totalCount.toLocaleString()} ${noun}`
         : `No ${noun} found`}

@@ -9,7 +9,7 @@ import {
   ROLE_HIERARCHY,
   APPLICATION_ROLES,
   PROTECTED_ROUTES,
-} from "./roles.js";
+} from './roles.js';
 
 /**
  * RBAC Utility Class
@@ -145,7 +145,7 @@ export class RBACUtils {
     // Find matching route pattern
     const routePattern = Object.keys(appRoutes).find((pattern) => {
       // Simple pattern matching (can be enhanced with more sophisticated routing)
-      const regex = new RegExp("^" + pattern.replace(/:[^/]+/g, "[^/]+") + "$");
+      const regex = new RegExp('^' + pattern.replace(/:[^/]+/g, '[^/]+') + '$');
       return regex.test(route);
     });
 
@@ -162,7 +162,7 @@ export class RBACUtils {
     const appRoles = APPLICATION_ROLES[application];
     if (!appRoles) return false;
 
-    return this.hasAnyRole(appRoles) || this.hasRole("super_admin");
+    return this.hasAnyRole(appRoles) || this.hasRole('super_admin');
   }
 
   /**
@@ -201,8 +201,8 @@ export class RBACUtils {
    */
   isAnyAdmin() {
     return (
-      this.hasAnyRole(["super_admin", "system_admin"]) ||
-      this.userRoles.some((roleId) => roleId.includes("_admin"))
+      this.hasAnyRole(['super_admin', 'system_admin']) ||
+      this.userRoles.some((roleId) => roleId.includes('_admin'))
     );
   }
 
@@ -210,7 +210,7 @@ export class RBACUtils {
    * Check if user is admin for a specific application
    */
   isApplicationAdmin(application) {
-    if (this.hasRole("super_admin")) return true;
+    if (this.hasRole('super_admin')) return true;
 
     const adminRole = `${application}_admin`;
     return this.hasRole(adminRole);
@@ -353,7 +353,7 @@ export const RouteUtils = {
     if (!appRoutes) return false;
 
     const routePattern = Object.keys(appRoutes).find((pattern) => {
-      const regex = new RegExp("^" + pattern.replace(/:[^/]+/g, "[^/]+") + "$");
+      const regex = new RegExp('^' + pattern.replace(/:[^/]+/g, '[^/]+') + '$');
       return regex.test(route);
     });
 
@@ -368,7 +368,7 @@ export const RouteUtils = {
     if (!appRoutes) return [];
 
     const routePattern = Object.keys(appRoutes).find((pattern) => {
-      const regex = new RegExp("^" + pattern.replace(/:[^/]+/g, "[^/]+") + "$");
+      const regex = new RegExp('^' + pattern.replace(/:[^/]+/g, '[^/]+') + '$');
       return regex.test(route);
     });
 
@@ -377,4 +377,4 @@ export const RouteUtils = {
 };
 
 // Export commonly used permission constants
-export { PERMISSIONS, ROLES } from "./roles.js";
+export { PERMISSIONS, ROLES } from './roles.js';

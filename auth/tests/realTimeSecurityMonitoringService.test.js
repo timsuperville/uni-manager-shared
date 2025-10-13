@@ -5,8 +5,8 @@
  * and automated response capabilities
  */
 
-import { describe, test, expect, beforeEach, afterEach, vi } from "vitest";
-import RealTimeSecurityMonitoringService from "../services/realTimeSecurityMonitoringService";
+import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
+import RealTimeSecurityMonitoringService from '../services/realTimeSecurityMonitoringService';
 
 // Mock WebSocket
 const mockWebSocket = {
@@ -30,13 +30,13 @@ global.WebSocket.CLOSED = 3;
 
 // Mock other browser APIs
 global.Notification = {
-  permission: "granted",
-  requestPermission: vi.fn(() => Promise.resolve("granted")),
+  permission: 'granted',
+  requestPermission: vi.fn(() => Promise.resolve('granted')),
 };
 
-vi.mock("../services/realTimeSecurityMonitoringService", async () => {
+vi.mock('../services/realTimeSecurityMonitoringService', async () => {
   const actual = await vi.importActual(
-    "../services/realTimeSecurityMonitoringService"
+    '../services/realTimeSecurityMonitoringService'
   );
   return {
     ...actual,
@@ -52,7 +52,7 @@ vi.mock("../services/realTimeSecurityMonitoringService", async () => {
 
         // Simulate successful connection
         setTimeout(() => {
-          this.emit("connected");
+          this.emit('connected');
         }, 10);
 
         return Promise.resolve();
@@ -61,7 +61,7 @@ vi.mock("../services/realTimeSecurityMonitoringService", async () => {
   };
 });
 
-describe("RealTimeSecurityMonitoringService", () => {
+describe('RealTimeSecurityMonitoringService', () => {
   let securityService;
   let mockConsole;
 
@@ -71,9 +71,9 @@ describe("RealTimeSecurityMonitoringService", () => {
 
     // Mock console methods
     mockConsole = {
-      log: vi.spyOn(console, "log").mockImplementation(() => {}),
-      warn: vi.spyOn(console, "warn").mockImplementation(() => {}),
-      error: vi.spyOn(console, "error").mockImplementation(() => {}),
+      log: vi.spyOn(console, 'log').mockImplementation(() => {}),
+      warn: vi.spyOn(console, 'warn').mockImplementation(() => {}),
+      error: vi.spyOn(console, 'error').mockImplementation(() => {}),
     };
 
     // Create fresh service instance
@@ -90,44 +90,44 @@ describe("RealTimeSecurityMonitoringService", () => {
     Object.values(mockConsole).forEach((mock) => mock.mockRestore());
   });
 
-  describe("Service Initialization", () => {
-    test("should initialize with default configuration", () => {
+  describe('Service Initialization', () => {
+    test('should initialize with default configuration', () => {
       expect(securityService.wsUrl).toBeTruthy();
       expect(securityService.isConnected).toBe(false);
       expect(securityService.monitoringConfig.threatDetection).toBe(true);
       expect(securityService.monitoringConfig.realTimeAlerts).toBe(true);
     });
 
-    test("should initialize successfully with valid parameters", async () => {
-      const result = await securityService.initialize("user123", "session456");
+    test('should initialize successfully with valid parameters', async () => {
+      const result = await securityService.initialize('user123', 'session456');
 
       expect(result.success).toBe(true);
-      expect(securityService.userId).toBe("user123");
-      expect(securityService.sessionId).toBe("session456");
+      expect(securityService.userId).toBe('user123');
+      expect(securityService.sessionId).toBe('session456');
       expect(securityService.isConnected).toBe(true);
     });
 
-    test("should handle initialization errors gracefully", async () => {
+    test('should handle initialization errors gracefully', async () => {
       // Mock connection failure
       securityService.connect = vi
         .fn()
-        .mockRejectedValue(new Error("Connection failed"));
+        .mockRejectedValue(new Error('Connection failed'));
 
       await expect(
-        securityService.initialize("user123", "session456")
-      ).rejects.toThrow("Connection failed");
+        securityService.initialize('user123', 'session456')
+      ).rejects.toThrow('Connection failed');
     });
   });
 
-  describe("WebSocket Connection Management", () => {
-    test("should establish WebSocket connection", async () => {
+  describe('WebSocket Connection Management', () => {
+    test('should establish WebSocket connection', async () => {
       await securityService.connect();
 
       expect(global.WebSocket).toHaveBeenCalled();
       expect(securityService.isConnected).toBe(true);
     });
 
-    test("should handle connection timeout", async () => {
+    test('should handle connection timeout', async () => {
       // Mock connection that never opens
       const slowWebSocket = {
         ...mockWebSocket,
@@ -141,77 +141,77 @@ describe("RealTimeSecurityMonitoringService", () => {
       vi.advanceTimersByTime(15000);
 
       await expect(connectPromise).rejects.toThrow(
-        "WebSocket connection timeout"
+        'WebSocket connection timeout'
       );
     });
 
-    test("should authenticate connection after establishing", async () => {
-      securityService.userId = "user123";
-      securityService.sessionId = "session456";
+    test('should authenticate connection after establishing', async () => {
+      securityService.userId = 'user123';
+      securityService.sessionId = 'session456';
 
       await securityService.connect();
 
       securityService.authenticateConnection();
 
       expect(mockWebSocket.send).toHaveBeenCalledWith(
-        expect.stringContaining('"type":"authenticate"')
+        expect.stringContaining(''type':'authenticate'')
       );
     });
 
-    test("should handle connection errors", async () => {
+    test('should handle connection errors', async () => {
       const errorSpy = vi.fn();
-      securityService.on("error", errorSpy);
+      securityService.on('error', errorSpy);
 
       await securityService.connect();
 
       // Simulate connection error
-      const errorEvent = new Error("Network error");
+      const errorEvent = new Error('Network error');
       securityService.websocket.onerror(errorEvent);
 
       expect(errorSpy).toHaveBeenCalledWith(errorEvent);
     });
 
-    test("should schedule reconnection on unexpected disconnect", async () => {
+    test('should schedule reconnection on unexpected disconnect', async () => {
       await securityService.connect();
 
       const scheduleReconnectSpy = vi.spyOn(
         securityService,
-        "scheduleReconnect"
+        'scheduleReconnect'
       );
 
       // Simulate unexpected disconnect (code !== 1000)
       securityService.websocket.onclose({
         code: 1006,
-        reason: "Network error",
+        reason: 'Network error',
       });
 
       expect(scheduleReconnectSpy).toHaveBeenCalled();
     });
   });
 
-  describe("Message Handling", () => {
+  describe('Message Handling', () => {
     beforeEach(async () => {
-      await securityService.initialize("user123", "session456");
+      await securityService.initialize('user123', 'session456');
     });
 
-    test("should handle threat detection messages", () => {
+    test('should handle threat detection messages', () => {
       const threatPayload = {
-        threatId: "threat_123",
-        threatType: "brute_force_attack",
-        severity: "high",
+        threatId: 'threat_123',
+        threatType: 'brute_force_attack',
+        severity: 'high',
         confidence: 0.9,
-        source: "192.168.1.100",
-        target: "user123",
+        source: '192.168.1.100',
+        target: 'user123',
         timestamp: Date.now(),
         metadata: { attempts: 5 },
       };
 
       const threatDetectedSpy = vi.fn();
-      securityService.on("threatDetected", threatDetectedSpy);
+      securityService.on('threatDetected', threatDetectedSpy);
 
       const message = {
         data: JSON.stringify({
-          type: "threat_detected",
+          type: 'threat_detected',
           payload: threatPayload,
         }),
       };
@@ -219,27 +219,27 @@ describe("RealTimeSecurityMonitoringService", () => {
       securityService.handleMessage(message);
 
       expect(threatDetectedSpy).toHaveBeenCalledWith(threatPayload);
-      expect(securityService.metrics.activeThreats.has("threat_123")).toBe(
+      expect(securityService.metrics.activeThreats.has('threat_123')).toBe(
         true
       );
     });
 
-    test("should handle security alerts", () => {
+    test('should handle security alerts', () => {
       const alertPayload = {
-        alertId: "alert_123",
-        alertType: "suspicious_login",
-        severity: "medium",
-        message: "Login from unusual location",
+        alertId: 'alert_123',
+        alertType: 'suspicious_login',
+        severity: 'medium',
+        message: 'Login from unusual location',
         timestamp: Date.now(),
         actionRequired: false,
       };
 
       const securityAlertSpy = vi.fn();
-      securityService.on("securityAlert", securityAlertSpy);
+      securityService.on('securityAlert', securityAlertSpy);
 
       const message = {
         data: JSON.stringify({
-          type: "security_alert",
+          type: 'security_alert',
           payload: alertPayload,
         }),
       };
@@ -250,21 +250,21 @@ describe("RealTimeSecurityMonitoringService", () => {
       expect(securityService.metrics.alertsCount).toBe(1);
     });
 
-    test("should handle risk score updates", () => {
+    test('should handle risk score updates', () => {
       const riskUpdatePayload = {
-        sessionId: "session456",
+        sessionId: 'session456',
         newRiskScore: 0.7,
         previousRiskScore: 0.3,
-        factors: ["location_change", "device_change"],
+        factors: ['location_change', 'device_change'],
         timestamp: Date.now(),
       };
 
       const riskScoreUpdatedSpy = vi.fn();
-      securityService.on("riskScoreUpdated", riskScoreUpdatedSpy);
+      securityService.on('riskScoreUpdated', riskScoreUpdatedSpy);
 
       const message = {
         data: JSON.stringify({
-          type: "risk_score_update",
+          type: 'risk_score_update',
           payload: riskUpdatePayload,
         }),
       };
@@ -274,21 +274,21 @@ describe("RealTimeSecurityMonitoringService", () => {
       expect(riskScoreUpdatedSpy).toHaveBeenCalledWith(riskUpdatePayload);
     });
 
-    test("should handle behavior anomalies", () => {
+    test('should handle behavior anomalies', () => {
       const anomalyPayload = {
-        anomalyType: "keystroke_pattern",
-        severity: "medium",
+        anomalyType: 'keystroke_pattern',
+        severity: 'medium',
         confidence: 0.8,
-        behaviorData: { avgDelay: 150, rhythm: "irregular" },
+        behaviorData: { avgDelay: 150, rhythm: 'irregular' },
         timestamp: Date.now(),
       };
 
       const behaviorAnomalySpy = vi.fn();
-      securityService.on("behaviorAnomaly", behaviorAnomalySpy);
+      securityService.on('behaviorAnomaly', behaviorAnomalySpy);
 
       const message = {
         data: JSON.stringify({
-          type: "behavior_anomaly",
+          type: 'behavior_anomaly',
           payload: anomalyPayload,
         }),
       };
@@ -298,21 +298,21 @@ describe("RealTimeSecurityMonitoringService", () => {
       expect(behaviorAnomalySpy).toHaveBeenCalledWith(anomalyPayload);
     });
 
-    test("should handle automated responses", () => {
+    test('should handle automated responses', () => {
       const responsePayload = {
-        responseType: "ip_block",
-        action: "block_suspicious_ip",
-        target: "192.168.1.100",
-        result: "success",
+        responseType: 'ip_block',
+        action: 'block_suspicious_ip',
+        target: '192.168.1.100',
+        result: 'success',
         timestamp: Date.now(),
       };
 
       const automatedResponseSpy = vi.fn();
-      securityService.on("automatedResponse", automatedResponseSpy);
+      securityService.on('automatedResponse', automatedResponseSpy);
 
       const message = {
         data: JSON.stringify({
-          type: "automated_response",
+          type: 'automated_response',
           payload: responsePayload,
         }),
       };
@@ -322,9 +322,9 @@ describe("RealTimeSecurityMonitoringService", () => {
       expect(automatedResponseSpy).toHaveBeenCalledWith(responsePayload);
     });
 
-    test("should handle malformed messages gracefully", () => {
+    test('should handle malformed messages gracefully', () => {
       const message = {
-        data: "invalid json",
+        data: 'invalid json',
       };
 
       expect(() => {
@@ -332,71 +332,71 @@ describe("RealTimeSecurityMonitoringService", () => {
       }).not.toThrow();
 
       expect(mockConsole.error).toHaveBeenCalledWith(
-        "Failed to parse WebSocket message:",
+        'Failed to parse WebSocket message:',
         expect.any(Error)
       );
     });
   });
 
-  describe("Threat Detection", () => {
+  describe('Threat Detection', () => {
     beforeEach(async () => {
-      await securityService.initialize("user123", "session456");
+      await securityService.initialize('user123', 'session456');
     });
 
-    test("should trigger automated response for high severity threats", () => {
+    test('should trigger automated response for high severity threats', () => {
       const threatPayload = {
-        threatId: "threat_critical",
-        threatType: "account_takeover",
-        severity: "critical",
+        threatId: 'threat_critical',
+        threatType: 'account_takeover',
+        severity: 'critical',
         confidence: 0.9,
       };
 
-      const triggerSpy = vi.spyOn(securityService, "triggerAutomatedResponse");
+      const triggerSpy = vi.spyOn(securityService, 'triggerAutomatedResponse');
 
       securityService.handleThreatDetection(threatPayload);
 
       expect(triggerSpy).toHaveBeenCalledWith(threatPayload);
     });
 
-    test("should not trigger automated response for low severity threats", () => {
+    test('should not trigger automated response for low severity threats', () => {
       const threatPayload = {
-        threatId: "threat_low",
-        threatType: "unusual_behavior",
-        severity: "low",
+        threatId: 'threat_low',
+        threatType: 'unusual_behavior',
+        severity: 'low',
         confidence: 0.4,
       };
 
-      const triggerSpy = vi.spyOn(securityService, "triggerAutomatedResponse");
+      const triggerSpy = vi.spyOn(securityService, 'triggerAutomatedResponse');
 
       securityService.handleThreatDetection(threatPayload);
 
       expect(triggerSpy).not.toHaveBeenCalled();
     });
 
-    test("should detect brute force patterns", () => {
+    test('should detect brute force patterns', () => {
       const loginFailures = Array.from({ length: 6 }, (_, i) => ({
-        userId: "user123",
-        ip: "192.168.1.100",
+        userId: 'user123',
+        ip: '192.168.1.100',
         timestamp: Date.now() - i * 10000, // 10 seconds apart
       }));
 
-      const reportThreatSpy = vi.spyOn(securityService, "reportThreat");
+      const reportThreatSpy = vi.spyOn(securityService, 'reportThreat');
 
       // Simulate multiple failed login attempts
       loginFailures.forEach((failure) => {
-        securityService.emit("loginFailed", failure);
+        securityService.emit('loginFailed', failure);
       });
 
       expect(reportThreatSpy).toHaveBeenCalledWith(
-        "brute_force_attack",
+        'brute_force_attack',
         expect.objectContaining({
-          target: "user123",
+          target: 'user123',
           attempts: expect.any(Number),
         })
       );
     });
 
-    test("should generate unique threat IDs", () => {
+    test('should generate unique threat IDs', () => {
       const id1 = securityService.generateThreatId();
       const id2 = securityService.generateThreatId();
 
@@ -407,12 +407,12 @@ describe("RealTimeSecurityMonitoringService", () => {
     });
   });
 
-  describe("Configuration Management", () => {
+  describe('Configuration Management', () => {
     beforeEach(async () => {
-      await securityService.initialize("user123", "session456");
+      await securityService.initialize('user123', 'session456');
     });
 
-    test("should update monitoring configuration", () => {
+    test('should update monitoring configuration', () => {
       const newConfig = {
         threatDetection: false,
         behaviorAnalysis: true,
@@ -426,11 +426,11 @@ describe("RealTimeSecurityMonitoringService", () => {
       expect(securityService.monitoringConfig.realTimeAlerts).toBe(false);
 
       expect(mockWebSocket.send).toHaveBeenCalledWith(
-        expect.stringContaining('"type":"update_configuration"')
+        expect.stringContaining(''type':'update_configuration'')
       );
     });
 
-    test("should preserve existing configuration when updating", () => {
+    test('should preserve existing configuration when updating', () => {
       const originalConfig = { ...securityService.monitoringConfig };
 
       securityService.updateConfiguration({
@@ -443,46 +443,46 @@ describe("RealTimeSecurityMonitoringService", () => {
     });
   });
 
-  describe("Metrics and Monitoring", () => {
+  describe('Metrics and Monitoring', () => {
     beforeEach(async () => {
-      await securityService.initialize("user123", "session456");
+      await securityService.initialize('user123', 'session456');
     });
 
-    test("should track active threats", () => {
+    test('should track active threats', () => {
       const threatPayload = {
-        threatId: "threat_123",
-        threatType: "suspicious_activity",
-        severity: "medium",
+        threatId: 'threat_123',
+        threatType: 'suspicious_activity',
+        severity: 'medium',
         confidence: 0.7,
-        source: "client",
-        target: "user123",
+        source: 'client',
+        target: 'user123',
         timestamp: Date.now(),
       };
 
       securityService.handleThreatDetection(threatPayload);
 
       const metrics = securityService.getMetrics();
-      expect(metrics.activeThreats.has("threat_123")).toBe(true);
+      expect(metrics.activeThreats.has('threat_123')).toBe(true);
       expect(metrics.isConnected).toBe(true);
     });
 
-    test("should track alerts count", () => {
+    test('should track alerts count', () => {
       const initialCount = securityService.metrics.alertsCount;
 
       securityService.handleSecurityAlert({
-        alertType: "test_alert",
-        severity: "low",
-        message: "Test alert",
+        alertType: 'test_alert',
+        severity: 'low',
+        message: 'Test alert',
       });
 
       expect(securityService.metrics.alertsCount).toBe(initialCount + 1);
     });
 
-    test("should update last threat detected timestamp", () => {
+    test('should update last threat detected timestamp', () => {
       const threatPayload = {
-        threatId: "threat_123",
-        threatType: "test_threat",
-        severity: "low",
+        threatId: 'threat_123',
+        threatType: 'test_threat',
+        severity: 'low',
         confidence: 0.5,
         timestamp: Date.now(),
       };
@@ -494,66 +494,66 @@ describe("RealTimeSecurityMonitoringService", () => {
     });
   });
 
-  describe("Event Handling", () => {
-    test("should support event listeners", () => {
+  describe('Event Handling', () => {
+    test('should support event listeners', () => {
       const listener = vi.fn();
 
-      securityService.on("test_event", listener);
-      securityService.emit("test_event", { data: "test" });
+      securityService.on('test_event', listener);
+      securityService.emit('test_event', { data: 'test' });
 
-      expect(listener).toHaveBeenCalledWith({ data: "test" });
+      expect(listener).toHaveBeenCalledWith({ data: 'test' });
     });
 
-    test("should remove event listeners", () => {
+    test('should remove event listeners', () => {
       const listener = vi.fn();
 
-      securityService.on("test_event", listener);
-      securityService.off("test_event", listener);
-      securityService.emit("test_event", { data: "test" });
+      securityService.on('test_event', listener);
+      securityService.off('test_event', listener);
+      securityService.emit('test_event', { data: 'test' });
 
       expect(listener).not.toHaveBeenCalled();
     });
 
-    test("should handle errors in event listeners gracefully", () => {
+    test('should handle errors in event listeners gracefully', () => {
       const badListener = vi.fn().mockImplementation(() => {
-        throw new Error("Listener error");
+        throw new Error('Listener error');
       });
 
-      securityService.on("test_event", badListener);
+      securityService.on('test_event', badListener);
 
       expect(() => {
-        securityService.emit("test_event", { data: "test" });
+        securityService.emit('test_event', { data: 'test' });
       }).not.toThrow();
 
       expect(mockConsole.error).toHaveBeenCalledWith(
-        "Error in event listener for test_event:",
+        'Error in event listener for test_event:',
         expect.any(Error)
       );
     });
   });
 
-  describe("Heartbeat and Connection Health", () => {
+  describe('Heartbeat and Connection Health', () => {
     beforeEach(async () => {
       vi.useFakeTimers();
-      await securityService.initialize("user123", "session456");
+      await securityService.initialize('user123', 'session456');
     });
 
     afterEach(() => {
       vi.useRealTimers();
     });
 
-    test("should send heartbeat messages", () => {
+    test('should send heartbeat messages', () => {
       securityService.startHeartbeat();
 
       // Fast-forward time to trigger heartbeat
       vi.advanceTimersByTime(35000); // Past heartbeat interval
 
       expect(mockWebSocket.send).toHaveBeenCalledWith(
-        expect.stringContaining('"type":"heartbeat"')
+        expect.stringContaining(''type':'heartbeat'')
       );
     });
 
-    test("should stop heartbeat on disconnect", () => {
+    test('should stop heartbeat on disconnect', () => {
       securityService.startHeartbeat();
       securityService.stopHeartbeat();
 
@@ -562,28 +562,28 @@ describe("RealTimeSecurityMonitoringService", () => {
 
       // Should not send heartbeat after stopping
       const heartbeatCalls = mockWebSocket.send.mock.calls.filter((call) =>
-        call[0].includes('"type":"heartbeat"')
+        call[0].includes(''type':'heartbeat'')
       );
       expect(heartbeatCalls.length).toBe(0);
     });
   });
 
-  describe("Cleanup and Destruction", () => {
-    test("should disconnect cleanly", () => {
+  describe('Cleanup and Destruction', () => {
+    test('should disconnect cleanly', () => {
       securityService.disconnect();
 
       expect(mockWebSocket.close).toHaveBeenCalledWith(
         1000,
-        "Client disconnect"
+        'Client disconnect'
       );
       expect(securityService.isConnected).toBe(false);
     });
 
-    test("should clear all data on destroy", () => {
+    test('should clear all data on destroy', () => {
       // Add some test data
-      securityService.metrics.activeThreats.set("test_threat", {});
+      securityService.metrics.activeThreats.set('test_threat', {});
       securityService.threatPatterns.networkAnomaly.suspiciousIPs.add(
-        "192.168.1.1"
+        '192.168.1.1'
       );
 
       securityService.destroy();
@@ -596,69 +596,69 @@ describe("RealTimeSecurityMonitoringService", () => {
     });
   });
 
-  describe("Browser Notifications", () => {
+  describe('Browser Notifications', () => {
     beforeEach(async () => {
-      await securityService.initialize("user123", "session456");
+      await securityService.initialize('user123', 'session456');
     });
 
-    test("should show browser notifications for security alerts", () => {
-      const NotificationSpy = vi.spyOn(global, "Notification");
+    test('should show browser notifications for security alerts', () => {
+      const NotificationSpy = vi.spyOn(global, 'Notification');
 
       securityService.showBrowserNotification(
-        "Security Alert",
-        "Suspicious activity detected",
-        "high"
+        'Security Alert',
+        'Suspicious activity detected',
+        'high'
       );
 
       expect(NotificationSpy).toHaveBeenCalledWith(
-        "Security Alert",
+        'Security Alert',
         expect.objectContaining({
-          body: "Suspicious activity detected",
-          icon: expect.stringContaining("alert-high.png"),
+          body: 'Suspicious activity detected',
+          icon: expect.stringContaining('alert-high.png'),
         })
       );
     });
 
-    test("should handle missing notification permission gracefully", () => {
-      global.Notification.permission = "denied";
+    test('should handle missing notification permission gracefully', () => {
+      global.Notification.permission = 'denied';
 
       expect(() => {
         securityService.showBrowserNotification(
-          "Security Alert",
-          "Test message",
-          "medium"
+          'Security Alert',
+          'Test message',
+          'medium'
         );
       }).not.toThrow();
     });
   });
 
-  describe("Error Handling", () => {
-    test("should handle WebSocket send errors gracefully", async () => {
-      await securityService.initialize("user123", "session456");
+  describe('Error Handling', () => {
+    test('should handle WebSocket send errors gracefully', async () => {
+      await securityService.initialize('user123', 'session456');
 
       // Mock send method to throw error
       mockWebSocket.send.mockImplementation(() => {
-        throw new Error("Send failed");
+        throw new Error('Send failed');
       });
 
       expect(() => {
-        securityService.sendMessage({ type: "test" });
+        securityService.sendMessage({ type: 'test' });
       }).not.toThrow();
 
       expect(mockConsole.warn).toHaveBeenCalledWith(
-        "Cannot send message - WebSocket not connected"
+        'Cannot send message - WebSocket not connected'
       );
     });
 
-    test("should handle initialization errors", async () => {
+    test('should handle initialization errors', async () => {
       const badService = new RealTimeSecurityMonitoringService();
       badService.connect = vi
         .fn()
-        .mockRejectedValue(new Error("Network error"));
+        .mockRejectedValue(new Error('Network error'));
 
       await expect(
-        badService.initialize("user123", "session456")
-      ).rejects.toThrow("Network error");
+        badService.initialize('user123', 'session456')
+      ).rejects.toThrow('Network error');
     });
   });
 });

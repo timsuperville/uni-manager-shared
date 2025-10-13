@@ -2,15 +2,15 @@
  * useAuthForm Hook
  * Unified hook for handling authentication forms with validation and state management
  */
-import { useState } from "react";
-import { useAuth } from "../context/AuthContext.jsx";
+import { useState } from 'react';
+import { useAuth } from '../context/AuthContext.jsx';
 import {
   validateEmail,
   validatePassword,
   validateName,
-} from "../utils/authValidation.js";
+} from '../utils/authValidation.js';
 
-export const useAuthForm = (formType = "login") => {
+export const useAuthForm = (formType = 'login') => {
   const { login, signup, resetPassword } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -19,24 +19,24 @@ export const useAuthForm = (formType = "login") => {
   // Initial form data based on form type
   const getInitialFormData = () => {
     switch (formType) {
-      case "signup":
+      case 'signup':
         return {
-          firstName: "",
-          lastName: "",
-          email: "",
-          password: "",
-          confirmPassword: "",
+          firstName: '',
+          lastName: '',
+          email: '',
+          password: '',
+          confirmPassword: '',
           agreeToTerms: false,
         };
-      case "forgotPassword":
+      case 'forgotPassword':
         return {
-          email: "",
+          email: '',
         };
-      case "login":
+      case 'login':
       default:
         return {
-          email: "",
-          password: "",
+          email: '',
+          password: '',
           rememberMe: false,
         };
     }
@@ -49,14 +49,14 @@ export const useAuthForm = (formType = "login") => {
     const { name, value, checked, type } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: type === 'checkbox' ? checked : value,
     }));
 
     // Clear error when user starts typing
     if (errors[name]) {
       setErrors((prev) => ({
         ...prev,
-        [name]: "",
+        [name]: '',
       }));
     }
 
@@ -70,11 +70,11 @@ export const useAuthForm = (formType = "login") => {
     const newErrors = {};
 
     switch (formType) {
-      case "signup": {
-        const firstNameError = validateName(formData.firstName, "First name");
+      case 'signup': {
+        const firstNameError = validateName(formData.firstName, 'First name');
         if (firstNameError) newErrors.firstName = firstNameError;
 
-        const lastNameError = validateName(formData.lastName, "Last name");
+        const lastNameError = validateName(formData.lastName, 'Last name');
         if (lastNameError) newErrors.lastName = lastNameError;
 
         const emailValidation = validateEmail(formData.email);
@@ -84,20 +84,20 @@ export const useAuthForm = (formType = "login") => {
         if (passwordError) newErrors.password = passwordError;
 
         if (formData.password !== formData.confirmPassword) {
-          newErrors.confirmPassword = "Passwords do not match";
+          newErrors.confirmPassword = 'Passwords do not match';
         }
 
         if (!formData.agreeToTerms) {
-          newErrors.agreeToTerms = "You must agree to the terms and conditions";
+          newErrors.agreeToTerms = 'You must agree to the terms and conditions';
         }
         break;
       }
-      case "forgotPassword": {
+      case 'forgotPassword': {
         const emailValidation = validateEmail(formData.email);
         if (!emailValidation.isValid) newErrors.email = emailValidation.error;
         break;
       }
-      case "login":
+      case 'login':
       default: {
         const emailValidation = validateEmail(formData.email);
         if (!emailValidation.isValid) newErrors.email = emailValidation.error;
@@ -129,7 +129,7 @@ export const useAuthForm = (formType = "login") => {
       let result;
 
       switch (formType) {
-        case "signup": {
+        case 'signup': {
           const submitData = {
             firstName: formData.firstName,
             lastName: formData.lastName,
@@ -139,12 +139,12 @@ export const useAuthForm = (formType = "login") => {
           result = await signup(submitData);
           break;
         }
-        case "forgotPassword": {
+        case 'forgotPassword': {
           result = await resetPassword(formData.email);
-          setSuccess("Password reset link sent to your email");
+          setSuccess('Password reset link sent to your email');
           break;
         }
-        case "login":
+        case 'login':
         default: {
           result = await login(
             formData.email,
@@ -156,8 +156,8 @@ export const useAuthForm = (formType = "login") => {
       }
 
       return result;
-    } catch (err) {
-      setError(err.message || "An error occurred. Please try again.");
+    } catch (_err) {
+      setError(err.message || 'An error occurred. Please try again.');
       return false;
     } finally {
       setIsLoading(false);

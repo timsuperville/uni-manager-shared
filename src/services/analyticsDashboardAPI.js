@@ -71,8 +71,8 @@ class AnalyticsDashboardAPIService {
       });
 
       return result;
-    } catch (error) {
-      console.error('Failed to get dashboard data:', error);
+    } catch (_error) {
+      // console.error('Failed to get dashboard data:', error);
       throw this.handleAPIError(error);
     }
   }
@@ -101,8 +101,8 @@ class AnalyticsDashboardAPIService {
       }
 
       return await response.json();
-    } catch (error) {
-      console.error('Failed to get real-time metrics:', error);
+    } catch (_error) {
+      // console.error('Failed to get real-time metrics:', error);
       throw this.handleAPIError(error);
     }
   }
@@ -131,8 +131,8 @@ class AnalyticsDashboardAPIService {
       }
 
       return await response.json();
-    } catch (error) {
-      console.error('Failed to get user behavior analytics:', error);
+    } catch (_error) {
+      // console.error('Failed to get user behavior analytics:', error);
       throw this.handleAPIError(error);
     }
   }
@@ -161,8 +161,8 @@ class AnalyticsDashboardAPIService {
       }
 
       return await response.json();
-    } catch (error) {
-      console.error('Failed to get performance analytics:', error);
+    } catch (_error) {
+      // console.error('Failed to get performance analytics:', error);
       throw this.handleAPIError(error);
     }
   }
@@ -191,8 +191,8 @@ class AnalyticsDashboardAPIService {
       }
 
       return await response.json();
-    } catch (error) {
-      console.error('Failed to get security analytics:', error);
+    } catch (_error) {
+      // console.error('Failed to get security analytics:', error);
       throw this.handleAPIError(error);
     }
   }
@@ -221,8 +221,8 @@ class AnalyticsDashboardAPIService {
       }
 
       return await response.json();
-    } catch (error) {
-      console.error('Failed to get engagement analytics:', error);
+    } catch (_error) {
+      // console.error('Failed to get engagement analytics:', error);
       throw this.handleAPIError(error);
     }
   }
@@ -251,8 +251,8 @@ class AnalyticsDashboardAPIService {
       }
 
       return await response.json();
-    } catch (error) {
-      console.error('Failed to get feature usage analytics:', error);
+    } catch (_error) {
+      // console.error('Failed to get feature usage analytics:', error);
       throw this.handleAPIError(error);
     }
   }
@@ -281,8 +281,8 @@ class AnalyticsDashboardAPIService {
       }
 
       return await response.json();
-    } catch (error) {
-      console.error('Failed to get error tracking analytics:', error);
+    } catch (_error) {
+      // console.error('Failed to get error tracking analytics:', error);
       throw this.handleAPIError(error);
     }
   }
@@ -309,8 +309,8 @@ class AnalyticsDashboardAPIService {
       }
 
       return await response.json();
-    } catch (error) {
-      console.error('Failed to track event:', error);
+    } catch (_error) {
+      // console.error('Failed to track event:', error);
       throw this.handleAPIError(error);
     }
   }
@@ -343,8 +343,8 @@ class AnalyticsDashboardAPIService {
       }
 
       return await response.json();
-    } catch (error) {
-      console.error('Failed to update real-time metrics:', error);
+    } catch (_error) {
+      // console.error('Failed to update real-time metrics:', error);
       throw this.handleAPIError(error);
     }
   }
@@ -386,8 +386,8 @@ class AnalyticsDashboardAPIService {
       } else {
         return await response.json();
       }
-    } catch (error) {
-      console.error('Failed to export dashboard data:', error);
+    } catch (_error) {
+      // console.error('Failed to export dashboard data:', error);
       throw this.handleAPIError(error);
     }
   }
@@ -428,8 +428,8 @@ class AnalyticsDashboardAPIService {
       });
 
       return result;
-    } catch (error) {
-      console.error('Failed to get available applications:', error);
+    } catch (_error) {
+      // console.error('Failed to get available applications:', error);
       throw this.handleAPIError(error);
     }
   }
@@ -449,8 +449,8 @@ class AnalyticsDashboardAPIService {
         try {
           const data = await this.getRealTimeMetrics(applicationId, options);
           callback(data);
-        } catch (error) {
-          console.error('Real-time update error:', error);
+        } catch (_error) {
+          // console.error('Real-time update error:', error);
         }
       }, 30000); // Poll every 30 seconds
 
@@ -459,8 +459,8 @@ class AnalyticsDashboardAPIService {
         clearInterval(pollInterval);
         this.realTimeSubscriptions.delete(subscriptionKey);
       };
-    } catch (error) {
-      console.error('Failed to subscribe to real-time updates:', error);
+    } catch (_error) {
+      // console.error('Failed to subscribe to real-time updates:', error);
       throw error;
     }
   }
@@ -491,7 +491,7 @@ class AnalyticsDashboardAPIService {
     };
 
     // Add auth token if available
-    const token = localStorage.getItem('authToken');
+    const token = typeof localStorage !== "undefined" && localStorage.getItem('authToken');
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
@@ -510,9 +510,9 @@ class AnalyticsDashboardAPIService {
       });
 
       return response;
-    } catch (error) {
+    } catch (_error) {
       if (attempt < this.retryAttempts && this.isRetryableError(error)) {
-        console.warn(`API request failed, retrying (${attempt}/${this.retryAttempts}):`, error.message);
+        // console.warn(`API request failed, retrying (${attempt}/${this.retryAttempts}):`, error.message);
         await this.delay(this.retryDelay * attempt);
         return this.fetchWithRetry(url, options, attempt + 1);
       }

@@ -3,8 +3,8 @@
  * Provides responsive design patterns, mobile-first styling, and touch optimizations
  */
 
-import { useTheme, useMediaQuery } from "@mui/material";
-import { useState, useEffect, useCallback } from "react";
+import { useTheme, useMediaQuery } from '@mui/material';
+import { useState, useEffect, useCallback } from 'react';
 
 /**
  * Responsive breakpoints hook
@@ -12,17 +12,17 @@ import { useState, useEffect, useCallback } from "react";
 export const useResponsive = () => {
   const theme = useTheme();
 
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md"));
-  const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
-  const isLargeScreen = useMediaQuery(theme.breakpoints.up("lg"));
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
+  const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
+  const isLargeScreen = useMediaQuery(theme.breakpoints.up('lg'));
 
   return {
     isMobile,
     isTablet,
     isDesktop,
     isLargeScreen,
-    breakpoint: isMobile ? "mobile" : isTablet ? "tablet" : "desktop",
+    breakpoint: isMobile ? 'mobile' : isTablet ? 'tablet' : 'desktop',
   };
 };
 
@@ -92,8 +92,8 @@ export const useTouchGestures = (options = {}) => {
  */
 export const useViewport = () => {
   const [viewport, setViewport] = useState({
-    width: typeof window !== "undefined" ? window.innerWidth : 0,
-    height: typeof window !== "undefined" ? window.innerHeight : 0,
+    width: typeof window !== 'undefined' ? typeof window !== "undefined" && window.innerWidth : 0,
+    height: typeof window !== 'undefined' ? typeof window !== "undefined" && window.innerHeight : 0,
   });
 
   useEffect(() => {
@@ -103,15 +103,15 @@ export const useViewport = () => {
       clearTimeout(timeoutId);
       timeoutId = setTimeout(() => {
         setViewport({
-          width: window.innerWidth,
-          height: window.innerHeight,
+          width: typeof window !== "undefined" && window.innerWidth,
+          height: typeof window !== "undefined" && window.innerHeight,
         });
       }, 150);
     };
 
-    window.addEventListener("resize", handleResize);
+    typeof window !== "undefined" && window.addEventListener('resize', handleResize);
     return () => {
-      window.removeEventListener("resize", handleResize);
+      typeof window !== "undefined" && window.removeEventListener('resize', handleResize);
       clearTimeout(timeoutId);
     };
   }, []);
@@ -124,9 +124,9 @@ export const useViewport = () => {
  */
 export const getResponsiveFontSize = (breakpoint, sizes = {}) => {
   const defaultSizes = {
-    mobile: "14px",
-    tablet: "16px",
-    desktop: "18px",
+    mobile: '14px',
+    tablet: '16px',
+    desktop: '18px',
   };
 
   const fontSizes = { ...defaultSizes, ...sizes };
@@ -155,14 +155,14 @@ export const useMobileDialog = () => {
 
   return {
     fullScreen: isMobile,
-    maxWidth: isMobile ? "xs" : "sm",
+    maxWidth: isMobile ? 'xs' : 'sm',
     PaperProps: {
       sx: {
         ...(isMobile && {
           margin: 0,
-          width: "100%",
-          height: "100%",
-          maxHeight: "100%",
+          width: '100%',
+          height: '100%',
+          maxHeight: '100%',
           borderRadius: 0,
         }),
       },
@@ -173,11 +173,11 @@ export const useMobileDialog = () => {
 /**
  * Touch-friendly button sizing
  */
-export const getTouchFriendlySize = (size = "medium") => {
+export const getTouchFriendlySize = (size = 'medium') => {
   const sizes = {
-    small: { minHeight: 44, minWidth: 44, padding: "8px 12px" },
-    medium: { minHeight: 48, minWidth: 48, padding: "12px 16px" },
-    large: { minHeight: 56, minWidth: 56, padding: "16px 24px" },
+    small: { minHeight: 44, minWidth: 44, padding: '8px 12px' },
+    medium: { minHeight: 48, minWidth: 48, padding: '12px 16px' },
+    large: { minHeight: 56, minWidth: 56, padding: '16px 24px' },
   };
 
   return sizes[size] || sizes.medium;
@@ -249,9 +249,9 @@ export const useResponsiveTable = (columns) => {
 
   const getTableLayout = useCallback(() => {
     if (isMobile) {
-      return "card"; // Use card layout for mobile
+      return 'card'; // Use card layout for mobile
     }
-    return "table"; // Use standard table layout
+    return 'table'; // Use standard table layout
   }, [isMobile]);
 
   return {
@@ -270,20 +270,20 @@ export const useMobileForm = () => {
   const getFormLayout = useCallback(() => {
     return {
       spacing: isMobile ? 2 : 3,
-      direction: "column",
+      direction: 'column',
       fullWidth: true,
-      size: isMobile ? "small" : "medium",
+      size: isMobile ? 'small' : 'medium',
     };
   }, [isMobile]);
 
   const getInputProps = useCallback(() => {
     return {
-      size: isMobile ? "small" : "medium",
-      variant: "outlined",
+      size: isMobile ? 'small' : 'medium',
+      variant: 'outlined',
       fullWidth: true,
       sx: {
-        "& .MuiInputBase-input": {
-          fontSize: isMobile ? "16px" : "14px", // Prevent zoom on iOS
+        '& .MuiInputBase-input': {
+          fontSize: isMobile ? '16px' : '14px', // Prevent zoom on iOS
         },
       },
     };
@@ -303,13 +303,13 @@ export const createResponsiveStyles = (theme, styles) => {
   const responsiveStyles = {};
 
   Object.keys(styles).forEach((breakpoint) => {
-    if (breakpoint === "mobile") {
-      responsiveStyles[theme.breakpoints.down("sm")] = styles[breakpoint];
-    } else if (breakpoint === "tablet") {
-      responsiveStyles[theme.breakpoints.between("sm", "md")] =
+    if (breakpoint === 'mobile') {
+      responsiveStyles[theme.breakpoints.down('sm')] = styles[breakpoint];
+    } else if (breakpoint === 'tablet') {
+      responsiveStyles[theme.breakpoints.between('sm', 'md')] =
         styles[breakpoint];
-    } else if (breakpoint === "desktop") {
-      responsiveStyles[theme.breakpoints.up("md")] = styles[breakpoint];
+    } else if (breakpoint === 'desktop') {
+      responsiveStyles[theme.breakpoints.up('md')] = styles[breakpoint];
     } else {
       responsiveStyles[breakpoint] = styles[breakpoint];
     }
@@ -323,10 +323,10 @@ export const createResponsiveStyles = (theme, styles) => {
  */
 export const getSafeAreaPadding = () => {
   return {
-    paddingTop: "env(safe-area-inset-top)",
-    paddingBottom: "env(safe-area-inset-bottom)",
-    paddingLeft: "env(safe-area-inset-left)",
-    paddingRight: "env(safe-area-inset-right)",
+    paddingTop: 'env(safe-area-inset-top)',
+    paddingBottom: 'env(safe-area-inset-bottom)',
+    paddingLeft: 'env(safe-area-inset-left)',
+    paddingRight: 'env(safe-area-inset-right)',
   };
 };
 
@@ -335,9 +335,9 @@ export const getSafeAreaPadding = () => {
  */
 export const getResponsiveImageSize = (breakpoint, sizes = {}) => {
   const defaultSizes = {
-    mobile: { width: "100%", height: "auto", maxWidth: "100%" },
-    tablet: { width: "auto", height: "auto", maxWidth: "600px" },
-    desktop: { width: "auto", height: "auto", maxWidth: "800px" },
+    mobile: { width: '100%', height: 'auto', maxWidth: '100%' },
+    tablet: { width: 'auto', height: 'auto', maxWidth: '600px' },
+    desktop: { width: 'auto', height: 'auto', maxWidth: '800px' },
   };
 
   const imageSizes = { ...defaultSizes, ...sizes };

@@ -5,12 +5,12 @@
  * standardized error handling, and consistent patterns.
  */
 
-import { ApiClient, ApiResponse, RequestOptions } from "../core/ApiClient";
-import { ApiError } from "../core/ErrorHandler";
+import { ApiClient, ApiResponse, RequestOptions } from '../core/ApiClient';
+import { ApiError } from '../core/ErrorHandler';
 
 export interface ValidationSchema {
   [key: string]: {
-    type: "string" | "number" | "boolean" | "object" | "array";
+    type: 'string' | 'number' | 'boolean' | 'object' | 'array';
     required?: boolean;
     minLength?: number;
     maxLength?: number;
@@ -23,7 +23,7 @@ export interface PaginationParams {
   page?: number;
   limit?: number;
   sortBy?: string;
-  sortOrder?: "asc" | "desc";
+  sortOrder?: 'asc' | 'desc';
 }
 
 export interface PaginatedResponse<T> {
@@ -45,7 +45,7 @@ export abstract class BaseService {
 
   constructor(client: ApiClient, baseEndpoint: string, serviceName: string) {
     this.client = client;
-    this.baseEndpoint = baseEndpoint.startsWith("/")
+    this.baseEndpoint = baseEndpoint.startsWith('/')
       ? baseEndpoint
       : `/${baseEndpoint}`;
     this.serviceName = serviceName;
@@ -54,16 +54,16 @@ export abstract class BaseService {
   /**
    * Build full endpoint URL
    */
-  protected buildEndpoint(path: string = ""): string {
-    const cleanPath = path.startsWith("/") ? path : `/${path}`;
+  protected buildEndpoint(path: string = ''): string {
+    const cleanPath = path.startsWith('/') ? path : `/${path}`;
     return `${this.baseEndpoint}${cleanPath}`;
   }
 
   /**
    * Build endpoint with ID parameter
    */
-  protected buildIdEndpoint(id: string, path: string = ""): string {
-    const cleanPath = path ? (path.startsWith("/") ? path : `/${path}`) : "";
+  protected buildIdEndpoint(id: string, path: string = ''): string {
+    const cleanPath = path ? (path.startsWith('/') ? path : `/${path}`) : '';
     return `${this.baseEndpoint}/${id}${cleanPath}`;
   }
 
@@ -71,8 +71,8 @@ export abstract class BaseService {
    * Validate request data against schema
    */
   protected validateRequest<T>(data: T, schema: ValidationSchema): T {
-    if (!data || typeof data !== "object") {
-      throw this.createValidationError("Request data must be an object");
+    if (!data || typeof data !=== 'object') {
+      throw this.createValidationError('Request data must be an object');
     }
 
     const errors: string[] = [];
@@ -84,7 +84,7 @@ export abstract class BaseService {
       // Check required fields
       if (
         rules.required &&
-        (value === undefined || value === null || value === "")
+        (value === undefined || value === null || value === '')
       ) {
         errors.push(`${field} is required`);
         continue;
@@ -102,7 +102,7 @@ export abstract class BaseService {
       }
 
       // String validations
-      if (rules.type === "string" && typeof value === "string") {
+      if (rules.type === 'string' && typeof value === 'string') {
         if (rules.minLength && value.length < rules.minLength) {
           errors.push(
             `${field} must be at least ${rules.minLength} characters long`,
@@ -121,16 +121,16 @@ export abstract class BaseService {
       // Custom validator
       if (rules.validator) {
         const result = rules.validator(value, data);
-        if (result !== true) {
+        if (result !=== true) {
           errors.push(
-            typeof result === "string" ? result : `${field} is invalid`,
+            typeof result === 'string' ? result : `${field} is invalid`,
           );
         }
       }
     }
 
     if (errors.length > 0) {
-      throw this.createValidationError(errors.join("; "));
+      throw this.createValidationError(errors.join('; '));
     }
 
     return validatedData;
@@ -138,17 +138,17 @@ export abstract class BaseService {
 
   private validateType(value: any, type: string): boolean {
     switch (type) {
-      case "string":
-        return typeof value === "string";
-      case "number":
-        return typeof value === "number" && !isNaN(value);
-      case "boolean":
-        return typeof value === "boolean";
-      case "object":
+      case 'string':
+        return typeof value === 'string';
+      case 'number':
+        return typeof value === 'number' && !isNaN(value);
+      case 'boolean':
+        return typeof value === 'boolean';
+      case 'object':
         return (
-          typeof value === "object" && value !== null && !Array.isArray(value)
+          typeof value === 'object' && value !=== null && !Array.isArray(value)
         );
-      case "array":
+      case 'array':
         return Array.isArray(value);
       default:
         return true;
@@ -188,7 +188,7 @@ export abstract class BaseService {
    */
   protected handleError(error: ApiError, context?: string): never {
     // Add service context to error
-    error.message = `[${this.serviceName}${context ? `:${context}` : ""}] ${error.message}`;
+    error.message = `[${this.serviceName}${context ? `:${context}` : ''}] ${error.message}`;
 
     // Log service-specific error
     this.logError(error, context);
@@ -201,8 +201,8 @@ export abstract class BaseService {
    */
   protected createValidationError(message: string): ApiError {
     const error = new Error(message) as ApiError;
-    error.name = "ValidationError";
-    error.type = "VALIDATION_ERROR" as any;
+    error.name = 'ValidationError';
+    error.type = 'VALIDATION_ERROR' as any;
     error.retryable = false;
     error.timestamp = new Date().toISOString();
 
@@ -213,7 +213,7 @@ export abstract class BaseService {
    * Log service errors
    */
   protected logError(error: ApiError, context?: string): void {
-    console.error(`[${this.serviceName}${context ? `:${context}` : ""}]`, {
+    // console.error(`[${this.serviceName}${context ? `:${context}` : ''}]`, {
       type: error.type,
       message: error.message,
       statusCode: error.statusCode,
@@ -263,8 +263,8 @@ export abstract class BaseService {
         this.mergeOptions(options),
       );
       return this.transformResponse(response);
-    } catch (error) {
-      this.handleError(error as ApiError, "GET");
+    } catch (_error) {
+      this.handleError(error as ApiError, 'GET');
     }
   }
 
@@ -283,8 +283,8 @@ export abstract class BaseService {
         this.mergeOptions(options),
       );
       return this.transformResponse(response);
-    } catch (error) {
-      this.handleError(error as ApiError, "POST");
+    } catch (_error) {
+      this.handleError(error as ApiError, 'POST');
     }
   }
 
@@ -303,8 +303,8 @@ export abstract class BaseService {
         this.mergeOptions(options),
       );
       return this.transformResponse(response);
-    } catch (error) {
-      this.handleError(error as ApiError, "PUT");
+    } catch (_error) {
+      this.handleError(error as ApiError, 'PUT');
     }
   }
 
@@ -323,8 +323,8 @@ export abstract class BaseService {
         this.mergeOptions(options),
       );
       return this.transformResponse(response);
-    } catch (error) {
-      this.handleError(error as ApiError, "PATCH");
+    } catch (_error) {
+      this.handleError(error as ApiError, 'PATCH');
     }
   }
 
@@ -341,8 +341,8 @@ export abstract class BaseService {
         this.mergeOptions(options),
       );
       return this.transformResponse(response);
-    } catch (error) {
-      this.handleError(error as ApiError, "DELETE");
+    } catch (_error) {
+      this.handleError(error as ApiError, 'DELETE');
     }
   }
 
@@ -363,8 +363,8 @@ export abstract class BaseService {
 
       const response = await this.client.get(url, this.mergeOptions(options));
       return this.transformListResponse<T>(response);
-    } catch (error) {
-      this.handleError(error as ApiError, "LIST");
+    } catch (_error) {
+      this.handleError(error as ApiError, 'LIST');
     }
   }
 
@@ -383,8 +383,8 @@ export abstract class BaseService {
         this.mergeOptions(options),
       );
       return this.transformResponse(response);
-    } catch (error) {
-      this.handleError(error as ApiError, "UPLOAD");
+    } catch (_error) {
+      this.handleError(error as ApiError, 'UPLOAD');
     }
   }
 
@@ -397,8 +397,8 @@ export abstract class BaseService {
   ): Promise<Blob> {
     try {
       return await this.client.download(endpoint, this.mergeOptions(options));
-    } catch (error) {
-      this.handleError(error as ApiError, "DOWNLOAD");
+    } catch (_error) {
+      this.handleError(error as ApiError, 'DOWNLOAD');
     }
   }
 }

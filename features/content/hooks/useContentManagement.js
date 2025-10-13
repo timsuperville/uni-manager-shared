@@ -1,6 +1,6 @@
 /* eslint-env browser, es2020 */
 /* global AbortController, fetch, localStorage, console, URLSearchParams */
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 /**
  * Content Management Hook
@@ -33,7 +33,7 @@ const useContentManagement = () => {
   const lastFetchParams = useRef(null);
 
   // API base URL
-  const API_BASE = "/api/content";
+  const API_BASE = '/api/content';
 
   // Generic API request handler with caching and error handling
   const apiRequest = useCallback(async (endpoint, options = {}) => {
@@ -50,8 +50,8 @@ const useContentManagement = () => {
         ...options,
         signal,
         headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${typeof localStorage !== "undefined" && localStorage.getItem('token')}`,
           ...options.headers,
         },
       });
@@ -65,11 +65,11 @@ const useContentManagement = () => {
 
       const data = await response.json();
       return data;
-    } catch (error) {
-      if (error.name === "AbortError") {
+    } catch (_error) {
+      if (error.name === 'AbortError') {
         return null; // Request was cancelled
       }
-      console.error("API request failed:", error);
+      // console.error('API request failed:', error);
       throw error;
     }
   }, []);
@@ -85,7 +85,7 @@ const useContentManagement = () => {
         const queryParams = new URLSearchParams();
 
         Object.entries(params).forEach(([key, value]) => {
-          if (value !== undefined && value !== null && value !== "") {
+          if (value !== undefined && value !== null && value !== '') {
             queryParams.append(key, value);
           }
         });
@@ -128,7 +128,7 @@ const useContentManagement = () => {
 
           lastFetchParams.current = params;
         }
-      } catch (error) {
+      } catch (_error) {
         setError(error.message);
         setContent([]);
         setPagination(null);
@@ -146,8 +146,8 @@ const useContentManagement = () => {
       setError(null);
 
       try {
-        const result = await apiRequest("", {
-          method: "POST",
+        const result = await apiRequest('', {
+          method: 'POST',
           body: JSON.stringify(contentData),
         });
 
@@ -166,8 +166,8 @@ const useContentManagement = () => {
           return result.data;
         }
 
-        throw new Error(result?.message || "Failed to create content");
-      } catch (error) {
+        throw new Error(result?.message || 'Failed to create content');
+      } catch (_error) {
         setError(error.message);
         throw error;
       } finally {
@@ -185,7 +185,7 @@ const useContentManagement = () => {
 
       try {
         const result = await apiRequest(`/${contentId}`, {
-          method: "PUT",
+          method: 'PUT',
           body: JSON.stringify(updates),
         });
 
@@ -203,8 +203,8 @@ const useContentManagement = () => {
           return result.data;
         }
 
-        throw new Error(result?.message || "Failed to update content");
-      } catch (error) {
+        throw new Error(result?.message || 'Failed to update content');
+      } catch (_error) {
         setError(error.message);
         throw error;
       } finally {
@@ -221,9 +221,9 @@ const useContentManagement = () => {
       setError(null);
 
       try {
-        const queryParam = permanent ? "?permanent=true" : "";
+        const queryParam = permanent ? '?permanent=true' : '';
         const result = await apiRequest(`/${contentId}${queryParam}`, {
-          method: "DELETE",
+          method: 'DELETE',
         });
 
         if (result?.success) {
@@ -236,8 +236,8 @@ const useContentManagement = () => {
           return true;
         }
 
-        throw new Error(result?.message || "Failed to delete content");
-      } catch (error) {
+        throw new Error(result?.message || 'Failed to delete content');
+      } catch (_error) {
         setError(error.message);
         throw error;
       } finally {
@@ -255,7 +255,7 @@ const useContentManagement = () => {
 
       try {
         const result = await apiRequest(`/${contentId}/duplicate`, {
-          method: "POST",
+          method: 'POST',
           body: JSON.stringify(options),
         });
 
@@ -269,8 +269,8 @@ const useContentManagement = () => {
           return result.data;
         }
 
-        throw new Error(result?.message || "Failed to duplicate content");
-      } catch (error) {
+        throw new Error(result?.message || 'Failed to duplicate content');
+      } catch (_error) {
         setError(error.message);
         throw error;
       } finally {
@@ -288,7 +288,7 @@ const useContentManagement = () => {
 
       try {
         const result = await apiRequest(`/${contentId}/analyze`, {
-          method: "POST",
+          method: 'POST',
         });
 
         if (result?.success) {
@@ -308,8 +308,8 @@ const useContentManagement = () => {
           return result.data;
         }
 
-        throw new Error(result?.message || "Failed to analyze content");
-      } catch (error) {
+        throw new Error(result?.message || 'Failed to analyze content');
+      } catch (_error) {
         setError(error.message);
         throw error;
       } finally {
@@ -327,7 +327,7 @@ const useContentManagement = () => {
 
       try {
         const result = await apiRequest(`/${contentId}/optimize`, {
-          method: "POST",
+          method: 'POST',
           body: JSON.stringify({ autoApply }),
         });
 
@@ -344,8 +344,8 @@ const useContentManagement = () => {
           return result;
         }
 
-        throw new Error(result?.message || "Failed to optimize content");
-      } catch (error) {
+        throw new Error(result?.message || 'Failed to optimize content');
+      } catch (_error) {
         setError(error.message);
         throw error;
       } finally {
@@ -363,7 +363,7 @@ const useContentManagement = () => {
 
       try {
         const result = await apiRequest(`/${contentId}/translate`, {
-          method: "POST",
+          method: 'POST',
           body: JSON.stringify({ targetLanguages, options }),
         });
 
@@ -377,8 +377,8 @@ const useContentManagement = () => {
           return result.data;
         }
 
-        throw new Error(result?.message || "Failed to translate content");
-      } catch (error) {
+        throw new Error(result?.message || 'Failed to translate content');
+      } catch (_error) {
         setError(error.message);
         throw error;
       } finally {
@@ -396,7 +396,7 @@ const useContentManagement = () => {
 
       try {
         const result = await apiRequest(`/${contentId}/publish`, {
-          method: "POST",
+          method: 'POST',
           body: JSON.stringify(options),
         });
 
@@ -407,7 +407,7 @@ const useContentManagement = () => {
               item._id === contentId
                 ? {
                     ...item,
-                    status: "published",
+                    status: 'published',
                     publishedAt: new Date().toISOString(),
                   }
                 : item
@@ -417,8 +417,8 @@ const useContentManagement = () => {
           return result.data;
         }
 
-        throw new Error(result?.message || "Failed to publish content");
-      } catch (error) {
+        throw new Error(result?.message || 'Failed to publish content');
+      } catch (_error) {
         setError(error.message);
         throw error;
       } finally {
@@ -436,23 +436,23 @@ const useContentManagement = () => {
 
       try {
         const result = await apiRequest(`/${contentId}`, {
-          method: "PUT",
-          body: JSON.stringify({ status: "archived" }),
+          method: 'PUT',
+          body: JSON.stringify({ status: 'archived' }),
         });
 
         if (result?.success) {
           // Update content status
           setContent((prev) =>
             prev.map((item) =>
-              item._id === contentId ? { ...item, status: "archived" } : item
+              item._id === contentId ? { ...item, status: 'archived' } : item
             )
           );
 
           return result.data;
         }
 
-        throw new Error(result?.message || "Failed to archive content");
-      } catch (error) {
+        throw new Error(result?.message || 'Failed to archive content');
+      } catch (_error) {
         setError(error.message);
         throw error;
       } finally {
@@ -468,7 +468,7 @@ const useContentManagement = () => {
       try {
         const queryParams = new URLSearchParams({ limit: limit.toString() });
         if (contentId) {
-          queryParams.append("contentId", contentId);
+          queryParams.append('contentId', contentId);
         }
 
         const result = await apiRequest(`/recommendations?${queryParams}`);
@@ -479,10 +479,10 @@ const useContentManagement = () => {
         }
 
         throw new Error(
-          result?.message || "Failed to generate recommendations"
+          result?.message || 'Failed to generate recommendations'
         );
-      } catch (error) {
-        console.error("Recommendations error:", error);
+      } catch (_error) {
+        // console.error('Recommendations error:', error);
         return { recommendations: [] };
       }
     },
@@ -491,11 +491,11 @@ const useContentManagement = () => {
 
   // Get content analytics
   const getAnalytics = useCallback(
-    async (contentId = null, timeframe = "30d") => {
+    async (contentId = null, timeframe = '30d') => {
       try {
         const queryParams = new URLSearchParams({ timeframe });
         if (contentId) {
-          queryParams.append("contentId", contentId);
+          queryParams.append('contentId', contentId);
         }
 
         const result = await apiRequest(`/analytics?${queryParams}`);
@@ -504,9 +504,9 @@ const useContentManagement = () => {
           return result.data;
         }
 
-        throw new Error(result?.message || "Failed to get analytics");
-      } catch (error) {
-        console.error("Analytics error:", error);
+        throw new Error(result?.message || 'Failed to get analytics');
+      } catch (_error) {
+        // console.error('Analytics error:', error);
         return null;
       }
     },
@@ -539,8 +539,8 @@ const useContentManagement = () => {
           return result.data;
         }
 
-        throw new Error(result?.message || "Search failed");
-      } catch (error) {
+        throw new Error(result?.message || 'Search failed');
+      } catch (_error) {
         setError(error.message);
         setContent([]);
       } finally {
@@ -553,7 +553,7 @@ const useContentManagement = () => {
   // Get content metrics
   const getContentMetrics = useCallback(async () => {
     try {
-      const result = await apiRequest("/metrics");
+      const result = await apiRequest('/metrics');
 
       if (result?.success) {
         setMetrics(result.data);
@@ -561,8 +561,8 @@ const useContentManagement = () => {
       }
 
       return null;
-    } catch (error) {
-      console.error("Metrics error:", error);
+    } catch (_error) {
+      // console.error('Metrics error:', error);
       return null;
     }
   }, [apiRequest]);
@@ -572,7 +572,7 @@ const useContentManagement = () => {
     async (contentId, edit) => {
       try {
         const result = await apiRequest(`/${contentId}/collaborate`, {
-          method: "POST",
+          method: 'POST',
           body: JSON.stringify({ edit }),
         });
 
@@ -589,9 +589,9 @@ const useContentManagement = () => {
           return result.data;
         }
 
-        throw new Error(result?.message || "Collaborative edit failed");
-      } catch (error) {
-        console.error("Collaborative edit error:", error);
+        throw new Error(result?.message || 'Collaborative edit failed');
+      } catch (_error) {
+        // console.error('Collaborative edit error:', error);
         throw error;
       }
     },

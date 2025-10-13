@@ -9,7 +9,7 @@
  * - Backup code management
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // Mock fetch for API calls
 global.fetch = vi.fn();
@@ -17,68 +17,68 @@ global.fetch = vi.fn();
 // MFA API service mock
 const createMFAAPI = () => ({
   setupMFA: async () => {
-    const response = await fetch("/api/mfa/setup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+    const response = await fetch('/api/mfa/setup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
     });
     return response.json();
   },
 
   verifyMFASetup: async (token) => {
-    const response = await fetch("/api/mfa/verify-setup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+    const response = await fetch('/api/mfa/verify-setup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token }),
     });
     return response.json();
   },
 
   verifyMFALogin: async ({ token, trustDevice, deviceFingerprint }) => {
-    const response = await fetch("/api/mfa/verify", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+    const response = await fetch('/api/mfa/verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token, trustDevice, deviceFingerprint }),
     });
     return response.json();
   },
 
   getMFAStatus: async () => {
-    const response = await fetch("/api/mfa/status");
+    const response = await fetch('/api/mfa/status');
     return response.json();
   },
 
   disableMFA: async (token) => {
-    const response = await fetch("/api/mfa/disable", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+    const response = await fetch('/api/mfa/disable', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token }),
     });
     return response.json();
   },
 
   regenerateBackupCodes: async (token) => {
-    const response = await fetch("/api/mfa/regenerate-codes", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+    const response = await fetch('/api/mfa/regenerate-codes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token }),
     });
     return response.json();
   },
 
   getTrustedDevices: async () => {
-    const response = await fetch("/api/mfa/trusted-devices");
+    const response = await fetch('/api/mfa/trusted-devices');
     return response.json();
   },
 
   revokeTrustedDevice: async (fingerprint) => {
     const response = await fetch(`/api/mfa/trusted-devices/${fingerprint}`, {
-      method: "DELETE",
+      method: 'DELETE',
     });
     return response.json();
   },
 });
 
-describe("MFA API Integration", () => {
+describe('MFA API Integration', () => {
   let mfaAPI;
 
   beforeEach(() => {
@@ -86,15 +86,15 @@ describe("MFA API Integration", () => {
     mfaAPI = createMFAAPI();
   });
 
-  describe("MFA Setup Flow", () => {
-    it("should call setup API correctly", async () => {
+  describe('MFA Setup Flow', () => {
+    it('should call setup API correctly', async () => {
       const mockResponse = {
         success: true,
         data: {
-          secret: "JBSWY3DPEHPK3PXP",
-          qrCode: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...",
-          manualEntryKey: "JBSW Y3DP EHPK 3PXP",
-          backupCodes: ["ABC12345", "DEF67890"],
+          secret: 'JBSWY3DPEHPK3PXP',
+          qrCode: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...',
+          manualEntryKey: 'JBSW Y3DP EHPK 3PXP',
+          backupCodes: ['ABC12345', 'DEF67890'],
           setupComplete: false,
         },
       };
@@ -106,35 +106,35 @@ describe("MFA API Integration", () => {
 
       const result = await mfaAPI.setupMFA();
 
-      expect(fetch).toHaveBeenCalledWith("/api/mfa/setup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      expect(fetch).toHaveBeenCalledWith('/api/mfa/setup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
       });
 
       expect(result).toEqual(mockResponse);
     });
 
-    it("should handle setup API errors", async () => {
+    it('should handle setup API errors', async () => {
       fetch.mockResolvedValueOnce({
         ok: false,
         status: 500,
         json: () =>
           Promise.resolve({
             success: false,
-            error: "Internal server error",
+            error: 'Internal server error',
           }),
       });
 
       const result = await mfaAPI.setupMFA();
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe("Internal server error");
+      expect(result.error).toBe('Internal server error');
     });
 
-    it("should verify setup with correct token format", async () => {
+    it('should verify setup with correct token format', async () => {
       const mockResponse = {
         success: true,
-        message: "MFA enabled successfully",
+        message: 'MFA enabled successfully',
       };
 
       fetch.mockResolvedValueOnce({
@@ -142,21 +142,21 @@ describe("MFA API Integration", () => {
         json: () => Promise.resolve(mockResponse),
       });
 
-      const result = await mfaAPI.verifyMFASetup("123456");
+      const result = await mfaAPI.verifyMFASetup('123456');
 
-      expect(fetch).toHaveBeenCalledWith("/api/mfa/verify-setup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: "123456" }),
+      expect(fetch).toHaveBeenCalledWith('/api/mfa/verify-setup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: '123456' }),
       });
 
       expect(result).toEqual(mockResponse);
     });
 
-    it("should handle verification failures", async () => {
+    it('should handle verification failures', async () => {
       const mockResponse = {
         success: false,
-        error: "Invalid verification token",
+        error: 'Invalid verification token',
       };
 
       fetch.mockResolvedValueOnce({
@@ -165,15 +165,15 @@ describe("MFA API Integration", () => {
         json: () => Promise.resolve(mockResponse),
       });
 
-      const result = await mfaAPI.verifyMFASetup("000000");
+      const result = await mfaAPI.verifyMFASetup('000000');
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe("Invalid verification token");
+      expect(result.error).toBe('Invalid verification token');
     });
   });
 
-  describe("MFA Login Verification", () => {
-    it("should verify TOTP token with device trust", async () => {
+  describe('MFA Login Verification', () => {
+    it('should verify TOTP token with device trust', async () => {
       const mockResponse = {
         success: true,
         data: {
@@ -189,18 +189,18 @@ describe("MFA API Integration", () => {
       });
 
       const result = await mfaAPI.verifyMFALogin({
-        token: "123456",
+        token: '123456',
         trustDevice: true,
-        deviceFingerprint: "device123",
+        deviceFingerprint: 'device123',
       });
 
-      expect(fetch).toHaveBeenCalledWith("/api/mfa/verify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      expect(fetch).toHaveBeenCalledWith('/api/mfa/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          token: "123456",
+          token: '123456',
           trustDevice: true,
-          deviceFingerprint: "device123",
+          deviceFingerprint: 'device123',
         }),
       });
 
@@ -208,7 +208,7 @@ describe("MFA API Integration", () => {
       expect(result.data.trustDevice).toBe(true);
     });
 
-    it("should verify backup code", async () => {
+    it('should verify backup code', async () => {
       const mockResponse = {
         success: true,
         data: {
@@ -224,7 +224,7 @@ describe("MFA API Integration", () => {
       });
 
       const result = await mfaAPI.verifyMFALogin({
-        token: "ABC12345",
+        token: 'ABC12345',
         trustDevice: false,
         deviceFingerprint: null,
       });
@@ -232,10 +232,10 @@ describe("MFA API Integration", () => {
       expect(result.data.usedBackupCode).toBe(true);
     });
 
-    it("should handle rate limiting responses", async () => {
+    it('should handle rate limiting responses', async () => {
       const mockResponse = {
         success: false,
-        error: "Too many attempts. Please try again in 5 minutes.",
+        error: 'Too many attempts. Please try again in 5 minutes.',
         retryAfter: 300,
       };
 
@@ -246,18 +246,18 @@ describe("MFA API Integration", () => {
       });
 
       const result = await mfaAPI.verifyMFALogin({
-        token: "000000",
+        token: '000000',
         trustDevice: false,
       });
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("Too many attempts");
+      expect(result.error).toContain('Too many attempts');
       expect(result.retryAfter).toBe(300);
     });
   });
 
-  describe("MFA Status Management", () => {
-    it("should get MFA status", async () => {
+  describe('MFA Status Management', () => {
+    it('should get MFA status', async () => {
       const mockResponse = {
         success: true,
         data: {
@@ -265,8 +265,8 @@ describe("MFA API Integration", () => {
           isSetup: true,
           trustedDeviceCount: 2,
           backupCodeCount: 8,
-          setupDate: "2024-01-01T10:00:00Z",
-          lastUsed: "2024-01-15T15:30:00Z",
+          setupDate: '2024-01-01T10:00:00Z',
+          lastUsed: '2024-01-15T15:30:00Z',
         },
       };
 
@@ -277,12 +277,12 @@ describe("MFA API Integration", () => {
 
       const result = await mfaAPI.getMFAStatus();
 
-      expect(fetch).toHaveBeenCalledWith("/api/mfa/status");
+      expect(fetch).toHaveBeenCalledWith('/api/mfa/status');
       expect(result.data.isEnabled).toBe(true);
       expect(result.data.trustedDeviceCount).toBe(2);
     });
 
-    it("should handle disabled MFA status", async () => {
+    it('should handle disabled MFA status', async () => {
       const mockResponse = {
         success: true,
         data: {
@@ -305,11 +305,11 @@ describe("MFA API Integration", () => {
     });
   });
 
-  describe("MFA Disable Functionality", () => {
-    it("should disable MFA with verification", async () => {
+  describe('MFA Disable Functionality', () => {
+    it('should disable MFA with verification', async () => {
       const mockResponse = {
         success: true,
-        message: "MFA disabled successfully",
+        message: 'MFA disabled successfully',
       };
 
       fetch.mockResolvedValueOnce({
@@ -317,21 +317,21 @@ describe("MFA API Integration", () => {
         json: () => Promise.resolve(mockResponse),
       });
 
-      const result = await mfaAPI.disableMFA("123456");
+      const result = await mfaAPI.disableMFA('123456');
 
-      expect(fetch).toHaveBeenCalledWith("/api/mfa/disable", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: "123456" }),
+      expect(fetch).toHaveBeenCalledWith('/api/mfa/disable', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: '123456' }),
       });
 
       expect(result.success).toBe(true);
     });
 
-    it("should handle disable verification failure", async () => {
+    it('should handle disable verification failure', async () => {
       const mockResponse = {
         success: false,
-        error: "Invalid verification token",
+        error: 'Invalid verification token',
       };
 
       fetch.mockResolvedValueOnce({
@@ -340,19 +340,19 @@ describe("MFA API Integration", () => {
         json: () => Promise.resolve(mockResponse),
       });
 
-      const result = await mfaAPI.disableMFA("000000");
+      const result = await mfaAPI.disableMFA('000000');
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe("Invalid verification token");
+      expect(result.error).toBe('Invalid verification token');
     });
   });
 
-  describe("Backup Code Management", () => {
-    it("should regenerate backup codes", async () => {
+  describe('Backup Code Management', () => {
+    it('should regenerate backup codes', async () => {
       const mockResponse = {
         success: true,
         data: {
-          backupCodes: ["NEW12345", "COD67890", "GHI23456"],
+          backupCodes: ['NEW12345', 'COD67890', 'GHI23456'],
         },
       };
 
@@ -361,22 +361,22 @@ describe("MFA API Integration", () => {
         json: () => Promise.resolve(mockResponse),
       });
 
-      const result = await mfaAPI.regenerateBackupCodes("123456");
+      const result = await mfaAPI.regenerateBackupCodes('123456');
 
-      expect(fetch).toHaveBeenCalledWith("/api/mfa/regenerate-codes", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: "123456" }),
+      expect(fetch).toHaveBeenCalledWith('/api/mfa/regenerate-codes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: '123456' }),
       });
 
       expect(result.data.backupCodes).toHaveLength(3);
-      expect(result.data.backupCodes[0]).toBe("NEW12345");
+      expect(result.data.backupCodes[0]).toBe('NEW12345');
     });
 
-    it("should handle regeneration errors", async () => {
+    it('should handle regeneration errors', async () => {
       const mockResponse = {
         success: false,
-        error: "Invalid verification token",
+        error: 'Invalid verification token',
       };
 
       fetch.mockResolvedValueOnce({
@@ -385,29 +385,29 @@ describe("MFA API Integration", () => {
         json: () => Promise.resolve(mockResponse),
       });
 
-      const result = await mfaAPI.regenerateBackupCodes("000000");
+      const result = await mfaAPI.regenerateBackupCodes('000000');
 
       expect(result.success).toBe(false);
     });
   });
 
-  describe("Trusted Device Management", () => {
-    it("should get trusted devices", async () => {
+  describe('Trusted Device Management', () => {
+    it('should get trusted devices', async () => {
       const mockResponse = {
         success: true,
         data: {
           devices: [
             {
-              fingerprint: "device1",
-              name: "Chrome on Windows",
-              trustedDate: "2024-01-15T10:00:00Z",
-              expiresAt: "2024-02-14T10:00:00Z",
+              fingerprint: 'device1',
+              name: 'Chrome on Windows',
+              trustedDate: '2024-01-15T10:00:00Z',
+              expiresAt: '2024-02-14T10:00:00Z',
             },
             {
-              fingerprint: "device2",
-              name: "Firefox on Mac",
-              trustedDate: "2024-01-10T15:30:00Z",
-              expiresAt: "2024-02-09T15:30:00Z",
+              fingerprint: 'device2',
+              name: 'Firefox on Mac',
+              trustedDate: '2024-01-10T15:30:00Z',
+              expiresAt: '2024-02-09T15:30:00Z',
             },
           ],
         },
@@ -420,15 +420,15 @@ describe("MFA API Integration", () => {
 
       const result = await mfaAPI.getTrustedDevices();
 
-      expect(fetch).toHaveBeenCalledWith("/api/mfa/trusted-devices");
+      expect(fetch).toHaveBeenCalledWith('/api/mfa/trusted-devices');
       expect(result.data.devices).toHaveLength(2);
-      expect(result.data.devices[0].name).toBe("Chrome on Windows");
+      expect(result.data.devices[0].name).toBe('Chrome on Windows');
     });
 
-    it("should revoke trusted device", async () => {
+    it('should revoke trusted device', async () => {
       const mockResponse = {
         success: true,
-        message: "Trusted device revoked successfully",
+        message: 'Trusted device revoked successfully',
       };
 
       fetch.mockResolvedValueOnce({
@@ -436,19 +436,19 @@ describe("MFA API Integration", () => {
         json: () => Promise.resolve(mockResponse),
       });
 
-      const result = await mfaAPI.revokeTrustedDevice("device123");
+      const result = await mfaAPI.revokeTrustedDevice('device123');
 
-      expect(fetch).toHaveBeenCalledWith("/api/mfa/trusted-devices/device123", {
-        method: "DELETE",
+      expect(fetch).toHaveBeenCalledWith('/api/mfa/trusted-devices/device123', {
+        method: 'DELETE',
       });
 
       expect(result.success).toBe(true);
     });
 
-    it("should handle device not found error", async () => {
+    it('should handle device not found error', async () => {
       const mockResponse = {
         success: false,
-        error: "Device not found",
+        error: 'Device not found',
       };
 
       fetch.mockResolvedValueOnce({
@@ -457,119 +457,119 @@ describe("MFA API Integration", () => {
         json: () => Promise.resolve(mockResponse),
       });
 
-      const result = await mfaAPI.revokeTrustedDevice("invalid-device");
+      const result = await mfaAPI.revokeTrustedDevice('invalid-device');
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe("Device not found");
+      expect(result.error).toBe('Device not found');
     });
   });
 
-  describe("Network Error Handling", () => {
-    it("should handle network failures", async () => {
-      fetch.mockRejectedValueOnce(new Error("Network error"));
+  describe('Network Error Handling', () => {
+    it('should handle network failures', async () => {
+      fetch.mockRejectedValueOnce(new Error('Network error'));
 
       try {
         await mfaAPI.setupMFA();
-      } catch (error) {
-        expect(error.message).toBe("Network error");
+      } catch (_error) {
+        expect(error.message).toBe('Network error');
       }
     });
 
-    it("should handle server errors", async () => {
+    it('should handle server errors', async () => {
       fetch.mockResolvedValueOnce({
         ok: false,
         status: 500,
         json: () =>
           Promise.resolve({
             success: false,
-            error: "Internal server error",
+            error: 'Internal server error',
           }),
       });
 
       const result = await mfaAPI.getMFAStatus();
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe("Internal server error");
+      expect(result.error).toBe('Internal server error');
     });
   });
 
-  describe("Token Validation", () => {
-    it("should validate TOTP token format", () => {
+  describe('Token Validation', () => {
+    it('should validate TOTP token format', () => {
       const isValidTOTP = (token) => {
         return /^\d{6}$/.test(token);
       };
 
-      expect(isValidTOTP("123456")).toBe(true);
-      expect(isValidTOTP("12345")).toBe(false);
-      expect(isValidTOTP("1234567")).toBe(false);
-      expect(isValidTOTP("abc123")).toBe(false);
-      expect(isValidTOTP("")).toBe(false);
+      expect(isValidTOTP('123456')).toBe(true);
+      expect(isValidTOTP('12345')).toBe(false);
+      expect(isValidTOTP('1234567')).toBe(false);
+      expect(isValidTOTP('abc123')).toBe(false);
+      expect(isValidTOTP('')).toBe(false);
     });
 
-    it("should validate backup code format", () => {
+    it('should validate backup code format', () => {
       const isValidBackupCode = (code) => {
         // Remove spaces and dashes, convert to uppercase
-        const cleanCode = code.replace(/[\s-]/g, "").toUpperCase();
+        const cleanCode = code.replace(/[\s-]/g, '').toUpperCase();
         return /^[A-F0-9]{8}$/.test(cleanCode);
       };
 
-      expect(isValidBackupCode("ABC12345")).toBe(true);
-      expect(isValidBackupCode("abc12345")).toBe(true);
-      expect(isValidBackupCode("ABC-123-45")).toBe(true);
-      expect(isValidBackupCode("ABC 123 45")).toBe(true);
-      expect(isValidBackupCode("INVALID")).toBe(false);
-      expect(isValidBackupCode("ABC12345Z")).toBe(false);
+      expect(isValidBackupCode('ABC12345')).toBe(true);
+      expect(isValidBackupCode('abc12345')).toBe(true);
+      expect(isValidBackupCode('ABC-123-45')).toBe(true);
+      expect(isValidBackupCode('ABC 123 45')).toBe(true);
+      expect(isValidBackupCode('INVALID')).toBe(false);
+      expect(isValidBackupCode('ABC12345Z')).toBe(false);
     });
   });
 
-  describe("Device Fingerprinting", () => {
-    it("should generate consistent device fingerprints", () => {
+  describe('Device Fingerprinting', () => {
+    it('should generate consistent device fingerprints', () => {
       const generateDeviceFingerprint = () => {
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-        ctx.textBaseline = "top";
-        ctx.font = "14px Arial";
-        ctx.fillText("Device fingerprint", 2, 2);
+        const canvas = typeof document !== "undefined" && document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        ctx.textBaseline = 'top';
+        ctx.font = '14px Arial';
+        ctx.fillText('Device fingerprint', 2, 2);
 
         const fingerprint = [
-          navigator.userAgent,
-          navigator.language,
-          screen.width + "x" + screen.height,
+          typeof navigator !== "undefined" && navigator.userAgent,
+          typeof navigator !== "undefined" && navigator.language,
+          screen.width + 'x' + screen.height,
           new Date().getTimezoneOffset(),
           canvas.toDataURL(),
-        ].join("|");
+        ].join('|');
 
         return btoa(fingerprint).substring(0, 32);
       };
 
       // Mock browser environment
-      Object.defineProperty(navigator, "userAgent", {
-        value: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+      Object.defineProperty(navigator, 'userAgent', {
+        value: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
         configurable: true,
       });
 
-      Object.defineProperty(navigator, "language", {
-        value: "en-US",
+      Object.defineProperty(navigator, 'language', {
+        value: 'en-US',
         configurable: true,
       });
 
-      Object.defineProperty(screen, "width", {
+      Object.defineProperty(screen, 'width', {
         value: 1920,
         configurable: true,
       });
-      Object.defineProperty(screen, "height", {
+      Object.defineProperty(screen, 'height', {
         value: 1080,
         configurable: true,
       });
 
       // Mock canvas
-      document.createElement = vi.fn().mockReturnValue({
+      typeof document !== "undefined" && document.createElement = vi.fn().mockReturnValue({
         getContext: () => ({
-          textBaseline: "",
-          font: "",
+          textBaseline: '',
+          font: '',
           fillText: vi.fn(),
         }),
-        toDataURL: () => "data:image/png;base64,test",
+        toDataURL: () => 'data:image/png;base64,test',
       });
 
       const fingerprint1 = generateDeviceFingerprint();
@@ -606,7 +606,7 @@ Object.assign(navigator, {
 const mockCreateObjectURL = vi.fn();
 global.URL.createObjectURL = mockCreateObjectURL;
 
-describe("MFA Frontend Components Integration", () => {
+describe('MFA Frontend Components Integration', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
@@ -614,15 +614,15 @@ describe("MFA Frontend Components Integration", () => {
     mockAuthAPI.setupMFA.mockResolvedValue({
       success: true,
       data: {
-        secret: "JBSWY3DPEHPK3PXP",
-        qrCode: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...",
-        manualEntryKey: "JBSW Y3DP EHPK 3PXP",
+        secret: 'JBSWY3DPEHPK3PXP',
+        qrCode: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...',
+        manualEntryKey: 'JBSW Y3DP EHPK 3PXP',
         backupCodes: [
-          "ABC12345",
-          "DEF67890",
-          "GHI23456",
-          "JKL78901",
-          "MNO34567",
+          'ABC12345',
+          'DEF67890',
+          'GHI23456',
+          'JKL78901',
+          'MNO34567',
         ],
         setupComplete: false,
       },
@@ -630,7 +630,7 @@ describe("MFA Frontend Components Integration", () => {
 
     mockAuthAPI.verifyMFASetup.mockResolvedValue({
       success: true,
-      message: "MFA enabled successfully",
+      message: 'MFA enabled successfully',
     });
 
     mockAuthAPI.getMFAStatus.mockResolvedValue({
@@ -644,31 +644,31 @@ describe("MFA Frontend Components Integration", () => {
     });
   });
 
-  describe("MFASetup Component", () => {
+  describe('MFASetup Component', () => {
     const defaultProps = {
       onComplete: vi.fn(),
       onCancel: vi.fn(),
       authAPI: mockAuthAPI,
     };
 
-    it("should render initial setup step", async () => {
+    it('should render initial setup step', async () => {
       render(<MFASetup {...defaultProps} />);
 
       expect(
-        screen.getByText("Set Up Two-Factor Authentication")
+        screen.getByText('Set Up Two-Factor Authentication')
       ).toBeInTheDocument();
       expect(
-        screen.getByText("Step 1 of 4: Install Authenticator App")
+        screen.getByText('Step 1 of 4: Install Authenticator App')
       ).toBeInTheDocument();
-      expect(screen.getByText("Get Started")).toBeInTheDocument();
+      expect(screen.getByText('Get Started')).toBeInTheDocument();
     });
 
-    it("should progress through setup workflow", async () => {
+    it('should progress through setup workflow', async () => {
       const user = userEvent.setup();
       render(<MFASetup {...defaultProps} />);
 
       // Step 1: Start setup
-      await user.click(screen.getByText("Get Started"));
+      await user.click(screen.getByText('Get Started'));
 
       await waitFor(() => {
         expect(mockAuthAPI.setupMFA).toHaveBeenCalled();
@@ -677,243 +677,243 @@ describe("MFA Frontend Components Integration", () => {
       // Should progress to step 2
       await waitFor(() => {
         expect(
-          screen.getByText("Step 2 of 4: Scan QR Code")
+          screen.getByText('Step 2 of 4: Scan QR Code')
         ).toBeInTheDocument();
       });
 
-      expect(screen.getByText("Scan this QR code")).toBeInTheDocument();
-      expect(screen.getByText("Manual Entry Key")).toBeInTheDocument();
+      expect(screen.getByText('Scan this QR code')).toBeInTheDocument();
+      expect(screen.getByText('Manual Entry Key')).toBeInTheDocument();
     });
 
-    it("should display QR code and manual key", async () => {
+    it('should display QR code and manual key', async () => {
       const user = userEvent.setup();
       render(<MFASetup {...defaultProps} />);
 
-      await user.click(screen.getByText("Get Started"));
+      await user.click(screen.getByText('Get Started'));
 
       await waitFor(() => {
-        expect(screen.getByAltText("MFA QR Code")).toBeInTheDocument();
+        expect(screen.getByAltText('MFA QR Code')).toBeInTheDocument();
       });
 
-      expect(screen.getByText("JBSW Y3DP EHPK 3PXP")).toBeInTheDocument();
+      expect(screen.getByText('JBSW Y3DP EHPK 3PXP')).toBeInTheDocument();
     });
 
-    it("should copy manual key to clipboard", async () => {
+    it('should copy manual key to clipboard', async () => {
       const user = userEvent.setup();
       render(<MFASetup {...defaultProps} />);
 
-      await user.click(screen.getByText("Get Started"));
+      await user.click(screen.getByText('Get Started'));
 
       await waitFor(() => {
-        expect(screen.getByText("Copy Key")).toBeInTheDocument();
+        expect(screen.getByText('Copy Key')).toBeInTheDocument();
       });
 
-      await user.click(screen.getByText("Copy Key"));
+      await user.click(screen.getByText('Copy Key'));
 
-      expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
-        "JBSWY3DPEHPK3PXP"
+      expect(typeof navigator !== "undefined" && navigator.clipboard.writeText).toHaveBeenCalledWith(
+        'JBSWY3DPEHPK3PXP'
       );
 
       await waitFor(() => {
-        expect(screen.getByText("Copied!")).toBeInTheDocument();
+        expect(screen.getByText('Copied!')).toBeInTheDocument();
       });
     });
 
-    it("should verify TOTP token and enable MFA", async () => {
+    it('should verify TOTP token and enable MFA', async () => {
       const user = userEvent.setup();
       render(<MFASetup {...defaultProps} />);
 
       // Start setup
-      await user.click(screen.getByText("Get Started"));
+      await user.click(screen.getByText('Get Started'));
 
       // Progress to verification step
       await waitFor(() => {
         expect(
-          screen.getByText("Continue to Verification")
+          screen.getByText('Continue to Verification')
         ).toBeInTheDocument();
       });
 
-      await user.click(screen.getByText("Continue to Verification"));
+      await user.click(screen.getByText('Continue to Verification'));
 
       // Step 3: Verify code
       await waitFor(() => {
         expect(
-          screen.getByText("Step 3 of 4: Verify Setup")
+          screen.getByText('Step 3 of 4: Verify Setup')
         ).toBeInTheDocument();
       });
 
-      const tokenInput = screen.getByPlaceholderText("Enter 6-digit code");
-      await user.type(tokenInput, "123456");
+      const tokenInput = screen.getByPlaceholderText('Enter 6-digit code');
+      await user.type(tokenInput, '123456');
 
-      await user.click(screen.getByText("Verify & Enable"));
+      await user.click(screen.getByText('Verify & Enable'));
 
       await waitFor(() => {
-        expect(mockAuthAPI.verifyMFASetup).toHaveBeenCalledWith("123456");
+        expect(mockAuthAPI.verifyMFASetup).toHaveBeenCalledWith('123456');
       });
     });
 
-    it("should display backup codes after successful verification", async () => {
+    it('should display backup codes after successful verification', async () => {
       const user = userEvent.setup();
       render(<MFASetup {...defaultProps} />);
 
       // Complete setup flow
-      await user.click(screen.getByText("Get Started"));
+      await user.click(screen.getByText('Get Started'));
 
       await waitFor(() => {
         expect(
-          screen.getByText("Continue to Verification")
+          screen.getByText('Continue to Verification')
         ).toBeInTheDocument();
       });
 
-      await user.click(screen.getByText("Continue to Verification"));
+      await user.click(screen.getByText('Continue to Verification'));
 
       await waitFor(() => {
         expect(
-          screen.getByPlaceholderText("Enter 6-digit code")
+          screen.getByPlaceholderText('Enter 6-digit code')
         ).toBeInTheDocument();
       });
 
-      const tokenInput = screen.getByPlaceholderText("Enter 6-digit code");
-      await user.type(tokenInput, "123456");
-      await user.click(screen.getByText("Verify & Enable"));
+      const tokenInput = screen.getByPlaceholderText('Enter 6-digit code');
+      await user.type(tokenInput, '123456');
+      await user.click(screen.getByText('Verify & Enable'));
 
       // Step 4: Backup codes
       await waitFor(() => {
         expect(
-          screen.getByText("Step 4 of 4: Save Backup Codes")
+          screen.getByText('Step 4 of 4: Save Backup Codes')
         ).toBeInTheDocument();
       });
 
-      expect(screen.getByText("ABC12345")).toBeInTheDocument();
-      expect(screen.getByText("DEF67890")).toBeInTheDocument();
+      expect(screen.getByText('ABC12345')).toBeInTheDocument();
+      expect(screen.getByText('DEF67890')).toBeInTheDocument();
     });
 
-    it("should download backup codes", async () => {
+    it('should download backup codes', async () => {
       const user = userEvent.setup();
       render(<MFASetup {...defaultProps} />);
 
       // Complete setup to backup codes step
-      await user.click(screen.getByText("Get Started"));
+      await user.click(screen.getByText('Get Started'));
 
       await waitFor(() => {
         expect(
-          screen.getByText("Continue to Verification")
+          screen.getByText('Continue to Verification')
         ).toBeInTheDocument();
       });
 
-      await user.click(screen.getByText("Continue to Verification"));
+      await user.click(screen.getByText('Continue to Verification'));
 
       await waitFor(() => {
         expect(
-          screen.getByPlaceholderText("Enter 6-digit code")
+          screen.getByPlaceholderText('Enter 6-digit code')
         ).toBeInTheDocument();
       });
 
-      const tokenInput = screen.getByPlaceholderText("Enter 6-digit code");
-      await user.type(tokenInput, "123456");
-      await user.click(screen.getByText("Verify & Enable"));
+      const tokenInput = screen.getByPlaceholderText('Enter 6-digit code');
+      await user.type(tokenInput, '123456');
+      await user.click(screen.getByText('Verify & Enable'));
 
       await waitFor(() => {
-        expect(screen.getByText("Download Codes")).toBeInTheDocument();
+        expect(screen.getByText('Download Codes')).toBeInTheDocument();
       });
 
-      await user.click(screen.getByText("Download Codes"));
+      await user.click(screen.getByText('Download Codes'));
 
       expect(mockCreateObjectURL).toHaveBeenCalled();
     });
 
-    it("should complete setup and call onComplete", async () => {
+    it('should complete setup and call onComplete', async () => {
       const user = userEvent.setup();
       const onComplete = vi.fn();
       render(<MFASetup {...defaultProps} onComplete={onComplete} />);
 
       // Complete entire setup flow
-      await user.click(screen.getByText("Get Started"));
+      await user.click(screen.getByText('Get Started'));
 
       await waitFor(() => {
         expect(
-          screen.getByText("Continue to Verification")
+          screen.getByText('Continue to Verification')
         ).toBeInTheDocument();
       });
 
-      await user.click(screen.getByText("Continue to Verification"));
+      await user.click(screen.getByText('Continue to Verification'));
 
       await waitFor(() => {
         expect(
-          screen.getByPlaceholderText("Enter 6-digit code")
+          screen.getByPlaceholderText('Enter 6-digit code')
         ).toBeInTheDocument();
       });
 
-      const tokenInput = screen.getByPlaceholderText("Enter 6-digit code");
-      await user.type(tokenInput, "123456");
-      await user.click(screen.getByText("Verify & Enable"));
+      const tokenInput = screen.getByPlaceholderText('Enter 6-digit code');
+      await user.type(tokenInput, '123456');
+      await user.click(screen.getByText('Verify & Enable'));
 
       await waitFor(() => {
-        expect(screen.getByText("Complete Setup")).toBeInTheDocument();
+        expect(screen.getByText('Complete Setup')).toBeInTheDocument();
       });
 
-      await user.click(screen.getByText("Complete Setup"));
+      await user.click(screen.getByText('Complete Setup'));
 
       expect(onComplete).toHaveBeenCalledWith({
         success: true,
-        message: "MFA has been successfully enabled for your account.",
+        message: 'MFA has been successfully enabled for your account.',
       });
     });
 
-    it("should handle API errors gracefully", async () => {
-      mockAuthAPI.setupMFA.mockRejectedValue(new Error("Service unavailable"));
+    it('should handle API errors gracefully', async () => {
+      mockAuthAPI.setupMFA.mockRejectedValue(new Error('Service unavailable'));
 
       const user = userEvent.setup();
       render(<MFASetup {...defaultProps} />);
 
-      await user.click(screen.getByText("Get Started"));
+      await user.click(screen.getByText('Get Started'));
 
       await waitFor(() => {
         expect(
-          screen.getByText("Failed to initialize MFA setup. Please try again.")
+          screen.getByText('Failed to initialize MFA setup. Please try again.')
         ).toBeInTheDocument();
       });
     });
 
-    it("should handle verification failures", async () => {
+    it('should handle verification failures', async () => {
       mockAuthAPI.verifyMFASetup.mockResolvedValue({
         success: false,
-        error: "Invalid verification token",
+        error: 'Invalid verification token',
       });
 
       const user = userEvent.setup();
       render(<MFASetup {...defaultProps} />);
 
       // Complete setup to verification
-      await user.click(screen.getByText("Get Started"));
+      await user.click(screen.getByText('Get Started'));
 
       await waitFor(() => {
         expect(
-          screen.getByText("Continue to Verification")
+          screen.getByText('Continue to Verification')
         ).toBeInTheDocument();
       });
 
-      await user.click(screen.getByText("Continue to Verification"));
+      await user.click(screen.getByText('Continue to Verification'));
 
       await waitFor(() => {
         expect(
-          screen.getByPlaceholderText("Enter 6-digit code")
+          screen.getByPlaceholderText('Enter 6-digit code')
         ).toBeInTheDocument();
       });
 
-      const tokenInput = screen.getByPlaceholderText("Enter 6-digit code");
-      await user.type(tokenInput, "000000");
-      await user.click(screen.getByText("Verify & Enable"));
+      const tokenInput = screen.getByPlaceholderText('Enter 6-digit code');
+      await user.type(tokenInput, '000000');
+      await user.click(screen.getByText('Verify & Enable'));
 
       await waitFor(() => {
         expect(
-          screen.getByText("Invalid verification token")
+          screen.getByText('Invalid verification token')
         ).toBeInTheDocument();
       });
     });
   });
 
-  describe("MFAVerification Component", () => {
+  describe('MFAVerification Component', () => {
     const defaultProps = {
       onSuccess: vi.fn(),
       onCancel: vi.fn(),
@@ -931,40 +931,40 @@ describe("MFA Frontend Components Integration", () => {
       });
     });
 
-    it("should render TOTP verification form", () => {
+    it('should render TOTP verification form', () => {
       render(<MFAVerification {...defaultProps} />);
 
-      expect(screen.getByText("Two-Factor Authentication")).toBeInTheDocument();
+      expect(screen.getByText('Two-Factor Authentication')).toBeInTheDocument();
       expect(
-        screen.getByText("Enter the 6-digit code from your authenticator app")
+        screen.getByText('Enter the 6-digit code from your authenticator app')
       ).toBeInTheDocument();
-      expect(screen.getByPlaceholderText("000000")).toBeInTheDocument();
-      expect(screen.getByText("Verify")).toBeInTheDocument();
+      expect(screen.getByPlaceholderText('000000')).toBeInTheDocument();
+      expect(screen.getByText('Verify')).toBeInTheDocument();
     });
 
-    it("should format TOTP input correctly", async () => {
+    it('should format TOTP input correctly', async () => {
       const user = userEvent.setup();
       render(<MFAVerification {...defaultProps} />);
 
-      const input = screen.getByPlaceholderText("000000");
-      await user.type(input, "123456");
+      const input = screen.getByPlaceholderText('000000');
+      await user.type(input, '123456');
 
-      expect(input.value).toBe("123456");
+      expect(input.value).toBe('123456');
     });
 
-    it("should verify TOTP code successfully", async () => {
+    it('should verify TOTP code successfully', async () => {
       const user = userEvent.setup();
       const onSuccess = vi.fn();
       render(<MFAVerification {...defaultProps} onSuccess={onSuccess} />);
 
-      const input = screen.getByPlaceholderText("000000");
-      await user.type(input, "123456");
-      await user.click(screen.getByText("Verify"));
+      const input = screen.getByPlaceholderText('000000');
+      await user.type(input, '123456');
+      await user.click(screen.getByText('Verify'));
 
       await waitFor(() => {
         expect(mockAuthAPI.verifyMFALogin).toHaveBeenCalledWith(
           expect.objectContaining({
-            token: "123456",
+            token: '123456',
           })
         );
       });
@@ -976,20 +976,20 @@ describe("MFA Frontend Components Integration", () => {
       });
     });
 
-    it("should switch to backup code mode", async () => {
+    it('should switch to backup code mode', async () => {
       const user = userEvent.setup();
       render(<MFAVerification {...defaultProps} />);
 
-      await user.click(screen.getByText("Use backup code instead"));
+      await user.click(screen.getByText('Use backup code instead'));
 
-      expect(screen.getByText("Enter backup code")).toBeInTheDocument();
-      expect(screen.getByPlaceholderText("Backup code")).toBeInTheDocument();
+      expect(screen.getByText('Enter backup code')).toBeInTheDocument();
+      expect(screen.getByPlaceholderText('Backup code')).toBeInTheDocument();
       expect(
-        screen.getByText("Use authenticator app instead")
+        screen.getByText('Use authenticator app instead')
       ).toBeInTheDocument();
     });
 
-    it("should verify backup code successfully", async () => {
+    it('should verify backup code successfully', async () => {
       const user = userEvent.setup();
       const onSuccess = vi.fn();
 
@@ -1004,16 +1004,16 @@ describe("MFA Frontend Components Integration", () => {
 
       render(<MFAVerification {...defaultProps} onSuccess={onSuccess} />);
 
-      await user.click(screen.getByText("Use backup code instead"));
+      await user.click(screen.getByText('Use backup code instead'));
 
-      const input = screen.getByPlaceholderText("Backup code");
-      await user.type(input, "ABC12345");
-      await user.click(screen.getByText("Verify"));
+      const input = screen.getByPlaceholderText('Backup code');
+      await user.type(input, 'ABC12345');
+      await user.click(screen.getByText('Verify'));
 
       await waitFor(() => {
         expect(mockAuthAPI.verifyMFALogin).toHaveBeenCalledWith(
           expect.objectContaining({
-            token: "ABC12345",
+            token: 'ABC12345',
           })
         );
       });
@@ -1025,20 +1025,20 @@ describe("MFA Frontend Components Integration", () => {
       });
     });
 
-    it("should handle device trust option", async () => {
+    it('should handle device trust option', async () => {
       const user = userEvent.setup();
       render(<MFAVerification {...defaultProps} />);
 
       const trustCheckbox = screen.getByLabelText(
-        "Trust this device for 30 days"
+        'Trust this device for 30 days'
       );
       await user.click(trustCheckbox);
 
       expect(trustCheckbox).toBeChecked();
 
-      const input = screen.getByPlaceholderText("000000");
-      await user.type(input, "123456");
-      await user.click(screen.getByText("Verify"));
+      const input = screen.getByPlaceholderText('000000');
+      await user.type(input, '123456');
+      await user.click(screen.getByText('Verify'));
 
       await waitFor(() => {
         expect(mockAuthAPI.verifyMFALogin).toHaveBeenCalledWith(
@@ -1049,64 +1049,64 @@ describe("MFA Frontend Components Integration", () => {
       });
     });
 
-    it("should handle verification failures with progressive messaging", async () => {
+    it('should handle verification failures with progressive messaging', async () => {
       mockAuthAPI.verifyMFALogin.mockResolvedValue({
         success: false,
-        error: "Invalid MFA token",
+        error: 'Invalid MFA token',
       });
 
       const user = userEvent.setup();
       render(<MFAVerification {...defaultProps} />);
 
-      const input = screen.getByPlaceholderText("000000");
-      await user.type(input, "000000");
-      await user.click(screen.getByText("Verify"));
+      const input = screen.getByPlaceholderText('000000');
+      await user.type(input, '000000');
+      await user.click(screen.getByText('Verify'));
 
       await waitFor(() => {
-        expect(screen.getByText("Invalid MFA token")).toBeInTheDocument();
+        expect(screen.getByText('Invalid MFA token')).toBeInTheDocument();
       });
     });
 
-    it("should handle rate limiting", async () => {
+    it('should handle rate limiting', async () => {
       mockAuthAPI.verifyMFALogin.mockResolvedValue({
         success: false,
-        error: "Too many attempts. Please try again in 5 minutes.",
+        error: 'Too many attempts. Please try again in 5 minutes.',
       });
 
       const user = userEvent.setup();
       render(<MFAVerification {...defaultProps} />);
 
-      const input = screen.getByPlaceholderText("000000");
-      await user.type(input, "000000");
-      await user.click(screen.getByText("Verify"));
+      const input = screen.getByPlaceholderText('000000');
+      await user.type(input, '000000');
+      await user.click(screen.getByText('Verify'));
 
       await waitFor(() => {
         expect(
-          screen.getByText("Too many attempts. Please try again in 5 minutes.")
+          screen.getByText('Too many attempts. Please try again in 5 minutes.')
         ).toBeInTheDocument();
       });
 
-      expect(screen.getByText("Verify")).toBeDisabled();
+      expect(screen.getByText('Verify')).toBeDisabled();
     });
 
-    it("should provide accessibility support", () => {
+    it('should provide accessibility support', () => {
       render(<MFAVerification {...defaultProps} />);
 
-      const input = screen.getByPlaceholderText("000000");
+      const input = screen.getByPlaceholderText('000000');
       expect(input).toHaveAttribute(
-        "aria-label",
-        "Six digit authentication code"
+        'aria-label',
+        'Six digit authentication code'
       );
-      expect(input).toHaveAttribute("autocomplete", "one-time-code");
+      expect(input).toHaveAttribute('autocomplete', 'one-time-code');
 
       const trustCheckbox = screen.getByLabelText(
-        "Trust this device for 30 days"
+        'Trust this device for 30 days'
       );
-      expect(trustCheckbox).toHaveAttribute("type", "checkbox");
+      expect(trustCheckbox).toHaveAttribute('type', 'checkbox');
     });
   });
 
-  describe("MFAManagement Component", () => {
+  describe('MFAManagement Component', () => {
     const defaultProps = {
       authAPI: mockAuthAPI,
     };
@@ -1117,14 +1117,14 @@ describe("MFA Frontend Components Integration", () => {
         data: {
           devices: [
             {
-              fingerprint: "device1",
-              name: "Chrome on Windows",
-              trustedDate: "2024-01-15T10:00:00Z",
+              fingerprint: 'device1',
+              name: 'Chrome on Windows',
+              trustedDate: '2024-01-15T10:00:00Z',
             },
             {
-              fingerprint: "device2",
-              name: "Firefox on Mac",
-              trustedDate: "2024-01-10T15:30:00Z",
+              fingerprint: 'device2',
+              name: 'Firefox on Mac',
+              trustedDate: '2024-01-10T15:30:00Z',
             },
           ],
         },
@@ -1132,134 +1132,134 @@ describe("MFA Frontend Components Integration", () => {
 
       mockAuthAPI.disableMFA.mockResolvedValue({
         success: true,
-        message: "MFA disabled successfully",
+        message: 'MFA disabled successfully',
       });
 
       mockAuthAPI.regenerateBackupCodes.mockResolvedValue({
         success: true,
         data: {
-          backupCodes: ["NEW12345", "COD67890", "GHI23456"],
+          backupCodes: ['NEW12345', 'COD67890', 'GHI23456'],
         },
       });
     });
 
-    it("should render MFA status when enabled", async () => {
+    it('should render MFA status when enabled', async () => {
       render(<MFAManagement {...defaultProps} />);
 
       await waitFor(() => {
         expect(
-          screen.getByText("Two-Factor Authentication")
+          screen.getByText('Two-Factor Authentication')
         ).toBeInTheDocument();
       });
 
-      expect(screen.getByText("Status: Enabled")).toBeInTheDocument();
-      expect(screen.getByText("Trusted Devices: 2")).toBeInTheDocument();
-      expect(screen.getByText("Backup Codes: 8")).toBeInTheDocument();
+      expect(screen.getByText('Status: Enabled')).toBeInTheDocument();
+      expect(screen.getByText('Trusted Devices: 2')).toBeInTheDocument();
+      expect(screen.getByText('Backup Codes: 8')).toBeInTheDocument();
     });
 
-    it("should display trusted devices", async () => {
+    it('should display trusted devices', async () => {
       render(<MFAManagement {...defaultProps} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Chrome on Windows")).toBeInTheDocument();
+        expect(screen.getByText('Chrome on Windows')).toBeInTheDocument();
       });
 
-      expect(screen.getByText("Firefox on Mac")).toBeInTheDocument();
-      expect(screen.getAllByText("Revoke")).toHaveLength(2);
+      expect(screen.getByText('Firefox on Mac')).toBeInTheDocument();
+      expect(screen.getAllByText('Revoke')).toHaveLength(2);
     });
 
-    it("should revoke trusted device", async () => {
+    it('should revoke trusted device', async () => {
       mockAuthAPI.revokeTrustedDevice.mockResolvedValue({
         success: true,
-        message: "Trusted device revoked successfully",
+        message: 'Trusted device revoked successfully',
       });
 
       const user = userEvent.setup();
       render(<MFAManagement {...defaultProps} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Chrome on Windows")).toBeInTheDocument();
+        expect(screen.getByText('Chrome on Windows')).toBeInTheDocument();
       });
 
-      const revokeButtons = screen.getAllByText("Revoke");
+      const revokeButtons = screen.getAllByText('Revoke');
       await user.click(revokeButtons[0]);
 
       // Confirm revocation
       await waitFor(() => {
         expect(
-          screen.getByText("Are you sure you want to revoke this device?")
+          screen.getByText('Are you sure you want to revoke this device?')
         ).toBeInTheDocument();
       });
 
-      await user.click(screen.getByText("Yes, Revoke"));
+      await user.click(screen.getByText('Yes, Revoke'));
 
       await waitFor(() => {
-        expect(mockAuthAPI.revokeTrustedDevice).toHaveBeenCalledWith("device1");
+        expect(mockAuthAPI.revokeTrustedDevice).toHaveBeenCalledWith('device1');
       });
     });
 
-    it("should regenerate backup codes", async () => {
+    it('should regenerate backup codes', async () => {
       const user = userEvent.setup();
       render(<MFAManagement {...defaultProps} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Regenerate Backup Codes")).toBeInTheDocument();
+        expect(screen.getByText('Regenerate Backup Codes')).toBeInTheDocument();
       });
 
-      await user.click(screen.getByText("Regenerate Backup Codes"));
+      await user.click(screen.getByText('Regenerate Backup Codes'));
 
       // Should show verification modal
       await waitFor(() => {
         expect(
-          screen.getByText("Verify to Regenerate Codes")
+          screen.getByText('Verify to Regenerate Codes')
         ).toBeInTheDocument();
       });
 
-      const tokenInput = screen.getByPlaceholderText("Enter 6-digit code");
-      await user.type(tokenInput, "123456");
-      await user.click(screen.getByText("Regenerate"));
+      const tokenInput = screen.getByPlaceholderText('Enter 6-digit code');
+      await user.type(tokenInput, '123456');
+      await user.click(screen.getByText('Regenerate'));
 
       await waitFor(() => {
         expect(mockAuthAPI.regenerateBackupCodes).toHaveBeenCalledWith(
-          "123456"
+          '123456'
         );
       });
 
       // Should display new codes
       await waitFor(() => {
-        expect(screen.getByText("NEW12345")).toBeInTheDocument();
+        expect(screen.getByText('NEW12345')).toBeInTheDocument();
       });
     });
 
-    it("should disable MFA with verification", async () => {
+    it('should disable MFA with verification', async () => {
       const user = userEvent.setup();
       render(<MFAManagement {...defaultProps} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Disable MFA")).toBeInTheDocument();
+        expect(screen.getByText('Disable MFA')).toBeInTheDocument();
       });
 
-      await user.click(screen.getByText("Disable MFA"));
+      await user.click(screen.getByText('Disable MFA'));
 
       // Should show confirmation modal
       await waitFor(() => {
         expect(
           screen.getByText(
-            "Are you sure you want to disable two-factor authentication?"
+            'Are you sure you want to disable two-factor authentication?'
           )
         ).toBeInTheDocument();
       });
 
-      const tokenInput = screen.getByPlaceholderText("Enter 6-digit code");
-      await user.type(tokenInput, "123456");
-      await user.click(screen.getByText("Disable MFA"));
+      const tokenInput = screen.getByPlaceholderText('Enter 6-digit code');
+      await user.type(tokenInput, '123456');
+      await user.click(screen.getByText('Disable MFA'));
 
       await waitFor(() => {
-        expect(mockAuthAPI.disableMFA).toHaveBeenCalledWith("123456");
+        expect(mockAuthAPI.disableMFA).toHaveBeenCalledWith('123456');
       });
     });
 
-    it("should handle setup initiation when MFA not enabled", async () => {
+    it('should handle setup initiation when MFA not enabled', async () => {
       mockAuthAPI.getMFAStatus.mockResolvedValue({
         success: true,
         data: {
@@ -1273,13 +1273,13 @@ describe("MFA Frontend Components Integration", () => {
       render(<MFAManagement {...defaultProps} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Status: Disabled")).toBeInTheDocument();
+        expect(screen.getByText('Status: Disabled')).toBeInTheDocument();
       });
 
-      expect(screen.getByText("Set Up MFA")).toBeInTheDocument();
+      expect(screen.getByText('Set Up MFA')).toBeInTheDocument();
     });
 
-    it("should integrate MFASetup component when setting up", async () => {
+    it('should integrate MFASetup component when setting up', async () => {
       mockAuthAPI.getMFAStatus.mockResolvedValue({
         success: true,
         data: {
@@ -1292,36 +1292,36 @@ describe("MFA Frontend Components Integration", () => {
       render(<MFAManagement {...defaultProps} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Set Up MFA")).toBeInTheDocument();
+        expect(screen.getByText('Set Up MFA')).toBeInTheDocument();
       });
 
-      await user.click(screen.getByText("Set Up MFA"));
+      await user.click(screen.getByText('Set Up MFA'));
 
       // Should render MFASetup component
       await waitFor(() => {
         expect(
-          screen.getByText("Set Up Two-Factor Authentication")
+          screen.getByText('Set Up Two-Factor Authentication')
         ).toBeInTheDocument();
       });
     });
 
-    it("should handle API errors gracefully", async () => {
+    it('should handle API errors gracefully', async () => {
       mockAuthAPI.getMFAStatus.mockRejectedValue(
-        new Error("Service unavailable")
+        new Error('Service unavailable')
       );
 
       render(<MFAManagement {...defaultProps} />);
 
       await waitFor(() => {
         expect(
-          screen.getByText("Failed to load MFA status")
+          screen.getByText('Failed to load MFA status')
         ).toBeInTheDocument();
       });
     });
   });
 
-  describe("Component Integration", () => {
-    it("should complete full MFA setup and management workflow", async () => {
+  describe('Component Integration', () => {
+    it('should complete full MFA setup and management workflow', async () => {
       const user = userEvent.setup();
 
       // Start with MFA disabled
@@ -1337,17 +1337,17 @@ describe("MFA Frontend Components Integration", () => {
 
       // Setup MFA
       await waitFor(() => {
-        expect(screen.getByText("Set Up MFA")).toBeInTheDocument();
+        expect(screen.getByText('Set Up MFA')).toBeInTheDocument();
       });
 
-      await user.click(screen.getByText("Set Up MFA"));
+      await user.click(screen.getByText('Set Up MFA'));
 
       // Complete setup workflow
       await waitFor(() => {
-        expect(screen.getByText("Get Started")).toBeInTheDocument();
+        expect(screen.getByText('Get Started')).toBeInTheDocument();
       });
 
-      await user.click(screen.getByText("Get Started"));
+      await user.click(screen.getByText('Get Started'));
 
       // After setup completion, update status to enabled
       mockAuthAPI.getMFAStatus.mockResolvedValue({
@@ -1364,7 +1364,7 @@ describe("MFA Frontend Components Integration", () => {
       rerender(<MFAManagement authAPI={mockAuthAPI} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Status: Enabled")).toBeInTheDocument();
+        expect(screen.getByText('Status: Enabled')).toBeInTheDocument();
       });
     });
   });

@@ -9,21 +9,21 @@
  * Usage: Copy to app's src/ directory as test-manager.js
  */
 
-import { execSync } from "child_process";
-import { existsSync, readdirSync } from "fs";
-import { join } from "path";
-import { fileURLToPath } from "url";
-import { glob } from "glob";
+import { execSync } from 'child_process';
+import { existsSync, readdirSync } from 'fs';
+import { join } from 'path';
+import { fileURLToPath } from 'url';
+import { glob } from 'glob';
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = join(__filename, "..");
+const __dirname = join(__filename, '..');
 
 class UnifiedTestManager {
-  constructor(appName = "app") {
+  constructor(appName = 'app') {
     this.appName = appName;
-    this.featuresDir = join(__dirname, "features");
-    this.testRunnersDir = join(__dirname, "test-runners");
-    this.testsDir = join(__dirname, "tests");
+    this.featuresDir = join(__dirname, 'features');
+    this.testRunnersDir = join(__dirname, 'test-runners');
+    this.testsDir = join(__dirname, 'tests');
     this.discoveredSuites = new Map();
     this.options = this.parseArguments();
   }
@@ -47,37 +47,37 @@ class UnifiedTestManager {
     for (let i = 0; i < args.length; i++) {
       const arg = args[i];
 
-      if (arg === "--help" || arg === "-h") {
+      if (arg === '--help' || arg === '-h') {
         options.help = true;
-      } else if (arg === "--watch" || arg === "-w") {
+      } else if (arg === '--watch' || arg === '-w') {
         options.watch = true;
-      } else if (arg === "--ui") {
+      } else if (arg === '--ui') {
         options.ui = true;
-      } else if (arg === "--coverage" || arg === "-c") {
+      } else if (arg === '--coverage' || arg === '-c') {
         options.coverage = true;
-      } else if (arg === "--verbose" || arg === "-v") {
+      } else if (arg === '--verbose' || arg === '-v') {
         options.verbose = true;
-      } else if (arg === "--quick" || arg === "-q") {
+      } else if (arg === '--quick' || arg === '-q') {
         options.quick = true;
-      } else if (arg === "--changed") {
+      } else if (arg === '--changed') {
         options.changed = true;
-      } else if (arg === "--all" || arg === "-a") {
+      } else if (arg === '--all' || arg === '-a') {
         options.all = true;
-      } else if (arg === "--unit") {
-        options.type = "unit";
-      } else if (arg === "--integration") {
-        options.type = "integration";
-      } else if (arg === "--e2e") {
-        options.type = "e2e";
-      } else if (arg === "--memory") {
-        options.mode = "memory";
-      } else if (arg === "--critical") {
-        options.mode = "critical";
-      } else if (arg === "--comprehensive") {
-        options.mode = "comprehensive";
-      } else if (arg === "--security") {
-        options.mode = "security";
-      } else if (!arg.startsWith("-")) {
+      } else if (arg === '--unit') {
+        options.type = 'unit';
+      } else if (arg === '--integration') {
+        options.type = 'integration';
+      } else if (arg === '--e2e') {
+        options.type = 'e2e';
+      } else if (arg === '--memory') {
+        options.mode = 'memory';
+      } else if (arg === '--critical') {
+        options.mode = 'critical';
+      } else if (arg === '--comprehensive') {
+        options.mode = 'comprehensive';
+      } else if (arg === '--security') {
+        options.mode = 'security';
+      } else if (!arg.startsWith('-')) {
         options.feature = arg;
       }
     }
@@ -90,7 +90,7 @@ class UnifiedTestManager {
       return this.discoveredSuites;
     }
 
-    console.log(`🔍 Discovering test suites for ${this.appName}...`);
+    // console.log(`🔍 Discovering test suites for ${this.appName}...`);
 
     try {
       // Discover feature-based test suites
@@ -104,10 +104,10 @@ class UnifiedTestManager {
           if (hasTests) {
             this.discoveredSuites.set(feature, {
               name: feature,
-              type: "feature",
-              hasUnit: await this.hasTestType(feature, "unit"),
-              hasIntegration: await this.hasTestType(feature, "integration"),
-              hasE2e: await this.hasTestType(feature, "e2e"),
+              type: 'feature',
+              hasUnit: await this.hasTestType(feature, 'unit'),
+              hasIntegration: await this.hasTestType(feature, 'integration'),
+              hasE2e: await this.hasTestType(feature, 'e2e'),
             });
           }
         }
@@ -115,13 +115,13 @@ class UnifiedTestManager {
 
       // Discover general test suites in tests/ directory
       if (existsSync(this.testsDir)) {
-        const testFiles = await glob("**/*.test.{js,jsx}", {
+        const testFiles = await glob('**/*.test.{js,jsx}', {
           cwd: this.testsDir,
         });
         if (testFiles.length > 0) {
-          this.discoveredSuites.set("general", {
-            name: "general",
-            type: "general-tests",
+          this.discoveredSuites.set('general', {
+            name: 'general',
+            type: 'general-tests',
             testFiles: testFiles.length,
           });
         }
@@ -133,7 +133,7 @@ class UnifiedTestManager {
           withFileTypes: true,
         })
           .filter(
-            (dirent) => dirent.isFile() && dirent.name.includes("test-runner"),
+            (dirent) => dirent.isFile() && dirent.name.includes('test-runner'),
           )
           .map((dirent) => dirent.name);
 
@@ -141,35 +141,35 @@ class UnifiedTestManager {
           const runnerPath = join(this.testRunnersDir, runner);
           const runnerName = runner.replace(
             /[-.]test[-.]runner\.(js|cjs)$/,
-            "",
+            '',
           );
           this.discoveredSuites.set(`${runnerName}-modes`, {
             name: `${runnerName}-modes`,
             path: runnerPath,
-            type: "mode-runner",
+            type: 'mode-runner',
           });
         }
       }
 
       if (this.options.verbose) {
-        console.log(`📋 Found ${this.discoveredSuites.size} test suites:`);
+        // console.log(`📋 Found ${this.discoveredSuites.size} test suites:`);
         for (const [name, suite] of this.discoveredSuites) {
-          console.log(`   • ${name} (${suite.type})`);
+          // console.log(`   • ${name} (${suite.type})`);
         }
       }
-    } catch (error) {
-      console.error("❌ Error discovering test suites:", error.message);
+    } catch (_error) {
+      // console.error('❌ Error discovering test suites:', error.message);
     }
 
     return this.discoveredSuites;
   }
 
   async hasFeatureTests(feature) {
-    const featureTestDir = join(this.featuresDir, feature, "tests");
+    const featureTestDir = join(this.featuresDir, feature, 'tests');
     if (!existsSync(featureTestDir)) return false;
 
     try {
-      const testFiles = await glob("**/*.test.{js,jsx}", {
+      const testFiles = await glob('**/*.test.{js,jsx}', {
         cwd: featureTestDir,
       });
       return testFiles.length > 0;
@@ -179,11 +179,11 @@ class UnifiedTestManager {
   }
 
   async hasTestType(feature, type) {
-    const testDir = join(this.featuresDir, feature, "tests", type);
+    const testDir = join(this.featuresDir, feature, 'tests', type);
     if (!existsSync(testDir)) return false;
 
     try {
-      const testFiles = await glob("**/*.test.{js,jsx}", { cwd: testDir });
+      const testFiles = await glob('**/*.test.{js,jsx}', { cwd: testDir });
       return testFiles.length > 0;
     } catch {
       return false;
@@ -191,7 +191,7 @@ class UnifiedTestManager {
   }
 
   showHelp() {
-    console.log(`
+    // console.log(`
 🧪 UNIFIED TEST MANAGEMENT SYSTEM - ${this.appName.toUpperCase()}
 
 USAGE:
@@ -271,33 +271,33 @@ EXAMPLES:
   async runFeatureTests(featureName) {
     const suite = this.discoveredSuites.get(featureName);
     if (!suite) {
-      console.error(`❌ Feature "${featureName}" not found.`);
-      console.log("\n📋 Available features:");
+      // console.error(`❌ Feature '${featureName}' not found.`);
+      // console.log("\n📋 Available features:');
       for (const [name, info] of this.discoveredSuites) {
-        if (info.type === "feature") {
-          console.log(`   • ${name}`);
+        if (info.type === 'feature') {
+          // console.log(`   • ${name}`);
         }
       }
       return;
     }
 
-    console.log(`🧪 Running ${featureName} tests...`);
+    // console.log(`🧪 Running ${featureName} tests...`);
 
-    let command = "npx vitest run";
+    let command = 'npx vitest run';
 
     if (this.options.type) {
-      command += ` "src/features/${featureName}/tests/${this.options.type}/**/*.test.{js,jsx}"`;
+      command += ` 'src/features/${featureName}/tests/${this.options.type}/**/*.test.{js,jsx}'`;
     } else {
-      command += ` "src/features/${featureName}/tests/**/*.test.{js,jsx}"`;
+      command += ` 'src/features/${featureName}/tests/**/*.test.{js,jsx}'`;
     }
 
-    if (this.options.coverage) command += " --coverage";
-    if (this.options.verbose) command += " --reporter=verbose";
+    if (this.options.coverage) command += ' --coverage';
+    if (this.options.verbose) command += ' --reporter=verbose';
 
     try {
-      execSync(command, { stdio: "inherit", cwd: process.cwd() });
+      execSync(command, { stdio: 'inherit', cwd: process.cwd() });
     } catch {
-      console.error(`❌ Tests failed for ${featureName}`);
+      // console.error(`❌ Tests failed for ${featureName}`);
       process.exit(1);
     }
   }
@@ -305,66 +305,66 @@ EXAMPLES:
   async runModeTests(mode) {
     const suite =
       this.discoveredSuites.get(`${mode}-modes`) ||
-      this.discoveredSuites.get("memory-modes");
+      this.discoveredSuites.get('memory-modes');
 
     if (!suite) {
-      console.error(`❌ Mode runner for "${mode}" not found.`);
+      // console.error(`❌ Mode runner for '${mode}' not found.`);
       return;
     }
 
-    console.log(`🧪 Running ${mode} mode tests...`);
+    // console.log(`🧪 Running ${mode} mode tests...`);
 
-    const command = `node "${suite.path}" --mode ${mode}`;
+    const command = `node '${suite.path}' --mode ${mode}`;
 
     try {
-      execSync(command, { stdio: "inherit", cwd: process.cwd() });
+      execSync(command, { stdio: 'inherit', cwd: process.cwd() });
     } catch {
-      console.error(`❌ Tests failed for ${mode} mode`);
+      // console.error(`❌ Tests failed for ${mode} mode`);
       process.exit(1);
     }
   }
 
   async runAllTests() {
-    console.log(`🚀 Running all available tests for ${this.appName}...`);
+    // console.log(`🚀 Running all available tests for ${this.appName}...`);
 
-    let command = "npx vitest run";
-    if (this.options.coverage) command += " --coverage";
-    if (this.options.verbose) command += " --reporter=verbose";
+    let command = 'npx vitest run';
+    if (this.options.coverage) command += ' --coverage';
+    if (this.options.verbose) command += ' --reporter=verbose';
 
     try {
-      execSync(command, { stdio: "inherit", cwd: process.cwd() });
+      execSync(command, { stdio: 'inherit', cwd: process.cwd() });
     } catch {
-      console.error("❌ Some tests failed");
+      // console.error('❌ Some tests failed');
       process.exit(1);
     }
   }
 
   runUIMode() {
-    console.log(`🖥️  Opening test UI for ${this.appName}...`);
-    const command = "npx vitest --ui";
-    execSync(command, { stdio: "inherit", cwd: process.cwd() });
+    // console.log(`🖥️  Opening test UI for ${this.appName}...`);
+    const command = 'npx vitest --ui';
+    execSync(command, { stdio: 'inherit', cwd: process.cwd() });
   }
 
   runWatchMode() {
-    console.log(`👀 Starting watch mode for ${this.appName}...`);
-    const command = "npx vitest --watch";
-    execSync(command, { stdio: "inherit", cwd: process.cwd() });
+    // console.log(`👀 Starting watch mode for ${this.appName}...`);
+    const command = 'npx vitest --watch';
+    execSync(command, { stdio: 'inherit', cwd: process.cwd() });
   }
 
   runChangedTests() {
-    console.log(`📊 Running tests for changed files in ${this.appName}...`);
-    const command = "npx vitest --changed";
-    execSync(command, { stdio: "inherit", cwd: process.cwd() });
+    // console.log(`📊 Running tests for changed files in ${this.appName}...`);
+    const command = 'npx vitest --changed';
+    execSync(command, { stdio: 'inherit', cwd: process.cwd() });
   }
 
   runDefaultTests() {
-    let command = "npx vitest run";
+    let command = 'npx vitest run';
 
-    if (this.options.coverage) command += " --coverage";
-    if (this.options.type === "unit") command += " src/**/*.test.{js,jsx}";
+    if (this.options.coverage) command += ' --coverage';
+    if (this.options.type === 'unit') command += ' src/**/*.test.{js,jsx}';
 
-    console.log(`🧪 Running default tests for ${this.appName}: ${command}`);
-    execSync(command, { stdio: "inherit", cwd: process.cwd() });
+    // console.log(`🧪 Running default tests for ${this.appName}: ${command}`);
+    execSync(command, { stdio: 'inherit", cwd: process.cwd() });
   }
 }
 

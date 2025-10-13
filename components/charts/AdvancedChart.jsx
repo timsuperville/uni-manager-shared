@@ -292,7 +292,7 @@ const AdvancedChart = ({
       const canvas = chart.canvas;
       const url = canvas.toDataURL('image/png');
 
-      const link = document.createElement('a');
+      const link = typeof document !== "undefined" && document.createElement('a');
       link.download = `${title.replace(/\s+/g, '_').toLowerCase()}_${Date.now()}.png`;
       link.href = url;
       link.click();
@@ -306,7 +306,7 @@ const AdvancedChart = ({
         containerRef.current.requestFullscreen?.();
         setIsFullscreen(true);
       } else {
-        document.exitFullscreen?.();
+        typeof document !== "undefined" && document.exitFullscreen?.();
         setIsFullscreen(false);
       }
     }
@@ -379,15 +379,15 @@ const AdvancedChart = ({
       <CardHeader
         title={
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Typography variant="h6">{title}</Typography>
+            <Typography variant='h6'>{title}</Typography>
             {isOffline && (
-              <Chip label="Offline" size="small" color="warning" />
+              <Chip label='Offline' size='small' color='warning' />
             )}
             {isRealTime && (
               <Chip
                 label={`Live • ${lastUpdated.toLocaleTimeString()}`}
-                size="small"
-                color="success"
+                size='small'
+                color='success'
                 sx={{ animation: 'pulse 2s infinite' }}
               />
             )}
@@ -397,17 +397,17 @@ const AdvancedChart = ({
           showControls && (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               {/* Chart Type Selector */}
-              <FormControl size="small" sx={{ minWidth: 120 }}>
+              <FormControl size='small' sx={{ minWidth: 120 }}>
                 <InputLabel>Chart Type</InputLabel>
                 <Select
                   value={chartType}
                   onChange={(e) => setChartType(e.target.value)}
-                  label="Chart Type"
+                  label='Chart Type'
                 >
                   {chartTypes.map((type) => (
                     <MenuItem key={type.value} value={type.value}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <type.icon fontSize="small" />
+                        <type.icon fontSize='small' />
                         {type.label}
                       </Box>
                     </MenuItem>
@@ -425,14 +425,14 @@ const AdvancedChart = ({
                       disabled={isOffline}
                     />
                   }
-                  label="Live"
+                  label='Live'
                 />
               )}
 
               {/* Action Buttons */}
-              <ButtonGroup size="small">
+              <ButtonGroup size='small'>
                 {onDataRefresh && (
-                  <Tooltip title="Refresh Data">
+                  <Tooltip title='Refresh Data'>
                     <IconButton onClick={handleRefresh} disabled={loading || isOffline}>
                       <RefreshIcon />
                     </IconButton>
@@ -440,7 +440,7 @@ const AdvancedChart = ({
                 )}
 
                 {downloadEnabled && (
-                  <Tooltip title="Download Chart">
+                  <Tooltip title='Download Chart'>
                     <IconButton onClick={handleDownload} disabled={loading}>
                       <DownloadIcon />
                     </IconButton>
@@ -448,7 +448,7 @@ const AdvancedChart = ({
                 )}
 
                 {fullscreenEnabled && (
-                  <Tooltip title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}>
+                  <Tooltip title={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}>
                     <IconButton onClick={handleFullscreen}>
                       <FullscreenIcon />
                     </IconButton>
@@ -463,14 +463,14 @@ const AdvancedChart = ({
       <CardContent>
         {/* Error State */}
         {error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
+          <Alert severity='error' sx={{ mb: 2 }}>
             {error}
           </Alert>
         )}
 
         {/* Offline Warning */}
         {isOffline && isRealTime && (
-          <Alert severity="warning" sx={{ mb: 2 }}>
+          <Alert severity='warning' sx={{ mb: 2 }}>
             Real-time updates are disabled while offline. Data may be outdated.
           </Alert>
         )}
@@ -500,10 +500,10 @@ const AdvancedChart = ({
             color: 'text.secondary'
           }}>
             <BarChartIcon sx={{ fontSize: 64, mb: 2, opacity: 0.3 }} />
-            <Typography variant="h6" gutterBottom>
+            <Typography variant='h6' gutterBottom>
               No Data Available
             </Typography>
-            <Typography variant="body2">
+            <Typography variant='body2'>
               Data will appear here when available
             </Typography>
           </Box>

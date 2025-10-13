@@ -1,6 +1,6 @@
 /* eslint-env browser */
 /* global console, setTimeout */
-import { useState } from "react";
+import { useState } from 'react';
 
 /**
  * Custom hook for handling login form logic
@@ -8,8 +8,8 @@ import { useState } from "react";
  */
 export function useLogin() {
   const [formData, setFormData] = useState({
-    email: "",
-    password: "",
+    email: '',
+    password: '',
     rememberMe: false,
   });
   const [errors, setErrors] = useState({});
@@ -25,7 +25,7 @@ export function useLogin() {
     if (errors[name]) {
       setErrors((prev) => ({
         ...prev,
-        [name]: "",
+        [name]: '',
       }));
     }
   };
@@ -35,16 +35,16 @@ export function useLogin() {
 
     // Email validation
     if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
+      newErrors.email = 'Email is required';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "Email is invalid";
+      newErrors.email = 'Email is invalid';
     }
 
     // Password validation
     if (!formData.password) {
-      newErrors.password = "Password is required";
+      newErrors.password = 'Password is required';
     } else if (formData.password.length < 8) {
-      newErrors.password = "Password must be at least 8 characters";
+      newErrors.password = 'Password must be at least 8 characters';
     }
 
     setErrors(newErrors);
@@ -61,17 +61,17 @@ export function useLogin() {
       // Simulate login success for demo purposes
       if (formData.email && formData.password.length >= 8) {
         const userData = {
-          id: "1",
+          id: '1',
           email: formData.email,
-          name: formData.email.split("@")[0],
+          name: formData.email.split('@')[0],
           appType,
         };
         return { success: true, user: userData };
       } else {
-        throw new Error("Invalid credentials");
+        throw new Error('Invalid credentials');
       }
-    } catch (error) {
-      console.error("Login error:", error);
+    } catch (_error) {
+      // console.error('Login error:', error);
       return { success: false, error: error.message };
     } finally {
       setIsLoading(false);
@@ -80,8 +80,8 @@ export function useLogin() {
 
   const resetForm = () => {
     setFormData({
-      email: "",
-      password: "",
+      email: '',
+      password: '',
       rememberMe: false,
     });
     setErrors({});

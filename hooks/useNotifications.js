@@ -1,6 +1,6 @@
 /* eslint-env browser */
-import { useState, useEffect, useCallback, useRef } from "react";
-import { useWebSocket } from "./useWebSocket";
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { useWebSocket } from './useWebSocket';
 
 /**
  * useNotifications - Custom hook for notification management
@@ -36,15 +36,15 @@ export const useNotifications = ({
 
   // WebSocket integration
   const { isConnected, subscribe, unsubscribe } =
-    useWebSocket("/notifications");
+    useWebSocket('/notifications');
 
   // Build API URL
   const buildApiUrl = useCallback((endpoint, params = {}) => {
-    const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
     const url = new URL(`${baseUrl}/api/notifications${endpoint}`);
 
     Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== null && value !== "") {
+      if (value !== undefined && value !== null && value !== '') {
         url.searchParams.append(key, value);
       }
     });
@@ -57,8 +57,8 @@ export const useNotifications = ({
     try {
       const response = await fetch(url, {
         headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${typeof localStorage !== "undefined" && localStorage.getItem('authToken')}`,
           ...options.headers,
         },
         ...options,
@@ -71,9 +71,9 @@ export const useNotifications = ({
       }
 
       return await response.json();
-    } catch (error) {
+    } catch (_error) {
       // eslint-disable-next-line no-console
-      console.error("API request error:", error);
+      // console.error('API request error:', error);
       throw error;
     }
   }, []);
@@ -108,7 +108,7 @@ export const useNotifications = ({
       setError(null);
 
       try {
-        const url = buildApiUrl("", {
+        const url = buildApiUrl('', {
           page,
           limit,
           type,
@@ -144,11 +144,11 @@ export const useNotifications = ({
           const oldestKey = Array.from(cacheRef.current.keys())[0];
           cacheRef.current.delete(oldestKey);
         }
-      } catch (error) {
-        if (error.name !== "AbortError") {
+      } catch (_error) {
+        if (error.name !== 'AbortError') {
           setError(error.message);
           // eslint-disable-next-line no-console
-          console.error("Failed to load notifications:", error);
+          // console.error('Failed to load notifications:', error);
         }
       } finally {
         setIsLoading(false);
@@ -166,21 +166,21 @@ export const useNotifications = ({
           prev.map((notification) =>
             notification.id === notificationId ||
             notification._id === notificationId
-              ? { ...notification, status: "read" }
+              ? { ...notification, status: 'read' }
               : notification
           )
         );
         setUnreadCount((prev) => Math.max(0, prev - 1));
 
         const url = buildApiUrl(`/${notificationId}/read`);
-        await apiRequest(url, { method: "PUT" });
-      } catch (error) {
+        await apiRequest(url, { method: 'PUT' });
+      } catch (_error) {
         // Revert optimistic update
         setNotifications((prev) =>
           prev.map((notification) =>
             notification.id === notificationId ||
             notification._id === notificationId
-              ? { ...notification, status: "unread" }
+              ? { ...notification, status: 'unread' }
               : notification
           )
         );
@@ -204,23 +204,23 @@ export const useNotifications = ({
         setNotifications((prev) =>
           prev.map((notification) =>
             notificationIds.includes(notification.id || notification._id)
-              ? { ...notification, status: "read" }
+              ? { ...notification, status: 'read' }
               : notification
           )
         );
 
         const unreadToRead = notifications.filter(
           (n) =>
-            notificationIds.includes(n.id || n._id) && n.status === "unread"
+            notificationIds.includes(n.id || n._id) && n.status === 'unread'
         ).length;
         setUnreadCount((prev) => Math.max(0, prev - unreadToRead));
 
-        const url = buildApiUrl("/bulk/read");
+        const url = buildApiUrl('/bulk/read');
         await apiRequest(url, {
-          method: "PUT",
+          method: 'PUT',
           body: JSON.stringify({ notificationIds }),
         });
-      } catch (error) {
+      } catch (_error) {
         // Revert optimistic update
         setNotifications(originalNotifications);
         setUnreadCount(originalUnreadCount);
@@ -241,14 +241,14 @@ export const useNotifications = ({
       setNotifications((prev) =>
         prev.map((notification) => ({
           ...notification,
-          status: "read",
+          status: 'read',
         }))
       );
       setUnreadCount(0);
 
-      const url = buildApiUrl("/all/read");
-      await apiRequest(url, { method: "PUT" });
-    } catch (error) {
+      const url = buildApiUrl('/all/read');
+      await apiRequest(url, { method: 'PUT' });
+    } catch (_error) {
       // Revert optimistic update
       setNotifications(originalNotifications);
       setUnreadCount(originalUnreadCount);
@@ -270,8 +270,8 @@ export const useNotifications = ({
         );
 
         const url = buildApiUrl(`/${notificationId}/archive`);
-        await apiRequest(url, { method: "PUT" });
-      } catch (error) {
+        await apiRequest(url, { method: 'PUT' });
+      } catch (_error) {
         // Reload on error
         loadNotifications(true);
         throw error;
@@ -297,13 +297,13 @@ export const useNotifications = ({
           )
         );
 
-        if (notification?.status === "unread") {
+        if (notification?.status === 'unread') {
           setUnreadCount((prev) => Math.max(0, prev - 1));
         }
 
         const url = buildApiUrl(`/${notificationId}`);
-        await apiRequest(url, { method: "DELETE" });
-      } catch (error) {
+        await apiRequest(url, { method: 'DELETE' });
+      } catch (_error) {
         // Reload on error
         loadNotifications(true);
         throw error;
@@ -325,15 +325,15 @@ export const useNotifications = ({
 
     const handleNotificationUpdate = (data) => {
       switch (data.event) {
-        case "notification:created":
+        case 'notification:created':
           // Add new notification to the beginning
           setNotifications((prev) => [data.data, ...prev]);
-          if (data.data.status === "unread") {
+          if (data.data.status === 'unread') {
             setUnreadCount((prev) => prev + 1);
           }
           break;
 
-        case "notification:updated":
+        case 'notification:updated':
           // Update existing notification
           setNotifications((prev) =>
             prev.map((notification) =>
@@ -345,7 +345,7 @@ export const useNotifications = ({
           );
           break;
 
-        case "notification:deleted":
+        case 'notification:deleted':
           // Remove notification
           setNotifications((prev) =>
             prev.filter(
@@ -356,13 +356,13 @@ export const useNotifications = ({
           );
           break;
 
-        case "notification:read":
+        case 'notification:read':
           // Update notification status
           setNotifications((prev) =>
             prev.map((notification) =>
               notification.id === data.data.id ||
               notification._id === data.data.id
-                ? { ...notification, status: "read" }
+                ? { ...notification, status: 'read' }
                 : notification
             )
           );
@@ -374,10 +374,10 @@ export const useNotifications = ({
       }
     };
 
-    subscribe("notification-update", handleNotificationUpdate);
+    subscribe('notification-update', handleNotificationUpdate);
 
     return () => {
-      unsubscribe("notification-update");
+      unsubscribe('notification-update');
     };
   }, [isConnected, subscribe, unsubscribe]);
 

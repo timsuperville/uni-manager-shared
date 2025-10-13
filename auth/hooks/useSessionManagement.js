@@ -13,15 +13,15 @@
 
 /* global window, console, setInterval, clearInterval */
 
-import { useState, useEffect, useCallback, useRef } from "react";
-import sessionManagementService from "../services/sessionManagementService";
+import { useState, useEffect, useCallback, useRef } from 'react';
+import sessionManagementService from '../services/sessionManagementService';
 
 /**
  * Main session management hook
  */
 export const useSessionManagement = () => {
   const [currentSession, setCurrentSession] = useState(null);
-  const [sessionStatus, setSessionStatus] = useState("inactive"); // inactive, active, expired, invalid
+  const [sessionStatus, setSessionStatus] = useState('inactive'); // inactive, active, expired, invalid
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [deviceFingerprint, setDeviceFingerprint] = useState(null);
@@ -45,7 +45,7 @@ export const useSessionManagement = () => {
           requiresAdditionalVerification: result.requiresAdditionalVerification,
         });
         setDeviceFingerprint(result.deviceFingerprint);
-        setSessionStatus("active");
+        setSessionStatus('active');
 
         // Start session monitoring
         startSessionMonitoring();
@@ -55,7 +55,7 @@ export const useSessionManagement = () => {
         setError(result.error);
         return { success: false, error: result.error };
       }
-    } catch (err) {
+    } catch (_err) {
       setError(err.message);
       return { success: false, error: err.message };
     } finally {
@@ -68,7 +68,7 @@ export const useSessionManagement = () => {
    */
   const validateCurrentSession = useCallback(async () => {
     if (!currentSession?.sessionId) {
-      setSessionStatus("inactive");
+      setSessionStatus('inactive');
       return false;
     }
 
@@ -77,7 +77,7 @@ export const useSessionManagement = () => {
     );
 
     if (result.valid) {
-      setSessionStatus("active");
+      setSessionStatus('active');
       setCurrentSession((prev) => ({
         ...prev,
         ...result.session,
@@ -85,7 +85,7 @@ export const useSessionManagement = () => {
       return true;
     } else {
       setSessionStatus(
-        result.reason === "session_expired" ? "expired" : "invalid"
+        result.reason === 'session_expired' ? 'expired' : 'invalid'
       );
       setCurrentSession(null);
       stopSessionMonitoring();
@@ -97,14 +97,14 @@ export const useSessionManagement = () => {
    * Invalidate current session
    */
   const invalidateSession = useCallback(
-    (reason = "manual") => {
+    (reason = 'manual') => {
       if (currentSession?.sessionId) {
         sessionManagementService.invalidateSession(
           currentSession.sessionId,
           reason
         );
         setCurrentSession(null);
-        setSessionStatus("inactive");
+        setSessionStatus('inactive');
         stopSessionMonitoring();
       }
     },
@@ -143,8 +143,8 @@ export const useSessionManagement = () => {
         await sessionManagementService.generateDeviceFingerprint();
       setDeviceFingerprint(fingerprint);
       return fingerprint;
-    } catch (err) {
-      console.error("Error generating device fingerprint:", err);
+    } catch (_err) {
+      // console.error('Error generating device fingerprint:', err);
       return null;
     }
   }, []);
@@ -159,15 +159,15 @@ export const useSessionManagement = () => {
   // Listen for session expiry events
   useEffect(() => {
     const handleSessionExpired = () => {
-      setSessionStatus("expired");
+      setSessionStatus('expired');
       setCurrentSession(null);
       stopSessionMonitoring();
     };
 
-    window.addEventListener("sessionExpired", handleSessionExpired);
+    typeof window !== "undefined" && window.addEventListener('sessionExpired', handleSessionExpired);
 
     return () => {
-      window.removeEventListener("sessionExpired", handleSessionExpired);
+      typeof window !== "undefined" && window.removeEventListener('sessionExpired', handleSessionExpired);
       stopSessionMonitoring();
     };
   }, [stopSessionMonitoring]);
@@ -195,10 +195,10 @@ export const useSessionManagement = () => {
     getSessionAnalytics,
 
     // Session status helpers
-    isActive: sessionStatus === "active",
-    isExpired: sessionStatus === "expired",
-    isInvalid: sessionStatus === "invalid",
-    isInactive: sessionStatus === "inactive",
+    isActive: sessionStatus === 'active',
+    isExpired: sessionStatus === 'expired',
+    isInvalid: sessionStatus === 'invalid',
+    isInactive: sessionStatus === 'inactive',
   };
 };
 
@@ -222,7 +222,7 @@ export const useUserSessions = (userId) => {
     try {
       const sessions = sessionManagementService.getUserSessions(userId);
       setUserSessions(sessions);
-    } catch (err) {
+    } catch (_err) {
       setError(err.message);
     } finally {
       setLoading(false);
@@ -234,7 +234,7 @@ export const useUserSessions = (userId) => {
    */
   const invalidateAllSessions = useCallback(
     async (exceptSessionId = null) => {
-      if (!userId) return { success: false, error: "No user ID provided" };
+      if (!userId) return { success: false, error: 'No user ID provided' };
 
       try {
         const count = sessionManagementService.invalidateUserSessions(
@@ -243,7 +243,7 @@ export const useUserSessions = (userId) => {
         );
         await loadUserSessions(); // Refresh the list
         return { success: true, invalidatedCount: count };
-      } catch (err) {
+      } catch (_err) {
         setError(err.message);
         return { success: false, error: err.message };
       }
@@ -255,12 +255,12 @@ export const useUserSessions = (userId) => {
    * Invalidate specific session
    */
   const invalidateSpecificSession = useCallback(
-    async (sessionId, reason = "manual") => {
+    async (sessionId, reason = 'manual') => {
       try {
         sessionManagementService.invalidateSession(sessionId, reason);
         await loadUserSessions(); // Refresh the list
         return { success: true };
-      } catch (err) {
+      } catch (_err) {
         setError(err.message);
         return { success: false, error: err.message };
       }
@@ -308,7 +308,7 @@ export const useDeviceSessions = (deviceFingerprint) => {
       const sessions =
         sessionManagementService.getDeviceSessions(deviceFingerprint);
       setDeviceSessions(sessions);
-    } catch (err) {
+    } catch (_err) {
       setError(err.message);
     } finally {
       setLoading(false);
@@ -336,7 +336,7 @@ export const useDeviceSessions = (deviceFingerprint) => {
  * Hook for session security monitoring
  */
 export const useSessionSecurity = (sessionId) => {
-  const [securityStatus, setSecurityStatus] = useState("normal"); // normal, warning, suspicious
+  const [securityStatus, setSecurityStatus] = useState('normal'); // normal, warning, suspicious
   const [securityAlerts, setSecurityAlerts] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -356,24 +356,24 @@ export const useSessionSecurity = (sessionId) => {
         );
 
         if (result.requiresReauth) {
-          setSecurityStatus("suspicious");
+          setSecurityStatus('suspicious');
           setSecurityAlerts((prev) => [
             ...prev,
             {
               timestamp: Date.now(),
-              type: "requires_reauth",
+              type: 'requires_reauth',
               reason: result.reason,
               indicators: result.indicators,
             },
           ]);
         } else {
-          setSecurityStatus("normal");
+          setSecurityStatus('normal');
         }
 
         return result;
-      } catch (err) {
-        console.error("Error checking session security:", err);
-        setSecurityStatus("warning");
+      } catch (_err) {
+        // console.error('Error checking session security:', err);
+        setSecurityStatus('warning');
       } finally {
         setLoading(false);
       }
@@ -386,7 +386,7 @@ export const useSessionSecurity = (sessionId) => {
    */
   const clearSecurityAlerts = useCallback(() => {
     setSecurityAlerts([]);
-    setSecurityStatus("normal");
+    setSecurityStatus('normal');
   }, []);
 
   return {
@@ -397,9 +397,9 @@ export const useSessionSecurity = (sessionId) => {
     clearSecurityAlerts,
 
     // Security status helpers
-    isNormal: securityStatus === "normal",
-    hasWarning: securityStatus === "warning",
-    isSuspicious: securityStatus === "suspicious",
+    isNormal: securityStatus === 'normal',
+    hasWarning: securityStatus === 'warning',
+    isSuspicious: securityStatus === 'suspicious',
     hasAlerts: securityAlerts.length > 0,
   };
 };
@@ -423,7 +423,7 @@ export const useSessionAnalytics = (userId = null, refreshInterval = 30000) => {
     try {
       const data = sessionManagementService.getSessionAnalytics(userId);
       setAnalytics(data);
-    } catch (err) {
+    } catch (_err) {
       setError(err.message);
     } finally {
       setLoading(false);

@@ -8,21 +8,21 @@
  * MFA Method Types
  */
 export const MFA_METHODS = {
-  TOTP: "totp", // Time-based One-Time Password (Google Authenticator, Authy)
-  SMS: "sms", // SMS verification codes
-  EMAIL: "email", // Email verification codes
-  BACKUP_CODES: "backup", // Static backup codes
-  WEBAUTHN: "webauthn", // WebAuthn as MFA method
+  TOTP: 'totp', // Time-based One-Time Password (Google Authenticator, Authy)
+  SMS: 'sms', // SMS verification codes
+  EMAIL: 'email', // Email verification codes
+  BACKUP_CODES: 'backup', // Static backup codes
+  WEBAUTHN: 'webauthn', // WebAuthn as MFA method
 };
 
 /**
  * MFA Status Types
  */
 export const MFA_STATUS = {
-  ENABLED: "enabled",
-  DISABLED: "disabled",
-  PENDING: "pending",
-  REQUIRED: "required",
+  ENABLED: 'enabled',
+  DISABLED: 'disabled',
+  PENDING: 'pending',
+  REQUIRED: 'required',
 };
 
 /**
@@ -31,7 +31,7 @@ export const MFA_STATUS = {
 export class MFAService {
   constructor(apiService) {
     this.apiService = apiService;
-    this.baseUrl = "/api/auth/mfa";
+    this.baseUrl = '/api/auth/mfa';
   }
 
   /**
@@ -50,11 +50,11 @@ export class MFAService {
           lastUsed: response.data.lastUsed || null,
         },
       };
-    } catch (error) {
-      console.error("Failed to get MFA status:", error);
+    } catch (_error) {
+      // console.error('Failed to get MFA status:', error);
       return {
         success: false,
-        error: error.message || "Failed to retrieve MFA status",
+        error: error.message || 'Failed to retrieve MFA status',
       };
     }
   }
@@ -75,11 +75,11 @@ export class MFAService {
           manualEntryKey: response.data.manualEntryKey,
         },
       };
-    } catch (error) {
-      console.error("Failed to setup TOTP:", error);
+    } catch (_error) {
+      // console.error('Failed to setup TOTP:', error);
       return {
         success: false,
-        error: error.message || "Failed to setup TOTP",
+        error: error.message || 'Failed to setup TOTP',
       };
     }
   }
@@ -99,11 +99,11 @@ export class MFAService {
         success: true,
         data: response.data,
       };
-    } catch (error) {
-      console.error("Failed to verify TOTP setup:", error);
+    } catch (_error) {
+      // console.error('Failed to verify TOTP setup:', error);
       return {
         success: false,
-        error: error.message || "Invalid verification code",
+        error: error.message || 'Invalid verification code',
       };
     }
   }
@@ -123,11 +123,11 @@ export class MFAService {
           phoneNumber: response.data.phoneNumber,
         },
       };
-    } catch (error) {
-      console.error("Failed to setup SMS MFA:", error);
+    } catch (_error) {
+      // console.error('Failed to setup SMS MFA:', error);
       return {
         success: false,
-        error: error.message || "Failed to setup SMS verification",
+        error: error.message || 'Failed to setup SMS verification',
       };
     }
   }
@@ -148,11 +148,11 @@ export class MFAService {
         success: true,
         data: response.data,
       };
-    } catch (error) {
-      console.error("Failed to verify SMS setup:", error);
+    } catch (_error) {
+      // console.error('Failed to verify SMS setup:', error);
       return {
         success: false,
-        error: error.message || "Invalid SMS verification code",
+        error: error.message || 'Invalid SMS verification code',
       };
     }
   }
@@ -175,11 +175,11 @@ export class MFAService {
           email: response.data.email,
         },
       };
-    } catch (error) {
-      console.error("Failed to setup Email MFA:", error);
+    } catch (_error) {
+      // console.error('Failed to setup Email MFA:', error);
       return {
         success: false,
-        error: error.message || "Failed to setup email verification",
+        error: error.message || 'Failed to setup email verification',
       };
     }
   }
@@ -200,11 +200,11 @@ export class MFAService {
         success: true,
         data: response.data,
       };
-    } catch (error) {
-      console.error("Failed to verify Email setup:", error);
+    } catch (_error) {
+      // console.error('Failed to verify Email setup:', error);
       return {
         success: false,
-        error: error.message || "Invalid email verification code",
+        error: error.message || 'Invalid email verification code',
       };
     }
   }
@@ -224,11 +224,11 @@ export class MFAService {
           remainingCodes: response.data.remainingCodes,
         },
       };
-    } catch (error) {
-      console.error("Failed to generate backup codes:", error);
+    } catch (_error) {
+      // console.error('Failed to generate backup codes:', error);
       return {
         success: false,
-        error: error.message || "Failed to generate backup codes",
+        error: error.message || 'Failed to generate backup codes',
       };
     }
   }
@@ -247,11 +247,11 @@ export class MFAService {
         success: true,
         data: response.data,
       };
-    } catch (error) {
-      console.error("Failed to verify MFA code:", error);
+    } catch (_error) {
+      // console.error('Failed to verify MFA code:', error);
       return {
         success: false,
-        error: error.message || "Invalid verification code",
+        error: error.message || 'Invalid verification code',
       };
     }
   }
@@ -273,11 +273,11 @@ export class MFAService {
           expiresAt: response.data.expiresAt,
         },
       };
-    } catch (error) {
-      console.error("Failed to request MFA challenge:", error);
+    } catch (_error) {
+      // console.error('Failed to request MFA challenge:', error);
       return {
         success: false,
-        error: error.message || "Failed to send verification code",
+        error: error.message || 'Failed to send verification code',
       };
     }
   }
@@ -295,11 +295,11 @@ export class MFAService {
         success: true,
         data: response.data,
       };
-    } catch (error) {
-      console.error("Failed to disable MFA method:", error);
+    } catch (_error) {
+      // console.error('Failed to disable MFA method:', error);
       return {
         success: false,
-        error: error.message || "Failed to disable MFA method",
+        error: error.message || 'Failed to disable MFA method',
       };
     }
   }
@@ -307,7 +307,7 @@ export class MFAService {
   /**
    * Disable all MFA methods (requires backup code or alternative verification)
    */
-  async disableAllMFA(verificationCode, verificationMethod = "backup") {
+  async disableAllMFA(verificationCode, verificationMethod = 'backup') {
     try {
       const response = await this.apiService.post(
         `${this.baseUrl}/disable-all`,
@@ -320,11 +320,11 @@ export class MFAService {
         success: true,
         data: response.data,
       };
-    } catch (error) {
-      console.error("Failed to disable all MFA:", error);
+    } catch (_error) {
+      // console.error('Failed to disable all MFA:', error);
       return {
         success: false,
-        error: error.message || "Failed to disable MFA",
+        error: error.message || 'Failed to disable MFA',
       };
     }
   }
@@ -344,11 +344,11 @@ export class MFAService {
           trustedDevices: response.data.trustedDevices || [],
         },
       };
-    } catch (error) {
-      console.error("Failed to get recovery options:", error);
+    } catch (_error) {
+      // console.error('Failed to get recovery options:', error);
       return {
         success: false,
-        error: error.message || "Failed to retrieve recovery options",
+        error: error.message || 'Failed to retrieve recovery options',
       };
     }
   }
@@ -384,12 +384,12 @@ export const validateBackupCode = (code) => {
  */
 export const formatPhoneNumber = (phone) => {
   // Remove all non-digit characters
-  const cleaned = phone.replace(/\D/g, "");
+  const cleaned = phone.replace(/\D/g, '');
 
   // Add country code if missing (assumes US +1)
   if (cleaned.length === 10) {
     return `+1${cleaned}`;
-  } else if (cleaned.length === 11 && cleaned[0] === "1") {
+  } else if (cleaned.length === 11 && cleaned[0] === '1') {
     return `+${cleaned}`;
   }
 
@@ -401,11 +401,11 @@ export const formatPhoneNumber = (phone) => {
  */
 export const getMFAMethodDisplayName = (method) => {
   const displayNames = {
-    [MFA_METHODS.TOTP]: "Authenticator App",
-    [MFA_METHODS.SMS]: "SMS Text Message",
-    [MFA_METHODS.EMAIL]: "Email Verification",
-    [MFA_METHODS.BACKUP_CODES]: "Backup Codes",
-    [MFA_METHODS.WEBAUTHN]: "Security Key",
+    [MFA_METHODS.TOTP]: 'Authenticator App',
+    [MFA_METHODS.SMS]: 'SMS Text Message',
+    [MFA_METHODS.EMAIL]: 'Email Verification',
+    [MFA_METHODS.BACKUP_CODES]: 'Backup Codes',
+    [MFA_METHODS.WEBAUTHN]: 'Security Key',
   };
   return displayNames[method] || method;
 };
@@ -415,13 +415,13 @@ export const getMFAMethodDisplayName = (method) => {
  */
 export const getMFAMethodIcon = (method) => {
   const icons = {
-    [MFA_METHODS.TOTP]: "📱",
-    [MFA_METHODS.SMS]: "💬",
-    [MFA_METHODS.EMAIL]: "📧",
-    [MFA_METHODS.BACKUP_CODES]: "🔐",
-    [MFA_METHODS.WEBAUTHN]: "🔑",
+    [MFA_METHODS.TOTP]: '📱',
+    [MFA_METHODS.SMS]: '💬',
+    [MFA_METHODS.EMAIL]: '📧',
+    [MFA_METHODS.BACKUP_CODES]: '🔐',
+    [MFA_METHODS.WEBAUTHN]: '🔑',
   };
-  return icons[method] || "🔒";
+  return icons[method] || '🔒';
 };
 
 export default MFAService;

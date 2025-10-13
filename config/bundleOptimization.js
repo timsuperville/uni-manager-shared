@@ -3,17 +3,17 @@
  * Provides intelligent code splitting, caching, and performance optimizations
  */
 
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
-import { visualizer } from "rollup-plugin-visualizer";
-import { createHtmlPlugin } from "vite-plugin-html";
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import { visualizer } from 'rollup-plugin-visualizer';
+import { createHtmlPlugin } from 'vite-plugin-html';
 
 /**
  * Advanced optimization configuration for production builds
  */
 export const createOptimizedConfig = (options = {}) => {
   const {
-    appName = "app",
+    appName = 'app',
     target = 150, // Target size in KB
     enableAnalysis = false,
     enableCompression = true,
@@ -26,8 +26,8 @@ export const createOptimizedConfig = (options = {}) => {
         babel: {
           plugins: [
             // Remove console.log in production
-            process.env.NODE_ENV === "production" && [
-              "transform-remove-console",
+            process?.env?.NODE_ENV || "development" === 'production' && [
+              'transform-remove-console',
             ],
           ].filter(Boolean),
         },
@@ -60,16 +60,16 @@ export const createOptimizedConfig = (options = {}) => {
 
     build: {
       // Target modern browsers for better optimization
-      target: "es2020",
+      target: 'es2020',
 
       // Enable minification
-      minify: "terser",
+      minify: 'terser',
 
       terserOptions: {
         compress: {
           drop_console: true,
           drop_debugger: true,
-          pure_funcs: ["console.log", "console.info", "console.debug"],
+          pure_funcs: ['console.log', 'console.info', 'console.debug'],
           passes: 2,
         },
         mangle: {
@@ -82,7 +82,7 @@ export const createOptimizedConfig = (options = {}) => {
       },
 
       // Source maps for debugging
-      sourcemap: process.env.NODE_ENV !== "production",
+      sourcemap: process?.env?.NODE_ENV || "development" !== 'production',
 
       // CSS code splitting
       cssCodeSplit: true,
@@ -93,88 +93,88 @@ export const createOptimizedConfig = (options = {}) => {
           // Intelligent chunk splitting
           manualChunks: (id) => {
             // Vendor chunk for node_modules
-            if (id.includes("node_modules")) {
+            if (id.includes('node_modules')) {
               // React ecosystem
-              if (id.includes("react") || id.includes("react-dom")) {
-                return "react-vendor";
+              if (id.includes('react') || id.includes('react-dom')) {
+                return 'react-vendor';
               }
 
               // Router
-              if (id.includes("react-router")) {
-                return "router-vendor";
+              if (id.includes('react-router')) {
+                return 'router-vendor';
               }
 
               // UI libraries
-              if (id.includes("@mui") || id.includes("material-ui")) {
-                return "ui-vendor";
+              if (id.includes('@mui') || id.includes('material-ui')) {
+                return 'ui-vendor';
               }
 
               // Charts and visualization
               if (
-                id.includes("chart") ||
-                id.includes("d3") ||
-                id.includes("recharts")
+                id.includes('chart') ||
+                id.includes('d3') ||
+                id.includes('recharts')
               ) {
-                return "charts-vendor";
+                return 'charts-vendor';
               }
 
               // Date libraries
               if (
-                id.includes("date-fns") ||
-                id.includes("moment") ||
-                id.includes("dayjs")
+                id.includes('date-fns') ||
+                id.includes('moment') ||
+                id.includes('dayjs')
               ) {
-                return "date-vendor";
+                return 'date-vendor';
               }
 
               // Utilities
               if (
-                id.includes("lodash") ||
-                id.includes("ramda") ||
-                id.includes("underscore")
+                id.includes('lodash') ||
+                id.includes('ramda') ||
+                id.includes('underscore')
               ) {
-                return "utils-vendor";
+                return 'utils-vendor';
               }
 
               // HTTP libraries
-              if (id.includes("axios") || id.includes("fetch")) {
-                return "http-vendor";
+              if (id.includes('axios') || id.includes('fetch')) {
+                return 'http-vendor';
               }
 
               // Form libraries
-              if (id.includes("formik") || id.includes("react-hook-form")) {
-                return "forms-vendor";
+              if (id.includes('formik') || id.includes('react-hook-form')) {
+                return 'forms-vendor';
               }
 
               // Animation libraries
-              if (id.includes("framer-motion") || id.includes("react-spring")) {
-                return "animation-vendor";
+              if (id.includes('framer-motion') || id.includes('react-spring')) {
+                return 'animation-vendor';
               }
 
               // Other large vendors
-              return "vendor";
+              return 'vendor';
             }
 
             // App-specific chunks
-            if (id.includes("src/features/")) {
-              const feature = id.split("src/features/")[1].split("/")[0];
+            if (id.includes('src/features/')) {
+              const feature = id.split('src/features/')[1].split('/')[0];
               return `feature-${feature}`;
             }
 
-            if (id.includes("src/components/")) {
-              return "components";
+            if (id.includes('src/components/')) {
+              return 'components';
             }
 
-            if (id.includes("src/hooks/")) {
-              return "hooks";
+            if (id.includes('src/hooks/')) {
+              return 'hooks';
             }
 
-            if (id.includes("src/utils/")) {
-              return "utils";
+            if (id.includes('src/utils/')) {
+              return 'utils';
             }
 
-            if (id.includes("src/services/")) {
-              return "services";
+            if (id.includes('src/services/')) {
+              return 'services';
             }
           },
 
@@ -182,25 +182,25 @@ export const createOptimizedConfig = (options = {}) => {
           chunkFileNames: (chunkInfo) => {
             const facadeModuleId = chunkInfo.facadeModuleId
               ? chunkInfo.facadeModuleId
-                  .split("/")
+                  .split('/')
                   .pop()
-                  .replace(".tsx", "")
-                  .replace(".jsx", "")
-                  .replace(".ts", "")
-                  .replace(".js", "")
-              : "chunk";
+                  .replace('.tsx', '')
+                  .replace('.jsx', '')
+                  .replace('.ts', '')
+                  .replace('.js', '')
+              : 'chunk';
             return `assets/${facadeModuleId}-[hash].js`;
           },
 
           // Optimize asset naming
           assetFileNames: (assetInfo) => {
-            const info = assetInfo.name.split(".");
+            const info = assetInfo.name.split('.');
             let extType = info[info.length - 1];
 
             if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(extType)) {
-              extType = "images";
+              extType = 'images';
             } else if (/woff2?|eot|ttf|otf/i.test(extType)) {
-              extType = "fonts";
+              extType = 'fonts';
             }
 
             return `assets/${extType}/[name]-[hash][extname]`;
@@ -226,7 +226,7 @@ export const createOptimizedConfig = (options = {}) => {
 
     // Dependency optimization
     optimizeDeps: {
-      include: ["react", "react-dom", "react-router-dom"],
+      include: ['react', 'react-dom', 'react-router-dom'],
       exclude: [
         // Exclude dev dependencies
       ],
@@ -241,7 +241,7 @@ export const createOptimizedConfig = (options = {}) => {
 
     // CSS optimization
     css: {
-      devSourcemap: process.env.NODE_ENV !== "production",
+      devSourcemap: process?.env?.NODE_ENV || "development" !== 'production',
       postcss: {
         plugins: [
           // Add PostCSS plugins for optimization
@@ -262,23 +262,23 @@ export const createOptimizedConfig = (options = {}) => {
  */
 export class BundleAnalyzer {
   static analyzeBundle(buildDir, targetSize = 150) {
-    const fs = require("fs");
-    const path = require("path");
+    const fs = require('fs');
+    const path = require('path');
 
     if (!fs.existsSync(buildDir)) {
-      console.error("Build directory not found");
+      // console.error('Build directory not found');
       return;
     }
 
-    const distPath = path.join(buildDir, "assets");
+    const distPath = path.join(buildDir, 'assets');
     if (!fs.existsSync(distPath)) {
-      console.error("Assets directory not found");
+      // console.error('Assets directory not found');
       return;
     }
 
     const files = fs
       .readdirSync(distPath)
-      .filter((file) => file.endsWith(".js"))
+      .filter((file) => file.endsWith('.js'))
       .map((file) => {
         const filePath = path.join(distPath, file);
         const stats = fs.statSync(filePath);
@@ -292,45 +292,45 @@ export class BundleAnalyzer {
 
     const totalSize = files.reduce((sum, file) => sum + file.size, 0);
 
-    console.log("\n🎯 ADVANCED OPTIMIZATION RESULTS");
-    console.log("============================================================");
-    console.log(
-      `⏱️ Build time: ${Date.now() - global.buildStartTime || "N/A"}ms`,
+    // console.log("\n🎯 ADVANCED OPTIMIZATION RESULTS');
+    // console.log('============================================================');
+    // console.log(
+      `⏱️ Build time: ${Date.now() - global.buildStartTime || 'N/A'}ms`,
     );
-    console.log(`📦 Total bundle size: ${totalSize} KB`);
-    console.log(`🎯 Target size: ${targetSize} KB`);
+    // console.log(`📦 Total bundle size: ${totalSize} KB`);
+    // console.log(`🎯 Target size: ${targetSize} KB`);
 
     if (totalSize <= targetSize) {
-      console.log(`📊 Status: ✅ ${totalSize - targetSize} KB under target`);
+      // console.log(`📊 Status: ✅ ${totalSize - targetSize} KB under target`);
     } else {
-      console.log(`📊 Status: ❌ ${totalSize - targetSize} KB over target`);
+      // console.log(`📊 Status: ❌ ${totalSize - targetSize} KB over target`);
     }
 
-    console.log(`📁 Generated chunks: ${files.length}`);
-    console.log("");
-    console.log("✅ Applied optimizations:");
-    console.log("  • Tree-shaking enabled");
-    console.log("  • Intelligent chunk splitting applied");
+    // console.log(`📁 Generated chunks: ${files.length}`);
+    // console.log('');
+    // console.log('✅ Applied optimizations:');
+    // console.log('  • Tree-shaking enabled');
+    // console.log('  • Intelligent chunk splitting applied');
 
     if (totalSize > targetSize) {
-      console.log("");
-      console.log("⚠️ Optimization warnings:");
+      // console.log('');
+      // console.log('⚠️ Optimization warnings:');
       files.slice(0, 3).forEach((file) => {
         if (file.size > targetSize / 4) {
-          console.log(`  • Consider further code splitting`);
-          console.log(`    Chunk: ${file.name} (${file.size} KB)`);
+          // console.log(`  • Consider further code splitting`);
+          // console.log(`    Chunk: ${file.name} (${file.size} KB)`);
         }
       });
 
       if (totalSize > targetSize * 1.5) {
-        console.log(
+        // console.log(
           `  • Bundle exceeds target size - consider additional optimizations`,
         );
-        console.log(`    Excess: ${totalSize - targetSize} KB`);
+        // console.log(`    Excess: ${totalSize - targetSize} KB`);
       }
     }
 
-    console.log("============================================================");
+    // console.log('============================================================');
 
     return {
       totalSize,
@@ -342,13 +342,13 @@ export class BundleAnalyzer {
   }
 
   static getChunkType(filename) {
-    if (filename.includes("vendor")) return "vendor";
-    if (filename.includes("react")) return "react";
-    if (filename.includes("router")) return "router";
-    if (filename.includes("ui")) return "ui";
-    if (filename.includes("feature")) return "feature";
-    if (filename.includes("component")) return "component";
-    return "app";
+    if (filename.includes('vendor')) return 'vendor';
+    if (filename.includes('react')) return 'react';
+    if (filename.includes('router')) return 'router';
+    if (filename.includes('ui')) return 'ui';
+    if (filename.includes('feature')) return 'feature';
+    if (filename.includes('component')) return 'component';
+    return 'app';
   }
 
   static getRecommendations(files, totalSize, targetSize) {
@@ -358,9 +358,9 @@ export class BundleAnalyzer {
     files.forEach((file) => {
       if (file.size > targetSize / 3) {
         recommendations.push({
-          type: "code-splitting",
+          type: 'code-splitting',
           message: `Consider splitting large chunk: ${file.name} (${file.size} KB)`,
-          priority: "high",
+          priority: 'high',
         });
       }
     });
@@ -368,30 +368,30 @@ export class BundleAnalyzer {
     // Overall size recommendations
     if (totalSize > targetSize * 1.5) {
       recommendations.push({
-        type: "bundle-size",
-        message: "Bundle significantly exceeds target size",
+        type: 'bundle-size',
+        message: 'Bundle significantly exceeds target size',
         suggestions: [
-          "Enable dynamic imports for route-level components",
-          "Consider lazy loading for heavy features",
-          "Review and remove unused dependencies",
-          "Implement virtual scrolling for large lists",
+          'Enable dynamic imports for route-level components',
+          'Consider lazy loading for heavy features',
+          'Review and remove unused dependencies',
+          'Implement virtual scrolling for large lists',
         ],
-        priority: "critical",
+        priority: 'critical',
       });
     }
 
     // Vendor chunk recommendations
-    const vendorChunks = files.filter((f) => f.type === "vendor");
+    const vendorChunks = files.filter((f) => f.type === 'vendor');
     if (vendorChunks.length > 0 && vendorChunks[0].size > targetSize / 2) {
       recommendations.push({
-        type: "vendor-optimization",
-        message: "Large vendor chunks detected",
+        type: 'vendor-optimization',
+        message: 'Large vendor chunks detected',
         suggestions: [
-          "Split vendor chunks further by library type",
-          "Consider CDN for large libraries",
-          "Use dynamic imports for optional dependencies",
+          'Split vendor chunks further by library type',
+          'Consider CDN for large libraries',
+          'Use dynamic imports for optional dependencies',
         ],
-        priority: "medium",
+        priority: 'medium",
       });
     }
 

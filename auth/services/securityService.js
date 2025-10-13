@@ -26,7 +26,7 @@ class SecurityService {
       lockoutDuration: 15 * 60 * 1000, // 15 minutes
       suspiciousActivityThreshold: 10,
       maxEventsToStore: 1000,
-      ipWhitelist: new Set(["127.0.0.1", "::1"]), // Local development IPs
+      ipWhitelist: new Set(['127.0.0.1', '::1']), // Local development IPs
     };
   }
 
@@ -62,7 +62,7 @@ class SecurityService {
         const remainingTime = Math.ceil((limitData.lockedUntil - now) / 1000);
         return {
           allowed: false,
-          reason: "rate_limited",
+          reason: 'rate_limited',
           remainingTime,
           attemptsRemaining: 0,
         };
@@ -78,7 +78,7 @@ class SecurityService {
       // Check if within limits
       if (limitData.attempts >= maxAttempts) {
         limitData.lockedUntil = now + this.config.lockoutDuration;
-        this.logSecurityEvent("rate_limit_exceeded", {
+        this.logSecurityEvent('rate_limit_exceeded', {
           identifier,
           action,
           attempts: limitData.attempts,
@@ -86,7 +86,7 @@ class SecurityService {
 
         return {
           allowed: false,
-          reason: "rate_limited",
+          reason: 'rate_limited',
           remainingTime: Math.ceil(this.config.lockoutDuration / 1000),
           attemptsRemaining: 0,
         };
@@ -97,8 +97,8 @@ class SecurityService {
         attemptsRemaining: maxAttempts - limitData.attempts,
         windowEnd: limitData.windowStart + windowMs,
       };
-    } catch (error) {
-      console.error("Rate limit check error:", error);
+    } catch (_error) {
+      // console.error('Rate limit check error:', error);
       // Fail open for non-critical errors
       return { allowed: true, attemptsRemaining: 1 };
     }
@@ -126,7 +126,7 @@ class SecurityService {
       limitData.attempts += 1;
 
       // Log the attempt
-      this.logSecurityEvent("attempt_recorded", {
+      this.logSecurityEvent('attempt_recorded', {
         identifier,
         action,
         success,
@@ -142,12 +142,12 @@ class SecurityService {
       }
 
       // Reset attempts on successful authentication
-      if (success && (action === "login" || action === "mfa")) {
+      if (success && (action === 'login' || action === 'mfa')) {
         limitData.attempts = 0;
         limitData.lockedUntil = null;
       }
-    } catch (error) {
-      console.error("Error recording attempt:", error);
+    } catch (_error) {
+      // console.error('Error recording attempt:', error);
     }
   }
 
@@ -176,14 +176,14 @@ class SecurityService {
       // Check for suspicious IP
       if (this.suspiciousIPs.has(ipAddress)) {
         riskScore += 30;
-        riskFactors.push("suspicious_ip");
+        riskFactors.push('suspicious_ip');
       }
 
       // Check for rapid attempts from same IP
       const recentAttempts = this.getRecentAttempts(ipAddress, 5 * 60 * 1000); // 5 minutes
       if (recentAttempts.length > 10) {
         riskScore += 25;
-        riskFactors.push("rapid_attempts");
+        riskFactors.push('rapid_attempts');
       }
 
       // Check for unusual geolocation (if available)
@@ -194,14 +194,14 @@ class SecurityService {
           this.isUnusualLocation(geolocation, userHistory)
         ) {
           riskScore += 20;
-          riskFactors.push("unusual_location");
+          riskFactors.push('unusual_location');
         }
       }
 
       // Check for unusual time patterns
       if (this.isUnusualTime(timestamp)) {
         riskScore += 15;
-        riskFactors.push("unusual_time");
+        riskFactors.push('unusual_time');
       }
 
       // Check for device fingerprint changes
@@ -212,14 +212,14 @@ class SecurityService {
           !knownDevices.includes(deviceFingerprint)
         ) {
           riskScore += 10;
-          riskFactors.push("new_device");
+          riskFactors.push('new_device');
         }
       }
 
       // Determine risk level
-      let riskLevel = "low";
-      if (riskScore >= 50) riskLevel = "high";
-      else if (riskScore >= 25) riskLevel = "medium";
+      let riskLevel = 'low';
+      if (riskScore >= 50) riskLevel = 'high';
+      else if (riskScore >= 25) riskLevel = 'medium';
 
       const result = {
         riskScore,
@@ -230,21 +230,21 @@ class SecurityService {
       };
 
       // Log high-risk attempts
-      if (riskLevel === "high") {
-        this.logSecurityEvent("high_risk_attempt", {
+      if (riskLevel === 'high') {
+        this.logSecurityEvent('high_risk_attempt', {
           ...attemptData,
           fraudAnalysis: result,
         });
       }
 
       return result;
-    } catch (error) {
-      console.error("Fraud analysis error:", error);
+    } catch (_error) {
+      // console.error('Fraud analysis error:', error);
       return {
         riskScore: 0,
-        riskLevel: "low",
+        riskLevel: 'low',
         riskFactors: [],
-        recommendedAction: "allow",
+        recommendedAction: 'allow',
         error: error.message,
       };
     }
@@ -259,7 +259,7 @@ class SecurityService {
     try {
       this.suspiciousIPs.add(identifier);
 
-      this.logSecurityEvent("suspicious_activity_flagged", {
+      this.logSecurityEvent('suspicious_activity_flagged', {
         identifier,
         reason,
         timestamp: Date.now(),
@@ -269,8 +269,8 @@ class SecurityService {
       // - Send alert to security team
       // - Temporarily block the IP
       // - Require additional verification
-    } catch (error) {
-      console.error("Error flagging suspicious activity:", error);
+    } catch (_error) {
+      // console.error('Error flagging suspicious activity:', error);
     }
   }
 
@@ -301,14 +301,14 @@ class SecurityService {
       }
 
       // Log to console for development
-      console.log(`[SECURITY] ${eventType}:`, eventData);
+      // console.log(`[SECURITY] ${eventType}:`, eventData);
 
       // In production, send to security monitoring system
-      if (process.env.NODE_ENV === "production") {
+      if (process?.env?.NODE_ENV || "development" === 'production') {
         this.sendToSecurityMonitoring(event);
       }
-    } catch (error) {
-      console.error("Error logging security event:", error);
+    } catch (_error) {
+      // console.error('Error logging security event:', error);
     }
   }
 
@@ -327,8 +327,8 @@ class SecurityService {
       }
 
       return events.sort((a, b) => b.timestamp - a.timestamp).slice(0, limit);
-    } catch (error) {
-      console.error("Error getting security events:", error);
+    } catch (_error) {
+      // console.error('Error getting security events:', error);
       return [];
     }
   }
@@ -356,7 +356,7 @@ class SecurityService {
       const totalEvents = recentEvents.length;
       const eventsByType = this.groupEventsByType(recentEvents);
       const highRiskEvents = recentEvents.filter(
-        (event) => event.severity === "high"
+        (event) => event.severity === 'high'
       ).length;
 
       const suspiciousIPs = this.suspiciousIPs.size;
@@ -374,8 +374,8 @@ class SecurityService {
         securityScore: this.calculateSecurityScore(recentEvents),
         timestamp: now,
       };
-    } catch (error) {
-      console.error("Error getting security stats:", error);
+    } catch (_error) {
+      // console.error('Error getting security stats:', error);
       return {
         timeframe,
         totalEvents: 0,
@@ -464,13 +464,13 @@ class SecurityService {
    */
   getRecommendedAction(riskLevel) {
     switch (riskLevel) {
-      case "high":
-        return "require_mfa";
-      case "medium":
-        return "challenge";
-      case "low":
+      case 'high':
+        return 'require_mfa';
+      case 'medium':
+        return 'challenge';
+      case 'low':
       default:
-        return "allow";
+        return 'allow';
     }
   }
 
@@ -489,21 +489,21 @@ class SecurityService {
    */
   getEventSeverity(eventType) {
     const highSeverityEvents = [
-      "suspicious_activity_flagged",
-      "high_risk_attempt",
-      "multiple_failed_logins",
-      "rate_limit_exceeded",
+      'suspicious_activity_flagged',
+      'high_risk_attempt',
+      'multiple_failed_logins',
+      'rate_limit_exceeded',
     ];
 
     const mediumSeverityEvents = [
-      "unusual_location",
-      "new_device",
-      "mfa_bypass_attempt",
+      'unusual_location',
+      'new_device',
+      'mfa_bypass_attempt',
     ];
 
-    if (highSeverityEvents.includes(eventType)) return "high";
-    if (mediumSeverityEvents.includes(eventType)) return "medium";
-    return "low";
+    if (highSeverityEvents.includes(eventType)) return 'high';
+    if (mediumSeverityEvents.includes(eventType)) return 'medium';
+    return 'low';
   }
 
   /**
@@ -526,10 +526,10 @@ class SecurityService {
   calculateSecurityScore(recentEvents) {
     const baseScore = 100;
     const highRiskEvents = recentEvents.filter(
-      (e) => e.severity === "high"
+      (e) => e.severity === 'high'
     ).length;
     const mediumRiskEvents = recentEvents.filter(
-      (e) => e.severity === "medium"
+      (e) => e.severity === 'medium'
     ).length;
 
     // Decrease score based on risk events
@@ -545,7 +545,7 @@ class SecurityService {
   sendToSecurityMonitoring(event) {
     // In production, implement integration with security monitoring
     // Examples: Splunk, ELK Stack, custom security dashboard
-    console.log("[SECURITY MONITORING]", event);
+    // console.log('[SECURITY MONITORING]', event);
   }
 
   /**
@@ -571,11 +571,11 @@ class SecurityService {
 
       expiredKeys.forEach((key) => this.rateLimits.delete(key));
 
-      console.log(
+      // console.log(
         `[SECURITY] Cleaned up ${expiredKeys.length} expired rate limits`
       );
-    } catch (error) {
-      console.error("Error during security cleanup:", error);
+    } catch (_error) {
+      // console.error('Error during security cleanup:', error);
     }
   }
 
@@ -594,7 +594,7 @@ class SecurityService {
 const securityService = new SecurityService();
 
 // Set up periodic cleanup
-if (typeof window !== "undefined") {
+if (typeof window !== 'undefined') {
   setInterval(() => securityService.cleanup(), 60 * 60 * 1000); // Hourly cleanup
 }
 

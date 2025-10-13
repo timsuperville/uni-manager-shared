@@ -9,7 +9,7 @@ import React, {
   useEffect,
   useRef,
   Component,
-} from "react";
+} from 'react';
 
 /**
  * HOC for memoizing components with shallow comparison
@@ -35,7 +35,7 @@ export const withLazyLoading = (
     </Suspense>
   );
 
-  LazyWrapper.displayName = "LazyWrapper";
+  LazyWrapper.displayName = 'LazyWrapper';
   return LazyWrapper;
 };
 
@@ -176,10 +176,10 @@ export class PerformanceErrorBoundary extends Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    console.error("[Performance Error]:", error, errorInfo);
+    // console.error('[Performance Error]:', error, errorInfo);
 
-    if (error.name === "ChunkLoadError") {
-      console.warn("Bundle loading failed - check network and caching");
+    if (error.name === 'ChunkLoadError') {
+      // console.warn('Bundle loading failed - check network and caching');
     }
   }
 
@@ -187,7 +187,7 @@ export class PerformanceErrorBoundary extends Component {
     if (this.state.hasError) {
       return (
         this.props.fallback || (
-          <div className="error-boundary">
+          <div className='error-boundary'>
             <h3>Something went wrong with this component</h3>
             <button
               onClick={() => this.setState({ hasError: false, error: null })}
@@ -215,7 +215,7 @@ export const PerformanceMonitor = ({ children, componentName }) => {
       const renderTime = endTime - startTime;
 
       if (renderTime > 16) {
-        console.warn(
+        // console.warn(
           `[Performance] ${componentName} render took ${renderTime.toFixed(2)}ms`,
         );
       }
@@ -251,10 +251,10 @@ export const OptimizedList = memo(
 
     return (
       <div
-        style={{ height: containerHeight, overflow: "auto" }}
+        style={{ height: containerHeight, overflow: 'auto' }}
         onScroll={handleScroll}
       >
-        <div style={{ height: totalHeight, position: "relative" }}>
+        <div style={{ height: totalHeight, position: 'relative' }}>
           <div style={{ transform: `translateY(${offsetY}px)` }}>
             {visibleItems.map((item, index) => (
               <div
@@ -271,14 +271,14 @@ export const OptimizedList = memo(
   },
 );
 
-OptimizedList.displayName = "OptimizedList";
+OptimizedList.displayName = 'OptimizedList';
 
 /**
  * Memoized search input with debouncing
  */
 export const OptimizedSearchInput = memo(
-  ({ onSearch, placeholder = "Search...", debounceMs = 300, ...props }) => {
-    const [searchTerm, setSearchTerm] = useState("");
+  ({ onSearch, placeholder = 'Search...', debounceMs = 300, ...props }) => {
+    const [searchTerm, setSearchTerm] = useState('');
     const debouncedSearchTerm = useDebounce(searchTerm, debounceMs);
 
     useEffect(() => {
@@ -291,7 +291,7 @@ export const OptimizedSearchInput = memo(
 
     return (
       <input
-        type="text"
+        type='text'
         placeholder={placeholder}
         value={searchTerm}
         onChange={handleChange}
@@ -301,8 +301,12 @@ export const OptimizedSearchInput = memo(
   },
 );
 
-OptimizedSearchInput.displayName = "OptimizedSearchInput";
+OptimizedSearchInput.displayName = 'OptimizedSearchInput';
 
+
+withMemo.propTypes = {
+  // TODO: Define specific prop types
+};
 export default {
   withMemo,
   withLazyLoading,

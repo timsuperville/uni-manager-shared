@@ -6,14 +6,14 @@
 export class SessionManager {
   constructor(options = {}) {
     this.options = {
-      tokenKey: "auth_token",
-      refreshTokenKey: "refresh_token",
-      expiryKey: "token_expiry",
-      userKey: "user_data",
-      rememberMeKey: "remember_me",
+      tokenKey: 'auth_token',
+      refreshTokenKey: 'refresh_token',
+      expiryKey: 'token_expiry',
+      userKey: 'user_data',
+      rememberMeKey: 'remember_me',
       autoRefreshInterval: 5 * 60 * 1000, // 5 minutes
       warningThreshold: 2 * 60 * 1000, // 2 minutes before expiry
-      storage: "localStorage", // or 'sessionStorage'
+      storage: 'localStorage', // or 'sessionStorage'
       ...options,
     };
 
@@ -21,7 +21,7 @@ export class SessionManager {
     this.warningTimer = null;
     this.listeners = new Set();
     this.crossTabChannel = null;
-    this.isBrowser = typeof window !== "undefined";
+    this.isBrowser = typeof window !== 'undefined';
 
     if (this.isBrowser) {
       this.initializeCrossTabSync();
@@ -36,33 +36,33 @@ export class SessionManager {
     if (!this.isBrowser) return;
 
     try {
-      this.crossTabChannel = new window.BroadcastChannel("auth_session");
+      this.crossTabChannel = new typeof window !== "undefined" && window.BroadcastChannel('auth_session');
 
-      this.crossTabChannel.addEventListener("message", (event) => {
+      this.crossTabChannel.addEventListener('message', (event) => {
         const { type, data } = event.data;
 
         switch (type) {
-          case "LOGIN":
+          case 'LOGIN':
             this.handleCrossTabLogin(data);
             break;
-          case "LOGOUT":
+          case 'LOGOUT':
             this.handleCrossTabLogout();
             break;
-          case "TOKEN_REFRESH":
+          case 'TOKEN_REFRESH':
             this.handleCrossTabTokenRefresh(data);
             break;
-          case "SESSION_WARNING":
+          case 'SESSION_WARNING':
             this.handleCrossTabSessionWarning();
             break;
         }
       });
-    } catch (error) {
+    } catch (_error) {
       // BroadcastChannel not supported, fallback to storage events only
-      console.warn("BroadcastChannel not supported, using storage events only");
+      // console.warn('BroadcastChannel not supported, using storage events only');
     }
 
     // Fallback: Listen to storage events for cross-tab sync
-    window.addEventListener("storage", (event) => {
+    typeof window !== "undefined" && window.addEventListener('storage', (event) => {
       if (event.key === this.options.tokenKey) {
         if (event.newValue === null) {
           // Token was removed, trigger logout
@@ -92,7 +92,7 @@ export class SessionManager {
     if (!this.isBrowser) return null;
 
     const rememberMe = this.getRememberMe();
-    return rememberMe ? window.localStorage : window.sessionStorage;
+    return rememberMe ? typeof window !== "undefined" && window.localStorage : typeof window !== "undefined" && window.sessionStorage;
   }
 
   /**
@@ -102,7 +102,7 @@ export class SessionManager {
     if (!this.isBrowser) return;
 
     const { token, refreshToken, user, expiresIn, rememberMe = false } = data;
-    const storage = rememberMe ? window.localStorage : window.sessionStorage;
+    const storage = rememberMe ? typeof window !== "undefined" && window.localStorage : typeof window !== "undefined" && window.sessionStorage;
 
     // Calculate expiry time
     const expiryTime = Date.now() + expiresIn * 1000;
@@ -118,10 +118,10 @@ export class SessionManager {
     this.scheduleRefresh();
 
     // Notify other tabs
-    this.broadcastToTabs("LOGIN", { user, expiryTime });
+    this.broadcastToTabs('LOGIN', { user, expiryTime });
 
     // Notify listeners
-    this.notifyListeners("session_start", { user, token });
+    this.notifyListeners('session_start', { user, token });
   }
 
   /**
@@ -167,7 +167,7 @@ export class SessionManager {
    */
   getRememberMe() {
     if (!this.isBrowser) return false;
-    return window.localStorage.getItem(this.options.rememberMeKey) === "true";
+    return typeof window !== "undefined" && window.typeof localStorage !== "undefined" && localStorage.getItem(this.options.rememberMeKey) === 'true';
   }
 
   /**
@@ -212,7 +212,7 @@ export class SessionManager {
     const refreshToken = this.getRefreshToken();
 
     if (!refreshToken) {
-      throw new Error("No refresh token available");
+      throw new Error('No refresh token available');
     }
 
     try {
@@ -227,20 +227,20 @@ export class SessionManager {
         });
 
         // Notify other tabs
-        this.broadcastToTabs("TOKEN_REFRESH", {
+        this.broadcastToTabs('TOKEN_REFRESH', {
           token: response.token,
           expiryTime: Date.now() + response.expiresIn * 1000,
         });
 
         // Notify listeners
-        this.notifyListeners("token_refreshed", response);
+        this.notifyListeners('token_refreshed', response);
 
         return response;
       } else {
-        throw new Error(response.error || "Token refresh failed");
+        throw new Error(response.error || 'Token refresh failed');
       }
-    } catch (error) {
-      console.error("Token refresh failed:", error);
+    } catch (_error) {
+      // console.error('Token refresh failed:', error);
       this.clearSession();
       throw error;
     }
@@ -279,7 +279,7 @@ export class SessionManager {
     if (!this.isBrowser) return;
 
     // Clear from both storages to be safe
-    [window.localStorage, window.sessionStorage].forEach((storage) => {
+    [typeof window !== "undefined" && window.localStorage, typeof window !== "undefined" && window.sessionStorage].forEach((storage) => {
       storage.removeItem(this.options.tokenKey);
       storage.removeItem(this.options.refreshTokenKey);
       storage.removeItem(this.options.expiryKey);
@@ -287,16 +287,16 @@ export class SessionManager {
     });
 
     // Keep rememberMe preference
-    // window.localStorage.removeItem(this.options.rememberMeKey);
+    // typeof window !== "undefined" && window.typeof localStorage !== "undefined" && localStorage.removeItem(this.options.rememberMeKey);
 
     // Clear timers
     this.clearTimers();
 
     // Notify other tabs
-    this.broadcastToTabs("LOGOUT");
+    this.broadcastToTabs('LOGOUT');
 
     // Notify listeners
-    this.notifyListeners("session_end");
+    this.notifyListeners('session_end');
   }
 
   /**
@@ -316,23 +316,23 @@ export class SessionManager {
 
     // Schedule warning notification
     if (timeUntilWarning > 0) {
-      this.warningTimer = window.setTimeout(() => {
-        this.notifyListeners("session_warning", {
+      this.warningTimer = typeof window !== "undefined" && window.setTimeout(() => {
+        this.notifyListeners('session_warning', {
           timeRemaining: this.getTimeUntilExpiry(),
         });
-        this.broadcastToTabs("SESSION_WARNING");
+        this.broadcastToTabs('SESSION_WARNING');
       }, timeUntilWarning);
     }
 
     // Schedule automatic refresh
     if (timeUntilRefresh > 0) {
-      this.refreshTimer = window.setTimeout(async () => {
+      this.refreshTimer = typeof window !== "undefined" && window.setTimeout(async () => {
         try {
           // This would be called by the AuthContext with the actual refresh function
-          this.notifyListeners("auto_refresh_needed");
-        } catch (error) {
-          console.error("Auto refresh failed:", error);
-          this.notifyListeners("session_expired");
+          this.notifyListeners('auto_refresh_needed');
+        } catch (_error) {
+          // console.error('Auto refresh failed:', error);
+          this.notifyListeners('session_expired');
         }
       }, timeUntilRefresh);
     }
@@ -345,12 +345,12 @@ export class SessionManager {
     if (!this.isBrowser) return;
 
     if (this.refreshTimer) {
-      window.clearTimeout(this.refreshTimer);
+      typeof window !== "undefined" && window.clearTimeout(this.refreshTimer);
       this.refreshTimer = null;
     }
 
     if (this.warningTimer) {
-      window.clearTimeout(this.warningTimer);
+      typeof window !== "undefined" && window.clearTimeout(this.warningTimer);
       this.warningTimer = null;
     }
   }
@@ -374,8 +374,8 @@ export class SessionManager {
     this.listeners.forEach((callback) => {
       try {
         callback(event, data);
-      } catch (error) {
-        console.error("Session listener error:", error);
+      } catch (_error) {
+        // console.error('Session listener error:', error);
       }
     });
   }
@@ -395,7 +395,7 @@ export class SessionManager {
   handleCrossTabLogin(data) {
     // Sync session from storage
     this.syncFromStorage();
-    this.notifyListeners("cross_tab_login", data);
+    this.notifyListeners('cross_tab_login', data);
   }
 
   /**
@@ -403,7 +403,7 @@ export class SessionManager {
    */
   handleCrossTabLogout() {
     this.clearTimers();
-    this.notifyListeners("cross_tab_logout");
+    this.notifyListeners('cross_tab_logout');
   }
 
   /**
@@ -411,14 +411,14 @@ export class SessionManager {
    */
   handleCrossTabTokenRefresh(data) {
     this.syncFromStorage();
-    this.notifyListeners("cross_tab_refresh", data);
+    this.notifyListeners('cross_tab_refresh', data);
   }
 
   /**
    * Handle session warning from another tab
    */
   handleCrossTabSessionWarning() {
-    this.notifyListeners("cross_tab_warning");
+    this.notifyListeners('cross_tab_warning');
   }
 
   /**
@@ -457,7 +457,7 @@ export class SessionManager {
 
     if (this.isBrowser) {
       // Note: We don't have handleStorageChange method, so removing this
-      // window.removeEventListener('storage', this.handleStorageChange);
+      // typeof window !== "undefined" && window.removeEventListener('storage', this.handleStorageChange);
     }
 
     this.listeners.clear();

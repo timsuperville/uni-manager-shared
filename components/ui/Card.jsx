@@ -1,10 +1,10 @@
-import React from "react";
-import PropTypes from "prop-types";
+import React from 'react';
+import PropTypes from 'prop-types';
 
 const Card = ({
   children,
-  className = "",
-  variant = "default",
+  className = '',
+  variant = 'default',
   interactive = false,
   ...props
 }) => {
@@ -34,8 +34,8 @@ const Card = ({
   };
 
   const interactiveStyles = interactive
-    ? "hover:shadow-lg dark:hover:shadow-gray-900/30 transition-all duration-200 cursor-pointer hover:scale-[1.02]"
-    : "";
+    ? 'hover:shadow-lg dark:hover:shadow-gray-900/30 transition-all duration-200 cursor-pointer hover:scale-[1.02]'
+    : '';
 
   return (
     <div
@@ -52,7 +52,7 @@ const Card = ({
   );
 };
 
-const CardHeader = ({ children, className = "", ...props }) => {
+const CardHeader = ({ children, className = '', ...props }) => {
   return (
     <div
       className={`
@@ -69,15 +69,15 @@ const CardHeader = ({ children, className = "", ...props }) => {
 
 const CardContent = ({
   children,
-  className = "",
-  padding = "default",
+  className = '',
+  padding = 'default',
   ...props
 }) => {
   const paddingStyles = {
-    none: "",
-    sm: "p-4",
-    default: "px-6 py-4",
-    lg: "px-8 py-6",
+    none: '',
+    sm: 'p-4',
+    default: 'px-6 py-4',
+    lg: 'px-8 py-6',
   };
 
   return (
@@ -89,15 +89,15 @@ const CardContent = ({
 
 const CardTitle = ({
   children,
-  className = "",
-  size = "default",
+  className = '',
+  size = 'default',
   ...props
 }) => {
   const sizeStyles = {
-    sm: "text-base font-medium",
-    default: "text-lg font-medium",
-    lg: "text-xl font-semibold",
-    xl: "text-2xl font-semibold",
+    sm: 'text-base font-medium',
+    default: 'text-lg font-medium',
+    lg: 'text-xl font-semibold',
+    xl: 'text-2xl font-semibold',
   };
 
   return (
@@ -117,7 +117,7 @@ const CardTitle = ({
 Card.propTypes = {
   children: PropTypes.node.isRequired,
   className: PropTypes.string,
-  variant: PropTypes.oneOf(["default", "elevated", "outlined", "gradient"]),
+  variant: PropTypes.oneOf(['default', 'elevated', 'outlined', 'gradient']),
   interactive: PropTypes.bool,
 };
 
@@ -129,13 +129,13 @@ CardHeader.propTypes = {
 CardContent.propTypes = {
   children: PropTypes.node.isRequired,
   className: PropTypes.string,
-  padding: PropTypes.oneOf(["none", "sm", "default", "lg"]),
+  padding: PropTypes.oneOf(['none', 'sm', 'default', 'lg']),
 };
 
 CardTitle.propTypes = {
   children: PropTypes.node.isRequired,
   className: PropTypes.string,
-  size: PropTypes.oneOf(["sm", "default", "lg", "xl"]),
+  size: PropTypes.oneOf(['sm', 'default', 'lg', 'xl']),
 };
 
 export { Card, CardHeader, CardContent, CardTitle };

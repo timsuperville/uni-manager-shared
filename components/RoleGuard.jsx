@@ -1,5 +1,6 @@
 // RoleGuard component for role-based access control
-import React from "react";
+import React from 'react';
+import PropTypes from 'prop-types';
 
 /**
  * RoleGuard component for conditional rendering based on user roles and permissions
@@ -85,4 +86,8 @@ const RoleGuard = ({
   return hasAccess ? children : fallback;
 };
 
+
+RoleGuard.propTypes = {
+  // TODO: Define specific prop types
+};
 export default RoleGuard;

@@ -5,9 +5,9 @@
  * Displays available apps based on user permissions
  */
 
-import React, { useState, useRef, useEffect } from "react";
-import { useSSO } from "../context/SSOContext.jsx";
-import "./AppSwitcher.css";
+import React, { useState, useRef, useEffect } from 'react';
+import { useSSO } from '../context/SSOContext.jsx';
+import './AppSwitcher.css';
 
 const AppSwitcher = () => {
   const {
@@ -32,8 +32,8 @@ const AppSwitcher = () => {
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    typeof document !== "undefined" && document.addEventListener('mousedown', handleClickOutside);
+    return () => typeof document !== "undefined" && document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const handleAppSwitch = async (appId) => {
@@ -43,8 +43,8 @@ const AppSwitcher = () => {
       setSwitching(appId);
       setIsOpen(false);
       await switchToApp(appId);
-    } catch (error) {
-      console.error("App switch failed:", error);
+    } catch (_error) {
+      // console.error('App switch failed:', error);
       // Error handling is managed by SSOContext
     } finally {
       setSwitching(null);
@@ -57,34 +57,34 @@ const AppSwitcher = () => {
 
   const getAppIcon = (appId) => {
     const icons = {
-      church: "⛪",
-      admin: "🔧",
-      business: "💼",
-      home: "🏠",
-      personal: "👤",
-      playback: "▶️",
+      church: '⛪',
+      admin: '🔧',
+      business: '💼',
+      home: '🏠',
+      personal: '👤',
+      playback: '▶️',
     };
-    return icons[appId] || "📱";
+    return icons[appId] || '📱';
   };
 
   const getAppDisplayName = (appId) => {
     const names = {
-      church: "Church Management",
-      admin: "Administration",
-      business: "Business Tools",
-      home: "Home Services",
-      personal: "Personal Dashboard",
-      playback: "Media Playback",
+      church: 'Church Management',
+      admin: 'Administration',
+      business: 'Business Tools',
+      home: 'Home Services',
+      personal: 'Personal Dashboard',
+      playback: 'Media Playback',
     };
-    return names[appId] || "Unknown App";
+    return names[appId] || 'Unknown App';
   };
 
   if (ssoLoading || !currentApp) {
     return (
-      <div className="app-switcher loading">
-        <div className="app-switcher-button disabled">
-          <span className="app-icon">📱</span>
-          <span className="app-name">Loading...</span>
+      <div className='app-switcher loading'>
+        <div className='app-switcher-button disabled'>
+          <span className='app-icon'>📱</span>
+          <span className='app-name'>Loading...</span>
         </div>
       </div>
     );
@@ -96,56 +96,56 @@ const AppSwitcher = () => {
   );
 
   return (
-    <div className="app-switcher" ref={dropdownRef}>
+    <div className='app-switcher' ref={dropdownRef}>
       <button
-        className={`app-switcher-button ${isOpen ? "active" : ""}`}
+        className={`app-switcher-button ${isOpen ? 'active' : ''}`}
         onClick={() => setIsOpen(!isOpen)}
         disabled={switching}
-        aria-haspopup="listbox"
+        aria-haspopup='listbox'
         aria-expanded={isOpen}
       >
-        <span className="app-icon">{getAppIcon(currentApp)}</span>
-        <span className="app-name">{getAppDisplayName(currentApp)}</span>
-        <span className="dropdown-arrow">▼</span>
+        <span className='app-icon'>{getAppIcon(currentApp)}</span>
+        <span className='app-name'>{getAppDisplayName(currentApp)}</span>
+        <span className='dropdown-arrow'>▼</span>
       </button>
 
       {isOpen && (
-        <div className="app-switcher-dropdown" role="listbox">
-          <div className="dropdown-header">
+        <div className='app-switcher-dropdown' role='listbox'>
+          <div className='dropdown-header'>
             <span>Switch Application</span>
           </div>
 
           {filteredApps.length === 0 ? (
-            <div className="no-apps">
+            <div className='no-apps'>
               <span>No other apps available</span>
             </div>
           ) : (
-            <div className="app-list">
+            <div className='app-list'>
               {filteredApps.map((app) => (
                 <button
                   key={app.id}
-                  className={`app-option ${switching === app.id ? "switching" : ""}`}
+                  className={`app-option ${switching === app.id ? 'switching' : ''}`}
                   onClick={() => handleAppSwitch(app.id)}
                   disabled={switching}
-                  role="option"
+                  role='option'
                 >
-                  <span className="app-icon">{getAppIcon(app.id)}</span>
-                  <div className="app-details">
-                    <span className="app-name">
+                  <span className='app-icon'>{getAppIcon(app.id)}</span>
+                  <div className='app-details'>
+                    <span className='app-name'>
                       {getAppDisplayName(app.id)}
                     </span>
-                    <span className="app-description">{app.description}</span>
+                    <span className='app-description'>{app.description}</span>
                   </div>
                   {switching === app.id && (
-                    <span className="switching-indicator">🔄</span>
+                    <span className='switching-indicator'>🔄</span>
                   )}
                 </button>
               ))}
             </div>
           )}
 
-          <div className="dropdown-footer">
-            <span className="current-app">
+          <div className='dropdown-footer'>
+            <span className='current-app'>
               Currently in: {getAppDisplayName(currentApp)}
             </span>
           </div>
@@ -153,16 +153,16 @@ const AppSwitcher = () => {
       )}
 
       {ssoError && (
-        <div className="sso-error" role="alert">
-          <span className="error-icon">⚠️</span>
-          <span className="error-message">{ssoError}</span>
+        <div className='sso-error' role='alert'>
+          <span className='error-icon'>⚠️</span>
+          <span className='error-message'>{ssoError}</span>
         </div>
       )}
 
       {switching && (
-        <div className="switching-overlay">
-          <div className="switching-message">
-            <span className="switching-icon">🔄</span>
+        <div className='switching-overlay'>
+          <div className='switching-message'>
+            <span className='switching-icon'>🔄</span>
             <span>Switching to {getAppDisplayName(switching)}...</span>
           </div>
         </div>

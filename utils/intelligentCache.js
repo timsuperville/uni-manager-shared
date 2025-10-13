@@ -6,7 +6,7 @@
 // Browser API polyfills for cross-environment compatibility
 /* eslint-disable no-undef */
 const safeConsole =
-  typeof console !== "undefined"
+  typeof console !== 'undefined'
     ? console
     : {
         log: () => {},
@@ -15,7 +15,7 @@ const safeConsole =
       };
 
 const safePerformance = (() => {
-  if (typeof performance !== "undefined") return performance;
+  if (typeof performance !== 'undefined') return performance;
   // Fallback for environments without performance API
   return {
     now: () => Date.now(),
@@ -23,12 +23,12 @@ const safePerformance = (() => {
 })();
 
 const safeSetInterval =
-  typeof setInterval !== "undefined" ? setInterval : () => {};
+  typeof setInterval !== 'undefined' ? setInterval : () => {};
 const safeClearInterval =
-  typeof clearInterval !== "undefined" ? clearInterval : () => {};
+  typeof clearInterval !== 'undefined' ? clearInterval : () => {};
 /* eslint-enable no-undef */
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 // Cache configuration constants
 export const CACHE_CONFIG = {
@@ -58,10 +58,10 @@ export const CACHE_CONFIG = {
 
   // Cache strategies
   STRATEGIES: {
-    LRU: "lru", // Least Recently Used
-    LFU: "lfu", // Least Frequently Used
-    TTL: "ttl", // Time To Live
-    HYBRID: "hybrid", // Combination of strategies
+    LRU: 'lru', // Least Recently Used
+    LFU: 'lfu', // Least Frequently Used
+    TTL: 'ttl', // Time To Live
+    HYBRID: 'hybrid', // Combination of strategies
   },
 };
 
@@ -73,7 +73,7 @@ class CacheEntry {
     this.accessCount = 1;
     this.lastAccessed = Date.now();
     this.ttl = options.ttl || CACHE_CONFIG.TIMEOUTS.USER_PREFERENCES;
-    this.priority = options.priority || "normal"; // low, normal, high, critical
+    this.priority = options.priority || 'normal'; // low, normal, high, critical
     this.tags = options.tags || [];
     this.dependencies = options.dependencies || [];
   }
@@ -158,7 +158,7 @@ class IntelligentCache {
 
     this.storage.set(key, entry);
     this.updateAccessOrder(key);
-    this.notifyListeners("set", key, data);
+    this.notifyListeners('set', key, data);
     this.updateMemoryUsage();
   }
 
@@ -188,7 +188,7 @@ class IntelligentCache {
       this.storage.delete(keyToEvict);
       this.removeFromAccessOrder(keyToEvict);
       this.evictionCount++;
-      this.notifyListeners("evict", keyToEvict);
+      this.notifyListeners('evict', keyToEvict);
     }
   }
 
@@ -248,7 +248,7 @@ class IntelligentCache {
     for (const [key, entry] of this.storage) {
       // Skip critical priority entries unless absolutely necessary
       if (
-        entry.priority === "critical" &&
+        entry.priority === 'critical' &&
         this.storage.size < this.maxSize * 0.95
       ) {
         continue;
@@ -326,7 +326,7 @@ class IntelligentCache {
     keysToDelete.forEach((key) => {
       this.storage.delete(key);
       this.removeFromAccessOrder(key);
-      this.notifyListeners("clear", key);
+      this.notifyListeners('clear', key);
     });
   }
 
@@ -345,7 +345,7 @@ class IntelligentCache {
     keysToInvalidate.forEach((key) => {
       this.storage.delete(key);
       this.removeFromAccessOrder(key);
-      this.notifyListeners("invalidate", key);
+      this.notifyListeners('invalidate', key);
     });
   }
 
@@ -414,8 +414,8 @@ class IntelligentCache {
     this.listeners.forEach((callback) => {
       try {
         callback({ event, key, data, timestamp: Date.now() });
-      } catch (error) {
-        safeConsole.error("Cache listener error:", error);
+      } catch (_error) {
+        safeConsole.error('Cache listener error:', error);
       }
     });
   }
@@ -435,7 +435,7 @@ class IntelligentCache {
     keysToDelete.forEach((key) => {
       this.storage.delete(key);
       this.removeFromAccessOrder(key);
-      this.notifyListeners("expire", key);
+      this.notifyListeners('expire', key);
     });
 
     return keysToDelete.length;
@@ -456,7 +456,7 @@ class IntelligentCache {
       accessCount: 0,
       memoryUsage: 0,
     };
-    this.notifyListeners("clearAll");
+    this.notifyListeners('clearAll');
   }
 }
 
@@ -479,7 +479,7 @@ class CacheManager {
    */
   initializeCaches() {
     this.caches.set(
-      "userPreferences",
+      'userPreferences',
       new IntelligentCache({
         maxSize: CACHE_CONFIG.SIZES.USER_PREFERENCES,
         strategy: CACHE_CONFIG.STRATEGIES.HYBRID,
@@ -487,7 +487,7 @@ class CacheManager {
     );
 
     this.caches.set(
-      "ministryData",
+      'ministryData',
       new IntelligentCache({
         maxSize: CACHE_CONFIG.SIZES.MINISTRY_DATA,
         strategy: CACHE_CONFIG.STRATEGIES.LRU,
@@ -495,7 +495,7 @@ class CacheManager {
     );
 
     this.caches.set(
-      "seasonalContent",
+      'seasonalContent',
       new IntelligentCache({
         maxSize: CACHE_CONFIG.SIZES.SEASONAL_CONTENT,
         strategy: CACHE_CONFIG.STRATEGIES.TTL,
@@ -503,7 +503,7 @@ class CacheManager {
     );
 
     this.caches.set(
-      "recommendations",
+      'recommendations',
       new IntelligentCache({
         maxSize: CACHE_CONFIG.SIZES.RECOMMENDATIONS,
         strategy: CACHE_CONFIG.STRATEGIES.LFU,
@@ -511,7 +511,7 @@ class CacheManager {
     );
 
     this.caches.set(
-      "activityPatterns",
+      'activityPatterns',
       new IntelligentCache({
         maxSize: CACHE_CONFIG.SIZES.ACTIVITY_PATTERNS,
         strategy: CACHE_CONFIG.STRATEGIES.HYBRID,
@@ -519,7 +519,7 @@ class CacheManager {
     );
 
     this.caches.set(
-      "liturgicalCalendar",
+      'liturgicalCalendar',
       new IntelligentCache({
         maxSize: CACHE_CONFIG.SIZES.LITURGICAL_CALENDAR,
         strategy: CACHE_CONFIG.STRATEGIES.TTL,
@@ -527,7 +527,7 @@ class CacheManager {
     );
 
     this.caches.set(
-      "dashboardConfig",
+      'dashboardConfig',
       new IntelligentCache({
         maxSize: CACHE_CONFIG.SIZES.DASHBOARD_CONFIG,
         strategy: CACHE_CONFIG.STRATEGIES.LRU,
@@ -535,7 +535,7 @@ class CacheManager {
     );
 
     this.caches.set(
-      "widgets",
+      'widgets',
       new IntelligentCache({
         maxSize: CACHE_CONFIG.SIZES.WIDGETS,
         strategy: CACHE_CONFIG.STRATEGIES.HYBRID,
@@ -594,10 +594,10 @@ class CacheManager {
   invalidateRelated(changedType, changedKey) {
     // Define cache dependencies
     const dependencies = {
-      userPreferences: ["dashboardConfig", "widgets", "recommendations"],
-      ministryData: ["recommendations", "widgets", "dashboardConfig"],
-      seasonalContent: ["recommendations", "widgets"],
-      activityPatterns: ["recommendations"],
+      userPreferences: ['dashboardConfig', 'widgets', 'recommendations'],
+      ministryData: ['recommendations', 'widgets', 'dashboardConfig'],
+      seasonalContent: ['recommendations', 'widgets'],
+      activityPatterns: ['recommendations'],
     };
 
     const relatedCaches = dependencies[changedType] || [];
@@ -692,11 +692,11 @@ export function useIntelligentCache() {
  */
 export function withCacheLogic(cacheConfig = {}) {
   const {
-    cacheType = "general",
+    cacheType = 'general',
     generateKey,
     ttl = CACHE_CONFIG.TIMEOUTS.USER_PREFERENCES,
     tags = [],
-    priority = "normal",
+    priority = 'normal',
   } = cacheConfig;
 
   return {

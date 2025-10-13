@@ -3,7 +3,7 @@
  * Live activity feed with real-time updates
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Card,
@@ -21,7 +21,7 @@ import {
   Divider,
   useTheme,
   alpha,
-} from "@mui/material";
+} from '@mui/material';
 import {
   Person as PersonIcon,
   Group as GroupIcon,
@@ -34,32 +34,32 @@ import {
   ExpandMore as ExpandMoreIcon,
   ExpandLess as ExpandLessIcon,
   AccessTime as TimeIcon,
-} from "@mui/icons-material";
-import { formatDistanceToNow } from "date-fns";
-import webSocketClient from "../services/webSocketClient";
+} from '@mui/icons-material';
+import { formatDistanceToNow } from 'date-fns';
+import webSocketClient from '../services/webSocketClient';
 
-const ActivityIcon = ({ type, action, size = "medium" }) => {
+const ActivityIcon = ({ type, action, size = 'medium' }) => {
   const getIcon = () => {
-    if (type === "member") {
+    if (type === 'member') {
       switch (action) {
-        case "created":
+        case 'created':
           return <AddIcon fontSize={size} />;
-        case "updated":
+        case 'updated':
           return <EditIcon fontSize={size} />;
-        case "deleted":
+        case 'deleted':
           return <DeleteIcon fontSize={size} />;
         default:
           return <PersonIcon fontSize={size} />;
       }
     }
 
-    if (type === "invitation") {
+    if (type === 'invitation') {
       switch (action) {
-        case "sent":
+        case 'sent':
           return <SendIcon fontSize={size} />;
-        case "accepted":
+        case 'accepted':
           return <CheckIcon fontSize={size} />;
-        case "declined":
+        case 'declined':
           return <CloseIcon fontSize={size} />;
         default:
           return <GroupIcon fontSize={size} />;
@@ -71,17 +71,17 @@ const ActivityIcon = ({ type, action, size = "medium" }) => {
 
   const getColor = () => {
     switch (action) {
-      case "created":
-      case "sent":
-      case "accepted":
-        return "success";
-      case "updated":
-        return "info";
-      case "deleted":
-      case "declined":
-        return "error";
+      case 'created':
+      case 'sent':
+      case 'accepted':
+        return 'success';
+      case 'updated':
+        return 'info';
+      case 'deleted':
+      case 'declined':
+        return 'error';
       default:
-        return "default";
+        return 'default';
     }
   };
 
@@ -103,29 +103,29 @@ const ActivityItem = ({ activity, expanded, onToggle, showDetails = true }) => {
   const { type, action, timestamp, user, target, metadata = {} } = activity;
 
   const getActivityDescription = () => {
-    const userName = user?.name || "Someone";
-    const targetName = target?.name || target?.email || "unknown";
+    const userName = user?.name || 'Someone';
+    const targetName = target?.name || target?.email || 'unknown';
 
-    if (type === "member") {
+    if (type === 'member') {
       switch (action) {
-        case "created":
+        case 'created':
           return `${userName} added member ${targetName}`;
-        case "updated":
+        case 'updated':
           return `${userName} updated member ${targetName}`;
-        case "deleted":
+        case 'deleted':
           return `${userName} removed member ${targetName}`;
         default:
           return `${userName} performed ${action} on ${targetName}`;
       }
     }
 
-    if (type === "invitation") {
+    if (type === 'invitation') {
       switch (action) {
-        case "sent":
+        case 'sent':
           return `${userName} sent invitation to ${targetName}`;
-        case "accepted":
+        case 'accepted':
           return `${targetName} accepted invitation`;
-        case "declined":
+        case 'declined':
           return `${targetName} declined invitation`;
         default:
           return `${userName} ${action} invitation for ${targetName}`;
@@ -141,10 +141,10 @@ const ActivityItem = ({ activity, expanded, onToggle, showDetails = true }) => {
     if (metadata.role) {
       chips.push(
         <Chip
-          key="role"
+          key='role'
           label={metadata.role}
-          size="small"
-          variant="outlined"
+          size='small'
+          variant='outlined'
           sx={{ mr: 0.5, mb: 0.5 }}
         />,
       );
@@ -156,9 +156,9 @@ const ActivityItem = ({ activity, expanded, onToggle, showDetails = true }) => {
           <Chip
             key={field}
             label={`${field} changed`}
-            size="small"
-            color="info"
-            variant="outlined"
+            size='small'
+            color='info'
+            variant='outlined'
             sx={{ mr: 0.5, mb: 0.5 }}
           />,
         );
@@ -172,39 +172,39 @@ const ActivityItem = ({ activity, expanded, onToggle, showDetails = true }) => {
     <Card
       sx={{
         mb: 1,
-        transition: "all 0.2s",
-        "&:hover": {
+        transition: 'all 0.2s',
+        '&:hover': {
           boxShadow: theme.shadows[4],
           bgcolor: alpha(theme.palette.primary.main, 0.02),
         },
       }}
     >
-      <CardContent sx={{ p: 2, "&:last-child": { pb: 2 } }}>
-        <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}>
+      <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
+        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
           <ActivityIcon type={type} action={action} />
 
           <Box sx={{ flex: 1, minWidth: 0 }}>
             <Box
               sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "flex-start",
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'flex-start',
                 mb: 1,
               }}
             >
-              <Typography variant="body2" sx={{ flex: 1, mr: 1 }}>
+              <Typography variant='body2' sx={{ flex: 1, mr: 1 }}>
                 {getActivityDescription()}
               </Typography>
 
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <Typography variant="caption" color="textSecondary">
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Typography variant='caption' color='textSecondary'>
                   {formatDistanceToNow(new Date(timestamp), {
                     addSuffix: true,
                   })}
                 </Typography>
 
                 {showDetails && Object.keys(metadata).length > 0 && (
-                  <IconButton size="small" onClick={onToggle} sx={{ ml: 1 }}>
+                  <IconButton size='small' onClick={onToggle} sx={{ ml: 1 }}>
                     {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
                   </IconButton>
                 )}
@@ -225,13 +225,13 @@ const ActivityItem = ({ activity, expanded, onToggle, showDetails = true }) => {
                     borderRadius: 1,
                   }}
                 >
-                  <Typography variant="subtitle2" gutterBottom>
+                  <Typography variant='subtitle2' gutterBottom>
                     Activity Details
                   </Typography>
 
                   {user && (
                     <Box sx={{ mb: 1 }}>
-                      <Typography variant="caption" color="textSecondary">
+                      <Typography variant='caption' color='textSecondary'>
                         Performed by: {user.name} ({user.role})
                       </Typography>
                     </Box>
@@ -239,7 +239,7 @@ const ActivityItem = ({ activity, expanded, onToggle, showDetails = true }) => {
 
                   {target && (
                     <Box sx={{ mb: 1 }}>
-                      <Typography variant="caption" color="textSecondary">
+                      <Typography variant='caption' color='textSecondary'>
                         Target: {target.name || target.email}
                       </Typography>
                     </Box>
@@ -248,8 +248,8 @@ const ActivityItem = ({ activity, expanded, onToggle, showDetails = true }) => {
                   {metadata.changes && (
                     <Box sx={{ mb: 1 }}>
                       <Typography
-                        variant="caption"
-                        color="textSecondary"
+                        variant='caption'
+                        color='textSecondary'
                         gutterBottom
                       >
                         Changes made:
@@ -257,7 +257,7 @@ const ActivityItem = ({ activity, expanded, onToggle, showDetails = true }) => {
                       {Object.entries(metadata.changes).map(
                         ([field, change]) => (
                           <Box key={field} sx={{ ml: 1 }}>
-                            <Typography variant="caption" color="textSecondary">
+                            <Typography variant='caption' color='textSecondary'>
                               • {field}: {change.from} → {change.to}
                             </Typography>
                           </Box>
@@ -266,7 +266,7 @@ const ActivityItem = ({ activity, expanded, onToggle, showDetails = true }) => {
                     </Box>
                   )}
 
-                  <Typography variant="caption" color="textSecondary">
+                  <Typography variant='caption' color='textSecondary'>
                     Timestamp: {new Date(timestamp).toLocaleString()}
                   </Typography>
                 </Box>
@@ -286,7 +286,7 @@ export const ActivityFeed = ({
 }) => {
   const [activities, setActivities] = useState([]);
   const [expandedItems, setExpandedItems] = useState(new Set());
-  const [filter, setFilter] = useState("all"); // all, member, invitation
+  const [filter, setFilter] = useState('all'); // all, member, invitation
   const theme = useTheme();
 
   useEffect(() => {
@@ -294,10 +294,10 @@ export const ActivityFeed = ({
     const handleMemberActivity = (data) => {
       const activity = {
         id: `member_${data.action}_${Date.now()}`,
-        type: "member",
+        type: 'member',
         action: data.action,
         timestamp: data.timestamp,
-        user: { id: data.updatedBy, name: "User", role: "member" }, // Would be populated from user data
+        user: { id: data.updatedBy, name: 'User', role: 'member' }, // Would be populated from user data
         target: data.member,
         metadata: data.metadata || {},
       };
@@ -308,10 +308,10 @@ export const ActivityFeed = ({
     const handleInvitationActivity = (data) => {
       const activity = {
         id: `invitation_${data.action}_${Date.now()}`,
-        type: "invitation",
+        type: 'invitation',
         action: data.action,
         timestamp: data.timestamp,
-        user: { id: data.updatedBy, name: "User", role: "member" }, // Would be populated from user data
+        user: { id: data.updatedBy, name: 'User', role: 'member' }, // Would be populated from user data
         target: data.invitation,
         metadata: data.metadata || {},
       };
@@ -320,33 +320,33 @@ export const ActivityFeed = ({
     };
 
     // Register WebSocket event listeners
-    webSocketClient.on("member:created", (data) =>
-      handleMemberActivity({ ...data, action: "created" }),
+    webSocketClient.on('member:created', (data) =>
+      handleMemberActivity({ ...data, action: 'created' }),
     );
-    webSocketClient.on("member:updated", (data) =>
-      handleMemberActivity({ ...data, action: "updated" }),
+    webSocketClient.on('member:updated', (data) =>
+      handleMemberActivity({ ...data, action: 'updated' }),
     );
-    webSocketClient.on("member:deleted", (data) =>
-      handleMemberActivity({ ...data, action: "deleted" }),
+    webSocketClient.on('member:deleted', (data) =>
+      handleMemberActivity({ ...data, action: 'deleted' }),
     );
-    webSocketClient.on("invitation:sent", (data) =>
-      handleInvitationActivity({ ...data, action: "sent" }),
+    webSocketClient.on('invitation:sent', (data) =>
+      handleInvitationActivity({ ...data, action: 'sent' }),
     );
-    webSocketClient.on("invitation:accepted", (data) =>
-      handleInvitationActivity({ ...data, action: "accepted" }),
+    webSocketClient.on('invitation:accepted', (data) =>
+      handleInvitationActivity({ ...data, action: 'accepted' }),
     );
-    webSocketClient.on("invitation:declined", (data) =>
-      handleInvitationActivity({ ...data, action: "declined" }),
+    webSocketClient.on('invitation:declined', (data) =>
+      handleInvitationActivity({ ...data, action: 'declined' }),
     );
 
     return () => {
       // Cleanup listeners
-      webSocketClient.off("member:created", handleMemberActivity);
-      webSocketClient.off("member:updated", handleMemberActivity);
-      webSocketClient.off("member:deleted", handleMemberActivity);
-      webSocketClient.off("invitation:sent", handleInvitationActivity);
-      webSocketClient.off("invitation:accepted", handleInvitationActivity);
-      webSocketClient.off("invitation:declined", handleInvitationActivity);
+      webSocketClient.off('member:created', handleMemberActivity);
+      webSocketClient.off('member:updated', handleMemberActivity);
+      webSocketClient.off('member:deleted', handleMemberActivity);
+      webSocketClient.off('invitation:sent', handleInvitationActivity);
+      webSocketClient.off('invitation:accepted', handleInvitationActivity);
+      webSocketClient.off('invitation:declined', handleInvitationActivity);
     };
   }, [maxItems]);
 
@@ -363,7 +363,7 @@ export const ActivityFeed = ({
   };
 
   const filteredActivities = activities.filter(
-    (activity) => filter === "all" || activity.type === filter,
+    (activity) => filter === 'all' || activity.type === filter,
   );
 
   const clearAll = () => {
@@ -380,19 +380,19 @@ export const ActivityFeed = ({
               <ActivityIcon
                 type={activity.type}
                 action={activity.action}
-                size="small"
+                size='small'
               />
             </ListItemAvatar>
             <ListItemText
               primary={
-                <Typography variant="body2" noWrap>
-                  {activity.type === "member"
+                <Typography variant='body2' noWrap>
+                  {activity.type === 'member'
                     ? `Member ${activity.action}`
                     : `Invitation ${activity.action}`}
                 </Typography>
               }
               secondary={
-                <Typography variant="caption" color="textSecondary">
+                <Typography variant='caption' color='textSecondary'>
                   {formatDistanceToNow(new Date(activity.timestamp), {
                     addSuffix: true,
                   })}
@@ -411,48 +411,48 @@ export const ActivityFeed = ({
         <Box
           sx={{
             mb: 3,
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            flexWrap: "wrap",
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
             gap: 2,
           }}
         >
           <Typography
-            variant="h5"
-            component="h2"
-            sx={{ display: "flex", alignItems: "center", gap: 1 }}
+            variant='h5'
+            component='h2'
+            sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
           >
             <TimeIcon />
             Recent Activity
             {activities.length > 0 && (
               <Chip
                 label={`${activities.length} activities`}
-                size="small"
-                color="primary"
-                variant="outlined"
+                size='small'
+                color='primary'
+                variant='outlined'
               />
             )}
           </Typography>
 
-          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-            {["all", "member", "invitation"].map((filterType) => (
+          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+            {['all', 'member', 'invitation'].map((filterType) => (
               <Chip
                 key={filterType}
                 label={filterType.charAt(0).toUpperCase() + filterType.slice(1)}
                 onClick={() => setFilter(filterType)}
-                color={filter === filterType ? "primary" : "default"}
-                variant={filter === filterType ? "filled" : "outlined"}
-                size="small"
+                color={filter === filterType ? 'primary' : 'default'}
+                variant={filter === filterType ? 'filled' : 'outlined'}
+                size='small'
               />
             ))}
 
             {activities.length > 0 && (
               <Button
-                size="small"
+                size='small'
                 onClick={clearAll}
-                variant="outlined"
-                color="secondary"
+                variant='outlined'
+                color='secondary'
               >
                 Clear All
               </Button>
@@ -463,12 +463,12 @@ export const ActivityFeed = ({
 
       {filteredActivities.length === 0 ? (
         <Card>
-          <CardContent sx={{ textAlign: "center", py: 4 }}>
-            <TimeIcon sx={{ fontSize: 48, color: "grey.400", mb: 1 }} />
-            <Typography variant="h6" color="textSecondary" gutterBottom>
+          <CardContent sx={{ textAlign: 'center', py: 4 }}>
+            <TimeIcon sx={{ fontSize: 48, color: 'grey.400', mb: 1 }} />
+            <Typography variant='h6' color='textSecondary' gutterBottom>
               No activity yet
             </Typography>
-            <Typography variant="body2" color="textSecondary">
+            <Typography variant='body2' color='textSecondary'>
               Member and invitation activities will appear here in real-time.
             </Typography>
           </CardContent>
@@ -490,7 +490,7 @@ export const ActivityFeed = ({
   );
 };
 
-export const ActivitySummary = ({ timeRange = "24h" }) => {
+export const ActivitySummary = ({ timeRange = '24h' }) => {
   const [summary, setSummary] = useState({
     total: 0,
     byType: {},
@@ -516,10 +516,10 @@ export const ActivitySummary = ({ timeRange = "24h" }) => {
           accepted: 1,
         },
         trends: [
-          { hour: "12:00", count: 3 },
-          { hour: "13:00", count: 5 },
-          { hour: "14:00", count: 2 },
-          { hour: "15:00", count: 5 },
+          { hour: '12:00', count: 3 },
+          { hour: '13:00', count: 5 },
+          { hour: '14:00', count: 2 },
+          { hour: '15:00', count: 5 },
         ],
       });
     };
@@ -533,40 +533,40 @@ export const ActivitySummary = ({ timeRange = "24h" }) => {
   return (
     <Card>
       <CardContent>
-        <Typography variant="h6" gutterBottom>
+        <Typography variant='h6' gutterBottom>
           Activity Summary ({timeRange})
         </Typography>
 
-        <Box sx={{ display: "flex", gap: 2, mb: 2, flexWrap: "wrap" }}>
+        <Box sx={{ display: 'flex', gap: 2, mb: 2, flexWrap: 'wrap' }}>
           <Chip
             label={`${summary.total} Total`}
-            color="primary"
-            variant="outlined"
+            color='primary'
+            variant='outlined'
           />
           <Chip
             label={`${summary.byType.member || 0} Members`}
-            color="info"
-            variant="outlined"
+            color='info'
+            variant='outlined'
           />
           <Chip
             label={`${summary.byType.invitation || 0} Invitations`}
-            color="success"
-            variant="outlined"
+            color='success'
+            variant='outlined'
           />
         </Box>
 
         <Divider sx={{ my: 2 }} />
 
-        <Typography variant="subtitle2" gutterBottom>
+        <Typography variant='subtitle2' gutterBottom>
           Activity Breakdown
         </Typography>
-        <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
           {Object.entries(summary.byAction).map(([action, count]) => (
             <Chip
               key={action}
               label={`${count} ${action}`}
-              size="small"
-              variant="outlined"
+              size='small'
+              variant='outlined'
             />
           ))}
         </Box>

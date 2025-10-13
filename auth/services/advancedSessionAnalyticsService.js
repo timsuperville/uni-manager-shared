@@ -5,14 +5,14 @@
  * location tracking, session risk scoring, and security analytics integration
  */
 
-import CryptoJS from "crypto-js";
+import CryptoJS from 'crypto-js';
 
 // Global browser API declarations for linting
 /* global console, navigator, screen, window, document, Intl, fetch, clearTimeout, setTimeout, clearInterval, setInterval */
 
 class AdvancedSessionAnalyticsService {
   constructor() {
-    this.apiBaseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+    this.apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
     this.sessionId = null;
     this.deviceFingerprint = null;
     this.behaviorMetrics = new Map();
@@ -84,15 +84,15 @@ class AdvancedSessionAnalyticsService {
       this.startBatchProcessing();
 
       this.isTracking = true;
-      console.log("Advanced Session Analytics initialized:", this.sessionId);
+      // console.log('Advanced Session Analytics initialized:', this.sessionId);
 
       return {
         sessionId: this.sessionId,
         deviceFingerprint: this.deviceFingerprint,
         startTime: this.sessionStartTime,
       };
-    } catch (error) {
-      console.error("Failed to initialize session analytics:", error);
+    } catch (_error) {
+      // console.error('Failed to initialize session analytics:', error);
       throw error;
     }
   }
@@ -103,7 +103,7 @@ class AdvancedSessionAnalyticsService {
   generateSessionId() {
     const timestamp = Date.now().toString();
     const random = Math.random().toString(36).substring(2);
-    const fingerprint = this.deviceFingerprint || "unknown";
+    const fingerprint = this.deviceFingerprint || 'unknown';
     return CryptoJS.SHA256(`${timestamp}-${random}-${fingerprint}`).toString();
   }
 
@@ -113,37 +113,37 @@ class AdvancedSessionAnalyticsService {
   async generateDeviceFingerprint() {
     const fingerprint = {
       // Browser information
-      userAgent: navigator.userAgent,
-      language: navigator.language,
-      languages: navigator.languages,
-      platform: navigator.platform,
-      cookieEnabled: navigator.cookieEnabled,
-      doNotTrack: navigator.doNotTrack,
+      userAgent: typeof navigator !== "undefined" && navigator.userAgent,
+      language: typeof navigator !== "undefined" && navigator.language,
+      languages: typeof navigator !== "undefined" && navigator.languages,
+      platform: typeof navigator !== "undefined" && navigator.platform,
+      cookieEnabled: typeof navigator !== "undefined" && navigator.cookieEnabled,
+      doNotTrack: typeof navigator !== "undefined" && navigator.doNotTrack,
 
       // Screen and display
       screenWidth: screen.width,
       screenHeight: screen.height,
       screenColorDepth: screen.colorDepth,
-      pixelRatio: window.devicePixelRatio,
+      pixelRatio: typeof window !== "undefined" && window.devicePixelRatio,
       availableScreenWidth: screen.availWidth,
       availableScreenHeight: screen.availHeight,
 
       // Viewport
-      viewportWidth: window.innerWidth,
-      viewportHeight: window.innerHeight,
+      viewportWidth: typeof window !== "undefined" && window.innerWidth,
+      viewportHeight: typeof window !== "undefined" && window.innerHeight,
 
       // Time zone and locale
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       timezoneOffset: new Date().getTimezoneOffset(),
 
       // Hardware information
-      hardwareConcurrency: navigator.hardwareConcurrency,
-      deviceMemory: navigator.deviceMemory,
+      hardwareConcurrency: typeof navigator !== "undefined" && navigator.hardwareConcurrency,
+      deviceMemory: typeof navigator !== "undefined" && navigator.deviceMemory,
 
       // Features detection
-      localStorage: !!window.localStorage,
-      sessionStorage: !!window.sessionStorage,
-      indexedDB: !!window.indexedDB,
+      localStorage: !!typeof window !== "undefined" && window.localStorage,
+      sessionStorage: !!typeof window !== "undefined" && window.sessionStorage,
+      indexedDB: !!typeof window !== "undefined" && window.indexedDB,
       webGL: this.detectWebGL(),
       canvas: this.generateCanvasFingerprint(),
       audio: await this.generateAudioFingerprint(),
@@ -171,9 +171,9 @@ class AdvancedSessionAnalyticsService {
    */
   detectWebGL() {
     try {
-      const canvas = document.createElement("canvas");
+      const canvas = typeof document !== "undefined" && document.createElement('canvas');
       const gl =
-        canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+        canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
       if (!gl) return null;
 
       return {
@@ -182,7 +182,7 @@ class AdvancedSessionAnalyticsService {
         version: gl.getParameter(gl.VERSION),
         shadingLanguageVersion: gl.getParameter(gl.SHADING_LANGUAGE_VERSION),
       };
-    } catch (error) {
+    } catch (_error) {
       return null;
     }
   }
@@ -192,21 +192,21 @@ class AdvancedSessionAnalyticsService {
    */
   generateCanvasFingerprint() {
     try {
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
+      const canvas = typeof document !== "undefined" && document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
 
       // Draw complex pattern
-      ctx.textBaseline = "top";
-      ctx.font = "14px Arial";
-      ctx.fillStyle = "#f60";
+      ctx.textBaseline = 'top';
+      ctx.font = '14px Arial';
+      ctx.fillStyle = '#f60';
       ctx.fillRect(125, 1, 62, 20);
-      ctx.fillStyle = "#069";
-      ctx.fillText("Session Analytics 🔒", 2, 15);
-      ctx.fillStyle = "rgba(102, 204, 0, 0.7)";
-      ctx.fillText("Device Fingerprinting", 4, 45);
+      ctx.fillStyle = '#069';
+      ctx.fillText('Session Analytics 🔒', 2, 15);
+      ctx.fillStyle = 'rgba(102, 204, 0, 0.7)';
+      ctx.fillText('Device Fingerprinting', 4, 45);
 
       return canvas.toDataURL();
-    } catch (error) {
+    } catch (_error) {
       return null;
     }
   }
@@ -216,13 +216,13 @@ class AdvancedSessionAnalyticsService {
    */
   async generateAudioFingerprint() {
     try {
-      const audioContext = new (window.AudioContext ||
-        window.webkitAudioContext)();
+      const audioContext = new (typeof window !== "undefined" && window.AudioContext ||
+        typeof window !== "undefined" && window.webkitAudioContext)();
       const oscillator = audioContext.createOscillator();
       const analyser = audioContext.createAnalyser();
       const gainNode = audioContext.createGain();
 
-      oscillator.type = "triangle";
+      oscillator.type = 'triangle';
       oscillator.frequency.value = 10000;
 
       gainNode.gain.value = 0;
@@ -239,8 +239,8 @@ class AdvancedSessionAnalyticsService {
       oscillator.stop();
       await audioContext.close();
 
-      return Array.from(frequencyData.slice(0, 30)).join(",");
-    } catch (error) {
+      return Array.from(frequencyData.slice(0, 30)).join(',');
+    } catch (_error) {
       return null;
     }
   }
@@ -249,9 +249,9 @@ class AdvancedSessionAnalyticsService {
    * Get plugins list
    */
   getPluginsList() {
-    if (!navigator.plugins) return [];
+    if (!typeof navigator !== "undefined" && navigator.plugins) return [];
 
-    return Array.from(navigator.plugins).map((plugin) => ({
+    return Array.from(typeof navigator !== "undefined" && navigator.plugins).map((plugin) => ({
       name: plugin.name,
       filename: plugin.filename,
       description: plugin.description,
@@ -262,21 +262,21 @@ class AdvancedSessionAnalyticsService {
    * Detect available fonts
    */
   async detectFonts() {
-    const baseFonts = ["monospace", "sans-serif", "serif"];
+    const baseFonts = ['monospace', 'sans-serif', 'serif'];
     const testFonts = [
-      "Arial",
-      "Helvetica",
-      "Times New Roman",
-      "Times",
-      "Georgia",
-      "Verdana",
-      "Courier New",
-      "Trebuchet MS",
-      "Comic Sans MS",
-      "Impact",
-      "Arial Black",
-      "Tahoma",
-      "Lucida Console",
+      'Arial',
+      'Helvetica',
+      'Times New Roman',
+      'Times',
+      'Georgia',
+      'Verdana',
+      'Courier New',
+      'Trebuchet MS',
+      'Comic Sans MS',
+      'Impact',
+      'Arial Black',
+      'Tahoma',
+      'Lucida Console',
     ];
 
     const detectedFonts = [];
@@ -294,11 +294,11 @@ class AdvancedSessionAnalyticsService {
    * Check if font is available
    */
   async isFontAvailable(fontName, baseFonts) {
-    const testString = "mmmmmmmmmmlli";
-    const testSize = "72px";
+    const testString = 'mmmmmmmmmmlli';
+    const testSize = '72px';
 
-    const canvas = document.createElement("canvas");
-    const context = canvas.getContext("2d");
+    const canvas = typeof document !== "undefined" && document.createElement('canvas');
+    const context = canvas.getContext('2d');
 
     // Measure text with base fonts
     const baseWidths = baseFonts.map((baseFont) => {
@@ -322,19 +322,19 @@ class AdvancedSessionAnalyticsService {
       const response = await fetch(
         `${this.apiBaseUrl}/api/session-analytics/behavior-baselines/${userId}`,
         {
-          credentials: "include",
+          credentials: 'include',
         }
       );
 
       if (response.ok) {
         this.behaviorBaselines = await response.json();
       } else {
-        console.log(
-          "No existing behavior baselines found, will create new ones"
+        // console.log(
+          'No existing behavior baselines found, will create new ones'
         );
       }
-    } catch (error) {
-      console.warn("Failed to load behavior baselines:", error);
+    } catch (_error) {
+      // console.warn('Failed to load behavior baselines:', error);
     }
   }
 
@@ -346,40 +346,40 @@ class AdvancedSessionAnalyticsService {
 
     // Keystroke pattern analysis
     if (this.behaviorConfig.keystrokePatterns) {
-      this.addEventTracker("keydown", this.trackKeystrokePatterns.bind(this));
-      this.addEventTracker("keyup", this.trackKeystrokePatterns.bind(this));
+      this.addEventTracker('keydown', this.trackKeystrokePatterns.bind(this));
+      this.addEventTracker('keyup', this.trackKeystrokePatterns.bind(this));
     }
 
     // Mouse behavior tracking
     if (this.behaviorConfig.mouseBehavior) {
-      this.addEventTracker("mousemove", this.trackMouseBehavior.bind(this));
-      this.addEventTracker("mousedown", this.trackMouseBehavior.bind(this));
-      this.addEventTracker("mouseup", this.trackMouseBehavior.bind(this));
+      this.addEventTracker('mousemove', this.trackMouseBehavior.bind(this));
+      this.addEventTracker('mousedown', this.trackMouseBehavior.bind(this));
+      this.addEventTracker('mouseup', this.trackMouseBehavior.bind(this));
     }
 
     // Click analysis
     if (this.behaviorConfig.clickAnalysis) {
-      this.addEventTracker("click", this.trackClickBehavior.bind(this));
+      this.addEventTracker('click', this.trackClickBehavior.bind(this));
     }
 
     // Scroll patterns
     if (this.behaviorConfig.scrollPatterns) {
-      this.addEventTracker("scroll", this.trackScrollBehavior.bind(this));
+      this.addEventTracker('scroll', this.trackScrollBehavior.bind(this));
     }
 
     // Navigation patterns
     if (this.behaviorConfig.navigationPatterns) {
-      window.addEventListener("beforeunload", this.trackNavigation.bind(this));
-      window.addEventListener("popstate", this.trackNavigation.bind(this));
+      typeof window !== "undefined" && window.addEventListener('beforeunload', this.trackNavigation.bind(this));
+      typeof window !== "undefined" && window.addEventListener('popstate', this.trackNavigation.bind(this));
     }
 
     // Device orientation
     if (
       this.behaviorConfig.deviceOrientation &&
-      window.DeviceOrientationEvent
+      typeof window !== "undefined" && window.DeviceOrientationEvent
     ) {
-      window.addEventListener(
-        "deviceorientation",
+      typeof window !== "undefined" && window.addEventListener(
+        'deviceorientation',
         this.trackDeviceOrientation.bind(this)
       );
     }
@@ -403,7 +403,7 @@ class AdvancedSessionAnalyticsService {
       }
     };
 
-    document.addEventListener(eventType, throttledHandler);
+    typeof document !== "undefined" && document.addEventListener(eventType, throttledHandler);
     this.eventListeners.set(eventType, throttledHandler);
   }
 
@@ -415,7 +415,7 @@ class AdvancedSessionAnalyticsService {
     this.lastActivityTime = timestamp;
 
     const keystrokeData = {
-      type: "keystroke",
+      type: 'keystroke',
       timestamp,
       eventType: event.type,
       keyCode: event.keyCode,
@@ -438,7 +438,7 @@ class AdvancedSessionAnalyticsService {
     this.lastActivityTime = timestamp;
 
     const mouseData = {
-      type: "mouse",
+      type: 'mouse',
       timestamp,
       eventType: event.type,
       x: event.clientX,
@@ -461,7 +461,7 @@ class AdvancedSessionAnalyticsService {
     this.lastActivityTime = timestamp;
 
     const clickData = {
-      type: "click",
+      type: 'click',
       timestamp,
       x: event.clientX,
       y: event.clientY,
@@ -483,10 +483,10 @@ class AdvancedSessionAnalyticsService {
     this.lastActivityTime = timestamp;
 
     const scrollData = {
-      type: "scroll",
+      type: 'scroll',
       timestamp,
-      scrollX: window.scrollX,
-      scrollY: window.scrollY,
+      scrollX: typeof window !== "undefined" && window.scrollX,
+      scrollY: typeof window !== "undefined" && window.scrollY,
       deltaX: event.deltaX,
       deltaY: event.deltaY,
       deltaMode: event.deltaMode,
@@ -503,11 +503,11 @@ class AdvancedSessionAnalyticsService {
     const timestamp = Date.now();
 
     const navigationData = {
-      type: "navigation",
+      type: 'navigation',
       timestamp,
       eventType: event.type,
-      url: window.location.href,
-      referrer: document.referrer,
+      url: typeof window !== "undefined" && window.location.href,
+      referrer: typeof document !== "undefined" && document.referrer,
       sessionDuration: timestamp - this.sessionStartTime,
     };
 
@@ -521,7 +521,7 @@ class AdvancedSessionAnalyticsService {
     const timestamp = Date.now();
 
     const orientationData = {
-      type: "orientation",
+      type: 'orientation',
       timestamp,
       alpha: event.alpha,
       beta: event.beta,
@@ -543,7 +543,7 @@ class AdvancedSessionAnalyticsService {
       clearTimeout(idleTimer);
       idleTimer = setTimeout(() => {
         this.addBehaviorData({
-          type: "idle",
+          type: 'idle',
           timestamp: Date.now(),
           duration: idleThreshold,
         });
@@ -552,14 +552,14 @@ class AdvancedSessionAnalyticsService {
 
     // Reset timer on any activity
     [
-      "mousedown",
-      "mousemove",
-      "keypress",
-      "scroll",
-      "touchstart",
-      "click",
+      'mousedown',
+      'mousemove',
+      'keypress',
+      'scroll',
+      'touchstart',
+      'click',
     ].forEach((event) => {
-      document.addEventListener(event, resetIdleTimer);
+      typeof document !== "undefined" && document.addEventListener(event, resetIdleTimer);
     });
 
     resetIdleTimer();
@@ -579,15 +579,15 @@ class AdvancedSessionAnalyticsService {
    * Analyze typing speed patterns
    */
   analyzeTypingSpeed(keystrokeData) {
-    if (!this.behaviorMetrics.has("typing")) {
-      this.behaviorMetrics.set("typing", {
+    if (!this.behaviorMetrics.has('typing')) {
+      this.behaviorMetrics.set('typing', {
         keystrokes: [],
         averageSpeed: 0,
         speedVariance: 0,
       });
     }
 
-    const typing = this.behaviorMetrics.get("typing");
+    const typing = this.behaviorMetrics.get('typing');
     typing.keystrokes.push(keystrokeData);
 
     // Calculate WPM if we have enough data
@@ -599,7 +599,7 @@ class AdvancedSessionAnalyticsService {
       const wpm = (recentKeystrokes.length / (timeSpan / 60000)) * 12; // Assuming 5 chars per word
 
       typing.averageSpeed = wpm;
-      this.behaviorMetrics.set("typing", typing);
+      this.behaviorMetrics.set('typing', typing);
     }
   }
 
@@ -607,8 +607,8 @@ class AdvancedSessionAnalyticsService {
    * Analyze mouse movement patterns
    */
   analyzeMousePatterns(mouseData) {
-    if (!this.behaviorMetrics.has("mouse")) {
-      this.behaviorMetrics.set("mouse", {
+    if (!this.behaviorMetrics.has('mouse')) {
+      this.behaviorMetrics.set('mouse', {
         movements: [],
         velocity: 0,
         acceleration: 0,
@@ -616,7 +616,7 @@ class AdvancedSessionAnalyticsService {
       });
     }
 
-    const mouse = this.behaviorMetrics.get("mouse");
+    const mouse = this.behaviorMetrics.get('mouse');
     mouse.movements.push(mouseData);
 
     // Calculate velocity and acceleration
@@ -647,7 +647,7 @@ class AdvancedSessionAnalyticsService {
         }
       }
 
-      this.behaviorMetrics.set("mouse", mouse);
+      this.behaviorMetrics.set('mouse', mouse);
     }
   }
 
@@ -655,8 +655,8 @@ class AdvancedSessionAnalyticsService {
    * Analyze click patterns
    */
   analyzeClickPatterns(clickData) {
-    if (!this.behaviorMetrics.has("clicks")) {
-      this.behaviorMetrics.set("clicks", {
+    if (!this.behaviorMetrics.has('clicks')) {
+      this.behaviorMetrics.set('clicks', {
         clicks: [],
         frequency: 0,
         doubleClickSpeed: 0,
@@ -664,7 +664,7 @@ class AdvancedSessionAnalyticsService {
       });
     }
 
-    const clicks = this.behaviorMetrics.get("clicks");
+    const clicks = this.behaviorMetrics.get('clicks');
     clicks.clicks.push(clickData);
 
     // Calculate click frequency
@@ -676,15 +676,15 @@ class AdvancedSessionAnalyticsService {
       clicks.frequency = recentClicks.length / (timeSpan / 1000); // clicks per second
     }
 
-    this.behaviorMetrics.set("clicks", clicks);
+    this.behaviorMetrics.set('clicks', clicks);
   }
 
   /**
    * Analyze scroll patterns
    */
   analyzeScrollPatterns(scrollData) {
-    if (!this.behaviorMetrics.has("scroll")) {
-      this.behaviorMetrics.set("scroll", {
+    if (!this.behaviorMetrics.has('scroll')) {
+      this.behaviorMetrics.set('scroll', {
         scrollEvents: [],
         speed: 0,
         smoothness: 0,
@@ -692,7 +692,7 @@ class AdvancedSessionAnalyticsService {
       });
     }
 
-    const scroll = this.behaviorMetrics.get("scroll");
+    const scroll = this.behaviorMetrics.get('scroll');
     scroll.scrollEvents.push(scrollData);
 
     // Calculate scroll speed
@@ -708,7 +708,7 @@ class AdvancedSessionAnalyticsService {
       }
     }
 
-    this.behaviorMetrics.set("scroll", scroll);
+    this.behaviorMetrics.set('scroll', scroll);
   }
 
   /**
@@ -718,25 +718,25 @@ class AdvancedSessionAnalyticsService {
     let riskAdjustment = 0;
 
     // Check for suspicious patterns
-    if (behaviorData.type === "mouse") {
+    if (behaviorData.type === 'mouse') {
       // Unrealistic mouse movements
       if (behaviorData.movementX > 1000 || behaviorData.movementY > 1000) {
         riskAdjustment += 0.1;
       }
     }
 
-    if (behaviorData.type === "keystroke") {
+    if (behaviorData.type === 'keystroke') {
       // Extremely fast typing (possible bot)
-      const typing = this.behaviorMetrics.get("typing");
+      const typing = this.behaviorMetrics.get('typing');
       if (typing && typing.averageSpeed > 200) {
         // >200 WPM is suspicious
         riskAdjustment += 0.15;
       }
     }
 
-    if (behaviorData.type === "click") {
+    if (behaviorData.type === 'click') {
       // Rapid clicking patterns
-      const clicks = this.behaviorMetrics.get("clicks");
+      const clicks = this.behaviorMetrics.get('clicks');
       if (clicks && clicks.frequency > 10) {
         // >10 clicks per second
         riskAdjustment += 0.1;
@@ -759,7 +759,7 @@ class AdvancedSessionAnalyticsService {
         sessionId: this.sessionId,
         deviceFingerprint: this.deviceFingerprint,
         startTime: this.sessionStartTime,
-        userAgent: navigator.userAgent,
+        userAgent: typeof navigator !== "undefined" && navigator.userAgent,
         ipAddress: await this.getClientIP(),
         location: await this.getGeolocation(),
         initialRiskScore: this.riskScore,
@@ -768,12 +768,12 @@ class AdvancedSessionAnalyticsService {
       const response = await fetch(
         `${this.apiBaseUrl}/api/session-analytics/initialize`,
         {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify(sessionData),
-          credentials: "include",
+          credentials: 'include',
         }
       );
 
@@ -782,9 +782,9 @@ class AdvancedSessionAnalyticsService {
       }
 
       const result = await response.json();
-      console.log("Session initialized successfully:", result);
-    } catch (error) {
-      console.error("Failed to initialize session:", error);
+      // console.log('Session initialized successfully:', result);
+    } catch (_error) {
+      // console.error('Failed to initialize session:', error);
       throw error;
     }
   }
@@ -794,11 +794,11 @@ class AdvancedSessionAnalyticsService {
    */
   async getClientIP() {
     try {
-      const response = await fetch("https://api.ipify.org?format=json");
+      const response = await fetch('https://api.ipify.org?format=json');
       const data = await response.json();
       return data.ip;
-    } catch (error) {
-      console.warn("Failed to get client IP:", error);
+    } catch (_error) {
+      // console.warn('Failed to get client IP:', error);
       return null;
     }
   }
@@ -808,12 +808,12 @@ class AdvancedSessionAnalyticsService {
    */
   async getGeolocation() {
     return new Promise((resolve) => {
-      if (!navigator.geolocation) {
+      if (!typeof navigator !== "undefined" && navigator.geolocation) {
         resolve(null);
         return;
       }
 
-      navigator.geolocation.getCurrentPosition(
+      typeof navigator !== "undefined" && navigator.geolocation.getCurrentPosition(
         (position) => {
           resolve({
             latitude: position.coords.latitude,
@@ -822,8 +822,8 @@ class AdvancedSessionAnalyticsService {
             timestamp: position.timestamp,
           });
         },
-        (error) => {
-          console.warn("Geolocation access denied or failed:", error);
+        (_error) => {
+          // console.warn('Geolocation access denied or failed:', error);
           resolve(null);
         },
         {
@@ -864,24 +864,24 @@ class AdvancedSessionAnalyticsService {
       const response = await fetch(
         `${this.apiBaseUrl}/api/session-analytics/behavior-batch`,
         {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify(batchData),
-          credentials: "include",
+          credentials: 'include',
         }
       );
 
       if (response.ok) {
         // Clear processed data
         this.behaviorQueue.length = 0;
-        console.log("Behavior batch processed successfully");
+        // console.log('Behavior batch processed successfully');
       } else {
-        console.warn("Failed to process behavior batch:", response.statusText);
+        // console.warn('Failed to process behavior batch:', response.statusText);
       }
-    } catch (error) {
-      console.error("Error processing behavior batch:", error);
+    } catch (_error) {
+      // console.error('Error processing behavior batch:', error);
     }
   }
 
@@ -905,11 +905,11 @@ class AdvancedSessionAnalyticsService {
   /**
    * Update session risk score manually
    */
-  updateSessionRisk(newRiskScore, reason = "Manual update") {
+  updateSessionRisk(newRiskScore, reason = 'Manual update') {
     this.riskScore = Math.min(1.0, Math.max(0.0, newRiskScore));
 
     this.addBehaviorData({
-      type: "risk_update",
+      type: 'risk_update',
       timestamp: Date.now(),
       oldRiskScore: this.riskScore,
       newRiskScore,
@@ -938,14 +938,14 @@ class AdvancedSessionAnalyticsService {
 
       // Remove event listeners
       for (const [eventType, handler] of this.eventListeners) {
-        document.removeEventListener(eventType, handler);
+        typeof document !== "undefined" && document.removeEventListener(eventType, handler);
       }
       this.eventListeners.clear();
 
       this.isTracking = false;
-      console.log("Session analytics tracking stopped");
-    } catch (error) {
-      console.error("Error stopping session tracking:", error);
+      // console.log('Session analytics tracking stopped');
+    } catch (_error) {
+      // console.error('Error stopping session tracking:', error);
     }
   }
 
@@ -965,12 +965,12 @@ class AdvancedSessionAnalyticsService {
       const response = await fetch(
         `${this.apiBaseUrl}/api/session-analytics/end`,
         {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify(endData),
-          credentials: "include",
+          credentials: 'include',
         }
       );
 
@@ -978,9 +978,9 @@ class AdvancedSessionAnalyticsService {
         throw new Error(`Failed to end session: ${response.statusText}`);
       }
 
-      console.log("Session ended successfully");
-    } catch (error) {
-      console.error("Failed to end session:", error);
+      // console.log('Session ended successfully');
+    } catch (_error) {
+      // console.error('Failed to end session:', error);
     }
   }
 

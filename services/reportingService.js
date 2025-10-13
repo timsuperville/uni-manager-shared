@@ -3,7 +3,7 @@
  * Handles communication with the backend reporting API
  */
 
-import { apiClient } from "../utils/apiClient";
+import { apiClient } from '../utils/apiClient';
 
 class ReportingService {
   /**
@@ -13,14 +13,14 @@ class ReportingService {
     try {
       const params = new URLSearchParams();
 
-      if (filters.category) params.append("category", filters.category);
-      if (filters.type) params.append("type", filters.type);
-      if (filters.active !== undefined) params.append("active", filters.active);
+      if (filters.category) params.append('category', filters.category);
+      if (filters.type) params.append('type', filters.type);
+      if (filters.active !== undefined) params.append('active', filters.active);
 
       const response = await apiClient.get(`/api/reporting/reports?${params}`);
       return response.data;
-    } catch (error) {
-      console.error("Error fetching reports:", error);
+    } catch (_error) {
+      // console.error('Error fetching reports:', error);
       throw error;
     }
   }
@@ -34,8 +34,8 @@ class ReportingService {
         `/api/reporting/reports/${reportId}`,
       );
       return response.data;
-    } catch (error) {
-      console.error("Error fetching report:", error);
+    } catch (_error) {
+      // console.error('Error fetching report:', error);
       throw error;
     }
   }
@@ -46,12 +46,12 @@ class ReportingService {
   async createReport(reportData) {
     try {
       const response = await apiClient.post(
-        "/api/reporting/reports",
+        '/api/reporting/reports',
         reportData,
       );
       return response.data;
-    } catch (error) {
-      console.error("Error creating report:", error);
+    } catch (_error) {
+      // console.error('Error creating report:', error);
       throw error;
     }
   }
@@ -66,8 +66,8 @@ class ReportingService {
         reportData,
       );
       return response.data;
-    } catch (error) {
-      console.error("Error updating report:", error);
+    } catch (_error) {
+      // console.error('Error updating report:', error);
       throw error;
     }
   }
@@ -78,8 +78,8 @@ class ReportingService {
   async deleteReport(reportId) {
     try {
       await apiClient.delete(`/api/reporting/reports/${reportId}`);
-    } catch (error) {
-      console.error("Error deleting report:", error);
+    } catch (_error) {
+      // console.error('Error deleting report:', error);
       throw error;
     }
   }
@@ -93,12 +93,12 @@ class ReportingService {
         `/api/reporting/reports/${reportId}/generate`,
         {
           parameters,
-          format: parameters.format || "pdf",
+          format: parameters.format || 'pdf',
         },
       );
       return response.data;
-    } catch (error) {
-      console.error("Error generating report:", error);
+    } catch (_error) {
+      // console.error('Error generating report:', error);
       throw error;
     }
   }
@@ -112,8 +112,8 @@ class ReportingService {
         `/api/reporting/reports/${reportId}/status/${executionId}`,
       );
       return response.data;
-    } catch (error) {
-      console.error("Error getting report status:", error);
+    } catch (_error) {
+      // console.error('Error getting report status:', error);
       throw error;
     }
   }
@@ -121,13 +121,13 @@ class ReportingService {
   /**
    * Download a generated report
    */
-  async downloadReport(reportId, format = "pdf") {
+  async downloadReport(reportId, format = 'pdf') {
     try {
       const response = await apiClient.get(
         `/api/reporting/reports/${reportId}/download`,
         {
           params: { format },
-          responseType: "blob",
+          responseType: 'blob',
         },
       );
 
@@ -137,8 +137,8 @@ class ReportingService {
       });
 
       return blob;
-    } catch (error) {
-      console.error("Error downloading report:", error);
+    } catch (_error) {
+      // console.error('Error downloading report:', error);
       throw error;
     }
   }
@@ -155,8 +155,8 @@ class ReportingService {
         },
       );
       return response.data;
-    } catch (error) {
-      console.error("Error previewing report:", error);
+    } catch (_error) {
+      // console.error('Error previewing report:', error);
       throw error;
     }
   }
@@ -168,15 +168,15 @@ class ReportingService {
     try {
       const params = new URLSearchParams();
 
-      if (filters.category) params.append("category", filters.category);
-      if (filters.type) params.append("type", filters.type);
+      if (filters.category) params.append('category', filters.category);
+      if (filters.type) params.append('type', filters.type);
 
       const response = await apiClient.get(
         `/api/reporting/templates?${params}`,
       );
       return response.data;
-    } catch (error) {
-      console.error("Error fetching templates:", error);
+    } catch (_error) {
+      // console.error('Error fetching templates:', error);
       throw error;
     }
   }
@@ -190,8 +190,8 @@ class ReportingService {
         `/api/reporting/templates/${templateId}`,
       );
       return response.data;
-    } catch (error) {
-      console.error("Error fetching template:", error);
+    } catch (_error) {
+      // console.error('Error fetching template:', error);
       throw error;
     }
   }
@@ -202,12 +202,12 @@ class ReportingService {
   async createTemplate(templateData) {
     try {
       const response = await apiClient.post(
-        "/api/reporting/templates",
+        '/api/reporting/templates',
         templateData,
       );
       return response.data;
-    } catch (error) {
-      console.error("Error creating template:", error);
+    } catch (_error) {
+      // console.error('Error creating template:', error);
       throw error;
     }
   }
@@ -222,8 +222,8 @@ class ReportingService {
         templateData,
       );
       return response.data;
-    } catch (error) {
-      console.error("Error updating template:", error);
+    } catch (_error) {
+      // console.error('Error updating template:', error);
       throw error;
     }
   }
@@ -234,8 +234,8 @@ class ReportingService {
   async deleteTemplate(templateId) {
     try {
       await apiClient.delete(`/api/reporting/templates/${templateId}`);
-    } catch (error) {
-      console.error("Error deleting template:", error);
+    } catch (_error) {
+      // console.error('Error deleting template:', error);
       throw error;
     }
   }
@@ -243,7 +243,7 @@ class ReportingService {
   /**
    * Preview a template with sample data
    */
-  async previewTemplate(templateId, sampleData = {}, format = "html") {
+  async previewTemplate(templateId, sampleData = {}, format = 'html') {
     try {
       const response = await apiClient.post(
         `/api/reporting/templates/${templateId}/preview`,
@@ -253,8 +253,8 @@ class ReportingService {
         },
       );
       return response.data;
-    } catch (error) {
-      console.error("Error previewing template:", error);
+    } catch (_error) {
+      // console.error('Error previewing template:', error);
       throw error;
     }
   }
@@ -268,8 +268,8 @@ class ReportingService {
         `/api/reporting/recent?limit=${limit}`,
       );
       return response.data;
-    } catch (error) {
-      console.error("Error fetching recent reports:", error);
+    } catch (_error) {
+      // console.error('Error fetching recent reports:', error);
       throw error;
     }
   }
@@ -277,14 +277,14 @@ class ReportingService {
   /**
    * Get report analytics and metrics
    */
-  async getReportAnalytics(period = "30d") {
+  async getReportAnalytics(period = '30d') {
     try {
       const response = await apiClient.get(
         `/api/reporting/analytics?period=${period}`,
       );
       return response.data;
-    } catch (error) {
-      console.error("Error fetching report analytics:", error);
+    } catch (_error) {
+      // console.error('Error fetching report analytics:', error);
       throw error;
     }
   }
@@ -299,8 +299,8 @@ class ReportingService {
         scheduleData,
       );
       return response.data;
-    } catch (error) {
-      console.error("Error scheduling report:", error);
+    } catch (_error) {
+      // console.error('Error scheduling report:', error);
       throw error;
     }
   }
@@ -310,10 +310,10 @@ class ReportingService {
    */
   async getScheduledReports() {
     try {
-      const response = await apiClient.get("/api/reporting/scheduled");
+      const response = await apiClient.get('/api/reporting/scheduled');
       return response.data;
-    } catch (error) {
-      console.error("Error fetching scheduled reports:", error);
+    } catch (_error) {
+      // console.error('Error fetching scheduled reports:', error);
       throw error;
     }
   }
@@ -324,8 +324,8 @@ class ReportingService {
   async cancelScheduledReport(scheduleId) {
     try {
       await apiClient.delete(`/api/reporting/scheduled/${scheduleId}`);
-    } catch (error) {
-      console.error("Error canceling scheduled report:", error);
+    } catch (_error) {
+      // console.error('Error canceling scheduled report:', error);
       throw error;
     }
   }
@@ -336,12 +336,12 @@ class ReportingService {
   async validateReport(reportData) {
     try {
       const response = await apiClient.post(
-        "/api/reporting/validate",
+        '/api/reporting/validate',
         reportData,
       );
       return response.data;
-    } catch (error) {
-      console.error("Error validating report:", error);
+    } catch (_error) {
+      // console.error('Error validating report:', error);
       throw error;
     }
   }
@@ -351,10 +351,10 @@ class ReportingService {
    */
   async getDataSources() {
     try {
-      const response = await apiClient.get("/api/reporting/data-sources");
+      const response = await apiClient.get('/api/reporting/data-sources');
       return response.data;
-    } catch (error) {
-      console.error("Error fetching data sources:", error);
+    } catch (_error) {
+      // console.error('Error fetching data sources:', error);
       throw error;
     }
   }
@@ -365,12 +365,12 @@ class ReportingService {
   async testDataSource(dataSourceConfig) {
     try {
       const response = await apiClient.post(
-        "/api/reporting/data-sources/test",
+        '/api/reporting/data-sources/test',
         dataSourceConfig,
       );
       return response.data;
-    } catch (error) {
-      console.error("Error testing data source:", error);
+    } catch (_error) {
+      // console.error('Error testing data source:', error);
       throw error;
     }
   }
@@ -380,13 +380,13 @@ class ReportingService {
    */
   async getDataSourceFields(dataSourceId, table = null) {
     try {
-      const params = table ? `?table=${table}` : "";
+      const params = table ? `?table=${table}` : '';
       const response = await apiClient.get(
         `/api/reporting/data-sources/${dataSourceId}/fields${params}`,
       );
       return response.data;
-    } catch (error) {
-      console.error("Error fetching data source fields:", error);
+    } catch (_error) {
+      // console.error('Error fetching data source fields:', error);
       throw error;
     }
   }
@@ -404,8 +404,8 @@ class ReportingService {
         },
       );
       return response.data;
-    } catch (error) {
-      console.error("Error executing test query:", error);
+    } catch (_error) {
+      // console.error('Error executing test query:', error);
       throw error;
     }
   }
@@ -419,8 +419,8 @@ class ReportingService {
         `/api/reporting/reports/${reportId}/permissions`,
       );
       return response.data;
-    } catch (error) {
-      console.error("Error fetching report permissions:", error);
+    } catch (_error) {
+      // console.error('Error fetching report permissions:', error);
       throw error;
     }
   }
@@ -435,8 +435,8 @@ class ReportingService {
         permissions,
       );
       return response.data;
-    } catch (error) {
-      console.error("Error updating report permissions:", error);
+    } catch (_error) {
+      // console.error('Error updating report permissions:', error);
       throw error;
     }
   }
@@ -449,12 +449,12 @@ class ReportingService {
       const response = await apiClient.get(
         `/api/reporting/reports/${reportId}/export`,
         {
-          responseType: "blob",
+          responseType: 'blob',
         },
       );
-      return new Blob([response.data], { type: "application/json" });
-    } catch (error) {
-      console.error("Error exporting report config:", error);
+      return new Blob([response.data], { type: 'application/json' });
+    } catch (_error) {
+      // console.error('Error exporting report config:', error);
       throw error;
     }
   }
@@ -465,20 +465,20 @@ class ReportingService {
   async importReportConfig(configFile) {
     try {
       const formData = new FormData();
-      formData.append("config", configFile);
+      formData.append('config', configFile);
 
       const response = await apiClient.post(
-        "/api/reporting/reports/import",
+        '/api/reporting/reports/import',
         formData,
         {
           headers: {
-            "Content-Type": "multipart/form-data",
+            'Content-Type': 'multipart/form-data',
           },
         },
       );
       return response.data;
-    } catch (error) {
-      console.error("Error importing report config:", error);
+    } catch (_error) {
+      // console.error('Error importing report config:', error);
       throw error;
     }
   }
@@ -488,14 +488,14 @@ class ReportingService {
    */
   getContentType(format) {
     const contentTypes = {
-      pdf: "application/pdf",
+      pdf: 'application/pdf',
       excel:
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      csv: "text/csv",
-      json: "application/json",
-      html: "text/html",
+        'application/vnd.openxmlformats-officetypeof document !== "undefined" && document.spreadsheetml.sheet',
+      csv: 'text/csv',
+      json: 'application/json',
+      html: 'text/html',
     };
-    return contentTypes[format] || "application/octet-stream";
+    return contentTypes[format] || 'application/octet-stream';
   }
 
   /**
@@ -503,9 +503,9 @@ class ReportingService {
    */
   generateFilename(reportName, format, timestamp = null) {
     const date = timestamp ? new Date(timestamp) : new Date();
-    const dateStr = date.toISOString().split("T")[0];
+    const dateStr = date.toISOString().split('T')[0];
     const sanitizedName = reportName
-      .replace(/[^a-zA-Z0-9]/g, "_")
+      .replace(/[^a-zA-Z0-9]/g, '_')
       .toLowerCase();
     return `${sanitizedName}_${dateStr}.${format}`;
   }
@@ -514,13 +514,13 @@ class ReportingService {
    * Format report size
    */
   formatFileSize(bytes) {
-    if (bytes === 0) return "0 Bytes";
+    if (bytes === 0) return '0 Bytes';
 
     const k = 1024;
-    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
 
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   }
 
   /**
@@ -541,12 +541,12 @@ class ReportingService {
 
       if (
         paramDef.required &&
-        (value === undefined || value === null || value === "")
+        (value === undefined || value === null || value === '')
       ) {
         errors.push(`${paramDef.label || paramDef.name} is required`);
       }
 
-      if (value && paramDef.type === "date") {
+      if (value && paramDef.type === 'date') {
         const date = new Date(value);
         if (isNaN(date.getTime())) {
           errors.push(
@@ -555,7 +555,7 @@ class ReportingService {
         }
       }
 
-      if (value && paramDef.type === "number") {
+      if (value && paramDef.type === 'number') {
         if (isNaN(Number(value))) {
           errors.push(
             `${paramDef.label || paramDef.name} must be a valid number`,

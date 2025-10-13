@@ -3,8 +3,8 @@
  * React hooks for WebSocket integration and real-time updates
  */
 
-import { useState, useEffect, useCallback, useRef } from "react";
-import webSocketClient from "../services/webSocketClient";
+import { useState, useEffect, useCallback, useRef } from 'react';
+import webSocketClient from '../services/webSocketClient';
 
 // Hook for WebSocket connection management
 export const useWebSocket = (token, options = {}) => {
@@ -23,7 +23,7 @@ export const useWebSocket = (token, options = {}) => {
         await webSocketClient.connect(token, options);
         setIsConnected(true);
         connectionRef.current = true;
-      } catch (error) {
+      } catch (_error) {
         setConnectionError(error.message);
         setIsConnected(false);
       }
@@ -39,24 +39,24 @@ export const useWebSocket = (token, options = {}) => {
 
     const handleReconnectFailed = () => {
       setIsReconnecting(false);
-      setConnectionError("Failed to reconnect to server");
+      setConnectionError('Failed to reconnect to server');
     };
 
-    const handleAuthError = (error) => {
+    const handleAuthError = (_error) => {
       setConnectionError(error.message);
       setIsConnected(false);
     };
 
     const handleMaxReconnectAttempts = () => {
       setIsReconnecting(false);
-      setConnectionError("Maximum reconnection attempts reached");
+      setConnectionError('Maximum reconnection attempts reached');
     };
 
-    webSocketClient.on("reconnected", handleReconnected);
-    webSocketClient.on("reconnect_failed", handleReconnectFailed);
-    webSocketClient.on("auth_error", handleAuthError);
+    webSocketClient.on('reconnected', handleReconnected);
+    webSocketClient.on('reconnect_failed', handleReconnectFailed);
+    webSocketClient.on('auth_error', handleAuthError);
     webSocketClient.on(
-      "max_reconnect_attempts_reached",
+      'max_reconnect_attempts_reached',
       handleMaxReconnectAttempts,
     );
 
@@ -72,11 +72,11 @@ export const useWebSocket = (token, options = {}) => {
 
     return () => {
       clearInterval(statusInterval);
-      webSocketClient.off("reconnected", handleReconnected);
-      webSocketClient.off("reconnect_failed", handleReconnectFailed);
-      webSocketClient.off("auth_error", handleAuthError);
+      webSocketClient.off('reconnected', handleReconnected);
+      webSocketClient.off('reconnect_failed', handleReconnectFailed);
+      webSocketClient.off('auth_error', handleAuthError);
       webSocketClient.off(
-        "max_reconnect_attempts_reached",
+        'max_reconnect_attempts_reached',
         handleMaxReconnectAttempts,
       );
 
@@ -89,7 +89,7 @@ export const useWebSocket = (token, options = {}) => {
 
   const reconnect = useCallback(() => {
     if (token) {
-      webSocketClient.connect(token, options).catch((error) => {
+      webSocketClient.connect(token, options).catch((_error) => {
         setConnectionError(error.message);
       });
     }
@@ -126,12 +126,12 @@ export const useRealTimeNotifications = () => {
       setUnreadCount((prev) => Math.max(0, prev - 1));
     };
 
-    webSocketClient.on("notification:created", handleNotificationCreated);
-    webSocketClient.on("notification:read", handleNotificationRead);
+    webSocketClient.on('notification:created', handleNotificationCreated);
+    webSocketClient.on('notification:read', handleNotificationRead);
 
     return () => {
-      webSocketClient.off("notification:created", handleNotificationCreated);
-      webSocketClient.off("notification:read", handleNotificationRead);
+      webSocketClient.off('notification:created', handleNotificationCreated);
+      webSocketClient.off('notification:read', handleNotificationRead);
     };
   }, []);
 
@@ -165,7 +165,7 @@ export const useRealTimeMembers = (initialMembers = []) => {
     const handleMemberCreated = (data) => {
       setMembers((prev) => [...prev, data.member]);
       setRecentActivity((prev) => [
-        { type: "created", member: data.member, timestamp: data.timestamp },
+        { type: 'created', member: data.member, timestamp: data.timestamp },
         ...prev.slice(0, 49), // Keep last 50 activities
       ]);
     };
@@ -177,7 +177,7 @@ export const useRealTimeMembers = (initialMembers = []) => {
         ),
       );
       setRecentActivity((prev) => [
-        { type: "updated", member: data.member, timestamp: data.timestamp },
+        { type: 'updated', member: data.member, timestamp: data.timestamp },
         ...prev.slice(0, 49),
       ]);
     };
@@ -187,32 +187,32 @@ export const useRealTimeMembers = (initialMembers = []) => {
         prev.filter((member) => member.id !== data.member.id),
       );
       setRecentActivity((prev) => [
-        { type: "deleted", member: data.member, timestamp: data.timestamp },
+        { type: 'deleted', member: data.member, timestamp: data.timestamp },
         ...prev.slice(0, 49),
       ]);
     };
 
-    webSocketClient.on("member:created", handleMemberCreated);
-    webSocketClient.on("member:updated", handleMemberUpdated);
-    webSocketClient.on("member:deleted", handleMemberDeleted);
+    webSocketClient.on('member:created', handleMemberCreated);
+    webSocketClient.on('member:updated', handleMemberUpdated);
+    webSocketClient.on('member:deleted', handleMemberDeleted);
 
     return () => {
-      webSocketClient.off("member:created", handleMemberCreated);
-      webSocketClient.off("member:updated", handleMemberUpdated);
-      webSocketClient.off("member:deleted", handleMemberDeleted);
+      webSocketClient.off('member:created', handleMemberCreated);
+      webSocketClient.off('member:updated', handleMemberUpdated);
+      webSocketClient.off('member:deleted', handleMemberDeleted);
     };
   }, []);
 
   const addMember = useCallback((member, metadata = {}) => {
-    webSocketClient.emitMemberAction("create", member, metadata);
+    webSocketClient.emitMemberAction('create', member, metadata);
   }, []);
 
   const updateMember = useCallback((member, metadata = {}) => {
-    webSocketClient.emitMemberAction("update", member, metadata);
+    webSocketClient.emitMemberAction('update', member, metadata);
   }, []);
 
   const deleteMember = useCallback((member, metadata = {}) => {
-    webSocketClient.emitMemberAction("delete", member, metadata);
+    webSocketClient.emitMemberAction('delete', member, metadata);
   }, []);
 
   return {
@@ -232,7 +232,7 @@ export const useRealTimeInvitations = (initialInvitations = []) => {
   useEffect(() => {
     setInvitations(initialInvitations);
     setPendingCount(
-      initialInvitations.filter((inv) => inv.status === "pending").length,
+      initialInvitations.filter((inv) => inv.status === 'pending').length,
     );
   }, [initialInvitations]);
 
@@ -244,7 +244,7 @@ export const useRealTimeInvitations = (initialInvitations = []) => {
 
     const handleInvitationReceived = (data) => {
       setInvitations((prev) => [...prev, data.invitation]);
-      if (data.invitation.status === "pending") {
+      if (data.invitation.status === 'pending') {
         setPendingCount((prev) => prev + 1);
       }
     };
@@ -253,7 +253,7 @@ export const useRealTimeInvitations = (initialInvitations = []) => {
       setInvitations((prev) =>
         prev.map((invitation) =>
           invitation.id === data.invitation.id
-            ? { ...invitation, status: "accepted" }
+            ? { ...invitation, status: 'accepted' }
             : invitation,
         ),
       );
@@ -264,36 +264,36 @@ export const useRealTimeInvitations = (initialInvitations = []) => {
       setInvitations((prev) =>
         prev.map((invitation) =>
           invitation.id === data.invitation.id
-            ? { ...invitation, status: "declined" }
+            ? { ...invitation, status: 'declined' }
             : invitation,
         ),
       );
       setPendingCount((prev) => Math.max(0, prev - 1));
     };
 
-    webSocketClient.on("invitation:sent", handleInvitationSent);
-    webSocketClient.on("invitation:received", handleInvitationReceived);
-    webSocketClient.on("invitation:accepted", handleInvitationAccepted);
-    webSocketClient.on("invitation:declined", handleInvitationDeclined);
+    webSocketClient.on('invitation:sent', handleInvitationSent);
+    webSocketClient.on('invitation:received', handleInvitationReceived);
+    webSocketClient.on('invitation:accepted', handleInvitationAccepted);
+    webSocketClient.on('invitation:declined', handleInvitationDeclined);
 
     return () => {
-      webSocketClient.off("invitation:sent", handleInvitationSent);
-      webSocketClient.off("invitation:received", handleInvitationReceived);
-      webSocketClient.off("invitation:accepted", handleInvitationAccepted);
-      webSocketClient.off("invitation:declined", handleInvitationDeclined);
+      webSocketClient.off('invitation:sent', handleInvitationSent);
+      webSocketClient.off('invitation:received', handleInvitationReceived);
+      webSocketClient.off('invitation:accepted', handleInvitationAccepted);
+      webSocketClient.off('invitation:declined', handleInvitationDeclined);
     };
   }, []);
 
   const sendInvitation = useCallback((invitation, metadata = {}) => {
-    webSocketClient.emitInvitationAction("send", invitation, metadata);
+    webSocketClient.emitInvitationAction('send', invitation, metadata);
   }, []);
 
   const acceptInvitation = useCallback((invitation, metadata = {}) => {
-    webSocketClient.emitInvitationAction("accept", invitation, metadata);
+    webSocketClient.emitInvitationAction('accept', invitation, metadata);
   }, []);
 
   const declineInvitation = useCallback((invitation, metadata = {}) => {
-    webSocketClient.emitInvitationAction("decline", invitation, metadata);
+    webSocketClient.emitInvitationAction('decline', invitation, metadata);
   }, []);
 
   return {
@@ -308,7 +308,7 @@ export const useRealTimeInvitations = (initialInvitations = []) => {
 // Hook for user presence tracking
 export const useUserPresence = () => {
   const [onlineUsers, setOnlineUsers] = useState(new Map());
-  const [currentUserStatus, setCurrentUserStatus] = useState("online");
+  const [currentUserStatus, setCurrentUserStatus] = useState('online');
 
   useEffect(() => {
     const handleUserConnected = (data) => {
@@ -317,7 +317,7 @@ export const useUserPresence = () => {
           new Map(
             prev.set(data.userId, {
               id: data.userId,
-              status: "online",
+              status: 'online',
               lastSeen: data.timestamp,
               userInfo: data.userInfo,
             }),
@@ -332,7 +332,7 @@ export const useUserPresence = () => {
         if (user) {
           newMap.set(data.userId, {
             ...user,
-            status: "offline",
+            status: 'offline',
             lastSeen: data.timestamp,
           });
         }
@@ -356,14 +356,14 @@ export const useUserPresence = () => {
       });
     };
 
-    webSocketClient.on("user:connected", handleUserConnected);
-    webSocketClient.on("user:disconnected", handleUserDisconnected);
-    webSocketClient.on("presence:updated", handlePresenceUpdated);
+    webSocketClient.on('user:connected', handleUserConnected);
+    webSocketClient.on('user:disconnected', handleUserDisconnected);
+    webSocketClient.on('presence:updated', handlePresenceUpdated);
 
     return () => {
-      webSocketClient.off("user:connected", handleUserConnected);
-      webSocketClient.off("user:disconnected", handleUserDisconnected);
-      webSocketClient.off("presence:updated", handlePresenceUpdated);
+      webSocketClient.off('user:connected', handleUserConnected);
+      webSocketClient.off('user:disconnected', handleUserDisconnected);
+      webSocketClient.off('presence:updated', handlePresenceUpdated);
     };
   }, []);
 
@@ -426,12 +426,12 @@ export const useTypingIndicator = (conversationId) => {
       }
     };
 
-    webSocketClient.on("typing:start", handleTypingStart);
-    webSocketClient.on("typing:stop", handleTypingStop);
+    webSocketClient.on('typing:start', handleTypingStart);
+    webSocketClient.on('typing:stop', handleTypingStop);
 
     return () => {
-      webSocketClient.off("typing:start", handleTypingStart);
-      webSocketClient.off("typing:stop", handleTypingStop);
+      webSocketClient.off('typing:start', handleTypingStart);
+      webSocketClient.off('typing:stop', handleTypingStop);
 
       // Clear all timeouts
       timeouts.forEach((timeout) => clearTimeout(timeout));
@@ -484,16 +484,16 @@ export const useRealTimeRoom = (room, filters = {}) => {
       }
     };
 
-    webSocketClient.on("room:initial_data", handleInitialData);
-    webSocketClient.on("room:data_error", handleDataError);
+    webSocketClient.on('room:initial_data', handleInitialData);
+    webSocketClient.on('room:data_error', handleDataError);
 
     // Subscribe to room
     webSocketClient.subscribe(room, filters);
     subscribedRef.current = true;
 
     return () => {
-      webSocketClient.off("room:initial_data", handleInitialData);
-      webSocketClient.off("room:data_error", handleDataError);
+      webSocketClient.off('room:initial_data', handleInitialData);
+      webSocketClient.off('room:data_error', handleDataError);
 
       if (subscribedRef.current) {
         webSocketClient.unsubscribe(room);

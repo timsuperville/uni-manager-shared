@@ -8,16 +8,16 @@
 class TokenStorage {
   constructor() {
     this.storageKeys = {
-      accessToken: "uni_auth_access_token",
-      refreshToken: "uni_auth_refresh_token",
-      user: "uni_auth_user_data",
-      sessionId: "uni_auth_session_id",
+      accessToken: 'uni_auth_access_token',
+      refreshToken: 'uni_auth_refresh_token',
+      user: 'uni_auth_user_data',
+      sessionId: 'uni_auth_session_id',
     };
 
     // Use sessionStorage by default for security
-    this.storage = typeof window !== "undefined" ? window.sessionStorage : null;
+    this.storage = typeof window !== 'undefined' ? window.sessionStorage : null;
     this.persistentStorage =
-      typeof window !== "undefined" ? window.localStorage : null;
+      typeof window !== 'undefined' ? window.localStorage : null;
   }
 
   /**
@@ -51,9 +51,9 @@ class TokenStorage {
       }
 
       return true;
-    } catch (error) {
-      if (typeof console !== "undefined") {
-        console.error("Error setting tokens:", error);
+    } catch (_error) {
+      if (typeof console !== 'undefined') {
+        // console.error('Error setting tokens:', error);
       }
       return false;
     }
@@ -70,9 +70,9 @@ class TokenStorage {
         this.persistentStorage?.getItem(this.storageKeys.accessToken) ||
         null
       );
-    } catch (error) {
-      if (typeof console !== "undefined") {
-        console.error("Error getting access token:", error);
+    } catch (_error) {
+      if (typeof console !== 'undefined') {
+        // console.error('Error getting access token:', error);
       }
       return null;
     }
@@ -88,9 +88,9 @@ class TokenStorage {
         this.persistentStorage?.getItem(this.storageKeys.refreshToken) ||
         null
       );
-    } catch (error) {
-      if (typeof console !== "undefined") {
-        console.error("Error getting refresh token:", error);
+    } catch (_error) {
+      if (typeof console !== 'undefined') {
+        // console.error('Error getting refresh token:', error);
       }
       return null;
     }
@@ -106,9 +106,9 @@ class TokenStorage {
         this.persistentStorage?.getItem(this.storageKeys.user);
 
       return userData ? JSON.parse(userData) : null;
-    } catch (error) {
-      if (typeof console !== "undefined") {
-        console.error("Error getting user data:", error);
+    } catch (_error) {
+      if (typeof console !== 'undefined') {
+        // console.error('Error getting user data:', error);
       }
       return null;
     }
@@ -124,9 +124,9 @@ class TokenStorage {
         this.persistentStorage?.getItem(this.storageKeys.sessionId) ||
         null
       );
-    } catch (error) {
-      if (typeof console !== "undefined") {
-        console.error("Error getting session ID:", error);
+    } catch (_error) {
+      if (typeof console !== 'undefined') {
+        // console.error('Error getting session ID:', error);
       }
       return null;
     }
@@ -144,9 +144,9 @@ class TokenStorage {
       });
 
       return true;
-    } catch (error) {
-      if (typeof console !== "undefined") {
-        console.error("Error clearing tokens:", error);
+    } catch (_error) {
+      if (typeof console !== 'undefined') {
+        // console.error('Error clearing tokens:', error);
       }
       return false;
     }
@@ -160,7 +160,7 @@ class TokenStorage {
       const accessToken = await this.getAccessToken();
       const user = await this.getUser();
       return !!(accessToken && user);
-    } catch (error) {
+    } catch (_error) {
       return false;
     }
   }
@@ -184,9 +184,9 @@ class TokenStorage {
         sessionId,
         isAuthenticated: !!(accessToken && user),
       };
-    } catch (error) {
-      if (typeof console !== "undefined") {
-        console.error("Error getting auth data:", error);
+    } catch (_error) {
+      if (typeof console !== 'undefined') {
+        // console.error('Error getting auth data:', error);
       }
       return {
         accessToken: null,
@@ -215,9 +215,9 @@ class TokenStorage {
       storage?.setItem(this.storageKeys.user, JSON.stringify(updatedUser));
 
       return true;
-    } catch (error) {
-      if (typeof console !== "undefined") {
-        console.error("Error updating user data:", error);
+    } catch (_error) {
+      if (typeof console !== 'undefined') {
+        // console.error('Error updating user data:', error);
       }
       return false;
     }

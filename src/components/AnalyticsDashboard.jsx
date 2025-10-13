@@ -228,8 +228,8 @@ const AnalyticsDashboard = ({
         userId,
         organizationId
       });
-    } catch (error) {
-      console.error('Export failed:', error);
+    } catch (_error) {
+      // console.error('Export failed:', error);
     }
   };
 
@@ -245,8 +245,8 @@ const AnalyticsDashboard = ({
   if (dashboardLoading && !dashboardData) {
     return (
       <div className={`analytics-dashboard loading ${className}`}>
-        <div className="loading-spinner">
-          <div className="spinner"></div>
+        <div className='loading-spinner'>
+          <div className='spinner'></div>
           <p>Loading analytics dashboard...</p>
         </div>
       </div>
@@ -257,10 +257,10 @@ const AnalyticsDashboard = ({
   if (dashboardError) {
     return (
       <div className={`analytics-dashboard error ${className}`}>
-        <div className="error-message">
+        <div className='error-message'>
           <h3>Failed to load analytics</h3>
           <p>{dashboardError}</p>
-          <button onClick={handleRefresh} className="retry-button">
+          <button onClick={handleRefresh} className='retry-button'>
             Try Again
           </button>
         </div>
@@ -271,23 +271,23 @@ const AnalyticsDashboard = ({
   return (
     <div className={`analytics-dashboard ${isFullscreen ? 'fullscreen' : ''} ${className}`}>
       {/* Dashboard Header */}
-      <div className="dashboard-header">
-        <div className="header-left">
+      <div className='dashboard-header'>
+        <div className='header-left'>
           <h2>{currentApp.name} Analytics</h2>
-          <p className="app-description">{currentApp.description}</p>
+          <p className='app-description'>{currentApp.description}</p>
         </div>
-        <div className="header-right">
+        <div className='header-right'>
           {/* Real-time indicator */}
           {enableRealTime && realTimeMetrics && (
-            <div className="realtime-indicator">
-              <span className="indicator-dot"></span>
+            <div className='realtime-indicator'>
+              <span className='indicator-dot'></span>
               <span>Live</span>
             </div>
           )}
 
           {/* Fullscreen toggle */}
           <button
-            className="fullscreen-toggle"
+            className='fullscreen-toggle'
             onClick={() => setIsFullscreen(!isFullscreen)}
             title={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
           >
@@ -297,14 +297,14 @@ const AnalyticsDashboard = ({
       </div>
 
       {/* Controls */}
-      <div className="dashboard-controls">
+      <div className='dashboard-controls'>
         {/* Date Range Selector */}
-        <div className="control-group">
+        <div className='control-group'>
           <label>Date Range:</label>
           <select
             value={selectedDateRange}
             onChange={(e) => setSelectedDateRange(e.target.value)}
-            className="date-range-select"
+            className='date-range-select'
           >
             {dateRangeOptions.map(option => (
               <option key={option.value} value={option.value}>
@@ -315,12 +315,12 @@ const AnalyticsDashboard = ({
         </div>
 
         {/* Category Selector */}
-        <div className="control-group">
+        <div className='control-group'>
           <label>Category:</label>
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="category-select"
+            className='category-select'
           >
             {categoryOptions.map(option => (
               <option key={option.value} value={option.value}>
@@ -331,12 +331,12 @@ const AnalyticsDashboard = ({
         </div>
 
         {/* Chart Type Selector */}
-        <div className="control-group">
+        <div className='control-group'>
           <label>Chart Type:</label>
           <select
             value={chartType}
             onChange={(e) => setChartType(e.target.value)}
-            className="chart-type-select"
+            className='chart-type-select'
           >
             {chartTypeOptions.map(option => (
               <option key={option.value} value={option.value}>
@@ -347,12 +347,12 @@ const AnalyticsDashboard = ({
         </div>
 
         {/* Action Buttons */}
-        <div className="control-group actions">
+        <div className='control-group actions'>
           <button
             onClick={handleRefresh}
             disabled={dashboardLoading || categoryLoading}
-            className="refresh-button"
-            title="Refresh Data"
+            className='refresh-button'
+            title='Refresh Data'
           >
             🔄 Refresh
           </button>
@@ -362,16 +362,16 @@ const AnalyticsDashboard = ({
               <button
                 onClick={() => handleExport('json')}
                 disabled={isExporting}
-                className="export-button"
-                title="Export as JSON"
+                className='export-button'
+                title='Export as JSON'
               >
                 📄 JSON
               </button>
               <button
                 onClick={() => handleExport('csv')}
                 disabled={isExporting}
-                className="export-button"
-                title="Export as CSV"
+                className='export-button'
+                title='Export as CSV'
               >
                 📊 CSV
               </button>
@@ -383,49 +383,49 @@ const AnalyticsDashboard = ({
       {/* Real-time Metrics Bar */}
       {enableRealTime && realTimeMetrics && (
         <motion.div
-          className="realtime-metrics"
+          className='realtime-metrics'
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <div className="metric-item">
-            <span className="metric-label">Active Users</span>
-            <span className="metric-value">{realTimeMetrics.activeUsers || 0}</span>
+          <div className='metric-item'>
+            <span className='metric-label'>Active Users</span>
+            <span className='metric-value'>{realTimeMetrics.activeUsers || 0}</span>
           </div>
-          <div className="metric-item">
-            <span className="metric-label">Current Sessions</span>
-            <span className="metric-value">{realTimeMetrics.currentSessions || 0}</span>
+          <div className='metric-item'>
+            <span className='metric-label'>Current Sessions</span>
+            <span className='metric-value'>{realTimeMetrics.currentSessions || 0}</span>
           </div>
-          <div className="metric-item">
-            <span className="metric-label">Page Views/Min</span>
-            <span className="metric-value">{realTimeMetrics.pageViewsPerMinute || 0}</span>
+          <div className='metric-item'>
+            <span className='metric-label'>Page Views/Min</span>
+            <span className='metric-value'>{realTimeMetrics.pageViewsPerMinute || 0}</span>
           </div>
-          <div className="metric-item">
-            <span className="metric-label">Response Time</span>
-            <span className="metric-value">{realTimeMetrics.avgResponseTime || 0}ms</span>
+          <div className='metric-item'>
+            <span className='metric-label'>Response Time</span>
+            <span className='metric-value'>{realTimeMetrics.avgResponseTime || 0}ms</span>
           </div>
         </motion.div>
       )}
 
       {/* Main Chart */}
-      <div className="dashboard-chart">
-        <AnimatePresence mode="wait">
+      <div className='dashboard-chart'>
+        <AnimatePresence mode='wait'>
           {(dashboardLoading || categoryLoading) && (
             <motion.div
-              className="chart-loading"
+              className='chart-loading'
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
             >
-              <div className="loading-spinner small">
-                <div className="spinner"></div>
+              <div className='loading-spinner small'>
+                <div className='spinner'></div>
               </div>
             </motion.div>
           )}
 
           {chartData && (
             <motion.div
-              className="chart-container"
+              className='chart-container'
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
@@ -439,17 +439,17 @@ const AnalyticsDashboard = ({
 
       {/* Summary Cards */}
       {(dashboardData?.summary || categoryData?.summary) && (
-        <div className="summary-cards">
+        <div className='summary-cards'>
           {Object.entries(dashboardData?.summary || categoryData?.summary || {}).map(([key, value]) => (
             <motion.div
               key={key}
-              className="summary-card"
+              className='summary-card'
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: 0.1 }}
             >
               <h4>{key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</h4>
-              <p className="summary-value">
+              <p className='summary-value'>
                 {typeof value === 'number' ? value.toLocaleString() : value}
               </p>
             </motion.div>
@@ -458,16 +458,16 @@ const AnalyticsDashboard = ({
       )}
 
       {/* Footer */}
-      <div className="dashboard-footer">
-        <div className="footer-left">
+      <div className='dashboard-footer'>
+        <div className='footer-left'>
           {dashboardData?.metadata?.lastUpdated && (
-            <span className="last-updated">
+            <span className='last-updated'>
               Last updated: {new Date(dashboardData.metadata.lastUpdated).toLocaleString()}
             </span>
           )}
         </div>
-        <div className="footer-right">
-          <span className="powered-by">Powered by Uni-Manager Analytics</span>
+        <div className='footer-right'>
+          <span className='powered-by'>Powered by Uni-Manager Analytics</span>
         </div>
       </div>
     </div>

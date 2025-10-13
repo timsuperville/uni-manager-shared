@@ -31,7 +31,7 @@ class PWANotificationService {
   async initialize() {
     try {
       if (!this.isSupported) {
-        console.warn('Push notifications are not supported in this browser');
+        // console.warn('Push notifications are not supported in this browser');
         return false;
       }
 
@@ -42,10 +42,10 @@ class PWANotificationService {
       await this.checkExistingSubscription();
 
       this.isInitialized = true;
-      console.log('PWA Notification Service initialized');
+      // console.log('PWA Notification Service initialized');
       return true;
-    } catch (error) {
-      console.error('Failed to initialize PWA Notification Service:', error);
+    } catch (_error) {
+      // console.error('Failed to initialize PWA Notification Service:', error);
       return false;
     }
   }
@@ -59,8 +59,8 @@ class PWANotificationService {
       // In production, this should come from the backend
       this.vapidPublicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY ||
         'BNxJLxVhXvvJV2wX1xG8K9EeEQy-Zj6QJvF2CZlHfE9QJ6vX2Z8H4G3K9EeEQy';
-    } catch (error) {
-      console.error('Failed to get VAPID public key:', error);
+    } catch (_error) {
+      // console.error('Failed to get VAPID public key:', error);
       throw error;
     }
   }
@@ -72,7 +72,7 @@ class PWANotificationService {
     try {
       if (!('serviceWorker' in navigator)) return null;
 
-      const registration = await navigator.serviceWorker.ready;
+      const registration = await typeof navigator !== "undefined" && navigator.serviceWorker.ready;
       const subscription = await registration.pushManager.getSubscription();
 
       if (subscription) {
@@ -89,20 +89,20 @@ class PWANotificationService {
 
             if (matchingSubscription) {
               this.preferences = matchingSubscription.preferences;
-              console.log('Found existing subscription in backend');
+              // console.log('Found existing subscription in backend');
             } else {
               // Subscription exists locally but not in backend - re-subscribe
               await this.subscribe();
             }
           }
-        } catch (error) {
-          console.warn('Could not verify subscription with backend:', error);
+        } catch (_error) {
+          // console.warn('Could not verify subscription with backend:', error);
         }
       }
 
       return subscription;
-    } catch (error) {
-      console.error('Failed to check existing subscription:', error);
+    } catch (_error) {
+      // console.error('Failed to check existing subscription:', error);
       return null;
     }
   }
@@ -124,14 +124,14 @@ class PWANotificationService {
       this.permission = permission;
 
       if (permission === 'granted') {
-        console.log('Notification permission granted');
+        // console.log('Notification permission granted');
         return true;
       } else {
-        console.log('Notification permission denied');
+        // console.log('Notification permission denied');
         return false;
       }
-    } catch (error) {
-      console.error('Failed to request notification permission:', error);
+    } catch (_error) {
+      // console.error('Failed to request notification permission:', error);
       throw error;
     }
   }
@@ -152,7 +152,7 @@ class PWANotificationService {
       }
 
       // Get service worker registration
-      const registration = await navigator.serviceWorker.ready;
+      const registration = await typeof navigator !== "undefined" && navigator.serviceWorker.ready;
 
       // Create push subscription
       const subscription = await registration.pushManager.subscribe({
@@ -166,16 +166,16 @@ class PWANotificationService {
       const deviceInfo = this.getDeviceInfo();
       const response = await apiService.post('/admin/push-notifications/subscribe', {
         subscription: subscription.toJSON(),
-        userAgent: navigator.userAgent,
+        userAgent: typeof navigator !== "undefined" && navigator.userAgent,
         deviceInfo
       });
 
       if (response.success) {
         this.preferences = response.data.preferences;
-        console.log('Successfully subscribed to push notifications');
+        // console.log('Successfully subscribed to push notifications');
 
         // Dispatch custom event for UI updates
-        window.dispatchEvent(new CustomEvent('pwa-notification-subscribed', {
+        typeof window !== "undefined" && window.dispatchEvent(new CustomEvent('pwa-notification-subscribed', {
           detail: { subscription: subscription.toJSON(), preferences: this.preferences }
         }));
 
@@ -183,8 +183,8 @@ class PWANotificationService {
       } else {
         throw new Error(response.message || 'Failed to subscribe');
       }
-    } catch (error) {
-      console.error('Failed to subscribe to push notifications:', error);
+    } catch (_error) {
+      // console.error('Failed to subscribe to push notifications:', error);
       throw error;
     }
   }
@@ -195,7 +195,7 @@ class PWANotificationService {
   async unsubscribe() {
     try {
       if (!this.subscription) {
-        console.log('No active subscription to unsubscribe');
+        // console.log('No active subscription to unsubscribe');
         return true;
       }
 
@@ -209,17 +209,17 @@ class PWANotificationService {
         await this.subscription.unsubscribe();
         this.subscription = null;
 
-        console.log('Successfully unsubscribed from push notifications');
+        // console.log('Successfully unsubscribed from push notifications');
 
         // Dispatch custom event for UI updates
-        window.dispatchEvent(new CustomEvent('pwa-notification-unsubscribed'));
+        typeof window !== "undefined" && window.dispatchEvent(new CustomEvent('pwa-notification-unsubscribed'));
 
         return true;
       } else {
         throw new Error(response.message || 'Failed to unsubscribe');
       }
-    } catch (error) {
-      console.error('Failed to unsubscribe from push notifications:', error);
+    } catch (_error) {
+      // console.error('Failed to unsubscribe from push notifications:', error);
       throw error;
     }
   }
@@ -240,10 +240,10 @@ class PWANotificationService {
 
       if (response.success) {
         this.preferences = response.data.preferences;
-        console.log('Notification preferences updated');
+        // console.log('Notification preferences updated');
 
         // Dispatch custom event for UI updates
-        window.dispatchEvent(new CustomEvent('pwa-notification-preferences-updated', {
+        typeof window !== "undefined" && window.dispatchEvent(new CustomEvent('pwa-notification-preferences-updated', {
           detail: { preferences: this.preferences }
         }));
 
@@ -251,8 +251,8 @@ class PWANotificationService {
       } else {
         throw new Error(response.message || 'Failed to update preferences');
       }
-    } catch (error) {
-      console.error('Failed to update notification preferences:', error);
+    } catch (_error) {
+      // console.error('Failed to update notification preferences:', error);
       throw error;
     }
   }
@@ -272,13 +272,13 @@ class PWANotificationService {
       const response = await apiService.post('/admin/push-notifications/test', testNotification);
 
       if (response.success) {
-        console.log('Test notification sent successfully');
+        // console.log('Test notification sent successfully');
         return response.data;
       } else {
         throw new Error(response.message || 'Failed to send test notification');
       }
-    } catch (error) {
-      console.error('Failed to send test notification:', error);
+    } catch (_error) {
+      // console.error('Failed to send test notification:', error);
       throw error;
     }
   }
@@ -288,7 +288,7 @@ class PWANotificationService {
    */
   showLocalNotification(title, body, options = {}) {
     if (!this.isSupported || this.permission !== 'granted') {
-      console.warn('Cannot show local notification: not supported or permission not granted');
+      // console.warn('Cannot show local notification: not supported or permission not granted');
       return null;
     }
 
@@ -318,7 +318,7 @@ class PWANotificationService {
    * Get device information
    */
   getDeviceInfo() {
-    const userAgent = navigator.userAgent;
+    const userAgent = typeof navigator !== "undefined" && navigator.userAgent;
     let browser = 'Unknown';
     let platform = 'Unknown';
 
@@ -338,7 +338,7 @@ class PWANotificationService {
     return {
       browser,
       platform,
-      version: navigator.appVersion
+      version: typeof navigator !== "undefined" && navigator.appVersion
     };
   }
 
@@ -351,7 +351,7 @@ class PWANotificationService {
       .replace(/-/g, '+')
       .replace(/_/g, '/');
 
-    const rawData = window.atob(base64);
+    const rawData = typeof window !== "undefined" && window.atob(base64);
     const outputArray = new Uint8Array(rawData.length);
 
     for (let i = 0; i < rawData.length; ++i) {
@@ -397,7 +397,7 @@ const pwaNotificationService = new PWANotificationService();
 
 // Auto-initialize when service worker is ready
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.ready.then(() => {
+  typeof navigator !== "undefined" && navigator.serviceWorker.ready.then(() => {
     pwaNotificationService.initialize().catch(console.error);
   });
 }
