@@ -33,7 +33,7 @@ const useContentManagement = () => {
   const lastFetchParams = useRef(null);
 
   // API base URL
-  const API_BASE = '/api/content';
+  const API_BASE = '/content';
 
   // Generic API request handler with caching and error handling
   const apiRequest = useCallback(async (endpoint, options = {}) => {

@@ -19,7 +19,7 @@ import ApiService from './apiService';
 
 class AnalyticsService {
   constructor() {
-    this.baseUrl = '/api/analytics';
+    this.baseUrl = '/analytics';
     this.apiService = new ApiService();
     this.websocket = null;
     this.isConnected = false;
@@ -177,6 +177,26 @@ class AnalyticsService {
    */
   async trackPerformanceMetric(metricType, value, context = {}) {
     try {
+      // Validate inputs before sending
+      if (!metricType || typeof metricType !== 'string') {
+        console.warn('Invalid metricType for performance tracking:', metricType);
+        return null;
+      }
+
+      if (typeof value !== 'number' || isNaN(value) || !isFinite(value)) {
+        console.warn('Invalid value for performance tracking:', { metricType, value });
+        return null;
+      }
+
+      // Debug logging for troubleshooting (can be removed when stable)
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔍 About to send performance metric:', {
+          metricType,
+          value,
+          context: context?.pageUrl || 'unknown'
+        });
+      }
+
       const response = await this.apiService.post(
         `${this.baseUrl}/track/performance`,
         {
@@ -190,8 +210,8 @@ class AnalyticsService {
         }
       );
       return response.data;
-    } catch (_error) {
-      // console.error('Failed to track performance metric:', error);
+    } catch (error) {
+      console.error('Failed to track performance metric:', error);
       // Don't throw error for tracking to avoid disrupting user experience
       return null;
     }
@@ -342,7 +362,7 @@ class AnalyticsService {
       }
 
       const protocol = typeof window !== "undefined" && window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const wsUrl = `${protocol}//${typeof window !== "undefined" && window.location.host}/api/analytics/stream`;
+      const wsUrl = `${protocol}//${typeof window !== "undefined" && window.location.host}/analytics/stream`;
 
       this.websocket = new WebSocket(wsUrl);
 
@@ -490,7 +510,8 @@ class AnalyticsService {
       };
 
       Object.entries(metrics).forEach(([metric, value]) => {
-        if (value > 0) {
+        // Ensure value is a valid positive number
+        if (typeof value === 'number' && !isNaN(value) && isFinite(value) && value > 0) {
           this.trackPerformanceMetric(metric, value, {
             pageUrl: typeof window !== "undefined" && window.location.pathname,
             userAgent: typeof navigator !== "undefined" && navigator.userAgent,

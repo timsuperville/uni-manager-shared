@@ -2,10 +2,11 @@
 // This configures error tracking and performance monitoring for production
 
 import React from 'react';
+import PropTypes from 'prop-types';
 
 // Environment-specific configuration
-const isProd = process?.env?.NODE_ENV || "development" === 'production';
-const isStaging = process?.env?.NODE_ENV || "development" === 'staging';
+const isProd = import.meta.env?.MODE || "development" === 'production';
+const isStaging = import.meta.env?.MODE || "development" === 'staging';
 
 // Error Boundary Component for React
 export class ErrorBoundary extends React.Component {
@@ -46,8 +47,8 @@ export class ErrorBoundary extends React.Component {
       pathname: typeof window !== "undefined" && window.location.pathname,
       search: typeof window !== "undefined" && window.location.search,
       hash: typeof window !== "undefined" && window.location.hash,
-      appType: process.env.VITE_APP_TYPE || 'unknown',
-      nodeEnv: process?.env?.NODE_ENV || "development",
+      appType: import.meta.env.VITE_APP_TYPE || 'unknown',
+      nodeEnv: import.meta.env?.MODE || "development",
 
       // Browser context
       browserInfo: {
@@ -295,7 +296,7 @@ export class ErrorBoundary extends React.Component {
   }
 
   async sendToErrorLogging(errorReport) {
-    return fetch('/api/errors/log', {
+    return fetch('/errors/log', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -328,7 +329,7 @@ export class ErrorBoundary extends React.Component {
       }
     };
 
-    return fetch('/api/feedback/submit', {
+    return fetch('/feedback/submit', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -582,7 +583,7 @@ ${errorReport.componentStack}
       }
     };
 
-    fetch('/api/feedback/error-follow-up', {
+    fetch('/feedback/error-follow-up', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -720,7 +721,7 @@ ${errorData.stack || 'No stack trace available'}
     }
   };
 
-  return fetch('/api/feedback/submit', {
+  return fetch('/feedback/submit', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -765,14 +766,14 @@ export const setupGlobalErrorHandling = () => {
       stack: event.reason?.stack,
       timestamp: new Date().toISOString(),
       url: typeof window !== "undefined" && window.location.href,
-      appType: process.env.VITE_APP_TYPE || 'unknown'
+      appType: import.meta.env.VITE_APP_TYPE || 'unknown'
     };
 
     const enhancedError = collectAdvancedErrorContext(baseError);
 
     if (isProd || isStaging) {
       Promise.all([
-        fetch('/api/errors/log', {
+        fetch('/errors/log', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -797,14 +798,14 @@ export const setupGlobalErrorHandling = () => {
       stack: event.error?.stack,
       timestamp: new Date().toISOString(),
       url: typeof window !== "undefined" && window.location.href,
-      appType: process.env.VITE_APP_TYPE || 'unknown'
+      appType: import.meta.env.VITE_APP_TYPE || 'unknown'
     };
 
     const enhancedError = collectAdvancedErrorContext(baseError);
 
     if (isProd || isStaging) {
       Promise.all([
-        fetch('/api/errors/log', {
+        fetch('/errors/log', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -858,16 +859,19 @@ const sendToAnalytics = (metric) => {
     ...metric,
     timestamp: new Date().toISOString(),
     url: typeof window !== "undefined" && window.location.href,
-    appType: process.env.VITE_APP_TYPE || 'unknown',
+    appType: import.meta.env.VITE_APP_TYPE || 'unknown',
     userAgent: typeof navigator !== "undefined" && navigator.userAgent
   };
 
-  fetch('/api/analytics/performance', {
+  // Use the backend URL for analytics
+  const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
+  fetch(`${backendUrl}/analytics/web-vitals`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(data)
+    body: JSON.stringify({ metric: data })
   }).catch(err => {
     // console.error('Failed to send analytics:', err);
   });
@@ -878,7 +882,7 @@ export const setupHealthCheck = () => {
   // Periodic health check to backend
   setInterval(async () => {
     try {
-      const response = await fetch('/api/health');
+      const response = await fetch('/health');
       if (!response.ok) {
         // console.warn('Backend health check failed');
       }
@@ -896,6 +900,8 @@ export const initializeMonitoring = () => {
     setupHealthCheck();
   }
 };
-isProd.propTypes = {
-  // TODO: Define specific prop types
+
+ErrorBoundary.propTypes = {
+  children: PropTypes.node.isRequired,
+  fallback: PropTypes.func
 };

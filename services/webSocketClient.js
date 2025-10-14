@@ -4,7 +4,7 @@
  */
 
 import { io } from 'socket.io-client';
-import { getWebSocketUrl } from '../config/environment.ts';
+import { getWebSocketUrl } from '../core/config/environment.ts';
 
 class WebSocketClient {
   constructor() {

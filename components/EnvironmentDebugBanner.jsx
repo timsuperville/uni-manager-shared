@@ -4,7 +4,7 @@
  */
 import React from 'react';
 import { Alert, Chip, Box } from '@mui/material';
-import { isDevelopmentMode } from '../config/environment.ts';
+import { isDevelopmentMode } from '../core/config/environment.ts';
 
 export function EnvironmentDebugBanner() {
   // Only show in development mode

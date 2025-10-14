@@ -7,7 +7,7 @@
 /* eslint-env browser */
 /* global URLSearchParams, fetch, localStorage, setTimeout, clearInterval, setInterval, console */
 
-import { getEnvironmentConfig } from '../../config/environment';
+import { getEnvironmentConfig } from '../../../core/config/environment';
 
 class AnalyticsDashboardAPIService {
   constructor() {

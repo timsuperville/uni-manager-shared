@@ -1,5 +1,5 @@
 import React, { createContext, useContext } from 'react';
-import { getSharedEnvironmentConfig } from '../config/environment.ts';
+import { getSharedEnvironmentConfig } from '../core/config/environment.ts';
 
 // Simple API provider for shared functionality
 const ApiContext = createContext({});

@@ -40,7 +40,7 @@ const useContentGeneration = () => {
   const generationCacheRef = useRef(new Map());
 
   // API configuration
-  const API_BASE = '/api/content';
+  const API_BASE = '/content';
 
   // Generic API request handler
   const apiRequest = useCallback(async (endpoint, options = {}) => {

@@ -17,7 +17,7 @@ global.fetch = vi.fn();
 // MFA API service mock
 const createMFAAPI = () => ({
   setupMFA: async () => {
-    const response = await fetch('/api/mfa/setup', {
+    const response = await fetch('/mfa/setup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
     });
@@ -25,7 +25,7 @@ const createMFAAPI = () => ({
   },
 
   verifyMFASetup: async (token) => {
-    const response = await fetch('/api/mfa/verify-setup', {
+    const response = await fetch('/mfa/verify-setup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token }),
@@ -34,7 +34,7 @@ const createMFAAPI = () => ({
   },
 
   verifyMFALogin: async ({ token, trustDevice, deviceFingerprint }) => {
-    const response = await fetch('/api/mfa/verify', {
+    const response = await fetch('/mfa/verify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token, trustDevice, deviceFingerprint }),
@@ -43,12 +43,12 @@ const createMFAAPI = () => ({
   },
 
   getMFAStatus: async () => {
-    const response = await fetch('/api/mfa/status');
+    const response = await fetch('/mfa/status');
     return response.json();
   },
 
   disableMFA: async (token) => {
-    const response = await fetch('/api/mfa/disable', {
+    const response = await fetch('/mfa/disable', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token }),
@@ -57,7 +57,7 @@ const createMFAAPI = () => ({
   },
 
   regenerateBackupCodes: async (token) => {
-    const response = await fetch('/api/mfa/regenerate-codes', {
+    const response = await fetch('/mfa/regenerate-codes', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token }),
@@ -66,12 +66,12 @@ const createMFAAPI = () => ({
   },
 
   getTrustedDevices: async () => {
-    const response = await fetch('/api/mfa/trusted-devices');
+    const response = await fetch('/mfa/trusted-devices');
     return response.json();
   },
 
   revokeTrustedDevice: async (fingerprint) => {
-    const response = await fetch(`/api/mfa/trusted-devices/${fingerprint}`, {
+    const response = await fetch(`/mfa/trusted-devices/${fingerprint}`, {
       method: 'DELETE',
     });
     return response.json();
@@ -106,7 +106,7 @@ describe('MFA API Integration', () => {
 
       const result = await mfaAPI.setupMFA();
 
-      expect(fetch).toHaveBeenCalledWith('/api/mfa/setup', {
+      expect(fetch).toHaveBeenCalledWith('/mfa/setup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       });
@@ -127,7 +127,7 @@ describe('MFA API Integration', () => {
 
       const result = await mfaAPI.verifyMFASetup('123456');
 
-      expect(fetch).toHaveBeenCalledWith('/api/mfa/verify-setup', {
+      expect(fetch).toHaveBeenCalledWith('/mfa/verify-setup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token: '123456' }),
@@ -159,7 +159,7 @@ describe('MFA API Integration', () => {
         deviceFingerprint: 'device123',
       });
 
-      expect(fetch).toHaveBeenCalledWith('/api/mfa/verify', {
+      expect(fetch).toHaveBeenCalledWith('/mfa/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

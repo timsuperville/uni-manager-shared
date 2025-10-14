@@ -2,7 +2,7 @@
 import {
   getApiBaseUrl,
   getSharedEnvironmentConfig,
-} from '../config/environment.ts';
+} from '../core/config/environment.ts';
 
 class ApiService {
   constructor() {
@@ -29,8 +29,8 @@ class ApiService {
       }
 
       return await response.json();
-    } catch (_error) {
-      // console.error(`API request failed: ${endpoint}`, error);
+    } catch (error) {
+      console.error(`API request failed: ${endpoint}`, error);
       throw error;
     }
   }
