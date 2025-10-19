@@ -46,7 +46,7 @@ class AnalyticsService {
         `${this.baseUrl}/dashboard?${params}`
       );
       return response.data;
-    } catch (_error) {
+    } catch (error) {
       // console.error('Failed to get dashboard data:', error);
       throw this.handleError(error);
     }
@@ -70,7 +70,7 @@ class AnalyticsService {
         `${this.baseUrl}/user-behavior?${params}`
       );
       return response.data;
-    } catch (_error) {
+    } catch (error) {
       // console.error('Failed to get user behavior analytics:', error);
       throw this.handleError(error);
     }
@@ -91,7 +91,7 @@ class AnalyticsService {
 
       const response = await this.apiService.get(`${this.baseUrl}/performance/metrics?${params}`);
       return response.data;
-    } catch (_error) {
+    } catch (error) {
       // console.error('Failed to get performance analytics:', error);
       throw this.handleError(error);
     }
@@ -114,7 +114,7 @@ class AnalyticsService {
         `${this.baseUrl}/security?${params}`
       );
       return response.data;
-    } catch (_error) {
+    } catch (error) {
       // console.error('Failed to get security analytics:', error);
       throw this.handleError(error);
     }
@@ -127,7 +127,7 @@ class AnalyticsService {
     try {
       const response = await this.apiService.get(`${this.baseUrl}/real-time/metrics`);
       return response.data;
-    } catch (_error) {
+    } catch (error) {
       // console.error('Failed to get real-time metrics:', error);
       throw this.handleError(error);
     }
@@ -140,7 +140,7 @@ class AnalyticsService {
     try {
       const response = await this.apiService.get(`${this.baseUrl}/real-time/alerts`);
       return response.data;
-    } catch (_error) {
+    } catch (error) {
       // console.error('Failed to get active alerts:', error);
       throw this.handleError(error);
     }
@@ -165,7 +165,7 @@ class AnalyticsService {
         }
       );
       return response.data;
-    } catch (_error) {
+    } catch (error) {
       // console.error('Failed to track user behavior:', error);
       // Don't throw error for tracking to avoid disrupting user experience
       return null;
@@ -232,7 +232,7 @@ class AnalyticsService {
         },
       });
       return response.data;
-    } catch (_error) {
+    } catch (error) {
       // console.error('Failed to track security event:', error);
       // Don't throw error for tracking to avoid disrupting user experience
       return null;
@@ -256,7 +256,7 @@ class AnalyticsService {
         parameters,
       });
       return response.data;
-    } catch (_error) {
+    } catch (error) {
       // console.error('Failed to get predictive insights:', error);
       throw this.handleError(error);
     }
@@ -277,7 +277,7 @@ class AnalyticsService {
         `${this.baseUrl}/ai/recommendations?${params}`
       );
       return response.data;
-    } catch (_error) {
+    } catch (error) {
       // console.error('Failed to get AI recommendations:', error);
       throw this.handleError(error);
     }
@@ -293,7 +293,7 @@ class AnalyticsService {
         query
       );
       return response.data;
-    } catch (_error) {
+    } catch (error) {
       // console.error('Failed to execute custom query:', error);
       throw this.handleError(error);
     }
@@ -332,7 +332,7 @@ class AnalyticsService {
       } else {
         return await response.text();
       }
-    } catch (_error) {
+    } catch (error) {
       // console.error('Failed to export data:', error);
       throw this.handleError(error);
     }
@@ -345,7 +345,7 @@ class AnalyticsService {
     try {
       const response = await this.apiService.get(`${this.baseUrl}/health`);
       return response.data;
-    } catch (_error) {
+    } catch (error) {
       // console.error('Failed to get service health:', error);
       throw this.handleError(error);
     }
@@ -390,12 +390,12 @@ class AnalyticsService {
         try {
           const data = JSON.parse(event.data);
           if (onMessage) onMessage(data);
-        } catch (_error) {
+        } catch (error) {
           // console.error('Error parsing WebSocket message:', error);
         }
       };
 
-      this.websocket.onerror = (_error) => {
+      this.websocket.onerror = (error) => {
         // console.error('Analytics WebSocket error:', error);
         this.isConnected = false;
         if (onError) onError(error);
@@ -414,7 +414,7 @@ class AnalyticsService {
       };
 
       return this.websocket;
-    } catch (_error) {
+    } catch (error) {
       // console.error('Failed to setup WebSocket connection:', error);
       if (onError) onError(error);
       return null;
@@ -635,7 +635,7 @@ class AnalyticsService {
       );
 
       return results;
-    } catch (_error) {
+    } catch (error) {
       // console.error('Failed to batch track events:', error);
       return [];
     }

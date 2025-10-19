@@ -559,7 +559,7 @@ class CrossApplicationSSOService {
   async trackSecurityEvent(eventType, data) {
     try {
       const response = await fetch(
-        '/api/shared/security-analytics/auth-events',
+        '/shared/security-analytics/auth-events',
         {
           method: 'POST',
           headers: {

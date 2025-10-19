@@ -112,9 +112,7 @@ class PWAInitializationService {
     const churchResources = [
       '/church/services',
       '/church/members',
-      '/church/events',
-      '/api/church/services',
-      '/api/church/members'
+      '/church/events'
     ];
 
     await this.cacheResources(churchResources);
@@ -134,9 +132,7 @@ class PWAInitializationService {
     const homeResources = [
       '/home/dashboard',
       '/home/family',
-      '/home/budget',
-      '/api/home/family',
-      '/api/home/budget'
+      '/home/budget'
     ];
 
     await this.cacheResources(homeResources);
@@ -156,9 +152,7 @@ class PWAInitializationService {
     const adminResources = [
       '/admin/dashboard',
       '/admin/users',
-      '/admin/analytics',
-      '/api/admin/users',
-      '/api/admin/analytics'
+      '/admin/analytics'
     ];
 
     await this.cacheResources(adminResources);
@@ -178,9 +172,7 @@ class PWAInitializationService {
     const businessResources = [
       '/business/dashboard',
       '/business/projects',
-      '/business/clients',
-      '/api/business/projects',
-      '/api/business/clients'
+      '/business/clients'
     ];
 
     await this.cacheResources(businessResources);
@@ -197,9 +189,7 @@ class PWAInitializationService {
     const personalResources = [
       '/personal/dashboard',
       '/personal/goals',
-      '/personal/notes',
-      '/api/personal/goals',
-      '/api/personal/notes'
+      '/personal/notes'
     ];
 
     await this.cacheResources(personalResources);
@@ -216,9 +206,7 @@ class PWAInitializationService {
     const playbackResources = [
       '/playback/dashboard',
       '/playback/media',
-      '/playback/playlists',
-      '/api/playback/media',
-      '/api/playback/playlists'
+      '/playback/playlists'
     ];
 
     await this.cacheResources(playbackResources);

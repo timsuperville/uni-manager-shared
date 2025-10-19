@@ -422,23 +422,23 @@ async function processOfflineAction(action, data) {
 
   switch (action) {
   case 'createService':
-    endpoint = '/api/church/services';
+    endpoint = '/church/services';
     break;
   case 'updateProfile':
-    endpoint = '/api/user/profile';
+    endpoint = '/user/profile';
     method = 'PUT';
     break;
   case 'addFamilyMember':
-    endpoint = '/api/home/family/members';
+    endpoint = '/home/family/members';
     break;
   case 'submitFeedback':
-    endpoint = '/api/feedback/submit';
+    endpoint = '/feedback/submit';
     break;
   case 'createBudgetEntry':
-    endpoint = '/api/home/budget/entries';
+    endpoint = '/home/budget/entries';
     break;
   case 'updateProject':
-    endpoint = '/api/business/projects';
+    endpoint = '/business/projects';
     method = 'PUT';
     break;
   default:

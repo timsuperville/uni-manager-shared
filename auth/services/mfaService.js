@@ -31,7 +31,7 @@ export const MFA_STATUS = {
 export class MFAService {
   constructor(apiService) {
     this.apiService = apiService;
-    this.baseUrl = '/api/auth/mfa';
+    this.baseUrl = '/auth/mfa';
   }
 
   /**

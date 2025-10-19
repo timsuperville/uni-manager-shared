@@ -46,7 +46,7 @@ class ReportingService {
   async createReport(reportData) {
     try {
       const response = await apiClient.post(
-        '/api/reporting/reports',
+        '/shared/reports',
         reportData,
       );
       return response.data;
@@ -202,7 +202,7 @@ class ReportingService {
   async createTemplate(templateData) {
     try {
       const response = await apiClient.post(
-        '/api/reporting/templates',
+        '/shared/report-templates',
         templateData,
       );
       return response.data;
@@ -310,7 +310,7 @@ class ReportingService {
    */
   async getScheduledReports() {
     try {
-      const response = await apiClient.get('/api/reporting/scheduled');
+      const response = await apiClient.get('/shared/scheduled-reports');
       return response.data;
     } catch (_error) {
       // console.error('Error fetching scheduled reports:', error);
@@ -323,7 +323,7 @@ class ReportingService {
    */
   async cancelScheduledReport(scheduleId) {
     try {
-      await apiClient.delete(`/api/reporting/scheduled/${scheduleId}`);
+      await apiClient.delete(`/shared/scheduled-reports/${scheduleId}`);
     } catch (_error) {
       // console.error('Error canceling scheduled report:', error);
       throw error;
@@ -336,7 +336,7 @@ class ReportingService {
   async validateReport(reportData) {
     try {
       const response = await apiClient.post(
-        '/api/reporting/validate',
+        '/shared/report-validation',
         reportData,
       );
       return response.data;
@@ -351,7 +351,7 @@ class ReportingService {
    */
   async getDataSources() {
     try {
-      const response = await apiClient.get('/api/reporting/data-sources');
+      const response = await apiClient.get('/shared/data-sources');
       return response.data;
     } catch (_error) {
       // console.error('Error fetching data sources:', error);
@@ -365,7 +365,7 @@ class ReportingService {
   async testDataSource(dataSourceConfig) {
     try {
       const response = await apiClient.post(
-        '/api/reporting/data-sources/test',
+        '/shared/data-sources/test',
         dataSourceConfig,
       );
       return response.data;
@@ -468,7 +468,7 @@ class ReportingService {
       formData.append('config', configFile);
 
       const response = await apiClient.post(
-        '/api/reporting/reports/import',
+        '/shared/reports/import',
         formData,
         {
           headers: {
