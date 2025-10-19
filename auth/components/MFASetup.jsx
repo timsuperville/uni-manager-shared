@@ -423,7 +423,7 @@ const MFASetup = ({ onSetupComplete, onCancel, className = '' }) => {
                   <button
                     onClick={() =>
                       handleCopyToClipboard(
-                        setupData.backupCodes.join("\n'),
+                        setupData.backupCodes.join("\n"),
                         'all-codes'
                       )
                     }

@@ -14,17 +14,17 @@ class WebVitalsMonitor {
 
   init() {
     if (this.initialized || typeof window === 'undefined') return;
-    
+
     this.initialized = true;
-    
+
     // Initialize performance tracking
     this.trackPerformanceMetrics();
-    
+
     // Send metrics on page unload
     window.addEventListener('beforeunload', () => {
       this.sendMetrics();
     });
-    
+
     // Send metrics after 30 seconds
     setTimeout(() => {
       this.sendMetrics();
@@ -40,7 +40,7 @@ class WebVitalsMonitor {
             this.handleEntry(entry);
           });
         });
-        
+
         observer.observe({ entryTypes: ['navigation', 'paint', 'largest-contentful-paint'] });
       } catch (e) {
         console.warn('Performance Observer not fully supported');
@@ -49,10 +49,10 @@ class WebVitalsMonitor {
   }
 
   handleEntry(entry) {
-    const metricName = entry.entryType === 'largest-contentful-paint' ? 'LCP' : 
+    const metricName = entry.entryType === 'largest-contentful-paint' ? 'LCP' :
                      entry.name === 'first-contentful-paint' ? 'FCP' :
                      entry.entryType;
-    
+
     this.metrics[metricName] = {
       value: entry.startTime || entry.loadEventEnd,
       rating: this.getRating(metricName, entry.startTime || entry.loadEventEnd),
@@ -71,7 +71,7 @@ class WebVitalsMonitor {
   getRating(metricName, value) {
     const threshold = this.thresholds[metricName];
     if (!threshold) return 'unknown';
-    
+
     if (value <= threshold.good) return 'good';
     if (value <= threshold.poor) return 'needs-improvement';
     return 'poor';
@@ -130,7 +130,7 @@ export const useWebVitals = () => {
 
   useEffect(() => {
     webVitalsMonitor.init();
-    
+
     const interval = setInterval(() => {
       setMetrics(webVitalsMonitor.getMetrics());
       setScore(webVitalsMonitor.getPerformanceScore());

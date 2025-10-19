@@ -25,7 +25,7 @@ export const createBundleAnalysisConfig = (baseConfig) => {
             router: ['react-router-dom'],
             ui: ['@headlessui/react', '@heroicons/react'],
             utils: ['lodash', 'date-fns', 'axios'],
-            
+
             // App-specific chunks
             auth: ['./src/features/auth'],
             dashboard: ['./src/features/dashboard'],

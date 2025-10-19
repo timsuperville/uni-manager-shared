@@ -26,7 +26,7 @@ export const PerformanceDashboard = ({ className = '' }) => {
   return (
     <div className={'fixed bottom-4 right-4 bg-white shadow-lg rounded-lg p-4 z-50 ' + className}>
       <h3 className="font-bold text-sm mb-2">Performance Monitor</h3>
-      
+
       <div className="mb-2">
         <div className="text-xs text-gray-600">Overall Score</div>
         <div className={'text-lg font-bold ' + getScoreColor(score)}>

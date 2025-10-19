@@ -5,7 +5,7 @@ import { lazy, Suspense, useState, useEffect, useRef } from 'react';
  */
 export const createLazyComponent = (importFunc, fallback = null) => {
   const LazyComponent = lazy(importFunc);
-  
+
   return (props) => (
     <Suspense fallback={fallback || <div className="loading-spinner">Loading...</div>}>
       <LazyComponent {...props} />
@@ -26,7 +26,7 @@ export const preloadComponent = (importFunc) => {
  */
 export const createLazyRoute = (importFunc, LoadingComponent = null) => {
   const LazyRoute = lazy(importFunc);
-  
+
   return (props) => (
     <Suspense fallback={LoadingComponent || <PageLoadingSpinner />}>
       <LazyRoute {...props} />
