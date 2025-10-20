@@ -16,7 +16,9 @@ const OAuthCallback = ({ onSuccess, onError, redirectPath = '/' }) => {
     const processCallback = async () => {
       try {
         // Parse URL parameters
-        const urlParams = new URLSearchParams(typeof window !== "undefined" && window.location.search);
+        const urlParams = typeof window !== "undefined"
+          ? new URLSearchParams(window.location.search)
+          : new URLSearchParams();
 
         // Check for OAuth error
         const error = urlParams.get('error');
@@ -59,11 +61,11 @@ const OAuthCallback = ({ onSuccess, onError, redirectPath = '/' }) => {
         } else {
           // Default redirect after successful authentication
           setTimeout(() => {
-            typeof window !== "undefined" && window.location.href = redirectPath;
+            if (typeof window !== "undefined") window.location.href = redirectPath;
           }, 2000);
         }
-      } catch (_error) {
-        // console.error('OAuth callback error:', error);
+      } catch (error) {
+        console.error('OAuth callback error:', error);
         setStatus('error');
         setMessage(error.message || 'Authentication failed');
 
@@ -77,7 +79,7 @@ const OAuthCallback = ({ onSuccess, onError, redirectPath = '/' }) => {
   }, [handleOAuthCallback, onSuccess, onError, redirectPath]);
 
   const appConfig = getCurrentAppConfig();
-  const brandColor = appConfig.theme.primaryColor;
+  const brandColor = appConfig.branding.primaryColor;
 
   return (
     <div className='min-h-screen flex items-center justify-center bg-gray-50'>
@@ -88,11 +90,11 @@ const OAuthCallback = ({ onSuccess, onError, redirectPath = '/' }) => {
             className='mx-auto h-12 w-12 rounded-full flex items-center justify-center text-white text-xl font-bold mb-4'
             style={{ backgroundColor: brandColor }}
           >
-            {appConfig.name.charAt(0).toUpperCase()}
+            {appConfig.appName.charAt(0).toUpperCase()}
           </div>
 
           <h2 className='text-3xl font-extrabold text-gray-900 mb-2'>
-            {appConfig.displayName}
+            {appConfig.appName}
           </h2>
 
           <div className='mb-6'>
@@ -150,20 +152,18 @@ const OAuthCallback = ({ onSuccess, onError, redirectPath = '/' }) => {
           {status === 'error' && (
             <div className='space-y-4'>
               <button
-                onClick={() => (typeof window !== "undefined" && window.location.href = '/login')}
+                onClick={() => { if (typeof window !== "undefined") window.location.href = '/login'; }}
                 className='w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2'
                 style={{
                   backgroundColor: brandColor,
-                  focusRingColor: brandColor,
                 }}
               >
                 Back to Login
               </button>
 
               <button
-                onClick={() => (typeof window !== "undefined" && window.location.href = '/')}
+                onClick={() => { if (typeof window !== "undefined") window.location.href = '/'; }}
                 className='w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2'
-                style={{ focusRingColor: brandColor }}
               >
                 Go Home
               </button>
