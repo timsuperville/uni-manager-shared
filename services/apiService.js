@@ -2,7 +2,7 @@
 import {
   getApiBaseUrl,
   getSharedEnvironmentConfig,
-} from '../core/config/environment.ts';
+} from '../config/environment.ts';
 
 class ApiService {
   constructor() {
