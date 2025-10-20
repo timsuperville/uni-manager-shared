@@ -67,9 +67,9 @@ const MFAManagement = ({ className = '' }) => {
       } else {
         throw new Error(data.message || 'Failed to load MFA status');
       }
-    } catch (_err) {
+    } catch (err) {
       setError('Failed to load MFA status');
-      // console.error('MFA status error:', err);
+      console.error('MFA status error:', err);
     } finally {
       setIsLoading(false);
     }
@@ -87,8 +87,8 @@ const MFAManagement = ({ className = '' }) => {
       if (data.success) {
         setTrustedDevices(data.data || []);
       }
-    } catch (_err) {
-      // console.error('Trusted devices error:', err);
+    } catch (err) {
+      console.error('Trusted devices error:', err);
     }
   };
 
@@ -119,7 +119,7 @@ const MFAManagement = ({ className = '' }) => {
       // This would be handled by the verification flow
       // The actual disable happens in the MFA verification component
       await loadMFAStatus();
-    } catch (_err) {
+    } catch (err) {
       setError('Failed to disable MFA');
     }
   };
@@ -134,7 +134,7 @@ const MFAManagement = ({ className = '' }) => {
     try {
       // This would be handled by the verification flow
       await loadMFAStatus();
-    } catch (_err) {
+    } catch (err) {
       setError('Failed to regenerate backup codes');
     }
   };
@@ -157,7 +157,7 @@ const MFAManagement = ({ className = '' }) => {
       } else {
         throw new Error(data.message || 'Failed to revoke device');
       }
-    } catch (_err) {
+    } catch (err) {
       setError('Failed to revoke device trust');
     }
   };

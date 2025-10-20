@@ -452,7 +452,7 @@ const MFASetup = ({ onSetupComplete, onCancel, className = '' }) => {
         <div className='flex justify-center'>
           <button
             onClick={completeSetup}
-            className='px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+            className='px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium'
           >
             I've Saved My Backup Codes
           </button>

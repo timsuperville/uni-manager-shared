@@ -36,7 +36,7 @@ export class SessionManager {
     if (!this.isBrowser) return;
 
     try {
-      this.crossTabChannel = new typeof window !== "undefined" && window.BroadcastChannel('auth_session');
+      this.crossTabChannel = (typeof window !== "undefined" && window.BroadcastChannel) ? new window.BroadcastChannel('auth_session') : null;
 
       this.crossTabChannel.addEventListener('message', (event) => {
         const { type, data } = event.data;
@@ -167,7 +167,7 @@ export class SessionManager {
    */
   getRememberMe() {
     if (!this.isBrowser) return false;
-    return typeof window !== "undefined" && window.typeof localStorage !== "undefined" && localStorage.getItem(this.options.rememberMeKey) === 'true';
+    return typeof window !== "undefined" && typeof localStorage !== "undefined" && localStorage.getItem(this.options.rememberMeKey) === 'true';
   }
 
   /**

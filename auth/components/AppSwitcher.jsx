@@ -43,8 +43,8 @@ const AppSwitcher = () => {
       setSwitching(appId);
       setIsOpen(false);
       await switchToApp(appId);
-    } catch (_error) {
-      // console.error('App switch failed:', error);
+    } catch (error) {
+      console.error('App switch failed:', error);
       // Error handling is managed by SSOContext
     } finally {
       setSwitching(null);
@@ -90,7 +90,6 @@ const AppSwitcher = () => {
     );
   }
 
-  const currentAppInfo = getCurrentAppInfo();
   const filteredApps = availableApps.filter(
     (app) => app.id !== currentApp && hasAppPermission(app.id)
   );

@@ -51,7 +51,7 @@ export const SSOProvider = ({ children }) => {
         }
 
         setSSOError(null);
-      } catch (_error) {
+      } catch (error) {
         // console.error('SSO initialization failed:', error);
         setSSOError(error.message);
       } finally {
@@ -76,7 +76,7 @@ export const SSOProvider = ({ children }) => {
         try {
           const apps = await ssoService.getAvailableApps();
           setAvailableApps(apps);
-        } catch (_error) {
+        } catch (error) {
           // console.error('Failed to update available apps:', error);
         }
       } else {
@@ -98,7 +98,7 @@ export const SSOProvider = ({ children }) => {
 
       try {
         await ssoService.switchToApp(appId, path);
-      } catch (_error) {
+      } catch (error) {
         setSSOError(error.message);
         throw error;
       }
@@ -126,7 +126,7 @@ export const SSOProvider = ({ children }) => {
         }
 
         return result;
-      } catch (_error) {
+      } catch (error) {
         setSSOError(error.message);
         throw error;
       }
@@ -147,7 +147,7 @@ export const SSOProvider = ({ children }) => {
       const result = await ssoService.logout();
       setAvailableApps([]);
       return result;
-    } catch (_error) {
+    } catch (error) {
       setSSOError(error.message);
       throw error;
     }
@@ -191,7 +191,7 @@ export const SSOProvider = ({ children }) => {
           // Verify SSO session and authenticate user
           const isAuth = await ssoService.isAuthenticated();
           if (isAuth) {
-            // console.log(
+            console.log(
               `SSO switch from ${sourceApp} to ${currentApp} successful`
             );
 
@@ -199,8 +199,8 @@ export const SSOProvider = ({ children }) => {
             const cleanUrl = typeof window !== "undefined" && window.location.pathname;
             typeof window !== "undefined" && window.history.replaceState({}, typeof document !== "undefined" && document.title, cleanUrl);
           }
-        } catch (_error) {
-          // console.error('SSO parameter handling failed:', error);
+        } catch (error) {
+          console.error('SSO parameter handling failed:', error);
           setSSOError('SSO session verification failed');
         }
       }

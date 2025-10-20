@@ -39,7 +39,7 @@ export const AuthProvider = ({ children }) => {
         }
 
         setIsInitialized(true);
-      } catch (_err) {
+      } catch (err) {
         setError(err.message);
         // console.error('Auth initialization failed:', err);
       } finally {
@@ -66,7 +66,7 @@ export const AuthProvider = ({ children }) => {
       }
 
       await authService.startOAuthFlow(providerId, options);
-    } catch (_err) {
+    } catch (err) {
       setError(err.message);
       // console.error('OAuth login failed:', err);
     } finally {
@@ -84,7 +84,7 @@ export const AuthProvider = ({ children }) => {
       setUser(authData.user);
 
       return authData;
-    } catch (_err) {
+    } catch (err) {
       setError(err.message);
       // console.error('OAuth callback failed:', err);
       throw err;
@@ -103,7 +103,7 @@ export const AuthProvider = ({ children }) => {
       setUser(authData.user);
 
       return authData;
-    } catch (_err) {
+    } catch (err) {
       setError(err.message);
       // console.error('Email login failed:', err);
       throw err;
@@ -124,7 +124,7 @@ export const AuthProvider = ({ children }) => {
       }
 
       return authData;
-    } catch (_err) {
+    } catch (err) {
       setError(err.message);
       // console.error('Registration failed:', err);
       throw err;
@@ -139,7 +139,7 @@ export const AuthProvider = ({ children }) => {
       setError(null);
       await authService.logout();
       setUser(null);
-    } catch (_err) {
+    } catch (err) {
       setError(err.message);
       // console.error('Logout failed:', err);
     }
@@ -151,7 +151,7 @@ export const AuthProvider = ({ children }) => {
       const authData = await authService.refreshToken();
       setUser(authData.user);
       return authData;
-    } catch (_err) {
+    } catch (err) {
       setError(err.message);
       // console.error('Token refresh failed:', err);
       await logout();

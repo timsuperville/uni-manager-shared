@@ -435,8 +435,8 @@ export function AuthProvider({
 
     try {
       await refreshToken();
-    } catch (_error) {
-      // console.error('Auto refresh failed:', error);
+    } catch (error) {
+      console.error('Auto refresh failed:', error);
       dispatch({ type: AUTH_ACTIONS.SESSION_EXPIRED });
     } finally {
       refreshInProgress.current = false;
@@ -519,7 +519,7 @@ export function AuthProvider({
         });
 
         return { success: true, user: data.user };
-      } catch (_error) {
+      } catch (error) {
         const errorMessage = error.message || 'Login failed';
         dispatch({
           type: AUTH_ACTIONS.LOGIN_FAILURE,
@@ -544,8 +544,8 @@ export function AuthProvider({
           },
         });
       }
-    } catch (_error) {
-      // console.warn('Logout endpoint failed:', error);
+    } catch (error) {
+      console.warn('Logout endpoint failed:', error);
     } finally {
       // Always clear local session
       sessionManager.current.clearSession();
@@ -589,8 +589,8 @@ export function AuthProvider({
       });
 
       return { success: true, token: data.token };
-    } catch (_error) {
-      // console.error('Token refresh failed:', error);
+    } catch (error) {
+      console.error('Token refresh failed:', error);
       // Don't clear session here, let session manager handle expiry
       throw error;
     }
@@ -645,8 +645,8 @@ export function AuthProvider({
         }
 
         return response;
-      } catch (_error) {
-        // console.error('API request failed:', error);
+      } catch (error) {
+        console.error('API request failed:', error);
         throw error;
       }
     },
@@ -663,8 +663,8 @@ export function AuthProvider({
     try {
       await refreshToken();
       dispatch({ type: AUTH_ACTIONS.CLEAR_ERROR });
-    } catch (_error) {
-      // console.error('Failed to extend session:', error);
+    } catch (error) {
+      console.error('Failed to extend session:', error);
     }
   }, [refreshToken]);
 
@@ -737,7 +737,7 @@ export function AuthProvider({
           user: data.user,
           usedBackupCode: data.usedBackupCode,
         };
-      } catch (_error) {
+      } catch (error) {
         const errorMessage = error.message || 'MFA verification failed';
         dispatch({
           type: AUTH_ACTIONS.MFA_VERIFICATION_FAILURE,
@@ -767,7 +767,7 @@ export function AuthProvider({
           error: data.message || 'Failed to get MFA status',
         };
       }
-    } catch (_error) {
+    } catch (error) {
       return {
         success: false,
         error: error.message || 'Failed to get MFA status',
@@ -793,7 +793,7 @@ export function AuthProvider({
       } else {
         return { success: false, error: data.message || 'MFA setup failed' };
       }
-    } catch (_error) {
+    } catch (error) {
       return { success: false, error: error.message || 'MFA setup failed' };
     }
   }, [apiBaseUrl, apiRequest]);
@@ -820,7 +820,7 @@ export function AuthProvider({
             error: data.message || 'MFA verification failed',
           };
         }
-      } catch (_error) {
+      } catch (error) {
         return {
           success: false,
           error: error.message || 'MFA verification failed',
@@ -852,7 +852,7 @@ export function AuthProvider({
             error: data.message || 'Failed to disable MFA',
           };
         }
-      } catch (_error) {
+      } catch (error) {
         return {
           success: false,
           error: error.message || 'Failed to disable MFA',
@@ -883,7 +883,7 @@ export function AuthProvider({
             error: data.message || 'Failed to regenerate backup codes',
           };
         }
-      } catch (_error) {
+      } catch (error) {
         return {
           success: false,
           error: error.message || 'Failed to regenerate backup codes',
@@ -907,7 +907,7 @@ export function AuthProvider({
           error: data.message || 'Failed to get trusted devices',
         };
       }
-    } catch (_error) {
+    } catch (error) {
       return {
         success: false,
         error: error.message || 'Failed to get trusted devices',
@@ -935,7 +935,7 @@ export function AuthProvider({
             error: data.message || 'Failed to revoke device',
           };
         }
-      } catch (_error) {
+      } catch (error) {
         return {
           success: false,
           error: error.message || 'Failed to revoke device',
@@ -981,8 +981,8 @@ export function AuthProvider({
           });
         }
       }
-    } catch (_error) {
-      // console.error('Enhanced features initialization error:', error);
+    } catch (error) {
+      console.error('Enhanced features initialization error:', error);
     }
   }, [state.user]);
 
@@ -1050,7 +1050,7 @@ export function AuthProvider({
         }
 
         return result;
-      } catch (_error) {
+      } catch (error) {
         // Record failed attempt
         securityService.recordAttempt('login', {
           identifier: credentials.email || credentials.username,
@@ -1104,7 +1104,7 @@ export function AuthProvider({
         } else {
           return { success: false, error: result.error };
         }
-      } catch (_error) {
+      } catch (error) {
         return { success: false, error: error.message };
       }
     },
@@ -1150,7 +1150,7 @@ export function AuthProvider({
         });
         return { success: false, error: result.error };
       }
-    } catch (_error) {
+    } catch (error) {
       dispatch({
         type: AUTH_ACTIONS.LOGIN_FAILURE,
         payload: { error: error.message },
@@ -1184,8 +1184,8 @@ export function AuthProvider({
         dispatch({ type: AUTH_ACTIONS.SESSION_INVALIDATED });
 
         return { success: true };
-      } catch (_error) {
-        // console.error('Enhanced logout error:', error);
+      } catch (error) {
+        console.error('Enhanced logout error:', error);
         return { success: false, error: error.message };
       }
     },

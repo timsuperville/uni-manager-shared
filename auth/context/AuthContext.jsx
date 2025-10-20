@@ -81,7 +81,7 @@ export const AuthProvider = ({
    * Handle authentication errors
    * Using useRef for stable prop references to prevent infinite loops
    */
-  const handleError = useCallback((_error) => {
+  const handleError = useCallback((error) => {
     const errorMessage = error?.message || 'An authentication error occurred';
 
     setAuthState((prev) => ({
@@ -128,7 +128,7 @@ export const AuthProvider = ({
           onAuthStateChangeRef.current(newState);
         }, 0);
       }
-    } catch (_error) {
+    } catch (error) {
       const errorMessage = error?.message || 'An authentication error occurred';
 
       setAuthState((prev) => ({
@@ -174,7 +174,7 @@ export const AuthProvider = ({
         }
 
         return result;
-      } catch (_error) {
+      } catch (error) {
         const errorMessage = error?.message || 'Login failed';
 
         setAuthState((prev) => ({
@@ -223,7 +223,7 @@ export const AuthProvider = ({
       }
 
       return { success: true };
-    } catch (_error) {
+    } catch (error) {
       // Still update state even if logout fails
       const newState = {
         user: null,
@@ -264,7 +264,7 @@ export const AuthProvider = ({
         setAuthState((prev) => ({ ...prev, isLoading: false }));
 
         return result;
-      } catch (_error) {
+      } catch (error) {
         const errorMessage = error?.message || 'Signup failed';
 
         setAuthState((prev) => ({
@@ -300,7 +300,7 @@ export const AuthProvider = ({
         setAuthState((prev) => ({ ...prev, isLoading: false }));
 
         return result;
-      } catch (_error) {
+      } catch (error) {
         const errorMessage = error?.message || 'Forgot password failed';
 
         setAuthState((prev) => ({
@@ -336,7 +336,7 @@ export const AuthProvider = ({
         setAuthState((prev) => ({ ...prev, isLoading: false }));
 
         return result;
-      } catch (_error) {
+      } catch (error) {
         const errorMessage = error?.message || 'Reset password failed';
 
         setAuthState((prev) => ({
@@ -370,7 +370,7 @@ export const AuthProvider = ({
       }
       await initializeAuth();
       return true;
-    } catch (_error) {
+    } catch (error) {
       const errorMessage = error?.message || 'Refresh failed';
 
       setAuthState((prev) => ({
@@ -413,7 +413,7 @@ export const AuthProvider = ({
         }
 
         return success;
-      } catch (_error) {
+      } catch (error) {
         const errorMessage = error?.message || 'Update user failed';
 
         setAuthState((prev) => ({
@@ -460,7 +460,7 @@ export const AuthProvider = ({
       }
 
       return { user, isAuthenticated };
-    } catch (_error) {
+    } catch (error) {
       const errorMessage = error?.message || 'Check auth state failed';
 
       setAuthState((prev) => ({
@@ -533,7 +533,7 @@ export const AuthProvider = ({
       try {
         await authService.refreshToken();
         await initializeAuth();
-      } catch (_error) {
+      } catch (error) {
         const errorMessage = error?.message || 'Auto-refresh failed';
 
         setAuthState((prev) => ({

@@ -17,11 +17,11 @@ export {
 } from './components/index.js';
 
 // Universal Login Component
-export { default as UniversalLoginComponent } from './components/UniversalLoginComponent.jsx';
+export { default as UniversalLoginComponent } from './components/UniversalLoginForm.jsx';
 
 // Session Management
-export { default as SessionManager } from './session/SessionManager.jsx';
-export { default as SessionWarning } from './session/SessionWarning.jsx';
+export { default as SessionManager } from './services/SessionManager.jsx';
+export { default as SessionWarning } from './components/SessionWarning.jsx';
 
 // RBAC System Components
 export {
@@ -34,7 +34,7 @@ export {
   PermissionMenuItem,
   withPermissions,
   withRoles,
-} from './rbac/RBACComponents.jsx';
+} from './components/RBACComponents.jsx';
 
 // RBAC System Utilities
 export { RBACUtils, PermissionUtils, RouteUtils } from './rbac/utils.js';

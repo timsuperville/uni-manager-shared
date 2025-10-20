@@ -24,9 +24,9 @@ export const MFAManagementDashboard = ({ onClose }) => {
       const status = await mfaService.getMFAStatus();
       setMfaStatus(status);
       setError('');
-    } catch (_err) {
+    } catch (err) {
       setError(`Failed to load MFA status: ${err.message}`);
-      // console.error('MFA status loading error:', err);
+      console.error('MFA status loading error:', err);
     } finally {
       setLoading(false);
     }
@@ -53,9 +53,9 @@ export const MFAManagementDashboard = ({ onClose }) => {
       await mfaService.disableMFA(method);
       await loadMFAStatus(); // Refresh status
       setError('');
-    } catch (_err) {
+    } catch (err) {
       setError(`Failed to disable ${method}: ${err.message}`);
-      // console.error('MFA disable error:', err);
+      console.error('MFA disable error:', err);
     } finally {
       setDisablingMethod('');
     }
@@ -76,9 +76,9 @@ export const MFAManagementDashboard = ({ onClose }) => {
       setNewBackupCodes(result.backupCodes);
       await loadMFAStatus(); // Refresh status
       setError('');
-    } catch (_err) {
+    } catch (err) {
       setError(`Failed to regenerate backup codes: ${err.message}`);
-      // console.error('Backup codes regeneration error:', err);
+      console.error('Backup codes regeneration error:', err);
     } finally {
       setRegeneratingCodes(false);
     }
@@ -277,7 +277,7 @@ export const MFAManagementDashboard = ({ onClose }) => {
                 <div className='backup-codes-actions'>
                   <button
                     onClick={() =>
-                      typeof navigator !== "undefined" && navigator.clipboard.writeText(newBackupCodes.join("\n'))
+                      typeof navigator !== "undefined" && navigator.clipboard.writeText(newBackupCodes.join("\n"))
                     }
                     className='secondary-button'
                   >
@@ -285,7 +285,7 @@ export const MFAManagementDashboard = ({ onClose }) => {
                   </button>
                   <button
                     onClick={() => setNewBackupCodes([])}
-                    className='primary-button"
+                    className='primary-button'
                   >
                     I've Saved These Codes
                   </button>
