@@ -10,10 +10,6 @@ import RealTimeSecurityMonitoringService from '../services/realTimeSecurityMonit
 
 // Mock WebSocket
 const mockWebSocket = {
-  CONNECTING: 0,
-  OPEN: 1,
-  CLOSING: 2,
-  CLOSED: 3,
   send: vi.fn(),
   close: vi.fn(),
   addEventListener: vi.fn(),
@@ -21,12 +17,18 @@ const mockWebSocket = {
   readyState: 1,
 };
 
+const MockWebSocket = vi.fn(() => mockWebSocket);
+
+// Set WebSocket constants
+Object.assign(MockWebSocket, {
+  CONNECTING: 0,
+  OPEN: 1,
+  CLOSING: 2,
+  CLOSED: 3,
+});
+
 // Mock global WebSocket
-global.WebSocket = vi.fn(() => mockWebSocket);
-global.WebSocket.CONNECTING = 0;
-global.WebSocket.OPEN = 1;
-global.WebSocket.CLOSING = 2;
-global.WebSocket.CLOSED = 3;
+global.WebSocket = MockWebSocket;
 
 // Mock other browser APIs
 global.Notification = {
@@ -154,7 +156,7 @@ describe('RealTimeSecurityMonitoringService', () => {
       securityService.authenticateConnection();
 
       expect(mockWebSocket.send).toHaveBeenCalledWith(
-        expect.stringContaining(''type':'authenticate'')
+        expect.stringContaining('"type":"authenticate"')
       );
     });
 
@@ -426,7 +428,7 @@ describe('RealTimeSecurityMonitoringService', () => {
       expect(securityService.monitoringConfig.realTimeAlerts).toBe(false);
 
       expect(mockWebSocket.send).toHaveBeenCalledWith(
-        expect.stringContaining(''type':'update_configuration'')
+        expect.stringContaining('"type":"update_configuration"')
       );
     });
 
@@ -549,7 +551,7 @@ describe('RealTimeSecurityMonitoringService', () => {
       vi.advanceTimersByTime(35000); // Past heartbeat interval
 
       expect(mockWebSocket.send).toHaveBeenCalledWith(
-        expect.stringContaining(''type':'heartbeat'')
+        expect.stringContaining('"type":"heartbeat"')
       );
     });
 
@@ -562,7 +564,7 @@ describe('RealTimeSecurityMonitoringService', () => {
 
       // Should not send heartbeat after stopping
       const heartbeatCalls = mockWebSocket.send.mock.calls.filter((call) =>
-        call[0].includes(''type':'heartbeat'')
+        call[0].includes('"type":"heartbeat"')
       );
       expect(heartbeatCalls.length).toBe(0);
     });

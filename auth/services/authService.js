@@ -188,13 +188,26 @@ class AuthService {
         };
       }
 
+      // Handle MFA required response
+      if (response.ok && responseData.success && responseData.requiresMFA) {
+        // Reset login attempts on successful credential validation (but MFA still required)
+        this.resetLoginAttempts(email);
+
+        return {
+          success: true,
+          requiresMFA: true,
+          userId: responseData.userId,
+          tempToken: responseData.tempToken,
+        };
+      }
+
       // Record failed login attempt
       this.recordLoginAttempt(email);
       throw new Error(responseData.message || 'Login failed');
     } catch (_error) {
-      // console.error(`[Auth-${this.config.appType}] Login error:`, error);
+      // console.error(`[Auth-${this.config.appType}] Login error:`, _error);
       this.recordLoginAttempt(email);
-      throw error;
+      throw _error;
     }
   }
 
@@ -262,8 +275,8 @@ class AuthService {
 
       throw new Error(responseData.message || 'Signup failed');
     } catch (_error) {
-      // console.error(`[Auth-${this.config.appType}] Signup error:`, error);
-      throw error;
+      // console.error(`[Auth-${this.config.appType}] Signup error:`, _error);
+      throw _error;
     }
   }
 
@@ -379,8 +392,8 @@ class AuthService {
 
       return { authUrl, state };
     } catch (_error) {
-      // console.error('OAuth flow initiation failed:', error);
-      throw error;
+      // console.error('OAuth flow initiation failed:', _error);
+      throw _error;
     }
   }
 
@@ -446,8 +459,8 @@ class AuthService {
         provider: providerId,
       };
     } catch (_error) {
-      // console.error('OAuth callback handling failed:', error);
-      throw error;
+      // console.error('OAuth callback handling failed:', _error);
+      throw _error;
     }
   }
 
@@ -590,9 +603,9 @@ class AuthService {
 
       throw new Error(responseData.message || 'Token refresh failed');
     } catch (_error) {
-      // console.error('Token refresh failed:', error);
+      // console.error('Token refresh failed:', _error);
       await this.clearStoredAuth();
-      throw error;
+      throw _error;
     }
   }
 

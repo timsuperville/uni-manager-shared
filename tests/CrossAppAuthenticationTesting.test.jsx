@@ -11,15 +11,15 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { vi } from 'vitest';
 import { createElement } from 'react';
 import { BrowserRouter } from 'react-router-dom';
-import { EnhancedAuthContext } from '../../../shared/contexts/EnhancedAuthContext';
-import { UniversalLoginForm } from '../../../shared/components/auth/UniversalLoginForm';
-import { SessionManager } from '../../../shared/utils/SessionManager';
-import { rbacService } from '../../../shared/services/rbacService';
+import { EnhancedAuthContext } from '../contexts/EnhancedAuthContext';
+import { UniversalLoginForm } from '../auth/components/UniversalLoginForm';
+import { SessionManager } from '../auth/services/SessionManager';
+import { rbacService } from '../auth/services/rbacService';
 
 // Mock all external dependencies
-vi.mock('../../../shared/utils/SessionManager');
-vi.mock('../../../shared/services/rbacService');
-vi.mock('../../../shared/services/authService');
+vi.mock('../auth/services/SessionManager');
+vi.mock('../auth/services/rbacService');
+vi.mock('../auth/services/authService');
 
 describe('Cross-App Authentication Testing', () => {
   let mockSessionManager;
@@ -497,7 +497,7 @@ describe('Cross-App Authentication Testing', () => {
       { type: 'SESSION_ERROR', message: 'Session expired' },
     ];
 
-    commonErrors.forEach((_error) => {
+    commonErrors.forEach((error) => {
       it(`should handle ${error.type} consistently across all apps`, async () => {
         applications.forEach((app) => {
           mockSessionManager.login.mockRejectedValue(new Error(error.message));

@@ -60,11 +60,16 @@ describe('AppSwitcher', () => {
       expect(screen.getByText('📱')).toBeInTheDocument();
     });
 
-    it('should show loading state with disabled button', () => {
+    it('should disable button during SSO loading', () => {
       renderAppSwitcher({ ssoLoading: true });
 
-      const button = screen.getByRole('button');
-      expect(button).toBeDisabled();
+      // Loading state shows disabled div, not button
+      const loadingElement = screen.getByText('Loading...');
+      expect(loadingElement).toBeInTheDocument();
+
+      // Check that the loading container has disabled class
+      const container = screen.getByText('Loading...').closest('.app-switcher-button');
+      expect(container).toHaveClass('disabled');
     });
   });
 
@@ -131,7 +136,7 @@ describe('AppSwitcher', () => {
 
       expect(screen.getByText('Administration')).toBeInTheDocument();
       expect(screen.getByText('Admin tools')).toBeInTheDocument();
-      expect(screen.getByText('Business')).toBeInTheDocument();
+      expect(screen.getByText('Business Tools')).toBeInTheDocument();
       expect(screen.getByText('Business management')).toBeInTheDocument();
     });
 
@@ -142,8 +147,15 @@ describe('AppSwitcher', () => {
       const button = screen.getByRole('button');
       await user.click(button);
 
-      // Should not show church app (current app)
-      expect(screen.queryByText('Church Management')).not.toBeInTheDocument();
+      // Should not show church app (current app) in the app list
+      const appOptions = screen.getAllByRole('option');
+      const churchOption = appOptions.find(option =>
+        option.querySelector('.app-name')?.textContent === 'Church Management'
+      );
+      expect(churchOption).toBeUndefined();
+
+      // But should show it in the footer as current app
+      expect(screen.getByText('Currently in: Church Management')).toBeInTheDocument();
     });
 
     it('should show no apps message when no other apps available', async () => {

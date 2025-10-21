@@ -25,7 +25,15 @@ class ApiService {
       const response = await fetch(url, config);
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        // Try to extract error message from response body
+        try {
+          const errorData = await response.json();
+          const errorMessage = errorData.error || errorData.message || `HTTP error! status: ${response.status}`;
+          throw new Error(errorMessage);
+        } catch (jsonError) {
+          // If JSON parsing fails, use generic error
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
       }
 
       return await response.json();

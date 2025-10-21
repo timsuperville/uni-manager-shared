@@ -102,7 +102,8 @@ describe('Permission-Based Guards', () => {
       mockUseAuth.mockReturnValue({
         user: { id: 1, roles: ['church_user'] },
         permissions: ['church_view'],
-        hasAnyPermission: vi.fn().mockReturnValue(true),
+        hasPermission: vi.fn().mockReturnValue(false), // Mock hasPermission for single permission checks
+        hasAnyPermission: vi.fn().mockReturnValue(true), // Mock hasAnyPermission for array checks
       });
 
       render(
@@ -184,7 +185,8 @@ describe('Permission-Based Guards', () => {
     it('should handle multiple roles with any matching', () => {
       mockUseAuth.mockReturnValue({
         user: { id: 1, roles: ['church_manager'] },
-        hasAnyRole: vi.fn().mockReturnValue(true),
+        hasRole: vi.fn().mockReturnValue(false), // Mock hasRole for single role checks
+        hasAnyRole: vi.fn().mockReturnValue(true), // Mock hasAnyRole for array checks
       });
 
       render(
@@ -199,6 +201,7 @@ describe('Permission-Based Guards', () => {
     it('should handle minimum role level checking', () => {
       mockUseAuth.mockReturnValue({
         user: { id: 1, roles: ['church_manager'] },
+        hasRole: vi.fn().mockReturnValue(true), // Mock hasRole for basic functionality
         hasMinimumRoleLevel: vi.fn().mockReturnValue(true),
       });
 
@@ -270,6 +273,8 @@ describe('Route Protection', () => {
     it('should render children when user can access route', () => {
       mockUseAuth.mockReturnValue({
         user: { id: 1, roles: ['church_user'] },
+        hasPermission: vi.fn().mockReturnValue(true), // Add hasPermission mock
+        hasRole: vi.fn().mockReturnValue(true), // Add hasRole mock
         canAccessRoute: vi.fn().mockReturnValue(true),
       });
 
@@ -606,6 +611,7 @@ describe('Higher-Order Components', () => {
     it('should handle minimum level checking', () => {
       mockUseAuth.mockReturnValue({
         user: { id: 1, roles: ['church_manager'] },
+        hasRole: vi.fn().mockReturnValue(true), // Add hasRole mock for basic functionality
         hasMinimumRoleLevel: vi.fn().mockReturnValue(true),
       });
 

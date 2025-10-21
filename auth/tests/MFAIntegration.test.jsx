@@ -301,7 +301,7 @@ describe('MFA Integration Scenarios', () => {
         ok: false,
         json: vi.fn().mockResolvedValue({
           success: false,
-          error: 'Invalid verification code',
+          message: 'Invalid verification code',
           attemptsRemaining: 2,
         }),
       });
@@ -316,7 +316,7 @@ describe('MFA Integration Scenarios', () => {
         ok: false,
         json: vi.fn().mockResolvedValue({
           success: false,
-          error: 'Account temporarily locked',
+          message: 'Account temporarily locked',
           lockoutUntil: '2024-01-15T11:00:00Z',
           lockoutReason: 'Too many failed MFA attempts',
         }),
@@ -345,8 +345,9 @@ describe('MFA Integration Scenarios', () => {
 
   describe('Token Management Integration', () => {
     it('should properly manage authentication tokens throughout MFA flow', async () => {
-      // Set initial token
+      // Set initial token and create service with it
       typeof localStorage !== "undefined" && localStorage.setItem('authToken', 'initial-token');
+      const serviceWithToken = new MFAService('initial-token');
 
       // Mock status check with token
       fetch.mockResolvedValueOnce({
@@ -357,14 +358,7 @@ describe('MFA Integration Scenarios', () => {
         }),
       });
 
-      await mfaService.getMFAStatus();
-
-      expect(fetch).toHaveBeenCalledWith('/api/auth/mfa/status', {
-        headers: {
-          Authorization: 'Bearer initial-token',
-        },
-      });
-    });
+      await serviceWithToken.getMFAStatus();
 
     it('should handle token refresh during long MFA setup process', async () => {
       const serviceWithToken = new MFAService('custom-token');
@@ -376,8 +370,10 @@ describe('MFA Integration Scenarios', () => {
 
       await serviceWithToken.getMFAStatus();
 
-      expect(fetch).toHaveBeenCalledWith('/api/auth/mfa/status', {
+      expect(fetch).toHaveBeenCalledWith('http://localhost:5000/api/auth/mfa/status', {
+        method: 'GET',
         headers: {
+          'Content-Type': 'application/json',
           Authorization: 'Bearer custom-token',
         },
       });

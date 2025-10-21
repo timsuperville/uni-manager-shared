@@ -85,8 +85,8 @@ export const RealTimeSecurityProvider = ({ children }) => {
         // console.log('Real-time security monitoring initialized successfully');
 
         return result;
-      } catch (_error) {
-        // console.error(
+      } catch (error) {
+        console.error(
           'Failed to initialize real-time security monitoring:',
           error
         );
@@ -113,7 +113,7 @@ export const RealTimeSecurityProvider = ({ children }) => {
     });
 
     service.on('error', (_error) => {
-      setError(error.message || 'Connection error');
+      setError(_error.message || 'Connection error');
       setSystemHealth('error');
     });
 
@@ -298,7 +298,7 @@ export const RealTimeSecurityProvider = ({ children }) => {
       });
     }
 
-    // console.log(
+    console.log(
       `📊 Risk Score Update: ${Math.round(previousRiskScore * 100)}% → ${Math.round(newRiskScore * 100)}%`
     );
   }, []);
@@ -331,7 +331,7 @@ export const RealTimeSecurityProvider = ({ children }) => {
       });
     }
 
-    // console.log(
+    console.log(
       `🔍 Behavior Anomaly: ${anomalyType} (confidence: ${Math.round(confidence * 100)}%)`
     );
   }, []);

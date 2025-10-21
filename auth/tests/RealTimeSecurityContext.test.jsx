@@ -196,7 +196,7 @@ describe('RealTimeSecurityContext', () => {
           return React.createElement(
             'div',
             { 'data-testid': 'error' },
-            error.message
+            _error.message
           );
         }
       };
@@ -653,8 +653,11 @@ describe('RealTimeSecurityContext', () => {
   describe('Configuration Updates', () => {
     test('should update monitoring configuration', async () => {
       const ConfigTestComponent = () => {
-        const { updateMonitoringConfiguration, monitoringConfig } =
-          useRealTimeSecurity();
+        const {
+          updateMonitoringConfiguration,
+          monitoringConfig,
+          initializeSecurityMonitoring
+        } = useRealTimeSecurity();
 
         return React.createElement('div', null, [
           React.createElement(
@@ -664,6 +667,15 @@ describe('RealTimeSecurityContext', () => {
               'data-testid': 'threat-detection',
             },
             monitoringConfig.threatDetection.toString()
+          ),
+          React.createElement(
+            'button',
+            {
+              key: 'init-btn',
+              'data-testid': 'initialize-button',
+              onClick: () => initializeSecurityMonitoring('test-user', 'test-session'),
+            },
+            'Initialize'
           ),
           React.createElement(
             'button',
@@ -708,7 +720,7 @@ describe('RealTimeSecurityContext', () => {
   });
 
   describe('Cleanup and Error Handling', () => {
-    test('should cleanup service on unmount', () => {
+    test('should cleanup service on unmount', async () => {
       const { unmount } = render(
         React.createElement(
           RealTimeSecurityProvider,
@@ -716,6 +728,17 @@ describe('RealTimeSecurityContext', () => {
           React.createElement(TestComponent)
         )
       );
+
+      // Initialize the service first
+      const initButton = screen.getByTestId('initialize-button');
+      await act(async () => {
+        initButton.click();
+      });
+
+      // Wait for initialization to complete
+      await waitFor(() => {
+        expect(mockSecurityService.initialize).toHaveBeenCalled();
+      });
 
       unmount();
 

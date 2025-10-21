@@ -148,7 +148,15 @@ export class SessionManager {
     if (!storage) return null;
 
     const userData = storage.getItem(this.options.userKey);
-    return userData ? JSON.parse(userData) : null;
+    if (!userData) return null;
+
+    try {
+      return JSON.parse(userData);
+    } catch (_error) {
+      // Invalid JSON, clear corrupted data
+      storage.removeItem(this.options.userKey);
+      return null;
+    }
   }
 
   /**
@@ -240,9 +248,9 @@ export class SessionManager {
         throw new Error(response.error || 'Token refresh failed');
       }
     } catch (_error) {
-      // console.error('Token refresh failed:', error);
+      // console.error('Token refresh failed:', _error);
       this.clearSession();
-      throw error;
+      throw _error;
     }
   }
 

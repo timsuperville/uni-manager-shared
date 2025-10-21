@@ -439,8 +439,10 @@ describe('SessionManager', () => {
 
     it('should handle missing BroadcastChannel gracefully', () => {
       // Create session manager without BroadcastChannel
-      const originalBroadcastChannel = typeof window !== "undefined" && window.BroadcastChannel;
-      typeof window !== "undefined" && window.BroadcastChannel = undefined;
+      const originalBroadcastChannel = typeof window !== "undefined" ? window.BroadcastChannel : undefined;
+      if (typeof window !== "undefined") {
+        window.BroadcastChannel = undefined;
+      }
 
       const manager = new SessionManager();
 
@@ -448,7 +450,9 @@ describe('SessionManager', () => {
       expect(manager.crossTabChannel).toBeNull();
 
       // Restore original
-      typeof window !== "undefined" && window.BroadcastChannel = originalBroadcastChannel;
+      if (typeof window !== "undefined") {
+        window.BroadcastChannel = originalBroadcastChannel;
+      }
       manager.destroy();
     });
 

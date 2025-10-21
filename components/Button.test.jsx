@@ -2,11 +2,12 @@
  * @jest-environment jsdom
  */
 
+import React from 'react';
 import { describe, it, expect } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import PropTypes from 'prop-types';
-import { ThemeProvider } from '../components/ThemeProvider';
-import { Button } from '../components/Button';
+import { ThemeProvider } from './ThemeProvider';
+import Button from './Button';
 
 // Test wrapper with theme provider
 const TestWrapper = ({ children }) => <ThemeProvider>{children}</ThemeProvider>;

@@ -359,7 +359,7 @@ describe('PermissionUtils', () => {
         'church'
       );
 
-      expect(assignableRoles).toBeArray();
+      expect(Array.isArray(assignableRoles)).toBe(true);
       expect(
         assignableRoles.find((role) => role.id === 'church_user')
       ).toBeDefined();

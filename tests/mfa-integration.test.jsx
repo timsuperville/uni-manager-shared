@@ -10,6 +10,14 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import React from 'react';
+
+// Import MFA components
+import MFASetup from '../auth/components/MFASetup';
+import MFAVerification from '../auth/components/MFAVerification';
+import MFAManagement from '../auth/components/MFAManagement';
 
 // Mock fetch for API calls
 global.fetch = vi.fn();
@@ -563,14 +571,16 @@ describe('MFA API Integration', () => {
       });
 
       // Mock canvas
-      typeof document !== "undefined" && document.createElement = vi.fn().mockReturnValue({
-        getContext: () => ({
-          textBaseline: '',
-          font: '',
-          fillText: vi.fn(),
-        }),
-        toDataURL: () => 'data:image/png;base64,test',
-      });
+      if (typeof document !== "undefined") {
+        document.createElement = vi.fn().mockReturnValue({
+          getContext: () => ({
+            textBaseline: '',
+            font: '',
+            fillText: vi.fn(),
+          }),
+          toDataURL: () => 'data:image/png;base64,test',
+        });
+      }
 
       const fingerprint1 = generateDeviceFingerprint();
       const fingerprint2 = generateDeviceFingerprint();

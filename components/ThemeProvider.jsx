@@ -22,7 +22,7 @@ const defaultTokens = {
     xl: '3rem',
   },
   typography: {
-    fontFamily: ''Inter', -apple-system, BlinkMacSystemFont, sans-serif',
+    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
     fontSize: {
       xs: '0.75rem',
       sm: '0.875rem',

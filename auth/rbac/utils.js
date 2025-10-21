@@ -6,10 +6,17 @@
 import {
   ROLES,
   PERMISSIONS,
-  ROLE_HIERARCHY,
   APPLICATION_ROLES,
   PROTECTED_ROUTES,
 } from './roles.js';
+
+// Create a mapping from role ID to role object for easier lookup
+const ROLE_LOOKUP = {};
+Object.values(ROLES).forEach(role => {
+  if (role.id) {
+    ROLE_LOOKUP[role.id] = role;
+  }
+});
 
 /**
  * RBAC Utility Class
@@ -35,10 +42,13 @@ export class RBACUtils {
    * Get all permissions for a role including inherited permissions
    */
   getRolePermissions(roleId) {
-    const role = ROLES[roleId];
-    if (!role) return [];
+    const role = ROLE_LOOKUP[roleId];
 
-    let permissions = [...role.permissions];
+    if (!role) {
+      return [];
+    }
+
+    let permissions = [...(role.permissions || [])];
 
     // Add inherited permissions
     if (role.inherits && role.inherits.length > 0) {
@@ -101,6 +111,11 @@ export class RBACUtils {
       return this.hasPermission(permissions);
     }
 
+    // Empty array should return false (no permissions to check)
+    if (permissions.length === 0) {
+      return false;
+    }
+
     return permissions.every((permission) => this.hasPermission(permission));
   }
 
@@ -127,7 +142,7 @@ export class RBACUtils {
    */
   hasMinimumRoleLevel(minLevel) {
     const userRoleLevels = this.userRoles.map((roleId) => {
-      const role = ROLES[roleId];
+      const role = ROLE_LOOKUP[roleId];
       return role ? role.level : 0;
     });
 
@@ -179,7 +194,7 @@ export class RBACUtils {
    */
   getHighestRoleLevel() {
     const userRoleLevels = this.userRoles.map((roleId) => {
-      const role = ROLES[roleId];
+      const role = ROLE_LOOKUP[roleId];
       return role ? role.level : 0;
     });
 
@@ -221,6 +236,11 @@ export class RBACUtils {
    */
   filterMenuItems(menuItems, application = null) {
     return menuItems.filter((item) => {
+      // Filter out null/undefined items
+      if (!item) {
+        return false;
+      }
+
       // Check permission requirements
       if (item.requiredPermissions) {
         if (!this.hasAnyPermission(item.requiredPermissions)) {
@@ -305,7 +325,7 @@ export const PermissionUtils = {
    */
   validateRoleAssignment: (assignerRoles, targetRole) => {
     const assignerRBAC = new RBACUtils({ roles: assignerRoles });
-    const targetRoleLevel = ROLES[targetRole]?.level || 0;
+    const targetRoleLevel = ROLE_LOOKUP[targetRole]?.level || 0;
     const assignerLevel = assignerRBAC.getHighestRoleLevel();
 
     // Can only assign roles with lower or equal level

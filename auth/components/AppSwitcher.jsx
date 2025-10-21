@@ -24,7 +24,7 @@ const AppSwitcher = () => {
   const [switching, setSwitching] = useState(null);
   const dropdownRef = useRef(null);
 
-  // Close dropdown when clicking outside
+  // Close dropdown when clicking outside or pressing Escape
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -32,9 +32,21 @@ const AppSwitcher = () => {
       }
     };
 
-    typeof document !== "undefined" && document.addEventListener('mousedown', handleClickOutside);
-    return () => typeof document !== "undefined" && document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape' && isOpen) {
+        setIsOpen(false);
+      }
+    };
+
+    if (typeof document !== "undefined") {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleKeyDown);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+        document.removeEventListener('keydown', handleKeyDown);
+      };
+    }
+  }, [isOpen]);
 
   const handleAppSwitch = async (appId) => {
     if (appId === currentApp || switching) return;

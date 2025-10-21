@@ -235,7 +235,7 @@ describe('MFA Integration Tests', () => {
         ok: false,
         json: vi.fn().mockResolvedValue({
           success: false,
-          error: 'Invalid code',
+          message: 'Invalid code',
           attemptsRemaining: 2,
         }),
       });
@@ -250,7 +250,7 @@ describe('MFA Integration Tests', () => {
         ok: false,
         json: vi.fn().mockResolvedValue({
           success: false,
-          error: 'Account temporarily locked',
+          message: 'Account temporarily locked',
           lockoutUntil: '2024-01-15T11:00:00Z',
         }),
       });
