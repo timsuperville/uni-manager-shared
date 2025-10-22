@@ -10,10 +10,10 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/Card';
+import { Alert, AlertDescription, AlertTitle } from './ui/Alert';
+import { Badge } from './ui/Badge';
+import { Button } from './ui/Button';
 import {
   Activity,
   AlertTriangle,

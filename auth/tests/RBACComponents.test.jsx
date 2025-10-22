@@ -21,7 +21,7 @@ import {
 
 // Mock the enhanced auth context
 const mockUseAuth = vi.fn();
-vi.mock('../EnhancedAuthContext', () => ({
+vi.mock('../contexts/AuthContext', () => ({
   useEnhancedAuth: () => mockUseAuth(),
 }));
 

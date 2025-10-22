@@ -11,7 +11,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { vi } from 'vitest';
 import { createElement } from 'react';
 import { BrowserRouter } from 'react-router-dom';
-import { EnhancedAuthContext } from '../contexts/EnhancedAuthContext';
+import { EnhancedAuthContext } from '../contexts/AuthContext';
 import { UniversalLoginForm } from '../auth/components/UniversalLoginForm';
 import { SessionManager } from '../auth/services/SessionManager';
 import { rbacService } from '../auth/services/rbacService';

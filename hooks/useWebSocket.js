@@ -119,8 +119,8 @@ export const useWebSocket = (endpoint = '') => {
 
       // eslint-disable-next-line no-console
       // console.log(
-        `WebSocket disconnected. Reconnecting... (${reconnectAttemptsRef.current}/${maxReconnectAttempts})`
-      );
+      //   `WebSocket disconnected. Reconnecting... (${reconnectAttemptsRef.current}/${maxReconnectAttempts})`
+      // );
     } else {
       setConnectionStatus('failed');
       // eslint-disable-next-line no-console

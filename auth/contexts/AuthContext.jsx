@@ -951,7 +951,7 @@ export function AuthProvider({
   const initializeEnhancedFeatures = useCallback(async () => {
     try {
       // TODO: WebAuthn support needs to be implemented per app
-      // Check WebAuthn availability  
+      // Check WebAuthn availability
       // const webauthnSupported = await webauthnService.isSupported();
       // dispatch({
       //   type: AUTH_ACTIONS.WEBAUTHN_AVAILABLE,
@@ -1086,7 +1086,7 @@ export function AuthProvider({
       try {
         // TODO: WebAuthn service needs to be provided per app
         throw new Error('WebAuthn registration not configured for this app');
-        
+
         // const result = await webauthnService.registerCredential({
         //   userId: state.user?.id,
         //   userName: state.user?.email,
@@ -1108,7 +1108,7 @@ export function AuthProvider({
         // } catch (error) {
         //   return { success: false, error: error.message };
         // }
-        
+
         // TODO: WebAuthn service needs to be provided per app
         throw new Error('WebAuthn registration not configured for this app');
       } catch (error) {

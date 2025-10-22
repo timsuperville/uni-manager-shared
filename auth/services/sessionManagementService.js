@@ -725,8 +725,8 @@ class SessionManagementService {
       });
 
       // console.log(
-        `[SESSION] Cleaned up ${expiredSessions.length} expired sessions`
-      );
+      //   `[SESSION] Cleaned up ${expiredSessions.length} expired sessions`
+      // );
     } catch (_error) {
       // console.error('Error during session cleanup:', error);
     }

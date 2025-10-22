@@ -2,8 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { useNavigate } from 'react-router-dom';
-import { MFAVerification } from './MFAVerification';
-import { MFASetup } from './MFASetup';
+import MFAVerification from './MFAVerification';
+import MFASetup from './MFASetup';
 
 /**
  * Enhanced Login Form with MFA Support

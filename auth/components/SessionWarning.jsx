@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/EnhancedAuthContext';
+import { useAuth } from '../contexts/AuthContext';
 
 const SessionWarning = ({
   position = 'top-right',

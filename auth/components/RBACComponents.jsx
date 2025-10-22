@@ -6,7 +6,7 @@
 import React, { createContext, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../contexts/EnhancedAuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { RBACUtils, PermissionUtils } from '../rbac/utils';
 
 // Create RBAC Context
@@ -16,7 +16,7 @@ const RBACContext = createContext(null);
  * RBAC Provider Component
  * Provides RBAC utilities to child components
  */
-export function RBACProvider({ children, application = null }) {
+function RBACProvider({ children, application = null }) {
   const { user, isAuthenticated } = useAuth();
 
   const rbac = React.useMemo(() => {
@@ -52,7 +52,7 @@ export function RBACProvider({ children, application = null }) {
 /**
  * Hook to use RBAC context
  */
-export function useRBAC() {
+function useRBAC() {
   const context = useContext(RBACContext);
 
   if (!context) {
@@ -66,7 +66,7 @@ export function useRBAC() {
  * Permission Guard Component
  * Conditionally renders children based on permissions
  */
-export function PermissionGuard({
+function PermissionGuard({
   permission,
   permissions,
   requireAll = false,
@@ -101,7 +101,7 @@ export function PermissionGuard({
  * Role Guard Component
  * Conditionally renders children based on roles
  */
-export function RoleGuard({
+function RoleGuard({
   role,
   roles,
   requireAll = false,
@@ -139,7 +139,7 @@ export function RoleGuard({
  * Application Guard Component
  * Ensures user has access to the current application
  */
-export function ApplicationGuard({
+function ApplicationGuard({
   application,
   fallback = <Navigate to='/unauthorized' replace />,
   children,
@@ -161,7 +161,7 @@ export function ApplicationGuard({
  * Route Guard Component
  * Protects routes based on permissions and roles
  */
-export function RouteGuard({
+function RouteGuard({
   permission,
   permissions,
   role,
@@ -224,7 +224,7 @@ export function RouteGuard({
  * Admin Guard Component
  * Ensures user has admin access
  */
-export function AdminGuard({
+function AdminGuard({
   application = null,
   fallback = <Navigate to='/unauthorized' replace />,
   children,
@@ -244,7 +244,7 @@ export function AdminGuard({
  * Conditional Render Component
  * Renders different content based on permissions/roles
  */
-export function ConditionalRender({
+function ConditionalRender({
   permission,
   permissions,
   role,
@@ -291,7 +291,7 @@ export function ConditionalRender({
 /**
  * Higher-Order Component for permission-based rendering
  */
-export function withPermissions(
+function withPermissions(
   Component,
   requiredPermissions = [],
   options = {}
@@ -314,7 +314,7 @@ export function withPermissions(
 /**
  * Higher-Order Component for role-based rendering
  */
-export function withRoles(Component, requiredRoles = [], options = {}) {
+function withRoles(Component, requiredRoles = [], options = {}) {
   return function RoleWrappedComponent(props) {
     const {
       requireAll = false,
@@ -340,7 +340,7 @@ export function withRoles(Component, requiredRoles = [], options = {}) {
  * Permission Button Component
  * Button that's only visible/enabled based on permissions
  */
-export function PermissionButton({
+function PermissionButton({
   permission,
   permissions,
   children,
@@ -370,7 +370,7 @@ export function PermissionButton({
 /**
  * Menu Item Component with permission filtering
  */
-export function PermissionMenuItem({
+function PermissionMenuItem({
   permission,
   permissions,
   role,

@@ -20,13 +20,17 @@ const Modal = ({
     };
 
     if (isOpen) {
-      typeof document !== "undefined" && document.addEventListener('keydown', handleEscape);
-      typeof document !== "undefined" && document.body.style.overflow = 'hidden';
+      if (typeof document !== "undefined") {
+        document.addEventListener('keydown', handleEscape);
+        document.body.style.overflow = 'hidden';
+      }
     }
 
     return () => {
-      typeof document !== "undefined" && document.removeEventListener('keydown', handleEscape);
-      typeof document !== "undefined" && document.body.style.overflow = 'unset';
+      if (typeof document !== "undefined") {
+        document.removeEventListener('keydown', handleEscape);
+        document.body.style.overflow = 'unset';
+      }
     };
   }, [isOpen, onClose]);
 

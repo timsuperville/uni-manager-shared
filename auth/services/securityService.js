@@ -572,8 +572,8 @@ class SecurityService {
       expiredKeys.forEach((key) => this.rateLimits.delete(key));
 
       // console.log(
-        `[SECURITY] Cleaned up ${expiredKeys.length} expired rate limits`
-      );
+      //   `[SECURITY] Cleaned up ${expiredKeys.length} expired rate limits`
+      // );
     } catch (_error) {
       // console.error('Error during security cleanup:', error);
     }

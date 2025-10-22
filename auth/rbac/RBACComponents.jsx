@@ -5,7 +5,7 @@
 
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useEnhancedAuth } from '../EnhancedAuthContext.jsx';
+import { useEnhancedAuth } from '../contexts/AuthContext.jsx';
 
 /**
  * Permission Guard Component

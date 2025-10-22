@@ -16,9 +16,9 @@ import { getCurrentAppConfig } from '../config/appConfigs.js';
 // Dynamic import for enhanced auth service based on environment
 const getAuthService = async () => {
   try {
-    // Try to import the church app auth service from the correct path
+    // Try to import the shared auth service
     const { default: authService } = await import(
-      '../../../apps/church/src/features/auth/services/authService.js'
+      '../services/authService.js'
     );
     return authService;
   } catch (_error) {

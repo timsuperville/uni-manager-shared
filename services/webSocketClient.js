@@ -4,7 +4,7 @@
  */
 
 import { io } from 'socket.io-client';
-import { getWebSocketUrl } from '../core/config/environment.ts';
+import { getWebSocketUrl } from '../config/environment.ts';
 
 class WebSocketClient {
   constructor() {
@@ -225,8 +225,8 @@ class WebSocketClient {
     setTimeout(() => {
       if (!this.isConnected) {
         // console.log(
-          `Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})`
-        );
+        //   `Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})`
+        // );
         this.socket.connect();
       }
     }, delay);
