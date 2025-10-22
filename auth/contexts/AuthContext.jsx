@@ -16,7 +16,7 @@ import { SessionManager } from '../services/SessionManager';
 import sessionManagementService from '../services/sessionManagementService';
 import mfaService from '../services/mfaService';
 import oauthService from '../services/oauthService';
-import webauthnService from '../services/webauthnService';
+// webauthnService should be imported per app - this is handled in the app-specific providers
 import securityService from '../services/securityService';
 
 // Auth action types
@@ -950,12 +950,13 @@ export function AuthProvider({
   // Initialize enhanced features
   const initializeEnhancedFeatures = useCallback(async () => {
     try {
-      // Check WebAuthn availability
-      const webauthnSupported = await webauthnService.isSupported();
-      dispatch({
-        type: AUTH_ACTIONS.WEBAUTHN_AVAILABLE,
-        payload: { available: webauthnSupported },
-      });
+      // TODO: WebAuthn support needs to be implemented per app
+      // Check WebAuthn availability  
+      // const webauthnSupported = await webauthnService.isSupported();
+      // dispatch({
+      //   type: AUTH_ACTIONS.WEBAUTHN_AVAILABLE,
+      //   payload: { available: webauthnSupported },
+      // });
 
       // Load OAuth providers
       const providers = await oauthService.getProviders();
@@ -1083,27 +1084,33 @@ export function AuthProvider({
   const registerWebAuthnCredential = useCallback(
     async (options = {}) => {
       try {
-        const result = await webauthnService.registerCredential({
-          userId: state.user?.id,
-          userName: state.user?.email,
-          displayName: state.user?.name,
-          ...options,
-        });
+        // TODO: WebAuthn service needs to be provided per app
+        throw new Error('WebAuthn registration not configured for this app');
+        
+        // const result = await webauthnService.registerCredential({
+        //   userId: state.user?.id,
+        //   userName: state.user?.email,
+        //   displayName: state.user?.name,
+        //   ...options,
+        // });
 
-        if (result.success) {
-          // Update credentials list
-          const credentials = await webauthnService.getCredentials(
-            state.user.id
-          );
-          dispatch({
-            type: AUTH_ACTIONS.WEBAUTHN_CREDENTIALS_UPDATED,
-            payload: { credentials },
-          });
+        // if (result.success) {
+        //   // Update credentials list
+        //   const credentials = await webauthnService.getCredentials(
+        //     state.user.id
+        //   );
+        //   dispatch({
+        //     type: AUTH_ACTIONS.WEBAUTHN_CREDENTIALS_UPDATED,
+        //     payload: { credentials },
+        //   });
 
-          return { success: true, credentialId: result.credentialId };
-        } else {
-          return { success: false, error: result.error };
-        }
+        //   return { success: true, credentialId: result.credentialId };
+        // } catch (error) {
+        //   return { success: false, error: error.message };
+        // }
+        
+        // TODO: WebAuthn service needs to be provided per app
+        throw new Error('WebAuthn registration not configured for this app');
       } catch (error) {
         return { success: false, error: error.message };
       }
