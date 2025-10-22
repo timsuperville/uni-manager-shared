@@ -1,14 +1,14 @@
 /**
- * Enhanced AuthContext - Compatibility wrapper
- * Provides enhanced authentication context with extended functionality
- * This is a compatibility layer for tests expecting EnhancedAuthContext
+ * AuthContext - Compatibility wrapper
+ * Provides authentication context with extended functionality
+ * This is a compatibility layer for tests expecting AuthContext
  */
 
 import React, { createContext, useContext } from 'react';
 import { AuthProvider, useAuth, AUTH_ACTIONS } from '../auth/contexts/AuthContext.jsx';
 
-// Create enhanced context that extends the base auth context
-const EnhancedAuthContext = createContext(null);
+// Create auth context that extends the base auth context
+const AuthContext = createContext(null);
 
 /**
  * Enhanced Auth Provider
