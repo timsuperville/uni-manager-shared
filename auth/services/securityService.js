@@ -11,7 +11,7 @@
  * @module SecurityService
  */
 
-/* global console, process, setInterval */
+/* global process, setInterval */
 
 class SecurityService {
   constructor() {
@@ -239,13 +239,13 @@ class SecurityService {
 
       return result;
     } catch (_error) {
-      // console.error('Fraud analysis error:', error);
+      // console.error('Fraud analysis error:', _error);
       return {
         riskScore: 0,
         riskLevel: 'low',
         riskFactors: [],
         recommendedAction: 'allow',
-        error: error.message,
+        error: _error.message,
       };
     }
   }
@@ -375,7 +375,7 @@ class SecurityService {
         timestamp: now,
       };
     } catch (_error) {
-      // console.error('Error getting security stats:', error);
+      // console.error('Error getting security stats:', _error);
       return {
         timeframe,
         totalEvents: 0,
@@ -384,7 +384,7 @@ class SecurityService {
         suspiciousIPs: 0,
         activeRateLimits: 0,
         securityScore: 0,
-        error: error.message,
+        error: _error.message,
       };
     }
   }
@@ -542,7 +542,7 @@ class SecurityService {
    * Send event to security monitoring system (production)
    * @param {Object} event - Security event
    */
-  sendToSecurityMonitoring(event) {
+  sendToSecurityMonitoring(/* event */) {
     // In production, implement integration with security monitoring
     // Examples: Splunk, ELK Stack, custom security dashboard
     // console.log('[SECURITY MONITORING]', event);

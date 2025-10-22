@@ -1,4 +1,5 @@
 /* eslint-env browser */
+/* global WebSocket, setInterval, clearInterval, setTimeout, clearTimeout */
 import { useState, useEffect, useCallback, useRef } from 'react';
 
 /**
@@ -129,7 +130,7 @@ export const useWebSocket = (endpoint = '') => {
   }, []);
 
   // Handle WebSocket error
-  const handleError = useCallback((event) => {
+  const handleError = useCallback(() => {
     setError('WebSocket connection error');
     setConnectionStatus('error');
     // eslint-disable-next-line no-console

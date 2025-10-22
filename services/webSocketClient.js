@@ -3,6 +3,8 @@
  * Frontend WebSocket client for real-time updates and notifications
  */
 
+/* global setTimeout, clearTimeout */
+
 import { io } from 'socket.io-client';
 import { getWebSocketUrl } from '../config/environment.ts';
 
@@ -56,7 +58,7 @@ class WebSocketClient {
         resolve();
       });
 
-      this.socket.on('connect_error', (_error) => {
+      this.socket.on('connect_error', (error) => {
         clearTimeout(timeout);
         // console.error('WebSocket connection failed:', error);
         reject(error);
@@ -79,11 +81,11 @@ class WebSocketClient {
       this.attemptReconnect();
     });
 
-    this.socket.on('reconnect', (attemptNumber) => {
+    this.socket.on('reconnect', () => {
       this.isConnected = true;
       this.reconnectAttempts = 0;
       this.isReconnecting = false;
-      // console.log(`WebSocket reconnected after ${attemptNumber} attempts`);
+      // console.log(`WebSocket reconnected`);
 
       // Re-establish subscriptions
       this.reestablishSubscriptions();
@@ -92,9 +94,9 @@ class WebSocketClient {
       this.emit('reconnected');
     });
 
-    this.socket.on('reconnect_attempt', (attemptNumber) => {
+    this.socket.on('reconnect_attempt', () => {
       this.isReconnecting = true;
-      // console.log(`WebSocket reconnect attempt ${attemptNumber}`);
+      // console.log(`WebSocket reconnect attempt`);
     });
 
     this.socket.on('reconnect_failed', () => {
@@ -104,7 +106,7 @@ class WebSocketClient {
     });
 
     // Handle authentication errors
-    this.socket.on('connect_error', (_error) => {
+    this.socket.on('connect_error', (error) => {
       if (
         error.message === 'Authentication token required' ||
         error.message === 'Invalid authentication token'
@@ -114,12 +116,12 @@ class WebSocketClient {
     });
 
     // Handle subscription responses
-    this.socket.on('subscription_success', (data) => {
-      // console.log('Subscribed to room:', data.room);
+    this.socket.on('subscription_success', () => {
+      // console.log('Subscribed to room');
     });
 
-    this.socket.on('subscription_error', (data) => {
-      // console.error('Subscription failed:', data);
+    this.socket.on('subscription_error', () => {
+      // console.error('Subscription failed');
     });
 
     // Handle real-time events

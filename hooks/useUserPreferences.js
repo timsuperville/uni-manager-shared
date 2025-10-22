@@ -7,7 +7,7 @@ import { useState, useCallback } from 'react';
 
 export function useUserPreferences() {
   const [preferences, setPreferences] = useState({});
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false); // Remove setLoading since it's not used
 
   const updatePreference = useCallback((key, value) => {
     setPreferences(prev => ({

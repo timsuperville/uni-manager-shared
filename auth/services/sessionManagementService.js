@@ -11,7 +11,7 @@
  * @module SessionManagementService
  */
 
-/* global console, navigator, document, window, setInterval, clearInterval, clearTimeout, setTimeout, Intl, CustomEvent */
+/* global navigator, document, window, setInterval, clearInterval, clearTimeout, setTimeout, Intl, CustomEvent */
 
 import securityService from './securityService';
 
@@ -142,10 +142,10 @@ class SessionManagementService {
         requiresAdditionalVerification: fraudAnalysis.riskLevel === 'high',
       };
     } catch (_error) {
-      // console.error('Error creating session:', error);
+      // console.error('Error creating session:', _error);
       return {
         success: false,
-        error: error.message,
+        error: _error.message,
       };
     }
   }
@@ -202,11 +202,11 @@ class SessionManagementService {
         },
       };
     } catch (_error) {
-      // console.error('Error validating session:', error);
+      // console.error('Error validating session:', _error);
       return {
         valid: false,
         reason: 'validation_error',
-        error: error.message,
+        error: _error.message,
       };
     }
   }
@@ -697,11 +697,11 @@ class SessionManagementService {
 
       return analytics;
     } catch (_error) {
-      // console.error('Error getting session analytics:', error);
+      // console.error('Error getting session analytics:', _error);
       return {
         totalSessions: 0,
         activeSessions: 0,
-        error: error.message,
+        error: _error.message,
       };
     }
   }
