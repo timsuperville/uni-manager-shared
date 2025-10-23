@@ -1,16 +1,16 @@
 /**
  * React Router Link Validator
- * 
+ *
  * Purpose: Validate all React Router links in a component tree
  * - Detects <Link to="..."> components
  * - Validates routes exist in router configuration
  * - Checks for broken internal links
  * - Reports missing routes
- * 
+ *
  * Usage in tests:
  * ```javascript
  * import { validateLinks } from '@shared/test-utils/linkValidator';
- * 
+ *
  * test('all links are valid', () => {
  *   const { container } = render(<App />);
  *   const result = validateLinks(container, routes);
@@ -19,8 +19,6 @@
  * ```
  */
 
-import { isValidElement } from 'react';
-
 /**
  * Extract all routes from router configuration
  * @param {Array} routes - Route configuration array
@@ -28,25 +26,25 @@ import { isValidElement } from 'react';
  */
 export function extractRoutes(routes) {
   const paths = new Set();
-  
+
   function traverse(routeArray, basePath = '') {
     routeArray.forEach(route => {
       if (route.path) {
         const fullPath = `${basePath}${route.path}`.replace(/\/+/g, '/');
         paths.add(fullPath);
-        
+
         // Handle path parameters (e.g., /user/:id)
         const paramPattern = fullPath.replace(/:\w+/g, '[^/]+');
         paths.add(paramPattern);
       }
-      
+
       if (route.children) {
         const childBasePath = route.path ? `${basePath}${route.path}` : basePath;
         traverse(route.children, childBasePath);
       }
     });
   }
-  
+
   traverse(routes);
   return paths;
 }
@@ -62,7 +60,7 @@ export function isValidPath(path, validRoutes) {
   if (validRoutes.has(path)) {
     return true;
   }
-  
+
   // Check against patterns (for parameterized routes)
   for (const route of validRoutes) {
     if (route.includes('[^/]+')) {
@@ -72,17 +70,17 @@ export function isValidPath(path, validRoutes) {
       }
     }
   }
-  
+
   // External links are valid
   if (path.startsWith('http://') || path.startsWith('https://')) {
     return true;
   }
-  
+
   // Hash links are valid
   if (path.startsWith('#')) {
     return true;
   }
-  
+
   return false;
 }
 
@@ -94,7 +92,7 @@ export function isValidPath(path, validRoutes) {
 export function findLinks(container) {
   const links = [];
   const anchorElements = container.querySelectorAll('a[href]');
-  
+
   anchorElements.forEach(element => {
     links.push({
       href: element.getAttribute('href'),
@@ -102,7 +100,7 @@ export function findLinks(container) {
       element
     });
   });
-  
+
   return links;
 }
 
@@ -115,7 +113,7 @@ export function findLinks(container) {
 export function validateLinks(container, routes) {
   const validRoutes = extractRoutes(routes);
   const links = findLinks(container);
-  
+
   const result = {
     totalLinks: links.length,
     validLinks: [],
@@ -123,22 +121,22 @@ export function validateLinks(container, routes) {
     externalLinks: [],
     hashLinks: []
   };
-  
+
   links.forEach(link => {
     const { href, text, element } = link;
-    
+
     // Skip empty hrefs
     if (!href || href === '#') {
       result.hashLinks.push({ href, text, element });
       return;
     }
-    
+
     // Categorize external links
     if (href.startsWith('http://') || href.startsWith('https://')) {
       result.externalLinks.push({ href, text, element });
       return;
     }
-    
+
     // Validate internal links
     if (isValidPath(href, validRoutes)) {
       result.validLinks.push({ href, text, element });
@@ -146,7 +144,7 @@ export function validateLinks(container, routes) {
       result.brokenLinks.push({ href, text, element });
     }
   });
-  
+
   return result;
 }
 
@@ -157,14 +155,14 @@ export function validateLinks(container, routes) {
  */
 export function generateReport(validationResult) {
   const { totalLinks, validLinks, brokenLinks, externalLinks, hashLinks } = validationResult;
-  
+
   let report = '=== Link Validation Report ===\n\n';
   report += `Total Links: ${totalLinks}\n`;
   report += `✅ Valid Links: ${validLinks.length}\n`;
   report += `❌ Broken Links: ${brokenLinks.length}\n`;
   report += `🌐 External Links: ${externalLinks.length}\n`;
   report += `🔗 Hash Links: ${hashLinks.length}\n\n`;
-  
+
   if (brokenLinks.length > 0) {
     report += '=== Broken Links ===\n';
     brokenLinks.forEach(({ href, text }) => {
@@ -172,14 +170,14 @@ export function generateReport(validationResult) {
     });
     report += '\n';
   }
-  
+
   if (externalLinks.length > 0) {
     report += '=== External Links (Manual Verification Recommended) ===\n';
     externalLinks.forEach(({ href, text }) => {
       report += `🌐 ${href} (Text: "${text}")\n`;
     });
   }
-  
+
   return report;
 }
 
@@ -192,14 +190,14 @@ export function generateReport(validationResult) {
 export function toHaveValidLinks(container, routes) {
   const result = validateLinks(container, routes);
   const pass = result.brokenLinks.length === 0;
-  
+
   const message = pass
     ? () => `Expected to have broken links, but all ${result.totalLinks} links are valid`
     : () => {
         const report = generateReport(result);
         return `Expected all links to be valid, but found ${result.brokenLinks.length} broken links:\n\n${report}`;
       };
-  
+
   return {
     pass,
     message
