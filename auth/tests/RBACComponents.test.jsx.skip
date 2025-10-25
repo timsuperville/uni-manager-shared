@@ -1,7 +1,7 @@
 /**
  * RBAC Components Tests
  * Comprehensive test suite for role-based access control React components
- * 
+ *
  * Note: Temporarily skipped due to JSX parsing issues in lint environment
  */
 
@@ -691,3 +691,5 @@ describe('Edge Cases and Error Handling', () => {
     expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
   });
 });
+
+*/

@@ -9,18 +9,34 @@ import { SessionManager } from '../services/SessionManager';
 // Mock browser globals
 const mockLocalStorage = {
   storage: new Map(),
-  getItem: vi.fn((key) => mockLocalStorage.storage.get(key) || null),
-  setItem: vi.fn((key, value) => mockLocalStorage.storage.set(key, value)),
-  removeItem: vi.fn((key) => mockLocalStorage.storage.delete(key)),
-  clear: vi.fn(() => mockLocalStorage.storage.clear()),
+  getItem: vi.fn(function(key) {
+    return mockLocalStorage.storage.get(key) || null;
+  }),
+  setItem: vi.fn(function(key, value) {
+    mockLocalStorage.storage.set(key, value);
+  }),
+  removeItem: vi.fn(function(key) {
+    mockLocalStorage.storage.delete(key);
+  }),
+  clear: vi.fn(function() {
+    mockLocalStorage.storage.clear();
+  }),
 };
 
 const mockSessionStorage = {
   storage: new Map(),
-  getItem: vi.fn((key) => mockSessionStorage.storage.get(key) || null),
-  setItem: vi.fn((key, value) => mockSessionStorage.storage.set(key, value)),
-  removeItem: vi.fn((key) => mockSessionStorage.storage.delete(key)),
-  clear: vi.fn(() => mockSessionStorage.storage.clear()),
+  getItem: vi.fn(function(key) {
+    return mockSessionStorage.storage.get(key) || null;
+  }),
+  setItem: vi.fn(function(key, value) {
+    mockSessionStorage.storage.set(key, value);
+  }),
+  removeItem: vi.fn(function(key) {
+    mockSessionStorage.storage.delete(key);
+  }),
+  clear: vi.fn(function() {
+    mockSessionStorage.storage.clear();
+  }),
 };
 
 const mockBroadcastChannel = {
@@ -387,7 +403,7 @@ describe('SessionManager', () => {
 
       sessionManager.handleCrossTabLogout();
 
-      expect(mockCallback).toHaveBeenCalledWith('cross_tab_logout');
+      expect(mockCallback).toHaveBeenCalledWith('cross_tab_logout', null);
     });
   });
 

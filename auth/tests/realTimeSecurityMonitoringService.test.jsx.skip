@@ -8,34 +8,16 @@
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 import RealTimeSecurityMonitoringService from '../services/realTimeSecurityMonitoringService';
 
-// Mock WebSocket
-const mockWebSocket = {
-  send: vi.fn(),
-  close: vi.fn(),
-  addEventListener: vi.fn(),
-  removeEventListener: vi.fn(),
-  readyState: 1,
-};
-
-const MockWebSocket = vi.fn(() => mockWebSocket);
-
-// Set WebSocket constants
-Object.assign(MockWebSocket, {
-  CONNECTING: 0,
-  OPEN: 1,
-  CLOSING: 2,
-  CLOSED: 3,
-});
-
-// Mock global WebSocket
-global.WebSocket = MockWebSocket;
+// Mock WebSocket at module level - must be before any beforeEach
+vi.stubGlobal('WebSocket', vi.fn());
 
 // Mock other browser APIs
-global.Notification = {
+vi.stubGlobal('Notification', {
   permission: 'granted',
   requestPermission: vi.fn(() => Promise.resolve('granted')),
-};
+});
 
+// Define mock factory at module level without closure variables
 vi.mock('../services/realTimeSecurityMonitoringService', async () => {
   const actual = await vi.importActual(
     '../services/realTimeSecurityMonitoringService'
@@ -45,11 +27,9 @@ vi.mock('../services/realTimeSecurityMonitoringService', async () => {
     default: class MockRealTimeSecurityMonitoringService extends actual.default {
       constructor() {
         super();
-        this.mockWebSocket = mockWebSocket;
       }
 
       async connect() {
-        this.websocket = this.mockWebSocket;
         this.isConnected = true;
 
         // Simulate successful connection
@@ -66,10 +46,26 @@ vi.mock('../services/realTimeSecurityMonitoringService', async () => {
 describe('RealTimeSecurityMonitoringService', () => {
   let securityService;
   let mockConsole;
+  let mockWebSocket;
 
   beforeEach(() => {
     // Reset mocks
     vi.clearAllMocks();
+
+    // Setup WebSocket mock for this test
+    mockWebSocket = {
+      send: vi.fn(),
+      close: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      readyState: 1,
+    };
+
+    global.WebSocket.mockImplementation(() => mockWebSocket);
+    global.WebSocket.CONNECTING = 0;
+    global.WebSocket.OPEN = 1;
+    global.WebSocket.CLOSING = 2;
+    global.WebSocket.CLOSED = 3;
 
     // Mock console methods
     mockConsole = {

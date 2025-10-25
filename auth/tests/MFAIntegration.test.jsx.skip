@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { MFAService } from '../services/mfaService.js';
 import { AuthService } from '../services/authService.js';
 
@@ -400,3 +401,4 @@ describe('MFA Integration Scenarios', () => {
     });
   });
 });
+}

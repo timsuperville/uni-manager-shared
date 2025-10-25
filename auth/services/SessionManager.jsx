@@ -175,7 +175,8 @@ export class SessionManager {
    */
   getRememberMe() {
     if (!this.isBrowser) return false;
-    return typeof window !== "undefined" && typeof localStorage !== "undefined" && localStorage.getItem(this.options.rememberMeKey) === 'true';
+    const storage = typeof window !== "undefined" && window.localStorage;
+    return storage && storage.getItem(this.options.rememberMeKey) === 'true';
   }
 
   /**
@@ -382,8 +383,8 @@ export class SessionManager {
     this.listeners.forEach((callback) => {
       try {
         callback(event, data);
-      } catch (_error) {
-        // console.error('Session listener error:', error);
+      } catch (error) {
+        console.error('Session listener error:', error);
       }
     });
   }

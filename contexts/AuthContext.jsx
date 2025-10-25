@@ -9,6 +9,7 @@ import { AuthProvider, useAuth, AUTH_ACTIONS } from '../auth/contexts/AuthContex
 
 // Create auth context that extends the base auth context
 const AuthContext = createContext(null);
+const EnhancedAuthContext = createContext(null);
 
 /**
  * Enhanced Auth Provider
