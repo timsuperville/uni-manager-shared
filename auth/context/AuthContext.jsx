@@ -1,8 +1,35 @@
 /**
  * Unified Authentication Context
  *
- * Provides consistent authentication state management across all apps.
- * Each app can customize the context while using the same core functionality.
+ * Single source of truth for authentication state management across all applications.
+ * Provides core auth functionality, MFA, session management, and RBAC integration.
+ *
+ * Features:
+ * - User authentication (login, signup, logout)
+ * - Token management (access/refresh)
+ * - Multi-factor authentication (MFA)
+ * - Session management with auto-refresh
+ * - Cross-tab synchronization
+ * - Activity tracking
+ * - Error handling with callbacks
+ *
+ * Usage:
+ * ```jsx
+ * import { AuthProvider, useAuth } from '@shared/auth';
+ *
+ * function App() {
+ *   return (
+ *     <AuthProvider config={{ appName: 'home' }}>
+ *       <MainApp />
+ *     </AuthProvider>
+ *   );
+ * }
+ *
+ * function Component() {
+ *   const { user, isAuthenticated, login, logout } = useAuth();
+ *   return isAuthenticated ? <Dashboard /> : <LoginForm />;
+ * }
+ * ```
  */
 
 import React, {
@@ -14,7 +41,7 @@ import React, {
   useMemo,
   useRef,
 } from 'react';
-import { AuthService } from '../services/authService.js';
+import { AuthService } from '../services/AuthService.js';
 import { tokenStorage } from '../utils/tokenStorage.js';
 
 const AuthContext = createContext(null);
@@ -582,4 +609,7 @@ export const AuthProvider = ({
 AuthContext.propTypes = {
   // TODO: Define specific prop types
 };
+
+// Export both named and default
+export { AuthContext };
 export default AuthContext;

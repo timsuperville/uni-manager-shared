@@ -8,7 +8,7 @@ import {
   formatPhoneNumber,
   getMFAMethodDisplayName,
   getMFAMethodIcon,
-} from '@shared/auth/services/mfaService.js';
+} from '../services/mfaService.js';
 
 /**
  * MFA Setup Wizard Component

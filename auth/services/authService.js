@@ -1,4 +1,4 @@
-/* global fetch, window, sessionStorage, localStorage, console, URLSearchParams, setInterval, clearInterval */
+/* global fetch, sessionStorage, URLSearchParams, setInterval, clearInterval */
 /**
  * Consolidated Authentication Service
  *
@@ -22,7 +22,6 @@ import {
 import { getCurrentAppConfig } from '../config/appConfigs.js';
 import { tokenStorage } from '../utils/tokenStorage.js';
 import {
-  validateAuthData,
   validateCredentials,
 } from '../utils/authValidation.js';
 
@@ -51,14 +50,14 @@ class AuthService {
     this.config = {
       apiBaseUrl: config.apiBaseUrl || 'http://localhost:5000',
       endpoints: {
-        login: '/api/auth/login',
-        logout: '/api/auth/logout',
-        signup: '/api/auth/signup',
-        forgotPassword: '/api/auth/forgot-password',
-        resetPassword: '/api/auth/reset-password',
-        refreshToken: '/api/auth/refresh-token',
-        validateToken: '/api/auth/validate-token',
-        verify: '/api/auth/verify',
+        login: '/auth/login',
+        logout: '/auth/logout',
+        signup: '/auth/signup',
+        forgotPassword: '/auth/forgot-password',
+        resetPassword: '/auth/reset-password',
+        refreshToken: '/auth/refresh-token',
+        validateToken: '/auth/validate-token',
+        verify: '/auth/verify-token',
         ...transformedEndpoints,
       },
       appType: config.appType || 'default',
@@ -107,10 +106,8 @@ class AuthService {
     try {
       const response = await this._makeRequest('verify', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify({
+          token,
           deviceFingerprint: this.deviceFingerprint,
           deviceInfo: getDeviceInfo(),
         }),
@@ -128,6 +125,7 @@ class AuthService {
       }
     } catch (_error) {
       // console.error('Session verification failed:', error);
+      // Clear auth on verification failure
       await this.clearStoredAuth();
       return null;
     }
@@ -251,90 +249,69 @@ class AuthService {
    * User signup/registration
    */
   async signup(userData) {
-    try {
-      const response = await this._makeRequest('signup', {
-        method: 'POST',
-        body: JSON.stringify({
-          ...userData,
-          appType: this.config.appType,
-          deviceFingerprint: this.deviceFingerprint,
-          deviceInfo: getDeviceInfo(),
-        }),
-      });
+    const response = await this._makeRequest('signup', {
+      method: 'POST',
+      body: JSON.stringify({
+        ...userData,
+        appType: this.config.appType,
+        deviceFingerprint: this.deviceFingerprint,
+        deviceInfo: getDeviceInfo(),
+      }),
+    });
 
-      const responseData = await response.json();
+    const responseData = await response.json();
 
-      if (response.ok && responseData.success) {
-        return {
-          success: true,
-          message: responseData.message,
-          requiresVerification: responseData.requiresVerification,
-          user: responseData.user,
-        };
-      }
-
-      throw new Error(responseData.message || 'Signup failed');
-    } catch (_error) {
-      // console.error(`[Auth-${this.config.appType}] Signup error:`, _error);
-      throw _error;
+    if (response.ok && responseData.success) {
+      return {
+        success: true,
+        message: responseData.message,
+        requiresVerification: responseData.requiresVerification,
+        user: responseData.user,
+      };
     }
+
+    throw new Error(responseData.message || 'Signup failed');
   }
 
   /**
    * Forgot password
    */
   async forgotPassword(email) {
-    try {
-      const response = await this._makeRequest('forgotPassword', {
-        method: 'POST',
-        body: JSON.stringify({
-          email,
-          appType: this.config.appType,
-        }),
-      });
+    const response = await this._makeRequest('forgotPassword', {
+      method: 'POST',
+      body: JSON.stringify({
+        email,
+        appType: this.config.appType,
+      }),
+    });
 
-      const responseData = await response.json();
+    const responseData = await response.json();
 
-      return {
-        success: responseData.success,
-        message: responseData.message,
-      };
-    } catch (_error) {
-      // console.error(
-      //   `[Auth-${this.config.appType}] Forgot password error:`,
-      //   error
-      // );
-      throw _error;
-    }
+    return {
+      success: responseData.success,
+      message: responseData.message,
+    };
   }
 
   /**
    * Reset password
    */
   async resetPassword(token, newPassword) {
-    try {
-      const response = await this._makeRequest('resetPassword', {
-        method: 'POST',
-        body: JSON.stringify({
-          token,
-          newPassword,
-          appType: this.config.appType,
-        }),
-      });
+    const response = await this._makeRequest('resetPassword', {
+      method: 'POST',
+      body: JSON.stringify({
+        token,
+        newPassword,
+        appType: this.config.appType,
+      }),
+    });
 
-      const responseData = await response.json();
+    const responseData = await response.json();
 
-      return {
-        success: responseData.success,
-        message: responseData.message,
-      };
-    } catch (_error) {
-      // console.error(
-      //   `[Auth-${this.config.appType}] Reset password error:`,
-      //   error
-      // );
-      throw _error;
-    }
+    return {
+      success: responseData.success,
+      message: responseData.message,
+    };
   }
 
   // ===============================
@@ -354,47 +331,42 @@ class AuthService {
       );
     }
 
-    try {
-      // Generate PKCE parameters for security
-      const { codeVerifier, codeChallenge } = generatePKCE();
-      const state = generateState();
-      const nonce = generateNonce();
+    // Generate PKCE parameters for security
+    const { codeVerifier, codeChallenge } = generatePKCE();
+    const state = generateState();
+    const nonce = generateNonce();
 
-      // Store PKCE parameters and state
-      if (typeof sessionStorage !== 'undefined') {
-        sessionStorage.setItem('pkce_verifier', codeVerifier);
-        sessionStorage.setItem('oauth_state', state);
-        sessionStorage.setItem('oauth_nonce', nonce);
-        sessionStorage.setItem('oauth_provider', providerId);
-      }
-
-      // Build authorization URL
-      const authParams = new URLSearchParams({
-        response_type: 'code',
-        client_id: providerConfig.clientId,
-        redirect_uri: providerConfig.redirectUri,
-        scope: providerConfig.scopes.join(' '),
-        state: state,
-        code_challenge: codeChallenge,
-        code_challenge_method: 'S256',
-        nonce: nonce,
-        ...options.additionalParams,
-      });
-
-      const authUrl = `${providerConfig.authorizationEndpoint}?${authParams.toString()}`;
-
-      // Track OAuth initiation
-      trackUserActivity('oauth_init', {
-        provider: providerId,
-        app: appConfig.name,
-        deviceFingerprint: this.deviceFingerprint,
-      });
-
-      return { authUrl, state };
-    } catch (_error) {
-      // console.error('OAuth flow initiation failed:', _error);
-      throw _error;
+    // Store PKCE parameters and state
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.setItem('pkce_verifier', codeVerifier);
+      sessionStorage.setItem('oauth_state', state);
+      sessionStorage.setItem('oauth_nonce', nonce);
+      sessionStorage.setItem('oauth_provider', providerId);
     }
+
+    // Build authorization URL
+    const authParams = new URLSearchParams({
+      response_type: 'code',
+      client_id: providerConfig.clientId,
+      redirect_uri: providerConfig.redirectUri,
+      scope: providerConfig.scopes.join(' '),
+      state: state,
+      code_challenge: codeChallenge,
+      code_challenge_method: 'S256',
+      nonce: nonce,
+      ...options.additionalParams,
+    });
+
+    const authUrl = `${providerConfig.authorizationEndpoint}?${authParams.toString()}`;
+
+    // Track OAuth initiation
+    trackUserActivity('oauth_init', {
+      provider: providerId,
+      app: appConfig.name,
+      deviceFingerprint: this.deviceFingerprint,
+    });
+
+    return { authUrl, state };
   }
 
   /**
@@ -405,63 +377,58 @@ class AuthService {
       throw new Error(`OAuth error: ${error}`);
     }
 
-    try {
-      // Verify state parameter
-      const storedState =
-        typeof sessionStorage !== 'undefined'
-          ? sessionStorage.getItem('oauth_state')
-          : null;
-      if (state !== storedState) {
-        throw new Error('Invalid OAuth state parameter');
-      }
-
-      const providerId =
-        typeof sessionStorage !== 'undefined'
-          ? sessionStorage.getItem('oauth_provider')
-          : null;
-      const codeVerifier =
-        typeof sessionStorage !== 'undefined'
-          ? sessionStorage.getItem('pkce_verifier')
-          : null;
-
-      if (!providerId || !codeVerifier) {
-        throw new Error('Missing OAuth session data');
-      }
-
-      // Exchange code for tokens
-      const tokenResponse = await this.exchangeOAuthCode(
-        providerId,
-        code,
-        codeVerifier
-      );
-
-      // Store authentication data
-      await tokenStorage.setTokens({
-        accessToken: tokenResponse.accessToken,
-        refreshToken: tokenResponse.refreshToken,
-        user: tokenResponse.user,
-      });
-
-      this.currentUser = tokenResponse.user;
-      this.sessionToken = tokenResponse.accessToken;
-
-      // Clear OAuth session data
-      if (typeof sessionStorage !== 'undefined') {
-        sessionStorage.removeItem('pkce_verifier');
-        sessionStorage.removeItem('oauth_state');
-        sessionStorage.removeItem('oauth_nonce');
-        sessionStorage.removeItem('oauth_provider');
-      }
-
-      return {
-        success: true,
-        user: tokenResponse.user,
-        provider: providerId,
-      };
-    } catch (_error) {
-      // console.error('OAuth callback handling failed:', _error);
-      throw _error;
+    // Verify state parameter
+    const storedState =
+      typeof sessionStorage !== 'undefined'
+        ? sessionStorage.getItem('oauth_state')
+        : null;
+    if (state !== storedState) {
+      throw new Error('Invalid OAuth state parameter');
     }
+
+    const providerId =
+      typeof sessionStorage !== 'undefined'
+        ? sessionStorage.getItem('oauth_provider')
+        : null;
+    const codeVerifier =
+      typeof sessionStorage !== 'undefined'
+        ? sessionStorage.getItem('pkce_verifier')
+        : null;
+
+    if (!providerId || !codeVerifier) {
+      throw new Error('Missing OAuth session data');
+    }
+
+    // Exchange code for tokens
+    const tokenResponse = await this.exchangeOAuthCode(
+      providerId,
+      code,
+      codeVerifier
+    );
+
+    // Store authentication data
+    await tokenStorage.setTokens({
+      accessToken: tokenResponse.accessToken,
+      refreshToken: tokenResponse.refreshToken,
+      user: tokenResponse.user,
+    });
+
+    this.currentUser = tokenResponse.user;
+    this.sessionToken = tokenResponse.accessToken;
+
+    // Clear OAuth session data
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.removeItem('pkce_verifier');
+      sessionStorage.removeItem('oauth_state');
+      sessionStorage.removeItem('oauth_nonce');
+      sessionStorage.removeItem('oauth_provider');
+    }
+
+    return {
+      success: true,
+      user: tokenResponse.user,
+      provider: providerId,
+    };
   }
 
   /**

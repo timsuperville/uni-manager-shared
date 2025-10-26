@@ -1,6 +1,6 @@
 /**
  * AuthContext - Alias file for backward compatibility
- * Re-exports from the main contexts directory
+ * Re-exports from the new context location
  */
 
 export {
@@ -8,4 +8,4 @@ export {
   useAuth,
   AUTH_ACTIONS,
   default
-} from '../contexts/AuthContext.jsx';
+} from './context/index.jsx';

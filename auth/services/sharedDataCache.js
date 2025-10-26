@@ -1,6 +1,6 @@
 // Shared Data Cache Layer for Uni-Manager Applications
 // Provides centralized caching and state synchronization across all apps
-/* global console, localStorage, setTimeout, clearTimeout, clearInterval, window */
+/* global localStorage, setTimeout, clearTimeout, clearInterval, window */
 class SharedDataCache {
   constructor() {
     this.cache = new Map();
@@ -229,10 +229,7 @@ class SharedDataCache {
                 appName,
               });
             } catch (_error) {
-              // console.error(
-                `Error in subscription callback for ${appName}:`,
-                error
-              );
+              // console.error(`Error in subscription callback for ${appName}:`, error);
             }
           }
         }
@@ -337,10 +334,7 @@ class SharedDataCache {
             typeof localStorage !== "undefined" && localStorage.removeItem(persistKey);
           }
         } catch (_error) {
-          // console.error(
-            `Error loading persisted cache entry ${persistKey}:`,
-            error
-          );
+          // console.error(`Error loading persisted cache entry ${persistKey}:`, error);
           typeof localStorage !== "undefined" && localStorage.removeItem(persistKey);
         }
       }

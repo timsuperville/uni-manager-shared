@@ -5,6 +5,8 @@
  * Uses sessionStorage for security and localStorage for persistence options.
  */
 
+/* global window */
+
 class TokenStorage {
   constructor() {
     this.storageKeys = {
@@ -223,6 +225,62 @@ class TokenStorage {
     }
   }
 }
+
+// ==================== HELPER FUNCTIONS ====================
+
+/**
+ * Store token in storage
+ */
+export const storeToken = (token, refreshToken = null) => {
+  tokenStorage.setToken(token);
+  if (refreshToken) {
+    tokenStorage.setRefreshToken(refreshToken);
+  }
+};
+
+/**
+ * Get token from storage
+ */
+export const getToken = () => {
+  return tokenStorage.getToken();
+};
+
+/**
+ * Get refresh token from storage
+ */
+export const getRefreshToken = () => {
+  return tokenStorage.getRefreshToken();
+};
+
+/**
+ * Clear tokens from storage
+ */
+export const clearTokens = () => {
+  tokenStorage.clearTokens();
+};
+
+/**
+ * Check if token is expired
+ */
+export const isTokenExpired = (token = null) => {
+  const tokenToCheck = token || tokenStorage.getToken();
+  return tokenStorage.isTokenExpired(tokenToCheck);
+};
+
+/**
+ * Get token expiry time
+ */
+export const getTokenExpiryTime = (token = null) => {
+  const tokenToCheck = token || tokenStorage.getToken();
+  if (!tokenToCheck) return null;
+  try {
+    // eslint-disable-next-line no-undef
+    const decoded = JSON.parse(atob(tokenToCheck.split('.')[1]));
+    return decoded.exp ? new Date(decoded.exp * 1000) : null;
+  } catch {
+    return null;
+  }
+};
 
 // Export singleton instance
 export const tokenStorage = new TokenStorage();

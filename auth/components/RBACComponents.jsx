@@ -6,7 +6,7 @@
 import React, { createContext, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../hooks/useAuth.js';
 import { RBACUtils, PermissionUtils } from '../rbac/utils';
 
 // Create RBAC Context
@@ -390,6 +390,22 @@ function PermissionMenuItem({
 
 // Export all components
 export {
+  RBACProvider,
+  useRBAC,
+  PermissionGuard,
+  RoleGuard,
+  ApplicationGuard,
+  RouteGuard,
+  AdminGuard,
+  ConditionalRender,
+  withPermissions,
+  withRoles,
+  PermissionButton,
+  PermissionMenuItem,
+};
+
+// Default export: object containing all RBAC components
+export default {
   RBACProvider,
   useRBAC,
   PermissionGuard,

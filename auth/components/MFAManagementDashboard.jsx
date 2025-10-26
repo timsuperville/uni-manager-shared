@@ -709,3 +709,5 @@ export const MFAManagementDashboard = ({ onClose }) => {
 MFAManagementDashboard.propTypes = {
   onClose: PropTypes.func.isRequired,
 };
+
+export default MFAManagementDashboard;

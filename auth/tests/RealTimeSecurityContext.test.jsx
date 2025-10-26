@@ -11,7 +11,7 @@ import { render, screen, waitFor, act } from '@testing-library/react';
 import {
   RealTimeSecurityProvider,
   useRealTimeSecurity,
-} from '../contexts/RealTimeSecurityContext';
+} from '../context/RealTimeSecurityContext';
 
 // Mock the security monitoring service
 const mockSecurityService = {

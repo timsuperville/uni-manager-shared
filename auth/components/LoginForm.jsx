@@ -1,25 +1,41 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { useAuth } from '../contexts/AuthContext.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
 import { useNavigate } from 'react-router-dom';
 import MFAVerification from './MFAVerification';
 import MFASetup from './MFASetup';
 
 /**
- * Enhanced Login Form with MFA Support
- * Supports multi-factor authentication flow with device trust
+ * LoginForm - Main Authentication Form Component
+ * Supports:
+ * - Multi-factor authentication (MFA) with device trust
+ * - Multiple application types with app-specific configurations
+ * - Customizable themes and styling
+ * - Cross-app compatibility
  */
-export function EnhancedLoginForm({
+export function LoginForm({
+  // App configuration
   appType = 'default',
   appTitle,
   appDescription,
-  onSuccess,
-  onError,
+
+  // UI customization
   theme = 'default',
-  redirectPath = '/dashboard',
   showRememberMe = true,
   showRegistration = false,
+
+  // MFA configuration
+  enableMFA = true,
+  trustDeviceAvailable = true,
+
+  // Callbacks
+  onSuccess,
+  onError,
+
+  // Navigation
+  redirectPath = '/dashboard',
 }) {
+  // Auth context
   const {
     login,
     verifyMFALogin,
@@ -31,6 +47,8 @@ export function EnhancedLoginForm({
   } = useAuth();
 
   const navigate = useNavigate();
+
+  // State management
   const [currentStep, setCurrentStep] = useState('login');
   const [formData, setFormData] = useState({
     email: '',
@@ -41,7 +59,10 @@ export function EnhancedLoginForm({
   const [deviceFingerprint, setDeviceFingerprint] = useState(null);
   const [trustDevice, setTrustDevice] = useState(false);
 
-  // App-specific configurations
+  /**
+   * App-specific configurations
+   * Defines title, icon, colors, and default redirect paths for each application
+   */
   const appConfigs = {
     admin: {
       title: 'Admin Portal Access',
@@ -94,12 +115,16 @@ export function EnhancedLoginForm({
     },
   };
 
+  // Resolve configuration
   const config = appConfigs[appType] || appConfigs.default;
   const finalTitle = appTitle || config.title;
   const finalDescription = appDescription || config.description;
   const finalRedirectPath = redirectPath || config.defaultRedirect;
 
-  // Theme configurations
+  /**
+   * Theme configurations
+   * Supports default (light), dark, and minimal themes
+   */
   const themes = {
     default: {
       background: 'bg-gray-50',
@@ -127,39 +152,53 @@ export function EnhancedLoginForm({
 
   const currentTheme = themes[theme] || themes.default;
 
-  // Generate device fingerprint function
+  /**
+   * Generate device fingerprint for device trust
+   * Creates a unique identifier for the current device
+   */
   const generateFingerprint = useCallback(() => {
-    const canvas = typeof document !== "undefined" && document.createElement('canvas');
+    if (typeof document === 'undefined') return null;
+
+    const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     ctx.textBaseline = 'top';
     ctx.font = '14px Arial';
     ctx.fillText('Device fingerprint', 2, 2);
 
     const fingerprint = [
-      typeof navigator !== "undefined" && navigator.userAgent,
-      typeof navigator !== "undefined" && navigator.language,
-      screen.width + 'x' + screen.height,
-      new Date().getTimezoneOffset(),
+      typeof navigator !== 'undefined' && navigator.userAgent,
+      typeof navigator !== 'undefined' && navigator.language,
+      typeof screen !== 'undefined' && (screen.width + 'x' + screen.height),
+      typeof Date !== 'undefined' && new Date().getTimezoneOffset(),
       canvas.toDataURL(),
     ].join('|');
 
     return btoa(fingerprint).slice(0, 32);
   }, []);
 
-  // Generate device fingerprint on mount
+  /**
+   * Initialize device fingerprint on mount
+   */
   useEffect(() => {
     setDeviceFingerprint(generateFingerprint());
   }, [generateFingerprint]);
 
-  // Watch for MFA state changes
+  /**
+   * Monitor MFA state changes and update current step
+   */
   useEffect(() => {
-    if (mfaRequired) {
-      setCurrentStep('mfa-verification');
-    } else if (mfaSetupRequired) {
-      setCurrentStep('mfa-setup');
+    if (enableMFA) {
+      if (mfaRequired) {
+        setCurrentStep('mfa-verification');
+      } else if (mfaSetupRequired) {
+        setCurrentStep('mfa-setup');
+      }
     }
-  }, [mfaRequired, mfaSetupRequired]);
+  }, [mfaRequired, mfaSetupRequired, enableMFA]);
 
+  /**
+   * Handle login form submission
+   */
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     clearError();
@@ -180,13 +219,16 @@ export function EnhancedLoginForm({
         }
       }
       // MFA flow will be handled by useEffect watching for state changes
-    } catch (_err) {
+    } catch (err) {
       if (onError) {
         onError(err);
       }
     }
   };
 
+  /**
+   * Handle MFA verification
+   */
   const handleMFAVerification = async (token) => {
     clearError();
     setMfaToken(token);
@@ -206,13 +248,16 @@ export function EnhancedLoginForm({
           navigate(finalRedirectPath);
         }
       }
-    } catch (_err) {
+    } catch (err) {
       if (onError) {
         onError(err);
       }
     }
   };
 
+  /**
+   * Handle MFA setup completion
+   */
   const handleMFASetupComplete = () => {
     setCurrentStep('login');
     if (onSuccess) {
@@ -222,6 +267,9 @@ export function EnhancedLoginForm({
     }
   };
 
+  /**
+   * Handle form input changes
+   */
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
@@ -230,16 +278,20 @@ export function EnhancedLoginForm({
     }));
   };
 
+  /**
+   * Handle back to login button
+   */
   const handleBackToLogin = () => {
     setCurrentStep('login');
     clearError();
     setMfaToken('');
   };
 
+  // Validation
   const isFormValid = formData.email && formData.password;
 
-  // Render different steps based on authentication flow
-  if (currentStep === 'mfa-verification') {
+  // Render MFA Verification Step
+  if (currentStep === 'mfa-verification' && enableMFA) {
     return (
       <div
         className={`min-h-screen flex items-center justify-center ${currentTheme.background} py-12 px-4 sm:px-6 lg:px-8`}
@@ -250,7 +302,7 @@ export function EnhancedLoginForm({
               onVerify={handleMFAVerification}
               onBack={handleBackToLogin}
               deviceTrust={{
-                available: true,
+                available: trustDeviceAvailable,
                 checked: trustDevice,
                 onChange: setTrustDevice,
               }}
@@ -265,7 +317,8 @@ export function EnhancedLoginForm({
     );
   }
 
-  if (currentStep === 'mfa-setup') {
+  // Render MFA Setup Step
+  if (currentStep === 'mfa-setup' && enableMFA) {
     return (
       <div
         className={`min-h-screen flex items-center justify-center ${currentTheme.background} py-12 px-4 sm:px-6 lg:px-8`}
@@ -284,7 +337,7 @@ export function EnhancedLoginForm({
     );
   }
 
-  // Standard login form
+  // Render Login Form
   return (
     <div
       className={`min-h-screen flex items-center justify-center ${currentTheme.background} py-12 px-4 sm:px-6 lg:px-8`}
@@ -416,7 +469,7 @@ export function EnhancedLoginForm({
   );
 }
 
-EnhancedLoginForm.propTypes = {
+LoginForm.propTypes = {
   appType: PropTypes.oneOf([
     'admin',
     'church',
@@ -434,4 +487,24 @@ EnhancedLoginForm.propTypes = {
   redirectPath: PropTypes.string,
   showRememberMe: PropTypes.bool,
   showRegistration: PropTypes.bool,
+  enableMFA: PropTypes.bool,
+  trustDeviceAvailable: PropTypes.bool,
 };
+
+LoginForm.defaultProps = {
+  appType: 'default',
+  theme: 'default',
+  showRememberMe: true,
+  showRegistration: false,
+  enableMFA: true,
+  trustDeviceAvailable: true,
+  redirectPath: '/dashboard',
+};
+
+// Export as default
+export default LoginForm;
+
+// Backward compatibility aliases (deprecated - use LoginForm instead)
+export const UnifiedLoginForm = LoginForm;
+export const UniversalLoginForm = LoginForm;
+export const EnhancedLoginForm = LoginForm;

@@ -263,3 +263,50 @@ export const formatValidationErrors = (errors) => {
     type: 'validation',
   }));
 };
+
+/**
+ * Alias for getPasswordStrength for backward compatibility
+ */
+export const validatePasswordStrength = getPasswordStrength;
+
+/**
+ * Validate authentication token format
+ */
+export const validateToken = (token) => {
+  if (!token || typeof token !== 'string') return false;
+  // JWT format check: xxx.yyy.zzz
+  return /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(token);
+};
+
+/**
+ * Validate MFA code format (4-6 digits)
+ */
+export const validateMFACode = (code) => {
+  if (!code || typeof code !== 'string') return false;
+  return /^\d{4,6}$/.test(code.trim());
+};
+
+/**
+ * Validate phone number format
+ */
+export const validatePhoneNumber = (phone) => {
+  if (!phone || typeof phone !== 'string') return false;
+  // Remove non-digits
+  const digits = phone.replace(/\D/g, '');
+  // Accept 10 or 11 digits
+  return digits.length === 10 || digits.length === 11;
+};
+
+/**
+ * Sanitize user input to prevent XSS
+ */
+export const sanitizeInput = (input) => {
+  if (typeof input !== 'string') return input;
+  return input
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+    .replace(/\//g, '&#x2F;');
+};

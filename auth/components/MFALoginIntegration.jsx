@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { MFAVerification } from './MFAVerification.jsx';
+import MFAVerification from './MFAVerification.jsx';
 import { MFASetupWizard } from './MFASetupWizard.jsx';
 
 /**

@@ -6,6 +6,7 @@ const Card = ({
   className = '',
   variant = 'default',
   interactive = false,
+  compact = false,
   ...props
 }) => {
   const variantStyles = {
@@ -33,6 +34,8 @@ const Card = ({
     `,
   };
 
+  const compactClasses = compact ? 'rounded-lg' : 'rounded-xl';
+
   const interactiveStyles = interactive
     ? 'hover:shadow-lg dark:hover:shadow-gray-900/30 transition-all duration-200 cursor-pointer hover:scale-[1.02]'
     : '';
@@ -40,7 +43,7 @@ const Card = ({
   return (
     <div
       className={`
-        rounded-xl
+        ${compactClasses}
         ${variantStyles[variant]}
         ${interactiveStyles}
         ${className}
@@ -133,11 +136,32 @@ const CardDescription = ({
   );
 };
 
+const CardFooter = ({
+  children,
+  className = '',
+  ...props
+}) => {
+  return (
+    <div
+      className={`
+        px-6 py-3
+        border-t border-gray-200 dark:border-gray-700
+        flex items-center justify-between gap-2
+        ${className}
+      `}
+      {...props}
+    >
+      {children}
+    </div>
+  );
+};
+
 Card.propTypes = {
   children: PropTypes.node.isRequired,
   className: PropTypes.string,
   variant: PropTypes.oneOf(['default', 'elevated', 'outlined', 'gradient']),
   interactive: PropTypes.bool,
+  compact: PropTypes.bool,
 };
 
 CardHeader.propTypes = {
@@ -162,4 +186,9 @@ CardDescription.propTypes = {
   className: PropTypes.string,
 };
 
-export { Card, CardHeader, CardContent, CardTitle, CardDescription };
+CardFooter.propTypes = {
+  children: PropTypes.node.isRequired,
+  className: PropTypes.string,
+};
+
+export { Card, CardHeader, CardContent, CardTitle, CardDescription, CardFooter };

@@ -5,7 +5,7 @@
  */
 
 /* eslint-env browser */
-/* global console, setInterval, clearInterval, window, document, Blob */
+/* global setInterval, clearInterval, window, document, Blob */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import analyticsDashboardAPI from '../services/analyticsDashboardAPI';
@@ -52,7 +52,7 @@ export const useAnalyticsDashboard = (applicationId, options = {}) => {
       setDashboardData(data);
       setLastUpdated(new Date());
     } catch (_err) {
-      setError(err.message);
+      setError(_err.message);
       // console.error('Failed to fetch dashboard data:', err);
     } finally {
       setLoading(false);
@@ -208,7 +208,7 @@ export const useAnalyticsCategory = (applicationId, category, options = {}) => {
       setData(result);
       setLastUpdated(new Date());
     } catch (_err) {
-      setError(err.message);
+      setError(_err.message);
       // console.error(`Failed to fetch ${category} analytics:`, err);
     } finally {
       setLoading(false);
@@ -270,9 +270,6 @@ export const useAnalyticsTracking = () => {
     try {
       setIsTracking(true);
       await analyticsDashboardAPI.trackEvent(eventData);
-    } catch (_error) {
-      // console.error('Failed to track analytics event:', error);
-      throw error;
     } finally {
       setIsTracking(false);
     }
@@ -353,7 +350,7 @@ export const useAvailableApplications = () => {
       const data = await analyticsDashboardAPI.getAvailableApplications();
       setApplications(data.applications || []);
     } catch (_err) {
-      setError(err.message);
+      setError(_err.message);
       // console.error('Failed to fetch available applications:', err);
     } finally {
       setLoading(false);
@@ -397,9 +394,6 @@ export const useAnalyticsExport = () => {
       }
 
       return data;
-    } catch (_error) {
-      // console.error('Failed to export analytics data:', error);
-      throw error;
     } finally {
       setIsExporting(false);
     }

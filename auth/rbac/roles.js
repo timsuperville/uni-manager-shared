@@ -412,3 +412,31 @@ export const PROTECTED_ROUTES = {
     '/playlists/manage': [PERMISSIONS.PLAYLIST_MANAGE],
   },
 };
+
+// ==================== UTILITY FUNCTIONS ====================
+
+/**
+ * Check if user has specific permission
+ */
+export const checkPermission = (userPermissions = [], requiredPermission) => {
+  if (!Array.isArray(userPermissions)) return false;
+  return userPermissions.includes(requiredPermission);
+};
+
+/**
+ * Check if user has specific role
+ */
+export const hasRole = (userRole, requiredRole) => {
+  if (!userRole || !requiredRole) return false;
+  return userRole === requiredRole || ROLE_HIERARCHY[userRole]?.includes(requiredRole);
+};
+
+/**
+ * Check if user has access to a route
+ */
+export const checkAccess = (userRole, userPermissions = [], requiredPermissions = []) => {
+  if (!Array.isArray(requiredPermissions) || requiredPermissions.length === 0) {
+    return true;
+  }
+  return requiredPermissions.some(permission => checkPermission(userPermissions, permission));
+};

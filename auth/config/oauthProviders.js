@@ -321,3 +321,10 @@ export const getSupportedProvidersForApp = (appName) => {
     isProviderSupportedForApp(providerId, appName),
   );
 };
+
+/**
+ * Alias for getProviderConfig for backward compatibility
+ */
+export const getOAuthConfig = (providerId, appName) => {
+  return getProviderConfig(providerId, appName);
+};

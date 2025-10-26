@@ -21,6 +21,7 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -36,11 +37,17 @@ export const AuthProvider = ({ children }) => {
         if (initialized) {
           const currentUser = authService.getCurrentUser();
           setUser(currentUser);
+          setIsAuthenticated(!!currentUser);
+        } else {
+          setUser(null);
+          setIsAuthenticated(false);
         }
 
         setIsInitialized(true);
       } catch (err) {
         setError(err.message);
+        setUser(null);
+        setIsAuthenticated(false);
         // console.error('Auth initialization failed:', err);
       } finally {
         setLoading(false);
@@ -82,10 +89,12 @@ export const AuthProvider = ({ children }) => {
 
       const authData = await authService.handleOAuthCallback(urlParams);
       setUser(authData.user);
+      setIsAuthenticated(!!authData.user);
 
       return authData;
     } catch (err) {
       setError(err.message);
+      setIsAuthenticated(false);
       // console.error('OAuth callback failed:', err);
       throw err;
     } finally {
@@ -99,18 +108,23 @@ export const AuthProvider = ({ children }) => {
       setError(null);
       setLoading(true);
 
-      const authData = await authService.login(email, password, options);
+      const authData = await authService.login({ email, password, ...options });
       setUser(authData.user);
+      setIsAuthenticated(!!authData.user);
 
       return authData;
     } catch (err) {
       setError(err.message);
+      setIsAuthenticated(false);
       // console.error('Email login failed:', err);
       throw err;
     } finally {
       setLoading(false);
     }
   }, []);
+
+  // Alias for backward compatibility
+  const login = loginWithEmail;
 
   // User registration
   const register = useCallback(async (userData) => {
@@ -121,11 +135,13 @@ export const AuthProvider = ({ children }) => {
       const authData = await authService.register(userData);
       if (authData.user) {
         setUser(authData.user);
+        setIsAuthenticated(true);
       }
 
       return authData;
     } catch (err) {
       setError(err.message);
+      setIsAuthenticated(false);
       // console.error('Registration failed:', err);
       throw err;
     } finally {
@@ -139,8 +155,10 @@ export const AuthProvider = ({ children }) => {
       setError(null);
       await authService.logout();
       setUser(null);
+      setIsAuthenticated(false);
     } catch (err) {
       setError(err.message);
+      setIsAuthenticated(false);
       // console.error('Logout failed:', err);
     }
   }, []);
@@ -150,19 +168,16 @@ export const AuthProvider = ({ children }) => {
     try {
       const authData = await authService.refreshToken();
       setUser(authData.user);
+      setIsAuthenticated(!!authData.user);
       return authData;
     } catch (err) {
       setError(err.message);
+      setIsAuthenticated(false);
       // console.error('Token refresh failed:', err);
       await logout();
       throw err;
     }
   }, [logout]);
-
-  // Check authentication status
-  const isAuthenticated = useCallback(() => {
-    return authService.isAuthenticated();
-  }, []);
 
   // Get supported OAuth providers for current app
   const getSupportedProviders = useCallback(() => {
@@ -178,11 +193,13 @@ export const AuthProvider = ({ children }) => {
   const value = {
     // State
     user,
+    isAuthenticated,
     loading,
     error,
     isInitialized,
 
     // Actions
+    login,
     loginWithOAuth,
     handleOAuthCallback,
     loginWithEmail,
@@ -192,7 +209,6 @@ export const AuthProvider = ({ children }) => {
     clearError,
 
     // Utilities
-    isAuthenticated,
     getSupportedProviders,
   };
 

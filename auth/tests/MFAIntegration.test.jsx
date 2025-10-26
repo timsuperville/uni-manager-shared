@@ -360,6 +360,7 @@ describe('MFA Integration Scenarios', () => {
       });
 
       await serviceWithToken.getMFAStatus();
+    });
 
     it('should handle token refresh during long MFA setup process', async () => {
       const serviceWithToken = new MFAService('custom-token');
@@ -401,4 +402,3 @@ describe('MFA Integration Scenarios', () => {
     });
   });
 });
-}

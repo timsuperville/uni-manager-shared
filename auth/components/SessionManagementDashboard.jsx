@@ -18,7 +18,6 @@ import {
   useSessionSecurity,
   useSessionAnalytics,
 } from '../hooks/useSessionManagement';
-import './SessionManagementDashboard.css';
 
 const SessionManagementDashboard = ({
   userId,
@@ -107,32 +106,44 @@ const SessionManagementDashboard = ({
   const getStatusBadge = (session) => {
     if (!session.isActive) {
       return (
-        <span className='session-badge session-badge--inactive'>Inactive</span>
+        <span className='inline-block px-2 py-1 rounded text-xs font-semibold bg-gray-100 text-gray-800'>
+          Inactive
+        </span>
       );
     }
 
     const now = Date.now();
     if (now > session.expiresAt) {
       return (
-        <span className='session-badge session-badge--expired'>Expired</span>
+        <span className='inline-block px-2 py-1 rounded text-xs font-semibold bg-red-100 text-red-800'>
+          Expired
+        </span>
       );
     }
 
     const timeSinceActivity = now - session.lastActivity;
     if (timeSinceActivity > 30 * 60 * 1000) {
       // 30 minutes
-      return <span className='session-badge session-badge--idle'>Idle</span>;
+      return (
+        <span className='inline-block px-2 py-1 rounded text-xs font-semibold bg-yellow-100 text-yellow-800'>
+          Idle
+        </span>
+      );
     }
 
     if (session.flags?.includes('suspicious')) {
       return (
-        <span className='session-badge session-badge--suspicious'>
+        <span className='inline-block px-2 py-1 rounded text-xs font-semibold bg-orange-100 text-orange-800'>
           Suspicious
         </span>
       );
     }
 
-    return <span className='session-badge session-badge--active'>Active</span>;
+    return (
+      <span className='inline-block px-2 py-1 rounded text-xs font-semibold bg-green-100 text-green-800'>
+        Active
+      </span>
+    );
   };
 
   /**
@@ -214,35 +225,35 @@ const SessionManagementDashboard = ({
 
   if (!userId) {
     return (
-      <div className='session-dashboard'>
-        <div className='session-dashboard__error'>
-          <h3>Session Management Unavailable</h3>
-          <p>Please log in to view session management.</p>
+      <div className='max-w-4xl mx-auto px-5 py-5'>
+        <div className='text-center py-12'>
+          <h3 className='text-lg font-semibold text-gray-900 mb-2'>
+            Session Management Unavailable
+          </h3>
+          <p className='text-gray-600'>Please log in to view session management.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className='session-dashboard'>
+    <div className='max-w-4xl mx-auto px-5 py-5'>
       {/* Header */}
-      <div className='session-dashboard__header'>
-        <h2>Session Management</h2>
-        <div className='session-dashboard__stats'>
-          <div className='stat-card'>
-            <div className='stat-card__value'>{activeSessionCount}</div>
-            <div className='stat-card__label'>Active Sessions</div>
+      <div className='flex justify-between items-start mb-6 pb-5 border-b border-gray-200'>
+        <h2 className='text-2xl font-semibold text-gray-900 m-0'>Session Management</h2>
+        <div className='flex gap-4'>
+          <div className='bg-white border border-gray-200 rounded-lg p-4 text-center min-w-28 shadow-admin'>
+            <div className='text-2xl font-bold text-gray-800 mb-1'>{activeSessionCount}</div>
+            <div className='text-xs text-gray-500 uppercase tracking-wide'>Active Sessions</div>
           </div>
-          <div className='stat-card'>
-            <div className='stat-card__value'>{totalSessionCount}</div>
-            <div className='stat-card__label'>Total Sessions</div>
+          <div className='bg-white border border-gray-200 rounded-lg p-4 text-center min-w-28 shadow-admin'>
+            <div className='text-2xl font-bold text-gray-800 mb-1'>{totalSessionCount}</div>
+            <div className='text-xs text-gray-500 uppercase tracking-wide'>Total Sessions</div>
           </div>
           {analytics && (
-            <div className='stat-card'>
-              <div className='stat-card__value'>
-                {analytics.suspiciousSessionCount}
-              </div>
-              <div className='stat-card__label'>Suspicious</div>
+            <div className='bg-white border border-gray-200 rounded-lg p-4 text-center min-w-28 shadow-admin'>
+              <div className='text-2xl font-bold text-gray-800 mb-1'>{analytics.suspiciousSessionCount}</div>
+              <div className='text-xs text-gray-500 uppercase tracking-wide'>Suspicious</div>
             </div>
           )}
         </div>
@@ -250,23 +261,23 @@ const SessionManagementDashboard = ({
 
       {/* Security Alerts */}
       {hasAlerts && (
-        <div className='session-dashboard__alerts'>
-          <div className='alert alert--warning'>
-            <div className='alert__header'>
-              <h4>🚨 Security Alerts</h4>
+        <div className='mb-6'>
+          <div className='bg-yellow-50 border border-yellow-300 rounded-lg p-4 mb-4'>
+            <div className='flex justify-between items-start mb-3'>
+              <h4 className='m-0 text-yellow-800 text-base font-semibold'>🚨 Security Alerts</h4>
               <button
-                className='alert__close'
+                className='bg-none border-none text-yellow-800 cursor-pointer text-xl font-bold hover:opacity-70'
                 onClick={clearSecurityAlerts}
                 aria-label='Clear alerts'
               >
                 ×
               </button>
             </div>
-            <div className='alert__content'>
+            <div className='space-y-2'>
               {securityAlerts.map((alert, index) => (
-                <div key={index} className='alert__item'>
+                <div key={index} className='text-sm text-yellow-800'>
                   <strong>{alert.type}:</strong> {alert.reason}
-                  <div className='alert__timestamp'>
+                  <div className='text-xs text-yellow-700 mt-1'>
                     {formatTimestamp(alert.timestamp)}
                   </div>
                 </div>
@@ -278,10 +289,10 @@ const SessionManagementDashboard = ({
 
       {/* Current Session */}
       {currentSession && (
-        <div className='session-dashboard__current'>
-          <div className='session-card session-card--current'>
-            <div className='session-card__header'>
-              <h3>Current Session</h3>
+        <div className='mb-6'>
+          <div className='bg-white border border-gray-200 rounded-lg p-5 shadow-admin'>
+            <div className='flex justify-between items-start mb-4'>
+              <h3 className='text-lg font-semibold text-gray-900 m-0'>Current Session</h3>
               {getStatusBadge({
                 isActive: isActive,
                 expiresAt: currentSession.expiresAt,
@@ -289,36 +300,32 @@ const SessionManagementDashboard = ({
                 flags: [],
               })}
             </div>
-            <div className='session-card__content'>
-              <div className='session-info'>
-                <div className='session-info__item'>
-                  <label>Session ID:</label>
-                  <span className='session-id'>{currentSession.sessionId}</span>
+            <div className='space-y-3'>
+              <div className='grid grid-cols-2 gap-4'>
+                <div>
+                  <label className='block text-sm font-medium text-gray-700 mb-1'>Session ID:</label>
+                  <span className='font-mono text-sm text-gray-900'>{currentSession.sessionId}</span>
                 </div>
-                <div className='session-info__item'>
-                  <label>Status:</label>
-                  <span
-                    className={`session-status session-status--${sessionStatus}`}
-                  >
+                <div>
+                  <label className='block text-sm font-medium text-gray-700 mb-1'>Status:</label>
+                  <span className={`inline-block px-2 py-1 rounded text-xs font-semibold bg-blue-100 text-blue-800`}>
                     {sessionStatus}
                   </span>
                 </div>
-                <div className='session-info__item'>
-                  <label>Expires:</label>
-                  <span>{formatTimestamp(currentSession.expiresAt)}</span>
+                <div>
+                  <label className='block text-sm font-medium text-gray-700 mb-1'>Expires:</label>
+                  <span className='text-sm text-gray-900'>{formatTimestamp(currentSession.expiresAt)}</span>
                 </div>
                 {showDeviceDetails && deviceFingerprint && (
-                  <div className='session-info__item'>
-                    <label>Device:</label>
-                    <span className='device-info'>
-                      🖥️ {deviceFingerprint.slice(0, 8)}...
-                    </span>
+                  <div>
+                    <label className='block text-sm font-medium text-gray-700 mb-1'>Device:</label>
+                    <span className='text-sm text-gray-900'>🖥️ {deviceFingerprint.slice(0, 8)}...</span>
                   </div>
                 )}
               </div>
-              <div className='session-actions'>
+              <div className='flex gap-2 pt-2'>
                 <button
-                  className='btn btn--danger btn--sm'
+                  className='px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors'
                   onClick={handleTerminateCurrentSession}
                 >
                   Terminate Session
@@ -331,44 +338,45 @@ const SessionManagementDashboard = ({
 
       {/* Bulk Actions */}
       {allowBulkActions && userSessions.length > 0 && (
-        <div className='session-dashboard__bulk-actions'>
-          <div className='bulk-actions'>
-            <div className='bulk-actions__selection'>
-              <label className='checkbox-label'>
+        <div className='mb-6'>
+          <div className='bg-white border border-gray-200 rounded-lg p-4'>
+            <div className='flex justify-between items-center gap-4'>
+              <label className='flex items-center gap-2 cursor-pointer'>
                 <input
                   type='checkbox'
                   checked={selectedSessions.size === userSessions.length}
                   onChange={(e) => handleSelectAll(e.target.checked)}
+                  className='cursor-pointer'
                 />
-                Select All ({selectedSessions.size} selected)
+                <span className='text-sm text-gray-700'>Select All ({selectedSessions.size} selected)</span>
               </label>
-            </div>
-            <div className='bulk-actions__buttons'>
-              <button
-                className='btn btn--secondary btn--sm'
-                onClick={handleBulkTerminate}
-                disabled={selectedSessions.size === 0}
-              >
-                Terminate Selected ({selectedSessions.size})
-              </button>
-              <button
-                className='btn btn--warning btn--sm'
-                onClick={handleTerminateAllOthers}
-              >
-                Terminate All Others
-              </button>
+              <div className='flex gap-2'>
+                <button
+                  className='px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-lg hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
+                  onClick={handleBulkTerminate}
+                  disabled={selectedSessions.size === 0}
+                >
+                  Terminate Selected ({selectedSessions.size})
+                </button>
+                <button
+                  className='px-4 py-2 bg-yellow-600 text-white text-sm font-medium rounded-lg hover:bg-yellow-700 transition-colors'
+                  onClick={handleTerminateAllOthers}
+                >
+                  Terminate All Others
+                </button>
+              </div>
             </div>
           </div>
         </div>
       )}
 
       {/* Sessions List */}
-      <div className='session-dashboard__sessions'>
-        <div className='session-list'>
-          <div className='session-list__header'>
-            <h3>All Sessions</h3>
+      <div className='mb-6'>
+        <div className='bg-white border border-gray-200 rounded-lg overflow-hidden shadow-admin'>
+          <div className='flex justify-between items-center p-5 border-b border-gray-200'>
+            <h3 className='text-lg font-semibold text-gray-900 m-0'>All Sessions</h3>
             <button
-              className='btn btn--ghost btn--sm'
+              className='px-3 py-2 bg-transparent border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors'
               onClick={() => setShowSecurityDetails(!showSecurityDetails)}
             >
               {showSecurityDetails ? 'Hide' : 'Show'} Security Details
@@ -376,15 +384,15 @@ const SessionManagementDashboard = ({
           </div>
 
           {sessionsLoading ? (
-            <div className='session-list__loading'>Loading sessions...</div>
+            <div className='p-8 text-center text-gray-600'>Loading sessions...</div>
           ) : userSessions.length === 0 ? (
-            <div className='session-list__empty'>No sessions found</div>
+            <div className='p-8 text-center text-gray-600'>No sessions found</div>
           ) : (
-            <div className='session-list__content'>
+            <div className='divide-y divide-gray-200'>
               {userSessions.map((session) => (
-                <div key={session.sessionId} className='session-item'>
+                <div key={session.sessionId} className='flex items-start gap-4 p-4 hover:bg-gray-50 transition-colors'>
                   {allowBulkActions && (
-                    <div className='session-item__select'>
+                    <div className='flex items-center'>
                       <input
                         type='checkbox'
                         checked={selectedSessions.has(session.sessionId)}
@@ -394,76 +402,59 @@ const SessionManagementDashboard = ({
                             e.target.checked
                           )
                         }
+                        className='cursor-pointer'
                       />
                     </div>
                   )}
 
-                  <div className='session-item__icon'>
-                    {getDeviceIcon(session.deviceInfo)}
-                  </div>
+                  <div className='text-xl'>{getDeviceIcon(session.deviceInfo)}</div>
 
-                  <div className='session-item__content'>
-                    <div className='session-item__header'>
-                      <div className='session-item__title'>
+                  <div className='flex-1 min-w-0'>
+                    <div className='flex justify-between items-start mb-2'>
+                      <div className='font-medium text-gray-900'>
                         {session.deviceInfo?.platform || 'Unknown Device'}
                       </div>
                       {getStatusBadge(session)}
                     </div>
 
-                    <div className='session-item__details'>
-                      <div className='session-detail'>
-                        <span className='session-detail__label'>Created:</span>
-                        <span>{formatTimestamp(session.createdAt)}</span>
+                    <div className='grid grid-cols-3 gap-4 text-sm text-gray-600 mb-2'>
+                      <div>
+                        <span className='font-medium text-gray-700'>Created:</span> {formatTimestamp(session.createdAt)}
                       </div>
-                      <div className='session-detail'>
-                        <span className='session-detail__label'>
-                          Last Activity:
-                        </span>
-                        <span>{formatTimestamp(session.lastActivity)}</span>
+                      <div>
+                        <span className='font-medium text-gray-700'>Last Activity:</span> {formatTimestamp(session.lastActivity)}
                       </div>
-                      <div className='session-detail'>
-                        <span className='session-detail__label'>Duration:</span>
-                        <span>
-                          {formatDuration(
-                            session.lastActivity - session.createdAt
-                          )}
-                        </span>
+                      <div>
+                        <span className='font-medium text-gray-700'>Duration:</span> {formatDuration(session.lastActivity - session.createdAt)}
                       </div>
                       {showDeviceDetails && (
                         <>
-                          <div className='session-detail'>
-                            <span className='session-detail__label'>IP:</span>
-                            <span>{session.ipAddress}</span>
+                          <div>
+                            <span className='font-medium text-gray-700'>IP:</span> {session.ipAddress}
                           </div>
-                          <div className='session-detail'>
-                            <span className='session-detail__label'>
-                              User Agent:
-                            </span>
-                            <span className='session-detail__user-agent'>
-                              {session.userAgent?.slice(0, 60)}...
-                            </span>
+                          <div>
+                            <span className='font-medium text-gray-700'>User Agent:</span> {session.userAgent?.slice(0, 60)}...
                           </div>
                         </>
                       )}
                       {showSecurityDetails && session.fraudAnalysis && (
-                        <div className='session-detail'>
-                          <span className='session-detail__label'>
-                            Security Score:
-                          </span>
-                          <span
-                            className={`security-score security-score--${session.fraudAnalysis.riskLevel}`}
-                          >
-                            {Math.round(session.fraudAnalysis.score * 100)}% (
-                            {session.fraudAnalysis.riskLevel})
+                        <div>
+                          <span className='font-medium text-gray-700'>Security Score:</span>
+                          <span className={`ml-1 px-2 py-0.5 rounded text-xs font-semibold ${
+                            session.fraudAnalysis.riskLevel === 'high' ? 'bg-red-100 text-red-800' :
+                            session.fraudAnalysis.riskLevel === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-green-100 text-green-800'
+                          }`}>
+                            {Math.round(session.fraudAnalysis.score * 100)}% ({session.fraudAnalysis.riskLevel})
                           </span>
                         </div>
                       )}
                     </div>
                   </div>
 
-                  <div className='session-item__actions'>
+                  <div>
                     <button
-                      className='btn btn--danger btn--xs'
+                      className='px-3 py-1 bg-red-600 text-white text-xs font-medium rounded hover:bg-red-700 transition-colors'
                       onClick={() =>
                         invalidateSpecificSession(
                           session.sessionId,
@@ -484,39 +475,39 @@ const SessionManagementDashboard = ({
 
       {/* Analytics */}
       {analytics && !analyticsLoading && (
-        <div className='session-dashboard__analytics'>
-          <div className='analytics-panel'>
-            <h3>Session Analytics</h3>
-            <div className='analytics-grid'>
-              <div className='analytics-card'>
-                <h4>Average Session Duration</h4>
-                <div className='analytics-value'>
+        <div className='mb-6'>
+          <div className='bg-white border border-gray-200 rounded-lg p-5 shadow-admin'>
+            <h3 className='text-lg font-semibold text-gray-900 mb-4 m-0'>Session Analytics</h3>
+            <div className='grid grid-cols-3 gap-4'>
+              <div className='border border-gray-200 rounded-lg p-4'>
+                <h4 className='text-sm font-medium text-gray-700 mb-2 m-0'>Average Session Duration</h4>
+                <div className='text-2xl font-bold text-gray-900'>
                   {formatDuration(analytics.averageSessionDuration)}
                 </div>
               </div>
 
-              <div className='analytics-card'>
-                <h4>Device Distribution</h4>
-                <div className='analytics-list'>
+              <div className='border border-gray-200 rounded-lg p-4'>
+                <h4 className='text-sm font-medium text-gray-700 mb-2 m-0'>Device Distribution</h4>
+                <div className='space-y-1'>
                   {Object.entries(analytics.deviceDistribution).map(
                     ([device, count]) => (
-                      <div key={device} className='analytics-item'>
+                      <div key={device} className='flex justify-between text-sm text-gray-600'>
                         <span>{device}:</span>
-                        <span>{count}</span>
+                        <span className='font-medium'>{count}</span>
                       </div>
                     )
                   )}
                 </div>
               </div>
 
-              <div className='analytics-card'>
-                <h4>Authentication Methods</h4>
-                <div className='analytics-list'>
+              <div className='border border-gray-200 rounded-lg p-4'>
+                <h4 className='text-sm font-medium text-gray-700 mb-2 m-0'>Authentication Methods</h4>
+                <div className='space-y-1'>
                   {Object.entries(analytics.authMethodDistribution).map(
                     ([method, count]) => (
-                      <div key={method} className='analytics-item'>
+                      <div key={method} className='flex justify-between text-sm text-gray-600'>
                         <span>{method}:</span>
-                        <span>{count}</span>
+                        <span className='font-medium'>{count}</span>
                       </div>
                     )
                   )}
@@ -529,23 +520,23 @@ const SessionManagementDashboard = ({
 
       {/* Confirmation Dialog */}
       {confirmDialog && (
-        <div className='modal-overlay'>
-          <div className='modal'>
-            <div className='modal__header'>
-              <h3>{confirmDialog.title}</h3>
+        <div className='fixed inset-0 bg-black/50 flex items-center justify-center z-50'>
+          <div className='bg-white rounded-lg shadow-xl max-w-md w-full mx-4'>
+            <div className='px-6 py-4 border-b border-gray-200'>
+              <h3 className='text-lg font-semibold text-gray-900 m-0'>{confirmDialog.title}</h3>
             </div>
-            <div className='modal__content'>
-              <p>{confirmDialog.message}</p>
+            <div className='px-6 py-4'>
+              <p className='text-gray-700 m-0'>{confirmDialog.message}</p>
             </div>
-            <div className='modal__actions'>
+            <div className='px-6 py-4 border-t border-gray-200 flex gap-2 justify-end'>
               <button
-                className='btn btn--secondary'
+                className='px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors'
                 onClick={confirmDialog.onCancel}
               >
                 Cancel
               </button>
               <button
-                className='btn btn--danger'
+                className='px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors'
                 onClick={confirmDialog.onConfirm}
               >
                 Confirm

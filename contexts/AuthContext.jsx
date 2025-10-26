@@ -5,7 +5,7 @@
  */
 
 import React, { createContext, useContext } from 'react';
-import { AuthProvider, useAuth, AUTH_ACTIONS } from '../auth/contexts/AuthContext.jsx';
+import { AuthProvider, useAuth, AUTH_ACTIONS } from '../auth/context/index.jsx';
 
 // Create auth context that extends the base auth context
 const AuthContext = createContext(null);

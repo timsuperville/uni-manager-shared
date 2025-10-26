@@ -394,6 +394,80 @@ export class MFAService {
   }
 }
 
+/**
+ * Utility function to format phone number for display
+ * @param {string} phone - Raw phone number
+ * @returns {string} Formatted phone number
+ */
+export function formatPhoneNumber(phone) {
+  if (!phone) return '';
+  // Remove all non-digit characters
+  const cleaned = phone.replace(/\D/g, '');
+  // Format as (XXX) XXX-XXXX for 10-digit numbers
+  if (cleaned.length === 10) {
+    return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
+  }
+  // Format as +X XXX XXX XXXX for 11-digit numbers (with country code)
+  if (cleaned.length === 11) {
+    return `+${cleaned[0]} ${cleaned.slice(1, 4)} ${cleaned.slice(4, 7)}-${cleaned.slice(7)}`;
+  }
+  // Return as-is for other lengths
+  return phone;
+}
+
+/**
+ * Validate TOTP (Time-based One-Time Password) code format
+ * @param {string} code - TOTP code to validate
+ * @returns {boolean} True if code is valid format (6 digits)
+ */
+export function validateTOTPCode(code) {
+  if (!code) return false;
+  return /^\d{6}$/.test(code.toString().trim());
+}
+
+/**
+ * Validate SMS code format
+ * @param {string} code - SMS code to validate
+ * @returns {boolean} True if code is valid format
+ */
+export function validateSMSCode(code) {
+  if (!code) return false;
+  // SMS codes are typically 4-6 digits
+  return /^\d{4,6}$/.test(code.toString().trim());
+}
+
+/**
+ * Get display name for MFA method
+ * @param {string} method - MFA method type
+ * @returns {string} Display name for the method
+ */
+export function getMFAMethodDisplayName(method) {
+  const displayNames = {
+    [MFA_METHODS.TOTP]: 'Authenticator App',
+    [MFA_METHODS.SMS]: 'SMS Text Message',
+    [MFA_METHODS.EMAIL]: 'Email Code',
+    [MFA_METHODS.BACKUP_CODES]: 'Backup Codes',
+    [MFA_METHODS.WEBAUTHN]: 'Security Key',
+  };
+  return displayNames[method] || method;
+}
+
+/**
+ * Get icon identifier for MFA method
+ * @param {string} method - MFA method type
+ * @returns {string} Icon identifier (e.g., 'shield', 'smartphone')
+ */
+export function getMFAMethodIcon(method) {
+  const icons = {
+    [MFA_METHODS.TOTP]: 'shield',
+    [MFA_METHODS.SMS]: 'smartphone',
+    [MFA_METHODS.EMAIL]: 'mail',
+    [MFA_METHODS.BACKUP_CODES]: 'key',
+    [MFA_METHODS.WEBAUTHN]: 'fingerprint',
+  };
+  return icons[method] || 'shield';
+}
+
 // Export singleton instance
 export const mfaService = new MFAService();
 

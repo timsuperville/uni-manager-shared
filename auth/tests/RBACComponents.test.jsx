@@ -1,11 +1,8 @@
 /**
  * RBAC Components Tests
  * Comprehensive test suite for role-based access control React components
- *
- * Note: Temporarily skipped due to JSX parsing issues in lint environment
  */
 
-/*
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import React, { createElement } from 'react';
@@ -20,12 +17,12 @@ import {
   PermissionMenuItem,
   withPermissions,
   withRoles,
-} from '../rbac/RBACComponents';
+} from '../components/rbac';
 
-// Mock the enhanced auth context
+// Mock the auth context
 const mockUseAuth = vi.fn();
-vi.mock('../contexts/AuthContext', () => ({
-  useEnhancedAuth: () => mockUseAuth(),
+vi.mock('../hooks/useAuth', () => ({
+  useAuth: () => mockUseAuth(),
 }));
 
 // Mock the navigate hook
@@ -691,5 +688,3 @@ describe('Edge Cases and Error Handling', () => {
     expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
   });
 });
-
-*/

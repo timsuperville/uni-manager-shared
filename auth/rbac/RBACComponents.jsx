@@ -5,7 +5,7 @@
 
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useEnhancedAuth } from '../contexts/AuthContext.jsx';
+import { useAuth } from '../hooks/useAuth.js';
 
 /**
  * Permission Guard Component
@@ -18,7 +18,7 @@ export function PermissionGuard({
   children,
   fallback = null
 }) {
-  const auth = useEnhancedAuth();
+  const auth = useAuth();
 
   // Handle both single permission and multiple permissions
   // Also handle the case where permission prop contains an array (for test compatibility)
@@ -67,7 +67,7 @@ export function RoleGuard({
   children,
   fallback = null
 }) {
-  const auth = useEnhancedAuth();
+  const auth = useAuth();
 
   // Handle minimum level checking first
   if (minimumLevel !== null) {
@@ -123,7 +123,7 @@ export function RouteGuard({
   redirectTo = '/unauthorized',
   fallback = null
 }) {
-  const auth = useEnhancedAuth();
+  const auth = useAuth();
   const navigate = useNavigate();
 
   // Check if user is authenticated
@@ -178,7 +178,7 @@ export function AdminGuard({
   fallback = null,
   application = null
 }) {
-  const auth = useEnhancedAuth();
+  const auth = useAuth();
 
   if (!auth) {
     return fallback;
@@ -214,7 +214,7 @@ export function ConditionalRender({
   elseChildren = null,
   else: elseProp = null // Support both 'else' and 'elseChildren' props
 }) {
-  const auth = useEnhancedAuth();
+  const auth = useAuth();
 
   // Use elseProp if provided, otherwise fall back to elseChildren
   const fallbackContent = elseProp || elseChildren;
@@ -260,7 +260,7 @@ export function PermissionButton({
   hideIfNoAccess = false,
   ...buttonProps
 }) {
-  const auth = useEnhancedAuth();
+  const auth = useAuth();
 
   let hasAccess = true;
 
@@ -299,7 +299,7 @@ export function PermissionMenuItem({
   children,
   ...menuItemProps
 }) {
-  const auth = useEnhancedAuth();
+  const auth = useAuth();
 
   let hasAccess = true;
 
@@ -333,7 +333,7 @@ export function PermissionMenuItem({
 export function withPermissions(permissions = [], options = {}) {
   return function(WrappedComponent) {
     const WithPermissionComponent = (props) => {
-      const auth = useEnhancedAuth();
+      const auth = useAuth();
 
       const {
         requireAll = false,
@@ -385,7 +385,7 @@ export function withPermissions(permissions = [], options = {}) {
 export function withRoles(roles = [], options = {}) {
   return function(WrappedComponent) {
     const WithRoleComponent = (props) => {
-      const auth = useEnhancedAuth();
+      const auth = useAuth();
 
       const {
         requireAll = false,

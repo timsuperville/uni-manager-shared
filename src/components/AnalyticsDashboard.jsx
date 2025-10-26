@@ -28,7 +28,6 @@ import {
   useAvailableApplications,
   useAnalyticsExport
 } from '../hooks/useAnalyticsDashboard';
-import './AnalyticsDashboard.css';
 
 // Register Chart.js components
 ChartJS.register(
@@ -244,10 +243,10 @@ const AnalyticsDashboard = ({
   // Loading state
   if (dashboardLoading && !dashboardData) {
     return (
-      <div className={`analytics-dashboard loading ${className}`}>
-        <div className='loading-spinner'>
-          <div className='spinner'></div>
-          <p>Loading analytics dashboard...</p>
+      <div className={`w-full min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-300 rounded-lg p-6 ${className}`}>
+        <div className='text-center'>
+          <div className='w-10 h-10 border-4 border-gray-300 border-t-indigo-500 rounded-full animate-spin mx-auto mb-4' />
+          <p className='text-gray-600'>Loading analytics dashboard...</p>
         </div>
       </div>
     );
@@ -256,38 +255,61 @@ const AnalyticsDashboard = ({
   // Error state
   if (dashboardError) {
     return (
-      <div className={`analytics-dashboard error ${className}`}>
-        <div className='error-message'>
-          <h3>Failed to load analytics</h3>
-          <p>{dashboardError}</p>
-          <button onClick={handleRefresh} className='retry-button'>
-            Try Again
-          </button>
-        </div>
+      <div className={`w-full rounded-lg bg-red-50 border border-red-200 p-6 ${className}`}>
+        <h3 className='text-lg font-semibold text-red-900 mb-2'>Failed to load analytics</h3>
+        <p className='text-red-800 mb-4'>{dashboardError}</p>
+        <button
+          onClick={handleRefresh}
+          className='px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors'
+        >
+          Try Again
+        </button>
       </div>
     );
   }
 
   return (
-    <div className={`analytics-dashboard ${isFullscreen ? 'fullscreen' : ''} ${className}`}>
+    <div className={`w-full min-h-screen bg-gradient-to-br from-slate-100 to-slate-300 rounded-lg p-6 shadow-xl relative overflow-hidden ${
+      isFullscreen
+        ? 'fixed inset-0 z-50 rounded-none p-8 bg-gradient-to-br from-indigo-600 to-purple-700 text-white'
+        : ''
+    } ${className}`}>
       {/* Dashboard Header */}
-      <div className='dashboard-header'>
-        <div className='header-left'>
-          <h2>{currentApp.name} Analytics</h2>
-          <p className='app-description'>{currentApp.description}</p>
+      <div className='flex justify-between items-start mb-6 pb-4 border-b-2 border-white/20'>
+        <div>
+          <h2 className={`text-4xl font-bold ${
+            isFullscreen
+              ? 'text-white'
+              : 'bg-gradient-to-r from-indigo-600 to-purple-700 bg-clip-text text-transparent'
+          } m-0 mb-2`}>
+            {currentApp.name} Analytics
+          </h2>
+          <p className={`m-0 text-sm font-normal ${
+            isFullscreen ? 'text-white/80' : 'text-gray-600'
+          }`}>
+            {currentApp.description}
+          </p>
         </div>
-        <div className='header-right'>
+        <div className='flex items-center gap-4'>
           {/* Real-time indicator */}
           {enableRealTime && realTimeMetrics && (
-            <div className='realtime-indicator'>
-              <span className='indicator-dot'></span>
+            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium ${
+              isFullscreen
+                ? 'bg-green-500/20 border border-green-300/50 text-green-100'
+                : 'bg-green-100/50 border border-green-300/50 text-green-700'
+            }`}>
+              <span className='w-2 h-2 bg-green-500 rounded-full animate-pulse' />
               <span>Live</span>
             </div>
           )}
 
           {/* Fullscreen toggle */}
           <button
-            className='fullscreen-toggle'
+            className={`px-3 py-2 rounded border ${
+              isFullscreen
+                ? 'bg-white/10 border-white/30 text-white hover:bg-white/20'
+                : 'bg-indigo-100/50 border-indigo-300/50 text-indigo-600 hover:bg-indigo-100'
+            } transition-colors`}
             onClick={() => setIsFullscreen(!isFullscreen)}
             title={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
           >
@@ -297,14 +319,18 @@ const AnalyticsDashboard = ({
       </div>
 
       {/* Controls */}
-      <div className='dashboard-controls'>
+      <div className={`flex flex-wrap gap-3 mb-6 items-center ${isFullscreen ? 'backdrop-blur-md bg-white/10 rounded-lg p-4' : 'bg-white/50 rounded-lg p-4'}`}>
         {/* Date Range Selector */}
-        <div className='control-group'>
-          <label>Date Range:</label>
+        <div className='flex flex-col gap-2'>
+          <label className={`text-sm font-medium ${isFullscreen ? 'text-white/80' : 'text-gray-700'}`}>
+            Date Range:
+          </label>
           <select
             value={selectedDateRange}
             onChange={(e) => setSelectedDateRange(e.target.value)}
-            className='date-range-select'
+            className={`px-3 py-2 rounded border ${isFullscreen
+              ? 'bg-white/10 border-white/30 text-white'
+              : 'bg-white border-gray-300 text-gray-900'} focus:outline-none`}
           >
             {dateRangeOptions.map(option => (
               <option key={option.value} value={option.value}>
@@ -315,12 +341,16 @@ const AnalyticsDashboard = ({
         </div>
 
         {/* Category Selector */}
-        <div className='control-group'>
-          <label>Category:</label>
+        <div className='flex flex-col gap-2'>
+          <label className={`text-sm font-medium ${isFullscreen ? 'text-white/80' : 'text-gray-700'}`}>
+            Category:
+          </label>
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className='category-select'
+            className={`px-3 py-2 rounded border ${isFullscreen
+              ? 'bg-white/10 border-white/30 text-white'
+              : 'bg-white border-gray-300 text-gray-900'} focus:outline-none`}
           >
             {categoryOptions.map(option => (
               <option key={option.value} value={option.value}>
@@ -331,12 +361,16 @@ const AnalyticsDashboard = ({
         </div>
 
         {/* Chart Type Selector */}
-        <div className='control-group'>
-          <label>Chart Type:</label>
+        <div className='flex flex-col gap-2'>
+          <label className={`text-sm font-medium ${isFullscreen ? 'text-white/80' : 'text-gray-700'}`}>
+            Chart Type:
+          </label>
           <select
             value={chartType}
             onChange={(e) => setChartType(e.target.value)}
-            className='chart-type-select'
+            className={`px-3 py-2 rounded border ${isFullscreen
+              ? 'bg-white/10 border-white/30 text-white'
+              : 'bg-white border-gray-300 text-gray-900'} focus:outline-none`}
           >
             {chartTypeOptions.map(option => (
               <option key={option.value} value={option.value}>
@@ -347,11 +381,15 @@ const AnalyticsDashboard = ({
         </div>
 
         {/* Action Buttons */}
-        <div className='control-group actions'>
+        <div className='flex gap-2 ml-auto'>
           <button
             onClick={handleRefresh}
             disabled={dashboardLoading || categoryLoading}
-            className='refresh-button'
+            className={`px-3 py-2 rounded border font-medium transition-colors ${
+              isFullscreen
+                ? 'bg-indigo-500/20 border-indigo-300/50 text-white hover:bg-indigo-500/30 disabled:opacity-50'
+                : 'bg-indigo-100/50 border-indigo-300/50 text-indigo-600 hover:bg-indigo-100 disabled:opacity-50'
+            }`}
             title='Refresh Data'
           >
             🔄 Refresh
@@ -362,7 +400,11 @@ const AnalyticsDashboard = ({
               <button
                 onClick={() => handleExport('json')}
                 disabled={isExporting}
-                className='export-button'
+                className={`px-3 py-2 rounded border font-medium transition-colors ${
+                  isFullscreen
+                    ? 'bg-purple-500/20 border-purple-300/50 text-white hover:bg-purple-500/30 disabled:opacity-50'
+                    : 'bg-purple-100/50 border-purple-300/50 text-purple-600 hover:bg-purple-100 disabled:opacity-50'
+                }`}
                 title='Export as JSON'
               >
                 📄 JSON
@@ -370,7 +412,11 @@ const AnalyticsDashboard = ({
               <button
                 onClick={() => handleExport('csv')}
                 disabled={isExporting}
-                className='export-button'
+                className={`px-3 py-2 rounded border font-medium transition-colors ${
+                  isFullscreen
+                    ? 'bg-purple-500/20 border-purple-300/50 text-white hover:bg-purple-500/30 disabled:opacity-50'
+                    : 'bg-purple-100/50 border-purple-300/50 text-purple-600 hover:bg-purple-100 disabled:opacity-50'
+                }`}
                 title='Export as CSV'
               >
                 📊 CSV
@@ -383,49 +429,77 @@ const AnalyticsDashboard = ({
       {/* Real-time Metrics Bar */}
       {enableRealTime && realTimeMetrics && (
         <motion.div
-          className='realtime-metrics'
+          className={`grid grid-cols-4 gap-4 mb-6 p-4 rounded-lg ${
+            isFullscreen
+              ? 'bg-white/10 backdrop-blur-md'
+              : 'bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-100'
+          }`}
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <div className='metric-item'>
-            <span className='metric-label'>Active Users</span>
-            <span className='metric-value'>{realTimeMetrics.activeUsers || 0}</span>
+          <div className={`text-center ${isFullscreen ? 'text-white' : ''}`}>
+            <p className={`text-sm font-medium ${isFullscreen ? 'text-white/70' : 'text-gray-600'}`}>
+              Active Users
+            </p>
+            <p className={`text-2xl font-bold mt-1 ${isFullscreen ? 'text-white' : 'text-indigo-600'}`}>
+              {realTimeMetrics.activeUsers || 0}
+            </p>
           </div>
-          <div className='metric-item'>
-            <span className='metric-label'>Current Sessions</span>
-            <span className='metric-value'>{realTimeMetrics.currentSessions || 0}</span>
+          <div className={`text-center ${isFullscreen ? 'text-white' : ''}`}>
+            <p className={`text-sm font-medium ${isFullscreen ? 'text-white/70' : 'text-gray-600'}`}>
+              Current Sessions
+            </p>
+            <p className={`text-2xl font-bold mt-1 ${isFullscreen ? 'text-white' : 'text-purple-600'}`}>
+              {realTimeMetrics.currentSessions || 0}
+            </p>
           </div>
-          <div className='metric-item'>
-            <span className='metric-label'>Page Views/Min</span>
-            <span className='metric-value'>{realTimeMetrics.pageViewsPerMinute || 0}</span>
+          <div className={`text-center ${isFullscreen ? 'text-white' : ''}`}>
+            <p className={`text-sm font-medium ${isFullscreen ? 'text-white/70' : 'text-gray-600'}`}>
+              Page Views/Min
+            </p>
+            <p className={`text-2xl font-bold mt-1 ${isFullscreen ? 'text-white' : 'text-indigo-600'}`}>
+              {realTimeMetrics.pageViewsPerMinute || 0}
+            </p>
           </div>
-          <div className='metric-item'>
-            <span className='metric-label'>Response Time</span>
-            <span className='metric-value'>{realTimeMetrics.avgResponseTime || 0}ms</span>
+          <div className={`text-center ${isFullscreen ? 'text-white' : ''}`}>
+            <p className={`text-sm font-medium ${isFullscreen ? 'text-white/70' : 'text-gray-600'}`}>
+              Response Time
+            </p>
+            <p className={`text-2xl font-bold mt-1 ${isFullscreen ? 'text-white' : 'text-purple-600'}`}>
+              {realTimeMetrics.avgResponseTime || 0}ms
+            </p>
           </div>
         </motion.div>
       )}
 
       {/* Main Chart */}
-      <div className='dashboard-chart'>
+      <div className={`mb-6 p-6 rounded-lg ${
+        isFullscreen
+          ? 'bg-white/10 backdrop-blur-md border border-white/20 min-h-96'
+          : 'bg-white shadow-lg border border-gray-100'
+      }`}>
         <AnimatePresence mode='wait'>
           {(dashboardLoading || categoryLoading) && (
             <motion.div
-              className='chart-loading'
+              className='flex items-center justify-center py-16'
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
             >
-              <div className='loading-spinner small'>
-                <div className='spinner'></div>
+              <div className='flex flex-col items-center gap-4'>
+                <div className={`w-12 h-12 border-4 rounded-full animate-spin ${
+                  isFullscreen
+                    ? 'border-white/20 border-t-white'
+                    : 'border-gray-300 border-t-indigo-500'
+                }`} />
               </div>
             </motion.div>
           )}
 
           {chartData && (
             <motion.div
-              className='chart-container'
+              className='w-full'
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
@@ -439,17 +513,23 @@ const AnalyticsDashboard = ({
 
       {/* Summary Cards */}
       {(dashboardData?.summary || categoryData?.summary) && (
-        <div className='summary-cards'>
+        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6'>
           {Object.entries(dashboardData?.summary || categoryData?.summary || {}).map(([key, value]) => (
             <motion.div
               key={key}
-              className='summary-card'
+              className={`p-4 rounded-lg border ${
+                isFullscreen
+                  ? 'bg-white/10 backdrop-blur-md border-white/20'
+                  : 'bg-gradient-to-br from-indigo-50 to-purple-50 border-indigo-200 shadow-md'
+              }`}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: 0.1 }}
             >
-              <h4>{key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</h4>
-              <p className='summary-value'>
+              <h4 className={`text-sm font-medium ${isFullscreen ? 'text-white/70' : 'text-gray-600'}`}>
+                {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+              </h4>
+              <p className={`text-2xl font-bold mt-2 ${isFullscreen ? 'text-white' : 'text-indigo-600'}`}>
                 {typeof value === 'number' ? value.toLocaleString() : value}
               </p>
             </motion.div>
@@ -458,16 +538,20 @@ const AnalyticsDashboard = ({
       )}
 
       {/* Footer */}
-      <div className='dashboard-footer'>
-        <div className='footer-left'>
+      <div className={`flex justify-between items-center pt-4 border-t-2 ${
+        isFullscreen
+          ? 'border-white/20 text-white/70'
+          : 'border-gray-200 text-gray-600'
+      }`}>
+        <div>
           {dashboardData?.metadata?.lastUpdated && (
-            <span className='last-updated'>
+            <span className='text-sm'>
               Last updated: {new Date(dashboardData.metadata.lastUpdated).toLocaleString()}
             </span>
           )}
         </div>
-        <div className='footer-right'>
-          <span className='powered-by'>Powered by Uni-Manager Analytics</span>
+        <div>
+          <span className='text-sm font-medium'>Powered by Uni-Manager Analytics</span>
         </div>
       </div>
     </div>

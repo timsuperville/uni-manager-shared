@@ -6,6 +6,7 @@ export function Alert({ children, variant = 'default', className = '', ...props 
     default: 'bg-gray-50 border-gray-200 text-gray-800',
     destructive: 'bg-red-50 border-red-200 text-red-800',
     warning: 'bg-yellow-50 border-yellow-200 text-yellow-800',
+    success: 'bg-green-50 border-green-200 text-green-800',
   };
 
   return (
