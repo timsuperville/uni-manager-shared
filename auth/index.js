@@ -30,20 +30,7 @@
  * 4. Protect routes:
  *    import { ProtectedRoute } from '@shared/auth';
  *    <ProtectedRoute component={Dashboard} />
- *
- * File Organization:
- * ==================
- * context/         - React Context & Provider
- * hooks/          - 9 specialized React hooks
- * components/     - UI components organized by feature
- * services/       - Business logic & state management
- * types/          - Type definitions & constants
- * config/         - Application configuration
- * utils/          - Helper functions & utilities
- * rbac/           - Role-based access control
  */
-
-/* global process, console */
 
 // ============================================================================
 // CONTEXT - React Context API
@@ -56,12 +43,6 @@
  * Usage: <AuthProvider><App /></AuthProvider>
  */
 export { AuthProvider } from './context/AuthProvider.jsx';
-
-/**
- * useAuth (from context) - Deprecated, prefer hooks/useAuth.js
- * Re-exported for backward compatibility only
- */
-export { useAuth as useAuthContext } from './context/AuthContext.jsx';
 
 /**
  * Additional context exports (HOCs, utilities)
@@ -91,11 +72,6 @@ export { usePermissions } from './hooks/usePermissions.js';
 export { useRateLimit } from './hooks/useRateLimit.js';
 
 /**
- * Legacy hooks (marked for deprecation)
- */
-export { useAuthForm } from './hooks/useAuthForm.js';
-
-/**
  * Hook utilities
  */
 export { listAvailableHooks } from './hooks/index.js';
@@ -109,14 +85,8 @@ export { listAvailableHooks } from './hooks/index.js';
 /**
  * LoginForm - Main authentication form component
  * Supports multiple app types, themes, and MFA
- * Backward compatibility aliases: UnifiedLoginForm, UniversalLoginForm, EnhancedLoginForm
  */
-export {
-  default as LoginForm,
-  UnifiedLoginForm,
-  UniversalLoginForm,
-  EnhancedLoginForm,
-} from './components/LoginForm.jsx';
+export { default as LoginForm } from './components/LoginForm.jsx';
 
 /**
  * User Registration Form
@@ -332,77 +302,17 @@ export function getAuthSystemStatus() {
   };
 }
 
-/**
- * Log all available exports (development only)
- */
-export function logAuthSystemExports() {
-  if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'development') {
-    return;
-  }
-
-  if (typeof console !== 'undefined') {
-    console.group('🔐 Authentication System Exports');
-    console.log('Hooks:', [
-      'useAuth (primary)',
-      'useLogin',
-      'useLogout',
-      'useMFA',
-      'useSession',
-      'useOAuth',
-      'useDeviceTrust',
-      'usePermissions',
-      'useRateLimit',
-    ]);
-    console.log('Components:', 25);
-    console.log('Services:', 10);
-    console.log('Constants:', 200);
-    console.log('Type Definitions:', 16);
-    console.groupEnd();
-  }
-}
-
 // ============================================================================
 // SUMMARY
 // ============================================================================
 
 /**
- * What's Available:
+ * Available Features:
  *
- * **Hooks (9 total)**
- * - useAuth: Primary hook for all auth operations
- * - useLogin, useLogout, useMFA: Specialized hooks
- * - useSession, useOAuth, useDeviceTrust: Feature-specific hooks
- * - usePermissions, useRateLimit: Security/utility hooks
- *
- * **Components (25 total)**
- * - LoginForm, SignupForm, ForgotPasswordForm
- * - MFA components (6 total)
- * - OAuth components (2 total)
- * - RBAC & Protection components
- * - Session management & security
- * - Layout components
- *
- * **Services (10 total)**
- * - SessionService (consolidated from 4 files)
- * - 9 other core services via lazy-loading
- *
- * **Types & Constants**
- * - 16 JSDoc type definitions
- * - 200+ organized constants
- * - 5 role categories with permissions
- *
- * **Configuration**
- * - App-specific configs (admin, church, business, etc.)
- * - OAuth provider configs
- * - RBAC configurations
- *
- * **Utilities**
- * - Validation functions
- * - Token storage management
- * - RBAC utilities
- *
- * Migration from old structure:
- * - All old imports still work (backward compatible)
- * - New code should use hooks instead of context
- * - Services auto-lazy-load to prevent circular deps
+ * **Hooks (9)**: useAuth, useLogin, useLogout, useMFA, useSession, useOAuth, useDeviceTrust, usePermissions, useRateLimit
+ * **Components (25)**: LoginForm, SignupForm, MFA components, OAuth components, RBAC, Session management, Security
+ * **Services (10)**: SessionService, authService, MFAService, OAuthService, RBACService, SecurityService, etc.
+ * **Types & Constants**: 16 JSDoc types, 200+ organized constants, 5 role categories
+ * **Configuration**: App-specific configs, OAuth providers, RBAC configurations
+ * **Utilities**: Validation, token storage, RBAC utilities
  */
