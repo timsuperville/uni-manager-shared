@@ -63,13 +63,14 @@ describe('AppSwitcher', () => {
     it('should disable button during SSO loading', () => {
       renderAppSwitcher({ ssoLoading: true });
 
-      // Loading state shows disabled div, not button
+      // Loading state shows disabled button
       const loadingElement = screen.getByText('Loading...');
       expect(loadingElement).toBeInTheDocument();
 
-      // Check that the loading container has disabled class
-      const container = screen.getByText('Loading...').closest('.app-switcher-button');
-      expect(container).toHaveClass('disabled');
+      // Check that the button is disabled
+      const button = screen.getByRole('button');
+      expect(button).toBeDisabled();
+      expect(button).toHaveClass('cursor-not-allowed');
     });
   });
 

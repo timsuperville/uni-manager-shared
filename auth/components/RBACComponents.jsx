@@ -17,7 +17,8 @@ const RBACContext = createContext(null);
  * Provides RBAC utilities to child components
  */
 function RBACProvider({ children, application = null }) {
-  const { user, isAuthenticated } = useAuth();
+  const authData = useAuth();
+  const { user, isAuthenticated } = authData || {};
 
   const rbac = React.useMemo(() => {
     if (!isAuthenticated || !user) {

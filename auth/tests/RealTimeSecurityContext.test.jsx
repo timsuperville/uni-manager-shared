@@ -343,10 +343,10 @@ describe('RealTimeSecurityContext', () => {
       const alertPayload = {
         alertId: 'alert_123',
         alertType: 'suspicious_login',
-        severity: 'medium',
+        severity: 'high',
         message: 'Login from unusual location',
         timestamp: Date.now(),
-        actionRequired: false,
+        actionRequired: true,
       };
 
       act(() => {
@@ -541,10 +541,12 @@ describe('RealTimeSecurityContext', () => {
     test('should dismiss individual notifications', async () => {
       // Add a notification first
       const alertPayload = {
+        alertId: 'test_alert_1',
         alertType: 'test_alert',
-        severity: 'low',
+        severity: 'high', // Changed to high to trigger pending notification
         message: 'Test notification',
         timestamp: Date.now(),
+        actionRequired: true, // Added to ensure it goes to pending
       };
 
       act(() => {
@@ -576,14 +578,20 @@ describe('RealTimeSecurityContext', () => {
       // Generate many notifications to test limit
       const notifications = Array.from({ length: 25 }, (_, i) => ({
         alertType: `alert_${i}`,
-        severity: 'low',
+        severity: 'high',
         message: `Alert ${i}`,
         timestamp: Date.now() + i,
+        actionRequired: true,
       }));
 
       act(() => {
         const alertHandler = eventHandlers.get('securityAlert')[0];
-        notifications.forEach((alert) => alertHandler(alert));
+        notifications.forEach((alert) => {
+          alertHandler({
+            alertId: `alert_${Date.now()}_${Math.random()}`,
+            ...alert,
+          });
+        });
       });
 
       await waitFor(() => {
