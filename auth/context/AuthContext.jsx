@@ -41,6 +41,7 @@ import React, {
   useMemo,
   useRef,
 } from 'react';
+import PropTypes from 'prop-types';
 import { AuthService } from '../services/AuthService.js';
 import { tokenStorage } from '../utils/tokenStorage.js';
 
@@ -607,7 +608,13 @@ export const AuthProvider = ({
 
 
 AuthContext.propTypes = {
-  // TODO: Define specific prop types
+  children: PropTypes.node.isRequired,
+  config: PropTypes.shape({
+    appName: PropTypes.string,
+    tokenRefreshInterval: PropTypes.number,
+  }),
+  onAuthStateChange: PropTypes.func,
+  onError: PropTypes.func,
 };
 
 // Export both named and default
