@@ -11,7 +11,7 @@
  * @module hooks/useSessionManagement
  */
 
-/* global console, setInterval, clearInterval, process, fetch */
+/* global console, setInterval, clearInterval, fetch */
 
 import { useCallback, useState, useEffect } from 'react';
 import { useAuth } from './useAuth.js';
@@ -19,8 +19,8 @@ import { authService } from '../services/authService.js';
 
 // Get API URL from environment
 const API_URL =
-  process.env.VITE_API_URL ||
-  process.env.REACT_APP_API_URL ||
+  import.meta.env.VITE_API_URL ||
+  import.meta.env.REACT_APP_API_URL ||
   'http://localhost:5000/api';
 
 /**

@@ -1,4 +1,4 @@
-/* global console, window, process */
+/* global console, window */
 
 /**
  * useOAuth - OAuth Provider Integration Hook
@@ -8,8 +8,8 @@ import { useCallback, useState, useEffect, useRef } from 'react';
 
 // Get API URL from environment or default
 const API_URL =
-  process.env.VITE_API_URL ||
-  process.env.REACT_APP_API_URL ||
+  import.meta.env.VITE_API_URL ||
+  import.meta.env.REACT_APP_API_URL ||
   'http://localhost:5000/api';
 
 export function useOAuth() {
