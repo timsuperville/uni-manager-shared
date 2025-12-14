@@ -88,6 +88,22 @@ const RoleGuard = ({
 
 
 RoleGuard.propTypes = {
-  // TODO: Define specific prop types
+  user: PropTypes.shape({
+    roles: PropTypes.arrayOf(PropTypes.string),
+    permissions: PropTypes.arrayOf(PropTypes.string),
+    ministries: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.string,
+        roles: PropTypes.arrayOf(PropTypes.string),
+      }),
+    ),
+  }),
+  roles: PropTypes.arrayOf(PropTypes.string),
+  permissions: PropTypes.arrayOf(PropTypes.string),
+  ministryId: PropTypes.string,
+  ministryRoles: PropTypes.arrayOf(PropTypes.string),
+  children: PropTypes.node,
+  fallback: PropTypes.node,
+  requireAll: PropTypes.bool,
 };
 export default RoleGuard;

@@ -295,15 +295,14 @@ export const LazyDashboardLayout = ({
             {Object.entries(preloadStatus).map(([id, status]) => (
               <div
                 key={id}
-                className={`px-2 py-1 rounded ${
-                  status === 'loaded'
-                    ? 'bg-green-100 text-green-800'
-                    : status === 'loading'
-                      ? 'bg-yellow-100 text-yellow-800'
-                      : status === 'error'
-                        ? 'bg-red-100 text-red-800'
-                        : 'bg-gray-100 text-gray-800'
-                }`}
+                className={`px-2 py-1 rounded ${status === 'loaded'
+                  ? 'bg-green-100 text-green-800'
+                  : status === 'loading'
+                    ? 'bg-yellow-100 text-yellow-800'
+                    : status === 'error'
+                      ? 'bg-red-100 text-red-800'
+                      : 'bg-gray-100 text-gray-800'
+                  }`}
               >
                 {id}: {status}
               </div>
@@ -394,7 +393,14 @@ export class WidgetRegistry {
 export const widgetRegistry = new WidgetRegistry();
 
 
-useIntersectionObserver.propTypes = {
-  // TODO: Define specific prop types
+
+LazyWidget.propTypes = {
+  widgetId: PropTypes.string.isRequired,
+  importPromise: PropTypes.func.isRequired,
+  fallback: PropTypes.node,
+  priority: PropTypes.oneOf(['critical', 'high', 'normal', 'low']),
+  className: PropTypes.string,
 };
+
+// Hook does not require propTypes validation
 export default LazyWidget;

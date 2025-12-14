@@ -621,6 +621,43 @@ export const ExportButton = ({
 
 
 ExportFormatSelector.propTypes = {
-  // TODO: Define specific prop types
+  value: PropTypes.string.isRequired,
+  onChange: PropTypes.func.isRequired,
+  disabled: PropTypes.bool,
 };
+
+ColumnSelector.propTypes = {
+  availableColumns: PropTypes.arrayOf(PropTypes.string).isRequired,
+  selectedColumns: PropTypes.arrayOf(PropTypes.string).isRequired,
+  onChange: PropTypes.func.isRequired,
+  disabled: PropTypes.bool,
+};
+
+ExportPreview.propTypes = {
+  data: PropTypes.arrayOf(PropTypes.object).isRequired,
+  columns: PropTypes.arrayOf(PropTypes.string),
+  maxRows: PropTypes.number,
+};
+
+ExportHistory.propTypes = {
+  onClearHistory: PropTypes.func,
+};
+
+DataExportDialog.propTypes = {
+  open: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  data: PropTypes.arrayOf(PropTypes.object).isRequired,
+  title: PropTypes.string,
+  defaultFilename: PropTypes.string,
+  availableColumns: PropTypes.arrayOf(PropTypes.string),
+};
+
+ExportButton.propTypes = {
+  data: PropTypes.arrayOf(PropTypes.object).isRequired,
+  title: PropTypes.string,
+  filename: PropTypes.string,
+  variant: PropTypes.string,
+  size: PropTypes.oneOf(['small', 'medium', 'large']),
+};
+
 export default DataExportDialog;

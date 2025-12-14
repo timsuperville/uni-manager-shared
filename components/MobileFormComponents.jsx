@@ -620,7 +620,3 @@ export {
   MobileAutocomplete,
   MobileMemberForm,
 };
-
-SlideTransition.propTypes = {
-  // TODO: Define specific prop types
-};

@@ -373,7 +373,3 @@ export const getCategoryStats = () => {
     count: getIntegrationsByCategory(category.id).length,
   }));
 };
-
-Fallback.propTypes = {
-  // TODO: Define specific prop types
-};

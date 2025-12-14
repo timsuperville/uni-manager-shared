@@ -52,6 +52,14 @@ export const MemoryRouterV7 = ({ children, future = {}, ...props }) => (
     {children}
   </MemoryRouter>
 );
-routerFutureFlags.propTypes = {
-  // TODO: Define specific prop types
+
+// PropTypes for components
+RouterTestWrapper.propTypes = {
+  children: PropTypes.node.isRequired,
+  initialEntries: PropTypes.arrayOf(PropTypes.string),
+};
+
+MemoryRouterV7.propTypes = {
+  children: PropTypes.node.isRequired,
+  future: PropTypes.object,
 };

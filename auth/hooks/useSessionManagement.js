@@ -11,10 +11,17 @@
  * @module hooks/useSessionManagement
  */
 
-/* global console, setInterval, clearInterval */
+/* global console, setInterval, clearInterval, process, fetch */
 
 import { useCallback, useState, useEffect } from 'react';
 import { useAuth } from './useAuth.js';
+import { authService } from '../services/authService.js';
+
+// Get API URL from environment
+const API_URL =
+  process.env.VITE_API_URL ||
+  process.env.REACT_APP_API_URL ||
+  'http://localhost:5000/api';
 
 /**
  * useSessionManagement Hook
@@ -23,7 +30,7 @@ import { useAuth } from './useAuth.js';
  * @returns {Object} Session management methods and state
  */
 export function useSessionManagement() {
-  const { session } = useAuth();
+  const { session, logout } = useAuth();
   const [sessionStatus, setSessionStatus] = useState('active');
 
   // Simulate device fingerprint
@@ -36,11 +43,14 @@ export function useSessionManagement() {
   const invalidateSession = useCallback(async () => {
     try {
       setSessionStatus('invalidated');
-      // TODO: Call backend to invalidate session
+      // Use authService to logout/invalidate current session
+      await authService.logout();
+      // Also trigger useAuth logout to update context
+      if (logout) await logout();
     } catch (err) {
       console.error('Failed to invalidate session:', err);
     }
-  }, []);
+  }, [logout]);
 
   return {
     currentSession: session || null,
@@ -60,18 +70,24 @@ export function useSessionManagement() {
  * @returns {Object} Sessions management methods and data
  */
 export function useUserSessions(userId) {
+  const { token } = useAuth();
   const [userSessions, setUserSessions] = useState([]);
   const [loading, setLoading] = useState(false);
 
   // Fetch user sessions on mount
   useEffect(() => {
-    if (!userId) return;
+    if (!userId || !token) return;
 
     const fetchSessions = async () => {
       setLoading(true);
       try {
-        // TODO: Replace with actual API call
-        setUserSessions([]);
+        const response = await fetch(`${API_URL}/auth/sessions`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setUserSessions(data.sessions || []);
+        }
       } catch (err) {
         console.error('Failed to fetch user sessions:', err);
       } finally {
@@ -80,28 +96,38 @@ export function useUserSessions(userId) {
     };
 
     fetchSessions();
-  }, [userId]);
+  }, [userId, token]);
 
   const invalidateAllSessions = useCallback(async () => {
     try {
       setLoading(true);
-      // TODO: Call backend to invalidate all sessions
+      if (token) {
+        await fetch(`${API_URL}/auth/sessions`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${token}` }
+        });
+      }
       setUserSessions([]);
     } catch (err) {
       console.error('Failed to invalidate all sessions:', err);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [token]);
 
   const invalidateSpecificSession = useCallback(async (sessionId) => {
     try {
-      // TODO: Call backend to invalidate specific session
+      if (token) {
+        await fetch(`${API_URL}/auth/sessions/${sessionId}`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${token}` }
+        });
+      }
       setUserSessions((prev) => prev.filter((s) => s.id !== sessionId));
     } catch (err) {
       console.error('Failed to invalidate session:', err);
     }
-  }, []);
+  }, [token]);
 
   return {
     userSessions,
@@ -121,18 +147,29 @@ export function useUserSessions(userId) {
  * @returns {Object} Security status and methods
  */
 export function useSessionSecurity(sessionId) {
+  const { token } = useAuth();
   const [securityStatus, setSecurityStatus] = useState('secure');
   const [securityAlerts, setSecurityAlerts] = useState([]);
 
   useEffect(() => {
-    if (!sessionId) return;
+    if (!sessionId || !token) return;
 
     // Initialize security check
     const checkSecurity = async () => {
       try {
-        // TODO: Call backend security check
-        setSecurityStatus('secure');
-        setSecurityAlerts([]);
+        const response = await fetch(`${API_URL}/auth/sessions/${sessionId}/security`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setSecurityStatus(data.status || 'secure');
+          setSecurityAlerts(data.alerts || []);
+        } else {
+          // Fallback default
+          setSecurityStatus('secure');
+          setSecurityAlerts([]);
+        }
       } catch (err) {
         console.error('Security check failed:', err);
         setSecurityStatus('warning');
@@ -140,7 +177,7 @@ export function useSessionSecurity(sessionId) {
     };
 
     checkSecurity();
-  }, [sessionId]);
+  }, [sessionId, token]);
 
   const clearSecurityAlerts = useCallback(() => {
     setSecurityAlerts([]);
@@ -163,6 +200,7 @@ export function useSessionSecurity(sessionId) {
  * @returns {Object} Analytics data and state
  */
 export function useSessionAnalytics(userId, refreshInterval = 30000) {
+  const { token } = useAuth();
   const [analytics, setAnalytics] = useState({
     totalSessions: 0,
     activeSessions: 0,
@@ -172,18 +210,19 @@ export function useSessionAnalytics(userId, refreshInterval = 30000) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!userId) return;
+    if (!userId || !token) return;
 
     const fetchAnalytics = async () => {
       setLoading(true);
       try {
-        // TODO: Call backend for analytics
-        setAnalytics({
-          totalSessions: 0,
-          activeSessions: 0,
-          avgSessionDuration: 0,
-          lastActivity: null,
+        const response = await fetch(`${API_URL}/auth/sessions/analytics`, {
+          headers: { Authorization: `Bearer ${token}` }
         });
+
+        if (response.ok) {
+          const data = await response.json();
+          setAnalytics(data);
+        }
       } catch (err) {
         console.error('Failed to fetch analytics:', err);
       } finally {
@@ -196,7 +235,7 @@ export function useSessionAnalytics(userId, refreshInterval = 30000) {
     // Set up refresh interval
     const interval = setInterval(fetchAnalytics, refreshInterval);
     return () => clearInterval(interval);
-  }, [userId, refreshInterval]);
+  }, [userId, refreshInterval, token]);
 
   return {
     analytics,

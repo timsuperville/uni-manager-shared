@@ -32,7 +32,7 @@ class PWAInitializationService {
   async initialize(appConfig = {}) {
     try {
       if (this.initialized) {
-        // console.log('PWA already initialized');
+
         return this.pwaManager;
       }
 
@@ -45,7 +45,7 @@ class PWAInitializationService {
 
       if (success) {
         this.initialized = true;
-        // console.log('PWA initialized successfully');
+
 
         // Set up app-specific features
         await this.setupAppFeatures();
@@ -58,11 +58,11 @@ class PWAInitializationService {
 
         return this.pwaManager;
       } else {
-        // console.warn('PWA initialization failed');
+
         return null;
       }
     } catch (_error) {
-      // console.error('Failed to initialize PWA:', error);
+
       return null;
     }
   }
@@ -76,31 +76,31 @@ class PWAInitializationService {
       const currentApp = this.getCurrentApp();
 
       switch (currentApp) {
-      case 'church':
-        await this.setupChurchAppFeatures();
-        break;
-      case 'home':
-        await this.setupHomeAppFeatures();
-        break;
-      case 'admin':
-        await this.setupAdminAppFeatures();
-        break;
-      case 'business':
-        await this.setupBusinessAppFeatures();
-        break;
-      case 'personal':
-        await this.setupPersonalAppFeatures();
-        break;
-      case 'playback':
-        await this.setupPlaybackAppFeatures();
-        break;
-      default:
-        await this.setupMainWebsiteFeatures();
+        case 'church':
+          await this.setupChurchAppFeatures();
+          break;
+        case 'home':
+          await this.setupHomeAppFeatures();
+          break;
+        case 'admin':
+          await this.setupAdminAppFeatures();
+          break;
+        case 'business':
+          await this.setupBusinessAppFeatures();
+          break;
+        case 'personal':
+          await this.setupPersonalAppFeatures();
+          break;
+        case 'playback':
+          await this.setupPlaybackAppFeatures();
+          break;
+        default:
+          await this.setupMainWebsiteFeatures();
       }
 
-      // console.log(`PWA features set up for ${currentApp} app`);
+
     } catch (_error) {
-      // console.error('Failed to set up app features:', error);
+
     }
   }
 
@@ -241,10 +241,10 @@ class PWAInitializationService {
     try {
       if (this.pwaManager && urls.length > 0) {
         await this.pwaManager.cacheResources(urls);
-        // console.log(`Cached ${urls.length} resources for offline access`);
+
       }
     } catch (_error) {
-      // console.error('Failed to cache resources:', error);
+
     }
   }
 
@@ -331,10 +331,10 @@ class PWAInitializationService {
       if (typeof navigator !== "undefined" && navigator.onLine && this.pwaManager) {
         // Process any queued sync items
         await this.pwaManager.processSyncQueue();
-        // console.log('Initial sync completed');
+
       }
     } catch (_error) {
-      // console.error('Initial sync failed:', error);
+
     }
   }
 
@@ -351,7 +351,7 @@ class PWAInitializationService {
         }
       }
     } catch (_error) {
-      // console.error('Update check failed:', error);
+
     }
   }
 
@@ -365,10 +365,10 @@ class PWAInitializationService {
 
       if (formData && Object.keys(formData).length > 0) {
         typeof localStorage !== "undefined" && localStorage.setItem('pendingFormData', JSON.stringify(formData));
-        // console.log('Saved pending form data');
+
       }
     } catch (_error) {
-      // console.error('Failed to save pending data:', error);
+
     }
   }
 
@@ -433,7 +433,7 @@ class PWAInitializationService {
         await this.pwaManager.showNotification(title, notificationOptions);
       }
     } catch (_error) {
-      // console.error('Failed to show notification:', error);
+
     }
   }
 
@@ -447,7 +447,7 @@ class PWAInitializationService {
       }
       return null;
     } catch (_error) {
-      // console.error('Failed to add to sync queue:', error);
+
       return null;
     }
   }
@@ -473,7 +473,7 @@ class PWAInitializationService {
    */
   setupChurchNotifications() {
     // Set up service reminders, event notifications, etc.
-    // console.log('Church notifications configured');
+
   }
 
   /**
@@ -481,7 +481,7 @@ class PWAInitializationService {
    */
   setupFamilyNotifications() {
     // Set up family event reminders, chore notifications, etc.
-    // console.log('Family notifications configured');
+
   }
 
   /**
@@ -489,7 +489,7 @@ class PWAInitializationService {
    */
   setupAdminNotifications() {
     // Set up system alerts, user activity notifications, etc.
-    // console.log('Admin notifications configured');
+
   }
 
   /**
@@ -497,7 +497,7 @@ class PWAInitializationService {
    */
   setupBusinessNotifications() {
     // Set up project deadlines, client notifications, etc.
-    // console.log('Business notifications configured');
+
   }
 
   /**
@@ -505,7 +505,7 @@ class PWAInitializationService {
    */
   setupPersonalNotifications() {
     // Set up goal reminders, personal task notifications, etc.
-    // console.log('Personal notifications configured');
+
   }
 
   /**
@@ -513,7 +513,7 @@ class PWAInitializationService {
    */
   setupMediaNotifications() {
     // Set up playback notifications, media updates, etc.
-    // console.log('Media notifications configured');
+
   }
 
   /**
@@ -521,7 +521,7 @@ class PWAInitializationService {
    */
   setupMarketingNotifications() {
     // Set up feature announcements, newsletter notifications, etc.
-    // console.log('Marketing notifications configured');
+
   }
 
   /**
@@ -529,7 +529,7 @@ class PWAInitializationService {
    */
   setupOfflineServiceSync() {
     // Handle offline service creation and sync
-    // console.log('Offline service sync configured');
+
   }
 
   /**
@@ -537,7 +537,7 @@ class PWAInitializationService {
    */
   setupOfflineBudgetSync() {
     // Handle offline budget changes and sync
-    // console.log('Offline budget sync configured');
+
   }
 
   /**
@@ -545,7 +545,7 @@ class PWAInitializationService {
    */
   setupSystemMonitoring() {
     // Set up real-time system monitoring notifications
-    // console.log('System monitoring configured');
+
   }
 
   /**
@@ -573,9 +573,8 @@ class PWAInitializationService {
       // Save any pending data
       this.savePendingData();
 
-      // console.log('PWA cleanup completed');
     } catch (_error) {
-      // console.error('PWA cleanup failed:', error);
+
     }
   }
 }

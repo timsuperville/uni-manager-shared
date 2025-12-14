@@ -215,9 +215,7 @@ export const PerformanceMonitor = ({ children, componentName }) => {
       const renderTime = endTime - startTime;
 
       if (renderTime > 16) {
-        // console.warn(
-          `[Performance] ${componentName} render took ${renderTime.toFixed(2)}ms`,
-        );
+        // Commented for production: console.warn(`[Performance] ${componentName} render took ${renderTime.toFixed(2)}ms`);
       }
     };
   });
@@ -303,10 +301,33 @@ export const OptimizedSearchInput = memo(
 
 OptimizedSearchInput.displayName = 'OptimizedSearchInput';
 
+// PropTypes for components
+import PropTypes from 'prop-types';
 
-withMemo.propTypes = {
-  // TODO: Define specific prop types
+PerformanceErrorBoundary.propTypes = {
+  children: PropTypes.node.isRequired,
+  fallback: PropTypes.node,
 };
+
+PerformanceMonitor.propTypes = {
+  children: PropTypes.node.isRequired,
+  componentName: PropTypes.string.isRequired,
+};
+
+OptimizedList.propTypes = {
+  items: PropTypes.array.isRequired,
+  renderItem: PropTypes.func.isRequired,
+  containerHeight: PropTypes.number,
+  itemHeight: PropTypes.number,
+  keyExtractor: PropTypes.func,
+};
+
+OptimizedSearchInput.propTypes = {
+  onSearch: PropTypes.func.isRequired,
+  placeholder: PropTypes.string,
+  debounceMs: PropTypes.number,
+};
+
 export default {
   withMemo,
   withLazyLoading,

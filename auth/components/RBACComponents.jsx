@@ -421,6 +421,75 @@ export default {
   PermissionMenuItem,
 };
 
-RBACContext.propTypes = {
-  // TODO: Define specific prop types
+// PropTypes
+RBACProvider.propTypes = {
+  children: PropTypes.node.isRequired,
+  application: PropTypes.string,
+};
+
+PermissionGuard.propTypes = {
+  permission: PropTypes.string,
+  permissions: PropTypes.arrayOf(PropTypes.string),
+  requireAll: PropTypes.bool,
+  fallback: PropTypes.node,
+  children: PropTypes.node.isRequired,
+};
+
+RoleGuard.propTypes = {
+  role: PropTypes.string,
+  roles: PropTypes.arrayOf(PropTypes.string),
+  requireAll: PropTypes.bool,
+  minimumLevel: PropTypes.number,
+  fallback: PropTypes.node,
+  children: PropTypes.node.isRequired,
+};
+
+ApplicationGuard.propTypes = {
+  application: PropTypes.string.isRequired,
+  fallback: PropTypes.node,
+  children: PropTypes.node.isRequired,
+};
+
+RouteGuard.propTypes = {
+  permission: PropTypes.string,
+  permissions: PropTypes.arrayOf(PropTypes.string),
+  role: PropTypes.string,
+  roles: PropTypes.arrayOf(PropTypes.string),
+  minimumLevel: PropTypes.number,
+  requireAuth: PropTypes.bool,
+  redirectTo: PropTypes.string,
+  children: PropTypes.node.isRequired,
+};
+
+AdminGuard.propTypes = {
+  application: PropTypes.string,
+  fallback: PropTypes.node,
+  children: PropTypes.node.isRequired,
+};
+
+ConditionalRender.propTypes = {
+  permission: PropTypes.string,
+  permissions: PropTypes.arrayOf(PropTypes.string),
+  role: PropTypes.string,
+  roles: PropTypes.arrayOf(PropTypes.string),
+  minimumLevel: PropTypes.number,
+  whenTrue: PropTypes.node.isRequired,
+  whenFalse: PropTypes.node,
+};
+
+PermissionButton.propTypes = {
+  permission: PropTypes.string,
+  permissions: PropTypes.arrayOf(PropTypes.string),
+  children: PropTypes.node.isRequired,
+  disabledProps: PropTypes.object,
+  hideWhenNoAccess: PropTypes.bool,
+};
+
+PermissionMenuItem.propTypes = {
+  permission: PropTypes.string,
+  permissions: PropTypes.arrayOf(PropTypes.string),
+  role: PropTypes.string,
+  roles: PropTypes.arrayOf(PropTypes.string),
+  minimumLevel: PropTypes.number,
+  children: PropTypes.node.isRequired,
 };

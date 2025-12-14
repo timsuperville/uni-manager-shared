@@ -152,9 +152,7 @@ export const usePerformanceMonitor = (componentName) => {
 
       if (renderTime > 16) {
         // Warn if render takes longer than one frame
-        // console.warn(
-          `[Performance] ${componentName} render took ${renderTime.toFixed(2)}ms`,
-        );
+        // Commented for production: console.warn(`[Performance] ${componentName} render took ${renderTime.toFixed(2)}ms`);
       }
     };
   });
@@ -313,10 +311,18 @@ export class PerformanceErrorBoundary extends Component {
   }
 }
 
-
-withMemo.propTypes = {
-  // TODO: Define specific prop types
+// PropTypes for components
+OptimizedComponent.propTypes = {
+  children: PropTypes.node.isRequired,
+  trackPerformance: PropTypes.bool,
+  componentName: PropTypes.string,
 };
+
+PerformanceErrorBoundary.propTypes = {
+  children: PropTypes.node.isRequired,
+  fallback: PropTypes.node,
+};
+
 export default {
   withMemo,
   withLazyLoading,

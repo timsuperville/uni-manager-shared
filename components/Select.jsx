@@ -79,8 +79,8 @@ const Select = ({
 
   const filteredOptions = searchable
     ? options.filter((option) =>
-        option.label.toLowerCase().includes(searchTerm.toLowerCase()),
-      )
+      option.label.toLowerCase().includes(searchTerm.toLowerCase()),
+    )
     : options;
 
   const getSelectedOption = () => {
@@ -304,7 +304,7 @@ const Select = ({
         name={name}
         id={id}
         value={multiple ? '' : value || ''}
-        onChange={() => {}} // Controlled by our custom logic
+        onChange={() => { }} // Controlled by our custom logic
         required={required}
         multiple={multiple}
         className='sr-only'
@@ -354,7 +354,5 @@ Select.propTypes = {
 };
 
 
-ChevronDownIcon.propTypes = {
-  // TODO: Define specific prop types
-};
+
 export default Select;
