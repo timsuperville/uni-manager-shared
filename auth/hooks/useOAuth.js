@@ -1,4 +1,4 @@
-/* global console, window */
+/* global console, window, clearInterval, setInterval */
 
 /**
  * useOAuth - OAuth Provider Integration Hook
@@ -105,3 +105,5 @@ export function useOAuth() {
 }
 
 export default useOAuth;
+
+

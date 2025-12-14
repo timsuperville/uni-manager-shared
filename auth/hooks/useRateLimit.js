@@ -5,7 +5,7 @@
  * Handles authentication attempts, API calls, and user actions
  */
 
-/* global console, fetch, setInterval, clearInterval */
+/* global fetch, setInterval, clearInterval */
 
 import { useState, useCallback, useEffect } from 'react';
 import securityService from '../services/securityService';
@@ -302,3 +302,4 @@ export const usePasswordResetRateLimit = (userIdentifier = null) => {
 };
 
 export default useRateLimit;
+

@@ -157,7 +157,7 @@ export const useAuthForm = (formType = 'login') => {
 
       return result;
     } catch (_err) {
-      setError(err.message || 'An error occurred. Please try again.');
+      setError(_err.message || 'An error occurred. Please try again.');
       return false;
     } finally {
       setIsLoading(false);
