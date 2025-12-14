@@ -5,7 +5,7 @@
  * Handles authentication attempts, API calls, and user actions
  */
 
-/* global console, process, fetch, setInterval, clearInterval */
+/* global console, fetch, setInterval, clearInterval */
 
 import { useState, useCallback, useEffect } from 'react';
 import securityService from '../services/securityService';
@@ -42,7 +42,7 @@ export const useRateLimit = (options = {}) => {
 
     try {
       // In development, use a default IP
-      if (process?.env?.NODE_ENV || "development" === 'development') {
+      if (import.meta.env.MODE === 'development') {
         const defaultIP = '127.0.0.1';
         setClientIP(defaultIP);
         return defaultIP;
@@ -89,7 +89,7 @@ export const useRateLimit = (options = {}) => {
         attemptsRemaining: 1,
         remainingTime: 0,
         reason: null,
-        error: error.message,
+        error: _error.message,
       };
       setRateLimitStatus(fallbackStatus);
       return fallbackStatus;
@@ -156,7 +156,7 @@ export const useRateLimit = (options = {}) => {
       } catch (_error) {
         return {
           success: false,
-          error: error.message,
+          error: _error.message,
           rateLimitStatus,
         };
       }
