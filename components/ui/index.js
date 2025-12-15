@@ -1,4 +1,5 @@
 // UI Components
+export { default as Button } from '../Button';
 export { Card, CardHeader, CardContent, CardTitle } from './Card';
 export { DashboardCard, StatCard, ActionCard } from './DashboardCard';
 export {
