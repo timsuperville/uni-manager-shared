@@ -2,6 +2,7 @@
  * App-specific authentication configurations
  * Each app has its own branding and API endpoints while maintaining consistent UX
  */
+/* global window */
 
 // Base API URL - can be overridden per app if needed
 const BASE_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';

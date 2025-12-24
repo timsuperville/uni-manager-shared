@@ -4,10 +4,10 @@
  */
 
 export const rbacService = {
-  checkPermission: (_user, _permission) => true,
-  checkRole: (_user, _role) => true,
-  getUserPermissions: (_user) => [],
-  getUserRoles: (_user) => []
+  checkPermission: () => true,
+  checkRole: () => true,
+  getUserPermissions: () => [],
+  getUserRoles: () => []
 };
 
 export default rbacService;

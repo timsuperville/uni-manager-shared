@@ -13,7 +13,7 @@
  * - WebSocket connections for real-time updates
  */
 
-/* global window, document, localStorage, sessionStorage, WebSocket, fetch, URLSearchParams, console, navigator, setTimeout */
+/* global window, document, localStorage, sessionStorage, WebSocket, fetch, URLSearchParams, console, navigator, setTimeout, process */
 
 import ApiService from './apiService';
 
@@ -93,6 +93,20 @@ class AnalyticsService {
       return response.data;
     } catch (error) {
       // console.error('Failed to get performance analytics:', error);
+      throw this.handleError(error);
+    }
+  }
+
+  /**
+   * Get membership growth data for Church app
+   */
+  async getMembershipGrowth(churchId, timeframe = 'year') {
+    try {
+      const response = await this.apiService.get(
+        `/church/${churchId}/dashboard/membership-growth?period=${timeframe}`
+      );
+      return response.data;
+    } catch (error) {
       throw this.handleError(error);
     }
   }

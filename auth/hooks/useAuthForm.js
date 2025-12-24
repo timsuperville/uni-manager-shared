@@ -2,7 +2,7 @@
  * useAuthForm Hook
  * Unified hook for handling authentication forms with validation and state management
  */
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import {
   validateEmail,
@@ -15,6 +15,13 @@ export const useAuthForm = (formType = 'login') => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const mounted = useRef(true);
+
+  useEffect(() => {
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
 
   // Initial form data based on form type
   const getInitialFormData = () => {
@@ -156,9 +163,10 @@ export const useAuthForm = (formType = 'login') => {
       }
 
       return result;
-    } catch (_err) {
-      setError(_err.message || 'An error occurred. Please try again.');
-      return false;
+    } catch (err) {
+      if (mounted.current) {
+        setError(err.message || 'An error occurred. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }
