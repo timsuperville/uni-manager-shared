@@ -19,8 +19,8 @@ describe('useOAuth', () => {
     });
 
     afterEach(() => {
-        jest.useRealTimers();
-        jest.clearAllMocks();
+        vi.useRealTimers();
+        vi.clearAllMocks();
     });
 
     it('should initialize with default state', () => {
