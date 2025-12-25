@@ -42,7 +42,7 @@ import React, {
   useRef,
 } from 'react';
 import PropTypes from 'prop-types';
-import { AuthService } from '../services/AuthService.js';
+import { AuthService } from '../services/authService.js';
 import { tokenStorage } from '../utils/tokenStorage.js';
 
 const AuthContext = createContext(null);
