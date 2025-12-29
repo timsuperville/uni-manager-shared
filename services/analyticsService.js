@@ -202,13 +202,11 @@ class AnalyticsService {
         return null;
       }
 
-      // Debug logging for troubleshooting (can be removed when stable)
-      if (process.env.NODE_ENV === 'development') {
-        console.log('🔍 About to send performance metric:', {
-          metricType,
-          value,
-          context: context?.pageUrl || 'unknown'
-        });
+      // NOTE: Analytics backend not yet implemented - see missing_features.md  
+      // Skip API call in development to prevent 404 errors
+      if (import.meta.env.DEV) {
+        console.debug('[Analytics] Skipped in dev:', { metricType, value, context: context?.pageUrl });
+        return null;
       }
 
       const response = await this.apiService.post(
