@@ -71,8 +71,8 @@ export function useLogin() {
         throw new Error('Invalid credentials');
       }
     } catch (_error) {
-      // console.error('Login error:', error);
-      return { success: false, error: error.message };
+      // console.error('Login error:', _error);
+      return { success: false, error: _error.message };
     } finally {
       setIsLoading(false);
     }
