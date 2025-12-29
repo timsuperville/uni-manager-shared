@@ -132,7 +132,7 @@ export const AuthProvider = ({ children }) => {
       setError(null);
       setLoading(true);
 
-      const authData = await authService.register(userData);
+      const authData = await authService.signup(userData);
       if (authData.user) {
         setUser(authData.user);
         setIsAuthenticated(true);
@@ -148,6 +148,9 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
     }
   }, []);
+
+  // Alias for backward compatibility (SignupForm uses 'signup')
+  const signup = register;
 
   // Logout
   const logout = useCallback(async () => {
@@ -204,6 +207,7 @@ export const AuthProvider = ({ children }) => {
     handleOAuthCallback,
     loginWithEmail,
     register,
+    signup, // Add signup alias
     logout,
     refreshToken,
     clearError,
