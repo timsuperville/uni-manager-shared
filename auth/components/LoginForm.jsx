@@ -491,15 +491,7 @@ LoginForm.propTypes = {
   trustDeviceAvailable: PropTypes.bool,
 };
 
-LoginForm.defaultProps = {
-  appType: 'default',
-  theme: 'default',
-  showRememberMe: true,
-  showRegistration: false,
-  enableMFA: true,
-  trustDeviceAvailable: true,
-  redirectPath: '/dashboard',
-};
+
 
 // Export as default
 export default LoginForm;

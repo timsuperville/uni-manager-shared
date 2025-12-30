@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '../context/AuthProvider.jsx';
+import { useAuth } from '../context/index.jsx';
 import { getCurrentAppConfig } from '../config/appConfigs.js';
 
 /**

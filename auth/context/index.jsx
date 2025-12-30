@@ -43,11 +43,11 @@
 // ============================================================================
 
 // AuthProvider component - wraps application and provides auth state
-export { AuthProvider } from './AuthProvider.jsx';
+export { AuthProvider } from './AuthContext.jsx';
 
 // useAuth hook from context (use AuthProvider.jsx implementation)
 // Re-exported for backward compatibility
-export { useAuth } from './AuthProvider.jsx';
+export { useAuth } from './AuthContext.jsx';
 
 // SSO Context for cross-application single sign-on
 export { SSOContext } from './SSOContext.jsx';
@@ -164,7 +164,7 @@ export function getAuthState() {
  */
 export function createCustomAuthProvider(config = {}) {
   return function CustomProvider({ children }) {
-    const { AuthProvider: AP } = require('./AuthProvider.jsx');
+    const { AuthProvider: AP } = require('./AuthContext.jsx');
     return React.createElement(AP, { config }, children);
   };
 }
@@ -188,7 +188,7 @@ export function useAuthContext() {
  * Deprecated: Use AuthProvider directly
  * This is kept for backward compatibility with older code
  */
-export { AuthProvider as AuthContextProvider } from './AuthProvider.jsx';
+export { AuthProvider as AuthContextProvider } from './AuthContext.jsx';
 
 // ============================================================================
 // Re-exports from related modules

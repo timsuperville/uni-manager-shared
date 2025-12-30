@@ -464,6 +464,51 @@ export const AuthProvider = ({
   );
 
   /**
+   * Switch current church
+   */
+  const switchChurch = useCallback(
+    async (churchId) => {
+      try {
+        setAuthState((prev) => ({ ...prev, isLoading: true, error: null }));
+
+        const result = await authService.switchChurch(churchId);
+
+        const newState = {
+          user: result.user,
+          isLoading: false
+        };
+
+        setAuthState((prev) => ({ ...prev, ...newState }));
+
+        // Notify callback
+        if (onAuthStateChangeRef.current) {
+          setTimeout(() => {
+            onAuthStateChangeRef.current(newState);
+          }, 0);
+        }
+
+        return result;
+      } catch (error) {
+        const errorMessage = error?.message || 'Switch church failed';
+
+        setAuthState((prev) => ({
+          ...prev,
+          error: errorMessage,
+          isLoading: false,
+        }));
+
+        if (onErrorRef.current) {
+          setTimeout(() => {
+            onErrorRef.current(error);
+          }, 0);
+        }
+        throw error;
+      }
+    },
+    [authService]
+  );
+
+  /**
    * Check current authentication state
    */
   const checkAuthState = useCallback(async () => {
@@ -582,6 +627,14 @@ export const AuthProvider = ({
     return () => clearInterval(interval);
   }, [authState.isAuthenticated, authService, config.tokenRefreshInterval]); // Remove refreshAuth dependency
 
+  /**
+   * Clear error state
+   */
+  const clearError = useCallback(() => {
+    // Direct setState to avoid circular dependency
+    setAuthState((prev) => ({ ...prev, error: null }));
+  }, []); // Empty dependency array - stable reference
+
   const contextValue = {
     // State
     ...authState,
@@ -594,8 +647,10 @@ export const AuthProvider = ({
     resetPassword,
     refreshAuth,
     updateUser,
+    switchChurch,
     checkAuthState,
     updateActivity,
+    clearError,
 
     // Utilities
     authService,

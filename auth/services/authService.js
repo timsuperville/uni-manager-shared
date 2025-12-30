@@ -97,6 +97,34 @@ class AuthService {
   }
 
   /**
+   * Helper to safely handle API responses
+   */
+  async _handleResponse(response) {
+    const contentType = response.headers.get('content-type');
+    let data;
+
+    if (contentType && contentType.includes('application/json')) {
+      try {
+        data = await response.json();
+      } catch (error) {
+        throw new Error('Invalid JSON response from server');
+      }
+    } else {
+      // Handle non-JSON responses (usually 404s or 500s throwing HTML)
+      const text = await response.text();
+      // throw new Error(response.statusText || 'Server error');
+      // For debugging, you might log the text, but don't expose it to user
+      throw new Error(`Server Error (${response.status}): Please try again later.`);
+    }
+
+    if (!response.ok) {
+      throw new Error(data.message || data.error || `Request failed with status ${response.status}`);
+    }
+
+    return data;
+  }
+
+  /**
    * Check for existing authentication session
    */
   async checkExistingSession() {
@@ -113,16 +141,18 @@ class AuthService {
         }),
       });
 
-      if (response.ok) {
-        const responseData = await response.json();
-        this.currentUser = responseData.user;
-        this.sessionToken = token;
-        return responseData.user;
-      } else {
-        // Invalid token, clear storage
+      // Use safe parser but don't throw on error, just return null
+      let responseData;
+      try {
+        responseData = await this._handleResponse(response);
+      } catch (e) {
         await this.clearStoredAuth();
         return null;
       }
+
+      this.currentUser = responseData.user;
+      this.sessionToken = token;
+      return responseData.user;
     } catch (_error) {
       // console.error('Session verification failed:', error);
       // Clear auth on verification failure
@@ -163,9 +193,10 @@ class AuthService {
         }),
       });
 
-      const responseData = await response.json();
+      // Use safe response handling
+      const responseData = await this._handleResponse(response);
 
-      if (response.ok && responseData.success && responseData.accessToken) {
+      if (responseData.success && responseData.accessToken) {
         // Store authentication data
         await tokenStorage.setTokens({
           accessToken: responseData.accessToken,
@@ -187,7 +218,7 @@ class AuthService {
       }
 
       // Handle MFA required response
-      if (response.ok && responseData.success && responseData.requiresMFA) {
+      if (responseData.success && responseData.requiresMFA) {
         // Reset login attempts on successful credential validation (but MFA still required)
         this.resetLoginAttempts(email);
 
@@ -199,7 +230,7 @@ class AuthService {
         };
       }
 
-      // Record failed login attempt
+      // Record failed login attempt (should ideally be caught by error handler above)
       this.recordLoginAttempt(email);
       throw new Error(responseData.message || 'Login failed');
     } catch (_error) {
@@ -249,28 +280,31 @@ class AuthService {
    * User signup/registration
    */
   async signup(userData) {
-    const response = await this._makeRequest('signup', {
-      method: 'POST',
-      body: JSON.stringify({
-        ...userData,
-        appType: this.config.appType,
-        deviceFingerprint: this.deviceFingerprint,
-        deviceInfo: getDeviceInfo(),
-      }),
-    });
+    try {
+      const response = await this._makeRequest('signup', {
+        method: 'POST',
+        body: JSON.stringify({
+          ...userData,
+          appType: this.config.appType,
+          deviceFingerprint: this.deviceFingerprint,
+          deviceInfo: getDeviceInfo(),
+        }),
+      });
 
-    const responseData = await response.json();
+      const responseData = await this._handleResponse(response);
 
-    if (response.ok && responseData.success) {
-      return {
-        success: true,
-        message: responseData.message,
-        requiresVerification: responseData.requiresVerification,
-        user: responseData.user,
-      };
+      if (responseData.success) {
+        return {
+          success: true,
+          message: responseData.message,
+          requiresVerification: responseData.requiresVerification,
+          user: responseData.user,
+        };
+      }
+      throw new Error(responseData.message || 'Signup failed');
+    } catch (error) {
+      throw error;
     }
-
-    throw new Error(responseData.message || 'Signup failed');
   }
 
   /**
@@ -597,6 +631,43 @@ class AuthService {
       // console.error('Token validation failed:', error);
       return false;
     }
+  }
+
+  /**
+   * Switch current active church
+   */
+  async switchChurch(churchId) {
+    if (!this.currentUser) throw new Error('User not authenticated');
+
+    // Optimistic check (though backend validation is source of truth)
+    if (this.currentUser.currentChurch && this.currentUser.currentChurch.toString() === churchId) {
+      return { success: true, user: this.currentUser, noChange: true };
+    }
+
+    const response = await fetch(`${this.config.apiBaseUrl}/api/v1/church/${churchId}/select`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.sessionToken}`
+      }
+    });
+
+    const responseData = await this._handleResponse(response);
+
+    if (responseData.success) {
+      // Update local state
+      const updatedUser = responseData.data || responseData.user;
+
+      // Update stored tokens/user
+      await tokenStorage.updateUser(updatedUser);
+      this.currentUser = updatedUser;
+
+      return {
+        success: true,
+        user: updatedUser
+      };
+    }
+    throw new Error(responseData.message || 'Failed to switch church');
   }
 
   /**

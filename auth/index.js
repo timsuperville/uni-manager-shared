@@ -42,7 +42,7 @@
  *
  * Usage: <AuthProvider><App /></AuthProvider>
  */
-export { AuthProvider } from './context/AuthProvider.jsx';
+export { AuthProvider } from './context/AuthContext.jsx';
 
 /**
  * Additional context exports (HOCs, utilities)

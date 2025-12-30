@@ -229,7 +229,7 @@ const SignupForm = ({
           lastName: formData.lastName,
           email: formData.email,
           password: formData.password,
-          agreeToTerms: formData.agreeToTerms,
+          acceptTerms: formData.agreeToTerms,
         };
         await _onSubmit(submitData);
       } catch (_error) {
@@ -256,7 +256,7 @@ const SignupForm = ({
         lastName: formData.lastName,
         email: formData.email,
         password: formData.password,
-        agreeToTerms: formData.agreeToTerms,
+        acceptTerms: formData.agreeToTerms,
       });
 
       if (result.success) {
@@ -359,11 +359,10 @@ const SignupForm = ({
                 required
                 value={formData.firstName}
                 onChange={handleChange}
-                className={`w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                  errors.firstName
+                className={`w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${errors.firstName
                     ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
                     : `border-gray-300 ${appConfig.branding.focusRing} focus:border-brand-500`
-                }`}
+                  }`}
                 placeholder='First name'
               />
               {errors.firstName && (
@@ -391,11 +390,10 @@ const SignupForm = ({
                 required
                 value={formData.lastName}
                 onChange={handleChange}
-                className={`w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                  errors.lastName
+                className={`w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${errors.lastName
                     ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
                     : `border-gray-300 ${appConfig.branding.focusRing} focus:border-brand-500`
-                }`}
+                  }`}
                 placeholder='Last name'
               />
               {errors.lastName && (
@@ -427,11 +425,10 @@ const SignupForm = ({
                 value={formData.email}
                 onChange={handleChange}
                 onBlur={handleEmailBlur}
-                className={`w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                  errors.email
+                className={`w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${errors.email
                     ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
                     : `border-gray-300 ${appConfig.branding.focusRing} focus:border-brand-500`
-                }`}
+                  }`}
                 placeholder='Enter your email'
               />
               {emailChecking && (
@@ -483,11 +480,10 @@ const SignupForm = ({
               value={formData.password}
               onChange={handleChange}
               onBlur={handlePasswordBlur}
-              className={`w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                errors.password
+              className={`w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${errors.password
                   ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
                   : `border-gray-300 ${appConfig.branding.focusRing} focus:border-brand-500`
-              }`}
+                }`}
               placeholder='Create a password'
             />
 
@@ -499,40 +495,37 @@ const SignupForm = ({
                     Password strength:
                   </span>
                   <span
-                    className={`font-medium ${
-                      passwordStrength.color === 'red'
+                    className={`font-medium ${passwordStrength.color === 'red'
                         ? 'text-red-600'
                         : passwordStrength.color === 'orange'
                           ? 'text-orange-600'
                           : passwordStrength.color === 'yellow'
                             ? 'text-yellow-600'
                             : 'text-green-600'
-                    }`}
+                      }`}
                   >
                     {passwordStrength.label}
                   </span>
                 </div>
                 <div className='mt-1 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2'>
                   <div
-                    className={`h-2 rounded-full transition-all duration-300 ${
-                      passwordStrength.color === 'red'
+                    className={`h-2 rounded-full transition-all duration-300 ${passwordStrength.color === 'red'
                         ? 'bg-red-500'
                         : passwordStrength.color === 'orange'
                           ? 'bg-orange-500'
                           : passwordStrength.color === 'yellow'
                             ? 'bg-yellow-500'
                             : 'bg-green-500'
-                    }`}
+                      }`}
                     style={{
-                      width: `${
-                        passwordStrength.label === 'Weak'
+                      width: `${passwordStrength.label === 'Weak'
                           ? 25
                           : passwordStrength.label === 'Fair'
                             ? 50
                             : passwordStrength.label === 'Good'
                               ? 75
                               : 100
-                      }%`,
+                        }%`,
                     }}
                   />
                 </div>
@@ -566,11 +559,10 @@ const SignupForm = ({
               value={formData.confirmPassword}
               onChange={handleChange}
               onBlur={handleConfirmPasswordBlur}
-              className={`w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                errors.confirmPassword
+              className={`w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${errors.confirmPassword
                   ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
                   : `border-gray-300 ${appConfig.branding.focusRing} focus:border-brand-500`
-              }`}
+                }`}
               placeholder='Confirm your password'
             />
             {errors.confirmPassword && (

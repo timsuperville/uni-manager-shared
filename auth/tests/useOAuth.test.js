@@ -1,5 +1,6 @@
 import { renderHook, act } from '@testing-library/react';
 import { useOAuth } from '../hooks/useOAuth';
+import { vi } from 'vitest';
 
 describe('useOAuth', () => {
     let mockWindowOpen;
@@ -9,13 +10,13 @@ describe('useOAuth', () => {
         // Mock window.open
         mockPopup = {
             closed: false,
-            close: jest.fn(),
+            close: vi.fn(),
         };
-        mockWindowOpen = jest.fn(() => mockPopup);
+        mockWindowOpen = vi.fn(() => mockPopup);
         global.window.open = mockWindowOpen;
 
         // Use fake timers
-        jest.useFakeTimers();
+        vi.useFakeTimers();
     });
 
     afterEach(() => {
@@ -103,7 +104,7 @@ describe('useOAuth', () => {
         mockPopup.closed = true;
 
         act(() => {
-            jest.advanceTimersByTime(1000);
+            vi.advanceTimersByTime(1000);
         });
 
         expect(result.current.isLoading).toBe(false);
