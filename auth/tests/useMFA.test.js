@@ -4,8 +4,8 @@ import { useAuth } from '../hooks/useAuth';
 import { MFAService } from '../services/mfaService';
 
 // Mock dependencies
-jest.mock('../hooks/useAuth');
-jest.mock('../services/mfaService');
+vi.mock('../hooks/useAuth');
+vi.mock('../services/mfaService');
 
 describe('useMFA', () => {
     const mockUser = {
@@ -17,17 +17,17 @@ describe('useMFA', () => {
 
     // Mock service instance methods
     const mockServiceMethods = {
-        setupTOTP: jest.fn(),
-        setupSMS: jest.fn(),
-        verifyTOTPSetup: jest.fn(),
-        verifyTOTP: jest.fn(),
-        disableMFA: jest.fn(),
-        generateBackupCodes: jest.fn(),
+        setupTOTP: vi.fn(),
+        setupSMS: vi.fn(),
+        verifyTOTPSetup: vi.fn(),
+        verifyTOTP: vi.fn(),
+        disableMFA: vi.fn(),
+        generateBackupCodes: vi.fn(),
     };
 
     beforeEach(() => {
         // Reset mocks
-        jest.clearAllMocks();
+        vi.clearAllMocks();
 
         // Mock useAuth
         useAuth.mockReturnValue({

@@ -50,6 +50,7 @@ describe('MFA Integration Scenarios', () => {
       fetch
         .mockResolvedValueOnce({
           ok: true,
+          headers: new Headers({ 'content-type': 'application/json' }),
           json: vi.fn().mockResolvedValue({
             success: true,
             requiresMFA: true,
@@ -60,6 +61,7 @@ describe('MFA Integration Scenarios', () => {
         // Mock MFA challenge
         .mockResolvedValueOnce({
           ok: true,
+          headers: new Headers({ 'content-type': 'application/json' }),
           json: vi.fn().mockResolvedValue({
             challengeId: 'challenge-abc',
             availableMethods: ['totp', 'sms'],
@@ -69,6 +71,7 @@ describe('MFA Integration Scenarios', () => {
         // Mock successful MFA verification
         .mockResolvedValueOnce({
           ok: true,
+          headers: new Headers({ 'content-type': 'application/json' }),
           json: vi.fn().mockResolvedValue({
             success: true,
             verified: true,

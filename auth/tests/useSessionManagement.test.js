@@ -3,13 +3,13 @@ import { useSessionManagement, useUserSessions } from '../hooks/useSessionManage
 import { useAuth } from '../hooks/useAuth';
 import { authService } from '../services/authService';
 
-jest.mock('../hooks/useAuth');
-jest.mock('../services/authService');
+vi.mock('../hooks/useAuth');
+vi.mock('../services/authService');
 
 describe('useSessionManagement', () => {
     beforeEach(() => {
-        useAuth.mockReturnValue({ session: { id: '1' }, logout: jest.fn() });
-        authService.logout = jest.fn().mockResolvedValue({ success: true });
+        useAuth.mockReturnValue({ session: { id: '1' }, logout: vi.fn() });
+        authService.logout = vi.fn().mockResolvedValue({ success: true });
     });
 
     it('should invalidate session calling authService logout', async () => {
@@ -27,7 +27,7 @@ describe('useSessionManagement', () => {
 describe('useUserSessions', () => {
     beforeEach(() => {
         useAuth.mockReturnValue({ token: 'fake-token' });
-        global.fetch = jest.fn(() =>
+        global.fetch = vi.fn(() =>
             Promise.resolve({
                 ok: true,
                 json: () => Promise.resolve({ sessions: [{ id: '1', status: 'active' }] })
@@ -36,7 +36,7 @@ describe('useUserSessions', () => {
     });
 
     afterEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     it('should fetch user sessions on mount', async () => {

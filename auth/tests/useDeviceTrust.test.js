@@ -5,22 +5,22 @@ import { MFAService } from '../services/mfaService';
 import { generateDeviceFingerprint } from '../utils/socialAuth';
 
 // Mock dependencies
-jest.mock('../hooks/useAuth');
-jest.mock('../services/mfaService');
-jest.mock('../utils/socialAuth');
+vi.mock('../hooks/useAuth');
+vi.mock('../services/mfaService');
+vi.mock('../utils/socialAuth');
 
 describe('useDeviceTrust', () => {
     const mockToken = 'fake-token';
     const mockFingerprint = 'device-123';
 
     const mockServiceMethods = {
-        checkDeviceTrust: jest.fn(),
-        addTrustedDevice: jest.fn(),
-        removeTrustedDevice: jest.fn(),
+        checkDeviceTrust: vi.fn(),
+        addTrustedDevice: vi.fn(),
+        removeTrustedDevice: vi.fn(),
     };
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
 
         useAuth.mockReturnValue({ token: mockToken });
         generateDeviceFingerprint.mockResolvedValue(mockFingerprint);
