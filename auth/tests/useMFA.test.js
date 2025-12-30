@@ -35,8 +35,10 @@ describe('useMFA', () => {
             token: mockToken
         });
 
-        // Mock MFAService constructor to return our mock methods
-        MFAService.mockImplementation(() => mockServiceMethods);
+        // Mock MFAService constructor to return instance with our mock methods
+        MFAService.mockImplementation(function () {
+            return mockServiceMethods;
+        });
     });
 
     it('should initialize with default state', () => {

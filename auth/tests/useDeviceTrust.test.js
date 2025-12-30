@@ -24,7 +24,9 @@ describe('useDeviceTrust', () => {
 
         useAuth.mockReturnValue({ token: mockToken });
         generateDeviceFingerprint.mockResolvedValue(mockFingerprint);
-        MFAService.mockImplementation(() => mockServiceMethods);
+        MFAService.mockImplementation(function () {
+            return mockServiceMethods;
+        });
     });
 
     it('should initialize and generate fingerprint', async () => {
