@@ -48,7 +48,7 @@ class AuthService {
 
     // Merge app-specific config with defaults
     this.config = {
-      apiBaseUrl: config.apiBaseUrl || 'http://localhost:5000',
+      apiBaseUrl: config.apiBaseUrl || '', // Empty string uses relative paths (proxied by Vite)
       endpoints: {
         login: '/api/v1/auth/login',
         logout: '/api/v1/auth/logout',

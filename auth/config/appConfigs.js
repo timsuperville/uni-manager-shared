@@ -335,9 +335,13 @@ export function getCurrentAppName() {
 
 /**
  * Get the current app's configuration
+ * @param {string} appType - Optional app type override
  * @returns {Object} Current app configuration
  */
-export function getCurrentAppConfig() {
+export function getCurrentAppConfig(appType) {
+  if (appType) {
+    return getAppConfig(appType);
+  }
   const appName = getCurrentAppName();
   return getAppConfig(appName);
 }

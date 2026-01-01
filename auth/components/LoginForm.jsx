@@ -4,6 +4,15 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { useNavigate } from 'react-router-dom';
 import MFAVerification from './MFAVerification';
 import MFASetup from './MFASetup';
+import {
+  AuthContainer,
+  AuthCardContent,
+  AuthButton,
+  OAuthButton,
+  AuthDivider,
+  Alert,
+  GoogleIcon,
+} from './AuthUIComponents.jsx';
 
 /**
  * LoginForm - Main Authentication Form Component
@@ -58,6 +67,8 @@ export function LoginForm({
   const [mfaToken, setMfaToken] = useState('');
   const [deviceFingerprint, setDeviceFingerprint] = useState(null);
   const [trustDevice, setTrustDevice] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [debugInfo, setDebugInfo] = useState(null);
 
   /**
    * App-specific configurations
@@ -122,31 +133,44 @@ export function LoginForm({
   const finalRedirectPath = redirectPath || config.defaultRedirect;
 
   /**
+   * Tailwind Safe Color Classes (to ensure JIT generates them)
+   */
+  const colorClasses = {
+    blue: 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500',
+    purple: 'bg-purple-600 hover:bg-purple-700 focus:ring-purple-500',
+    emerald: 'bg-emerald-600 hover:bg-emerald-700 focus:ring-emerald-500',
+    amber: 'bg-amber-600 hover:bg-amber-700 focus:ring-amber-500',
+    indigo: 'bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500',
+    pink: 'bg-pink-600 hover:bg-pink-700 focus:ring-pink-500',
+    gray: 'bg-gray-600 hover:bg-gray-700 focus:ring-gray-500',
+  };
+
+  /**
    * Theme configurations
-   * Supports default (light), dark, and minimal themes
+   * Supports default (system adaptive), dark (forced), and minimal themes
    */
   const themes = {
     default: {
-      background: 'bg-gray-50',
-      container: 'bg-white shadow-lg',
-      primary: `bg-${config.primaryColor}-600 hover:bg-${config.primaryColor}-700`,
-      text: 'text-gray-900',
-      input: 'border-gray-300 focus:ring-blue-500 focus:border-blue-500',
+      background: 'bg-gray-50 dark:bg-gray-900',
+      container: 'bg-white dark:bg-gray-800 shadow-lg',
+      primary: colorClasses[config.primaryColor] || colorClasses.gray,
+      text: 'text-gray-900 dark:text-white',
+      input: 'border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 shadow-sm',
     },
     dark: {
       background: 'bg-gray-900',
       container: 'bg-gray-800 shadow-2xl',
-      primary: `bg-${config.primaryColor}-600 hover:bg-${config.primaryColor}-700`,
+      primary: colorClasses[config.primaryColor] || colorClasses.gray,
       text: 'text-white',
       input:
-        'border-gray-600 bg-gray-700 text-white focus:ring-blue-500 focus:border-blue-500',
+        'border border-gray-600 bg-gray-700 text-white placeholder-gray-400 focus:ring-2 shadow-sm',
     },
     minimal: {
-      background: 'bg-white',
-      container: 'border-2 border-gray-200',
-      primary: `bg-${config.primaryColor}-600 hover:bg-${config.primaryColor}-700`,
-      text: 'text-gray-900',
-      input: 'border-b-2 border-gray-300 bg-transparent focus:border-blue-500',
+      background: 'bg-white dark:bg-gray-900',
+      container: 'border-2 border-gray-200 dark:border-gray-700',
+      primary: colorClasses[config.primaryColor] || colorClasses.gray,
+      text: 'text-gray-900 dark:text-white',
+      input: 'border-b-2 border-gray-300 dark:border-gray-600 bg-transparent text-gray-900 dark:text-white focus:border-blue-500',
     },
   };
 
@@ -204,6 +228,7 @@ export function LoginForm({
     clearError();
 
     try {
+      setDebugInfo('Attempting login...');
       const result = await login({
         email: formData.email,
         password: formData.password,
@@ -211,7 +236,9 @@ export function LoginForm({
         appType,
       });
 
+      setDebugInfo('Login response received');
       if (result.success && !result.mfaRequired && !result.mfaSetupRequired) {
+        setDebugInfo('Login successful!');
         if (onSuccess) {
           onSuccess(result);
         } else {
@@ -220,6 +247,7 @@ export function LoginForm({
       }
       // MFA flow will be handled by useEffect watching for state changes
     } catch (err) {
+      setDebugInfo(`Error: ${err.message || 'Unknown error'} | Type: ${err.name || 'N/A'}`);
       if (onError) {
         onError(err);
       }
@@ -339,133 +367,153 @@ export function LoginForm({
 
   // Render Login Form
   return (
-    <div
-      className={`min-h-screen flex items-center justify-center ${currentTheme.background} py-12 px-4 sm:px-6 lg:px-8`}
-    >
-      <div className='max-w-md w-full space-y-8'>
-        <div className={`${currentTheme.container} rounded-lg px-8 py-10`}>
-          {/* Header */}
-          <div className='text-center'>
-            <div className='text-4xl mb-4'>{config.icon}</div>
-            <h2 className={`text-3xl font-extrabold ${currentTheme.text}`}>
-              {finalTitle}
-            </h2>
-            <p className={`mt-2 text-sm ${currentTheme.text} opacity-75`}>
-              {finalDescription}
-            </p>
+    <AuthContainer maxWidth="md">
+      <AuthCardContent>
+        {/* Header */}
+        <div className='text-center mb-6 sm:mb-8'>
+          <div className='text-4xl sm:text-5xl mb-3 sm:mb-4'>{config.icon}</div>
+          <h2 className={`text-2xl sm:text-3xl font-extrabold ${currentTheme.text}`}>
+            {finalTitle}
+          </h2>
+          <p className={`mt-2 text-sm ${currentTheme.text} opacity-75`}>
+            {finalDescription}
+          </p>
+        </div>
+
+        {/* OAuth Login */}
+        <div>
+          <OAuthButton
+            provider="Google"
+            onClick={() => {
+              // TODO: Implement Google OAuth
+              console.log('Google login clicked');
+            }}
+            icon={<GoogleIcon className="w-5 h-5 sm:w-6 sm:h-6" />}
+          >
+            Sign in with Google
+          </OAuthButton>
+
+          <AuthDivider text="Or continue with email" />
+        </div>
+
+        {/* Form */}
+        <form className='space-y-5 sm:space-y-6' onSubmit={handleLoginSubmit}>
+          {/* Debug Info */}
+          {debugInfo && <Alert type="info" message={`Debug: ${debugInfo}`} />}
+
+          {/* Error Display */}
+          {error && <Alert type="error" message={error} />}
+
+          {/* Email Field */}
+          <div>
+            <label
+              htmlFor='email'
+              className={`block text-sm font-medium ${currentTheme.text} mb-2`}
+            >
+              Email address
+            </label>
+            <input
+              id='email'
+              name='email'
+              type='email'
+              autoComplete='email'
+              required
+              value={formData.email}
+              onChange={handleChange}
+              className={`w-full px-3 py-2 rounded-md ${currentTheme.input} placeholder-gray-400 focus:outline-none focus:ring-2`}
+              placeholder='Enter your email address'
+            />
           </div>
 
-          {/* Form */}
-          <form className='mt-8 space-y-6' onSubmit={handleLoginSubmit}>
-            {/* Error Display */}
-            {error && (
-              <div
-                className='bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative'
-                role='alert'
-              >
-                <span className='block sm:inline'>{error}</span>
-              </div>
-            )}
-
-            {/* Email Field */}
-            <div>
-              <label
-                htmlFor='email'
-                className={`block text-sm font-medium ${currentTheme.text} mb-2`}
-              >
-                Email address
-              </label>
-              <input
-                id='email'
-                name='email'
-                type='email'
-                autoComplete='email'
-                required
-                value={formData.email}
-                onChange={handleChange}
-                className={`w-full px-3 py-2 rounded-md ${currentTheme.input} placeholder-gray-400 focus:outline-none focus:ring-2`}
-                placeholder='Enter your email address'
-              />
-            </div>
-
-            {/* Password Field */}
-            <div>
-              <label
-                htmlFor='password'
-                className={`block text-sm font-medium ${currentTheme.text} mb-2`}
-              >
-                Password
-              </label>
+          {/* Password Field */}
+          <div>
+            <label
+              htmlFor='password'
+              className={`block text-sm font-medium ${currentTheme.text} mb-2`}
+            >
+              Password
+            </label>
+            <div className="relative">
               <input
                 id='password'
                 name='password'
-                type='password'
+                type={showPassword ? 'text' : 'password'}
                 autoComplete='current-password'
                 required
                 value={formData.password}
                 onChange={handleChange}
-                className={`w-full px-3 py-2 rounded-md ${currentTheme.input} placeholder-gray-400 focus:outline-none focus:ring-2`}
+                className={`w-full px-3 py-2 rounded-md ${currentTheme.input} placeholder-gray-400 focus:outline-none focus:ring-2 pr-10`}
                 placeholder='Enter your password'
               />
-            </div>
-
-            {/* Remember Me */}
-            {showRememberMe && (
-              <div className='flex items-center'>
-                <input
-                  id='rememberMe'
-                  name='rememberMe'
-                  type='checkbox'
-                  checked={formData.rememberMe}
-                  onChange={handleChange}
-                  className={`h-4 w-4 text-${config.primaryColor}-600 focus:ring-${config.primaryColor}-500 border-gray-300 rounded`}
-                />
-                <label
-                  htmlFor='rememberMe'
-                  className={`ml-2 block text-sm ${currentTheme.text}`}
-                >
-                  Remember me
-                </label>
-              </div>
-            )}
-
-            {/* Submit Button */}
-            <div>
               <button
-                type='submit'
-                disabled={!isFormValid || isLoading}
-                className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white ${currentTheme.primary} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-${config.primaryColor}-500 disabled:opacity-50 disabled:cursor-not-allowed transition duration-150 ease-in-out`}
+                type="button"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-500"
+                onClick={() => setShowPassword(!showPassword)}
               >
-                {isLoading ? (
-                  <div className='flex items-center'>
-                    <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2'></div>
-                    Signing in...
-                  </div>
+                {showPassword ? (
+                  <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                  </svg>
                 ) : (
-                  'Sign in'
+                  <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
                 )}
               </button>
             </div>
+          </div>
 
-            {/* Registration Link */}
-            {showRegistration && (
-              <div className='text-center'>
-                <span className={`text-sm ${currentTheme.text} opacity-75`}>
-                  Don't have an account?{' '}
-                  <button
-                    type='button'
-                    className={`font-medium text-${config.primaryColor}-600 hover:text-${config.primaryColor}-500`}
-                    onClick={() => navigate('/auth/register')}
-                  >
-                    Sign up
-                  </button>
-                </span>
-              </div>
-            )}
-          </form>
-        </div>
-      </div>
-    </div>
+          {/* Remember Me */}
+          {showRememberMe && (
+            <div className='flex items-center'>
+              <input
+                id='rememberMe'
+                name='rememberMe'
+                type='checkbox'
+                checked={formData.rememberMe}
+                onChange={handleChange}
+                className={`h-4 w-4 text-${config.primaryColor}-600 focus:ring-${config.primaryColor}-500 border-gray-300 rounded`}
+              />
+              <label
+                htmlFor='rememberMe'
+                className={`ml-2 block text-sm ${currentTheme.text}`}
+              >
+                Remember me
+              </label>
+            </div>
+          )}
+
+          {/* Submit Button */}
+          <div className="pt-2">
+            <AuthButton
+              type="submit"
+              disabled={!isFormValid || isLoading}
+              loading={isLoading}
+              variant="primary"
+            >
+              {isLoading ? 'Signing in...' : 'Sign in'}
+            </AuthButton>
+          </div>
+
+          {/* Registration Link */}
+          {showRegistration && (
+            <div className='text-center pt-2'>
+              <span className={`text-sm sm:text-base ${currentTheme.text} opacity-75`}>
+                Don't have an account?{' '}
+                <button
+                  type='button'
+                  className={`font-semibold text-${config.primaryColor}-600 hover:text-${config.primaryColor}-500 underline underline-offset-2`}
+                  onClick={() => navigate('/auth/register')}
+                >
+                  Create account
+                </button>
+              </span>
+            </div>
+          )}
+        </form>
+      </AuthCardContent>
+    </AuthContainer>
   );
 }
 
