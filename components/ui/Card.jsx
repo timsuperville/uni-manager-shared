@@ -32,6 +32,11 @@ const Card = ({
       border border-gray-200 dark:border-gray-700
       shadow-md dark:shadow-gray-900/20
     `,
+    flat: `
+      bg-transparent
+      shadow-none
+      border-none
+    `,
   };
 
   const compactClasses = compact ? 'rounded-lg' : 'rounded-xl';
@@ -159,7 +164,7 @@ const CardFooter = ({
 Card.propTypes = {
   children: PropTypes.node.isRequired,
   className: PropTypes.string,
-  variant: PropTypes.oneOf(['default', 'elevated', 'outlined', 'gradient']),
+  variant: PropTypes.oneOf(['default', 'elevated', 'outlined', 'gradient', 'flat']),
   interactive: PropTypes.bool,
   compact: PropTypes.bool,
 };
@@ -191,4 +196,4 @@ CardFooter.propTypes = {
   className: PropTypes.string,
 };
 
-export { Card, CardHeader, CardContent, CardTitle, CardDescription, CardFooter };
+export { Card, CardHeader, CardContent, CardTitle, CardDescription, CardFooter, CardContent as CardBody };

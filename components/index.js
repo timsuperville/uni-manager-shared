@@ -1,5 +1,5 @@
 // Shared React components for all Uni-Manager applications
-export { default as Button } from './Button';
+// Button is now exported from ./ui
 export { default as Modal } from './Modal';
 export { default as LoadingSpinner } from './LoadingSpinner';
 export { default as RoleGuard } from './RoleGuard';

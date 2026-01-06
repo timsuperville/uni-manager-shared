@@ -1,6 +1,6 @@
 // UI Components
-export { default as Button } from '../Button';
-export { Card, CardHeader, CardContent, CardTitle } from './Card';
+export { default as Button } from './Button';
+export { Card, CardHeader, CardContent, CardTitle, CardBody } from './Card';
 export { DashboardCard, StatCard, ActionCard } from './DashboardCard';
 export {
   Table,
@@ -15,3 +15,6 @@ export { Badge } from './Badge';
 export { Input, Select, Textarea } from './Input';
 export { Progress, CircularProgress } from './Progress';
 export { Switch } from './Switch';
+export { ProgressCard, QuickActionCard } from './CompositeCards';
+export { ProgressBar } from './ProgressBar';
+
