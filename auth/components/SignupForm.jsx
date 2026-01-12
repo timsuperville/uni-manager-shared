@@ -392,27 +392,34 @@ const SignupForm = ({
               rightElement={<PasswordToggleIcon show="password" />}
             />
             {passwordStrength && formData.password && (
-              <div className="mt-2">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-                    Password strength:
+              <div className="mt-3 bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg border border-gray-100 dark:border-gray-700">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                    Password strength
                   </span>
-                  <span className={`text-xs sm:text-sm font-medium ${passwordStrength.score >= 3 ? 'text-green-600 dark:text-green-400' :
-                      passwordStrength.score >= 2 ? 'text-yellow-600 dark:text-yellow-400' :
-                        'text-red-600 dark:text-red-400'
+                  <span className={`text-xs font-bold uppercase tracking-wider ${passwordStrength.score >= 3 ? 'text-emerald-600 dark:text-emerald-400' :
+                    passwordStrength.score >= 2 ? 'text-amber-600 dark:text-amber-400' :
+                      'text-rose-600 dark:text-rose-400'
                     }`}>
                     {passwordStrength.label}
                   </span>
                 </div>
-                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
-                  <div
-                    className={`h-1.5 rounded-full transition-all duration-300 ${passwordStrength.score >= 3 ? 'bg-green-600' :
-                        passwordStrength.score >= 2 ? 'bg-yellow-600' :
-                          'bg-red-600'
-                      }`}
-                    style={{ width: `${(passwordStrength.score / 4) * 100}%` }}
-                  />
+                <div className="flex gap-1.5 h-1.5">
+                  {[0, 1, 2, 3].map((step) => (
+                    <div
+                      key={step}
+                      className={`flex-1 rounded-full transition-all duration-500 ease-out ${passwordStrength.score > step
+                          ? passwordStrength.score >= 3 ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]'
+                            : passwordStrength.score >= 2 ? 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]'
+                              : 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]'
+                          : 'bg-gray-200 dark:bg-gray-600'
+                        }`}
+                    />
+                  ))}
                 </div>
+                <p className="text-xs text-gray-400 mt-2">
+                  Use 8+ chars with a mix of letters, numbers & symbols
+                </p>
               </div>
             )}
           </div>
