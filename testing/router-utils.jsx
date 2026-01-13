@@ -24,7 +24,7 @@ export const createMemoryRouter = ({ children, initialEntries, future = {}, ...p
   return (
     <MemoryRouter
       initialEntries={initialEntries}
-      future={{ ...routerFutureFlags, ...future }}
+      initialEntries={initialEntries}
       {...props}
     >
       {children}
@@ -48,7 +48,7 @@ export const RouterTestWrapper = ({ children, initialEntries = ['/'] }) => {
  * Can be used as a drop-in replacement for MemoryRouter in tests
  */
 export const MemoryRouterV7 = ({ children, future = {}, ...props }) => (
-  <MemoryRouter future={{ ...routerFutureFlags, ...future }} {...props}>
+  <MemoryRouter {...props}>
     {children}
   </MemoryRouter>
 );
