@@ -10,6 +10,7 @@ export { default as Toast } from './Toast';
 export { ToastProvider, useToast, useToastNotification } from './ToastProvider';
 export { default as ConfirmDialog } from './ConfirmDialog';
 export { default as Select } from './Select';
+export { default as GlobalErrorBoundary } from './GlobalErrorBoundary';
 
 // UI Components
 export * from './ui';

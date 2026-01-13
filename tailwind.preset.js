@@ -63,4 +63,52 @@ export default {
         },
     },
     plugins: [],
+    safelist: [
+        // Auth component color classes
+        "bg-amber-600", "hover:bg-amber-700", "focus:ring-amber-500",
+        "bg-blue-600", "hover:bg-blue-700", "focus:ring-blue-500",
+        "bg-purple-600", "hover:bg-purple-700", "focus:ring-purple-500",
+        "bg-emerald-600", "hover:bg-emerald-700", "focus:ring-emerald-500",
+        "bg-indigo-600", "hover:bg-indigo-700", "focus:ring-indigo-500",
+        "bg-pink-600", "hover:bg-pink-700", "focus:ring-pink-500",
+        "bg-gray-600", "hover:bg-gray-700", "focus:ring-gray-500",
+        "dark:bg-gray-800", "dark:bg-gray-900", "dark:text-white", "dark:text-gray-100",
+        "text-gray-900", "bg-white", "bg-gray-50",
+        "bg-gradient-to-r", "from-blue-600", "via-blue-700", "to-indigo-800",
+        "hover:from-blue-700", "hover:via-blue-800", "hover:to-indigo-900",
+        "shadow-blue-500/30", "hover:shadow-blue-500/40",
+
+        // Common background colors
+        'bg-red-50', 'bg-red-100', 'bg-red-200', 'bg-red-500', 'bg-red-600',
+        'bg-green-50', 'bg-green-100', 'bg-green-500', 'bg-green-600',
+        'bg-blue-50', 'bg-blue-100', 'bg-blue-500', 'bg-blue-600',
+        'bg-gray-50', 'bg-gray-100', 'bg-gray-600', 'bg-gray-700', 'bg-gray-800', 'bg-gray-900',
+        'bg-yellow-50', 'bg-yellow-100', 'bg-yellow-500',
+        'bg-white',
+
+        // Common text colors
+        'text-red-400', 'text-red-700', 'text-red-800',
+        'text-green-600', 'text-green-700', 'text-green-800',
+        'text-blue-600', 'text-blue-700', 'text-blue-800',
+        'text-gray-600', 'text-gray-700', 'text-gray-800', 'text-gray-900',
+        'text-white', 'text-black',
+        'text-indigo-600', 'text-indigo-400', // Typically used in links/accents
+
+        // Common border colors
+        'border-red-200', 'border-green-200', 'border-blue-200',
+        'border-gray-200', 'border-gray-300', 'border-gray-600', 'border-gray-700',
+        'border-red-500', 'border-green-500', 'border-blue-500',
+
+        // Common hover states
+        'hover:bg-red-200', 'hover:bg-green-600', 'hover:bg-gray-700',
+        'hover:text-red-800', 'hover:text-green-800', 'hover:text-gray-500',
+
+        // Layout and spacing
+        'p-4', 'px-3', 'px-4', 'py-1', 'py-2',
+        'm-4', 'mt-2', 'mt-4', 'ml-3', 'mb-8',
+        'border-2', 'border-l-4',
+        'rounded', 'rounded-md', 'rounded-full', 'rounded-lg',
+        'text-sm', 'text-2xl', 'text-3xl',
+        'font-medium', 'font-bold',
+    ],
 };

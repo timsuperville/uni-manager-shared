@@ -11,6 +11,8 @@
     "./utils": "./utils/index.js",
     "./types": "./types/index.js",
     "./theme": "./theme/index.js",
+    "./auth": "./auth/index.js",
+    "./paypal": "./paypal/index.js",
     "./tailwind.preset": "./tailwind.preset.js"
   },
   "scripts": {
