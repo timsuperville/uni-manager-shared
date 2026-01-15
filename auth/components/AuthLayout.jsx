@@ -4,6 +4,7 @@
  */
 import React from 'react';
 import { getCurrentAppConfig } from '../config/appConfigs.js';
+import { ThemeToggle } from '../../components/ThemeToggle';
 
 const AuthLayout = ({
   children,
@@ -14,7 +15,12 @@ const AuthLayout = ({
   const appConfig = getCurrentAppConfig();
 
   return (
-    <div className={`min-h-screen flex ${className} overflow-hidden bg-gray-50 dark:bg-gray-900`}>
+    <div className={`min-h-screen flex ${className} overflow-hidden bg-gray-50 dark:bg-gray-900 relative`}>
+      {/* Theme Toggle - Top Right */}
+      <div className="absolute top-4 right-4 z-50">
+        <ThemeToggle />
+      </div>
+
       {/* Background Pattern - Left Side */}
       {showBackground && (
         <div className='hidden lg:flex lg:flex-1 lg:relative overflow-hidden'>

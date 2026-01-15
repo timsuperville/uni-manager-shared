@@ -1,5 +1,5 @@
 // Theme Provider for Uni-Manager Design System
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 
 // Default theme tokens
@@ -41,10 +41,19 @@ const defaultTokens = {
 };
 
 // Create theme context
-const ThemeContext = createContext(defaultTokens);
+const ThemeContext = createContext({
+  ...defaultTokens,
+  theme: 'system',
+  setTheme: () => null,
+});
 
 // Theme provider component
-export const ThemeProvider = ({ children, tokens = {} }) => {
+export const ThemeProvider = ({
+  children,
+  tokens = {},
+  defaultTheme = 'system',
+  storageKey = 'uni-manager-theme'
+}) => {
   // Merge provided tokens with defaults
   const mergedTokens = {
     ...defaultTokens,
@@ -62,8 +71,37 @@ export const ThemeProvider = ({ children, tokens = {} }) => {
     borderRadius: { ...defaultTokens.borderRadius, ...tokens.borderRadius },
   };
 
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem(storageKey) || defaultTheme;
+  });
+
+  useEffect(() => {
+    const root = window.document.documentElement;
+    root.classList.remove('light', 'dark');
+
+    if (theme === 'system') {
+      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)')
+        .matches
+        ? 'dark'
+        : 'light';
+      root.classList.add(systemTheme);
+      return;
+    }
+
+    root.classList.add(theme);
+  }, [theme]);
+
+  const value = {
+    ...mergedTokens,
+    theme,
+    setTheme: (theme) => {
+      localStorage.setItem(storageKey, theme);
+      setTheme(theme);
+    },
+  };
+
   return (
-    <ThemeContext.Provider value={mergedTokens}>
+    <ThemeContext.Provider value={value}>
       {children}
     </ThemeContext.Provider>
   );
@@ -77,14 +115,15 @@ ThemeProvider.propTypes = {
     typography: PropTypes.object,
     borderRadius: PropTypes.object,
   }),
+  defaultTheme: PropTypes.string,
+  storageKey: PropTypes.string,
 };
 
 // Hook to use theme
 export const useTheme = () => {
   const context = useContext(ThemeContext);
   if (!context) {
-    // console.warn('useTheme must be used within a ThemeProvider');
-    return defaultTokens;
+    return { ...defaultTokens, theme: 'system', setTheme: () => null };
   }
   return context;
 };
