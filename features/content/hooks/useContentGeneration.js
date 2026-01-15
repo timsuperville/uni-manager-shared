@@ -1,6 +1,6 @@
 /* eslint-env browser, es2020 */
 /* global fetch, localStorage, console, URLSearchParams, AbortController, setInterval, clearInterval */
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect } from "react";
 
 /**
  * Content Generation Hook
@@ -40,7 +40,7 @@ const useContentGeneration = () => {
   const generationCacheRef = useRef(new Map());
 
   // API configuration
-  const API_BASE = '/content';
+  const API_BASE = "/content";
 
   // Generic API request handler
   const apiRequest = useCallback(async (endpoint, options = {}) => {
@@ -57,8 +57,8 @@ const useContentGeneration = () => {
         ...options,
         signal,
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${typeof localStorage !== "undefined" && localStorage.getItem('token')}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${typeof localStorage !== "undefined" && localStorage.getItem("token")}`,
           ...options.headers,
         },
       });
@@ -66,14 +66,15 @@ const useContentGeneration = () => {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(
-          errorData.message || `HTTP ${response.status}: ${response.statusText}`
+          errorData.message ||
+            `HTTP ${response.status}: ${response.statusText}`,
         );
       }
 
       const data = await response.json();
       return data;
     } catch (_error) {
-      if (error.name === 'AbortError') {
+      if (error.name === "AbortError") {
         return null;
       }
       // console.error('API request failed:', error);
@@ -107,7 +108,7 @@ const useContentGeneration = () => {
       try {
         // Validate required parameters
         if (!generationConfig.prompt || !generationConfig.contentType) {
-          throw new Error('Prompt and content type are required');
+          throw new Error("Prompt and content type are required");
         }
 
         // Check cache for similar generation
@@ -135,22 +136,22 @@ const useContentGeneration = () => {
         const generationPayload = {
           prompt: generationConfig.prompt,
           contentType: generationConfig.contentType,
-          format: generationConfig.format || 'markdown',
-          tone: generationConfig.tone || 'professional',
-          style: generationConfig.style || 'informative',
-          targetAudience: generationConfig.targetAudience || 'general',
+          format: generationConfig.format || "markdown",
+          tone: generationConfig.tone || "professional",
+          style: generationConfig.style || "informative",
+          targetAudience: generationConfig.targetAudience || "general",
           keywords: generationConfig.keywords || [],
-          length: generationConfig.length || 'medium',
+          length: generationConfig.length || "medium",
           creativity: generationConfig.creativity || 0.7,
           includeOutline: generationConfig.includeOutline || false,
           seoOptimize: generationConfig.seoOptimize || false,
-          language: generationConfig.language || 'en',
-          customInstructions: generationConfig.customInstructions || '',
+          language: generationConfig.language || "en",
+          customInstructions: generationConfig.customInstructions || "",
           templateId: generationConfig.templateId || null,
         };
 
-        const result = await apiRequest('/generate', {
-          method: 'POST',
+        const result = await apiRequest("/generate", {
+          method: "POST",
           body: JSON.stringify(generationPayload),
         });
 
@@ -192,7 +193,7 @@ const useContentGeneration = () => {
           return generatedContent;
         }
 
-        throw new Error(result?.message || 'Content generation failed');
+        throw new Error(result?.message || "Content generation failed");
       } catch (_error) {
         clearInterval(progressIntervalRef.current);
         setError(error.message);
@@ -202,15 +203,15 @@ const useContentGeneration = () => {
         setGenerating(false);
       }
     },
-    [apiRequest, simulateProgress]
+    [apiRequest, simulateProgress],
   );
 
   // Optimize prompt for better generation results
   const optimizePrompt = useCallback(
     async (originalPrompt, contentType, context = {}) => {
       try {
-        const result = await apiRequest('/optimize-prompt', {
-          method: 'POST',
+        const result = await apiRequest("/optimize-prompt", {
+          method: "POST",
           body: JSON.stringify({
             prompt: originalPrompt,
             contentType,
@@ -237,13 +238,13 @@ const useContentGeneration = () => {
           return optimization;
         }
 
-        throw new Error(result?.message || 'Prompt optimization failed');
+        throw new Error(result?.message || "Prompt optimization failed");
       } catch (_error) {
         // console.error('Prompt optimization error:', error);
         return null;
       }
     },
-    [apiRequest]
+    [apiRequest],
   );
 
   // Generate multiple content variations
@@ -264,10 +265,13 @@ const useContentGeneration = () => {
             ...baseConfig,
             creativity: Math.max(
               0.3,
-              Math.min(1.0, baseConfig.creativity + (Math.random() - 0.5) * 0.4)
+              Math.min(
+                1.0,
+                baseConfig.creativity + (Math.random() - 0.5) * 0.4,
+              ),
             ),
             customInstructions:
-              `${baseConfig.customInstructions || ''} Generate variation ${i + 1} with unique approach.`.trim(),
+              `${baseConfig.customInstructions || ""} Generate variation ${i + 1} with unique approach.`.trim(),
           };
 
           const variation = await generateContent(variationConfig);
@@ -298,15 +302,15 @@ const useContentGeneration = () => {
         setGenerating(false);
       }
     },
-    [generateContent]
+    [generateContent],
   );
 
   // Analyze generated content quality
   const analyzeGeneration = useCallback(
     async (generatedContent) => {
       try {
-        const result = await apiRequest('/analyze-generation', {
-          method: 'POST',
+        const result = await apiRequest("/analyze-generation", {
+          method: "POST",
           body: JSON.stringify({
             content: generatedContent.content,
             metadata: generatedContent.metadata || {},
@@ -317,13 +321,13 @@ const useContentGeneration = () => {
           return result.data;
         }
 
-        throw new Error(result?.message || 'Generation analysis failed');
+        throw new Error(result?.message || "Generation analysis failed");
       } catch (_error) {
         // console.error('Generation analysis error:', error);
         return null;
       }
     },
-    [apiRequest]
+    [apiRequest],
   );
 
   // Load and manage templates
@@ -332,7 +336,7 @@ const useContentGeneration = () => {
       try {
         const queryParams = new URLSearchParams();
         if (category) {
-          queryParams.append('category', category);
+          queryParams.append("category", category);
         }
 
         const result = await apiRequest(`/templates?${queryParams}`);
@@ -348,15 +352,15 @@ const useContentGeneration = () => {
         return [];
       }
     },
-    [apiRequest]
+    [apiRequest],
   );
 
   // Save custom template
   const saveTemplate = useCallback(
     async (templateData) => {
       try {
-        const result = await apiRequest('/templates', {
-          method: 'POST',
+        const result = await apiRequest("/templates", {
+          method: "POST",
           body: JSON.stringify(templateData),
         });
 
@@ -365,13 +369,13 @@ const useContentGeneration = () => {
           return result.data;
         }
 
-        throw new Error(result?.message || 'Failed to save template');
+        throw new Error(result?.message || "Failed to save template");
       } catch (_error) {
         // console.error('Template save error:', error);
         throw error;
       }
     },
-    [apiRequest]
+    [apiRequest],
   );
 
   // Save prompt for reuse
@@ -387,8 +391,8 @@ const useContentGeneration = () => {
         setSavedPrompts((prev) => [savedPrompt, ...prev.slice(0, 49)]); // Keep last 50 saved prompts
 
         // Optionally save to backend
-        const result = await apiRequest('/prompts', {
-          method: 'POST',
+        const result = await apiRequest("/prompts", {
+          method: "POST",
           body: JSON.stringify(savedPrompt),
         });
 
@@ -407,15 +411,15 @@ const useContentGeneration = () => {
         };
       }
     },
-    [apiRequest]
+    [apiRequest],
   );
 
   // Get generation analytics
   const getGenerationAnalytics = useCallback(
-    async (timeframe = '30d') => {
+    async (timeframe = "30d") => {
       try {
         const result = await apiRequest(
-          `/generation-analytics?timeframe=${timeframe}`
+          `/generation-analytics?timeframe=${timeframe}`,
         );
 
         if (result?.success) {
@@ -429,7 +433,7 @@ const useContentGeneration = () => {
         return null;
       }
     },
-    [apiRequest]
+    [apiRequest],
   );
 
   // Enhanced content generation with quality control
@@ -440,7 +444,7 @@ const useContentGeneration = () => {
         const optimizedPrompt = await optimizePrompt(
           config.prompt,
           config.contentType,
-          { targetAudience: config.targetAudience, keywords: config.keywords }
+          { targetAudience: config.targetAudience, keywords: config.keywords },
         );
 
         // Use optimized prompt if available
@@ -448,11 +452,11 @@ const useContentGeneration = () => {
           ...config,
           prompt: optimizedPrompt?.optimizedPrompt || config.prompt,
           customInstructions: [
-            config.customInstructions || '',
+            config.customInstructions || "",
             ...(optimizedPrompt?.improvements || []),
           ]
             .filter(Boolean)
-            .join(' '),
+            .join(" "),
         };
 
         // Generate content
@@ -471,13 +475,12 @@ const useContentGeneration = () => {
       } catch (_error) {
         // Fallback to standard generation
         // console.error(
-          'Enhanced generation failed, falling back to standard:',
-          error
-        );
+        ("Enhanced generation failed, falling back to standard:", error);
+
         return await generateContent(config);
       }
     },
-    [generateContent, optimizePrompt, analyzeGeneration]
+    [generateContent, optimizePrompt, analyzeGeneration],
   );
 
   // Batch generation for multiple contents
@@ -522,7 +525,7 @@ const useContentGeneration = () => {
         setGenerationQueue([]);
       }
     },
-    [generateContent]
+    [generateContent],
   );
 
   // Load initial data

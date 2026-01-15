@@ -50,12 +50,12 @@ export const createOptimizedConfig = (options = {}) => {
 
       // Bundle analyzer
       enableAnalysis &&
-        visualizer({
-          filename: `dist/bundle-analysis-${appName}.html`,
-          open: true,
-          gzipSize: true,
-          brotliSize: true,
-        }),
+      visualizer({
+        filename: `dist/bundle-analysis-${appName}.html`,
+        open: true,
+        gzipSize: true,
+        brotliSize: true,
+      }),
     ].filter(Boolean),
 
     build: {
@@ -182,12 +182,12 @@ export const createOptimizedConfig = (options = {}) => {
           chunkFileNames: (chunkInfo) => {
             const facadeModuleId = chunkInfo.facadeModuleId
               ? chunkInfo.facadeModuleId
-                  .split('/')
-                  .pop()
-                  .replace('.tsx', '')
-                  .replace('.jsx', '')
-                  .replace('.ts', '')
-                  .replace('.js', '')
+                .split('/')
+                .pop()
+                .replace('.tsx', '')
+                .replace('.jsx', '')
+                .replace('.ts', '')
+                .replace('.js', '')
               : 'chunk';
             return `assets/${facadeModuleId}-[hash].js`;
           },
@@ -295,8 +295,6 @@ export class BundleAnalyzer {
     // console.log("\n🎯 ADVANCED OPTIMIZATION RESULTS');
     // console.log('============================================================');
     // console.log(
-      `⏱️ Build time: ${Date.now() - global.buildStartTime || 'N/A'}ms`,
-    );
     // console.log(`📦 Total bundle size: ${totalSize} KB`);
     // console.log(`🎯 Target size: ${targetSize} KB`);
 
@@ -324,8 +322,8 @@ export class BundleAnalyzer {
 
       if (totalSize > targetSize * 1.5) {
         // console.log(
-          `  • Bundle exceeds target size - consider additional optimizations`,
-        );
+        `  • Bundle exceeds target size - consider additional optimizations`,
+
         // console.log(`    Excess: ${totalSize - targetSize} KB`);
       }
     }

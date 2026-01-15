@@ -13,34 +13,34 @@ import {
   writeFileSync,
   mkdirSync,
   copyFileSync,
-} from 'fs';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
-import { execSync } from 'child_process';
+} from "fs";
+import { join, dirname } from "path";
+import { fileURLToPath } from "url";
+import { execSync } from "child_process";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 class TestInfrastructureGenerator {
   constructor() {
-    this.sharedDir = join(__dirname, '..');
+    this.sharedDir = join(__dirname, "..");
     this.templatePath = join(
       this.sharedDir,
-      'testing',
-      'test-manager.template.js',
+      "testing",
+      "test-manager.template.js",
     );
-    this.appsDir = join(this.sharedDir, '..', 'apps');
+    this.appsDir = join(this.sharedDir, "..", "apps");
 
     // Apps that need unified test infrastructure
-    this.targetApps = ['admin', 'home', 'business', 'personal', 'playback'];
+    this.targetApps = ["admin", "home", "business", "personal", "playback"];
   }
 
   async generateTestManager(appName) {
     // console.log(`🔧 Generating test manager for ${appName} app...`);
 
     const appDir = join(this.appsDir, appName);
-    const srcDir = join(appDir, 'src');
-    const testManagerPath = join(srcDir, 'test-manager.js');
+    const srcDir = join(appDir, "src");
+    const testManagerPath = join(srcDir, "test-manager.js");
 
     if (!existsSync(appDir)) {
       // console.error(`❌ App directory not found: ${appDir}`);
@@ -53,7 +53,7 @@ class TestInfrastructureGenerator {
 
     // Generate app-specific test manager
     const testManagerContent = this.createAppTestManager(appName);
-    writeFileSync(testManagerPath, testManagerContent, 'utf8');
+    writeFileSync(testManagerPath, testManagerContent, "utf8");
 
     // console.log(`✅ Created test manager for ${appName}: ${testManagerPath}`);
     return true;
@@ -393,7 +393,7 @@ export { UnifiedTestManager };`;
     // console.log(`📦 Updating package.json for ${appName} app...`);
 
     const appDir = join(this.appsDir, appName);
-    const packageJsonPath = join(appDir, 'package.json');
+    const packageJsonPath = join(appDir, "package.json");
 
     if (!existsSync(packageJsonPath)) {
       // console.error(`❌ package.json not found: ${packageJsonPath}`);
@@ -401,39 +401,36 @@ export { UnifiedTestManager };`;
     }
 
     try {
-      const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
+      const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8"));
 
       // Replace test scripts with unified system
       const oldScripts = { ...packageJson.scripts };
 
       // Remove old test scripts
-      delete packageJson.scripts['test:run'];
+      delete packageJson.scripts["test:run"];
 
       // Update to unified system
-      packageJson.scripts.test = 'node src/test-manager.js';
-      packageJson.scripts['test:watch'] = 'node src/test-manager.js --watch';
-      packageJson.scripts['test:ui'] = 'node src/test-manager.js --ui';
-      packageJson.scripts['test:coverage'] =
-        'node src/test-manager.js --coverage';
+      packageJson.scripts.test = "node src/test-manager.js";
+      packageJson.scripts["test:watch"] = "node src/test-manager.js --watch";
+      packageJson.scripts["test:ui"] = "node src/test-manager.js --ui";
+      packageJson.scripts["test:coverage"] =
+        "node src/test-manager.js --coverage";
 
       writeFileSync(
         packageJsonPath,
         JSON.stringify(packageJson, null, 2),
-        'utf8',
+        "utf8",
       );
 
       // console.log(`✅ Updated package.json for ${appName}`);
-      // console.log(
-        `   Old scripts: ${Object.keys(oldScripts).filter((k) => k.startsWith('test')).length}`,
-      );
+      //   `   Old scripts: ${Object.keys(oldScripts).filter((k) => k.startsWith('test')).length}`,
+      // );
       // console.log(`   New scripts: 4 unified commands`);
 
       return true;
     } catch (_error) {
       // console.error(
-        `❌ Failed to update package.json for ${appName}:`,
-        error.message,
-      );
+      (`❌ Failed to update package.json for ${appName}:`, error.message);
       return false;
     }
   }

@@ -12,8 +12,8 @@ import {
   ValidationSchema,
   PaginationParams,
   PaginatedResponse,
-} from './BaseService';
-import type { ApiClient } from '../core/ApiClient';
+} from "./BaseService";
+import type { ApiClient } from "../core/ApiClient";
 import type {
   Event,
   CreateEventRequest,
@@ -24,11 +24,11 @@ import type {
   UpdateEventRegistrationRequest,
   EventCategory,
   EventStatus,
-} from '../types';
+} from "../types";
 
 export class EventService extends BaseService {
   constructor(client: ApiClient) {
-    super(client, '/events', 'EventService');
+    super(client, "/events", "EventService");
   }
 
   // ==================== EVENT MANAGEMENT ====================
@@ -41,64 +41,64 @@ export class EventService extends BaseService {
     pagination?: PaginationParams,
   ): Promise<PaginatedResponse<Event>> {
     const schema: ValidationSchema = {
-      'filters.category': {
-        type: 'string',
+      "filters.category": {
+        type: "string",
         required: false,
         validator: (value) => {
           const validCategories: EventCategory[] = [
-            'worship',
-            'social',
-            'education',
-            'outreach',
-            'youth',
-            'children',
-            'seniors',
-            'other',
+            "worship",
+            "social",
+            "education",
+            "outreach",
+            "youth",
+            "children",
+            "seniors",
+            "other",
           ];
           if (value && !validCategories.includes(value)) {
-            return `Invalid category. Must be one of: ${validCategories.join(', ')}`;
+            return `Invalid category. Must be one of: ${validCategories.join(", ")}`;
           }
           return true;
         },
       },
-      'filters.status': {
-        type: 'string',
+      "filters.status": {
+        type: "string",
         required: false,
         validator: (value) => {
           const validStatuses: EventStatus[] = [
-            'draft',
-            'published',
-            'ongoing',
-            'completed',
-            'cancelled',
+            "draft",
+            "published",
+            "ongoing",
+            "completed",
+            "cancelled",
           ];
           if (value && !validStatuses.includes(value)) {
-            return `Invalid status. Must be one of: ${validStatuses.join(', ')}`;
+            return `Invalid status. Must be one of: ${validStatuses.join(", ")}`;
           }
           return true;
         },
       },
-      'filters.churchId': {
-        type: 'string',
+      "filters.churchId": {
+        type: "string",
         required: false,
         minLength: 1,
       },
-      'filters.startDate': {
-        type: 'string',
+      "filters.startDate": {
+        type: "string",
         required: false,
         validator: (value) => {
           if (value && isNaN(Date.parse(value))) {
-            return 'Invalid start date format';
+            return "Invalid start date format";
           }
           return true;
         },
       },
-      'filters.endDate': {
-        type: 'string',
+      "filters.endDate": {
+        type: "string",
         required: false,
         validator: (value) => {
           if (value && isNaN(Date.parse(value))) {
-            return 'Invalid end date format';
+            return "Invalid end date format";
           }
           return true;
         },
@@ -110,7 +110,7 @@ export class EventService extends BaseService {
     const queryParamsObj = new URLSearchParams();
     if (filters) {
       Object.entries(filters).forEach(([key, value]) => {
-        if (value !=== undefined && value !=== null) {
+        if (value !== undefined && value !== null) {
           queryParamsObj.append(key, String(value));
         }
       });
@@ -138,7 +138,7 @@ export class EventService extends BaseService {
   async getEvent(eventId: string): Promise<Event> {
     const schema: ValidationSchema = {
       eventId: {
-        type: 'string',
+        type: "string",
         required: true,
         minLength: 1,
       },
@@ -154,107 +154,107 @@ export class EventService extends BaseService {
   async createEvent(eventData: CreateEventRequest): Promise<Event> {
     const schema: ValidationSchema = {
       title: {
-        type: 'string',
+        type: "string",
         required: true,
         minLength: 2,
         maxLength: 200,
       },
       description: {
-        type: 'string',
+        type: "string",
         required: false,
         maxLength: 2000,
       },
       churchId: {
-        type: 'string',
+        type: "string",
         required: true,
         minLength: 1,
       },
       startDate: {
-        type: 'string',
+        type: "string",
         required: true,
         validator: (value) => {
           if (isNaN(Date.parse(value))) {
-            return 'Invalid start date format';
+            return "Invalid start date format";
           }
           const startDate = new Date(value);
           const now = new Date();
           if (startDate < now) {
-            return 'Start date must be in the future';
+            return "Start date must be in the future";
           }
           return true;
         },
       },
       endDate: {
-        type: 'string',
+        type: "string",
         required: false,
         validator: (value, data) => {
           if (!value) return true;
           if (isNaN(Date.parse(value))) {
-            return 'Invalid end date format';
+            return "Invalid end date format";
           }
           const endDate = new Date(value);
           const startDate = new Date(data.startDate);
           if (endDate <= startDate) {
-            return 'End date must be after start date';
+            return "End date must be after start date";
           }
           return true;
         },
       },
       location: {
-        type: 'string',
+        type: "string",
         required: false,
         maxLength: 500,
       },
       category: {
-        type: 'string',
+        type: "string",
         required: true,
         validator: (value) => {
           const validCategories: EventCategory[] = [
-            'worship',
-            'social',
-            'education',
-            'outreach',
-            'youth',
-            'children',
-            'seniors',
-            'other',
+            "worship",
+            "social",
+            "education",
+            "outreach",
+            "youth",
+            "children",
+            "seniors",
+            "other",
           ];
           if (!validCategories.includes(value)) {
-            return `Invalid category. Must be one of: ${validCategories.join(', ')}`;
+            return `Invalid category. Must be one of: ${validCategories.join(", ")}`;
           }
           return true;
         },
       },
       maxAttendees: {
-        type: 'number',
+        type: "number",
         required: false,
         validator: (value) => {
-          if (value !=== undefined && (value < 1 || value > 10000)) {
-            return 'Max attendees must be between 1 and 10000';
+          if (value !== undefined && (value < 1 || value > 10000)) {
+            return "Max attendees must be between 1 and 10000";
           }
           return true;
         },
       },
       isPublic: {
-        type: 'boolean',
+        type: "boolean",
         required: false,
       },
       requiresRegistration: {
-        type: 'boolean',
+        type: "boolean",
         required: false,
       },
       cost: {
-        type: 'number',
+        type: "number",
         required: false,
         validator: (value) => {
-          if (value !=== undefined && value < 0) {
-            return 'Cost cannot be negative';
+          if (value !== undefined && value < 0) {
+            return "Cost cannot be negative";
           }
           return true;
         },
       },
       organizer: {
-        type: 'string',
+        type: "string",
         required: true,
         minLength: 1,
       },
@@ -273,84 +273,84 @@ export class EventService extends BaseService {
   ): Promise<Event> {
     const schema: ValidationSchema = {
       eventId: {
-        type: 'string',
+        type: "string",
         required: true,
         minLength: 1,
       },
-      'updates.title': {
-        type: 'string',
+      "updates.title": {
+        type: "string",
         required: false,
         minLength: 2,
         maxLength: 200,
       },
-      'updates.description': {
-        type: 'string',
+      "updates.description": {
+        type: "string",
         required: false,
         maxLength: 2000,
       },
-      'updates.startDate': {
-        type: 'string',
+      "updates.startDate": {
+        type: "string",
         required: false,
         validator: (value) => {
           if (value && isNaN(Date.parse(value))) {
-            return 'Invalid start date format';
+            return "Invalid start date format";
           }
           return true;
         },
       },
-      'updates.endDate': {
-        type: 'string',
+      "updates.endDate": {
+        type: "string",
         required: false,
         validator: (value, data) => {
           if (!value) return true;
           if (isNaN(Date.parse(value))) {
-            return 'Invalid end date format';
+            return "Invalid end date format";
           }
           if (data.updates?.startDate) {
             const endDate = new Date(value);
             const startDate = new Date(data.updates.startDate);
             if (endDate <= startDate) {
-              return 'End date must be after start date';
+              return "End date must be after start date";
             }
           }
           return true;
         },
       },
-      'updates.category': {
-        type: 'string',
+      "updates.category": {
+        type: "string",
         required: false,
         validator: (value) => {
           if (!value) return true;
           const validCategories: EventCategory[] = [
-            'worship',
-            'social',
-            'education',
-            'outreach',
-            'youth',
-            'children',
-            'seniors',
-            'other',
+            "worship",
+            "social",
+            "education",
+            "outreach",
+            "youth",
+            "children",
+            "seniors",
+            "other",
           ];
           if (!validCategories.includes(value)) {
-            return `Invalid category. Must be one of: ${validCategories.join(', ')}`;
+            return `Invalid category. Must be one of: ${validCategories.join(", ")}`;
           }
           return true;
         },
       },
-      'updates.status': {
-        type: 'string',
+      "updates.status": {
+        type: "string",
         required: false,
         validator: (value) => {
           if (!value) return true;
           const validStatuses: EventStatus[] = [
-            'draft',
-            'published',
-            'ongoing',
-            'completed',
-            'cancelled',
+            "draft",
+            "published",
+            "ongoing",
+            "completed",
+            "cancelled",
           ];
           if (!validStatuses.includes(value)) {
-            return `Invalid status. Must be one of: ${validStatuses.join(', ')}`;
+            return `Invalid status. Must be one of: ${validStatuses.join(", ")}`;
           }
           return true;
         },
@@ -367,7 +367,7 @@ export class EventService extends BaseService {
   async deleteEvent(eventId: string): Promise<void> {
     const schema: ValidationSchema = {
       eventId: {
-        type: 'string',
+        type: "string",
         required: true,
         minLength: 1,
       },
@@ -384,12 +384,12 @@ export class EventService extends BaseService {
    */
   async searchEvents(
     query: string,
-    filters?: Omit<EventFilters, 'search'>,
+    filters?: Omit<EventFilters, "search">,
     pagination?: PaginationParams,
   ): Promise<PaginatedResponse<Event>> {
     const schema: ValidationSchema = {
       query: {
-        type: 'string',
+        type: "string",
         required: true,
         minLength: 1,
         maxLength: 200,
@@ -399,11 +399,11 @@ export class EventService extends BaseService {
     this.validateRequest({ query }, schema);
 
     const allParams = new URLSearchParams();
-    allParams.append('search', query);
+    allParams.append("search", query);
 
     if (filters) {
       Object.entries(filters).forEach(([key, value]) => {
-        if (value !=== undefined && value !=== null) {
+        if (value !== undefined && value !== null) {
           allParams.append(key, String(value));
         }
       });
@@ -424,7 +424,7 @@ export class EventService extends BaseService {
    * Get public events (events marked as public)
    */
   async getPublicEvents(
-    filters?: Omit<EventFilters, 'isPublic'>,
+    filters?: Omit<EventFilters, "isPublic">,
     pagination?: PaginationParams,
   ): Promise<PaginatedResponse<Event>> {
     return this.getEvents({ ...filters, isPublic: true }, pagination);
@@ -439,7 +439,7 @@ export class EventService extends BaseService {
   ): Promise<PaginatedResponse<Event>> {
     const filters: EventFilters = {
       startDate: new Date().toISOString(),
-      status: 'published',
+      status: "published",
     };
 
     if (churchId) {
@@ -460,7 +460,7 @@ export class EventService extends BaseService {
   ): Promise<PaginatedResponse<EventRegistration>> {
     const schema: ValidationSchema = {
       eventId: {
-        type: 'string',
+        type: "string",
         required: true,
         minLength: 1,
       },
@@ -472,11 +472,11 @@ export class EventService extends BaseService {
     const queryString =
       Object.keys(paginationParams).length > 0
         ? new URLSearchParams(paginationParams).toString()
-        : '';
+        : "";
 
     const endpoint = queryString
       ? this.buildIdEndpoint(eventId, `/registrations?${queryString}`)
-      : this.buildIdEndpoint(eventId, '/registrations');
+      : this.buildIdEndpoint(eventId, "/registrations");
 
     return this.getList<EventRegistration>(endpoint, undefined, {
       cacheTTL: 60000,
@@ -492,27 +492,27 @@ export class EventService extends BaseService {
   ): Promise<EventRegistration> {
     const schema: ValidationSchema = {
       eventId: {
-        type: 'string',
+        type: "string",
         required: true,
         minLength: 1,
       },
-      'registrationData.userId': {
-        type: 'string',
+      "registrationData.userId": {
+        type: "string",
         required: true,
         minLength: 1,
       },
-      'registrationData.attendeeCount': {
-        type: 'number',
+      "registrationData.attendeeCount": {
+        type: "number",
         required: false,
         validator: (value) => {
-          if (value !=== undefined && (value < 1 || value > 20)) {
-            return 'Attendee count must be between 1 and 20';
+          if (value !== undefined && (value < 1 || value > 20)) {
+            return "Attendee count must be between 1 and 20";
           }
           return true;
         },
       },
-      'registrationData.notes': {
-        type: 'string',
+      "registrationData.notes": {
+        type: "string",
         required: false,
         maxLength: 500,
       },
@@ -520,7 +520,7 @@ export class EventService extends BaseService {
 
     this.validateRequest({ eventId, registrationData }, schema);
     return this.post<EventRegistration>(
-      this.buildIdEndpoint(eventId, '/registrations'),
+      this.buildIdEndpoint(eventId, "/registrations"),
       registrationData,
     );
   }
@@ -534,14 +534,14 @@ export class EventService extends BaseService {
     updates: UpdateEventRegistrationRequest,
   ): Promise<EventRegistration> {
     const schema: ValidationSchema = {
-      eventId: { type: 'string', required: true },
-      registrationId: { type: 'string', required: true },
-      'updates.attendeeCount': {
-        type: 'number',
+      eventId: { type: "string", required: true },
+      registrationId: { type: "string", required: true },
+      "updates.attendeeCount": {
+        type: "number",
         required: false,
         validator: (value) => {
-          if (value !=== undefined && (value < 1 || value > 20)) {
-            return 'Attendee count must be between 1 and 20';
+          if (value !== undefined && (value < 1 || value > 20)) {
+            return "Attendee count must be between 1 and 20";
           }
           return true;
         },
@@ -563,8 +563,8 @@ export class EventService extends BaseService {
     registrationId: string,
   ): Promise<void> {
     const schema: ValidationSchema = {
-      eventId: { type: 'string', required: true },
-      registrationId: { type: 'string', required: true },
+      eventId: { type: "string", required: true },
+      registrationId: { type: "string", required: true },
     };
 
     this.validateRequest({ eventId, registrationId }, schema);
@@ -581,7 +581,7 @@ export class EventService extends BaseService {
   async getEventStats(eventId: string): Promise<any> {
     const schema: ValidationSchema = {
       eventId: {
-        type: 'string',
+        type: "string",
         required: true,
         minLength: 1,
       },
@@ -589,7 +589,7 @@ export class EventService extends BaseService {
 
     this.validateRequest({ eventId }, schema);
     return this.get<any>(
-      this.buildIdEndpoint(eventId, '/stats'),
+      this.buildIdEndpoint(eventId, "/stats"),
       { cacheTTL: 300000 }, // 5 minutes cache
     );
   }
@@ -603,7 +603,7 @@ export class EventService extends BaseService {
   ): Promise<any> {
     const schema: ValidationSchema = {
       churchId: {
-        type: 'string',
+        type: "string",
         required: true,
         minLength: 1,
       },
@@ -613,8 +613,8 @@ export class EventService extends BaseService {
 
     const queryParams = new URLSearchParams();
     if (timeRange) {
-      queryParams.append('startDate', timeRange.startDate);
-      queryParams.append('endDate', timeRange.endDate);
+      queryParams.append("startDate", timeRange.startDate);
+      queryParams.append("endDate", timeRange.endDate);
     }
 
     const queryString = queryParams.toString();
@@ -636,7 +636,7 @@ export class EventService extends BaseService {
   ): Promise<{ imageUrl: string }> {
     const schema: ValidationSchema = {
       eventId: {
-        type: 'string',
+        type: "string",
         required: true,
         minLength: 1,
       },
@@ -645,19 +645,20 @@ export class EventService extends BaseService {
     this.validateRequest({ eventId }, schema);
 
     const formData = new FormData();
-    formData.append('image', imageFile);
+    formData.append("image", imageFile);
 
     return this.upload<{ imageUrl: string }>(
-      this.buildIdEndpoint(eventId, '/image'),
+      this.buildIdEndpoint(eventId, "/image"),
       formData,
       {
         onUploadProgress: (progress: ProgressEvent) => {
           // Emit progress event for file upload tracking
-          typeof window !== "undefined" && window.dispatchEvent(
-            new CustomEvent('event-image-upload-progress', {
-              detail: { progress, eventId },
-            }),
-          );
+          typeof window !== "undefined" &&
+            window.dispatchEvent(
+              new CustomEvent("event-image-upload-progress", {
+                detail: { progress, eventId },
+              }),
+            );
         },
       },
     );

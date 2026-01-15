@@ -3,21 +3,21 @@
  * Comprehensive data export functionality with multiple formats
  */
 
-import * as XLSX from 'xlsx';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import * as XLSX from "xlsx";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 class DataExportService {
   constructor() {
-    this.supportedFormats = ['csv', 'xlsx', 'pdf', 'json'];
+    this.supportedFormats = ["csv", "xlsx", "pdf", "json"];
     this.exportHistory = [];
   }
 
   // Export data in specified format
   async exportData(data, format, options = {}) {
     const {
-      filename = `export_${new Date().toISOString().split('T')[0]}`,
-      title = 'Data Export',
+      filename = `export_${new Date().toISOString().split("T")[0]}`,
+      title = "Data Export",
       columns = null,
       filters = {},
       metadata = {},
@@ -30,17 +30,17 @@ class DataExportService {
       // Process data based on format
       let result;
       switch (format.toLowerCase()) {
-        case 'csv':
+        case "csv":
           result = await this.exportToCSV(filteredData, { filename, columns });
           break;
-        case 'xlsx':
+        case "xlsx":
           result = await this.exportToExcel(filteredData, {
             filename,
             columns,
             title,
           });
           break;
-        case 'pdf':
+        case "pdf":
           result = await this.exportToPDF(filteredData, {
             filename,
             columns,
@@ -48,7 +48,7 @@ class DataExportService {
             metadata,
           });
           break;
-        case 'json':
+        case "json":
           result = await this.exportToJSON(filteredData, {
             filename,
             metadata,
@@ -87,7 +87,7 @@ class DataExportService {
 
         const itemValue = this.getNestedValue(item, key);
 
-        if (typeof value === 'object' && value !== null) {
+        if (typeof value === "object" && value !== null) {
           // Handle range filters
           if (value.min !== undefined || value.max !== undefined) {
             const numValue = Number(itemValue);
@@ -113,7 +113,7 @@ class DataExportService {
         }
 
         // Handle string filters
-        if (typeof itemValue === 'string' && typeof value === 'string') {
+        if (typeof itemValue === "string" && typeof value === "string") {
           return itemValue.toLowerCase().includes(value.toLowerCase());
         }
 
@@ -124,7 +124,7 @@ class DataExportService {
 
   // Get nested object value by key path
   getNestedValue(obj, path) {
-    return path.split('.').reduce((current, key) => current?.[key], obj);
+    return path.split(".").reduce((current, key) => current?.[key], obj);
   }
 
   // Export to CSV format
@@ -132,39 +132,39 @@ class DataExportService {
     const { filename, columns } = options;
 
     if (data.length === 0) {
-      throw new Error('No data to export');
+      throw new Error("No data to export");
     }
 
     // Prepare columns
     const exportColumns = columns || Object.keys(data[0]);
 
     // Create CSV content
-    const headers = exportColumns.join(',');
+    const headers = exportColumns.join(",");
     const rows = data.map((item) =>
       exportColumns
         .map((col) => {
           const value = this.getNestedValue(item, col);
           // Escape commas and quotes in CSV
           if (
-            typeof value === 'string' &&
-            (value.includes(',') || value.includes('"'))
+            typeof value === "string" &&
+            (value.includes(",") || value.includes('"'))
           ) {
-            return `'${value.replace(/'/g, '''')}'`;
+            return `'${value.replace(/'/g, "''")}'`;
           }
-          return value || '';
+          return value || "";
         })
-        .join(','),
+        .join(","),
     );
 
-    const csvContent = [headers, ...rows].join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const csvContent = [headers, ...rows].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
 
     const finalFilename = `${filename}.csv`;
     this.downloadBlob(blob, finalFilename);
 
     return {
       filename: finalFilename,
-      format: 'csv',
+      format: "csv",
       size: blob.size,
       recordCount: data.length,
     };
@@ -175,7 +175,7 @@ class DataExportService {
     const { filename, columns, title } = options;
 
     if (data.length === 0) {
-      throw new Error('No data to export');
+      throw new Error("No data to export");
     }
 
     // Prepare columns
@@ -199,13 +199,13 @@ class DataExportService {
     const colWidths = exportColumns.map((col) => ({
       wch: Math.max(col.length, 15),
     }));
-    ws['!cols'] = colWidths;
+    ws["!cols"] = colWidths;
 
     // Add worksheet to workbook
-    XLSX.utils.book_append_sheet(wb, ws, title || 'Data');
+    XLSX.utils.book_append_sheet(wb, ws, title || "Data");
 
     // Generate Excel file
-    const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
     const blob = new Blob([excelBuffer], {
       type: 'application/vnd.openxmlformats-officetypeof document !== "undefined" && document.spreadsheetml.sheet;charset=UTF-8',
     });
@@ -215,7 +215,7 @@ class DataExportService {
 
     return {
       filename: finalFilename,
-      format: 'xlsx',
+      format: "xlsx",
       size: blob.size,
       recordCount: data.length,
     };
@@ -226,7 +226,7 @@ class DataExportService {
     const { filename, columns, title, metadata } = options;
 
     if (data.length === 0) {
-      throw new Error('No data to export');
+      throw new Error("No data to export");
     }
 
     // Prepare columns
@@ -237,7 +237,7 @@ class DataExportService {
 
     // Add title
     doc.setFontSize(16);
-    doc.text(title || 'Data Export', 14, 20);
+    doc.text(title || "Data Export", 14, 20);
 
     // Add metadata
     let yOffset = 35;
@@ -261,7 +261,7 @@ class DataExportService {
     const tableData = data.map((item) =>
       exportColumns.map((col) => {
         const value = this.getNestedValue(item, col);
-        return value?.toString() || '';
+        return value?.toString() || "";
       }),
     );
 
@@ -277,13 +277,13 @@ class DataExportService {
     });
 
     // Save PDF
-    const pdfBlob = doc.output('blob');
+    const pdfBlob = doc.output("blob");
     const finalFilename = `${filename}.pdf`;
     this.downloadBlob(pdfBlob, finalFilename);
 
     return {
       filename: finalFilename,
-      format: 'pdf',
+      format: "pdf",
       size: pdfBlob.size,
       recordCount: data.length,
     };
@@ -304,7 +304,7 @@ class DataExportService {
 
     const jsonContent = JSON.stringify(exportData, null, 2);
     const blob = new Blob([jsonContent], {
-      type: 'application/json;charset=utf-8;',
+      type: "application/json;charset=utf-8;",
     });
 
     const finalFilename = `${filename}.json`;
@@ -312,7 +312,7 @@ class DataExportService {
 
     return {
       filename: finalFilename,
-      format: 'json',
+      format: "json",
       size: blob.size,
       recordCount: data.length,
     };
@@ -320,12 +320,19 @@ class DataExportService {
 
   // Download blob as file
   downloadBlob(blob, filename) {
-    if (typeof window !== "undefined" && window.typeof navigator !== "undefined" && navigator.msSaveOrOpenBlob) {
+    if (
+      typeof window !== "undefined" &&
+      typeof navigator !== "undefined" &&
+      navigator.msSaveOrOpenBlob
+    ) {
       // IE/Edge
-      typeof window !== "undefined" && window.typeof navigator !== "undefined" && navigator.msSaveOrOpenBlob(blob, filename);
+      typeof window !== "undefined" &&
+        typeof navigator !== "undefined" &&
+        navigator.msSaveOrOpenBlob(blob, filename);
     } else {
       // Other browsers
-      const link = typeof document !== "undefined" && document.createElement('a');
+      const link =
+        typeof document !== "undefined" && document.createElement("a");
       const url = URL.createObjectURL(blob);
       link.href = url;
       link.download = filename;
@@ -347,7 +354,11 @@ class DataExportService {
 
     // Save to localStorage
     try {
-      typeof localStorage !== "undefined" && localStorage.setItem('exportHistory', JSON.stringify(this.exportHistory));
+      typeof localStorage !== "undefined" &&
+        localStorage.setItem(
+          "exportHistory",
+          JSON.stringify(this.exportHistory),
+        );
     } catch (_error) {
       // console.warn('Failed to save export history:', error);
     }
@@ -356,7 +367,9 @@ class DataExportService {
   // Load export history from localStorage
   loadExportHistory() {
     try {
-      const stored = typeof localStorage !== "undefined" && localStorage.getItem('exportHistory');
+      const stored =
+        typeof localStorage !== "undefined" &&
+        localStorage.getItem("exportHistory");
       if (stored) {
         this.exportHistory = JSON.parse(stored);
       }
@@ -374,7 +387,8 @@ class DataExportService {
   // Clear export history
   clearExportHistory() {
     this.exportHistory = [];
-    typeof localStorage !== "undefined" && localStorage.removeItem('exportHistory');
+    typeof localStorage !== "undefined" &&
+      localStorage.removeItem("exportHistory");
   }
 
   // Get supported formats
@@ -385,17 +399,17 @@ class DataExportService {
   // Validate export parameters
   validateExportParams(data, format) {
     if (!Array.isArray(data)) {
-      throw new Error('Data must be an array');
+      throw new Error("Data must be an array");
     }
 
     if (!this.supportedFormats.includes(format.toLowerCase())) {
       throw new Error(
-        `Unsupported format: ${format}. Supported formats: ${this.supportedFormats.join(', ')}`,
+        `Unsupported format: ${format}. Supported formats: ${this.supportedFormats.join(", ")}`,
       );
     }
 
     if (data.length === 0) {
-      throw new Error('No data to export");
+      throw new Error("No data to export");
     }
 
     return true;

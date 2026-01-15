@@ -90,7 +90,7 @@ class UnifiedTestManager {
       return this.discoveredSuites;
     }
 
-    // console.log(`🔍 Discovering test suites for ${this.appName}...`);
+    // console.log(`[SEARCH] Discovering test suites for ${this.appName}...`);
 
     try {
       // Discover feature-based test suites
@@ -158,7 +158,7 @@ class UnifiedTestManager {
         }
       }
     } catch (_error) {
-      // console.error('❌ Error discovering test suites:', error.message);
+      // console.error('[ERROR] Error discovering test suites:', error.message);
     }
 
     return this.discoveredSuites;
@@ -192,45 +192,45 @@ class UnifiedTestManager {
 
   showHelp() {
     // console.log(`
-🧪 UNIFIED TEST MANAGEMENT SYSTEM - ${this.appName.toUpperCase()}
+    // [TEST] UNIFIED TEST MANAGEMENT SYSTEM - ${this.appName.toUpperCase()}
 
-USAGE:
-  npm test [feature] [options]
-  npm test [mode] [options]
+    USAGE:
+  npm test[feature][options]
+  npm test[mode][options]
 
-FEATURE TESTING:
-  npm test [feature]              # All tests for specific feature
-  npm test [feature] --unit       # Feature unit tests only
-  npm test [feature] --integration # Feature integration tests
-  npm test general               # General/shared tests
+      // FEATURE TESTING:
+      //   npm test [feature]              # All tests for specific feature
+      //   npm test [feature] --unit       # Feature unit tests only
+      //   npm test [feature] --integration # Feature integration tests
+      //   npm test general               # General / shared tests
 
-MODE TESTING:
-  npm test --memory              # Memory-optimized tests
-  npm test --critical            # Critical functionality tests
-  npm test --comprehensive       # Full comprehensive suite
+      // MODE TESTING:
+      //   npm test --memory              # Memory - optimized tests
+      //   npm test --critical            # Critical functionality tests
+      //   npm test --comprehensive       # Full comprehensive suite
 
-SCOPE OPTIONS:
-  --all, -a                      # Run all available tests
-  --changed                      # Run tests for changed files only
-  --quick, -q                    # Fast execution with fail-fast
+      // SCOPE OPTIONS:
+      //     --all, -a                      # Run all available tests
+      //     --changed                      # Run tests for changed files only
+      //   --quick, -q                    # Fast execution with fail - fast
 
-TEST TYPE OPTIONS:
-  --unit                         # Unit tests only
-  --integration                  # Integration tests only
-  --e2e                         # End-to-end tests only
+      // TEST TYPE OPTIONS:
+      //     --unit                         # Unit tests only
+      //     --integration                  # Integration tests only
+      //     --e2e                         # End - to - end tests only
 
-EXECUTION OPTIONS:
-  --watch, -w                    # Watch mode
-  --ui                          # Open test UI
-  --coverage, -c                 # Generate coverage report
-  --verbose, -v                  # Verbose output
-  --help, -h                     # Show this help
-
-EXAMPLES:
-  npm test auth --unit --coverage        # Auth unit tests with coverage
-  npm test --all --verbose              # All tests with details
-  npm test --changed --watch            # Watch changed files
-    `);
+      // EXECUTION OPTIONS:
+      //     --watch, -w                    # Watch mode
+      //     --ui                          # Open test UI
+      //     --coverage, -c                 # Generate coverage report
+      //     --verbose, -v                  # Verbose output
+      //     --help, -h                     # Show this help
+      //
+      //     EXAMPLES:
+      //   npm test auth --unit --coverage        # Auth unit tests with coverage
+      //   npm test --all --verbose              # All tests with details
+      //   npm test --changed --watch            # Watch changed files
+      `);
   }
 
   async run() {
@@ -271,17 +271,17 @@ EXAMPLES:
   async runFeatureTests(featureName) {
     const suite = this.discoveredSuites.get(featureName);
     if (!suite) {
-      // console.error(`❌ Feature '${featureName}' not found.`);
-      // console.log("\n📋 Available features:');
+      // console.error("[ERROR] Feature '" + featureName + "' not found.");
+      // console.log("\n[INFO] Available features:");
       for (const [name, info] of this.discoveredSuites) {
         if (info.type === 'feature') {
-          // console.log(`   • ${name}`);
+          // console.log(`   * ${ name } `);
         }
       }
       return;
     }
 
-    // console.log(`🧪 Running ${featureName} tests...`);
+    // console.log(`[TEST] Running ${ featureName } tests...`);
 
     let command = 'npx vitest run';
 
@@ -297,35 +297,35 @@ EXAMPLES:
     try {
       execSync(command, { stdio: 'inherit', cwd: process.cwd() });
     } catch {
-      // console.error(`❌ Tests failed for ${featureName}`);
+      // console.error(`[ERROR] Tests failed for ${ featureName }`);
       process.exit(1);
     }
   }
 
   async runModeTests(mode) {
     const suite =
-      this.discoveredSuites.get(`${mode}-modes`) ||
+      this.discoveredSuites.get(`${ mode } -modes`) ||
       this.discoveredSuites.get('memory-modes');
 
     if (!suite) {
-      // console.error(`❌ Mode runner for '${mode}' not found.`);
+      // console.error(`[ERROR] Mode runner for '${mode}' not found.`);
       return;
     }
 
-    // console.log(`🧪 Running ${mode} mode tests...`);
+    // console.log(`[TEST] Running ${ mode } mode tests...`);
 
-    const command = `node '${suite.path}' --mode ${mode}`;
+    const command = `node '${suite.path}' --mode ${ mode } `;
 
     try {
       execSync(command, { stdio: 'inherit', cwd: process.cwd() });
     } catch {
-      // console.error(`❌ Tests failed for ${mode} mode`);
+      // console.error(`[ERROR] Tests failed for ${ mode } mode`);
       process.exit(1);
     }
   }
 
   async runAllTests() {
-    // console.log(`🚀 Running all available tests for ${this.appName}...`);
+    // console.log(`[START] Running all available tests for ${ this.appName }...`);
 
     let command = 'npx vitest run';
     if (this.options.coverage) command += ' --coverage';
@@ -334,25 +334,25 @@ EXAMPLES:
     try {
       execSync(command, { stdio: 'inherit', cwd: process.cwd() });
     } catch {
-      // console.error('❌ Some tests failed');
+      // console.error('[ERROR] Some tests failed');
       process.exit(1);
     }
   }
 
   runUIMode() {
-    // console.log(`🖥️  Opening test UI for ${this.appName}...`);
+    // console.log(`[UI] Opening test UI for ${ this.appName }...`);
     const command = 'npx vitest --ui';
     execSync(command, { stdio: 'inherit', cwd: process.cwd() });
   }
 
   runWatchMode() {
-    // console.log(`👀 Starting watch mode for ${this.appName}...`);
+    // console.log(`[WATCH] Starting watch mode for ${ this.appName }...`);
     const command = 'npx vitest --watch';
     execSync(command, { stdio: 'inherit', cwd: process.cwd() });
   }
 
   runChangedTests() {
-    // console.log(`📊 Running tests for changed files in ${this.appName}...`);
+    // console.log(`[CHANGED] Running tests for changed files in ${ this.appName }...`);
     const command = 'npx vitest --changed';
     execSync(command, { stdio: 'inherit', cwd: process.cwd() });
   }
@@ -363,8 +363,8 @@ EXAMPLES:
     if (this.options.coverage) command += ' --coverage';
     if (this.options.type === 'unit') command += ' src/**/*.test.{js,jsx}';
 
-    // console.log(`🧪 Running default tests for ${this.appName}: ${command}`);
-    execSync(command, { stdio: 'inherit", cwd: process.cwd() });
+    // console.log(`[TEST] Running default tests for ${ this.appName }: ${ command } `);
+    execSync(command, { stdio: 'inherit', cwd: process.cwd() });
   }
 }
 

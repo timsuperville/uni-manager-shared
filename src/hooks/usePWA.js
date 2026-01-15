@@ -5,8 +5,8 @@
  * Provides easy access to PWA functionality in React components
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react';
-import pwaInitializationService from '../services/PWAInitializationService.js';
+import { useState, useEffect, useCallback, useRef } from "react";
+import pwaInitializationService from "../services/PWAInitializationService.js";
 
 /**
  * Custom hook for PWA functionality
@@ -68,19 +68,32 @@ export function usePWA(options = {}) {
     };
 
     // Add event listeners
-    typeof window !== "undefined" && window.addEventListener('online', handleOnline);
-    typeof window !== "undefined" && window.addEventListener('offline', handleOffline);
-    typeof window !== "undefined" && window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    typeof window !== "undefined" && window.addEventListener('appinstalled', handleAppInstalled);
-    typeof window !== "undefined" && window.addEventListener('connectionchange', handleConnectionChange);
+    typeof window !== "undefined" &&
+      window.addEventListener("online", handleOnline);
+    typeof window !== "undefined" &&
+      window.addEventListener("offline", handleOffline);
+    typeof window !== "undefined" &&
+      window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    typeof window !== "undefined" &&
+      window.addEventListener("appinstalled", handleAppInstalled);
+    typeof window !== "undefined" &&
+      window.addEventListener("connectionchange", handleConnectionChange);
 
     // Cleanup
     return () => {
-      typeof window !== "undefined" && window.removeEventListener('online', handleOnline);
-      typeof window !== "undefined" && window.removeEventListener('offline', handleOffline);
-      typeof window !== "undefined" && window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-      typeof window !== "undefined" && window.removeEventListener('appinstalled', handleAppInstalled);
-      typeof window !== "undefined" && window.removeEventListener('connectionchange', handleConnectionChange);
+      typeof window !== "undefined" &&
+        window.removeEventListener("online", handleOnline);
+      typeof window !== "undefined" &&
+        window.removeEventListener("offline", handleOffline);
+      typeof window !== "undefined" &&
+        window.removeEventListener(
+          "beforeinstallprompt",
+          handleBeforeInstallPrompt,
+        );
+      typeof window !== "undefined" &&
+        window.removeEventListener("appinstalled", handleAppInstalled);
+      typeof window !== "undefined" &&
+        window.removeEventListener("connectionchange", handleConnectionChange);
     };
   }, [isInitialized]);
 
@@ -88,13 +101,13 @@ export function usePWA(options = {}) {
   const installApp = useCallback(async () => {
     try {
       if (!installPrompt) {
-        throw new Error('No install prompt available');
+        throw new Error("No install prompt available");
       }
 
       const result = await installPrompt.prompt();
       // console.log('Install prompt result:', result.outcome);
 
-      if (result.outcome === 'accepted') {
+      if (result.outcome === "accepted") {
         setInstallPrompt(null);
         setIsInstallable(false);
       }
@@ -110,7 +123,7 @@ export function usePWA(options = {}) {
   const addToSyncQueue = useCallback(async (action, data) => {
     try {
       if (!pwaManagerRef.current) {
-        throw new Error('PWA not initialized');
+        throw new Error("PWA not initialized");
       }
 
       const syncId = await pwaManagerRef.current.addToSyncQueue(action, data);
@@ -130,20 +143,23 @@ export function usePWA(options = {}) {
   const showNotification = useCallback(async (title, options = {}) => {
     try {
       if (!pwaManagerRef.current) {
-        throw new Error('PWA not initialized');
+        throw new Error("PWA not initialized");
       }
 
-      const result = await pwaManagerRef.current.showNotification(title, options);
+      const result = await pwaManagerRef.current.showNotification(
+        title,
+        options,
+      );
 
       // Add to local notifications list for UI display
       const notification = {
         id: Date.now(),
         title,
         ...options,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
 
-      setNotifications(prev => [notification, ...prev.slice(0, 9)]); // Keep last 10
+      setNotifications((prev) => [notification, ...prev.slice(0, 9)]); // Keep last 10
 
       return result;
     } catch (_error) {
@@ -156,7 +172,7 @@ export function usePWA(options = {}) {
   const cacheResource = useCallback(async (url) => {
     try {
       if (!pwaManagerRef.current) {
-        throw new Error('PWA not initialized');
+        throw new Error("PWA not initialized");
       }
 
       await pwaManagerRef.current.cacheResource(url);
@@ -171,7 +187,7 @@ export function usePWA(options = {}) {
   const checkForUpdates = useCallback(async () => {
     try {
       if (!pwaManagerRef.current) {
-        throw new Error('PWA not initialized');
+        throw new Error("PWA not initialized");
       }
 
       await pwaManagerRef.current.checkForUpdates();
@@ -189,7 +205,7 @@ export function usePWA(options = {}) {
   const applyUpdate = useCallback(async () => {
     try {
       if (!pwaManagerRef.current) {
-        throw new Error('PWA not initialized');
+        throw new Error("PWA not initialized");
       }
 
       await pwaManagerRef.current.applyUpdate();
@@ -208,7 +224,7 @@ export function usePWA(options = {}) {
         serviceWorkerReady: false,
         updateAvailable: false,
         notificationsEnabled: false,
-        syncQueueLength: 0
+        syncQueueLength: 0,
       };
     }
 
@@ -222,7 +238,7 @@ export function usePWA(options = {}) {
 
   // Dismiss notification function
   const dismissNotification = useCallback((notificationId) => {
-    setNotifications(prev => prev.filter(n => n.id !== notificationId));
+    setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
   }, []);
 
   return {
@@ -243,7 +259,7 @@ export function usePWA(options = {}) {
     applyUpdate,
     getStatus,
     clearNotifications,
-    dismissNotification
+    dismissNotification,
   };
 }
 
@@ -258,12 +274,16 @@ export function useOffline() {
     const handleOnline = () => setIsOffline(false);
     const handleOffline = () => setIsOffline(true);
 
-    typeof window !== "undefined" && window.addEventListener('online', handleOnline);
-    typeof window !== "undefined" && window.addEventListener('offline', handleOffline);
+    typeof window !== "undefined" &&
+      window.addEventListener("online", handleOnline);
+    typeof window !== "undefined" &&
+      window.addEventListener("offline", handleOffline);
 
     return () => {
-      typeof window !== "undefined" && window.removeEventListener('online', handleOnline);
-      typeof window !== "undefined" && window.removeEventListener('offline', handleOffline);
+      typeof window !== "undefined" &&
+        window.removeEventListener("online", handleOnline);
+      typeof window !== "undefined" &&
+        window.removeEventListener("offline", handleOffline);
     };
   }, []);
 
@@ -272,16 +292,21 @@ export function useOffline() {
       id: Date.now(),
       action,
       data,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
 
-    setOfflineQueue(prev => [...prev, queueItem]);
+    setOfflineQueue((prev) => [...prev, queueItem]);
 
     // Store in localStorage for persistence
     try {
-      const stored = JSON.parse(typeof localStorage !== "undefined" && localStorage.getItem('offlineQueue') || '[]');
+      const stored = JSON.parse(
+        (typeof localStorage !== "undefined" &&
+          localStorage.getItem("offlineQueue")) ||
+          "[]",
+      );
       stored.push(queueItem);
-      typeof localStorage !== "undefined" && localStorage.setItem('offlineQueue', JSON.stringify(stored));
+      typeof localStorage !== "undefined" &&
+        localStorage.setItem("offlineQueue", JSON.stringify(stored));
     } catch (_error) {
       // console.error('Failed to store offline queue item:', error);
     }
@@ -311,7 +336,8 @@ export function useOffline() {
 
     // Update localStorage
     try {
-      typeof localStorage !== "undefined" && localStorage.setItem('offlineQueue', JSON.stringify(remainingItems));
+      typeof localStorage !== "undefined" &&
+        localStorage.setItem("offlineQueue", JSON.stringify(remainingItems));
     } catch (_error) {
       // console.error('Failed to update offline queue in storage:', error);
     }
@@ -322,7 +348,8 @@ export function useOffline() {
   const clearOfflineQueue = useCallback(() => {
     setOfflineQueue([]);
     try {
-      typeof localStorage !== "undefined" && localStorage.removeItem('offlineQueue');
+      typeof localStorage !== "undefined" &&
+        localStorage.removeItem("offlineQueue");
     } catch (_error) {
       // console.error('Failed to clear offline queue from storage:', error);
     }
@@ -338,7 +365,11 @@ export function useOffline() {
   // Load offline queue from localStorage on mount
   useEffect(() => {
     try {
-      const stored = JSON.parse(typeof localStorage !== "undefined" && localStorage.getItem('offlineQueue') || '[]');
+      const stored = JSON.parse(
+        (typeof localStorage !== "undefined" &&
+          localStorage.getItem("offlineQueue")) ||
+          "[]",
+      );
       setOfflineQueue(stored);
     } catch (_error) {
       // console.error('Failed to load offline queue from storage:', error);
@@ -350,7 +381,7 @@ export function useOffline() {
     offlineQueue,
     addToOfflineQueue,
     processOfflineQueue,
-    clearOfflineQueue
+    clearOfflineQueue,
   };
 }
 
@@ -375,29 +406,41 @@ export function useAppInstall() {
       setIsInstalled(true);
     };
 
-    typeof window !== "undefined" && window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    typeof window !== "undefined" && window.addEventListener('appinstalled', handleAppInstalled);
+    typeof window !== "undefined" &&
+      window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    typeof window !== "undefined" &&
+      window.addEventListener("appinstalled", handleAppInstalled);
 
     // Check if already installed
-    if (typeof window !== "undefined" && window.matchMedia('(display-mode: standalone)').matches ||
-        typeof window !== "undefined" && window.typeof navigator !== "undefined" && navigator.standalone === true) {
+    if (
+      (typeof window !== "undefined" &&
+        window.matchMedia("(display-mode: standalone)").matches) ||
+      (typeof window !== "undefined" &&
+        typeof navigator !== "undefined" &&
+        navigator.standalone === true)
+    ) {
       setIsInstalled(true);
     }
 
     return () => {
-      typeof window !== "undefined" && window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-      typeof window !== "undefined" && window.removeEventListener('appinstalled', handleAppInstalled);
+      typeof window !== "undefined" &&
+        window.removeEventListener(
+          "beforeinstallprompt",
+          handleBeforeInstallPrompt,
+        );
+      typeof window !== "undefined" &&
+        window.removeEventListener("appinstalled", handleAppInstalled);
     };
   }, []);
 
   const installApp = useCallback(async () => {
     if (!installPrompt) {
-      throw new Error('App is not installable');
+      throw new Error("App is not installable");
     }
 
     const result = await installPrompt.prompt();
 
-    if (result.outcome === 'accepted') {
+    if (result.outcome === "accepted") {
       setInstallPrompt(null);
       setIsInstallable(false);
     }
@@ -408,7 +451,7 @@ export function useAppInstall() {
   return {
     isInstallable,
     isInstalled,
-    installApp
+    installApp,
   };
 }
 
@@ -417,49 +460,54 @@ export function useAppInstall() {
  */
 async function processOfflineAction(action, data) {
   // Determine API endpoint and method based on action
-  let endpoint = '';
-  let method = 'POST';
+  let endpoint = "";
+  let method = "POST";
 
   switch (action) {
-  case 'createService':
-    endpoint = '/church/services';
-    break;
-  case 'updateProfile':
-    endpoint = '/user/profile';
-    method = 'PUT';
-    break;
-  case 'addFamilyMember':
-    endpoint = '/home/family/members';
-    break;
-  case 'submitFeedback':
-    endpoint = '/feedback/submit';
-    break;
-  case 'createBudgetEntry':
-    endpoint = '/home/budget/entries';
-    break;
-  case 'updateProject':
-    endpoint = '/business/projects';
-    method = 'PUT';
-    break;
-  default:
-    throw new Error(`Unknown offline action: ${action}`);
+    case "createService":
+      endpoint = "/church/services";
+      break;
+    case "updateProfile":
+      endpoint = "/user/profile";
+      method = "PUT";
+      break;
+    case "addFamilyMember":
+      endpoint = "/home/family/members";
+      break;
+    case "submitFeedback":
+      endpoint = "/feedback/submit";
+      break;
+    case "createBudgetEntry":
+      endpoint = "/home/budget/entries";
+      break;
+    case "updateProject":
+      endpoint = "/business/projects";
+      method = "PUT";
+      break;
+    default:
+      throw new Error(`Unknown offline action: ${action}`);
   }
 
   // Get auth token
-  const authToken = typeof localStorage !== "undefined" && localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+  const authToken =
+    (typeof localStorage !== "undefined" &&
+      localStorage.getItem("authToken")) ||
+    sessionStorage.getItem("authToken");
 
   // Make the request
   const response = await fetch(endpoint, {
     method: method,
     headers: {
-      'Content-Type': 'application/json',
-      'Authorization': authToken ? `Bearer ${authToken}` : ''
+      "Content-Type": "application/json",
+      Authorization: authToken ? `Bearer ${authToken}` : "",
     },
-    body: JSON.stringify(data)
+    body: JSON.stringify(data),
   });
 
   if (!response.ok) {
-    throw new Error(`Request failed: ${response.status} ${response.statusText}`);
+    throw new Error(
+      `Request failed: ${response.status} ${response.statusText}`,
+    );
   }
 
   return await response.json();
