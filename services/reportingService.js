@@ -3,7 +3,7 @@
  * Handles communication with the backend reporting API
  */
 
-import { apiClient } from '../utils/apiClient';
+import { apiClient } from "../utils/apiClient";
 
 class ReportingService {
   /**
@@ -13,9 +13,9 @@ class ReportingService {
     try {
       const params = new URLSearchParams();
 
-      if (filters.category) params.append('category', filters.category);
-      if (filters.type) params.append('type', filters.type);
-      if (filters.active !== undefined) params.append('active', filters.active);
+      if (filters.category) params.append("category", filters.category);
+      if (filters.type) params.append("type", filters.type);
+      if (filters.active !== undefined) params.append("active", filters.active);
 
       const response = await apiClient.get(`/api/reporting/reports?${params}`);
       return response.data;
@@ -45,10 +45,7 @@ class ReportingService {
    */
   async createReport(reportData) {
     try {
-      const response = await apiClient.post(
-        '/shared/reports',
-        reportData,
-      );
+      const response = await apiClient.post("/shared/reports", reportData);
       return response.data;
     } catch (_error) {
       // console.error('Error creating report:', error);
@@ -93,7 +90,7 @@ class ReportingService {
         `/api/reporting/reports/${reportId}/generate`,
         {
           parameters,
-          format: parameters.format || 'pdf',
+          format: parameters.format || "pdf",
         },
       );
       return response.data;
@@ -121,13 +118,13 @@ class ReportingService {
   /**
    * Download a generated report
    */
-  async downloadReport(reportId, format = 'pdf') {
+  async downloadReport(reportId, format = "pdf") {
     try {
       const response = await apiClient.get(
         `/api/reporting/reports/${reportId}/download`,
         {
           params: { format },
-          responseType: 'blob',
+          responseType: "blob",
         },
       );
 
@@ -168,8 +165,8 @@ class ReportingService {
     try {
       const params = new URLSearchParams();
 
-      if (filters.category) params.append('category', filters.category);
-      if (filters.type) params.append('type', filters.type);
+      if (filters.category) params.append("category", filters.category);
+      if (filters.type) params.append("type", filters.type);
 
       const response = await apiClient.get(
         `/api/reporting/templates?${params}`,
@@ -202,7 +199,7 @@ class ReportingService {
   async createTemplate(templateData) {
     try {
       const response = await apiClient.post(
-        '/shared/report-templates',
+        "/shared/report-templates",
         templateData,
       );
       return response.data;
@@ -243,7 +240,7 @@ class ReportingService {
   /**
    * Preview a template with sample data
    */
-  async previewTemplate(templateId, sampleData = {}, format = 'html') {
+  async previewTemplate(templateId, sampleData = {}, format = "html") {
     try {
       const response = await apiClient.post(
         `/api/reporting/templates/${templateId}/preview`,
@@ -277,7 +274,7 @@ class ReportingService {
   /**
    * Get report analytics and metrics
    */
-  async getReportAnalytics(period = '30d') {
+  async getReportAnalytics(period = "30d") {
     try {
       const response = await apiClient.get(
         `/api/reporting/analytics?period=${period}`,
@@ -310,7 +307,7 @@ class ReportingService {
    */
   async getScheduledReports() {
     try {
-      const response = await apiClient.get('/shared/scheduled-reports');
+      const response = await apiClient.get("/shared/scheduled-reports");
       return response.data;
     } catch (_error) {
       // console.error('Error fetching scheduled reports:', error);
@@ -336,7 +333,7 @@ class ReportingService {
   async validateReport(reportData) {
     try {
       const response = await apiClient.post(
-        '/shared/report-validation',
+        "/shared/report-validation",
         reportData,
       );
       return response.data;
@@ -351,7 +348,7 @@ class ReportingService {
    */
   async getDataSources() {
     try {
-      const response = await apiClient.get('/shared/data-sources');
+      const response = await apiClient.get("/shared/data-sources");
       return response.data;
     } catch (_error) {
       // console.error('Error fetching data sources:', error);
@@ -365,7 +362,7 @@ class ReportingService {
   async testDataSource(dataSourceConfig) {
     try {
       const response = await apiClient.post(
-        '/shared/data-sources/test',
+        "/shared/data-sources/test",
         dataSourceConfig,
       );
       return response.data;
@@ -380,7 +377,7 @@ class ReportingService {
    */
   async getDataSourceFields(dataSourceId, table = null) {
     try {
-      const params = table ? `?table=${table}` : '';
+      const params = table ? `?table=${table}` : "";
       const response = await apiClient.get(
         `/api/reporting/data-sources/${dataSourceId}/fields${params}`,
       );
@@ -449,10 +446,10 @@ class ReportingService {
       const response = await apiClient.get(
         `/api/reporting/reports/${reportId}/export`,
         {
-          responseType: 'blob',
+          responseType: "blob",
         },
       );
-      return new Blob([response.data], { type: 'application/json' });
+      return new Blob([response.data], { type: "application/json" });
     } catch (_error) {
       // console.error('Error exporting report config:', error);
       throw error;
@@ -465,14 +462,14 @@ class ReportingService {
   async importReportConfig(configFile) {
     try {
       const formData = new FormData();
-      formData.append('config', configFile);
+      formData.append("config", configFile);
 
       const response = await apiClient.post(
-        '/shared/reports/import',
+        "/shared/reports/import",
         formData,
         {
           headers: {
-            'Content-Type': 'multipart/form-data',
+            "Content-Type": "multipart/form-data",
           },
         },
       );
@@ -488,14 +485,14 @@ class ReportingService {
    */
   getContentType(format) {
     const contentTypes = {
-      pdf: 'application/pdf',
+      pdf: "application/pdf",
       excel:
         'application/vnd.openxmlformats-officetypeof document !== "undefined" && document.spreadsheetml.sheet',
-      csv: 'text/csv',
-      json: 'application/json',
-      html: 'text/html',
+      csv: "text/csv",
+      json: "application/json",
+      html: "text/html",
     };
-    return contentTypes[format] || 'application/octet-stream';
+    return contentTypes[format] || "application/octet-stream";
   }
 
   /**
@@ -503,9 +500,9 @@ class ReportingService {
    */
   generateFilename(reportName, format, timestamp = null) {
     const date = timestamp ? new Date(timestamp) : new Date();
-    const dateStr = date.toISOString().split('T')[0];
+    const dateStr = date.toISOString().split("T")[0];
     const sanitizedName = reportName
-      .replace(/[^a-zA-Z0-9]/g, '_')
+      .replace(/[^a-zA-Z0-9]/g, "_")
       .toLowerCase();
     return `${sanitizedName}_${dateStr}.${format}`;
   }
@@ -514,13 +511,13 @@ class ReportingService {
    * Format report size
    */
   formatFileSize(bytes) {
-    if (bytes === 0) return '0 Bytes';
+    if (bytes === 0) return "0 Bytes";
 
     const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
 
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   }
 
   /**
@@ -541,12 +538,12 @@ class ReportingService {
 
       if (
         paramDef.required &&
-        (value === undefined || value === null || value === '')
+        (value === undefined || value === null || value === "")
       ) {
         errors.push(`${paramDef.label || paramDef.name} is required`);
       }
 
-      if (value && paramDef.type === 'date') {
+      if (value && paramDef.type === "date") {
         const date = new Date(value);
         if (isNaN(date.getTime())) {
           errors.push(
@@ -555,7 +552,7 @@ class ReportingService {
         }
       }
 
-      if (value && paramDef.type === 'number') {
+      if (value && paramDef.type === "number") {
         if (isNaN(Number(value))) {
           errors.push(
             `${paramDef.label || paramDef.name} must be a valid number`,

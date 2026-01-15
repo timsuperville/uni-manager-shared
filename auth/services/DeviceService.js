@@ -34,15 +34,15 @@ class DeviceService {
    */
   loadDeviceId() {
     try {
-      const stored = localStorage.getItem('uni_manager_device_id');
+      const stored = localStorage.getItem("uni_manager_device_id");
       if (stored) {
         this.deviceId = stored;
       } else {
         this.deviceId = this.generateDeviceId();
-        localStorage.setItem('uni_manager_device_id', this.deviceId);
+        localStorage.setItem("uni_manager_device_id", this.deviceId);
       }
     } catch (err) {
-      console.error('Failed to load device ID:', err);
+      console.error("Failed to load device ID:", err);
       this.deviceId = this.generateDeviceId();
     }
   }
@@ -65,18 +65,18 @@ class DeviceService {
   generateFingerprint() {
     try {
       const components = [
-        navigator.userAgent || 'unknown',
-        navigator.language || 'unknown',
+        navigator.userAgent || "unknown",
+        navigator.language || "unknown",
         new Date().getTimezoneOffset(),
-        navigator.hardwareConcurrency || 'unknown',
-        navigator.deviceMemory || 'unknown',
+        navigator.hardwareConcurrency || "unknown",
+        navigator.deviceMemory || "unknown",
       ];
 
-      const fingerprint = components.join('|');
+      const fingerprint = components.join("|");
       const hash = this.hashString(fingerprint);
       this.deviceFingerprint = hash;
     } catch (err) {
-      console.error('Failed to generate fingerprint:', err);
+      console.error("Failed to generate fingerprint:", err);
       this.deviceFingerprint = this.generateDeviceId();
     }
   }
@@ -89,15 +89,15 @@ class DeviceService {
     try {
       this.deviceInfo = {
         deviceId: this.deviceId,
-        userAgent: navigator.userAgent || 'unknown',
-        language: navigator.language || 'unknown',
+        userAgent: navigator.userAgent || "unknown",
+        language: navigator.language || "unknown",
         timezone: new Date().getTimezoneOffset(),
         screenResolution: `${window.innerWidth}x${window.innerHeight}`,
-        platform: navigator.platform || 'unknown',
+        platform: navigator.platform || "unknown",
         timestamp: new Date().toISOString(),
       };
     } catch (err) {
-      console.error('Failed to collect device info:', err);
+      console.error("Failed to collect device info:", err);
       this.deviceInfo = {
         deviceId: this.deviceId,
         timestamp: new Date().toISOString(),
@@ -135,9 +135,9 @@ class DeviceService {
   trustDevice() {
     this.isTrusted = true;
     try {
-      localStorage.setItem(`uni_manager_trusted_${this.deviceId}`, 'true');
+      localStorage.setItem(`uni_manager_trusted_${this.deviceId}`, "true");
     } catch (err) {
-      console.error('Failed to trust device:', err);
+      console.error("Failed to trust device:", err);
     }
   }
 
@@ -149,7 +149,7 @@ class DeviceService {
     try {
       localStorage.removeItem(`uni_manager_trusted_${this.deviceId}`);
     } catch (err) {
-      console.error('Failed to revoke device trust:', err);
+      console.error("Failed to revoke device trust:", err);
     }
   }
 
@@ -159,11 +159,13 @@ class DeviceService {
    */
   isTrustedDevice() {
     try {
-      const trusted = localStorage.getItem(`uni_manager_trusted_${this.deviceId}`);
+      const trusted = localStorage.getItem(
+        `uni_manager_trusted_${this.deviceId}`,
+      );
       this.isTrusted = !!trusted;
       return this.isTrusted;
     } catch (err) {
-      console.error('Failed to check device trust:', err);
+      console.error("Failed to check device trust:", err);
       return false;
     }
   }
@@ -178,7 +180,7 @@ class DeviceService {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
       const char = str.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
+      hash = (hash << 5) - hash + char;
       hash = hash & hash; // Convert to 32bit integer
     }
     return `hash_${Math.abs(hash).toString(36)}`;
@@ -192,7 +194,7 @@ class DeviceService {
     try {
       localStorage.removeItem(`uni_manager_trusted_${this.deviceId}`);
     } catch (err) {
-      console.error('Failed to clear device info:', err);
+      console.error("Failed to clear device info:", err);
     }
   }
 }

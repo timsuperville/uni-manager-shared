@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import { MFAService } from '../services/mfaService.js';
-import { MFASetupWizard } from './MFASetupWizard.jsx';
+import React, { useState, useEffect } from "react";
+import PropTypes from "prop-types";
+import { MFAService } from "../services/mfaService.js";
+import { MFASetupWizard } from "./MFASetupWizard.jsx";
 
 export const MFAManagementDashboard = ({ onClose }) => {
   const [mfaStatus, setMfaStatus] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [showSetupWizard, setShowSetupWizard] = useState(false);
   const [regeneratingCodes, setRegeneratingCodes] = useState(false);
-  const [disablingMethod, setDisablingMethod] = useState('');
+  const [disablingMethod, setDisablingMethod] = useState("");
   const [newBackupCodes, setNewBackupCodes] = useState([]);
 
   const mfaService = new MFAService();
@@ -23,10 +23,10 @@ export const MFAManagementDashboard = ({ onClose }) => {
       setLoading(true);
       const status = await mfaService.getMFAStatus();
       setMfaStatus(status);
-      setError('');
+      setError("");
     } catch (err) {
       setError(`Failed to load MFA status: ${err.message}`);
-      console.error('MFA status loading error:', err);
+      console.error("MFA status loading error:", err);
     } finally {
       setLoading(false);
     }
@@ -42,7 +42,7 @@ export const MFAManagementDashboard = ({ onClose }) => {
   const handleDisableMethod = async (method) => {
     if (
       !confirm(
-        `Are you sure you want to disable ${method.toUpperCase()} authentication? You may lose access to your account if you don't have other MFA methods enabled.`
+        `Are you sure you want to disable ${method.toUpperCase()} authentication? You may lose access to your account if you don't have other MFA methods enabled.`,
       )
     ) {
       return;
@@ -52,19 +52,19 @@ export const MFAManagementDashboard = ({ onClose }) => {
       setDisablingMethod(method);
       await mfaService.disableMFA(method);
       await loadMFAStatus(); // Refresh status
-      setError('');
+      setError("");
     } catch (err) {
       setError(`Failed to disable ${method}: ${err.message}`);
-      console.error('MFA disable error:', err);
+      console.error("MFA disable error:", err);
     } finally {
-      setDisablingMethod('');
+      setDisablingMethod("");
     }
   };
 
   const handleRegenerateBackupCodes = async () => {
     if (
       !confirm(
-        'Are you sure you want to regenerate backup codes? This will invalidate all existing backup codes.'
+        "Are you sure you want to regenerate backup codes? This will invalidate all existing backup codes.",
       )
     ) {
       return;
@@ -75,10 +75,10 @@ export const MFAManagementDashboard = ({ onClose }) => {
       const result = await mfaService.generateBackupCodes();
       setNewBackupCodes(result.backupCodes);
       await loadMFAStatus(); // Refresh status
-      setError('');
+      setError("");
     } catch (err) {
       setError(`Failed to regenerate backup codes: ${err.message}`);
-      console.error('Backup codes regeneration error:', err);
+      console.error("Backup codes regeneration error:", err);
     } finally {
       setRegeneratingCodes(false);
     }
@@ -86,14 +86,14 @@ export const MFAManagementDashboard = ({ onClose }) => {
 
   const formatMethodName = (method) => {
     switch (method) {
-      case 'totp':
-        return 'Authenticator App';
-      case 'sms':
-        return 'SMS Text Message';
-      case 'email':
-        return 'Email Verification';
-      case 'webauthn':
-        return 'Security Key/Biometric';
+      case "totp":
+        return "Authenticator App";
+      case "sms":
+        return "SMS Text Message";
+      case "email":
+        return "Email Verification";
+      case "webauthn":
+        return "Security Key/Biometric";
       default:
         return method.toUpperCase();
     }
@@ -101,30 +101,30 @@ export const MFAManagementDashboard = ({ onClose }) => {
 
   const getMethodIcon = (method) => {
     switch (method) {
-      case 'totp':
-        return '📱';
-      case 'sms':
-        return '💬';
-      case 'email':
-        return '📧';
-      case 'webauthn':
-        return '🔐';
+      case "totp":
+        return "📱";
+      case "sms":
+        return "💬";
+      case "email":
+        return "📧";
+      case "webauthn":
+        return "🔐";
       default:
-        return '🔒';
+        return "🔒";
     }
   };
 
   if (loading) {
     return (
-      <div className='mfa-dashboard'>
-        <div className='mfa-dashboard-header'>
+      <div className="mfa-dashboard">
+        <div className="mfa-dashboard-header">
           <h2>Multi-Factor Authentication</h2>
-          <button onClick={onClose} className='close-button'>
+          <button onClick={onClose} className="close-button">
             ×
           </button>
         </div>
-        <div className='loading-state'>
-          <div className='loading-spinner'></div>
+        <div className="loading-state">
+          <div className="loading-spinner"></div>
           <p>Loading MFA settings...</p>
         </div>
       </div>
@@ -133,12 +133,12 @@ export const MFAManagementDashboard = ({ onClose }) => {
 
   if (showSetupWizard) {
     return (
-      <div className='mfa-dashboard'>
-        <div className='mfa-dashboard-header'>
+      <div className="mfa-dashboard">
+        <div className="mfa-dashboard-header">
           <h2>Setup Multi-Factor Authentication</h2>
           <button
             onClick={() => setShowSetupWizard(false)}
-            className='close-button'
+            className="close-button"
           >
             ×
           </button>
@@ -149,44 +149,44 @@ export const MFAManagementDashboard = ({ onClose }) => {
   }
 
   return (
-    <div className='mfa-dashboard'>
-      <div className='mfa-dashboard-header'>
+    <div className="mfa-dashboard">
+      <div className="mfa-dashboard-header">
         <h2>Multi-Factor Authentication</h2>
-        <button onClick={onClose} className='close-button'>
+        <button onClick={onClose} className="close-button">
           ×
         </button>
       </div>
 
       {error && (
-        <div className='error-message'>
-          <span className='error-icon'>⚠️</span>
+        <div className="error-message">
+          <span className="error-icon">⚠️</span>
           {error}
-          <button onClick={() => setError('')} className='error-dismiss'>
+          <button onClick={() => setError("")} className="error-dismiss">
             ×
           </button>
         </div>
       )}
 
-      <div className='mfa-dashboard-content'>
+      <div className="mfa-dashboard-content">
         {/* MFA Status Overview */}
-        <div className='mfa-status-card'>
-          <div className='status-header'>
+        <div className="mfa-status-card">
+          <div className="status-header">
             <h3>Security Status</h3>
             <div
-              className={`status-indicator ${mfaStatus?.enabled ? 'enabled' : 'disabled'}`}
+              className={`status-indicator ${mfaStatus?.enabled ? "enabled" : "disabled"}`}
             >
-              {mfaStatus?.enabled ? '🛡️ Protected' : '⚠️ Vulnerable'}
+              {mfaStatus?.enabled ? "🛡️ Protected" : "⚠️ Vulnerable"}
             </div>
           </div>
           <p>
             {mfaStatus?.enabled
               ? `You have ${mfaStatus.methods?.length || 0} MFA method(s) enabled for enhanced security.`
-              : 'Your account is not protected by multi-factor authentication. Enable MFA to secure your account.'}
+              : "Your account is not protected by multi-factor authentication. Enable MFA to secure your account."}
           </p>
           {!mfaStatus?.enabled && (
             <button
               onClick={() => setShowSetupWizard(true)}
-              className='primary-button'
+              className="primary-button"
             >
               Enable MFA Protection
             </button>
@@ -195,18 +195,18 @@ export const MFAManagementDashboard = ({ onClose }) => {
 
         {/* Active MFA Methods */}
         {mfaStatus?.enabled && mfaStatus.methods?.length > 0 && (
-          <div className='mfa-methods-card'>
+          <div className="mfa-methods-card">
             <h3>Active MFA Methods</h3>
-            <div className='methods-list'>
+            <div className="methods-list">
               {mfaStatus.methods.map((method) => (
-                <div key={method} className='method-item'>
-                  <div className='method-info'>
-                    <span className='method-icon'>{getMethodIcon(method)}</span>
-                    <div className='method-details'>
-                      <span className='method-name'>
+                <div key={method} className="method-item">
+                  <div className="method-info">
+                    <span className="method-icon">{getMethodIcon(method)}</span>
+                    <div className="method-details">
+                      <span className="method-name">
                         {formatMethodName(method)}
                       </span>
-                      <span className='method-status'>Active</span>
+                      <span className="method-status">Active</span>
                     </div>
                   </div>
                   <button
@@ -215,14 +215,14 @@ export const MFAManagementDashboard = ({ onClose }) => {
                       disablingMethod === method ||
                       mfaStatus.methods.length === 1
                     }
-                    className='danger-button small'
+                    className="danger-button small"
                     title={
                       mfaStatus.methods.length === 1
-                        ? 'Cannot disable the last MFA method'
-                        : 'Disable this method'
+                        ? "Cannot disable the last MFA method"
+                        : "Disable this method"
                     }
                   >
-                    {disablingMethod === method ? 'Disabling...' : 'Disable'}
+                    {disablingMethod === method ? "Disabling..." : "Disable"}
                   </button>
                 </div>
               ))}
@@ -232,15 +232,15 @@ export const MFAManagementDashboard = ({ onClose }) => {
 
         {/* Backup Codes Section */}
         {mfaStatus?.enabled && (
-          <div className='backup-codes-card'>
+          <div className="backup-codes-card">
             <h3>Backup Recovery Codes</h3>
-            <div className='backup-codes-info'>
+            <div className="backup-codes-info">
               <p>
                 {mfaStatus.recoveryCodesRemaining > 0
                   ? `You have ${mfaStatus.recoveryCodesRemaining} backup codes remaining.`
-                  : 'You have no backup codes remaining. Generate new ones immediately.'}
+                  : "You have no backup codes remaining. Generate new ones immediately."}
               </p>
-              <p className='backup-codes-warning'>
+              <p className="backup-codes-warning">
                 ⚠️ Backup codes allow account access if you lose your MFA
                 device. Store them securely.
               </p>
@@ -250,42 +250,43 @@ export const MFAManagementDashboard = ({ onClose }) => {
               disabled={regeneratingCodes}
               className={
                 mfaStatus.recoveryCodesRemaining === 0
-                  ? 'danger-button'
-                  : 'secondary-button'
+                  ? "danger-button"
+                  : "secondary-button"
               }
             >
               {regeneratingCodes
-                ? 'Generating...'
-                : 'Generate New Backup Codes'}
+                ? "Generating..."
+                : "Generate New Backup Codes"}
             </button>
 
             {/* Show newly generated backup codes */}
             {newBackupCodes.length > 0 && (
-              <div className='new-backup-codes'>
+              <div className="new-backup-codes">
                 <h4>🔑 Your New Backup Codes</h4>
-                <p className='backup-codes-instructions'>
+                <p className="backup-codes-instructions">
                   Save these codes in a secure location. Each code can only be
                   used once.
                 </p>
-                <div className='backup-codes-grid'>
+                <div className="backup-codes-grid">
                   {newBackupCodes.map((code, index) => (
-                    <div key={index} className='backup-code'>
+                    <div key={index} className="backup-code">
                       <code>{code}</code>
                     </div>
                   ))}
                 </div>
-                <div className='backup-codes-actions'>
+                <div className="backup-codes-actions">
                   <button
                     onClick={() =>
-                      typeof navigator !== "undefined" && navigator.clipboard.writeText(newBackupCodes.join("\n"))
+                      typeof navigator !== "undefined" &&
+                      navigator.clipboard.writeText(newBackupCodes.join("\n"))
                     }
-                    className='secondary-button'
+                    className="secondary-button"
                   >
                     📋 Copy All Codes
                   </button>
                   <button
                     onClick={() => setNewBackupCodes([])}
-                    className='primary-button'
+                    className="primary-button"
                   >
                     I've Saved These Codes
                   </button>
@@ -297,14 +298,14 @@ export const MFAManagementDashboard = ({ onClose }) => {
 
         {/* Add More Methods */}
         {mfaStatus?.enabled && (
-          <div className='add-methods-card'>
+          <div className="add-methods-card">
             <h3>Add Additional Protection</h3>
             <p>
               Increase your account security by enabling multiple MFA methods.
             </p>
             <button
               onClick={() => setShowSetupWizard(true)}
-              className='secondary-button'
+              className="secondary-button"
             >
               + Add Another MFA Method
             </button>
@@ -312,17 +313,17 @@ export const MFAManagementDashboard = ({ onClose }) => {
         )}
 
         {/* MFA Information */}
-        <div className='mfa-info-card'>
+        <div className="mfa-info-card">
           <h3>About Multi-Factor Authentication</h3>
-          <div className='info-content'>
+          <div className="info-content">
             <p>
               Multi-Factor Authentication (MFA) adds an extra layer of security
               to your account by requiring a second form of verification in
               addition to your password.
             </p>
-            <div className='info-methods'>
-              <div className='info-method'>
-                <span className='info-icon'>📱</span>
+            <div className="info-methods">
+              <div className="info-method">
+                <span className="info-icon">📱</span>
                 <div>
                   <strong>Authenticator App</strong>
                   <p>
@@ -331,15 +332,15 @@ export const MFAManagementDashboard = ({ onClose }) => {
                   </p>
                 </div>
               </div>
-              <div className='info-method'>
-                <span className='info-icon'>💬</span>
+              <div className="info-method">
+                <span className="info-icon">💬</span>
                 <div>
                   <strong>SMS Text Message</strong>
                   <p>Receive verification codes via text message</p>
                 </div>
               </div>
-              <div className='info-method'>
-                <span className='info-icon'>📧</span>
+              <div className="info-method">
+                <span className="info-icon">📧</span>
                 <div>
                   <strong>Email Verification</strong>
                   <p>Receive verification codes via email</p>
@@ -351,14 +352,14 @@ export const MFAManagementDashboard = ({ onClose }) => {
 
         {/* Last Activity */}
         {mfaStatus?.lastUsed && (
-          <div className='last-activity-card'>
+          <div className="last-activity-card">
             <h3>Recent Activity</h3>
             <p>
               MFA last used: {new Date(mfaStatus.lastUsed).toLocaleString()}
             </p>
             {mfaStatus.setupDate && (
               <p>
-                MFA enabled:{' '}
+                MFA enabled:{" "}
                 {new Date(mfaStatus.setupDate).toLocaleDateString()}
               </p>
             )}
@@ -533,7 +534,7 @@ export const MFAManagementDashboard = ({ onClose }) => {
         }
 
         .backup-code code {
-          font-family: 'Courier New', monospace;
+          font-family: "Courier New", monospace;
           font-weight: bold;
           color: #495057;
         }

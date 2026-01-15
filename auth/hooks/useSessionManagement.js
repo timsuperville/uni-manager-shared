@@ -13,15 +13,15 @@
 
 /* global console, setInterval, clearInterval, fetch */
 
-import { useCallback, useState, useEffect } from 'react';
-import { useAuth } from './useAuth.js';
-import { authService } from '../services/authService.js';
+import { useCallback, useState, useEffect } from "react";
+import { useAuth } from "./useAuth.js";
+import { authService } from "../services/authService.js";
 
 // Get API URL from environment
 const API_URL =
   import.meta.env.VITE_API_URL ||
   import.meta.env.REACT_APP_API_URL ||
-  'http://localhost:5000/api';
+  "http://localhost:5000/api";
 
 /**
  * useSessionManagement Hook
@@ -31,7 +31,7 @@ const API_URL =
  */
 export function useSessionManagement() {
   const { session, logout } = useAuth();
-  const [sessionStatus, setSessionStatus] = useState('active');
+  const [sessionStatus, setSessionStatus] = useState("active");
 
   // Simulate device fingerprint
   const generateDeviceFingerprint = useCallback(() => {
@@ -42,13 +42,13 @@ export function useSessionManagement() {
 
   const invalidateSession = useCallback(async () => {
     try {
-      setSessionStatus('invalidated');
+      setSessionStatus("invalidated");
       // Use authService to logout/invalidate current session
       await authService.logout();
       // Also trigger useAuth logout to update context
       if (logout) await logout();
     } catch (err) {
-      console.error('Failed to invalidate session:', err);
+      console.error("Failed to invalidate session:", err);
     }
   }, [logout]);
 
@@ -57,8 +57,8 @@ export function useSessionManagement() {
     sessionStatus,
     deviceFingerprint,
     invalidateSession,
-    isActive: sessionStatus === 'active' && !!session,
-    isExpired: sessionStatus === 'expired',
+    isActive: sessionStatus === "active" && !!session,
+    isExpired: sessionStatus === "expired",
   };
 }
 
@@ -82,14 +82,14 @@ export function useUserSessions(userId) {
       setLoading(true);
       try {
         const response = await fetch(`${API_URL}/auth/sessions`, {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
         });
         if (response.ok) {
           const data = await response.json();
           setUserSessions(data.sessions || []);
         }
       } catch (err) {
-        console.error('Failed to fetch user sessions:', err);
+        console.error("Failed to fetch user sessions:", err);
       } finally {
         setLoading(false);
       }
@@ -103,38 +103,42 @@ export function useUserSessions(userId) {
       setLoading(true);
       if (token) {
         await fetch(`${API_URL}/auth/sessions`, {
-          method: 'DELETE',
-          headers: { Authorization: `Bearer ${token}` }
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
         });
       }
       setUserSessions([]);
     } catch (err) {
-      console.error('Failed to invalidate all sessions:', err);
+      console.error("Failed to invalidate all sessions:", err);
     } finally {
       setLoading(false);
     }
   }, [token]);
 
-  const invalidateSpecificSession = useCallback(async (sessionId) => {
-    try {
-      if (token) {
-        await fetch(`${API_URL}/auth/sessions/${sessionId}`, {
-          method: 'DELETE',
-          headers: { Authorization: `Bearer ${token}` }
-        });
+  const invalidateSpecificSession = useCallback(
+    async (sessionId) => {
+      try {
+        if (token) {
+          await fetch(`${API_URL}/auth/sessions/${sessionId}`, {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${token}` },
+          });
+        }
+        setUserSessions((prev) => prev.filter((s) => s.id !== sessionId));
+      } catch (err) {
+        console.error("Failed to invalidate session:", err);
       }
-      setUserSessions((prev) => prev.filter((s) => s.id !== sessionId));
-    } catch (err) {
-      console.error('Failed to invalidate session:', err);
-    }
-  }, [token]);
+    },
+    [token],
+  );
 
   return {
     userSessions,
     loading,
     invalidateAllSessions,
     invalidateSpecificSession,
-    activeSessionCount: userSessions.filter((s) => s.status === 'active').length,
+    activeSessionCount: userSessions.filter((s) => s.status === "active")
+      .length,
     totalSessionCount: userSessions.length,
   };
 }
@@ -148,7 +152,7 @@ export function useUserSessions(userId) {
  */
 export function useSessionSecurity(sessionId) {
   const { token } = useAuth();
-  const [securityStatus, setSecurityStatus] = useState('secure');
+  const [securityStatus, setSecurityStatus] = useState("secure");
   const [securityAlerts, setSecurityAlerts] = useState([]);
 
   useEffect(() => {
@@ -157,22 +161,25 @@ export function useSessionSecurity(sessionId) {
     // Initialize security check
     const checkSecurity = async () => {
       try {
-        const response = await fetch(`${API_URL}/auth/sessions/${sessionId}/security`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await fetch(
+          `${API_URL}/auth/sessions/${sessionId}/security`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        );
 
         if (response.ok) {
           const data = await response.json();
-          setSecurityStatus(data.status || 'secure');
+          setSecurityStatus(data.status || "secure");
           setSecurityAlerts(data.alerts || []);
         } else {
           // Fallback default
-          setSecurityStatus('secure');
+          setSecurityStatus("secure");
           setSecurityAlerts([]);
         }
       } catch (err) {
-        console.error('Security check failed:', err);
-        setSecurityStatus('warning');
+        console.error("Security check failed:", err);
+        setSecurityStatus("warning");
       }
     };
 
@@ -216,7 +223,7 @@ export function useSessionAnalytics(userId, refreshInterval = 30000) {
       setLoading(true);
       try {
         const response = await fetch(`${API_URL}/auth/sessions/analytics`, {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
         });
 
         if (response.ok) {
@@ -224,7 +231,7 @@ export function useSessionAnalytics(userId, refreshInterval = 30000) {
           setAnalytics(data);
         }
       } catch (err) {
-        console.error('Failed to fetch analytics:', err);
+        console.error("Failed to fetch analytics:", err);
       } finally {
         setLoading(false);
       }

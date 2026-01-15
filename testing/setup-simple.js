@@ -2,8 +2,8 @@
  * Simplified Test Setup for Shared Workspace
  */
 
-import { vi } from 'vitest';
-import '@testing-library/jest-dom';
+import { vi } from "vitest";
+import "@testing-library/jest-dom";
 
 // Mock sessionStorage and localStorage
 const storageMock = {
@@ -15,18 +15,18 @@ const storageMock = {
   key: vi.fn(),
 };
 
-Object.defineProperty(globalThis, 'sessionStorage', {
+Object.defineProperty(globalThis, "sessionStorage", {
   value: storageMock,
   writable: true,
 });
 
-Object.defineProperty(globalThis, 'localStorage', {
+Object.defineProperty(globalThis, "localStorage", {
   value: storageMock,
   writable: true,
 });
 
 // Mock Web APIs
-Object.defineProperty(globalThis, 'crypto', {
+Object.defineProperty(globalThis, "crypto", {
   value: {
     getRandomValues: vi.fn((arr) => {
       for (let i = 0; i < arr.length; i++) {
@@ -42,7 +42,7 @@ Object.defineProperty(globalThis, 'crypto', {
 });
 
 // Mock matchMedia
-Object.defineProperty(globalThis, 'matchMedia', {
+Object.defineProperty(globalThis, "matchMedia", {
   writable: true,
   value: vi.fn().mockImplementation((query) => ({
     matches: false,
@@ -77,5 +77,5 @@ globalThis.fetch = vi.fn(() =>
     status: 200,
     json: () => Promise.resolve({ success: true }),
     text: () => Promise.resolve('{"success": true}'),
-  })
+  }),
 );

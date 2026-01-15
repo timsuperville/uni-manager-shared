@@ -11,7 +11,13 @@
  * and their authentication states within a unified authentication system.
  */
 
-import React, { createContext, useContext, useReducer, useCallback, useEffect } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useReducer,
+  useCallback,
+  useEffect,
+} from "react";
 
 /**
  * SSOContext - React context for SSO functionality
@@ -35,19 +41,19 @@ const initialState = {
  */
 const ssoReducer = (state, action) => {
   switch (action.type) {
-    case 'SET_CURRENT_APP':
+    case "SET_CURRENT_APP":
       return {
         ...state,
         currentApp: action.payload,
       };
 
-    case 'SET_AVAILABLE_APPS':
+    case "SET_AVAILABLE_APPS":
       return {
         ...state,
         availableApps: action.payload,
       };
 
-    case 'SET_APP_SESSION':
+    case "SET_APP_SESSION":
       return {
         ...state,
         appSessions: {
@@ -56,25 +62,25 @@ const ssoReducer = (state, action) => {
         },
       };
 
-    case 'SET_LOADING':
+    case "SET_LOADING":
       return {
         ...state,
         ssoLoading: action.payload,
       };
 
-    case 'SET_ERROR':
+    case "SET_ERROR":
       return {
         ...state,
         ssoError: action.payload,
       };
 
-    case 'SET_USER_PERMISSIONS':
+    case "SET_USER_PERMISSIONS":
       return {
         ...state,
         userAppPermissions: action.payload,
       };
 
-    case 'RESET_SSO':
+    case "RESET_SSO":
       return initialState;
 
     default:
@@ -97,33 +103,33 @@ export const SSOProvider = ({ children, config = {} }) => {
   useEffect(() => {
     const initializeSSO = async () => {
       try {
-        dispatch({ type: 'SET_LOADING', payload: true });
+        dispatch({ type: "SET_LOADING", payload: true });
 
         // Initialize available apps from config
         const apps = config.availableApps || [
-          { id: 'church', name: 'Church', icon: '⛪' },
-          { id: 'admin', name: 'Administration', icon: '🔧' },
-          { id: 'business', name: 'Business', icon: '💼' },
-          { id: 'home', name: 'Home Services', icon: '🏠' },
-          { id: 'personal', name: 'Personal', icon: '👤' },
-          { id: 'playback', name: 'Playback', icon: '▶️' },
+          { id: "church", name: "Church", icon: "⛪" },
+          { id: "admin", name: "Administration", icon: "🔧" },
+          { id: "business", name: "Business", icon: "💼" },
+          { id: "home", name: "Home Services", icon: "🏠" },
+          { id: "personal", name: "Personal", icon: "👤" },
+          { id: "playback", name: "Playback", icon: "▶️" },
         ];
 
-        dispatch({ type: 'SET_AVAILABLE_APPS', payload: apps });
+        dispatch({ type: "SET_AVAILABLE_APPS", payload: apps });
 
         // Set initial app from config or browser
-        const initialApp = config.initialApp || 'church';
-        dispatch({ type: 'SET_CURRENT_APP', payload: initialApp });
+        const initialApp = config.initialApp || "church";
+        dispatch({ type: "SET_CURRENT_APP", payload: initialApp });
 
         // Set user permissions
         const permissions = config.userPermissions || {};
-        dispatch({ type: 'SET_USER_PERMISSIONS', payload: permissions });
+        dispatch({ type: "SET_USER_PERMISSIONS", payload: permissions });
 
-        dispatch({ type: 'SET_LOADING', payload: false });
+        dispatch({ type: "SET_LOADING", payload: false });
       } catch (error) {
-        console.error('SSO initialization failed:', error);
-        dispatch({ type: 'SET_ERROR', payload: error.message });
-        dispatch({ type: 'SET_LOADING', payload: false });
+        console.error("SSO initialization failed:", error);
+        dispatch({ type: "SET_ERROR", payload: error.message });
+        dispatch({ type: "SET_LOADING", payload: false });
       }
     };
 
@@ -133,67 +139,79 @@ export const SSOProvider = ({ children, config = {} }) => {
   /**
    * Switch to a different application
    */
-  const switchToApp = useCallback(async (appId) => {
-    try {
-      dispatch({ type: 'SET_ERROR', payload: null });
+  const switchToApp = useCallback(
+    async (appId) => {
+      try {
+        dispatch({ type: "SET_ERROR", payload: null });
 
-      // Validate app exists
-      if (!state.availableApps.find((app) => app.id === appId)) {
-        throw new Error(`Unknown app: ${appId}`);
+        // Validate app exists
+        if (!state.availableApps.find((app) => app.id === appId)) {
+          throw new Error(`Unknown app: ${appId}`);
+        }
+
+        // Check permissions
+        if (!hasAppPermission(appId)) {
+          throw new Error(`No permission to access app: ${appId}`);
+        }
+
+        // Switch app (in real app, this would trigger navigation)
+        dispatch({ type: "SET_CURRENT_APP", payload: appId });
+
+        // Store session info
+        const session = {
+          appId,
+          timestamp: new Date().toISOString(),
+          status: "active",
+        };
+        dispatch({
+          type: "SET_APP_SESSION",
+          payload: { appId, session },
+        });
+      } catch (error) {
+        console.error("App switch failed:", error);
+        dispatch({ type: "SET_ERROR", payload: error.message });
+        throw error;
       }
-
-      // Check permissions
-      if (!hasAppPermission(appId)) {
-        throw new Error(`No permission to access app: ${appId}`);
-      }
-
-      // Switch app (in real app, this would trigger navigation)
-      dispatch({ type: 'SET_CURRENT_APP', payload: appId });
-
-      // Store session info
-      const session = {
-        appId,
-        timestamp: new Date().toISOString(),
-        status: 'active',
-      };
-      dispatch({
-        type: 'SET_APP_SESSION',
-        payload: { appId, session },
-      });
-    } catch (error) {
-      console.error('App switch failed:', error);
-      dispatch({ type: 'SET_ERROR', payload: error.message });
-      throw error;
-    }
-  }, [state.availableApps]);
+    },
+    [state.availableApps],
+  );
 
   /**
    * Check if user has permission to access an app
    */
-  const hasAppPermission = useCallback((appId) => {
-    const permission = state.userAppPermissions[appId];
-    return permission ? permission > 0 : true; // Default allow if no permission set
-  }, [state.userAppPermissions]);
+  const hasAppPermission = useCallback(
+    (appId) => {
+      const permission = state.userAppPermissions[appId];
+      return permission ? permission > 0 : true; // Default allow if no permission set
+    },
+    [state.userAppPermissions],
+  );
 
   /**
    * Get information about an app
    */
-  const getAppInfo = useCallback((appId) => {
-    return state.availableApps.find((app) => app.id === appId) || null;
-  }, [state.availableApps]);
+  const getAppInfo = useCallback(
+    (appId) => {
+      return state.availableApps.find((app) => app.id === appId) || null;
+    },
+    [state.availableApps],
+  );
 
   /**
    * Get session info for an app
    */
-  const getAppSession = useCallback((appId) => {
-    return state.appSessions[appId] || null;
-  }, [state.appSessions]);
+  const getAppSession = useCallback(
+    (appId) => {
+      return state.appSessions[appId] || null;
+    },
+    [state.appSessions],
+  );
 
   /**
    * Reset SSO state
    */
   const resetSSO = useCallback(() => {
-    dispatch({ type: 'RESET_SSO' });
+    dispatch({ type: "RESET_SSO" });
   }, []);
 
   const value = {
@@ -213,11 +231,7 @@ export const SSOProvider = ({ children, config = {} }) => {
     resetSSO,
   };
 
-  return (
-    <SSOContext.Provider value={value}>
-      {children}
-    </SSOContext.Provider>
-  );
+  return <SSOContext.Provider value={value}>{children}</SSOContext.Provider>;
 };
 
 /**
@@ -237,7 +251,7 @@ export const useSSO = () => {
   const context = useContext(SSOContext);
 
   if (!context) {
-    throw new Error('useSSO must be used within an SSOProvider');
+    throw new Error("useSSO must be used within an SSOProvider");
   }
 
   return context;

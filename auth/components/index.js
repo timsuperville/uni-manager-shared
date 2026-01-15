@@ -40,19 +40,23 @@
  * Consolidates all login form variations into single component
  * Backward compatibility: UniversalLoginForm, EnhancedLoginForm still work
  */
-export { default as LoginForm, UniversalLoginForm, EnhancedLoginForm } from './LoginForm.jsx';
+export {
+  default as LoginForm,
+  UniversalLoginForm,
+  EnhancedLoginForm,
+} from "./LoginForm.jsx";
 
 /**
  * Signup/Registration Form
  * Handles user account creation
  */
-export { default as SignupForm } from './SignupForm.jsx';
+export { default as SignupForm } from "./SignupForm.jsx";
 
 /**
  * Forgot Password Form
  * Initiates password reset flow
  */
-export { default as ForgotPasswordForm } from './ForgotPasswordForm.jsx';
+export { default as ForgotPasswordForm } from "./ForgotPasswordForm.jsx";
 
 // ============================================================================
 // Multi-Factor Authentication (MFA) Components
@@ -62,37 +66,37 @@ export { default as ForgotPasswordForm } from './ForgotPasswordForm.jsx';
  * MFA Verification Component
  * Validates MFA codes during login
  */
-export { default as MFAVerification } from './MFAVerification.jsx';
+export { default as MFAVerification } from "./MFAVerification.jsx";
 
 /**
  * MFA Setup Component
  * Initial MFA configuration for user account
  */
-export { default as MFASetup } from './MFASetup.jsx';
+export { default as MFASetup } from "./MFASetup.jsx";
 
 /**
  * MFA Management Dashboard
  * View and manage MFA settings
  */
-export { default as MFAManagementDashboard } from './MFAManagementDashboard.jsx';
+export { default as MFAManagementDashboard } from "./MFAManagementDashboard.jsx";
 
 /**
  * MFA Setup Wizard
  * Step-by-step MFA configuration
  */
-export { default as MFASetupWizard } from './MFASetupWizard.jsx';
+export { default as MFASetupWizard } from "./MFASetupWizard.jsx";
 
 /**
  * MFA Login Integration
  * Seamless MFA integration in login flow
  */
-export { default as MFALoginIntegration } from './MFALoginIntegration.jsx';
+export { default as MFALoginIntegration } from "./MFALoginIntegration.jsx";
 
 /**
  * MFA Management Component
  * General MFA management interface
  */
-export { default as MFAManagement } from './MFAManagement.jsx';
+export { default as MFAManagement } from "./MFAManagement.jsx";
 
 // ============================================================================
 // OAuth Components
@@ -102,13 +106,13 @@ export { default as MFAManagement } from './MFAManagement.jsx';
  * OAuth Provider Components
  * Social login buttons and provider selection
  */
-export { default as OAuthProviderComponents } from './OAuthProviderComponents.jsx';
+export { default as OAuthProviderComponents } from "./OAuthProviderComponents.jsx";
 
 /**
  * OAuth Callback Handler
  * Processes OAuth redirect callbacks
  */
-export { default as OAuthCallback } from './OAuthCallback.jsx';
+export { default as OAuthCallback } from "./OAuthCallback.jsx";
 
 // ============================================================================
 // Authorization & Access Control
@@ -118,13 +122,13 @@ export { default as OAuthCallback } from './OAuthCallback.jsx';
  * Protected Route Component
  * Wraps routes that require authentication
  */
-export { default as ProtectedRoute } from './ProtectedRoute.jsx';
+export { default as ProtectedRoute } from "./ProtectedRoute.jsx";
 
 /**
  * RBAC Components
  * Role-based access control UI elements
  */
-export { default as RBACComponents } from './RBACComponents.jsx';
+export { default as RBACComponents } from "./RBACComponents.jsx";
 
 // ============================================================================
 // Session Management
@@ -134,13 +138,13 @@ export { default as RBACComponents } from './RBACComponents.jsx';
  * Session Management Dashboard
  * View active sessions and manage session lifecycle
  */
-export { default as SessionManagementDashboard } from './SessionManagementDashboard.jsx';
+export { default as SessionManagementDashboard } from "./SessionManagementDashboard.jsx";
 
 /**
  * Session Warning Component
  * Warns user about session expiration
  */
-export { default as SessionWarning } from './SessionWarning.jsx';
+export { default as SessionWarning } from "./SessionWarning.jsx";
 
 // ============================================================================
 // Security Components
@@ -150,7 +154,7 @@ export { default as SessionWarning } from './SessionWarning.jsx';
  * Security Dashboard
  * Overview of security settings and alerts
  */
-export { default as SecurityDashboard } from './SecurityDashboard.jsx';
+export { default as SecurityDashboard } from "./SecurityDashboard.jsx";
 
 // ============================================================================
 // Layout Components
@@ -160,13 +164,13 @@ export { default as SecurityDashboard } from './SecurityDashboard.jsx';
  * Auth Layout Component
  * Standard layout for authentication pages
  */
-export { default as AuthLayout } from './AuthLayout.jsx';
+export { default as AuthLayout } from "./AuthLayout.jsx";
 
 /**
  * App Switcher Component
  * Switch between different applications
  */
-export { default as AppSwitcher } from './AppSwitcher.jsx';
+export { default as AppSwitcher } from "./AppSwitcher.jsx";
 
 // ============================================================================
 // User Management
@@ -176,7 +180,7 @@ export { default as AppSwitcher } from './AppSwitcher.jsx';
  * User Menu Component
  * Dropdown menu with user profile and actions
  */
-export { default as UserMenu } from './UserMenu.jsx';
+export { default as UserMenu } from "./UserMenu.jsx";
 
 // ============================================================================
 // Available Components List
@@ -188,21 +192,21 @@ export { default as UserMenu } from './UserMenu.jsx';
  */
 export function listAvailableComponents() {
   return {
-    forms: ['LoginForm', 'SignupForm', 'ForgotPasswordForm'],
+    forms: ["LoginForm", "SignupForm", "ForgotPasswordForm"],
     mfa: [
-      'MFAVerification',
-      'MFASetup',
-      'MFASetupWizard',
-      'MFAManagement',
-      'MFAManagementDashboard',
-      'MFALoginIntegration',
+      "MFAVerification",
+      "MFASetup",
+      "MFASetupWizard",
+      "MFAManagement",
+      "MFAManagementDashboard",
+      "MFALoginIntegration",
     ],
-    oauth: ['OAuthProviderComponents', 'OAuthCallback'],
-    authorization: ['ProtectedRoute', 'RBACComponents'],
-    session: ['SessionManagementDashboard', 'SessionWarning'],
-    security: ['SecurityDashboard'],
-    layout: ['AuthLayout', 'AppSwitcher'],
-    user: ['UserMenu'],
+    oauth: ["OAuthProviderComponents", "OAuthCallback"],
+    authorization: ["ProtectedRoute", "RBACComponents"],
+    session: ["SessionManagementDashboard", "SessionWarning"],
+    security: ["SecurityDashboard"],
+    layout: ["AuthLayout", "AppSwitcher"],
+    user: ["UserMenu"],
   };
 }
 
@@ -213,4 +217,4 @@ export function listAvailableComponents() {
 /**
  * Re-export main login form as default for convenience
  */
-export { default } from './LoginForm.jsx';
+export { default } from "./LoginForm.jsx";

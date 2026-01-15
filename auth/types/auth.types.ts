@@ -26,7 +26,7 @@ export interface User {
 }
 
 export interface UserPreferences {
-  theme: 'light' | 'dark' | 'auto';
+  theme: "light" | "dark" | "auto";
   language: string;
   notifications: NotificationPreferences;
 }
@@ -38,15 +38,15 @@ export interface NotificationPreferences {
 }
 
 export type AppType =
-  | 'admin'
-  | 'church'
-  | 'business'
-  | 'home'
-  | 'personal'
-  | 'playback'
-  | 'default';
+  | "admin"
+  | "church"
+  | "business"
+  | "home"
+  | "personal"
+  | "playback"
+  | "default";
 
-export type LoginTheme = 'default' | 'dark' | 'minimal';
+export type LoginTheme = "default" | "dark" | "minimal";
 
 export interface AppConfig {
   title: string;
@@ -117,7 +117,7 @@ export interface LoginFormState {
 
 // Event handler types
 export type FormChangeHandler = (
-  e: React.ChangeEvent<HTMLInputElement>
+  e: React.ChangeEvent<HTMLInputElement>,
 ) => void;
 export type FormSubmitHandler = (e: React.FormEvent<HTMLFormElement>) => void;
 

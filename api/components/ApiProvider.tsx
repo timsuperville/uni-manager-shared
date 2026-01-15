@@ -4,9 +4,9 @@
  * React component that provides the unified API layer to the application tree.
  */
 
-import React, { useEffect, useState, useMemo } from 'react';
-import { ApiServices } from '../services';
-import type { ApiServiceConfig } from '../services';
+import React, { useEffect, useState, useMemo } from "react";
+import { ApiServices } from "../services";
+import type { ApiServiceConfig } from "../services";
 
 // ==================== CONTEXT TYPES ====================
 
@@ -47,7 +47,7 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({
       const errorMessage =
         err instanceof Error
           ? err.message
-          : 'Failed to initialize API services';
+          : "Failed to initialize API services";
       setError(errorMessage);
       onError?.(err instanceof Error ? err : new Error(errorMessage));
     }

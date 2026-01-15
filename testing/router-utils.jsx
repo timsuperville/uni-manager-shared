@@ -2,9 +2,9 @@
  * React Router Test Utilities
  * Provides standardized router wrappers with React Router v7 future flags
  */
-import React from 'react';
-import PropTypes from 'prop-types';
-import { MemoryRouter } from 'react-router-dom';
+import React from "react";
+import PropTypes from "prop-types";
+import { MemoryRouter } from "react-router-dom";
 
 // Default future flags for React Router v7 compatibility
 export const routerFutureFlags = {
@@ -20,7 +20,12 @@ export const routerFutureFlags = {
  * @param {Object} props.future - Future flags (merged with defaults)
  * @returns {React.Component} MemoryRouter with future flags
  */
-export const createMemoryRouter = ({ children, initialEntries, future = {}, ...props }) => {
+export const createMemoryRouter = ({
+  children,
+  initialEntries,
+  future = {},
+  ...props
+}) => {
   return (
     <MemoryRouter
       initialEntries={initialEntries}
@@ -39,7 +44,7 @@ export const createMemoryRouter = ({ children, initialEntries, future = {}, ...p
  * @param {Array} props.initialEntries - Initial history entries
  * @returns {React.Component} RouterTestWrapper
  */
-export const RouterTestWrapper = ({ children, initialEntries = ['/'] }) => {
+export const RouterTestWrapper = ({ children, initialEntries = ["/"] }) => {
   return createMemoryRouter({ children, initialEntries });
 };
 
@@ -48,9 +53,7 @@ export const RouterTestWrapper = ({ children, initialEntries = ['/'] }) => {
  * Can be used as a drop-in replacement for MemoryRouter in tests
  */
 export const MemoryRouterV7 = ({ children, future = {}, ...props }) => (
-  <MemoryRouter {...props}>
-    {children}
-  </MemoryRouter>
+  <MemoryRouter {...props}>{children}</MemoryRouter>
 );
 
 // PropTypes for components

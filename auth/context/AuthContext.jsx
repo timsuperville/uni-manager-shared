@@ -40,17 +40,17 @@ import React, {
   useCallback,
   useMemo,
   useRef,
-} from 'react';
-import PropTypes from 'prop-types';
-import { AuthService } from '../services/authService.js';
-import { tokenStorage } from '../utils/tokenStorage.js';
+} from "react";
+import PropTypes from "prop-types";
+import { AuthService } from "../services/authService.js";
+import { tokenStorage } from "../utils/tokenStorage.js";
 
 const AuthContext = createContext(null);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };
@@ -110,7 +110,7 @@ export const AuthProvider = ({
    * Using useRef for stable prop references to prevent infinite loops
    */
   const handleError = useCallback((error) => {
-    const errorMessage = error?.message || 'An authentication error occurred';
+    const errorMessage = error?.message || "An authentication error occurred";
 
     setAuthState((prev) => ({
       ...prev,
@@ -157,7 +157,7 @@ export const AuthProvider = ({
         }, 0);
       }
     } catch (error) {
-      const errorMessage = error?.message || 'An authentication error occurred';
+      const errorMessage = error?.message || "An authentication error occurred";
 
       setAuthState((prev) => ({
         ...prev,
@@ -203,7 +203,7 @@ export const AuthProvider = ({
 
         return result;
       } catch (error) {
-        const errorMessage = error?.message || 'Login failed';
+        const errorMessage = error?.message || "Login failed";
 
         setAuthState((prev) => ({
           ...prev,
@@ -221,7 +221,7 @@ export const AuthProvider = ({
         throw error;
       }
     },
-    [authService] // Only depend on authService
+    [authService], // Only depend on authService
   );
 
   /**
@@ -293,7 +293,7 @@ export const AuthProvider = ({
 
         return result;
       } catch (error) {
-        const errorMessage = error?.message || 'Signup failed';
+        const errorMessage = error?.message || "Signup failed";
 
         setAuthState((prev) => ({
           ...prev,
@@ -311,7 +311,7 @@ export const AuthProvider = ({
         throw error;
       }
     },
-    [authService] // Only depend on authService
+    [authService], // Only depend on authService
   );
 
   /**
@@ -329,7 +329,7 @@ export const AuthProvider = ({
 
         return result;
       } catch (error) {
-        const errorMessage = error?.message || 'Forgot password failed';
+        const errorMessage = error?.message || "Forgot password failed";
 
         setAuthState((prev) => ({
           ...prev,
@@ -347,7 +347,7 @@ export const AuthProvider = ({
         throw error;
       }
     },
-    [authService] // Only depend on authService
+    [authService], // Only depend on authService
   );
 
   /**
@@ -365,7 +365,7 @@ export const AuthProvider = ({
 
         return result;
       } catch (error) {
-        const errorMessage = error?.message || 'Reset password failed';
+        const errorMessage = error?.message || "Reset password failed";
 
         setAuthState((prev) => ({
           ...prev,
@@ -383,7 +383,7 @@ export const AuthProvider = ({
         throw error;
       }
     },
-    [authService] // Only depend on authService
+    [authService], // Only depend on authService
   );
 
   /**
@@ -399,7 +399,7 @@ export const AuthProvider = ({
       await initializeAuth();
       return true;
     } catch (error) {
-      const errorMessage = error?.message || 'Refresh failed';
+      const errorMessage = error?.message || "Refresh failed";
 
       setAuthState((prev) => ({
         ...prev,
@@ -442,7 +442,7 @@ export const AuthProvider = ({
 
         return success;
       } catch (error) {
-        const errorMessage = error?.message || 'Update user failed';
+        const errorMessage = error?.message || "Update user failed";
 
         setAuthState((prev) => ({
           ...prev,
@@ -460,7 +460,7 @@ export const AuthProvider = ({
         return false;
       }
     },
-    [authService] // Only depend on authService
+    [authService], // Only depend on authService
   );
 
   /**
@@ -475,7 +475,7 @@ export const AuthProvider = ({
 
         const newState = {
           user: result.user,
-          isLoading: false
+          isLoading: false,
         };
 
         setAuthState((prev) => ({ ...prev, ...newState }));
@@ -489,7 +489,7 @@ export const AuthProvider = ({
 
         return result;
       } catch (error) {
-        const errorMessage = error?.message || 'Switch church failed';
+        const errorMessage = error?.message || "Switch church failed";
 
         setAuthState((prev) => ({
           ...prev,
@@ -505,7 +505,7 @@ export const AuthProvider = ({
         throw error;
       }
     },
-    [authService]
+    [authService],
   );
 
   /**
@@ -534,7 +534,7 @@ export const AuthProvider = ({
 
       return { user, isAuthenticated };
     } catch (error) {
-      const errorMessage = error?.message || 'Check auth state failed';
+      const errorMessage = error?.message || "Check auth state failed";
 
       setAuthState((prev) => ({
         ...prev,
@@ -579,19 +579,21 @@ export const AuthProvider = ({
     };
 
     const events = [
-      'mousedown',
-      'mousemove',
-      'keypress',
-      'scroll',
-      'touchstart',
+      "mousedown",
+      "mousemove",
+      "keypress",
+      "scroll",
+      "touchstart",
     ];
     events.forEach((event) => {
-      typeof document !== "undefined" && document.addEventListener(event, handleActivity, true);
+      typeof document !== "undefined" &&
+        document.addEventListener(event, handleActivity, true);
     });
 
     return () => {
       events.forEach((event) => {
-        typeof document !== "undefined" && document.removeEventListener(event, handleActivity, true);
+        typeof document !== "undefined" &&
+          document.removeEventListener(event, handleActivity, true);
       });
     };
   }, [authState.isAuthenticated]); // Remove updateActivity dependency
@@ -607,7 +609,7 @@ export const AuthProvider = ({
         await authService.refreshToken();
         await initializeAuth();
       } catch (error) {
-        const errorMessage = error?.message || 'Auto-refresh failed';
+        const errorMessage = error?.message || "Auto-refresh failed";
 
         setAuthState((prev) => ({
           ...prev,
@@ -660,7 +662,6 @@ export const AuthProvider = ({
     <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
   );
 };
-
 
 AuthContext.propTypes = {
   children: PropTypes.node.isRequired,

@@ -45,7 +45,8 @@ class SharedAuthService extends SimpleEventEmitter {
     this.loadStoredAuth();
 
     // Listen for storage events to sync across tabs
-    typeof window !== "undefined" && window.addEventListener('storage', this.boundStorageHandler);
+    typeof window !== "undefined" &&
+      window.addEventListener("storage", this.boundStorageHandler);
 
     // Validate token on initialization
     this.validateToken();
@@ -56,7 +57,7 @@ class SharedAuthService extends SimpleEventEmitter {
     this.applications.add(appName);
 
     // Emit registration event
-    this.emit('app-registered', { appName, totalApps: this.applications.size });
+    this.emit("app-registered", { appName, totalApps: this.applications.size });
 
     return {
       unregister: () => this.unregisterApplication(appName),
@@ -66,14 +67,14 @@ class SharedAuthService extends SimpleEventEmitter {
   unregisterApplication(appName) {
     this.applications.delete(appName);
 
-    this.emit('app-unregistered', {
+    this.emit("app-unregistered", {
       appName,
       totalApps: this.applications.size,
     });
   }
 
   // Authentication methods
-  async login(credentials, appContext = 'unknown') {
+  async login(credentials, appContext = "unknown") {
     try {
       // Mock authentication - replace with real API call
       const response = await this.mockAuthenticate(credentials);
@@ -82,11 +83,11 @@ class SharedAuthService extends SimpleEventEmitter {
         this.setAuthState(
           response.user,
           response.accessToken,
-          response.refreshToken
+          response.refreshToken,
         );
 
         // Notify all registered applications
-        this.emit('auth-login', {
+        this.emit("auth-login", {
           user: this.currentUser,
           source: appContext,
           timestamp: new Date(),
@@ -94,22 +95,22 @@ class SharedAuthService extends SimpleEventEmitter {
 
         return { success: true, user: this.currentUser };
       } else {
-        throw new Error(response.message || 'Authentication failed');
+        throw new Error(response.message || "Authentication failed");
       }
     } catch (_error) {
       // console.error('Shared Auth Login Error:', error);
-      this.emit('auth-error', { error, source: appContext });
+      this.emit("auth-error", { error, source: appContext });
       throw error;
     }
   }
 
-  async logout(appContext = 'unknown') {
+  async logout(appContext = "unknown") {
     try {
       // Clear auth state
       this.clearAuthState();
 
       // Notify all registered applications
-      this.emit('auth-logout', {
+      this.emit("auth-logout", {
         source: appContext,
         timestamp: new Date(),
       });
@@ -117,7 +118,7 @@ class SharedAuthService extends SimpleEventEmitter {
       return { success: true };
     } catch (_error) {
       // console.error('Shared Auth Logout Error:', error);
-      this.emit('auth-error', { error, source: appContext });
+      this.emit("auth-error", { error, source: appContext });
       throw error;
     }
   }
@@ -125,7 +126,7 @@ class SharedAuthService extends SimpleEventEmitter {
   async refreshAuthToken() {
     try {
       if (!this.refreshToken) {
-        throw new Error('No refresh token available');
+        throw new Error("No refresh token available");
       }
 
       // Mock token refresh - replace with real API call
@@ -135,23 +136,23 @@ class SharedAuthService extends SimpleEventEmitter {
         this.setAuthState(
           this.currentUser,
           response.accessToken,
-          response.refreshToken
+          response.refreshToken,
         );
 
         // Notify all applications of token refresh
-        this.emit('auth-token-refreshed', {
+        this.emit("auth-token-refreshed", {
           user: this.currentUser,
           timestamp: new Date(),
         });
 
         return response.accessToken;
       } else {
-        throw new Error('Token refresh failed');
+        throw new Error("Token refresh failed");
       }
     } catch (_error) {
       // console.error('Token refresh error:', error);
-      this.emit('auth-token-refresh-failed', { error });
-      this.logout('token-refresh-failure');
+      this.emit("auth-token-refresh-failed", { error });
+      this.logout("token-refresh-failure");
       throw error;
     }
   }
@@ -166,7 +167,7 @@ class SharedAuthService extends SimpleEventEmitter {
     this.storeAuth();
 
     // Emit state change
-    this.emit('auth-state-changed', {
+    this.emit("auth-state-changed", {
       user: this.currentUser,
       isAuthenticated: this.isAuthenticated(),
       timestamp: new Date(),
@@ -179,10 +180,11 @@ class SharedAuthService extends SimpleEventEmitter {
     this.refreshToken = null;
 
     // Clear localStorage
-    typeof localStorage !== "undefined" && localStorage.removeItem('uni_manager_auth');
+    typeof localStorage !== "undefined" &&
+      localStorage.removeItem("uni_manager_auth");
 
     // Emit state change
-    this.emit('auth-state-changed', {
+    this.emit("auth-state-changed", {
       user: null,
       isAuthenticated: false,
       timestamp: new Date(),
@@ -206,10 +208,10 @@ class SharedAuthService extends SimpleEventEmitter {
     return this.accessToken
       ? {
           Authorization: `Bearer ${this.accessToken}`,
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         }
       : {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         };
   }
 
@@ -222,12 +224,15 @@ class SharedAuthService extends SimpleEventEmitter {
       timestamp: new Date().toISOString(),
     };
 
-    typeof localStorage !== "undefined" && localStorage.setItem('uni_manager_auth', JSON.stringify(authData));
+    typeof localStorage !== "undefined" &&
+      localStorage.setItem("uni_manager_auth", JSON.stringify(authData));
   }
 
   loadStoredAuth() {
     try {
-      const stored = typeof localStorage !== "undefined" && localStorage.getItem('uni_manager_auth');
+      const stored =
+        typeof localStorage !== "undefined" &&
+        localStorage.getItem("uni_manager_auth");
       if (stored) {
         const authData = JSON.parse(stored);
 
@@ -250,14 +255,14 @@ class SharedAuthService extends SimpleEventEmitter {
   }
 
   handleStorageChange(event) {
-    if (event.key === 'uni_manager_auth') {
+    if (event.key === "uni_manager_auth") {
       if (event.newValue === null) {
         // Auth was cleared in another tab
         this.clearAuthState();
       } else {
         // Auth was updated in another tab
         this.loadStoredAuth();
-        this.emit('auth-synced-from-storage', {
+        this.emit("auth-synced-from-storage", {
           user: this.currentUser,
           isAuthenticated: this.isAuthenticated(),
         });
@@ -298,28 +303,28 @@ class SharedAuthService extends SimpleEventEmitter {
       return {
         success: true,
         user: {
-          id: 'user-123',
+          id: "user-123",
           email: credentials.email,
-          firstName: 'John',
-          lastName: 'Doe',
-          roles: ['user'],
+          firstName: "John",
+          lastName: "Doe",
+          roles: ["user"],
           applications: [
-            'church',
-            'admin',
-            'business',
-            'personal',
-            'playback',
-            'home',
+            "church",
+            "admin",
+            "business",
+            "personal",
+            "playback",
+            "home",
           ],
           preferences: {},
         },
-        accessToken: 'mock-access-token-' + Date.now(),
-        refreshToken: 'mock-refresh-token-' + Date.now(),
+        accessToken: "mock-access-token-" + Date.now(),
+        refreshToken: "mock-refresh-token-" + Date.now(),
       };
     } else {
       return {
         success: false,
-        message: 'Invalid credentials',
+        message: "Invalid credentials",
       };
     }
   }
@@ -330,8 +335,8 @@ class SharedAuthService extends SimpleEventEmitter {
 
     return {
       success: true,
-      accessToken: 'refreshed-access-token-' + Date.now(),
-      refreshToken: 'refreshed-refresh-token-' + Date.now(),
+      accessToken: "refreshed-access-token-" + Date.now(),
+      refreshToken: "refreshed-refresh-token-" + Date.now(),
     };
   }
 
@@ -341,16 +346,17 @@ class SharedAuthService extends SimpleEventEmitter {
 
     // Mock validation - in real implementation, call backend
     return (
-      (token && token.startsWith('mock-access-token')) ||
-      token.startsWith('refreshed-access-token')
+      (token && token.startsWith("mock-access-token")) ||
+      token.startsWith("refreshed-access-token")
     );
   }
 
   // Cleanup method to prevent memory leaks
   cleanup() {
     // Remove event listener to prevent memory leaks
-    if (typeof window !== 'undefined' && this.boundStorageHandler) {
-      typeof window !== "undefined" && window.removeEventListener('storage', this.boundStorageHandler);
+    if (typeof window !== "undefined" && this.boundStorageHandler) {
+      typeof window !== "undefined" &&
+        window.removeEventListener("storage", this.boundStorageHandler);
     }
 
     // Clear all event listeners

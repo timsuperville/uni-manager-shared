@@ -1,32 +1,33 @@
-import React, { useEffect, useState } from 'react';
-import { useAuth } from '../context/index.jsx';
-import { getCurrentAppConfig } from '../config/appConfigs.js';
+import React, { useEffect, useState } from "react";
+import { useAuth } from "../context/index.jsx";
+import { getCurrentAppConfig } from "../config/appConfigs.js";
 
 /**
  * OAuth Callback Handler Component
  * Handles OAuth provider callbacks and redirects users appropriately
  * Preserves Church app functionality while standardizing OAuth flow
  */
-const OAuthCallback = ({ onSuccess, onError, redirectPath = '/' }) => {
+const OAuthCallback = ({ onSuccess, onError, redirectPath = "/" }) => {
   const { handleOAuthCallback, loading } = useAuth();
-  const [status, setStatus] = useState('processing');
-  const [message, setMessage] = useState('Processing authentication...');
+  const [status, setStatus] = useState("processing");
+  const [message, setMessage] = useState("Processing authentication...");
 
   useEffect(() => {
     const processCallback = async () => {
       try {
         // Parse URL parameters
-        const urlParams = typeof window !== "undefined"
-          ? new URLSearchParams(window.location.search)
-          : new URLSearchParams();
+        const urlParams =
+          typeof window !== "undefined"
+            ? new URLSearchParams(window.location.search)
+            : new URLSearchParams();
 
         // Check for OAuth error
-        const error = urlParams.get('error');
-        const errorDescription = urlParams.get('error_description');
+        const error = urlParams.get("error");
+        const errorDescription = urlParams.get("error_description");
 
         if (error) {
           const errorMsg = errorDescription || `OAuth error: ${error}`;
-          setStatus('error');
+          setStatus("error");
           setMessage(errorMsg);
 
           if (onError) {
@@ -36,10 +37,10 @@ const OAuthCallback = ({ onSuccess, onError, redirectPath = '/' }) => {
         }
 
         // Check for authorization code
-        const code = urlParams.get('code');
+        const code = urlParams.get("code");
         if (!code) {
-          const errorMsg = 'No authorization code received';
-          setStatus('error');
+          const errorMsg = "No authorization code received";
+          setStatus("error");
           setMessage(errorMsg);
 
           if (onError) {
@@ -48,26 +49,27 @@ const OAuthCallback = ({ onSuccess, onError, redirectPath = '/' }) => {
           return;
         }
 
-        setMessage('Exchanging authorization code...');
+        setMessage("Exchanging authorization code...");
 
         // Handle OAuth callback
         const authData = await handleOAuthCallback(urlParams);
 
-        setStatus('success');
-        setMessage('Authentication successful! Redirecting...');
+        setStatus("success");
+        setMessage("Authentication successful! Redirecting...");
 
         if (onSuccess) {
           onSuccess(authData);
         } else {
           // Default redirect after successful authentication
           setTimeout(() => {
-            if (typeof window !== "undefined") window.location.href = redirectPath;
+            if (typeof window !== "undefined")
+              window.location.href = redirectPath;
           }, 2000);
         }
       } catch (error) {
-        console.error('OAuth callback error:', error);
-        setStatus('error');
-        setMessage(error.message || 'Authentication failed');
+        console.error("OAuth callback error:", error);
+        setStatus("error");
+        setMessage(error.message || "Authentication failed");
 
         if (onError) {
           onError(error);
@@ -82,64 +84,64 @@ const OAuthCallback = ({ onSuccess, onError, redirectPath = '/' }) => {
   const brandColor = appConfig.branding.primaryColor;
 
   return (
-    <div className='min-h-screen flex items-center justify-center bg-gray-50'>
-      <div className='max-w-md w-full space-y-8 p-8'>
-        <div className='text-center'>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="max-w-md w-full space-y-8 p-8">
+        <div className="text-center">
           {/* App Logo */}
           <div
-            className='mx-auto h-12 w-12 rounded-full flex items-center justify-center text-white text-xl font-bold mb-4'
+            className="mx-auto h-12 w-12 rounded-full flex items-center justify-center text-white text-xl font-bold mb-4"
             style={{ backgroundColor: brandColor }}
           >
             {appConfig.appName.charAt(0).toUpperCase()}
           </div>
 
-          <h2 className='text-3xl font-extrabold text-gray-900 mb-2'>
+          <h2 className="text-3xl font-extrabold text-gray-900 mb-2">
             {appConfig.appName}
           </h2>
 
-          <div className='mb-6'>
-            {status === 'processing' && (
-              <div className='flex items-center justify-center space-x-2'>
+          <div className="mb-6">
+            {status === "processing" && (
+              <div className="flex items-center justify-center space-x-2">
                 <div
-                  className='animate-spin rounded-full h-6 w-6 border-b-2'
+                  className="animate-spin rounded-full h-6 w-6 border-b-2"
                   style={{ borderColor: brandColor }}
                 ></div>
-                <span className='text-gray-600'>Processing...</span>
+                <span className="text-gray-600">Processing...</span>
               </div>
             )}
 
-            {status === 'success' && (
-              <div className='flex items-center justify-center space-x-2 text-green-600'>
+            {status === "success" && (
+              <div className="flex items-center justify-center space-x-2 text-green-600">
                 <svg
-                  className='h-6 w-6'
-                  fill='none'
-                  viewBox='0 0 24 24'
-                  stroke='currentColor'
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
                 >
                   <path
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                     strokeWidth={2}
-                    d='M5 13l4 4L19 7'
+                    d="M5 13l4 4L19 7"
                   />
                 </svg>
                 <span>Success!</span>
               </div>
             )}
 
-            {status === 'error' && (
-              <div className='flex items-center justify-center space-x-2 text-red-600'>
+            {status === "error" && (
+              <div className="flex items-center justify-center space-x-2 text-red-600">
                 <svg
-                  className='h-6 w-6'
-                  fill='none'
-                  viewBox='0 0 24 24'
-                  stroke='currentColor'
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
                 >
                   <path
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                     strokeWidth={2}
-                    d='M6 18L18 6M6 6l12 12'
+                    d="M6 18L18 6M6 6l12 12"
                   />
                 </svg>
                 <span>Error</span>
@@ -147,13 +149,16 @@ const OAuthCallback = ({ onSuccess, onError, redirectPath = '/' }) => {
             )}
           </div>
 
-          <p className='text-sm text-gray-600 mb-4'>{message}</p>
+          <p className="text-sm text-gray-600 mb-4">{message}</p>
 
-          {status === 'error' && (
-            <div className='space-y-4'>
+          {status === "error" && (
+            <div className="space-y-4">
               <button
-                onClick={() => { if (typeof window !== "undefined") window.location.href = '/login'; }}
-                className='w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2'
+                onClick={() => {
+                  if (typeof window !== "undefined")
+                    window.location.href = "/login";
+                }}
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2"
                 style={{
                   backgroundColor: brandColor,
                 }}
@@ -162,22 +167,24 @@ const OAuthCallback = ({ onSuccess, onError, redirectPath = '/' }) => {
               </button>
 
               <button
-                onClick={() => { if (typeof window !== "undefined") window.location.href = '/'; }}
-                className='w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2'
+                onClick={() => {
+                  if (typeof window !== "undefined") window.location.href = "/";
+                }}
+                className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2"
               >
                 Go Home
               </button>
             </div>
           )}
 
-          {status === 'processing' && (
-            <div className='mt-4'>
-              <div className='w-full bg-gray-200 rounded-full h-2'>
+          {status === "processing" && (
+            <div className="mt-4">
+              <div className="w-full bg-gray-200 rounded-full h-2">
                 <div
-                  className='h-2 rounded-full animate-pulse'
+                  className="h-2 rounded-full animate-pulse"
                   style={{
                     backgroundColor: brandColor,
-                    width: loading ? '60%' : '100%',
+                    width: loading ? "60%" : "100%",
                   }}
                 ></div>
               </div>

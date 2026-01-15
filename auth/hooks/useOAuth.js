@@ -4,13 +4,13 @@
  * useOAuth - OAuth Provider Integration Hook
  * Handles OAuth login and account linking via popup window
  */
-import { useCallback, useState, useEffect, useRef } from 'react';
+import { useCallback, useState, useEffect, useRef } from "react";
 
 // Get API URL from environment or default
 const API_URL =
   import.meta.env.VITE_API_URL ||
   import.meta.env.REACT_APP_API_URL ||
-  'http://localhost:5000/api';
+  "http://localhost:5000/api";
 
 export function useOAuth() {
   const [isLoading, setIsLoading] = useState(false);
@@ -22,7 +22,8 @@ export function useOAuth() {
   useEffect(() => {
     return () => {
       if (checkTimerRef.current) clearInterval(checkTimerRef.current);
-      if (popupRef.current && !popupRef.current.closed) popupRef.current.close();
+      if (popupRef.current && !popupRef.current.closed)
+        popupRef.current.close();
     };
   }, []);
 
@@ -36,25 +37,25 @@ export function useOAuth() {
       // For now we allow messages if they have the expected structure
       const { type, data, error: errorMsg } = event.data;
 
-      if (type === 'OAUTH_SUCCESS') {
+      if (type === "OAUTH_SUCCESS") {
         if (checkTimerRef.current) clearInterval(checkTimerRef.current);
         if (popupRef.current) popupRef.current.close();
 
         setIsLoading(false);
         // Dispatch custom event or callback could be handled here
         // For now we just reset state, the auth provider should handle the token
-        console.log('OAuth Success:', data);
-      } else if (type === 'OAUTH_ERROR') {
+        console.log("OAuth Success:", data);
+      } else if (type === "OAUTH_ERROR") {
         if (checkTimerRef.current) clearInterval(checkTimerRef.current);
         if (popupRef.current) popupRef.current.close();
 
         setIsLoading(false);
-        setError(errorMsg || 'Authentication failed');
+        setError(errorMsg || "Authentication failed");
       }
     };
 
-    window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
   }, []);
 
   const loginWithProvider = useCallback(async (provider) => {
@@ -76,7 +77,7 @@ export function useOAuth() {
       popupRef.current = window.open(url, name, features);
 
       if (!popupRef.current) {
-        throw new Error('Popup blocked. Please allow popups for this site.');
+        throw new Error("Popup blocked. Please allow popups for this site.");
       }
 
       // Check if popup is closed manually
@@ -88,9 +89,8 @@ export function useOAuth() {
           // (This is a simplified check, ideally specific state tracks this)
         }
       }, 1000);
-
     } catch (err) {
-      console.error('OAuth Error:', err);
+      console.error("OAuth Error:", err);
       setError(err.message);
       setIsLoading(false);
     }
@@ -100,10 +100,8 @@ export function useOAuth() {
     isLoading,
     error,
     loginWithProvider,
-    resetError: () => setError(null)
+    resetError: () => setError(null),
   };
 }
 
 export default useOAuth;
-
-

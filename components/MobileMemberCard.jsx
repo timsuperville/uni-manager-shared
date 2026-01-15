@@ -3,8 +3,8 @@
  * Responsive member display with touch-friendly interactions
  */
 
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
+import React, { useState } from "react";
+import PropTypes from "prop-types";
 import {
   Card,
   CardContent,
@@ -21,7 +21,7 @@ import {
   Divider,
   useTheme,
   alpha,
-} from '@mui/material';
+} from "@mui/material";
 import {
   MoreVert as MoreVertIcon,
   Email as EmailIcon,
@@ -31,12 +31,12 @@ import {
   Person as PersonIcon,
   AdminPanelSettings as AdminIcon,
   VerifiedUser as VerifiedIcon,
-} from '@mui/icons-material';
+} from "@mui/icons-material";
 import {
   useResponsive,
   useTouchGestures,
   ResponsiveText,
-} from '../utils/responsiveUtils';
+} from "../utils/responsiveUtils";
 
 const MobileMemberCard = ({
   member,
@@ -73,31 +73,31 @@ const MobileMemberCard = ({
 
   const handleAction = (action) => {
     handleMenuClose();
-    if (action === 'edit' && onEdit) onEdit(member);
-    if (action === 'delete' && onDelete) onDelete(member);
-    if (action === 'contact' && onContact) onContact(member);
+    if (action === "edit" && onEdit) onEdit(member);
+    if (action === "delete" && onDelete) onDelete(member);
+    if (action === "contact" && onContact) onContact(member);
   };
 
   // Get role color and icon
   const getRoleDisplay = (role) => {
     switch (role?.toLowerCase()) {
-      case 'admin':
+      case "admin":
         return {
-          color: 'error',
+          color: "error",
           icon: <AdminIcon sx={{ fontSize: 16 }} />,
-          label: 'Admin',
+          label: "Admin",
         };
-      case 'moderator':
+      case "moderator":
         return {
-          color: 'warning',
+          color: "warning",
           icon: <VerifiedIcon sx={{ fontSize: 16 }} />,
-          label: 'Moderator',
+          label: "Moderator",
         };
       default:
         return {
-          color: 'default',
+          color: "default",
           icon: <PersonIcon sx={{ fontSize: 16 }} />,
-          label: 'Member',
+          label: "Member",
         };
     }
   };
@@ -107,30 +107,30 @@ const MobileMemberCard = ({
   // Get member status color
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
-      case 'active':
-        return 'success';
-      case 'pending':
-        return 'warning';
-      case 'inactive':
-        return 'default';
+      case "active":
+        return "success";
+      case "pending":
+        return "warning";
+      case "inactive":
+        return "default";
       default:
-        return 'default';
+        return "default";
     }
   };
 
   return (
     <Card
       sx={{
-        width: '100%',
+        width: "100%",
         mb: isMobile ? 1 : 2,
-        cursor: 'pointer',
-        transition: 'all 0.2s ease-in-out',
-        '&:hover': {
-          transform: isMobile ? 'none' : 'translateY(-2px)',
+        cursor: "pointer",
+        transition: "all 0.2s ease-in-out",
+        "&:hover": {
+          transform: isMobile ? "none" : "translateY(-2px)",
           boxShadow: isMobile ? 1 : 4,
         },
-        '&:active': {
-          transform: isMobile ? 'scale(0.98)' : 'none',
+        "&:active": {
+          transform: isMobile ? "scale(0.98)" : "none",
           backgroundColor: alpha(theme.palette.primary.main, 0.04),
         },
       }}
@@ -144,8 +144,8 @@ const MobileMemberCard = ({
       >
         <Box
           sx={{
-            display: 'flex',
-            alignItems: compact ? 'center' : 'flex-start',
+            display: "flex",
+            alignItems: compact ? "center" : "flex-start",
             gap: isMobile ? 1.5 : 2,
           }}
         >
@@ -155,11 +155,11 @@ const MobileMemberCard = ({
             sx={{
               width: isMobile ? (compact ? 40 : 56) : 64,
               height: isMobile ? (compact ? 40 : 56) : 64,
-              bgcolor: member.avatar ? 'transparent' : 'primary.main',
-              fontSize: isMobile ? (compact ? '16px' : '20px') : '24px',
+              bgcolor: member.avatar ? "transparent" : "primary.main",
+              fontSize: isMobile ? (compact ? "16px" : "20px") : "24px",
             }}
           >
-            {!member.avatar && (member.name?.[0] || member.email?.[0] || '?')}
+            {!member.avatar && (member.name?.[0] || member.email?.[0] || "?")}
           </Avatar>
 
           {/* Member Info */}
@@ -167,33 +167,33 @@ const MobileMemberCard = ({
             {/* Name and Actions */}
             <Box
               sx={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                justifyContent: 'space-between',
+                display: "flex",
+                alignItems: "flex-start",
+                justifyContent: "space-between",
                 mb: compact ? 0.5 : 1,
               }}
             >
               <Box sx={{ minWidth: 0, flexGrow: 1 }}>
                 <ResponsiveText
-                  variant={isMobile ? 'h6' : 'h5'}
-                  component='h3'
+                  variant={isMobile ? "h6" : "h5"}
+                  component="h3"
                   sx={{
                     fontWeight: 600,
-                    fontSize: isMobile ? (compact ? '14px' : '16px') : '18px',
+                    fontSize: isMobile ? (compact ? "14px" : "16px") : "18px",
                     lineHeight: 1.2,
                     mb: 0.5,
                   }}
                   noWrap
                 >
-                  {member.name || 'Unknown Member'}
+                  {member.name || "Unknown Member"}
                 </ResponsiveText>
 
                 {/* Email */}
                 <Typography
-                  variant='body2'
-                  color='text.secondary'
+                  variant="body2"
+                  color="text.secondary"
                   sx={{
-                    fontSize: isMobile ? '12px' : '14px',
+                    fontSize: isMobile ? "12px" : "14px",
                     mb: compact ? 0 : 0.5,
                   }}
                   noWrap
@@ -205,7 +205,7 @@ const MobileMemberCard = ({
               {/* Actions Menu */}
               {showActions && (
                 <IconButton
-                  size={isMobile ? 'small' : 'medium'}
+                  size={isMobile ? "small" : "medium"}
                   onClick={handleMenuOpen}
                   sx={{
                     ml: 1,
@@ -213,7 +213,7 @@ const MobileMemberCard = ({
                     minHeight: isMobile ? 32 : 40,
                   }}
                 >
-                  <MoreVertIcon fontSize={isMobile ? 'small' : 'medium'} />
+                  <MoreVertIcon fontSize={isMobile ? "small" : "medium"} />
                 </IconButton>
               )}
             </Box>
@@ -222,8 +222,8 @@ const MobileMemberCard = ({
             {!compact && (
               <Box
                 sx={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
+                  display: "flex",
+                  flexWrap: "wrap",
                   gap: 0.5,
                   mb: 1,
                 }}
@@ -231,13 +231,13 @@ const MobileMemberCard = ({
                 <Chip
                   icon={roleDisplay.icon}
                   label={roleDisplay.label}
-                  size={isMobile ? 'small' : 'medium'}
+                  size={isMobile ? "small" : "medium"}
                   color={roleDisplay.color}
-                  variant='outlined'
+                  variant="outlined"
                   sx={{
                     height: isMobile ? 24 : 32,
-                    fontSize: isMobile ? '11px' : '12px',
-                    '& .MuiChip-icon': {
+                    fontSize: isMobile ? "11px" : "12px",
+                    "& .MuiChip-icon": {
                       fontSize: isMobile ? 14 : 16,
                     },
                   }}
@@ -246,11 +246,11 @@ const MobileMemberCard = ({
                 {member.status && (
                   <Chip
                     label={member.status}
-                    size={isMobile ? 'small' : 'medium'}
+                    size={isMobile ? "small" : "medium"}
                     color={getStatusColor(member.status)}
                     sx={{
                       height: isMobile ? 24 : 32,
-                      fontSize: isMobile ? '11px' : '12px',
+                      fontSize: isMobile ? "11px" : "12px",
                     }}
                   />
                 )}
@@ -261,16 +261,16 @@ const MobileMemberCard = ({
             {!compact && (member.phone || member.joinDate) && (
               <Box
                 sx={{
-                  display: 'flex',
-                  flexDirection: isMobile ? 'column' : 'row',
+                  display: "flex",
+                  flexDirection: isMobile ? "column" : "row",
                   gap: isMobile ? 0.5 : 2,
                   mt: 1,
                 }}
               >
                 {member.phone && (
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                    <PhoneIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-                    <Typography variant='caption' color='text.secondary'>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                    <PhoneIcon sx={{ fontSize: 16, color: "text.secondary" }} />
+                    <Typography variant="caption" color="text.secondary">
                       {member.phone}
                     </Typography>
                   </Box>
@@ -278,9 +278,9 @@ const MobileMemberCard = ({
 
                 {member.joinDate && (
                   <Typography
-                    variant='caption'
-                    color='text.secondary'
-                    sx={{ fontSize: isMobile ? '11px' : '12px' }}
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ fontSize: isMobile ? "11px" : "12px" }}
                   >
                     Joined {new Date(member.joinDate).toLocaleDateString()}
                   </Typography>
@@ -298,32 +298,32 @@ const MobileMemberCard = ({
             pt: 0,
             px: 2,
             pb: 2,
-            justifyContent: 'space-around',
+            justifyContent: "space-around",
           }}
         >
           {member.email && (
             <IconButton
-              size='small'
+              size="small"
               onClick={(e) => {
                 e.stopPropagation();
-                handleAction('contact');
+                handleAction("contact");
               }}
               sx={{ minWidth: 44, minHeight: 44 }}
             >
-              <EmailIcon fontSize='small' />
+              <EmailIcon fontSize="small" />
             </IconButton>
           )}
 
           {onEdit && (
             <IconButton
-              size='small'
+              size="small"
               onClick={(e) => {
                 e.stopPropagation();
-                handleAction('edit');
+                handleAction("edit");
               }}
               sx={{ minWidth: 44, minHeight: 44 }}
             >
-              <EditIcon fontSize='small' />
+              <EditIcon fontSize="small" />
             </IconButton>
           )}
         </CardActions>
@@ -335,32 +335,32 @@ const MobileMemberCard = ({
         open={menuOpen}
         onClose={handleMenuClose}
         anchorOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
+          vertical: "top",
+          horizontal: "right",
         }}
         transformOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
+          vertical: "top",
+          horizontal: "right",
         }}
         sx={{
-          '& .MuiPaper-root': {
+          "& .MuiPaper-root": {
             minWidth: 180,
           },
         }}
       >
         {onEdit && (
-          <MenuItem onClick={() => handleAction('edit')}>
+          <MenuItem onClick={() => handleAction("edit")}>
             <ListItemIcon>
-              <EditIcon fontSize='small' />
+              <EditIcon fontSize="small" />
             </ListItemIcon>
             <ListItemText>Edit Member</ListItemText>
           </MenuItem>
         )}
 
         {onContact && member.email && (
-          <MenuItem onClick={() => handleAction('contact')}>
+          <MenuItem onClick={() => handleAction("contact")}>
             <ListItemIcon>
-              <EmailIcon fontSize='small' />
+              <EmailIcon fontSize="small" />
             </ListItemIcon>
             <ListItemText>Send Email</ListItemText>
           </MenuItem>
@@ -370,11 +370,11 @@ const MobileMemberCard = ({
 
         {onDelete && (
           <MenuItem
-            onClick={() => handleAction('delete')}
-            sx={{ color: 'error.main' }}
+            onClick={() => handleAction("delete")}
+            sx={{ color: "error.main" }}
           >
             <ListItemIcon>
-              <DeleteIcon fontSize='small' color='error' />
+              <DeleteIcon fontSize="small" color="error" />
             </ListItemIcon>
             <ListItemText>Remove Member</ListItemText>
           </MenuItem>

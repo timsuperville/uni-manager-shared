@@ -16,4 +16,4 @@ export {
   withRoles,
   PermissionButton,
   PermissionMenuItem,
-} from './RBACComponents.jsx';
+} from "./RBACComponents.jsx";

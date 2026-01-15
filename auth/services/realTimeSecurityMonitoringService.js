@@ -22,7 +22,7 @@ class RealTimeSecurityMonitoringService {
       alertsCount: 0,
       connectionsCount: 0,
       lastThreatDetected: null,
-      systemHealth: 'initializing',
+      systemHealth: "initializing",
     };
   }
 
@@ -37,10 +37,10 @@ class RealTimeSecurityMonitoringService {
       this.metrics.connectionsCount++;
 
       // Simulate connection delay
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
-      this.emit('connected');
-      this.metrics.systemHealth = 'healthy';
+      this.emit("connected");
+      this.metrics.systemHealth = "healthy";
 
       return {
         success: true,
@@ -48,7 +48,7 @@ class RealTimeSecurityMonitoringService {
         monitoringConfig: this.monitoringConfig,
       };
     } catch (error) {
-      this.emit('error', { message: error.message });
+      this.emit("error", { message: error.message });
       return { success: false, error: error.message };
     }
   }
@@ -60,7 +60,7 @@ class RealTimeSecurityMonitoringService {
     if (this.isConnected) return;
 
     this.isConnected = true;
-    this.emit('connected');
+    this.emit("connected");
   }
 
   /**
@@ -68,7 +68,7 @@ class RealTimeSecurityMonitoringService {
    */
   async disconnect() {
     this.isConnected = false;
-    this.emit('disconnected');
+    this.emit("disconnected");
   }
 
   /**
@@ -108,7 +108,7 @@ class RealTimeSecurityMonitoringService {
    */
   emit(event, data) {
     if (this.eventHandlers.has(event)) {
-      this.eventHandlers.get(event).forEach(handler => {
+      this.eventHandlers.get(event).forEach((handler) => {
         try {
           handler(data);
         } catch (error) {
@@ -123,22 +123,22 @@ class RealTimeSecurityMonitoringService {
    */
   async processSecurityEvent(event) {
     if (!this.isConnected) {
-      throw new Error('Service not connected');
+      throw new Error("Service not connected");
     }
 
     // Process different event types
     switch (event.type) {
-      case 'threat_detected':
+      case "threat_detected":
         await this.handleThreat(event.data);
         break;
-      case 'behavior_anomaly':
+      case "behavior_anomaly":
         await this.handleBehaviorAnomaly(event.data);
         break;
-      case 'security_alert':
+      case "security_alert":
         await this.handleSecurityAlert(event.data);
         break;
       default:
-        console.log('Unknown security event type:', event.type);
+        console.log("Unknown security event type:", event.type);
     }
   }
 
@@ -149,7 +149,7 @@ class RealTimeSecurityMonitoringService {
     const threat = {
       threatId: threatData.threatId || `threat_${Date.now()}`,
       threatType: threatData.threatType,
-      severity: threatData.severity || 'medium',
+      severity: threatData.severity || "medium",
       confidence: threatData.confidence || 0.5,
       source: threatData.source,
       target: threatData.target || this.userId,
@@ -161,7 +161,7 @@ class RealTimeSecurityMonitoringService {
     this.metrics.lastThreatDetected = threat.timestamp;
     this.metrics.alertsCount++;
 
-    this.emit('threatDetected', threat);
+    this.emit("threatDetected", threat);
   }
 
   /**
@@ -170,13 +170,13 @@ class RealTimeSecurityMonitoringService {
   async handleBehaviorAnomaly(anomalyData) {
     const anomaly = {
       anomalyType: anomalyData.anomalyType,
-      severity: anomalyData.severity || 'low',
+      severity: anomalyData.severity || "low",
       confidence: anomalyData.confidence || 0.5,
       behaviorData: anomalyData.behaviorData || {},
       timestamp: anomalyData.timestamp || Date.now(),
     };
 
-    this.emit('behaviorAnomaly', anomaly);
+    this.emit("behaviorAnomaly", anomaly);
   }
 
   /**
@@ -186,13 +186,13 @@ class RealTimeSecurityMonitoringService {
     const alert = {
       alertId: alertData.alertId || `alert_${Date.now()}`,
       alertType: alertData.alertType,
-      severity: alertData.severity || 'low',
+      severity: alertData.severity || "low",
       message: alertData.message,
       timestamp: alertData.timestamp || Date.now(),
       actionRequired: alertData.actionRequired || false,
     };
 
-    this.emit('securityAlert', alert);
+    this.emit("securityAlert", alert);
   }
 
   /**
@@ -215,11 +215,11 @@ class RealTimeSecurityMonitoringService {
    */
   async sendMessage(message) {
     if (!this.isConnected) {
-      throw new Error('Service not connected');
+      throw new Error("Service not connected");
     }
 
     // Simulate sending message
-    console.log('Security monitoring message:', message);
+    console.log("Security monitoring message:", message);
   }
 }
 

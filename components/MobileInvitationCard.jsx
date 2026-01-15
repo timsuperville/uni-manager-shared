@@ -3,8 +3,8 @@
  * Responsive invitation display with touch-friendly interactions
  */
 
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
+import React, { useState } from "react";
+import PropTypes from "prop-types";
 import {
   Card,
   CardContent,
@@ -22,7 +22,7 @@ import {
   LinearProgress,
   useTheme,
   alpha,
-} from '@mui/material';
+} from "@mui/material";
 import {
   MoreVert as MoreVertIcon,
   Email as EmailIcon,
@@ -33,12 +33,12 @@ import {
   Cancel as DeclinedIcon,
   HourglassEmpty as PendingIcon,
   Refresh as ResendIcon,
-} from '@mui/icons-material';
+} from "@mui/icons-material";
 import {
   useResponsive,
   useTouchGestures,
   ResponsiveText,
-} from '../utils/responsiveUtils';
+} from "../utils/responsiveUtils";
 
 const MobileInvitationCard = ({
   invitation,
@@ -79,9 +79,9 @@ const MobileInvitationCard = ({
     setIsLoading(true);
 
     try {
-      if (action === 'resend' && onResend) await onResend(invitation);
-      if (action === 'delete' && onDelete) await onDelete(invitation);
-      if (action === 'copy' && onCopyLink) await onCopyLink(invitation);
+      if (action === "resend" && onResend) await onResend(invitation);
+      if (action === "delete" && onDelete) await onDelete(invitation);
+      if (action === "copy" && onCopyLink) await onCopyLink(invitation);
     } finally {
       setIsLoading(false);
     }
@@ -90,26 +90,26 @@ const MobileInvitationCard = ({
   // Get status display properties
   const getStatusDisplay = (status) => {
     switch (status?.toLowerCase()) {
-      case 'accepted':
+      case "accepted":
         return {
-          color: 'success',
+          color: "success",
           icon: <AcceptedIcon sx={{ fontSize: 16 }} />,
-          label: 'Accepted',
+          label: "Accepted",
           bgColor: alpha(theme.palette.success.main, 0.1),
         };
-      case 'declined':
+      case "declined":
         return {
-          color: 'error',
+          color: "error",
           icon: <DeclinedIcon sx={{ fontSize: 16 }} />,
-          label: 'Declined',
+          label: "Declined",
           bgColor: alpha(theme.palette.error.main, 0.1),
         };
-      case 'pending':
+      case "pending":
       default:
         return {
-          color: 'warning',
+          color: "warning",
           icon: <PendingIcon sx={{ fontSize: 16 }} />,
-          label: 'Pending',
+          label: "Pending",
           bgColor: alpha(theme.palette.warning.main, 0.1),
         };
     }
@@ -125,7 +125,7 @@ const MobileInvitationCard = ({
     const expiry = new Date(expiresAt);
     const diff = expiry - now;
 
-    if (diff <= 0) return 'Expired';
+    if (diff <= 0) return "Expired";
 
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
     const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -138,7 +138,7 @@ const MobileInvitationCard = ({
   };
 
   const timeRemaining = getTimeRemaining(invitation.expiresAt);
-  const isExpired = timeRemaining === 'Expired';
+  const isExpired = timeRemaining === "Expired";
 
   // Calculate expiry progress (for progress bar)
   const getExpiryProgress = () => {
@@ -157,26 +157,26 @@ const MobileInvitationCard = ({
   return (
     <Card
       sx={{
-        width: '100%',
+        width: "100%",
         mb: isMobile ? 1 : 2,
-        cursor: 'pointer',
-        transition: 'all 0.2s ease-in-out',
+        cursor: "pointer",
+        transition: "all 0.2s ease-in-out",
         borderLeft: `4px solid ${
-          statusDisplay.color === 'success'
+          statusDisplay.color === "success"
             ? theme.palette.success.main
-            : statusDisplay.color === 'error'
+            : statusDisplay.color === "error"
               ? theme.palette.error.main
               : theme.palette.warning.main
         }`,
         backgroundColor: isExpired
           ? alpha(theme.palette.error.main, 0.02)
-          : 'background.paper',
-        '&:hover': {
-          transform: isMobile ? 'none' : 'translateY(-2px)',
+          : "background.paper",
+        "&:hover": {
+          transform: isMobile ? "none" : "translateY(-2px)",
           boxShadow: isMobile ? 1 : 4,
         },
-        '&:active': {
-          transform: isMobile ? 'scale(0.98)' : 'none',
+        "&:active": {
+          transform: isMobile ? "scale(0.98)" : "none",
           backgroundColor: alpha(theme.palette.primary.main, 0.04),
         },
       }}
@@ -186,7 +186,7 @@ const MobileInvitationCard = ({
       {isLoading && (
         <LinearProgress
           sx={{
-            position: 'absolute',
+            position: "absolute",
             top: 0,
             left: 0,
             right: 0,
@@ -205,33 +205,33 @@ const MobileInvitationCard = ({
         {/* Header */}
         <Box
           sx={{
-            display: 'flex',
-            alignItems: 'flex-start',
-            justifyContent: 'space-between',
+            display: "flex",
+            alignItems: "flex-start",
+            justifyContent: "space-between",
             mb: compact ? 1 : 2,
           }}
         >
           <Box sx={{ minWidth: 0, flexGrow: 1 }}>
             <ResponsiveText
-              variant={isMobile ? 'h6' : 'h5'}
-              component='h3'
+              variant={isMobile ? "h6" : "h5"}
+              component="h3"
               sx={{
                 fontWeight: 600,
-                fontSize: isMobile ? (compact ? '14px' : '16px') : '18px',
+                fontSize: isMobile ? (compact ? "14px" : "16px") : "18px",
                 lineHeight: 1.2,
                 mb: 0.5,
               }}
               noWrap
             >
-              {invitation.recipientEmail || 'Unknown Recipient'}
+              {invitation.recipientEmail || "Unknown Recipient"}
             </ResponsiveText>
 
             {invitation.recipientName && (
               <Typography
-                variant='body2'
-                color='text.secondary'
+                variant="body2"
+                color="text.secondary"
                 sx={{
-                  fontSize: isMobile ? '12px' : '14px',
+                  fontSize: isMobile ? "12px" : "14px",
                   mb: 0.5,
                 }}
                 noWrap
@@ -244,7 +244,7 @@ const MobileInvitationCard = ({
           {/* Actions Menu */}
           {showActions && (
             <IconButton
-              size={isMobile ? 'small' : 'medium'}
+              size={isMobile ? "small" : "medium"}
               onClick={handleMenuOpen}
               disabled={isLoading}
               sx={{
@@ -253,7 +253,7 @@ const MobileInvitationCard = ({
                 minHeight: isMobile ? 32 : 40,
               }}
             >
-              <MoreVertIcon fontSize={isMobile ? 'small' : 'medium'} />
+              <MoreVertIcon fontSize={isMobile ? "small" : "medium"} />
             </IconButton>
           )}
         </Box>
@@ -261,9 +261,9 @@ const MobileInvitationCard = ({
         {/* Status and Role */}
         <Box
           sx={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            alignItems: 'center',
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
             gap: 0.5,
             mb: compact ? 1 : 2,
           }}
@@ -271,13 +271,13 @@ const MobileInvitationCard = ({
           <Chip
             icon={statusDisplay.icon}
             label={statusDisplay.label}
-            size={isMobile ? 'small' : 'medium'}
+            size={isMobile ? "small" : "medium"}
             color={statusDisplay.color}
             sx={{
               height: isMobile ? 24 : 32,
-              fontSize: isMobile ? '11px' : '12px',
+              fontSize: isMobile ? "11px" : "12px",
               backgroundColor: statusDisplay.bgColor,
-              '& .MuiChip-icon': {
+              "& .MuiChip-icon": {
                 fontSize: isMobile ? 14 : 16,
               },
             }}
@@ -286,23 +286,23 @@ const MobileInvitationCard = ({
           {invitation.role && (
             <Chip
               label={invitation.role}
-              size={isMobile ? 'small' : 'medium'}
-              variant='outlined'
+              size={isMobile ? "small" : "medium"}
+              variant="outlined"
               sx={{
                 height: isMobile ? 24 : 32,
-                fontSize: isMobile ? '11px' : '12px',
+                fontSize: isMobile ? "11px" : "12px",
               }}
             />
           )}
 
           {isExpired && (
             <Chip
-              label='Expired'
-              size={isMobile ? 'small' : 'medium'}
-              color='error'
+              label="Expired"
+              size={isMobile ? "small" : "medium"}
+              color="error"
               sx={{
                 height: isMobile ? 24 : 32,
-                fontSize: isMobile ? '11px' : '12px',
+                fontSize: isMobile ? "11px" : "12px",
               }}
             />
           )}
@@ -315,17 +315,17 @@ const MobileInvitationCard = ({
             {timeRemaining && (
               <Box
                 sx={{
-                  display: 'flex',
-                  alignItems: 'center',
+                  display: "flex",
+                  alignItems: "center",
                   gap: 0.5,
                   mb: 1,
                 }}
               >
-                <TimeIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
+                <TimeIcon sx={{ fontSize: 16, color: "text.secondary" }} />
                 <Typography
-                  variant='caption'
-                  color={isExpired ? 'error.main' : 'text.secondary'}
-                  sx={{ fontSize: isMobile ? '11px' : '12px' }}
+                  variant="caption"
+                  color={isExpired ? "error.main" : "text.secondary"}
+                  sx={{ fontSize: isMobile ? "11px" : "12px" }}
                 >
                   {timeRemaining}
                 </Typography>
@@ -336,9 +336,9 @@ const MobileInvitationCard = ({
             {invitation.expiresAt && !isExpired && (
               <Box sx={{ mb: 1 }}>
                 <LinearProgress
-                  variant='determinate'
+                  variant="determinate"
                   value={getExpiryProgress()}
-                  color={getExpiryProgress() > 80 ? 'error' : 'primary'}
+                  color={getExpiryProgress() > 80 ? "error" : "primary"}
                   sx={{
                     height: 4,
                     borderRadius: 2,
@@ -351,9 +351,9 @@ const MobileInvitationCard = ({
             {/* Send Date */}
             {invitation.sentAt && (
               <Typography
-                variant='caption'
-                color='text.secondary'
-                sx={{ fontSize: isMobile ? '11px' : '12px' }}
+                variant="caption"
+                color="text.secondary"
+                sx={{ fontSize: isMobile ? "11px" : "12px" }}
               >
                 Sent {new Date(invitation.sentAt).toLocaleDateString()}
               </Typography>
@@ -364,16 +364,16 @@ const MobileInvitationCard = ({
         {/* Message Preview */}
         {!compact && invitation.message && (
           <Typography
-            variant='body2'
-            color='text.secondary'
+            variant="body2"
+            color="text.secondary"
             sx={{
-              fontSize: isMobile ? '12px' : '14px',
-              fontStyle: 'italic',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              display: '-webkit-box',
+              fontSize: isMobile ? "12px" : "14px",
+              fontStyle: "italic",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              display: "-webkit-box",
               WebkitLineClamp: 2,
-              WebkitBoxOrient: 'vertical',
+              WebkitBoxOrient: "vertical",
             }}
           >
             {`'${invitation.message}'`}
@@ -388,16 +388,16 @@ const MobileInvitationCard = ({
             pt: 0,
             px: 2,
             pb: 2,
-            justifyContent: 'space-around',
+            justifyContent: "space-around",
           }}
         >
-          {onResend && invitation.status === 'pending' && (
+          {onResend && invitation.status === "pending" && (
             <Button
-              size='small'
-              startIcon={<ResendIcon fontSize='small' />}
+              size="small"
+              startIcon={<ResendIcon fontSize="small" />}
               onClick={(e) => {
                 e.stopPropagation();
-                handleAction('resend');
+                handleAction("resend");
               }}
               disabled={isLoading || isExpired}
               sx={{ minHeight: 36 }}
@@ -408,11 +408,11 @@ const MobileInvitationCard = ({
 
           {onCopyLink && (
             <Button
-              size='small'
-              startIcon={<CopyIcon fontSize='small' />}
+              size="small"
+              startIcon={<CopyIcon fontSize="small" />}
               onClick={(e) => {
                 e.stopPropagation();
-                handleAction('copy');
+                handleAction("copy");
               }}
               disabled={isLoading}
               sx={{ minHeight: 36 }}
@@ -429,42 +429,45 @@ const MobileInvitationCard = ({
         open={menuOpen}
         onClose={handleMenuClose}
         anchorOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
+          vertical: "top",
+          horizontal: "right",
         }}
         transformOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
+          vertical: "top",
+          horizontal: "right",
         }}
         sx={{
-          '& .MuiPaper-root': {
+          "& .MuiPaper-root": {
             minWidth: 180,
           },
         }}
       >
-        {onResend && invitation.status === 'pending' && !isExpired && (
-          <MenuItem onClick={() => handleAction('resend')}>
+        {onResend && invitation.status === "pending" && !isExpired && (
+          <MenuItem onClick={() => handleAction("resend")}>
             <ListItemIcon>
-              <ResendIcon fontSize='small' />
+              <ResendIcon fontSize="small" />
             </ListItemIcon>
             <ListItemText>Resend Invitation</ListItemText>
           </MenuItem>
         )}
 
         {onCopyLink && (
-          <MenuItem onClick={() => handleAction('copy')}>
+          <MenuItem onClick={() => handleAction("copy")}>
             <ListItemIcon>
-              <CopyIcon fontSize='small' />
+              <CopyIcon fontSize="small" />
             </ListItemIcon>
             <ListItemText>Copy Link</ListItemText>
           </MenuItem>
         )}
 
         <MenuItem
-          onClick={() => typeof window !== "undefined" && window.open(`mailto:${invitation.recipientEmail}`)}
+          onClick={() =>
+            typeof window !== "undefined" &&
+            window.open(`mailto:${invitation.recipientEmail}`)
+          }
         >
           <ListItemIcon>
-            <EmailIcon fontSize='small' />
+            <EmailIcon fontSize="small" />
           </ListItemIcon>
           <ListItemText>Send Email</ListItemText>
         </MenuItem>
@@ -473,11 +476,11 @@ const MobileInvitationCard = ({
 
         {onDelete && (
           <MenuItem
-            onClick={() => handleAction('delete')}
-            sx={{ color: 'error.main' }}
+            onClick={() => handleAction("delete")}
+            sx={{ color: "error.main" }}
           >
             <ListItemIcon>
-              <DeleteIcon fontSize='small' color='error' />
+              <DeleteIcon fontSize="small" color="error" />
             </ListItemIcon>
             <ListItemText>Delete Invitation</ListItemText>
           </MenuItem>
@@ -493,7 +496,7 @@ MobileInvitationCard.propTypes = {
     id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     recipientEmail: PropTypes.string.isRequired,
     recipientName: PropTypes.string,
-    status: PropTypes.oneOf(['pending', 'accepted', 'declined']),
+    status: PropTypes.oneOf(["pending", "accepted", "declined"]),
     role: PropTypes.string,
     message: PropTypes.string,
     sentAt: PropTypes.string,

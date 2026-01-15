@@ -1,6 +1,6 @@
 /* eslint-env browser, es2020 */
 /* global AbortController, fetch, localStorage, console, URLSearchParams */
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from "react";
 
 /**
  * Content Management Hook
@@ -33,7 +33,7 @@ const useContentManagement = () => {
   const lastFetchParams = useRef(null);
 
   // API base URL
-  const API_BASE = '/content';
+  const API_BASE = "/content";
 
   // Generic API request handler with caching and error handling
   const apiRequest = useCallback(async (endpoint, options = {}) => {
@@ -50,8 +50,8 @@ const useContentManagement = () => {
         ...options,
         signal,
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${typeof localStorage !== "undefined" && localStorage.getItem('token')}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${typeof localStorage !== "undefined" && localStorage.getItem("token")}`,
           ...options.headers,
         },
       });
@@ -59,14 +59,15 @@ const useContentManagement = () => {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(
-          errorData.message || `HTTP ${response.status}: ${response.statusText}`
+          errorData.message ||
+            `HTTP ${response.status}: ${response.statusText}`,
         );
       }
 
       const data = await response.json();
       return data;
     } catch (_error) {
-      if (error.name === 'AbortError') {
+      if (error.name === "AbortError") {
         return null; // Request was cancelled
       }
       // console.error('API request failed:', error);
@@ -85,7 +86,7 @@ const useContentManagement = () => {
         const queryParams = new URLSearchParams();
 
         Object.entries(params).forEach(([key, value]) => {
-          if (value !== undefined && value !== null && value !== '') {
+          if (value !== undefined && value !== null && value !== "") {
             queryParams.append(key, value);
           }
         });
@@ -136,7 +137,7 @@ const useContentManagement = () => {
         setLoading(false);
       }
     },
-    [apiRequest]
+    [apiRequest],
   );
 
   // Create new content
@@ -146,8 +147,8 @@ const useContentManagement = () => {
       setError(null);
 
       try {
-        const result = await apiRequest('', {
-          method: 'POST',
+        const result = await apiRequest("", {
+          method: "POST",
           body: JSON.stringify(contentData),
         });
 
@@ -166,7 +167,7 @@ const useContentManagement = () => {
           return result.data;
         }
 
-        throw new Error(result?.message || 'Failed to create content');
+        throw new Error(result?.message || "Failed to create content");
       } catch (_error) {
         setError(error.message);
         throw error;
@@ -174,7 +175,7 @@ const useContentManagement = () => {
         setLoading(false);
       }
     },
-    [apiRequest, fetchContent]
+    [apiRequest, fetchContent],
   );
 
   // Update existing content
@@ -185,7 +186,7 @@ const useContentManagement = () => {
 
       try {
         const result = await apiRequest(`/${contentId}`, {
-          method: 'PUT',
+          method: "PUT",
           body: JSON.stringify(updates),
         });
 
@@ -193,8 +194,8 @@ const useContentManagement = () => {
           // Update content in current list
           setContent((prev) =>
             prev.map((item) =>
-              item._id === contentId ? { ...item, ...result.data } : item
-            )
+              item._id === contentId ? { ...item, ...result.data } : item,
+            ),
           );
 
           // Clear cache
@@ -203,7 +204,7 @@ const useContentManagement = () => {
           return result.data;
         }
 
-        throw new Error(result?.message || 'Failed to update content');
+        throw new Error(result?.message || "Failed to update content");
       } catch (_error) {
         setError(error.message);
         throw error;
@@ -211,7 +212,7 @@ const useContentManagement = () => {
         setLoading(false);
       }
     },
-    [apiRequest]
+    [apiRequest],
   );
 
   // Delete content
@@ -221,9 +222,9 @@ const useContentManagement = () => {
       setError(null);
 
       try {
-        const queryParam = permanent ? '?permanent=true' : '';
+        const queryParam = permanent ? "?permanent=true" : "";
         const result = await apiRequest(`/${contentId}${queryParam}`, {
-          method: 'DELETE',
+          method: "DELETE",
         });
 
         if (result?.success) {
@@ -236,7 +237,7 @@ const useContentManagement = () => {
           return true;
         }
 
-        throw new Error(result?.message || 'Failed to delete content');
+        throw new Error(result?.message || "Failed to delete content");
       } catch (_error) {
         setError(error.message);
         throw error;
@@ -244,7 +245,7 @@ const useContentManagement = () => {
         setLoading(false);
       }
     },
-    [apiRequest]
+    [apiRequest],
   );
 
   // Duplicate content
@@ -255,7 +256,7 @@ const useContentManagement = () => {
 
       try {
         const result = await apiRequest(`/${contentId}/duplicate`, {
-          method: 'POST',
+          method: "POST",
           body: JSON.stringify(options),
         });
 
@@ -269,7 +270,7 @@ const useContentManagement = () => {
           return result.data;
         }
 
-        throw new Error(result?.message || 'Failed to duplicate content');
+        throw new Error(result?.message || "Failed to duplicate content");
       } catch (_error) {
         setError(error.message);
         throw error;
@@ -277,7 +278,7 @@ const useContentManagement = () => {
         setLoading(false);
       }
     },
-    [apiRequest]
+    [apiRequest],
   );
 
   // Analyze content quality and SEO
@@ -288,7 +289,7 @@ const useContentManagement = () => {
 
       try {
         const result = await apiRequest(`/${contentId}/analyze`, {
-          method: 'POST',
+          method: "POST",
         });
 
         if (result?.success) {
@@ -301,14 +302,14 @@ const useContentManagement = () => {
                     analysis: result.data,
                     qualityScore: result.data.quality?.overallScore || 0,
                   }
-                : item
-            )
+                : item,
+            ),
           );
 
           return result.data;
         }
 
-        throw new Error(result?.message || 'Failed to analyze content');
+        throw new Error(result?.message || "Failed to analyze content");
       } catch (_error) {
         setError(error.message);
         throw error;
@@ -316,7 +317,7 @@ const useContentManagement = () => {
         setLoading(false);
       }
     },
-    [apiRequest]
+    [apiRequest],
   );
 
   // Optimize content using AI
@@ -327,7 +328,7 @@ const useContentManagement = () => {
 
       try {
         const result = await apiRequest(`/${contentId}/optimize`, {
-          method: 'POST',
+          method: "POST",
           body: JSON.stringify({ autoApply }),
         });
 
@@ -336,15 +337,15 @@ const useContentManagement = () => {
             // Update content in current list
             setContent((prev) =>
               prev.map((item) =>
-                item._id === contentId ? { ...item, ...result.data } : item
-              )
+                item._id === contentId ? { ...item, ...result.data } : item,
+              ),
             );
           }
 
           return result;
         }
 
-        throw new Error(result?.message || 'Failed to optimize content');
+        throw new Error(result?.message || "Failed to optimize content");
       } catch (_error) {
         setError(error.message);
         throw error;
@@ -352,7 +353,7 @@ const useContentManagement = () => {
         setLoading(false);
       }
     },
-    [apiRequest]
+    [apiRequest],
   );
 
   // Translate content to multiple languages
@@ -363,7 +364,7 @@ const useContentManagement = () => {
 
       try {
         const result = await apiRequest(`/${contentId}/translate`, {
-          method: 'POST',
+          method: "POST",
           body: JSON.stringify({ targetLanguages, options }),
         });
 
@@ -377,7 +378,7 @@ const useContentManagement = () => {
           return result.data;
         }
 
-        throw new Error(result?.message || 'Failed to translate content');
+        throw new Error(result?.message || "Failed to translate content");
       } catch (_error) {
         setError(error.message);
         throw error;
@@ -385,7 +386,7 @@ const useContentManagement = () => {
         setLoading(false);
       }
     },
-    [apiRequest]
+    [apiRequest],
   );
 
   // Publish content
@@ -396,7 +397,7 @@ const useContentManagement = () => {
 
       try {
         const result = await apiRequest(`/${contentId}/publish`, {
-          method: 'POST',
+          method: "POST",
           body: JSON.stringify(options),
         });
 
@@ -407,17 +408,17 @@ const useContentManagement = () => {
               item._id === contentId
                 ? {
                     ...item,
-                    status: 'published',
+                    status: "published",
                     publishedAt: new Date().toISOString(),
                   }
-                : item
-            )
+                : item,
+            ),
           );
 
           return result.data;
         }
 
-        throw new Error(result?.message || 'Failed to publish content');
+        throw new Error(result?.message || "Failed to publish content");
       } catch (_error) {
         setError(error.message);
         throw error;
@@ -425,7 +426,7 @@ const useContentManagement = () => {
         setLoading(false);
       }
     },
-    [apiRequest]
+    [apiRequest],
   );
 
   // Archive content
@@ -436,22 +437,22 @@ const useContentManagement = () => {
 
       try {
         const result = await apiRequest(`/${contentId}`, {
-          method: 'PUT',
-          body: JSON.stringify({ status: 'archived' }),
+          method: "PUT",
+          body: JSON.stringify({ status: "archived" }),
         });
 
         if (result?.success) {
           // Update content status
           setContent((prev) =>
             prev.map((item) =>
-              item._id === contentId ? { ...item, status: 'archived' } : item
-            )
+              item._id === contentId ? { ...item, status: "archived" } : item,
+            ),
           );
 
           return result.data;
         }
 
-        throw new Error(result?.message || 'Failed to archive content');
+        throw new Error(result?.message || "Failed to archive content");
       } catch (_error) {
         setError(error.message);
         throw error;
@@ -459,7 +460,7 @@ const useContentManagement = () => {
         setLoading(false);
       }
     },
-    [apiRequest]
+    [apiRequest],
   );
 
   // Generate content recommendations
@@ -468,7 +469,7 @@ const useContentManagement = () => {
       try {
         const queryParams = new URLSearchParams({ limit: limit.toString() });
         if (contentId) {
-          queryParams.append('contentId', contentId);
+          queryParams.append("contentId", contentId);
         }
 
         const result = await apiRequest(`/recommendations?${queryParams}`);
@@ -479,23 +480,23 @@ const useContentManagement = () => {
         }
 
         throw new Error(
-          result?.message || 'Failed to generate recommendations'
+          result?.message || "Failed to generate recommendations",
         );
       } catch (_error) {
         // console.error('Recommendations error:', error);
         return { recommendations: [] };
       }
     },
-    [apiRequest]
+    [apiRequest],
   );
 
   // Get content analytics
   const getAnalytics = useCallback(
-    async (contentId = null, timeframe = '30d') => {
+    async (contentId = null, timeframe = "30d") => {
       try {
         const queryParams = new URLSearchParams({ timeframe });
         if (contentId) {
-          queryParams.append('contentId', contentId);
+          queryParams.append("contentId", contentId);
         }
 
         const result = await apiRequest(`/analytics?${queryParams}`);
@@ -504,13 +505,13 @@ const useContentManagement = () => {
           return result.data;
         }
 
-        throw new Error(result?.message || 'Failed to get analytics');
+        throw new Error(result?.message || "Failed to get analytics");
       } catch (_error) {
         // console.error('Analytics error:', error);
         return null;
       }
     },
-    [apiRequest]
+    [apiRequest],
   );
 
   // Search content with advanced filters
@@ -539,7 +540,7 @@ const useContentManagement = () => {
           return result.data;
         }
 
-        throw new Error(result?.message || 'Search failed');
+        throw new Error(result?.message || "Search failed");
       } catch (_error) {
         setError(error.message);
         setContent([]);
@@ -547,13 +548,13 @@ const useContentManagement = () => {
         setLoading(false);
       }
     },
-    [apiRequest]
+    [apiRequest],
   );
 
   // Get content metrics
   const getContentMetrics = useCallback(async () => {
     try {
-      const result = await apiRequest('/metrics');
+      const result = await apiRequest("/metrics");
 
       if (result?.success) {
         setMetrics(result.data);
@@ -572,7 +573,7 @@ const useContentManagement = () => {
     async (contentId, edit) => {
       try {
         const result = await apiRequest(`/${contentId}/collaborate`, {
-          method: 'POST',
+          method: "POST",
           body: JSON.stringify({ edit }),
         });
 
@@ -582,20 +583,20 @@ const useContentManagement = () => {
             prev.map((item) =>
               item._id === contentId
                 ? { ...item, ...result.data.content }
-                : item
-            )
+                : item,
+            ),
           );
 
           return result.data;
         }
 
-        throw new Error(result?.message || 'Collaborative edit failed');
+        throw new Error(result?.message || "Collaborative edit failed");
       } catch (_error) {
         // console.error('Collaborative edit error:', error);
         throw error;
       }
     },
-    [apiRequest]
+    [apiRequest],
   );
 
   // Load initial data and metrics

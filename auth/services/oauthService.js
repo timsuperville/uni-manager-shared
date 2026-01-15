@@ -6,7 +6,7 @@
 class OAuthService {
   constructor() {
     this.providers = new Map();
-    this.baseUrl = 'http://localhost:5000'; // Will be configurable
+    this.baseUrl = "http://localhost:5000"; // Will be configurable
   }
 
   /**
@@ -15,15 +15,18 @@ class OAuthService {
    */
   async getProviders() {
     try {
-      const response = await globalThis.fetch(`${this.baseUrl}/api/auth/oauth/providers`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await globalThis.fetch(
+        `${this.baseUrl}/api/auth/oauth/providers`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
         },
-      });
+      );
 
       if (!response.ok) {
-        throw new Error('Failed to fetch OAuth providers');
+        throw new Error("Failed to fetch OAuth providers");
       }
 
       const data = await response.json();
@@ -41,23 +44,30 @@ class OAuthService {
    * @returns {Promise<Object>} Authentication result
    */
   async authenticate(provider, options = {}) {
-    const redirectUri = options.redirectUri || (typeof globalThis.location !== 'undefined' ? globalThis.location.origin : 'http://localhost:3000');
+    const redirectUri =
+      options.redirectUri ||
+      (typeof globalThis.location !== "undefined"
+        ? globalThis.location.origin
+        : "http://localhost:3000");
 
-    const response = await globalThis.fetch(`${this.baseUrl}/api/auth/oauth/${provider}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
+    const response = await globalThis.fetch(
+      `${this.baseUrl}/api/auth/oauth/${provider}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          redirectUri,
+          state: options.state,
+          ...options,
+        }),
       },
-      body: JSON.stringify({
-        redirectUri,
-        state: options.state,
-        ...options,
-      }),
-    });
+    );
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || 'OAuth authentication failed');
+      throw new Error(errorData.message || "OAuth authentication failed");
     }
 
     const data = await response.json();
@@ -78,17 +88,20 @@ class OAuthService {
    * @returns {Promise<Object>} Authentication result
    */
   async handleCallback(provider, code, state) {
-    const response = await globalThis.fetch(`${this.baseUrl}/api/auth/oauth/${provider}/callback`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
+    const response = await globalThis.fetch(
+      `${this.baseUrl}/api/auth/oauth/${provider}/callback`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ code, state }),
       },
-      body: JSON.stringify({ code, state }),
-    });
+    );
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || 'OAuth callback failed');
+      throw new Error(errorData.message || "OAuth callback failed");
     }
 
     const data = await response.json();
@@ -108,13 +121,16 @@ class OAuthService {
    */
   async revokeToken(provider, token) {
     try {
-      const response = await globalThis.fetch(`${this.baseUrl}/api/auth/oauth/${provider}/revoke`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+      const response = await globalThis.fetch(
+        `${this.baseUrl}/api/auth/oauth/${provider}/revoke`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
         },
-      });
+      );
 
       return response.ok;
     } catch (error) {

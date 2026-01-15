@@ -11,9 +11,9 @@
 
 /* global console */
 
-import { useCallback, useState, useMemo } from 'react';
-import { useAuth } from './useAuth.js';
-import { MFAService } from '../services/mfaService.js';
+import { useCallback, useState, useMemo } from "react";
+import { useAuth } from "./useAuth.js";
+import { MFAService } from "../services/mfaService.js";
 
 /**
  * @typedef {Object} UseMFAReturn
@@ -46,82 +46,92 @@ export function useMFA() {
    * @param {string} method - MFA method (totp, sms, etc.)
    * @param {string} identifier - Email or phone number
    */
-  const handleSetupMFA = useCallback(async (method = 'totp', identifier = null) => {
-    setIsLoading(true);
-    setError(null);
+  const handleSetupMFA = useCallback(
+    async (method = "totp", identifier = null) => {
+      setIsLoading(true);
+      setError(null);
 
-    try {
-      let result;
-      if (method === 'totp') {
-        const targetEmail = identifier || user?.email;
-        if (!targetEmail) throw new Error('Email is required for TOTP setup');
-        result = await mfaService.setupTOTP(targetEmail);
-      } else if (method === 'sms') {
-        if (!identifier) throw new Error('Phone number is required for SMS setup');
-        result = await mfaService.setupSMS(identifier);
-      } else {
-        throw new Error(`Unsupported MFA method: ${method}`);
+      try {
+        let result;
+        if (method === "totp") {
+          const targetEmail = identifier || user?.email;
+          if (!targetEmail) throw new Error("Email is required for TOTP setup");
+          result = await mfaService.setupTOTP(targetEmail);
+        } else if (method === "sms") {
+          if (!identifier)
+            throw new Error("Phone number is required for SMS setup");
+          result = await mfaService.setupSMS(identifier);
+        } else {
+          throw new Error(`Unsupported MFA method: ${method}`);
+        }
+        return result;
+      } catch (err) {
+        setError(err.message || "MFA setup failed");
+        throw err;
+      } finally {
+        setIsLoading(false);
       }
-      return result;
-    } catch (err) {
-      setError(err.message || 'MFA setup failed');
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [mfaService, user?.email]);
+    },
+    [mfaService, user?.email],
+  );
 
   /**
    * Verify MFA code
    * @param {string} code - Verification code
    * @param {boolean} isSetup - Whether this is verification during setup
    */
-  const handleVerifyCode = useCallback(async (code, isSetup = false) => {
-    setIsLoading(true);
-    setError(null);
+  const handleVerifyCode = useCallback(
+    async (code, isSetup = false) => {
+      setIsLoading(true);
+      setError(null);
 
-    try {
-      let result;
-      if (isSetup) {
-        result = await mfaService.verifyTOTPSetup(code);
-        // If setup verified, we might want to generate backup codes automatically
-        if (result.success) {
-          try {
-            const codes = await mfaService.generateBackupCodes();
-            setBackupCodes(codes.backupCodes || codes);
-          } catch (e) {
-            console.warn('Failed to auto-generate backup codes', e);
+      try {
+        let result;
+        if (isSetup) {
+          result = await mfaService.verifyTOTPSetup(code);
+          // If setup verified, we might want to generate backup codes automatically
+          if (result.success) {
+            try {
+              const codes = await mfaService.generateBackupCodes();
+              setBackupCodes(codes.backupCodes || codes);
+            } catch (e) {
+              console.warn("Failed to auto-generate backup codes", e);
+            }
           }
+        } else {
+          result = await mfaService.verifyTOTP(code);
         }
-      } else {
-        result = await mfaService.verifyTOTP(code);
+        return result;
+      } catch (err) {
+        setError(err.message || "Code verification failed");
+        throw err;
+      } finally {
+        setIsLoading(false);
       }
-      return result;
-    } catch (err) {
-      setError(err.message || 'Code verification failed');
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [mfaService]);
+    },
+    [mfaService],
+  );
 
   /**
    * Disable MFA
    */
-  const handleDisableMFA = useCallback(async (method = 'totp', code = null) => {
-    setIsLoading(true);
-    setError(null);
+  const handleDisableMFA = useCallback(
+    async (method = "totp", code = null) => {
+      setIsLoading(true);
+      setError(null);
 
-    try {
-      await mfaService.disableMFA(method, code);
-      setBackupCodes([]);
-    } catch (err) {
-      setError(err.message || 'Failed to disable MFA');
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [mfaService]);
+      try {
+        await mfaService.disableMFA(method, code);
+        setBackupCodes([]);
+      } catch (err) {
+        setError(err.message || "Failed to disable MFA");
+        throw err;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [mfaService],
+  );
 
   /**
    * Generate Backup Codes explicitly
@@ -134,7 +144,7 @@ export function useMFA() {
       setBackupCodes(result.backupCodes || result);
       return result;
     } catch (err) {
-      setError(err.message || 'Failed to generate backup codes');
+      setError(err.message || "Failed to generate backup codes");
       throw err;
     } finally {
       setIsLoading(false);

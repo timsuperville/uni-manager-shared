@@ -1,10 +1,10 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from "react";
+import PropTypes from "prop-types";
 
 const Card = ({
   children,
-  className = '',
-  variant = 'default',
+  className = "",
+  variant = "default",
   interactive = false,
   compact = false,
   ...props
@@ -39,11 +39,11 @@ const Card = ({
     `,
   };
 
-  const compactClasses = compact ? 'rounded-lg' : 'rounded-xl';
+  const compactClasses = compact ? "rounded-lg" : "rounded-xl";
 
   const interactiveStyles = interactive
-    ? 'hover:shadow-lg dark:hover:shadow-gray-900/30 transition-all duration-200 cursor-pointer hover:scale-[1.02]'
-    : '';
+    ? "hover:shadow-lg dark:hover:shadow-gray-900/30 transition-all duration-200 cursor-pointer hover:scale-[1.02]"
+    : "";
 
   return (
     <div
@@ -60,7 +60,7 @@ const Card = ({
   );
 };
 
-const CardHeader = ({ children, className = '', ...props }) => {
+const CardHeader = ({ children, className = "", ...props }) => {
   return (
     <div
       className={`
@@ -77,15 +77,15 @@ const CardHeader = ({ children, className = '', ...props }) => {
 
 const CardContent = ({
   children,
-  className = '',
-  padding = 'default',
+  className = "",
+  padding = "default",
   ...props
 }) => {
   const paddingStyles = {
-    none: '',
-    sm: 'p-4',
-    default: 'px-6 py-4',
-    lg: 'px-8 py-6',
+    none: "",
+    sm: "p-4",
+    default: "px-6 py-4",
+    lg: "px-8 py-6",
   };
 
   return (
@@ -97,15 +97,15 @@ const CardContent = ({
 
 const CardTitle = ({
   children,
-  className = '',
-  size = 'default',
+  className = "",
+  size = "default",
   ...props
 }) => {
   const sizeStyles = {
-    sm: 'text-base font-medium',
-    default: 'text-lg font-medium',
-    lg: 'text-xl font-semibold',
-    xl: 'text-2xl font-semibold',
+    sm: "text-base font-medium",
+    default: "text-lg font-medium",
+    lg: "text-xl font-semibold",
+    xl: "text-2xl font-semibold",
   };
 
   return (
@@ -122,11 +122,7 @@ const CardTitle = ({
   );
 };
 
-const CardDescription = ({
-  children,
-  className = '',
-  ...props
-}) => {
+const CardDescription = ({ children, className = "", ...props }) => {
   return (
     <p
       className={`
@@ -141,11 +137,7 @@ const CardDescription = ({
   );
 };
 
-const CardFooter = ({
-  children,
-  className = '',
-  ...props
-}) => {
+const CardFooter = ({ children, className = "", ...props }) => {
   return (
     <div
       className={`
@@ -164,7 +156,13 @@ const CardFooter = ({
 Card.propTypes = {
   children: PropTypes.node.isRequired,
   className: PropTypes.string,
-  variant: PropTypes.oneOf(['default', 'elevated', 'outlined', 'gradient', 'flat']),
+  variant: PropTypes.oneOf([
+    "default",
+    "elevated",
+    "outlined",
+    "gradient",
+    "flat",
+  ]),
   interactive: PropTypes.bool,
   compact: PropTypes.bool,
 };
@@ -177,13 +175,13 @@ CardHeader.propTypes = {
 CardContent.propTypes = {
   children: PropTypes.node.isRequired,
   className: PropTypes.string,
-  padding: PropTypes.oneOf(['none', 'sm', 'default', 'lg']),
+  padding: PropTypes.oneOf(["none", "sm", "default", "lg"]),
 };
 
 CardTitle.propTypes = {
   children: PropTypes.node.isRequired,
   className: PropTypes.string,
-  size: PropTypes.oneOf(['sm', 'default', 'lg', 'xl']),
+  size: PropTypes.oneOf(["sm", "default", "lg", "xl"]),
 };
 
 CardDescription.propTypes = {
@@ -196,4 +194,12 @@ CardFooter.propTypes = {
   className: PropTypes.string,
 };
 
-export { Card, CardHeader, CardContent, CardTitle, CardDescription, CardFooter, CardContent as CardBody };
+export {
+  Card,
+  CardHeader,
+  CardContent,
+  CardTitle,
+  CardDescription,
+  CardFooter,
+  CardContent as CardBody,
+};

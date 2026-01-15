@@ -9,8 +9,8 @@ import {
   useEffect,
   useRef,
   Component,
-} from 'react';
-import PropTypes from 'prop-types';
+} from "react";
+import PropTypes from "prop-types";
 
 /**
  * HOC for memoizing components with shallow comparison
@@ -36,7 +36,7 @@ export const withLazyLoading = (
     </Suspense>
   );
 
-  LazyWrapper.displayName = 'LazyWrapper';
+  LazyWrapper.displayName = "LazyWrapper";
 
   return LazyWrapper;
 };
@@ -260,7 +260,7 @@ export const createAsyncComponent = (importFunc) => {
  * Automatically applies common optimizations
  */
 export const OptimizedComponent = memo(
-  ({ children, trackPerformance = false, componentName = 'Anonymous' }) => {
+  ({ children, trackPerformance = false, componentName = "Anonymous" }) => {
     if (trackPerformance) {
       usePerformanceMonitor(componentName);
     }
@@ -286,7 +286,7 @@ export class PerformanceErrorBoundary extends Component {
     // console.error('[Performance Error]:', error, errorInfo);
 
     // Log performance impact
-    if (error.name === 'ChunkLoadError') {
+    if (error.name === "ChunkLoadError") {
       // console.warn('Bundle loading failed - check network and caching');
     }
   }
@@ -295,7 +295,7 @@ export class PerformanceErrorBoundary extends Component {
     if (this.state.hasError) {
       return (
         this.props.fallback || (
-          <div className='error-boundary'>
+          <div className="error-boundary">
             <h3>Something went wrong with this component</h3>
             <button
               onClick={() => this.setState({ hasError: false, error: null })}

@@ -5,17 +5,17 @@
  * Handles caching, offline functionality, background sync, and push notifications
  */
 
-const CACHE_NAME = 'uni-manager-v1';
-const DYNAMIC_CACHE_NAME = 'uni-manager-dynamic-v1';
-const BACKGROUND_SYNC_TAG = 'background-sync';
+const CACHE_NAME = "uni-manager-v1";
+const DYNAMIC_CACHE_NAME = "uni-manager-dynamic-v1";
+const BACKGROUND_SYNC_TAG = "background-sync";
 
 // Static assets to cache on install
 const STATIC_ASSETS = [
-  '/',
-  '/manifest.json',
-  '/icons/icon-192x192.png',
-  '/icons/icon-512x512.png',
-  '/offline.html'
+  "/",
+  "/manifest.json",
+  "/icons/icon-192x192.png",
+  "/icons/icon-512x512.png",
+  "/offline.html",
 ];
 
 // API endpoints to cache
@@ -23,7 +23,7 @@ const API_CACHE_PATTERNS = [
   /\/api\/user\/profile/,
   /\/api\/church\/services/,
   /\/api\/home\/family/,
-  /\/api\/admin\/analytics/
+  /\/api\/admin\/analytics/,
 ];
 
 // Background sync queue
@@ -32,11 +32,12 @@ let syncQueue = [];
 /**
  * Service Worker Installation
  */
-self.addEventListener('install', (event) => {
+self.addEventListener("install", (event) => {
   // console.log('Service Worker installing...');
 
   event.waitUntil(
-    caches.open(CACHE_NAME)
+    caches
+      .open(CACHE_NAME)
       .then((cache) => {
         // console.log('Caching static assets...');
         return cache.addAll(STATIC_ASSETS);
@@ -48,14 +49,14 @@ self.addEventListener('install', (event) => {
       })
       .catch((_error) => {
         // console.error('Service Worker installation failed:', error);
-      })
+      }),
   );
 });
 
 /**
  * Service Worker Activation
  */
-self.addEventListener('activate', (event) => {
+self.addEventListener("activate", (event) => {
   // console.log('Service Worker activating...');
 
   event.waitUntil(
@@ -68,30 +69,30 @@ self.addEventListener('activate', (event) => {
               // console.log('Deleting old cache:', cacheName);
               return caches.delete(cacheName);
             }
-          })
+          }),
         );
       }),
       // Take control of all pages
-      self.clients.claim()
+      self.clients.claim(),
     ]).then(() => {
       // console.log('Service Worker activated successfully');
-    })
+    }),
   );
 });
 
 /**
  * Fetch Event Handler
  */
-self.addEventListener('fetch', (event) => {
+self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
   // Handle different types of requests
-  if (request.method === 'GET') {
-    if (url.pathname.startsWith('/api/')) {
+  if (request.method === "GET") {
+    if (url.pathname.startsWith("/api/")) {
       // API requests - network first, then cache
       event.respondWith(handleApiRequest(request));
-    } else if (request.destination === 'document') {
+    } else if (request.destination === "document") {
       // HTML documents - cache first, then network
       event.respondWith(handleDocumentRequest(request));
     } else {
@@ -107,7 +108,7 @@ self.addEventListener('fetch', (event) => {
 /**
  * Background Sync Event Handler
  */
-self.addEventListener('sync', (event) => {
+self.addEventListener("sync", (event) => {
   // console.log('Background sync triggered:', event.tag);
 
   if (event.tag === BACKGROUND_SYNC_TAG) {
@@ -118,25 +119,25 @@ self.addEventListener('sync', (event) => {
 /**
  * Push Message Event Handler
  */
-self.addEventListener('push', (event) => {
+self.addEventListener("push", (event) => {
   // console.log('Push message received:', event);
 
   const options = {
-    body: 'You have a new notification',
-    icon: '/icons/icon-192x192.png',
-    badge: '/icons/icon-72x72.png',
+    body: "You have a new notification",
+    icon: "/icons/icon-192x192.png",
+    badge: "/icons/icon-72x72.png",
     vibrate: [200, 100, 200],
     data: {},
     actions: [
       {
-        action: 'view',
-        title: 'View'
+        action: "view",
+        title: "View",
       },
       {
-        action: 'dismiss',
-        title: 'Dismiss'
-      }
-    ]
+        action: "dismiss",
+        title: "Dismiss",
+      },
+    ],
   };
 
   if (event.data) {
@@ -147,26 +148,24 @@ self.addEventListener('push', (event) => {
 
       if (payload.title) {
         event.waitUntil(
-          self.registration.showNotification(payload.title, options)
+          self.registration.showNotification(payload.title, options),
         );
       }
     } catch (_error) {
       // console.error('Failed to parse push payload:', error);
       event.waitUntil(
-        self.registration.showNotification('Uni-Manager', options)
+        self.registration.showNotification("Uni-Manager", options),
       );
     }
   } else {
-    event.waitUntil(
-      self.registration.showNotification('Uni-Manager', options)
-    );
+    event.waitUntil(self.registration.showNotification("Uni-Manager", options));
   }
 });
 
 /**
  * Notification Click Event Handler
  */
-self.addEventListener('notificationclick', (event) => {
+self.addEventListener("notificationclick", (event) => {
   // console.log('Notification clicked:', event);
 
   event.notification.close();
@@ -174,25 +173,25 @@ self.addEventListener('notificationclick', (event) => {
   const action = event.action;
   const data = event.notification.data || {};
 
-  if (action === 'view' || !action) {
+  if (action === "view" || !action) {
     // Open or focus the app
     event.waitUntil(
-      clients.matchAll({ type: 'window' }).then((clientList) => {
+      clients.matchAll({ type: "window" }).then((clientList) => {
         // Try to focus existing window
         for (const client of clientList) {
-          if (client.url.includes(self.location.origin) && 'focus' in client) {
+          if (client.url.includes(self.location.origin) && "focus" in client) {
             return client.focus();
           }
         }
 
         // Open new window if none exists
         if (clients.openWindow) {
-          const targetUrl = data.url || '/';
+          const targetUrl = data.url || "/";
           return clients.openWindow(targetUrl);
         }
-      })
+      }),
     );
-  } else if (action === 'dismiss') {
+  } else if (action === "dismiss") {
     // Just close the notification (already done above)
     // console.log('Notification dismissed');
   }
@@ -201,9 +200,9 @@ self.addEventListener('notificationclick', (event) => {
   self.clients.matchAll().then((clients) => {
     clients.forEach((client) => {
       client.postMessage({
-        type: 'NOTIFICATION_ACTION',
+        type: "NOTIFICATION_ACTION",
         action: action,
-        data: data
+        data: data,
       });
     });
   });
@@ -212,29 +211,29 @@ self.addEventListener('notificationclick', (event) => {
 /**
  * Message Event Handler
  */
-self.addEventListener('message', (event) => {
+self.addEventListener("message", (event) => {
   // console.log('Service Worker received message:', event.data);
 
   const { type, payload } = event.data || {};
 
   switch (type) {
-  case 'SKIP_WAITING':
-    self.skipWaiting();
-    break;
+    case "SKIP_WAITING":
+      self.skipWaiting();
+      break;
 
-  case 'ADD_TO_SYNC_QUEUE':
-    addToSyncQueue(payload);
-    break;
+    case "ADD_TO_SYNC_QUEUE":
+      addToSyncQueue(payload);
+      break;
 
-  case 'CACHE_RESOURCE':
-    cacheResource(payload.url, payload.cacheName);
-    break;
+    case "CACHE_RESOURCE":
+      cacheResource(payload.url, payload.cacheName);
+      break;
 
-  case 'CLEAR_CACHE':
-    clearCache(payload.cacheName);
-    break;
+    case "CLEAR_CACHE":
+      clearCache(payload.cacheName);
+      break;
 
-  default:
+    default:
     // console.log('Unknown message type:', type);
   }
 });
@@ -266,17 +265,17 @@ async function handleApiRequest(request) {
     // Return offline response for API requests
     return new Response(
       JSON.stringify({
-        error: 'Network unavailable',
-        message: 'This request will be retried when connection is restored',
-        offline: true
+        error: "Network unavailable",
+        message: "This request will be retried when connection is restored",
+        offline: true,
       }),
       {
         status: 503,
-        statusText: 'Service Unavailable',
+        statusText: "Service Unavailable",
         headers: {
-          'Content-Type': 'application/json'
-        }
-      }
+          "Content-Type": "application/json",
+        },
+      },
     );
   }
 }
@@ -306,8 +305,8 @@ async function handleDocumentRequest(request) {
     // console.log('Document request failed, serving offline page');
 
     // Serve offline page
-    const offlineResponse = await caches.match('/offline.html');
-    return offlineResponse || new Response('Offline', { status: 503 });
+    const offlineResponse = await caches.match("/offline.html");
+    return offlineResponse || new Response("Offline", { status: 503 });
   }
 }
 
@@ -335,7 +334,7 @@ async function handleStaticRequest(request) {
     // console.log('Static request failed:', request.url);
 
     // Return a generic offline response for failed static requests
-    return new Response('Resource unavailable offline', { status: 503 });
+    return new Response("Resource unavailable offline", { status: 503 });
   }
 }
 
@@ -354,8 +353,8 @@ async function handleMutationRequest(request) {
       url: request.url,
       method: request.method,
       headers: Object.fromEntries(request.headers.entries()),
-      body: request.method !== 'GET' ? await request.text() : null,
-      timestamp: Date.now()
+      body: request.method !== "GET" ? await request.text() : null,
+      timestamp: Date.now(),
     };
 
     await addToSyncQueue(requestData);
@@ -367,16 +366,16 @@ async function handleMutationRequest(request) {
     return new Response(
       JSON.stringify({
         success: true,
-        message: 'Request queued for background sync',
-        queued: true
+        message: "Request queued for background sync",
+        queued: true,
       }),
       {
         status: 202,
-        statusText: 'Accepted',
+        statusText: "Accepted",
         headers: {
-          'Content-Type': 'application/json'
-        }
-      }
+          "Content-Type": "application/json",
+        },
+      },
     );
   }
 }
@@ -388,7 +387,7 @@ function shouldCacheApiResponse(request) {
   const url = new URL(request.url);
 
   // Cache specific API patterns
-  return API_CACHE_PATTERNS.some(pattern => pattern.test(url.pathname));
+  return API_CACHE_PATTERNS.some((pattern) => pattern.test(url.pathname));
 }
 
 /**
@@ -399,7 +398,7 @@ async function addToSyncQueue(requestData) {
     syncQueue.push(requestData);
 
     // Store in IndexedDB for persistence
-    await storeInIndexedDB('syncQueue', syncQueue);
+    await storeInIndexedDB("syncQueue", syncQueue);
 
     // console.log('Added to sync queue:', requestData.url);
   } catch (_error) {
@@ -415,7 +414,7 @@ async function processSyncQueue() {
     // console.log('Processing sync queue...');
 
     // Load queue from IndexedDB
-    syncQueue = await loadFromIndexedDB('syncQueue') || [];
+    syncQueue = (await loadFromIndexedDB("syncQueue")) || [];
 
     if (syncQueue.length === 0) {
       // console.log('Sync queue is empty');
@@ -432,7 +431,7 @@ async function processSyncQueue() {
         const response = await fetch(item.url, {
           method: item.method,
           headers: item.headers,
-          body: item.body
+          body: item.body,
         });
 
         if (response.ok) {
@@ -455,20 +454,20 @@ async function processSyncQueue() {
 
     // Update sync queue with failed items
     syncQueue = failedItems;
-    await storeInIndexedDB('syncQueue', syncQueue);
+    await storeInIndexedDB("syncQueue", syncQueue);
 
     // console.log(`Sync complete: ${results.length} processed, ${failedItems.length} remain`);
 
     // Notify main app
     const clients = await self.clients.matchAll();
-    clients.forEach(client => {
+    clients.forEach((client) => {
       client.postMessage({
-        type: 'SYNC_COMPLETE',
+        type: "SYNC_COMPLETE",
         payload: {
           processed: results.length,
           remaining: failedItems.length,
-          results: results
-        }
+          results: results,
+        },
       });
     });
   } catch (_error) {
@@ -500,7 +499,7 @@ async function clearCache(cacheName) {
     } else {
       // Clear all caches
       const cacheNames = await caches.keys();
-      await Promise.all(cacheNames.map(name => caches.delete(name)));
+      await Promise.all(cacheNames.map((name) => caches.delete(name)));
       // console.log('All caches cleared');
     }
   } catch (_error) {
@@ -513,14 +512,14 @@ async function clearCache(cacheName) {
  */
 async function storeInIndexedDB(key, data) {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open('UniManagerDB', 1);
+    const request = indexedDB.open("UniManagerDB", 1);
 
     request.onerror = () => reject(request.error);
 
     request.onsuccess = () => {
       const db = request.result;
-      const transaction = db.transaction(['syncData'], 'readwrite');
-      const store = transaction.objectStore('syncData');
+      const transaction = db.transaction(["syncData"], "readwrite");
+      const store = transaction.objectStore("syncData");
 
       const putRequest = store.put(data, key);
       putRequest.onsuccess = () => resolve();
@@ -529,8 +528,8 @@ async function storeInIndexedDB(key, data) {
 
     request.onupgradeneeded = () => {
       const db = request.result;
-      if (!db.objectStoreNames.contains('syncData')) {
-        db.createObjectStore('syncData');
+      if (!db.objectStoreNames.contains("syncData")) {
+        db.createObjectStore("syncData");
       }
     };
   });
@@ -541,14 +540,14 @@ async function storeInIndexedDB(key, data) {
  */
 async function loadFromIndexedDB(key) {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open('UniManagerDB', 1);
+    const request = indexedDB.open("UniManagerDB", 1);
 
     request.onerror = () => reject(request.error);
 
     request.onsuccess = () => {
       const db = request.result;
-      const transaction = db.transaction(['syncData'], 'readonly');
-      const store = transaction.objectStore('syncData');
+      const transaction = db.transaction(["syncData"], "readonly");
+      const store = transaction.objectStore("syncData");
 
       const getRequest = store.get(key);
       getRequest.onsuccess = () => resolve(getRequest.result);
@@ -557,8 +556,8 @@ async function loadFromIndexedDB(key) {
 
     request.onupgradeneeded = () => {
       const db = request.result;
-      if (!db.objectStoreNames.contains('syncData')) {
-        db.createObjectStore('syncData');
+      if (!db.objectStoreNames.contains("syncData")) {
+        db.createObjectStore("syncData");
       }
     };
   });

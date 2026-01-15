@@ -1,22 +1,30 @@
-import React from 'react';
+import React from "react";
 
-export function Alert({ children, variant = 'default', className = '', ...props }) {
-  const baseStyles = 'p-4 rounded-md border';
+export function Alert({
+  children,
+  variant = "default",
+  className = "",
+  ...props
+}) {
+  const baseStyles = "p-4 rounded-md border";
   const variantStyles = {
-    default: 'bg-gray-50 border-gray-200 text-gray-800',
-    destructive: 'bg-red-50 border-red-200 text-red-800',
-    warning: 'bg-yellow-50 border-yellow-200 text-yellow-800',
-    success: 'bg-green-50 border-green-200 text-green-800',
+    default: "bg-gray-50 border-gray-200 text-gray-800",
+    destructive: "bg-red-50 border-red-200 text-red-800",
+    warning: "bg-yellow-50 border-yellow-200 text-yellow-800",
+    success: "bg-green-50 border-green-200 text-green-800",
   };
 
   return (
-    <div className={`${baseStyles} ${variantStyles[variant]} ${className}`} {...props}>
+    <div
+      className={`${baseStyles} ${variantStyles[variant]} ${className}`}
+      {...props}
+    >
       {children}
     </div>
   );
 }
 
-export function AlertDescription({ children, className = '', ...props }) {
+export function AlertDescription({ children, className = "", ...props }) {
   return (
     <div className={`text-sm ${className}`} {...props}>
       {children}
@@ -24,7 +32,7 @@ export function AlertDescription({ children, className = '', ...props }) {
   );
 }
 
-export function AlertTitle({ children, className = '', ...props }) {
+export function AlertTitle({ children, className = "", ...props }) {
   return (
     <h4 className={`font-medium mb-1 ${className}`} {...props}>
       {children}

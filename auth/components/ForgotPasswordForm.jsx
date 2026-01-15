@@ -2,16 +2,16 @@
  * ForgotPasswordForm Component
  * Unified forgot password form with app-specific branding
  */
-import React, { useState } from 'react';
-import { validateEmail } from '../utils/authValidation.js';
-import { getCurrentAppConfig } from '../config/appConfigs.js';
+import React, { useState } from "react";
+import { validateEmail } from "../utils/authValidation.js";
+import { getCurrentAppConfig } from "../config/appConfigs.js";
 import {
   AuthContainer,
   AuthCardContent,
   AuthButton,
   AuthInput,
   Alert,
-} from './AuthUIComponents.jsx';
+} from "./AuthUIComponents.jsx";
 
 const ForgotPasswordForm = ({
   onSubmit,
@@ -19,11 +19,11 @@ const ForgotPasswordForm = ({
   isLoading = false,
   error = null,
   success = null,
-  className = '',
+  className = "",
 }) => {
   const appConfig = getCurrentAppConfig();
   const [formData, setFormData] = useState({
-    email: '',
+    email: "",
   });
   const [errors, setErrors] = useState({});
 
@@ -38,7 +38,7 @@ const ForgotPasswordForm = ({
     if (errors[name]) {
       setErrors((prev) => ({
         ...prev,
-        [name]: '',
+        [name]: "",
       }));
     }
   };
@@ -142,7 +142,7 @@ const ForgotPasswordForm = ({
               loading={isLoading}
               variant="primary"
             >
-              {isLoading ? 'Sending reset link...' : 'Send reset link'}
+              {isLoading ? "Sending reset link..." : "Send reset link"}
             </AuthButton>
           </div>
         </form>
@@ -150,7 +150,7 @@ const ForgotPasswordForm = ({
         {/* Additional help */}
         <div className="mt-6 sm:mt-8 text-center">
           <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-            Remember your password?{' '}
+            Remember your password?{" "}
             <button
               type="button"
               onClick={onBackToLogin}

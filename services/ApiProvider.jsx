@@ -1,5 +1,5 @@
-import React, { createContext, useContext } from 'react';
-import { getSharedEnvironmentConfig } from '../core/config/environment.ts';
+import React, { createContext, useContext } from "react";
+import { getSharedEnvironmentConfig } from "../core/config/environment.ts";
 
 // Simple API provider for shared functionality
 const ApiContext = createContext({});
@@ -21,7 +21,7 @@ export const ApiProvider = ({ children }) => {
 export const useApi = () => {
   const context = useContext(ApiContext);
   if (!context) {
-    throw new Error('useApi must be used within an ApiProvider');
+    throw new Error("useApi must be used within an ApiProvider");
   }
   return context;
 };

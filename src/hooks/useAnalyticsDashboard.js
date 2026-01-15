@@ -7,20 +7,20 @@
 /* eslint-env browser */
 /* global setInterval, clearInterval, window, document, Blob */
 
-import { useState, useEffect, useCallback, useRef } from 'react';
-import analyticsDashboardAPI from '../services/analyticsDashboardAPI';
+import { useState, useEffect, useCallback, useRef } from "react";
+import analyticsDashboardAPI from "../services/analyticsDashboardAPI";
 
 /**
  * Hook for managing analytics dashboard data
  */
 export const useAnalyticsDashboard = (applicationId, options = {}) => {
   const {
-    dateRange = '7d',
+    dateRange = "7d",
     userId,
     organizationId,
     autoRefresh = false,
     refreshInterval = 300000, // 5 minutes
-    enableRealTime = false
+    enableRealTime = false,
   } = options;
 
   // State management
@@ -35,39 +35,48 @@ export const useAnalyticsDashboard = (applicationId, options = {}) => {
   const realTimeUnsubscribeRef = useRef(null);
 
   // Fetch dashboard data
-  const fetchDashboardData = useCallback(async (refreshCache = false) => {
-    if (!applicationId) return;
+  const fetchDashboardData = useCallback(
+    async (refreshCache = false) => {
+      if (!applicationId) return;
 
-    try {
-      setLoading(true);
-      setError(null);
+      try {
+        setLoading(true);
+        setError(null);
 
-      const data = await analyticsDashboardAPI.getDashboardData(applicationId, {
-        dateRange,
-        userId,
-        organizationId,
-        refreshCache
-      });
+        const data = await analyticsDashboardAPI.getDashboardData(
+          applicationId,
+          {
+            dateRange,
+            userId,
+            organizationId,
+            refreshCache,
+          },
+        );
 
-      setDashboardData(data);
-      setLastUpdated(new Date());
-    } catch (_err) {
-      setError(_err.message);
-      // console.error('Failed to fetch dashboard data:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [applicationId, dateRange, userId, organizationId]);
+        setDashboardData(data);
+        setLastUpdated(new Date());
+      } catch (_err) {
+        setError(_err.message);
+        // console.error('Failed to fetch dashboard data:', err);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [applicationId, dateRange, userId, organizationId],
+  );
 
   // Fetch real-time metrics
   const fetchRealTimeMetrics = useCallback(async () => {
     if (!applicationId || !enableRealTime) return;
 
     try {
-      const data = await analyticsDashboardAPI.getRealTimeMetrics(applicationId, {
-        userId,
-        organizationId
-      });
+      const data = await analyticsDashboardAPI.getRealTimeMetrics(
+        applicationId,
+        {
+          userId,
+          organizationId,
+        },
+      );
 
       setRealTimeMetrics(data);
     } catch (_err) {
@@ -102,13 +111,14 @@ export const useAnalyticsDashboard = (applicationId, options = {}) => {
   // Setup real-time updates
   useEffect(() => {
     if (enableRealTime && applicationId) {
-      realTimeUnsubscribeRef.current = analyticsDashboardAPI.subscribeToRealTimeUpdates(
-        applicationId,
-        (data) => {
-          setRealTimeMetrics(data);
-        },
-        { userId, organizationId }
-      );
+      realTimeUnsubscribeRef.current =
+        analyticsDashboardAPI.subscribeToRealTimeUpdates(
+          applicationId,
+          (data) => {
+            setRealTimeMetrics(data);
+          },
+          { userId, organizationId },
+        );
 
       return () => {
         if (realTimeUnsubscribeRef.current) {
@@ -147,7 +157,7 @@ export const useAnalyticsDashboard = (applicationId, options = {}) => {
     lastUpdated,
     refreshData,
     fetchDashboardData,
-    fetchRealTimeMetrics
+    fetchRealTimeMetrics,
   };
 };
 
@@ -156,11 +166,11 @@ export const useAnalyticsDashboard = (applicationId, options = {}) => {
  */
 export const useAnalyticsCategory = (applicationId, category, options = {}) => {
   const {
-    dateRange = '7d',
+    dateRange = "7d",
     userId,
     organizationId,
     autoRefresh = false,
-    refreshInterval = 300000
+    refreshInterval = 300000,
   } = options;
 
   const [data, setData] = useState(null);
@@ -173,18 +183,30 @@ export const useAnalyticsCategory = (applicationId, category, options = {}) => {
   // Get the appropriate API method based on category
   const getAPIMethod = useCallback((category) => {
     switch (category) {
-      case 'behavior':
-        return analyticsDashboardAPI.getUserBehaviorAnalytics.bind(analyticsDashboardAPI);
-      case 'performance':
-        return analyticsDashboardAPI.getPerformanceAnalytics.bind(analyticsDashboardAPI);
-      case 'security':
-        return analyticsDashboardAPI.getSecurityAnalytics.bind(analyticsDashboardAPI);
-      case 'engagement':
-        return analyticsDashboardAPI.getEngagementAnalytics.bind(analyticsDashboardAPI);
-      case 'features':
-        return analyticsDashboardAPI.getFeatureUsageAnalytics.bind(analyticsDashboardAPI);
-      case 'errors':
-        return analyticsDashboardAPI.getErrorTrackingAnalytics.bind(analyticsDashboardAPI);
+      case "behavior":
+        return analyticsDashboardAPI.getUserBehaviorAnalytics.bind(
+          analyticsDashboardAPI,
+        );
+      case "performance":
+        return analyticsDashboardAPI.getPerformanceAnalytics.bind(
+          analyticsDashboardAPI,
+        );
+      case "security":
+        return analyticsDashboardAPI.getSecurityAnalytics.bind(
+          analyticsDashboardAPI,
+        );
+      case "engagement":
+        return analyticsDashboardAPI.getEngagementAnalytics.bind(
+          analyticsDashboardAPI,
+        );
+      case "features":
+        return analyticsDashboardAPI.getFeatureUsageAnalytics.bind(
+          analyticsDashboardAPI,
+        );
+      case "errors":
+        return analyticsDashboardAPI.getErrorTrackingAnalytics.bind(
+          analyticsDashboardAPI,
+        );
       default:
         throw new Error(`Unknown analytics category: ${category}`);
     }
@@ -202,7 +224,7 @@ export const useAnalyticsCategory = (applicationId, category, options = {}) => {
       const result = await apiMethod(applicationId, {
         dateRange,
         userId,
-        organizationId
+        organizationId,
       });
 
       setData(result);
@@ -213,7 +235,14 @@ export const useAnalyticsCategory = (applicationId, category, options = {}) => {
     } finally {
       setLoading(false);
     }
-  }, [applicationId, category, dateRange, userId, organizationId, getAPIMethod]);
+  }, [
+    applicationId,
+    category,
+    dateRange,
+    userId,
+    organizationId,
+    getAPIMethod,
+  ]);
 
   // Refresh data manually
   const refreshData = useCallback(async () => {
@@ -256,7 +285,7 @@ export const useAnalyticsCategory = (applicationId, category, options = {}) => {
     error,
     lastUpdated,
     refreshData,
-    fetchData
+    fetchData,
   };
 };
 
@@ -275,54 +304,66 @@ export const useAnalyticsTracking = () => {
     }
   }, []);
 
-  const trackPageView = useCallback(async (applicationId, page, options = {}) => {
-    await trackEvent({
-      type: 'page_view',
-      applicationId,
-      data: {
-        page,
-        timestamp: new Date().toISOString(),
-        ...options
-      }
-    });
-  }, [trackEvent]);
+  const trackPageView = useCallback(
+    async (applicationId, page, options = {}) => {
+      await trackEvent({
+        type: "page_view",
+        applicationId,
+        data: {
+          page,
+          timestamp: new Date().toISOString(),
+          ...options,
+        },
+      });
+    },
+    [trackEvent],
+  );
 
-  const trackUserAction = useCallback(async (applicationId, action, options = {}) => {
-    await trackEvent({
-      type: 'user_action',
-      applicationId,
-      data: {
-        action,
-        timestamp: new Date().toISOString(),
-        ...options
-      }
-    });
-  }, [trackEvent]);
+  const trackUserAction = useCallback(
+    async (applicationId, action, options = {}) => {
+      await trackEvent({
+        type: "user_action",
+        applicationId,
+        data: {
+          action,
+          timestamp: new Date().toISOString(),
+          ...options,
+        },
+      });
+    },
+    [trackEvent],
+  );
 
-  const trackFeatureUsage = useCallback(async (applicationId, feature, options = {}) => {
-    await trackEvent({
-      type: 'feature_usage',
-      applicationId,
-      data: {
-        feature,
-        timestamp: new Date().toISOString(),
-        ...options
-      }
-    });
-  }, [trackEvent]);
+  const trackFeatureUsage = useCallback(
+    async (applicationId, feature, options = {}) => {
+      await trackEvent({
+        type: "feature_usage",
+        applicationId,
+        data: {
+          feature,
+          timestamp: new Date().toISOString(),
+          ...options,
+        },
+      });
+    },
+    [trackEvent],
+  );
 
-  const trackError = useCallback(async (applicationId, error, options = {}) => {
-    await trackEvent({
-      type: 'error',
-      applicationId,
-      data: {
-        error: error.message || error,
-        stack: error.stack,
-        timestamp: new Date().toISOString(),
-        ...options
-      }
-    });
-  }, [trackEvent]);
+  const trackError = useCallback(
+    async (applicationId, error, options = {}) => {
+      await trackEvent({
+        type: "error",
+        applicationId,
+        data: {
+          error: error.message || error,
+          stack: error.stack,
+          timestamp: new Date().toISOString(),
+          ...options,
+        },
+      });
+    },
+    [trackEvent],
+  );
 
   return {
     isTracking,
@@ -330,7 +371,7 @@ export const useAnalyticsTracking = () => {
     trackPageView,
     trackUserAction,
     trackFeatureUsage,
-    trackError
+    trackError,
   };
 };
 
@@ -365,7 +406,7 @@ export const useAvailableApplications = () => {
     applications,
     loading,
     error,
-    refreshApplications: fetchApplications
+    refreshApplications: fetchApplications,
   };
 };
 
@@ -378,15 +419,20 @@ export const useAnalyticsExport = () => {
   const exportData = useCallback(async (applicationId, options = {}) => {
     try {
       setIsExporting(true);
-      const data = await analyticsDashboardAPI.exportDashboardData(applicationId, options);
+      const data = await analyticsDashboardAPI.exportDashboardData(
+        applicationId,
+        options,
+      );
 
       // Create download if format is CSV
-      if (options.format === 'csv' && typeof data === 'string') {
-        const blob = new Blob([data], { type: 'text/csv' });
-        const url = typeof window !== "undefined" && window.URL.createObjectURL(blob);
-        const link = typeof document !== "undefined" && document.createElement('a');
+      if (options.format === "csv" && typeof data === "string") {
+        const blob = new Blob([data], { type: "text/csv" });
+        const url =
+          typeof window !== "undefined" && window.URL.createObjectURL(blob);
+        const link =
+          typeof document !== "undefined" && document.createElement("a");
         link.href = url;
-        link.download = `analytics-${applicationId}-${options.dateRange || '30d'}.csv`;
+        link.download = `analytics-${applicationId}-${options.dateRange || "30d"}.csv`;
         typeof document !== "undefined" && document.body.appendChild(link);
         link.click();
         typeof document !== "undefined" && document.body.removeChild(link);
@@ -401,6 +447,6 @@ export const useAnalyticsExport = () => {
 
   return {
     isExporting,
-    exportData
+    exportData,
   };
 };

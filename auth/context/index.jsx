@@ -43,20 +43,20 @@
 // ============================================================================
 
 // AuthProvider component - wraps application and provides auth state
-export { AuthProvider } from './AuthContext.jsx';
+export { AuthProvider } from "./AuthContext.jsx";
 
 // useAuth hook from context (use AuthProvider.jsx implementation)
 // Re-exported for backward compatibility
-export { useAuth } from './AuthContext.jsx';
+export { useAuth } from "./AuthContext.jsx";
 
 // SSO Context for cross-application single sign-on
-export { SSOContext } from './SSOContext.jsx';
+export { SSOContext } from "./SSOContext.jsx";
 
 // ============================================================================
 // Higher-Order Components (HOC)
 // ============================================================================
 
-import React from 'react';
+import React from "react";
 
 /**
  * withAuth - HOC for wrapping components that require authentication
@@ -70,7 +70,7 @@ import React from 'react';
  */
 export const withAuth = (WrappedComponent) => {
   return function ProtectedComponent(props) {
-    const { useAuth } = require('./AuthContext.jsx');
+    const { useAuth } = require("./AuthContext.jsx");
     const auth = useAuth();
 
     return <WrappedComponent {...props} auth={auth} />;
@@ -88,10 +88,10 @@ export const withAuth = (WrappedComponent) => {
  */
 export function getAuthContext() {
   try {
-    const { AuthContext } = require('./AuthContext.jsx');
+    const { AuthContext } = require("./AuthContext.jsx");
     return AuthContext;
   } catch (error) {
-    console.error('Failed to get AuthContext:', error);
+    console.error("Failed to get AuthContext:", error);
     return null;
   }
 }
@@ -146,7 +146,7 @@ export function getAuthState() {
     // For now, return null - use hooks instead
     return null;
   } catch (error) {
-    console.error('Failed to get auth state:', error);
+    console.error("Failed to get auth state:", error);
     return null;
   }
 }
@@ -164,7 +164,7 @@ export function getAuthState() {
  */
 export function createCustomAuthProvider(config = {}) {
   return function CustomProvider({ children }) {
-    const { AuthProvider: AP } = require('./AuthContext.jsx');
+    const { AuthProvider: AP } = require("./AuthContext.jsx");
     return React.createElement(AP, { config }, children);
   };
 }
@@ -179,16 +179,16 @@ export function createCustomAuthProvider(config = {}) {
  */
 export function useAuthContext() {
   console.warn(
-    'useAuthContext is deprecated. Use useAuth from @shared/auth/hooks instead.'
+    "useAuthContext is deprecated. Use useAuth from @shared/auth/hooks instead.",
   );
-  const { useAuth } = require('./AuthContext.jsx');
+  const { useAuth } = require("./AuthContext.jsx");
   return useAuth();
 }
 /**
  * Deprecated: Use AuthProvider directly
  * This is kept for backward compatibility with older code
  */
-export { AuthProvider as AuthContextProvider } from './AuthContext.jsx';
+export { AuthProvider as AuthContextProvider } from "./AuthContext.jsx";
 
 // ============================================================================
 // Re-exports from related modules
@@ -200,10 +200,10 @@ export { AuthProvider as AuthContextProvider } from './AuthContext.jsx';
  */
 export async function getHookAuth() {
   try {
-    const hooks = await import('../hooks/useAuth.js');
+    const hooks = await import("../hooks/useAuth.js");
     return hooks.useAuth;
   } catch (error) {
-    console.error('Failed to get useAuth from hooks:', error);
+    console.error("Failed to get useAuth from hooks:", error);
     return null;
   }
 }
@@ -218,17 +218,17 @@ export async function getHookAuth() {
  */
 export function listAvailableContextExports() {
   return [
-    'AuthProvider',
-    'useAuth',
-    'SSOContext',
-    'withAuth',
-    'getAuthContext',
-    'getAuthState',
-    'createCustomAuthProvider',
-    'useAuthContext (deprecated)',
-    'AuthContextProvider (deprecated)',
-    'getHookAuth',
-    'listAvailableContextExports',
+    "AuthProvider",
+    "useAuth",
+    "SSOContext",
+    "withAuth",
+    "getAuthContext",
+    "getAuthState",
+    "createCustomAuthProvider",
+    "useAuthContext (deprecated)",
+    "AuthContextProvider (deprecated)",
+    "getHookAuth",
+    "listAvailableContextExports",
   ];
 }
 
@@ -242,10 +242,10 @@ export function listAvailableContextExports() {
  */
 export function isAuthContextReady() {
   try {
-    const { AuthContext } = require('./AuthContext.jsx');
+    const { AuthContext } = require("./AuthContext.jsx");
     return AuthContext !== null && AuthContext !== undefined;
   } catch (error) {
-    console.error('Failed to check auth context status:', error);
+    console.error("Failed to check auth context status:", error);
     return false;
   }
 }
@@ -254,12 +254,12 @@ export function isAuthContextReady() {
  * Log current context configuration (development only)
  */
 export function logContextConfig() {
-  if (process.env.NODE_ENV !== 'development') {
-    console.warn('Context config logging only available in development');
+  if (process.env.NODE_ENV !== "development") {
+    console.warn("Context config logging only available in development");
     return;
   }
 
-  console.log('Authentication Context Configuration:', {
+  console.log("Authentication Context Configuration:", {
     contextAvailable: isAuthContextReady(),
     exports: listAvailableContextExports(),
     timestamp: new Date().toISOString(),

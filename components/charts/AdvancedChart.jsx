@@ -4,7 +4,7 @@
  * Enhanced with real-time updates, PWA offline support, and responsive design
  */
 
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -24,8 +24,8 @@ import {
   CircularProgress,
   IconButton,
   Tooltip,
-  Chip
-} from '@mui/material';
+  Chip,
+} from "@mui/material";
 import {
   Refresh as RefreshIcon,
   Download as DownloadIcon,
@@ -34,8 +34,8 @@ import {
   Timeline as TimelineIcon,
   BarChart as BarChartIcon,
   PieChart as PieChartIcon,
-  ShowChart as LineChartIcon
-} from '@mui/icons-material';
+  ShowChart as LineChartIcon,
+} from "@mui/icons-material";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -48,10 +48,10 @@ import {
   Legend,
   ArcElement,
   RadialLinearScale,
-  Filler
-} from 'chart.js';
-import { Line, Bar, Pie, Doughnut, Radar, PolarArea } from 'react-chartjs-2';
-import { useOffline } from '../../../shared/hooks/usePWA';
+  Filler,
+} from "chart.js";
+import { Line, Bar, Pie, Doughnut, Radar, PolarArea } from "react-chartjs-2";
+import { useOffline } from "../../../shared/hooks/usePWA";
 
 // Register Chart.js components
 ChartJS.register(
@@ -65,13 +65,13 @@ ChartJS.register(
   Legend,
   ArcElement,
   RadialLinearScale,
-  Filler
+  Filler,
 );
 
 const AdvancedChart = ({
-  title = 'Data Visualization',
+  title = "Data Visualization",
   data,
-  type = 'line',
+  type = "line",
   height = 400,
   refreshInterval = 0,
   onDataRefresh,
@@ -79,7 +79,7 @@ const AdvancedChart = ({
   fullscreenEnabled = true,
   realTimeEnabled = false,
   options = {},
-  colorScheme = 'default',
+  colorScheme = "default",
   responsive = true,
   maintainAspectRatio = false,
   showControls = true,
@@ -88,11 +88,11 @@ const AdvancedChart = ({
   animated = true,
   loading = false,
   error = null,
-  className = '',
+  className = "",
   style = {},
   onChartClick,
   onChartHover,
-  plugins = []
+  plugins = [],
 }) => {
   // State management
   const [chartType, setChartType] = useState(type);
@@ -111,45 +111,45 @@ const AdvancedChart = ({
   // Color schemes
   const colorSchemes = {
     default: {
-      primary: '#1976d2',
-      secondary: '#dc004e',
-      success: '#2e7d32',
-      warning: '#ed6c02',
-      error: '#d32f2f',
-      info: '#0288d1'
+      primary: "#1976d2",
+      secondary: "#dc004e",
+      success: "#2e7d32",
+      warning: "#ed6c02",
+      error: "#d32f2f",
+      info: "#0288d1",
     },
     business: {
-      primary: '#1565c0',
-      secondary: '#5e35b1',
-      success: '#2e7d32',
-      warning: '#f57c00',
-      error: '#c62828',
-      info: '#0277bd'
+      primary: "#1565c0",
+      secondary: "#5e35b1",
+      success: "#2e7d32",
+      warning: "#f57c00",
+      error: "#c62828",
+      info: "#0277bd",
     },
     church: {
-      primary: '#4a90e2',
-      secondary: '#7b68ee',
-      success: '#32cd32',
-      warning: '#ffa500',
-      error: '#dc143c',
-      info: '#20b2aa'
+      primary: "#4a90e2",
+      secondary: "#7b68ee",
+      success: "#32cd32",
+      warning: "#ffa500",
+      error: "#dc143c",
+      info: "#20b2aa",
     },
     personal: {
-      primary: '#ff6b6b',
-      secondary: '#4ecdc4',
-      success: '#45b7d1',
-      warning: '#96ceb4',
-      error: '#ff7675',
-      info: '#74b9ff'
+      primary: "#ff6b6b",
+      secondary: "#4ecdc4",
+      success: "#45b7d1",
+      warning: "#96ceb4",
+      error: "#ff7675",
+      info: "#74b9ff",
     },
     dark: {
-      primary: '#90caf9',
-      secondary: '#f48fb1',
-      success: '#a5d6a7',
-      warning: '#ffcc02',
-      error: '#ef5350',
-      info: '#4fc3f7'
-    }
+      primary: "#90caf9",
+      secondary: "#f48fb1",
+      success: "#a5d6a7",
+      warning: "#ffcc02",
+      error: "#ef5350",
+      info: "#4fc3f7",
+    },
   };
 
   // Get current color scheme
@@ -157,12 +157,12 @@ const AdvancedChart = ({
 
   // Chart type options
   const chartTypes = [
-    { value: 'line', label: 'Line Chart', icon: LineChartIcon },
-    { value: 'bar', label: 'Bar Chart', icon: BarChartIcon },
-    { value: 'pie', label: 'Pie Chart', icon: PieChartIcon },
-    { value: 'doughnut', label: 'Doughnut Chart', icon: PieChartIcon },
-    { value: 'radar', label: 'Radar Chart', icon: TimelineIcon },
-    { value: 'polarArea', label: 'Polar Area', icon: BarChartIcon }
+    { value: "line", label: "Line Chart", icon: LineChartIcon },
+    { value: "bar", label: "Bar Chart", icon: BarChartIcon },
+    { value: "pie", label: "Pie Chart", icon: PieChartIcon },
+    { value: "doughnut", label: "Doughnut Chart", icon: PieChartIcon },
+    { value: "radar", label: "Radar Chart", icon: TimelineIcon },
+    { value: "polarArea", label: "Polar Area", icon: BarChartIcon },
   ];
 
   // Process data for different chart types
@@ -173,12 +173,21 @@ const AdvancedChart = ({
       ...data,
       datasets: data.datasets?.map((dataset, index) => ({
         ...dataset,
-        backgroundColor: dataset.backgroundColor || generateColors(data.labels?.length || 1, currentColors, 0.2),
-        borderColor: dataset.borderColor || generateColors(data.labels?.length || 1, currentColors, 1),
+        backgroundColor:
+          dataset.backgroundColor ||
+          generateColors(data.labels?.length || 1, currentColors, 0.2),
+        borderColor:
+          dataset.borderColor ||
+          generateColors(data.labels?.length || 1, currentColors, 1),
         borderWidth: dataset.borderWidth || 2,
-        tension: chartType === 'line' ? (dataset.tension || 0.4) : 0,
-        fill: chartType === 'line' ? (dataset.fill !== undefined ? dataset.fill : false) : false
-      }))
+        tension: chartType === "line" ? dataset.tension || 0.4 : 0,
+        fill:
+          chartType === "line"
+            ? dataset.fill !== undefined
+              ? dataset.fill
+              : false
+            : false,
+      })),
     };
 
     return processedDataset;
@@ -188,72 +197,82 @@ const AdvancedChart = ({
   const defaultOptions = {
     responsive,
     maintainAspectRatio,
-    animation: animated ? {
-      duration: 1000,
-      easing: 'easeInOutQuart'
-    } : false,
+    animation: animated
+      ? {
+          duration: 1000,
+          easing: "easeInOutQuart",
+        }
+      : false,
     plugins: {
       legend: {
         display: showLegend,
-        position: 'top',
+        position: "top",
         labels: {
           usePointStyle: true,
-          padding: 20
-        }
+          padding: 20,
+        },
       },
       tooltip: {
         enabled: showTooltips,
-        mode: 'index',
+        mode: "index",
         intersect: false,
         callbacks: {
           title: (context) => {
             if (context[0]?.label) {
               return context[0].label;
             }
-            return '';
+            return "";
           },
           label: (context) => {
-            const label = context.dataset.label || '';
-            const value = context.parsed.y !== undefined ? context.parsed.y : context.parsed;
-            return `${label}: ${typeof value === 'number' ? value.toLocaleString() : value}`;
-          }
-        }
+            const label = context.dataset.label || "";
+            const value =
+              context.parsed.y !== undefined
+                ? context.parsed.y
+                : context.parsed;
+            return `${label}: ${typeof value === "number" ? value.toLocaleString() : value}`;
+          },
+        },
       },
       title: {
-        display: false // We handle title in the card header
-      }
-    },
-    scales: chartType === 'line' || chartType === 'bar' ? {
-      x: {
-        display: true,
-        grid: {
-          display: true,
-          color: 'rgba(0, 0, 0, 0.1)'
-        }
+        display: false, // We handle title in the card header
       },
-      y: {
-        display: true,
-        beginAtZero: true,
-        grid: {
-          display: true,
-          color: 'rgba(0, 0, 0, 0.1)'
+    },
+    scales:
+      chartType === "line" || chartType === "bar"
+        ? {
+            x: {
+              display: true,
+              grid: {
+                display: true,
+                color: "rgba(0, 0, 0, 0.1)",
+              },
+            },
+            y: {
+              display: true,
+              beginAtZero: true,
+              grid: {
+                display: true,
+                color: "rgba(0, 0, 0, 0.1)",
+              },
+            },
+          }
+        : {},
+    onClick: onChartClick
+      ? (event, elements) => {
+          if (elements.length > 0) {
+            const elementIndex = elements[0].index;
+            const datasetIndex = elements[0].datasetIndex;
+            onChartClick(event, elements, {
+              elementIndex,
+              datasetIndex,
+              data: processedData.datasets[datasetIndex].data[elementIndex],
+              label: processedData.labels[elementIndex],
+            });
+          }
         }
-      }
-    } : {},
-    onClick: onChartClick ? (event, elements) => {
-      if (elements.length > 0) {
-        const elementIndex = elements[0].index;
-        const datasetIndex = elements[0].datasetIndex;
-        onChartClick(event, elements, {
-          elementIndex,
-          datasetIndex,
-          data: processedData.datasets[datasetIndex].data[elementIndex],
-          label: processedData.labels[elementIndex]
-        });
-      }
-    } : undefined,
+      : undefined,
     onHover: onChartHover,
-    ...options
+    ...options,
   };
 
   // Real-time data refresh
@@ -290,10 +309,11 @@ const AdvancedChart = ({
     if (chartRef.current) {
       const chart = chartRef.current;
       const canvas = chart.canvas;
-      const url = canvas.toDataURL('image/png');
+      const url = canvas.toDataURL("image/png");
 
-      const link = typeof document !== "undefined" && document.createElement('a');
-      link.download = `${title.replace(/\s+/g, '_').toLowerCase()}_${Date.now()}.png`;
+      const link =
+        typeof document !== "undefined" && document.createElement("a");
+      link.download = `${title.replace(/\s+/g, "_").toLowerCase()}_${Date.now()}.png`;
       link.href = url;
       link.click();
     }
@@ -321,7 +341,7 @@ const AdvancedChart = ({
       const color = colorValues[i % colorValues.length];
       if (alpha < 1) {
         // Convert hex to rgba
-        const hex = color.replace('#', '');
+        const hex = color.replace("#", "");
         const r = parseInt(hex.substr(0, 2), 16);
         const g = parseInt(hex.substr(2, 2), 16);
         const b = parseInt(hex.substr(4, 2), 16);
@@ -341,23 +361,23 @@ const AdvancedChart = ({
       data: processedData,
       options: defaultOptions,
       height,
-      plugins
+      plugins,
     };
 
     switch (chartType) {
-    case 'bar':
-      return <Bar {...chartProps} />;
-    case 'pie':
-      return <Pie {...chartProps} />;
-    case 'doughnut':
-      return <Doughnut {...chartProps} />;
-    case 'radar':
-      return <Radar {...chartProps} />;
-    case 'polarArea':
-      return <PolarArea {...chartProps} />;
-    case 'line':
-    default:
-      return <Line {...chartProps} />;
+      case "bar":
+        return <Bar {...chartProps} />;
+      case "pie":
+        return <Pie {...chartProps} />;
+      case "doughnut":
+        return <Doughnut {...chartProps} />;
+      case "radar":
+        return <Radar {...chartProps} />;
+      case "polarArea":
+        return <PolarArea {...chartProps} />;
+      case "line":
+      default:
+        return <Line {...chartProps} />;
     }
   };
 
@@ -367,47 +387,47 @@ const AdvancedChart = ({
       className={className}
       style={style}
       sx={{
-        height: isFullscreen ? '100vh' : 'auto',
-        position: isFullscreen ? 'fixed' : 'relative',
-        top: isFullscreen ? 0 : 'auto',
-        left: isFullscreen ? 0 : 'auto',
-        right: isFullscreen ? 0 : 'auto',
-        bottom: isFullscreen ? 0 : 'auto',
-        zIndex: isFullscreen ? 9999 : 'auto'
+        height: isFullscreen ? "100vh" : "auto",
+        position: isFullscreen ? "fixed" : "relative",
+        top: isFullscreen ? 0 : "auto",
+        left: isFullscreen ? 0 : "auto",
+        right: isFullscreen ? 0 : "auto",
+        bottom: isFullscreen ? 0 : "auto",
+        zIndex: isFullscreen ? 9999 : "auto",
       }}
     >
       <CardHeader
         title={
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Typography variant='h6'>{title}</Typography>
-            {isOffline && (
-              <Chip label='Offline' size='small' color='warning' />
-            )}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Typography variant="h6">{title}</Typography>
+            {isOffline && <Chip label="Offline" size="small" color="warning" />}
             {isRealTime && (
               <Chip
                 label={`Live • ${lastUpdated.toLocaleTimeString()}`}
-                size='small'
-                color='success'
-                sx={{ animation: 'pulse 2s infinite' }}
+                size="small"
+                color="success"
+                sx={{ animation: "pulse 2s infinite" }}
               />
             )}
           </Box>
         }
         action={
           showControls && (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               {/* Chart Type Selector */}
-              <FormControl size='small' sx={{ minWidth: 120 }}>
+              <FormControl size="small" sx={{ minWidth: 120 }}>
                 <InputLabel>Chart Type</InputLabel>
                 <Select
                   value={chartType}
                   onChange={(e) => setChartType(e.target.value)}
-                  label='Chart Type'
+                  label="Chart Type"
                 >
                   {chartTypes.map((type) => (
                     <MenuItem key={type.value} value={type.value}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <type.icon fontSize='small' />
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
+                        <type.icon fontSize="small" />
                         {type.label}
                       </Box>
                     </MenuItem>
@@ -425,22 +445,25 @@ const AdvancedChart = ({
                       disabled={isOffline}
                     />
                   }
-                  label='Live'
+                  label="Live"
                 />
               )}
 
               {/* Action Buttons */}
-              <ButtonGroup size='small'>
+              <ButtonGroup size="small">
                 {onDataRefresh && (
-                  <Tooltip title='Refresh Data'>
-                    <IconButton onClick={handleRefresh} disabled={loading || isOffline}>
+                  <Tooltip title="Refresh Data">
+                    <IconButton
+                      onClick={handleRefresh}
+                      disabled={loading || isOffline}
+                    >
                       <RefreshIcon />
                     </IconButton>
                   </Tooltip>
                 )}
 
                 {downloadEnabled && (
-                  <Tooltip title='Download Chart'>
+                  <Tooltip title="Download Chart">
                     <IconButton onClick={handleDownload} disabled={loading}>
                       <DownloadIcon />
                     </IconButton>
@@ -448,7 +471,9 @@ const AdvancedChart = ({
                 )}
 
                 {fullscreenEnabled && (
-                  <Tooltip title={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}>
+                  <Tooltip
+                    title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+                  >
                     <IconButton onClick={handleFullscreen}>
                       <FullscreenIcon />
                     </IconButton>
@@ -463,47 +488,47 @@ const AdvancedChart = ({
       <CardContent>
         {/* Error State */}
         {error && (
-          <Alert severity='error' sx={{ mb: 2 }}>
+          <Alert severity="error" sx={{ mb: 2 }}>
             {error}
           </Alert>
         )}
 
         {/* Offline Warning */}
         {isOffline && isRealTime && (
-          <Alert severity='warning' sx={{ mb: 2 }}>
+          <Alert severity="warning" sx={{ mb: 2 }}>
             Real-time updates are disabled while offline. Data may be outdated.
           </Alert>
         )}
 
         {/* Loading State */}
         {loading && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+          <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
             <CircularProgress />
           </Box>
         )}
 
         {/* Chart */}
         {!loading && !error && processedData && (
-          <Box sx={{ height, position: 'relative' }}>
-            {renderChart()}
-          </Box>
+          <Box sx={{ height, position: "relative" }}>{renderChart()}</Box>
         )}
 
         {/* No Data State */}
         {!loading && !error && !processedData && (
-          <Box sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            height,
-            color: 'text.secondary'
-          }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              height,
+              color: "text.secondary",
+            }}
+          >
             <BarChartIcon sx={{ fontSize: 64, mb: 2, opacity: 0.3 }} />
-            <Typography variant='h6' gutterBottom>
+            <Typography variant="h6" gutterBottom>
               No Data Available
             </Typography>
-            <Typography variant='body2'>
+            <Typography variant="body2">
               Data will appear here when available
             </Typography>
           </Box>

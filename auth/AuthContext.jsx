@@ -7,5 +7,5 @@ export {
   AuthProvider,
   useAuth,
   AUTH_ACTIONS,
-  default
-} from './context/index.jsx';
+  default,
+} from "./context/index.jsx";

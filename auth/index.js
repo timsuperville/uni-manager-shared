@@ -42,12 +42,12 @@
  *
  * Usage: <AuthProvider><App /></AuthProvider>
  */
-export { AuthProvider } from './context/AuthContext.jsx';
+export { AuthProvider } from "./context/AuthContext.jsx";
 
 /**
  * Additional context exports (HOCs, utilities)
  */
-export { withAuth } from './context/index.jsx';
+export { withAuth } from "./context/index.jsx";
 
 // ============================================================================
 // HOOKS - React Custom Hooks (Recommended)
@@ -57,24 +57,24 @@ export { withAuth } from './context/index.jsx';
  * Core Hook - PRIMARY AUTHENTICATION HOOK
  * Use this for most auth needs: login, logout, user state, etc.
  */
-export { useAuth } from './hooks/useAuth.js';
+export { useAuth } from "./hooks/useAuth.js";
 
 /**
  * Specialized Hooks - One responsibility each
  */
-export { useLogin } from './hooks/useLogin.js';
-export { useLogout } from './hooks/useLogout.js';
-export { useMFA } from './hooks/useMFA.js';
-export { useSession } from './hooks/useSession.js';
-export { useOAuth } from './hooks/useOAuth.js';
-export { useDeviceTrust } from './hooks/useDeviceTrust.js';
-export { usePermissions } from './hooks/usePermissions.js';
-export { useRateLimit } from './hooks/useRateLimit.js';
+export { useLogin } from "./hooks/useLogin.js";
+export { useLogout } from "./hooks/useLogout.js";
+export { useMFA } from "./hooks/useMFA.js";
+export { useSession } from "./hooks/useSession.js";
+export { useOAuth } from "./hooks/useOAuth.js";
+export { useDeviceTrust } from "./hooks/useDeviceTrust.js";
+export { usePermissions } from "./hooks/usePermissions.js";
+export { useRateLimit } from "./hooks/useRateLimit.js";
 
 /**
  * Hook utilities
  */
-export { listAvailableHooks } from './hooks/index.js';
+export { listAvailableHooks } from "./hooks/index.js";
 
 // ============================================================================
 // COMPONENTS - UI Components Organized by Feature
@@ -86,59 +86,59 @@ export { listAvailableHooks } from './hooks/index.js';
  * LoginForm - Main authentication form component
  * Supports multiple app types, themes, and MFA
  */
-export { default as LoginForm } from './components/LoginForm.jsx';
+export { default as LoginForm } from "./components/LoginForm.jsx";
 
 /**
  * User Registration Form
  */
-export { default as SignupForm } from './components/SignupForm.jsx';
+export { default as SignupForm } from "./components/SignupForm.jsx";
 
 /**
  * Password Recovery Form
  */
-export { default as ForgotPasswordForm } from './components/ForgotPasswordForm.jsx';
+export { default as ForgotPasswordForm } from "./components/ForgotPasswordForm.jsx";
 
 // --- MFA Components ---
 
-export { default as MFAVerification } from './components/MFAVerification.jsx';
-export { default as MFASetup } from './components/MFASetup.jsx';
-export { default as MFASetupWizard } from './components/MFASetupWizard.jsx';
-export { default as MFAManagement } from './components/MFAManagement.jsx';
-export { default as MFAManagementDashboard } from './components/MFAManagementDashboard.jsx';
-export { default as MFALoginIntegration } from './components/MFALoginIntegration.jsx';
+export { default as MFAVerification } from "./components/MFAVerification.jsx";
+export { default as MFASetup } from "./components/MFASetup.jsx";
+export { default as MFASetupWizard } from "./components/MFASetupWizard.jsx";
+export { default as MFAManagement } from "./components/MFAManagement.jsx";
+export { default as MFAManagementDashboard } from "./components/MFAManagementDashboard.jsx";
+export { default as MFALoginIntegration } from "./components/MFALoginIntegration.jsx";
 
 // --- OAuth Components ---
 
-export { default as OAuthProviderComponents } from './components/OAuthProviderComponents.jsx';
-export { default as OAuthCallback } from './components/OAuthCallback.jsx';
+export { default as OAuthProviderComponents } from "./components/OAuthProviderComponents.jsx";
+export { default as OAuthCallback } from "./components/OAuthCallback.jsx";
 
 // --- Authorization & RBAC ---
 
-export { default as ProtectedRoute } from './components/ProtectedRoute.jsx';
-export { default as RBACComponents } from './components/RBACComponents.jsx';
+export { default as ProtectedRoute } from "./components/ProtectedRoute.jsx";
+export { default as RBACComponents } from "./components/RBACComponents.jsx";
 
 // --- Session Management ---
 
-export { default as SessionManagementDashboard } from './components/SessionManagementDashboard.jsx';
-export { default as SessionWarning } from './components/SessionWarning.jsx';
+export { default as SessionManagementDashboard } from "./components/SessionManagementDashboard.jsx";
+export { default as SessionWarning } from "./components/SessionWarning.jsx";
 
 // --- Security ---
 
-export { default as SecurityDashboard } from './components/SecurityDashboard.jsx';
+export { default as SecurityDashboard } from "./components/SecurityDashboard.jsx";
 
 // --- Layout Components ---
 
-export { default as AuthLayout } from './components/AuthLayout.jsx';
-export { default as AppSwitcher } from './components/AppSwitcher.jsx';
+export { default as AuthLayout } from "./components/AuthLayout.jsx";
+export { default as AppSwitcher } from "./components/AppSwitcher.jsx";
 
 // --- User Management ---
 
-export { default as UserMenu } from './components/UserMenu.jsx';
+export { default as UserMenu } from "./components/UserMenu.jsx";
 
 /**
  * Component utilities
  */
-export { listAvailableComponents } from './components/index.js';
+export { listAvailableComponents } from "./components/index.js";
 
 // ============================================================================
 // SERVICES - Business Logic & State Management
@@ -149,12 +149,12 @@ export { listAvailableComponents } from './components/index.js';
  * Combines session management, token handling, cross-tab sync, device trust
  * Lazy-loaded via getter function to prevent circular dependencies
  */
-export { default as SessionService } from './services/SessionService.js';
+export { default as SessionService } from "./services/SessionService.js";
 
 /**
  * Direct service exports for backward compatibility
  */
-export { default as authService } from './services/authService.js';
+export { default as authService } from "./services/authService.js";
 
 /**
  * Service export hub with lazy-loading
@@ -174,7 +174,7 @@ export {
   getLoadedServices,
   isServiceAvailable,
   cacheService,
-} from './services/index.js';
+} from "./services/index.js";
 
 // ============================================================================
 // TYPES & CONSTANTS - Type Definitions and Configuration Values
@@ -184,7 +184,7 @@ export {
  * Type Definitions (JSDoc - for IDE intellisense)
  * Export JSDoc types for TypeScript-like type checking
  */
-export * from './types/auth.types.js';
+export * from "./types/auth.types.js";
 
 /**
  * Constants - Single source of truth for all auth values
@@ -208,12 +208,12 @@ export {
   AUTH_ENDPOINTS,
   HTTP_STATUS,
   AUTH_EVENTS,
-} from './types/constants.js';
+} from "./types/constants.js";
 
 /**
  * All exports organized
  */
-export { listAvailableConstants } from './types/index.js';
+export { listAvailableConstants } from "./types/index.js";
 
 // ============================================================================
 // CONFIGURATION
@@ -228,12 +228,15 @@ export {
   getAppConfig,
   getCurrentAppName,
   getCurrentAppConfig,
-} from './config/appConfigs.js';
+} from "./config/appConfigs.js";
 
 /**
  * OAuth Provider Configurations
  */
-export { getSupportedProvidersForApp, getOAuthConfig } from './config/oauthProviders.js';
+export {
+  getSupportedProvidersForApp,
+  getOAuthConfig,
+} from "./config/oauthProviders.js";
 
 // ============================================================================
 // UTILITIES
@@ -250,7 +253,7 @@ export {
   validateMFACode,
   validatePhoneNumber,
   sanitizeInput,
-} from './utils/authValidation.js';
+} from "./utils/authValidation.js";
 
 /**
  * Token Storage Utilities
@@ -264,7 +267,7 @@ export {
   clearTokens,
   isTokenExpired,
   getTokenExpiryTime,
-} from './utils/tokenStorage.js';
+} from "./utils/tokenStorage.js";
 
 // ============================================================================
 // RBAC - Role-Based Access Control
@@ -273,7 +276,7 @@ export {
 /**
  * RBAC Utilities and Configuration
  */
-export { RBACUtils, PermissionUtils, RouteUtils } from './rbac/utils.js';
+export { RBACUtils, PermissionUtils, RouteUtils } from "./rbac/utils.js";
 export {
   PERMISSIONS,
   ROLES,
@@ -282,7 +285,7 @@ export {
   checkPermission,
   hasRole,
   checkAccess,
-} from './rbac/roles.js';
+} from "./rbac/roles.js";
 
 // ============================================================================
 // EXPORT UTILITIES FOR DEBUGGING

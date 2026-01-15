@@ -12,8 +12,8 @@
 
 /* global console */
 
-import { useCallback } from 'react';
-import { useAuth } from './useAuth.js';
+import { useCallback } from "react";
+import { useAuth } from "./useAuth.js";
 
 /**
  * @typedef {Object} UseLogoutReturn
@@ -37,7 +37,7 @@ export function useLogout() {
     try {
       await authLogout();
     } catch (err) {
-      console.error('Logout error:', err);
+      console.error("Logout error:", err);
       throw err;
     }
   }, [authLogout]);

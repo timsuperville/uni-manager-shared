@@ -3,8 +3,8 @@
  * Comprehensive search functionality with filters, sorting, and pagination
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
-import PropTypes from 'prop-types';
+import React, { useState, useEffect, useCallback } from "react";
+import PropTypes from "prop-types";
 import {
   Box,
   TextField,
@@ -25,7 +25,7 @@ import {
   Collapse,
   Badge,
   Autocomplete,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Search as SearchIcon,
   FilterList as FilterIcon,
@@ -33,8 +33,8 @@ import {
   Sort as SortIcon,
   ExpandMore as ExpandMoreIcon,
   ExpandLess as ExpandLessIcon,
-} from '@mui/icons-material';
-import { useResponsive } from '../utils/responsiveUtils';
+} from "@mui/icons-material";
+import { useResponsive } from "../utils/responsiveUtils";
 
 // Debounce utility
 function debounce(func, wait) {
@@ -54,7 +54,7 @@ const SearchInput = ({
   value,
   onChange,
   onClear,
-  placeholder = 'Search...',
+  placeholder = "Search...",
   suggestions = [],
   onSuggestionSelect,
   showSuggestions = false,
@@ -62,39 +62,39 @@ const SearchInput = ({
   const { isMobile } = useResponsive();
 
   return (
-    <Box sx={{ position: 'relative', mb: 2 }}>
+    <Box sx={{ position: "relative", mb: 2 }}>
       <TextField
         fullWidth
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        variant='outlined'
-        size={isMobile ? 'medium' : 'small'}
+        variant="outlined"
+        size={isMobile ? "medium" : "small"}
         InputProps={{
           startAdornment: (
-            <InputAdornment position='start'>
-              <SearchIcon color='action' />
+            <InputAdornment position="start">
+              <SearchIcon color="action" />
             </InputAdornment>
           ),
           endAdornment: value && (
-            <InputAdornment position='end'>
-              <IconButton size='small' onClick={onClear} sx={{ p: 0.5 }}>
-                <ClearIcon fontSize='small' />
+            <InputAdornment position="end">
+              <IconButton size="small" onClick={onClear} sx={{ p: 0.5 }}>
+                <ClearIcon fontSize="small" />
               </IconButton>
             </InputAdornment>
           ),
           sx: {
-            fontSize: isMobile ? '16px' : '14px', // Prevent zoom on iOS
-            '& input': {
-              padding: isMobile ? '12px 0' : '8px 0',
+            fontSize: isMobile ? "16px" : "14px", // Prevent zoom on iOS
+            "& input": {
+              padding: isMobile ? "12px 0" : "8px 0",
             },
           },
         }}
         sx={{
-          '& .MuiOutlinedInput-root': {
-            backgroundColor: 'background.paper',
-            '&:hover': {
-              backgroundColor: 'action.hover',
+          "& .MuiOutlinedInput-root": {
+            backgroundColor: "background.paper",
+            "&:hover": {
+              backgroundColor: "action.hover",
             },
           },
         }}
@@ -104,13 +104,13 @@ const SearchInput = ({
       {showSuggestions && suggestions.length > 0 && (
         <Paper
           sx={{
-            position: 'absolute',
-            top: '100%',
+            position: "absolute",
+            top: "100%",
             left: 0,
             right: 0,
             zIndex: 1000,
             maxHeight: 200,
-            overflow: 'auto',
+            overflow: "auto",
             mt: 0.5,
           }}
         >
@@ -119,19 +119,19 @@ const SearchInput = ({
               key={index}
               onClick={() => onSuggestionSelect(suggestion)}
               sx={{
-                fontSize: isMobile ? '16px' : '14px',
+                fontSize: isMobile ? "16px" : "14px",
                 py: isMobile ? 1.5 : 1,
               }}
             >
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <SearchIcon fontSize='small' color='action' />
-                <Typography variant='body2'>{suggestion.text}</Typography>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <SearchIcon fontSize="small" color="action" />
+                <Typography variant="body2">{suggestion.text}</Typography>
                 {suggestion.category && (
                   <Chip
                     label={suggestion.category}
-                    size='small'
-                    variant='outlined'
-                    sx={{ ml: 'auto' }}
+                    size="small"
+                    variant="outlined"
+                    sx={{ ml: "auto" }}
                   />
                 )}
               </Box>
@@ -159,7 +159,7 @@ const FilterPanel = ({
       activeFilters[key] &&
       (Array.isArray(activeFilters[key])
         ? activeFilters[key].length > 0
-        : activeFilters[key] !== ''),
+        : activeFilters[key] !== ""),
   ).length;
 
   return (
@@ -169,41 +169,41 @@ const FilterPanel = ({
         startIcon={<FilterIcon />}
         endIcon={open ? <ExpandLessIcon /> : <ExpandMoreIcon />}
         onClick={onToggle}
-        variant='outlined'
-        size={isMobile ? 'medium' : 'small'}
+        variant="outlined"
+        size={isMobile ? "medium" : "small"}
         sx={{
           mb: 1,
           borderRadius: 2,
         }}
       >
-        <Badge badgeContent={activeFilterCount} color='primary'>
-          <Typography variant='body2'>Filters</Typography>
+        <Badge badgeContent={activeFilterCount} color="primary">
+          <Typography variant="body2">Filters</Typography>
         </Badge>
       </Button>
 
       {/* Active Filters Display */}
       {activeFilterCount > 0 && (
         <Box sx={{ mb: 1 }}>
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 1 }}>
+          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, mb: 1 }}>
             {Object.entries(activeFilters).map(([key, value]) => {
               if (!value || (Array.isArray(value) && value.length === 0))
                 return null;
 
               const filter = filters.find((f) => f.key === key);
               const displayValue = Array.isArray(value)
-                ? value.join(', ')
+                ? value.join(", ")
                 : value;
 
               return (
                 <Chip
                   key={key}
                   label={`${filter?.label || key}: ${displayValue}`}
-                  size='small'
+                  size="small"
                   onDelete={() =>
-                    onFilterChange(key, Array.isArray(value) ? [] : '')
+                    onFilterChange(key, Array.isArray(value) ? [] : "")
                   }
                   sx={{
-                    fontSize: isMobile ? '12px' : '11px',
+                    fontSize: isMobile ? "12px" : "11px",
                     height: isMobile ? 28 : 24,
                   }}
                 />
@@ -212,10 +212,10 @@ const FilterPanel = ({
           </Box>
 
           <Button
-            size='small'
+            size="small"
             onClick={onClearFilters}
             startIcon={<ClearIcon />}
-            sx={{ fontSize: '12px' }}
+            sx={{ fontSize: "12px" }}
           >
             Clear All
           </Button>
@@ -227,10 +227,10 @@ const FilterPanel = ({
         <Paper sx={{ p: 2, mt: 1 }}>
           <Box
             sx={{
-              display: 'grid',
+              display: "grid",
               gridTemplateColumns: isMobile
-                ? '1fr'
-                : 'repeat(auto-fit, minmax(250px, 1fr))',
+                ? "1fr"
+                : "repeat(auto-fit, minmax(250px, 1fr))",
               gap: 2,
             }}
           >
@@ -254,17 +254,17 @@ const FilterControl = ({ filter, value, onChange }) => {
   const { isMobile } = useResponsive();
 
   switch (filter.type) {
-    case 'select':
+    case "select":
       return (
-        <FormControl fullWidth size={isMobile ? 'medium' : 'small'}>
+        <FormControl fullWidth size={isMobile ? "medium" : "small"}>
           <InputLabel>{filter.label}</InputLabel>
           <Select
-            value={value || ''}
+            value={value || ""}
             onChange={(e) => onChange(e.target.value)}
             label={filter.label}
             multiple={filter.multiple}
             sx={{
-              fontSize: isMobile ? '16px' : '14px',
+              fontSize: isMobile ? "16px" : "14px",
             }}
           >
             {filter.options.map((option) => (
@@ -272,7 +272,7 @@ const FilterControl = ({ filter, value, onChange }) => {
                 key={option.value}
                 value={option.value}
                 sx={{
-                  fontSize: isMobile ? '16px' : '14px',
+                  fontSize: isMobile ? "16px" : "14px",
                   minHeight: isMobile ? 48 : 36,
                 }}
               >
@@ -291,7 +291,7 @@ const FilterControl = ({ filter, value, onChange }) => {
         </FormControl>
       );
 
-    case 'autocomplete':
+    case "autocomplete":
       return (
         <Autocomplete
           options={filter.options}
@@ -303,18 +303,18 @@ const FilterControl = ({ filter, value, onChange }) => {
             <TextField
               {...params}
               label={filter.label}
-              size={isMobile ? 'medium' : 'small'}
+              size={isMobile ? "medium" : "small"}
               sx={{
-                '& input': {
-                  fontSize: isMobile ? '16px' : '14px',
+                "& input": {
+                  fontSize: isMobile ? "16px" : "14px",
                 },
               }}
             />
           )}
           sx={{
-            '& .MuiAutocomplete-listbox': {
-              '& .MuiAutocomplete-option': {
-                fontSize: isMobile ? '16px' : '14px',
+            "& .MuiAutocomplete-listbox": {
+              "& .MuiAutocomplete-option": {
+                fontSize: isMobile ? "16px" : "14px",
                 minHeight: isMobile ? 48 : 36,
               },
             },
@@ -322,10 +322,10 @@ const FilterControl = ({ filter, value, onChange }) => {
         />
       );
 
-    case 'checkbox':
+    case "checkbox":
       return (
         <Box>
-          <Typography variant='subtitle2' sx={{ mb: 1 }}>
+          <Typography variant="subtitle2" sx={{ mb: 1 }}>
             {filter.label}
           </Typography>
           {filter.options.map((option) => (
@@ -348,45 +348,45 @@ const FilterControl = ({ filter, value, onChange }) => {
                 />
               }
               label={
-                <Typography sx={{ fontSize: isMobile ? '14px' : '13px' }}>
+                <Typography sx={{ fontSize: isMobile ? "14px" : "13px" }}>
                   {option.label}
                 </Typography>
               }
-              sx={{ display: 'block', mb: 0.5 }}
+              sx={{ display: "block", mb: 0.5 }}
             />
           ))}
         </Box>
       );
 
-    case 'text':
+    case "text":
       return (
         <TextField
           fullWidth
           label={filter.label}
-          value={value || ''}
+          value={value || ""}
           onChange={(e) => onChange(e.target.value)}
-          size={isMobile ? 'medium' : 'small'}
+          size={isMobile ? "medium" : "small"}
           InputProps={{
             sx: {
-              fontSize: isMobile ? '16px' : '14px',
+              fontSize: isMobile ? "16px" : "14px",
             },
           }}
         />
       );
 
-    case 'date':
+    case "date":
       return (
         <TextField
           fullWidth
           label={filter.label}
-          type='date'
-          value={value || ''}
+          type="date"
+          value={value || ""}
           onChange={(e) => onChange(e.target.value)}
-          size={isMobile ? 'medium' : 'small'}
+          size={isMobile ? "medium" : "small"}
           InputLabelProps={{ shrink: true }}
           InputProps={{
             sx: {
-              fontSize: isMobile ? '16px' : '14px',
+              fontSize: isMobile ? "16px" : "14px",
             },
           }}
         />
@@ -422,17 +422,17 @@ const SortControl = ({ sortOptions, sortBy, sortOrder, onSortChange }) => {
       <Button
         startIcon={<SortIcon />}
         onClick={handleSortMenuOpen}
-        variant='outlined'
-        size={isMobile ? 'medium' : 'small'}
+        variant="outlined"
+        size={isMobile ? "medium" : "small"}
         sx={{
           borderRadius: 2,
-          textTransform: 'none',
+          textTransform: "none",
         }}
       >
-        <Typography variant='body2'>
+        <Typography variant="body2">
           {currentSort
-            ? `${currentSort.label} (${sortOrder === 'asc' ? '↑' : '↓'})`
-            : 'Sort'}
+            ? `${currentSort.label} (${sortOrder === "asc" ? "↑" : "↓"})`
+            : "Sort"}
         </Typography>
       </Button>
 
@@ -447,20 +447,20 @@ const SortControl = ({ sortOptions, sortBy, sortOrder, onSortChange }) => {
         {sortOptions.map((option) => (
           <Box key={option.value}>
             <MenuItem
-              onClick={() => handleSortSelect(option.value, 'asc')}
-              selected={sortBy === option.value && sortOrder === 'asc'}
+              onClick={() => handleSortSelect(option.value, "asc")}
+              selected={sortBy === option.value && sortOrder === "asc"}
               sx={{
-                fontSize: isMobile ? '16px' : '14px',
+                fontSize: isMobile ? "16px" : "14px",
                 minHeight: isMobile ? 48 : 36,
               }}
             >
               {option.label} ↑
             </MenuItem>
             <MenuItem
-              onClick={() => handleSortSelect(option.value, 'desc')}
-              selected={sortBy === option.value && sortOrder === 'desc'}
+              onClick={() => handleSortSelect(option.value, "desc")}
+              selected={sortBy === option.value && sortOrder === "desc"}
               sx={{
-                fontSize: isMobile ? '16px' : '14px',
+                fontSize: isMobile ? "16px" : "14px",
                 minHeight: isMobile ? 48 : 36,
               }}
             >
@@ -479,16 +479,16 @@ const AdvancedSearch = ({
   onSearch,
   onFilterChange,
   onSortChange,
-  searchValue = '',
+  searchValue = "",
   filters = [],
   activeFilters = {},
   sortOptions = [],
-  sortBy = '',
-  sortOrder = 'asc',
+  sortBy = "",
+  sortOrder = "asc",
   suggestions = [],
   showSuggestions = false,
   loading = false,
-  placeholder = 'Search...',
+  placeholder = "Search...",
   showQuickFilters = true,
 }) => {
   const { isMobile } = useResponsive();
@@ -508,13 +508,13 @@ const AdvancedSearch = ({
   }, [searchValue, debouncedSearch]);
 
   const handleClearSearch = () => {
-    onSearch('');
+    onSearch("");
   };
 
   const handleClearFilters = () => {
     const clearedFilters = {};
     filters.forEach((filter) => {
-      clearedFilters[filter.key] = filter.multiple ? [] : '';
+      clearedFilters[filter.key] = filter.multiple ? [] : "";
     });
     onFilterChange(clearedFilters);
   };
@@ -543,10 +543,10 @@ const AdvancedSearch = ({
       {/* Controls Row */}
       <Box
         sx={{
-          display: 'flex',
+          display: "flex",
           gap: 1,
-          flexDirection: isMobile ? 'column' : 'row',
-          alignItems: isMobile ? 'stretch' : 'center',
+          flexDirection: isMobile ? "column" : "row",
+          alignItems: isMobile ? "stretch" : "center",
           mb: 2,
         }}
       >
@@ -600,19 +600,19 @@ const QuickFilters = ({ filters, activeFilters, onFilterChange }) => {
   return (
     <Box sx={{ mb: 2 }}>
       <Typography
-        variant='caption'
-        color='text.secondary'
-        sx={{ mb: 1, display: 'block' }}
+        variant="caption"
+        color="text.secondary"
+        sx={{ mb: 1, display: "block" }}
       >
         Quick Filters:
       </Typography>
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
         {quickFilters.map((filter) =>
           filter.quickFilterOptions?.map((option) => (
             <Chip
               key={`${filter.key}-${option.value}`}
               label={option.label}
-              size='small'
+              size="small"
               clickable
               variant={
                 (
@@ -620,8 +620,8 @@ const QuickFilters = ({ filters, activeFilters, onFilterChange }) => {
                     ? activeFilters[filter.key].includes(option.value)
                     : activeFilters[filter.key] === option.value
                 )
-                  ? 'filled'
-                  : 'outlined'
+                  ? "filled"
+                  : "outlined"
               }
               onClick={() => {
                 if (filter.multiple) {
@@ -633,13 +633,13 @@ const QuickFilters = ({ filters, activeFilters, onFilterChange }) => {
                 } else {
                   const newValue =
                     activeFilters[filter.key] === option.value
-                      ? ''
+                      ? ""
                       : option.value;
                   onFilterChange(filter.key, newValue);
                 }
               }}
               sx={{
-                fontSize: '12px',
+                fontSize: "12px",
                 height: 24,
               }}
             />
@@ -680,7 +680,7 @@ FilterControl.propTypes = {
 SortControl.propTypes = {
   sortOptions: PropTypes.array.isRequired,
   sortBy: PropTypes.string.isRequired,
-  sortOrder: PropTypes.oneOf(['asc', 'desc']).isRequired,
+  sortOrder: PropTypes.oneOf(["asc", "desc"]).isRequired,
   onSortChange: PropTypes.func.isRequired,
 };
 
@@ -693,7 +693,7 @@ AdvancedSearch.propTypes = {
   activeFilters: PropTypes.object,
   sortOptions: PropTypes.array,
   sortBy: PropTypes.string,
-  sortOrder: PropTypes.oneOf(['asc', 'desc']),
+  sortOrder: PropTypes.oneOf(["asc", "desc"]),
   suggestions: PropTypes.array,
   showSuggestions: PropTypes.bool,
   loading: PropTypes.bool,

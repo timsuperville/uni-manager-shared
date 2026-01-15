@@ -3,9 +3,9 @@
  * React components for role-based access control
  */
 
-import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth.js';
+import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth.js";
 
 /**
  * Permission Guard Component
@@ -16,7 +16,7 @@ export function PermissionGuard({
   permission,
   requireAll = false,
   children,
-  fallback = null
+  fallback = null,
 }) {
   const auth = useAuth();
 
@@ -43,12 +43,12 @@ export function PermissionGuard({
       // For requireAll, use hasAllPermissions if available, otherwise check each permission
       hasPermission = auth.hasAllPermissions
         ? auth.hasAllPermissions(permsToCheck)
-        : permsToCheck.every(perm => auth.hasPermission(perm));
+        : permsToCheck.every((perm) => auth.hasPermission(perm));
     } else {
       // For any permission, prefer hasAnyPermission if available (test expects this)
       hasPermission = auth.hasAnyPermission
         ? auth.hasAnyPermission(permsToCheck)
-        : permsToCheck.some(perm => auth.hasPermission(perm));
+        : permsToCheck.some((perm) => auth.hasPermission(perm));
     }
   }
 
@@ -65,7 +65,7 @@ export function RoleGuard({
   minimumLevel = null, // Add support for minimum level checking
   requireAll = false,
   children,
-  fallback = null
+  fallback = null,
 }) {
   const auth = useAuth();
 
@@ -99,12 +99,12 @@ export function RoleGuard({
   } else {
     if (requireAll) {
       // For requireAll, check each role
-      hasRole = rolesToCheck.every(r => auth.hasRole(r));
+      hasRole = rolesToCheck.every((r) => auth.hasRole(r));
     } else {
       // For any role, prefer hasAnyRole if available (test expects this)
       hasRole = auth.hasAnyRole
         ? auth.hasAnyRole(rolesToCheck)
-        : rolesToCheck.some(r => auth.hasRole(r));
+        : rolesToCheck.some((r) => auth.hasRole(r));
     }
   }
 
@@ -120,8 +120,8 @@ export function RouteGuard({
   roles = [],
   requireAll = false,
   children,
-  redirectTo = '/unauthorized',
-  fallback = null
+  redirectTo = "/unauthorized",
+  fallback = null,
 }) {
   const auth = useAuth();
   const navigate = useNavigate();
@@ -131,7 +131,7 @@ export function RouteGuard({
     if (fallback) {
       return fallback;
     }
-    navigate('/login');
+    navigate("/login");
     return null;
   }
 
@@ -148,14 +148,20 @@ export function RouteGuard({
 
   if (permissions.length > 0) {
     hasAccess = requireAll
-      ? permissions.every(perm => auth.hasPermission && auth.hasPermission(perm))
-      : permissions.some(perm => auth.hasPermission && auth.hasPermission(perm));
+      ? permissions.every(
+          (perm) => auth.hasPermission && auth.hasPermission(perm),
+        )
+      : permissions.some(
+          (perm) => auth.hasPermission && auth.hasPermission(perm),
+        );
   }
 
   if (hasAccess && roles.length > 0) {
     hasAccess = requireAll
-      ? roles.every(role => auth.hasRole && auth.hasRole(role))
-      : (auth.hasAnyRole ? auth.hasAnyRole(roles) : roles.some(role => auth.hasRole && auth.hasRole(role)));
+      ? roles.every((role) => auth.hasRole && auth.hasRole(role))
+      : auth.hasAnyRole
+        ? auth.hasAnyRole(roles)
+        : roles.some((role) => auth.hasRole && auth.hasRole(role));
   }
 
   if (!hasAccess) {
@@ -173,11 +179,7 @@ export function RouteGuard({
  * Admin Guard Component
  * Renders children only for admin users
  */
-export function AdminGuard({
-  children,
-  fallback = null,
-  application = null
-}) {
+export function AdminGuard({ children, fallback = null, application = null }) {
   const auth = useAuth();
 
   if (!auth) {
@@ -190,12 +192,12 @@ export function AdminGuard({
     // Check for application-specific admin role
     isAdmin = auth.isApplicationAdmin
       ? auth.isApplicationAdmin(application)
-      : (auth.hasRole && auth.hasRole(`${application}_admin`));
+      : auth.hasRole && auth.hasRole(`${application}_admin`);
   } else {
     // Check for any admin role
     isAdmin = auth.isAnyAdmin
       ? auth.isAnyAdmin()
-      : (auth.hasRole && (auth.hasRole('super_admin') || auth.hasRole('admin')));
+      : auth.hasRole && (auth.hasRole("super_admin") || auth.hasRole("admin"));
   }
 
   return isAdmin ? children : fallback;
@@ -212,7 +214,7 @@ export function ConditionalRender({
   requireAll = false,
   children,
   elseChildren = null,
-  else: elseProp = null // Support both 'else' and 'elseChildren' props
+  else: elseProp = null, // Support both 'else' and 'elseChildren' props
 }) {
   const auth = useAuth();
 
@@ -223,7 +225,7 @@ export function ConditionalRender({
 
   // If condition is explicitly provided, use it (including explicit false)
   if (condition !== null && condition !== undefined) {
-    if (typeof condition === 'function') {
+    if (typeof condition === "function") {
       // If condition is a function, call it with auth context
       shouldRender = Boolean(condition(auth));
     } else {
@@ -235,12 +237,14 @@ export function ConditionalRender({
 
     if (permissions.length > 0 && auth && auth.hasPermission) {
       shouldRender = requireAll
-        ? permissions.every(perm => auth.hasPermission(perm))
-        : permissions.some(perm => auth.hasPermission(perm));
+        ? permissions.every((perm) => auth.hasPermission(perm))
+        : permissions.some((perm) => auth.hasPermission(perm));
     }
 
     if (shouldRender && roles.length > 0 && auth && auth.hasRole) {
-      shouldRender = auth.hasAnyRole ? auth.hasAnyRole(roles) : roles.some(role => auth.hasRole(role));
+      shouldRender = auth.hasAnyRole
+        ? auth.hasAnyRole(roles)
+        : roles.some((role) => auth.hasRole(role));
     }
   }
 
@@ -268,12 +272,16 @@ export function PermissionButton({
     hasAccess = auth.hasPermission(permission);
   } else if (permissions.length > 0 && auth && auth.hasPermission) {
     hasAccess = requireAll
-      ? permissions.every(perm => auth.hasPermission(perm))
-      : permissions.some(perm => auth.hasPermission(perm));
+      ? permissions.every((perm) => auth.hasPermission(perm))
+      : permissions.some((perm) => auth.hasPermission(perm));
   }
 
   if (roles.length > 0 && auth && auth.hasRole) {
-    hasAccess = hasAccess && (auth.hasAnyRole ? auth.hasAnyRole(roles) : roles.some(role => auth.hasRole(role)));
+    hasAccess =
+      hasAccess &&
+      (auth.hasAnyRole
+        ? auth.hasAnyRole(roles)
+        : roles.some((role) => auth.hasRole(role)));
   }
 
   if (hideIfNoAccess && !hasAccess) {
@@ -307,12 +315,16 @@ export function PermissionMenuItem({
     hasAccess = auth.hasPermission(permission);
   } else if (permissions.length > 0 && auth && auth.hasPermission) {
     hasAccess = requireAll
-      ? permissions.every(perm => auth.hasPermission(perm))
-      : permissions.some(perm => auth.hasPermission(perm));
+      ? permissions.every((perm) => auth.hasPermission(perm))
+      : permissions.some((perm) => auth.hasPermission(perm));
   }
 
   if (roles.length > 0 && auth && auth.hasRole) {
-    hasAccess = hasAccess && (auth.hasAnyRole ? auth.hasAnyRole(roles) : roles.some(role => auth.hasRole(role)));
+    hasAccess =
+      hasAccess &&
+      (auth.hasAnyRole
+        ? auth.hasAnyRole(roles)
+        : roles.some((role) => auth.hasRole(role)));
   }
 
   if (!hasAccess) {
@@ -331,7 +343,7 @@ export function PermissionMenuItem({
  * Usage: withPermissions(['permission1', 'permission2'], options)(Component)
  */
 export function withPermissions(permissions = [], options = {}) {
-  return function(WrappedComponent) {
+  return function (WrappedComponent) {
     const WithPermissionComponent = (props) => {
       const auth = useAuth();
 
@@ -339,28 +351,34 @@ export function withPermissions(permissions = [], options = {}) {
         requireAll = false,
         fallback = null,
         redirectTo = null,
-        user = null
+        user = null,
       } = options;
 
       if (!auth || !auth.hasPermission) {
         if (redirectTo) {
           // Note: useNavigate should be called conditionally, which breaks rules of hooks
           // For now, return fallback in this case
-          console.warn('withPermissions: redirectTo not supported without useNavigate hook');
+          console.warn(
+            "withPermissions: redirectTo not supported without useNavigate hook",
+          );
         }
         return fallback;
       }
 
-      const hasPermission = permissions.length === 0 || (requireAll
-        ? permissions.every(perm => auth.hasPermission(perm))
-        : permissions.some(perm => auth.hasPermission(perm)));
+      const hasPermission =
+        permissions.length === 0 ||
+        (requireAll
+          ? permissions.every((perm) => auth.hasPermission(perm))
+          : permissions.some((perm) => auth.hasPermission(perm)));
 
       if (!hasPermission) {
         if (redirectTo) {
-          console.warn('withPermissions: redirectTo not supported without useNavigate hook');
+          console.warn(
+            "withPermissions: redirectTo not supported without useNavigate hook",
+          );
         }
         if (fallback) {
-          if (typeof fallback === 'function') {
+          if (typeof fallback === "function") {
             const FallbackComponent = fallback;
             return <FallbackComponent {...props} />;
           } else {
@@ -383,7 +401,7 @@ export function withPermissions(permissions = [], options = {}) {
  * Usage: withRoles(['role1', 'role2'], options)(Component)
  */
 export function withRoles(roles = [], options = {}) {
-  return function(WrappedComponent) {
+  return function (WrappedComponent) {
     const WithRoleComponent = (props) => {
       const auth = useAuth();
 
@@ -392,15 +410,17 @@ export function withRoles(roles = [], options = {}) {
         minimumLevel = null,
         fallback = null,
         redirectTo = null,
-        user = null
+        user = null,
       } = options;
 
       if (!auth || !auth.hasRole) {
         if (redirectTo) {
-          console.warn('withRoles: redirectTo not supported without useNavigate hook');
+          console.warn(
+            "withRoles: redirectTo not supported without useNavigate hook",
+          );
         }
         if (fallback) {
-          if (typeof fallback === 'function') {
+          if (typeof fallback === "function") {
             const FallbackComponent = fallback;
             return <FallbackComponent {...props} />;
           } else {
@@ -415,10 +435,12 @@ export function withRoles(roles = [], options = {}) {
         const hasLevel = auth.hasMinimumRoleLevel(minimumLevel);
         if (!hasLevel) {
           if (redirectTo) {
-            console.warn('withRoles: redirectTo not supported without useNavigate hook');
+            console.warn(
+              "withRoles: redirectTo not supported without useNavigate hook",
+            );
           }
           if (fallback) {
-            if (typeof fallback === 'function') {
+            if (typeof fallback === "function") {
               const FallbackComponent = fallback;
               return <FallbackComponent {...props} />;
             } else {
@@ -430,16 +452,22 @@ export function withRoles(roles = [], options = {}) {
         return <WrappedComponent {...props} />;
       }
 
-      const hasRole = roles.length === 0 || (requireAll
-        ? roles.every(role => auth.hasRole(role))
-        : (auth.hasAnyRole ? auth.hasAnyRole(roles) : roles.some(role => auth.hasRole(role))));
+      const hasRole =
+        roles.length === 0 ||
+        (requireAll
+          ? roles.every((role) => auth.hasRole(role))
+          : auth.hasAnyRole
+            ? auth.hasAnyRole(roles)
+            : roles.some((role) => auth.hasRole(role)));
 
       if (!hasRole) {
         if (redirectTo) {
-          console.warn('withRoles: redirectTo not supported without useNavigate hook');
+          console.warn(
+            "withRoles: redirectTo not supported without useNavigate hook",
+          );
         }
         if (fallback) {
-          if (typeof fallback === 'function') {
+          if (typeof fallback === "function") {
             const FallbackComponent = fallback;
             return <FallbackComponent {...props} />;
           } else {

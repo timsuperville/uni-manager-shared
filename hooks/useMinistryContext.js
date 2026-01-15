@@ -3,7 +3,7 @@
  * Manages ministry-related context and data
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback } from "react";
 
 export function useMinistryContext() {
   const [ministry, setMinistry] = useState(null);
@@ -22,7 +22,7 @@ export function useMinistryContext() {
     ministry,
     loading,
     updateMinistry,
-    resetMinistry
+    resetMinistry,
   };
 }
 

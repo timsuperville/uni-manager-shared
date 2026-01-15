@@ -4,8 +4,8 @@
  * This is a compatibility layer for tests expecting AuthContext
  */
 
-import React, { createContext, useContext } from 'react';
-import { AuthProvider, useAuth, AUTH_ACTIONS } from '../auth/context/index.jsx';
+import React, { createContext, useContext } from "react";
+import { AuthProvider, useAuth, AUTH_ACTIONS } from "../auth/context/index.jsx";
 
 // Create auth context that extends the base auth context
 const AuthContext = createContext(null);
@@ -37,7 +37,7 @@ export function useEnhancedAuth() {
     ...baseAuth,
     // Enhanced functionality can be added here
     isEnhanced: true,
-    version: '2.0.0',
+    version: "2.0.0",
   };
 }
 

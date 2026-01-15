@@ -10,8 +10,8 @@ import React, {
   useCallback,
   Suspense,
   lazy,
-} from 'react';
-import { useCacheManager } from '../utils/intelligentCache';
+} from "react";
+import { useCacheManager } from "../utils/intelligentCache";
 
 // Intersection Observer hook for viewport detection
 const useIntersectionObserver = (options = {}) => {
@@ -29,9 +29,9 @@ const useIntersectionObserver = (options = {}) => {
       },
       {
         threshold: 0.1,
-        rootMargin: '50px',
+        rootMargin: "50px",
         ...options,
-      }
+      },
     );
 
     if (ref.current) {
@@ -49,8 +49,8 @@ export const LazyWidget = ({
   widgetId,
   importPromise,
   fallback = null,
-  priority = 'normal',
-  className = '',
+  priority = "normal",
+  className = "",
   ...props
 }) => {
   const [ref, isIntersecting, hasIntersected] = useIntersectionObserver();
@@ -62,7 +62,7 @@ export const LazyWidget = ({
   // Load component when it comes into view or has high priority
   useEffect(() => {
     const shouldLoad =
-      hasIntersected || priority === 'high' || priority === 'critical';
+      hasIntersected || priority === "high" || priority === "critical";
 
     if (shouldLoad && !Component && !isLoading) {
       loadComponent();
@@ -76,7 +76,7 @@ export const LazyWidget = ({
     try {
       // Check cache first
       const cacheKey = `widget-${widgetId}`;
-      const cachedComponent = cacheManager.getCache('widgets').get(cacheKey);
+      const cachedComponent = cacheManager.getCache("widgets").get(cacheKey);
 
       if (cachedComponent) {
         setComponent(() => cachedComponent);
@@ -89,7 +89,7 @@ export const LazyWidget = ({
       const LoadedComponent = module.default || module;
 
       // Cache the component
-      cacheManager.getCache('widgets').set(cacheKey, LoadedComponent, {
+      cacheManager.getCache("widgets").set(cacheKey, LoadedComponent, {
         ttl: 30 * 60 * 1000, // 30 minutes
         priority: priority,
       });
@@ -141,32 +141,32 @@ export const LazyWidget = ({
 
 // Widget Skeleton Loader
 const WidgetSkeleton = () => (
-  <div className='animate-pulse bg-white dark:bg-gray-800 rounded-lg shadow p-6'>
-    <div className='h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-4'></div>
-    <div className='space-y-3'>
-      <div className='h-3 bg-gray-200 dark:bg-gray-700 rounded w-full'></div>
-      <div className='h-3 bg-gray-200 dark:bg-gray-700 rounded w-5/6'></div>
-      <div className='h-3 bg-gray-200 dark:bg-gray-700 rounded w-4/6'></div>
+  <div className="animate-pulse bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-4"></div>
+    <div className="space-y-3">
+      <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+      <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-5/6"></div>
+      <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-4/6"></div>
     </div>
-    <div className='mt-6 h-32 bg-gray-200 dark:bg-gray-700 rounded'></div>
+    <div className="mt-6 h-32 bg-gray-200 dark:bg-gray-700 rounded"></div>
   </div>
 );
 
 // Widget Error Component
 const WidgetError = ({ error, onRetry }) => (
-  <div className='bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6'>
-    <div className='flex items-center space-x-3 mb-3'>
-      <div className='text-red-500 text-xl'>⚠️</div>
-      <h3 className='text-red-800 dark:text-red-200 font-medium'>
+  <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
+    <div className="flex items-center space-x-3 mb-3">
+      <div className="text-red-500 text-xl">⚠️</div>
+      <h3 className="text-red-800 dark:text-red-200 font-medium">
         Widget Load Error
       </h3>
     </div>
-    <p className='text-red-600 dark:text-red-300 text-sm mb-4'>
-      {error.message || 'Failed to load widget component'}
+    <p className="text-red-600 dark:text-red-300 text-sm mb-4">
+      {error.message || "Failed to load widget component"}
     </p>
     <button
       onClick={onRetry}
-      className='bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-700 transition-colors'
+      className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-700 transition-colors"
     >
       Try Again
     </button>
@@ -176,21 +176,21 @@ const WidgetError = ({ error, onRetry }) => (
 // Widget Placeholder Component
 const WidgetPlaceholder = ({ widgetId, priority }) => {
   const priorityIcons = {
-    critical: '🔥',
-    high: '⚡',
-    normal: '📊',
-    low: '⏳',
+    critical: "🔥",
+    high: "⚡",
+    normal: "📊",
+    low: "⏳",
   };
 
   return (
-    <div className='bg-gray-50 dark:bg-gray-900 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg p-8 text-center'>
-      <div className='text-4xl mb-3'>{priorityIcons[priority] || '📊'}</div>
-      <h3 className='text-gray-700 dark:text-gray-300 font-medium mb-2'>
+    <div className="bg-gray-50 dark:bg-gray-900 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg p-8 text-center">
+      <div className="text-4xl mb-3">{priorityIcons[priority] || "📊"}</div>
+      <h3 className="text-gray-700 dark:text-gray-300 font-medium mb-2">
         {widgetId
-          .replace(/([A-Z])/g, ' $1')
+          .replace(/([A-Z])/g, " $1")
           .replace(/^./, (str) => str.toUpperCase())}
       </h3>
-      <p className='text-gray-500 dark:text-gray-400 text-sm'>
+      <p className="text-gray-500 dark:text-gray-400 text-sm">
         Widget will load when visible
       </p>
     </div>
@@ -206,32 +206,32 @@ export const useWidgetPreloader = (widgets = []) => {
     async (widgetConfig) => {
       const { id, importPromise, priority } = widgetConfig;
 
-      if (priority !== 'critical' && priority !== 'high') return;
+      if (priority !== "critical" && priority !== "high") return;
 
       try {
-        setPreloadStatus((prev) => ({ ...prev, [id]: 'loading' }));
+        setPreloadStatus((prev) => ({ ...prev, [id]: "loading" }));
 
         const module = await importPromise();
         const Component = module.default || module;
 
         // Cache the preloaded component
-        cacheManager.getCache('widgets').set(`widget-${id}`, Component, {
+        cacheManager.getCache("widgets").set(`widget-${id}`, Component, {
           ttl: 30 * 60 * 1000, // 30 minutes
           priority: priority,
         });
 
-        setPreloadStatus((prev) => ({ ...prev, [id]: 'loaded' }));
+        setPreloadStatus((prev) => ({ ...prev, [id]: "loaded" }));
       } catch (_error) {
-        setPreloadStatus((prev) => ({ ...prev, [id]: 'error' }));
+        setPreloadStatus((prev) => ({ ...prev, [id]: "error" }));
       }
     },
-    [cacheManager]
+    [cacheManager],
   );
 
   useEffect(() => {
     // Preload critical and high priority widgets
     const criticalWidgets = widgets.filter(
-      (w) => w.priority === 'critical' || w.priority === 'high'
+      (w) => w.priority === "critical" || w.priority === "high",
     );
 
     criticalWidgets.forEach((widget) => {
@@ -246,7 +246,7 @@ export const useWidgetPreloader = (widgets = []) => {
 export const LazyDashboardLayout = ({
   widgets,
   userPreferences,
-  className = '',
+  className = "",
 }) => {
   const preloadStatus = useWidgetPreloader(widgets);
 
@@ -268,14 +268,14 @@ export const LazyDashboardLayout = ({
   return (
     <div className={`lazy-dashboard-layout ${className}`}>
       {/* Critical widgets render first */}
-      <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {sortedWidgets.map((widget) => (
           <LazyWidget
             key={widget.id}
             widgetId={widget.id}
             importPromise={widget.importPromise}
             priority={widget.priority}
-            className='widget-container'
+            className="widget-container"
             fallback={<WidgetSkeleton />}
             {...widget.props}
           />
@@ -285,24 +285,25 @@ export const LazyDashboardLayout = ({
       {/* Preload status indicator for development */}
       {import.meta.env.DEV && (
         <div
-          className='mt-8 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg'
-          data-testid='development-preload-status'
+          className="mt-8 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg"
+          data-testid="development-preload-status"
         >
-          <h4 className='font-medium mb-2'>
+          <h4 className="font-medium mb-2">
             Widget Preload Status (Development Mode):
           </h4>
-          <div className='grid grid-cols-2 md:grid-cols-4 gap-2 text-sm'>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
             {Object.entries(preloadStatus).map(([id, status]) => (
               <div
                 key={id}
-                className={`px-2 py-1 rounded ${status === 'loaded'
-                  ? 'bg-green-100 text-green-800'
-                  : status === 'loading'
-                    ? 'bg-yellow-100 text-yellow-800'
-                    : status === 'error'
-                      ? 'bg-red-100 text-red-800'
-                      : 'bg-gray-100 text-gray-800'
-                  }`}
+                className={`px-2 py-1 rounded ${
+                  status === "loaded"
+                    ? "bg-green-100 text-green-800"
+                    : status === "loading"
+                      ? "bg-yellow-100 text-yellow-800"
+                      : status === "error"
+                        ? "bg-red-100 text-red-800"
+                        : "bg-gray-100 text-gray-800"
+                }`}
               >
                 {id}: {status}
               </div>
@@ -355,14 +356,14 @@ export class WidgetRegistry {
 
   getByCategory(category) {
     return Array.from(this.widgets.values()).filter(
-      (w) => w.category === category
+      (w) => w.category === category,
     );
   }
 
-  async preloadCategory(category, priority = 'high') {
+  async preloadCategory(category, priority = "high") {
     const widgets = this.getByCategory(category);
     const promises = widgets
-      .filter((w) => w.priority === 'critical' || w.priority === priority)
+      .filter((w) => w.priority === "critical" || w.priority === priority)
       .map((w) => this.preloadWidget(w.id));
 
     await Promise.allSettled(promises);
@@ -376,7 +377,7 @@ export class WidgetRegistry {
       const module = await widget.importPromise();
       const Component = module.default || module;
 
-      this.cacheManager.getCache('widgets').set(`widget-${id}`, Component, {
+      this.cacheManager.getCache("widgets").set(`widget-${id}`, Component, {
         ttl: 30 * 60 * 1000, // 30 minutes
         priority: widget.priority,
       });
@@ -392,13 +393,11 @@ export class WidgetRegistry {
 // Global widget registry instance
 export const widgetRegistry = new WidgetRegistry();
 
-
-
 LazyWidget.propTypes = {
   widgetId: PropTypes.string.isRequired,
   importPromise: PropTypes.func.isRequired,
   fallback: PropTypes.node,
-  priority: PropTypes.oneOf(['critical', 'high', 'normal', 'low']),
+  priority: PropTypes.oneOf(["critical", "high", "normal", "low"]),
   className: PropTypes.string,
 };
 

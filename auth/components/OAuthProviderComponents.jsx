@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   FaGoogle,
   FaMicrosoft,
@@ -6,49 +6,49 @@ import {
   FaGithub,
   FaSpotify,
   FaApple,
-} from 'react-icons/fa';
+} from "react-icons/fa";
 
 /**
  * Enhanced OAuth Provider Icons Component
  * Provides properly styled icons for all supported OAuth providers
  */
-export const OAuthProviderIcon = ({ providerId, size = '1.25rem' }) => {
+export const OAuthProviderIcon = ({ providerId, size = "1.25rem" }) => {
   const iconMap = {
     google: {
       Icon: FaGoogle,
-      color: '#4285f4',
-      bgColor: '#fff',
-      borderColor: '#dadce0',
+      color: "#4285f4",
+      bgColor: "#fff",
+      borderColor: "#dadce0",
     },
     microsoft: {
       Icon: FaMicrosoft,
-      color: '#00a4ef',
-      bgColor: '#fff',
-      borderColor: '#0078d4',
+      color: "#00a4ef",
+      bgColor: "#fff",
+      borderColor: "#0078d4",
     },
     linkedin: {
       Icon: FaLinkedin,
-      color: '#0077b5',
-      bgColor: '#fff',
-      borderColor: '#0077b5',
+      color: "#0077b5",
+      bgColor: "#fff",
+      borderColor: "#0077b5",
     },
     github: {
       Icon: FaGithub,
-      color: '#333',
-      bgColor: '#fff',
-      borderColor: '#d0d7de',
+      color: "#333",
+      bgColor: "#fff",
+      borderColor: "#d0d7de",
     },
     spotify: {
       Icon: FaSpotify,
-      color: '#1db954',
-      bgColor: '#000',
-      borderColor: '#1db954',
+      color: "#1db954",
+      bgColor: "#000",
+      borderColor: "#1db954",
     },
     apple: {
       Icon: FaApple,
-      color: '#000',
-      bgColor: '#fff',
-      borderColor: '#000',
+      color: "#000",
+      bgColor: "#fff",
+      borderColor: "#000",
     },
   };
 
@@ -77,18 +77,18 @@ export const OAuthProviderButton = ({
   onClick,
   disabled = false,
   loading = false,
-  size = 'default', // 'small', 'default', 'large'
+  size = "default", // 'small', 'default', 'large'
 }) => {
   const sizeClasses = {
-    small: 'px-3 py-2 text-sm',
-    default: 'px-4 py-3 text-base',
-    large: 'px-6 py-4 text-lg',
+    small: "px-3 py-2 text-sm",
+    default: "px-4 py-3 text-base",
+    large: "px-6 py-4 text-lg",
   };
 
   const iconSizes = {
-    small: '1rem',
-    default: '1.25rem',
-    large: '1.5rem',
+    small: "1rem",
+    default: "1.25rem",
+    large: "1.5rem",
   };
 
   return (
@@ -106,14 +106,14 @@ export const OAuthProviderButton = ({
         disabled:opacity-50 disabled:cursor-not-allowed
         active:transform active:scale-[0.98]
       `}
-      type='button'
+      type="button"
     >
       {loading ? (
-        <div className='animate-spin rounded-full h-5 w-5 border-b-2 border-gray-600'></div>
+        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-600"></div>
       ) : (
         <OAuthProviderIcon providerId={providerId} size={iconSizes[size]} />
       )}
-      <span>{loading ? 'Connecting...' : `Continue with ${providerName}`}</span>
+      <span>{loading ? "Connecting..." : `Continue with ${providerName}`}</span>
     </button>
   );
 };

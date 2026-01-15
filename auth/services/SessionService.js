@@ -15,8 +15,13 @@
 
 /* global navigator, document, window, clearTimeout, setTimeout, Intl, console, crypto, TextEncoder */
 
-import { SESSION_CONFIG, SESSION_STATUS, STORAGE_KEYS, AUTH_EVENTS } from '../types/constants.js';
-import securityService from './securityService.js';
+import {
+  SESSION_CONFIG,
+  SESSION_STATUS,
+  STORAGE_KEYS,
+  AUTH_EVENTS,
+} from "../types/constants.js";
+import securityService from "./securityService.js";
 
 /**
  * SessionService: Unified session management
@@ -37,7 +42,7 @@ class SessionService {
    */
   constructor(options = {}) {
     this.options = {
-      storage: 'localStorage',
+      storage: "localStorage",
       sessionTimeout: SESSION_CONFIG.TIMEOUT,
       inactivityTimeout: SESSION_CONFIG.INACTIVITY_TIMEOUT,
       warningThreshold: SESSION_CONFIG.WARNING_THRESHOLD,
@@ -65,7 +70,7 @@ class SessionService {
     this.crossTabChannel = null;
 
     // Browser detection
-    this.isBrowser = typeof window !== 'undefined';
+    this.isBrowser = typeof window !== "undefined";
 
     if (this.isBrowser) {
       this.initializeCrossTabSync();
@@ -90,9 +95,9 @@ class SessionService {
     try {
       const {
         userId,
-        authMethod = 'password',
+        authMethod = "password",
         deviceInfo = {},
-        ipAddress = '127.0.0.1',
+        ipAddress = "127.0.0.1",
         rememberMe = false,
       } = sessionData;
 
@@ -123,7 +128,9 @@ class SessionService {
         deviceInfo: this.getDeviceInfo(deviceInfo),
         createdAt: now,
         lastActivity: now,
-        expiresAt: now + (rememberMe ? 30 * 24 * 60 * 60 * 1000 : this.options.sessionTimeout),
+        expiresAt:
+          now +
+          (rememberMe ? 30 * 24 * 60 * 60 * 1000 : this.options.sessionTimeout),
         rememberMe,
         fraudRisk,
         status: SESSION_STATUS.ACTIVE,
@@ -148,7 +155,7 @@ class SessionService {
       this.emit(AUTH_EVENTS.SESSION_STARTED, session);
       return session;
     } catch (error) {
-      console.error('Failed to create session:', error);
+      console.error("Failed to create session:", error);
       throw error;
     }
   }
@@ -159,7 +166,7 @@ class SessionService {
    */
   async renewSession() {
     if (!this.currentSession) {
-      throw new Error('No active session to renew');
+      throw new Error("No active session to renew");
     }
 
     const session = this.currentSession;
@@ -189,7 +196,7 @@ class SessionService {
    */
   getUserSessions(userId) {
     return (this.userSessions.get(userId) || [])
-      .map(id => this.activeSessions.get(id))
+      .map((id) => this.activeSessions.get(id))
       .filter(Boolean);
   }
 
@@ -210,16 +217,17 @@ class SessionService {
     // Remove from maps
     this.activeSessions.delete(sessionId);
 
-    const deviceSessions = this.deviceSessions.get(session.deviceFingerprint) || [];
+    const deviceSessions =
+      this.deviceSessions.get(session.deviceFingerprint) || [];
     this.deviceSessions.set(
       session.deviceFingerprint,
-      deviceSessions.filter(id => id !== sessionId)
+      deviceSessions.filter((id) => id !== sessionId),
     );
 
     const userSessions = this.userSessions.get(session.userId) || [];
     this.userSessions.set(
       session.userId,
-      userSessions.filter(id => id !== sessionId)
+      userSessions.filter((id) => id !== sessionId),
     );
 
     if (this.currentSession?.sessionId === sessionId) {
@@ -291,23 +299,25 @@ class SessionService {
    */
   async refreshToken(refreshFn) {
     if (!refreshFn) {
-      throw new Error('refreshFn required');
+      throw new Error("refreshFn required");
     }
 
     try {
       const refreshToken = this.getRefreshToken();
       if (!refreshToken) {
-        throw new Error('No refresh token available');
+        throw new Error("No refresh token available");
       }
 
       const result = await refreshFn(refreshToken);
       this.storeToken(result.token, result.refreshToken, result.expiresIn);
 
-      this.emit(AUTH_EVENTS.SESSION_UPDATED, { type: 'token_refresh' });
+      this.emit(AUTH_EVENTS.SESSION_UPDATED, { type: "token_refresh" });
       return result;
     } catch (error) {
       this.clearTokens();
-      this.emit(AUTH_EVENTS.SESSION_EXPIRED, { reason: 'token_refresh_failed' });
+      this.emit(AUTH_EVENTS.SESSION_EXPIRED, {
+        reason: "token_refresh_failed",
+      });
       throw error;
     }
   }
@@ -329,22 +339,25 @@ class SessionService {
    * @returns {Promise<string>} Device fingerprint
    */
   async generateDeviceFingerprint() {
-    if (!this.isBrowser) return 'unknown';
+    if (!this.isBrowser) return "unknown";
 
     const components = [
-      navigator?.userAgent || 'unknown',
-      navigator?.language || 'unknown',
-      navigator?.platform || 'unknown',
+      navigator?.userAgent || "unknown",
+      navigator?.language || "unknown",
+      navigator?.platform || "unknown",
       new Date().getTimezoneOffset().toString(),
       window?.screen?.width || 0,
       window?.screen?.height || 0,
       window?.screen?.colorDepth || 0,
     ];
 
-    const fingerprint = components.join('|');
-    const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(fingerprint));
+    const fingerprint = components.join("|");
+    const hashBuffer = await crypto.subtle.digest(
+      "SHA-256",
+      new TextEncoder().encode(fingerprint),
+    );
     const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
   }
 
   /**
@@ -354,9 +367,10 @@ class SessionService {
    */
   getDeviceInfo(additional = {}) {
     return {
-      platform: navigator?.platform || 'Unknown',
-      language: navigator?.language || 'en-US',
-      timezone: Intl?.DateTimeFormat?.()?.resolvedOptions?.()?.timeZone || 'Unknown',
+      platform: navigator?.platform || "Unknown",
+      language: navigator?.language || "en-US",
+      timezone:
+        Intl?.DateTimeFormat?.()?.resolvedOptions?.()?.timeZone || "Unknown",
       screen: {
         width: window?.screen?.width || 0,
         height: window?.screen?.height || 0,
@@ -404,7 +418,10 @@ class SessionService {
 
     if (!trustedDevices.includes(deviceFingerprint)) {
       trustedDevices.push(deviceFingerprint);
-      storage.setItem(STORAGE_KEYS.TRUSTED_DEVICES, JSON.stringify(trustedDevices));
+      storage.setItem(
+        STORAGE_KEYS.TRUSTED_DEVICES,
+        JSON.stringify(trustedDevices),
+      );
     }
   }
 
@@ -417,7 +434,8 @@ class SessionService {
     if (!this.currentSession) return;
 
     this.currentSession.lastActivity = Date.now();
-    this.currentSession.activityCount = (this.currentSession.activityCount || 0) + 1;
+    this.currentSession.activityCount =
+      (this.currentSession.activityCount || 0) + 1;
 
     // Reset inactivity timeout
     this.resetInactivityTimeout();
@@ -462,21 +480,21 @@ class SessionService {
     if (!this.isBrowser) return;
 
     try {
-      if (typeof window !== 'undefined' && window.BroadcastChannel) {
-        this.crossTabChannel = new window.BroadcastChannel('auth_session');
-        this.crossTabChannel.addEventListener('message', (event) => {
+      if (typeof window !== "undefined" && window.BroadcastChannel) {
+        this.crossTabChannel = new window.BroadcastChannel("auth_session");
+        this.crossTabChannel.addEventListener("message", (event) => {
           this.handleCrossTabMessage(event.data);
         });
-      } else if (typeof window !== 'undefined') {
+      } else if (typeof window !== "undefined") {
         // Fallback: listen to storage events
-        window.addEventListener('storage', (event) => {
+        window.addEventListener("storage", (event) => {
           if (event.key === STORAGE_KEYS.AUTH_TOKEN) {
             this.handleCrossTabStorageChange();
           }
         });
       }
     } catch (error) {
-      console.warn('Cross-tab sync not available:', error);
+      console.warn("Cross-tab sync not available:", error);
     }
   }
 
@@ -488,16 +506,16 @@ class SessionService {
     const { type, payload } = data;
 
     switch (type) {
-      case 'LOGIN':
+      case "LOGIN":
         this.handleCrossTabLogin(payload);
         break;
-      case 'LOGOUT':
+      case "LOGOUT":
         this.handleCrossTabLogout();
         break;
-      case 'TOKEN_REFRESH':
+      case "TOKEN_REFRESH":
         this.handleCrossTabTokenRefresh(payload);
         break;
-      case 'ACTIVITY':
+      case "ACTIVITY":
         this.trackActivity();
         break;
     }
@@ -513,7 +531,7 @@ class SessionService {
     try {
       this.crossTabChannel.postMessage({ type, payload });
     } catch (error) {
-      console.warn('Cross-tab broadcast failed:', error);
+      console.warn("Cross-tab broadcast failed:", error);
     }
   }
 
@@ -522,7 +540,7 @@ class SessionService {
    * @private
    */
   handleCrossTabLogin(sessionData) {
-    this.emit('cross-tab-login', sessionData);
+    this.emit("cross-tab-login", sessionData);
   }
 
   /**
@@ -532,7 +550,7 @@ class SessionService {
   handleCrossTabLogout() {
     this.clearTokens();
     this.currentSession = null;
-    this.emit('cross-tab-logout', null);
+    this.emit("cross-tab-logout", null);
   }
 
   /**
@@ -540,7 +558,11 @@ class SessionService {
    * @private
    */
   handleCrossTabTokenRefresh(tokenData) {
-    this.storeToken(tokenData.token, tokenData.refreshToken, tokenData.expiresIn);
+    this.storeToken(
+      tokenData.token,
+      tokenData.refreshToken,
+      tokenData.expiresIn,
+    );
   }
 
   /**
@@ -549,7 +571,7 @@ class SessionService {
    */
   handleCrossTabStorageChange() {
     // Re-sync with storage
-    this.emit('cross-tab-storage-change', null);
+    this.emit("cross-tab-storage-change", null);
   }
 
   // ==================== TIMEOUT MANAGEMENT ====================
@@ -574,7 +596,10 @@ class SessionService {
     const warningTime = timeRemaining - this.options.warningThreshold;
     if (warningTime > 0) {
       setTimeout(() => {
-        this.emit(AUTH_EVENTS.SESSION_UPDATED, { type: 'session_warning', sessionId });
+        this.emit(AUTH_EVENTS.SESSION_UPDATED, {
+          type: "session_warning",
+          sessionId,
+        });
       }, warningTime);
     }
 
@@ -634,8 +659,8 @@ class SessionService {
     if (!this.isBrowser) return;
 
     // Listen for page visibility changes
-    if (typeof document !== 'undefined') {
-      document.addEventListener('visibilitychange', () => {
+    if (typeof document !== "undefined") {
+      document.addEventListener("visibilitychange", () => {
         if (!document.hidden) {
           this.trackActivity();
         }
@@ -643,9 +668,11 @@ class SessionService {
     }
 
     // Listen for user activity
-    if (typeof window !== 'undefined') {
-      ['mousedown', 'keydown', 'scroll', 'touchstart'].forEach(event => {
-        window.addEventListener(event, () => this.trackActivity(), { passive: true });
+    if (typeof window !== "undefined") {
+      ["mousedown", "keydown", "scroll", "touchstart"].forEach((event) => {
+        window.addEventListener(event, () => this.trackActivity(), {
+          passive: true,
+        });
       });
     }
   }
@@ -658,9 +685,12 @@ class SessionService {
     this.clearAutoRefresh();
 
     // Refresh before expiration
-    const refreshTime = Math.max(60000, expiresIn - this.options.warningThreshold);
+    const refreshTime = Math.max(
+      60000,
+      expiresIn - this.options.warningThreshold,
+    );
     this.refreshTimer = setTimeout(() => {
-      this.emit('token-refresh-needed', null);
+      this.emit("token-refresh-needed", null);
     }, refreshTime);
   }
 
@@ -687,7 +717,7 @@ class SessionService {
 
     // Remove oldest session
     const oldest = sessions.reduce((prev, curr) =>
-      curr.createdAt < prev.createdAt ? curr : prev
+      curr.createdAt < prev.createdAt ? curr : prev,
     );
 
     await this.destroySession(oldest.sessionId);
@@ -712,13 +742,13 @@ class SessionService {
 
     try {
       const storage =
-        this.options.storage === 'sessionStorage'
+        this.options.storage === "sessionStorage"
           ? window.sessionStorage
           : window.localStorage;
 
       // Test storage access
-      storage.setItem('test', 'test');
-      storage.removeItem('test');
+      storage.setItem("test", "test");
+      storage.removeItem("test");
       return storage;
     } catch {
       return null;
@@ -733,8 +763,8 @@ class SessionService {
     if (!this.isBrowser) return;
 
     // Cleanup on page unload
-    if (typeof window !== 'undefined') {
-      window.addEventListener('beforeunload', () => {
+    if (typeof window !== "undefined") {
+      window.addEventListener("beforeunload", () => {
         this.clearAutoRefresh();
       });
     }
@@ -759,7 +789,7 @@ class SessionService {
    */
   off(event, callback) {
     if (!this.listeners) return;
-    this.listeners.forEach(listener => {
+    this.listeners.forEach((listener) => {
       if (listener.event === event && listener.callback === callback) {
         this.listeners.delete(listener);
       }
@@ -772,7 +802,7 @@ class SessionService {
    */
   emit(event, data) {
     if (!this.listeners) return;
-    this.listeners.forEach(listener => {
+    this.listeners.forEach((listener) => {
       if (listener.event === event) {
         try {
           listener.callback(data);
@@ -792,7 +822,7 @@ class SessionService {
     this.activeSessions.clear();
     this.deviceSessions.clear();
     this.userSessions.clear();
-    this.sessionTimeouts.forEach(timeout => clearTimeout(timeout));
+    this.sessionTimeouts.forEach((timeout) => clearTimeout(timeout));
     this.sessionTimeouts.clear();
 
     if (this.crossTabChannel) {

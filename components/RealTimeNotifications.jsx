@@ -3,8 +3,8 @@
  * Live notification display with WebSocket integration
  */
 
-import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
+import React, { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 import {
   Badge,
   IconButton,
@@ -25,7 +25,7 @@ import {
   Paper,
   useTheme,
   useMediaQuery,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Notifications as NotificationsIcon,
   NotificationsActive as NotificationsActiveIcon,
@@ -39,12 +39,12 @@ import {
   Cancel as CancelIcon,
   MarkChatRead as MarkReadIcon,
   Clear as ClearIcon,
-} from '@mui/icons-material';
-import { formatDistanceToNow } from 'date-fns';
-import { useRealTimeNotifications } from '../hooks/useRealTime';
+} from "@mui/icons-material";
+import { formatDistanceToNow } from "date-fns";
+import { useRealTimeNotifications } from "../hooks/useRealTime";
 
-const NotificationIcon = ({ type, variant = 'small' }) => {
-  const size = variant === 'small' ? 'small' : 'medium';
+const NotificationIcon = ({ type, variant = "small" }) => {
+  const size = variant === "small" ? "small" : "medium";
 
   const iconMap = {
     member: <PersonIcon fontSize={size} />,
@@ -92,11 +92,11 @@ const NotificationItem = ({
 
   const getPriorityColor = () => {
     switch (priority) {
-      case 'high':
+      case "high":
         return theme.palette.error.main;
-      case 'medium':
+      case "medium":
         return theme.palette.warning.main;
-      case 'low':
+      case "low":
         return theme.palette.info.main;
       default:
         return theme.palette.grey[500];
@@ -109,11 +109,11 @@ const NotificationItem = ({
         button
         onClick={handleClick}
         sx={{
-          bgcolor: read ? 'transparent' : theme.palette.action.hover,
+          bgcolor: read ? "transparent" : theme.palette.action.hover,
           borderLeft: `4px solid ${getPriorityColor()}`,
           mb: 0.5,
           borderRadius: 1,
-          '&:hover': {
+          "&:hover": {
             bgcolor: theme.palette.action.selected,
           },
         }}
@@ -126,29 +126,29 @@ const NotificationItem = ({
               height: 32,
             }}
           >
-            <NotificationIcon type={type} variant='small' />
+            <NotificationIcon type={type} variant="small" />
           </Avatar>
         </ListItemAvatar>
         <ListItemText
           primary={
             <Typography
-              variant='body2'
-              fontWeight={read ? 'normal' : 'bold'}
+              variant="body2"
+              fontWeight={read ? "normal" : "bold"}
               noWrap
             >
               {title}
             </Typography>
           }
           secondary={
-            <Typography variant='caption' color='textSecondary' noWrap>
+            <Typography variant="caption" color="textSecondary" noWrap>
               {formatDistanceToNow(new Date(timestamp), { addSuffix: true })}
             </Typography>
           }
         />
         {!read && (
-          <Tooltip title='Mark as read'>
-            <IconButton size='small' onClick={handleMarkRead} sx={{ ml: 1 }}>
-              <MarkReadIcon fontSize='small' />
+          <Tooltip title="Mark as read">
+            <IconButton size="small" onClick={handleMarkRead} sx={{ ml: 1 }}>
+              <MarkReadIcon fontSize="small" />
             </IconButton>
           </Tooltip>
         )}
@@ -162,18 +162,18 @@ const NotificationItem = ({
       sx={{
         p: 2,
         mb: 1,
-        bgcolor: read ? 'transparent' : theme.palette.action.hover,
+        bgcolor: read ? "transparent" : theme.palette.action.hover,
         borderLeft: `4px solid ${getPriorityColor()}`,
-        cursor: 'pointer',
-        transition: 'all 0.2s',
-        '&:hover': {
+        cursor: "pointer",
+        transition: "all 0.2s",
+        "&:hover": {
           bgcolor: theme.palette.action.selected,
           elevation: 3,
         },
       }}
       onClick={handleClick}
     >
-      <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
+      <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}>
         <Avatar
           sx={{
             bgcolor: getPriorityColor(),
@@ -187,61 +187,61 @@ const NotificationItem = ({
         <Box sx={{ flex: 1, minWidth: 0 }}>
           <Box
             sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'flex-start',
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
               mb: 0.5,
             }}
           >
             <Typography
-              variant='subtitle2'
-              fontWeight={read ? 'normal' : 'bold'}
+              variant="subtitle2"
+              fontWeight={read ? "normal" : "bold"}
               sx={{ flex: 1, mr: 1 }}
             >
               {title}
             </Typography>
 
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <Chip
                 label={priority}
-                size='small'
-                variant='outlined'
+                size="small"
+                variant="outlined"
                 sx={{
                   borderColor: getPriorityColor(),
                   color: getPriorityColor(),
-                  fontSize: '0.6rem',
+                  fontSize: "0.6rem",
                   height: 20,
                 }}
               />
               {!read && (
-                <Tooltip title='Mark as read'>
-                  <IconButton size='small' onClick={handleMarkRead}>
-                    <MarkReadIcon fontSize='small' />
+                <Tooltip title="Mark as read">
+                  <IconButton size="small" onClick={handleMarkRead}>
+                    <MarkReadIcon fontSize="small" />
                   </IconButton>
                 </Tooltip>
               )}
             </Box>
           </Box>
 
-          <Typography variant='body2' color='textSecondary' sx={{ mb: 1 }}>
+          <Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>
             {message}
           </Typography>
 
           <Box
             sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
             }}
           >
-            <Typography variant='caption' color='textSecondary'>
+            <Typography variant="caption" color="textSecondary">
               {formatDistanceToNow(new Date(timestamp), { addSuffix: true })}
             </Typography>
 
             {data.actionUrl && (
               <Button
-                size='small'
-                variant='outlined'
+                size="small"
+                variant="outlined"
                 onClick={(e) => {
                   e.stopPropagation();
                   // Handle action navigation
@@ -278,33 +278,33 @@ const NotificationMenu = ({
           mt: 1,
         },
       }}
-      transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-      anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+      transformOrigin={{ horizontal: "right", vertical: "top" }}
+      anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
     >
       <Box sx={{ p: 2, borderBottom: `1px solid ${theme.palette.divider}` }}>
         <Box
           sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
           }}
         >
-          <Typography variant='h6'>Notifications</Typography>
+          <Typography variant="h6">Notifications</Typography>
           {notifications.length > 0 && (
-            <Button size='small' onClick={onClearAll} startIcon={<ClearIcon />}>
+            <Button size="small" onClick={onClearAll} startIcon={<ClearIcon />}>
               Clear All
             </Button>
           )}
         </Box>
       </Box>
 
-      <Box sx={{ maxHeight: 400, overflow: 'auto' }}>
+      <Box sx={{ maxHeight: 400, overflow: "auto" }}>
         {notifications.length === 0 ? (
-          <Box sx={{ p: 3, textAlign: 'center' }}>
+          <Box sx={{ p: 3, textAlign: "center" }}>
             <NotificationsIcon
-              sx={{ fontSize: 48, color: 'grey.400', mb: 1 }}
+              sx={{ fontSize: 48, color: "grey.400", mb: 1 }}
             />
-            <Typography variant='body2' color='textSecondary'>
+            <Typography variant="body2" color="textSecondary">
               No notifications
             </Typography>
           </Box>
@@ -329,10 +329,10 @@ const NotificationMenu = ({
           sx={{
             p: 2,
             borderTop: `1px solid ${theme.palette.divider}`,
-            textAlign: 'center',
+            textAlign: "center",
           }}
         >
-          <Button size='small' onClick={onClose}>
+          <Button size="small" onClick={onClose}>
             View All Notifications
           </Button>
         </Box>
@@ -352,7 +352,7 @@ export const NotificationBell = ({ onClick }) => {
   useEffect(() => {
     if (notifications.length > 0) {
       const latest = notifications[0];
-      if (!latest.read && latest.priority === 'high') {
+      if (!latest.read && latest.priority === "high") {
         setToastNotification(latest);
         setShowToast(true);
       }
@@ -386,18 +386,18 @@ export const NotificationBell = ({ onClick }) => {
     <>
       <Tooltip title={`${unreadCount} unread notifications`}>
         <IconButton
-          color='inherit'
+          color="inherit"
           onClick={handleClick}
           sx={{
-            position: 'relative',
-            '&:hover': {
-              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            position: "relative",
+            "&:hover": {
+              backgroundColor: "rgba(255, 255, 255, 0.1)",
             },
           }}
         >
           <Badge
             badgeContent={unreadCount}
-            color='error'
+            color="error"
             max={99}
             invisible={unreadCount === 0}
           >
@@ -423,18 +423,18 @@ export const NotificationBell = ({ onClick }) => {
         open={showToast}
         autoHideDuration={6000}
         onClose={handleToastClose}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
       >
         <Alert
           onClose={handleToastClose}
-          severity={toastNotification?.type === 'error' ? 'error' : 'info'}
-          variant='filled'
-          sx={{ width: '100%' }}
+          severity={toastNotification?.type === "error" ? "error" : "info"}
+          variant="filled"
+          sx={{ width: "100%" }}
         >
-          <Typography variant='subtitle2' fontWeight='bold'>
+          <Typography variant="subtitle2" fontWeight="bold">
             {toastNotification?.title}
           </Typography>
-          <Typography variant='body2'>{toastNotification?.message}</Typography>
+          <Typography variant="body2">{toastNotification?.message}</Typography>
         </Alert>
       </Snackbar>
     </>
@@ -449,16 +449,16 @@ export const NotificationList = ({
   showActions = true,
 }) => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   if (notifications.length === 0) {
     return (
-      <Box sx={{ p: 3, textAlign: 'center' }}>
-        <NotificationsIcon sx={{ fontSize: 64, color: 'grey.400', mb: 2 }} />
-        <Typography variant='h6' color='textSecondary' gutterBottom>
+      <Box sx={{ p: 3, textAlign: "center" }}>
+        <NotificationsIcon sx={{ fontSize: 64, color: "grey.400", mb: 2 }} />
+        <Typography variant="h6" color="textSecondary" gutterBottom>
           No notifications
         </Typography>
-        <Typography variant='body2' color='textSecondary'>
+        <Typography variant="body2" color="textSecondary">
           You're all caught up! New notifications will appear here.
         </Typography>
       </Box>
@@ -466,7 +466,7 @@ export const NotificationList = ({
   }
 
   return (
-    <Box sx={{ maxHeight, overflow: 'auto' }}>
+    <Box sx={{ maxHeight, overflow: "auto" }}>
       {notifications.map((notification) => (
         <NotificationItem
           key={notification.id}
@@ -483,17 +483,17 @@ export const NotificationList = ({
 export const NotificationPage = () => {
   const { notifications, unreadCount, markAsRead, clearAll } =
     useRealTimeNotifications();
-  const [filter, setFilter] = useState('all'); // all, unread, read
-  const [typeFilter, setTypeFilter] = useState('all');
+  const [filter, setFilter] = useState("all"); // all, unread, read
+  const [typeFilter, setTypeFilter] = useState("all");
 
   const filteredNotifications = notifications.filter((notification) => {
     const matchesReadFilter =
-      filter === 'all' ||
-      (filter === 'unread' && !notification.read) ||
-      (filter === 'read' && notification.read);
+      filter === "all" ||
+      (filter === "unread" && !notification.read) ||
+      (filter === "read" && notification.read);
 
     const matchesTypeFilter =
-      typeFilter === 'all' || notification.type === typeFilter;
+      typeFilter === "all" || notification.type === typeFilter;
 
     return matchesReadFilter && matchesTypeFilter;
   });
@@ -517,29 +517,29 @@ export const NotificationPage = () => {
       <Box
         sx={{
           mb: 3,
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
           gap: 2,
         }}
       >
-        <Typography variant='h4' component='h1'>
+        <Typography variant="h4" component="h1">
           Notifications
           {unreadCount > 0 && (
             <Chip
               label={`${unreadCount} unread`}
-              color='primary'
-              size='small'
+              color="primary"
+              size="small"
               sx={{ ml: 2 }}
             />
           )}
         </Typography>
 
-        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+        <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
           <Button
-            variant='outlined'
-            size='small'
+            variant="outlined"
+            size="small"
             onClick={markAllAsRead}
             disabled={unreadCount === 0}
             startIcon={<MarkReadIcon />}
@@ -547,8 +547,8 @@ export const NotificationPage = () => {
             Mark All Read
           </Button>
           <Button
-            variant='outlined'
-            size='small'
+            variant="outlined"
+            size="small"
             onClick={clearAll}
             disabled={notifications.length === 0}
             startIcon={<ClearIcon />}
@@ -558,30 +558,30 @@ export const NotificationPage = () => {
         </Box>
       </Box>
 
-      <Box sx={{ mb: 3, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-        <Box sx={{ display: 'flex', gap: 1 }}>
-          {['all', 'unread', 'read'].map((filterType) => (
+      <Box sx={{ mb: 3, display: "flex", gap: 2, flexWrap: "wrap" }}>
+        <Box sx={{ display: "flex", gap: 1 }}>
+          {["all", "unread", "read"].map((filterType) => (
             <Chip
               key={filterType}
               label={filterType.charAt(0).toUpperCase() + filterType.slice(1)}
               onClick={() => setFilter(filterType)}
-              color={filter === filterType ? 'primary' : 'default'}
-              variant={filter === filterType ? 'filled' : 'outlined'}
+              color={filter === filterType ? "primary" : "default"}
+              variant={filter === filterType ? "filled" : "outlined"}
             />
           ))}
         </Box>
 
-        <Divider orientation='vertical' flexItem />
+        <Divider orientation="vertical" flexItem />
 
-        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-          {['all', 'member', 'invitation', 'activity', 'system'].map((type) => (
+        <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+          {["all", "member", "invitation", "activity", "system"].map((type) => (
             <Chip
               key={type}
               label={type.charAt(0).toUpperCase() + type.slice(1)}
               onClick={() => setTypeFilter(type)}
-              color={typeFilter === type ? 'secondary' : 'default'}
-              variant={typeFilter === type ? 'filled' : 'outlined'}
-              size='small'
+              color={typeFilter === type ? "secondary" : "default"}
+              variant={typeFilter === type ? "filled" : "outlined"}
+              size="small"
             />
           ))}
         </Box>
@@ -591,7 +591,7 @@ export const NotificationPage = () => {
         notifications={filteredNotifications}
         onNotificationClick={handleNotificationClick}
         onMarkRead={markAsRead}
-        maxHeight='calc(100vh - 300px)'
+        maxHeight="calc(100vh - 300px)"
       />
     </Box>
   );

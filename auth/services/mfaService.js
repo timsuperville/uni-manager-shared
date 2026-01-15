@@ -8,21 +8,21 @@
  * MFA Method Types
  */
 export const MFA_METHODS = {
-  TOTP: 'totp', // Time-based One-Time Password (Google Authenticator, Authy)
-  SMS: 'sms', // SMS verification codes
-  EMAIL: 'email', // Email verification codes
-  BACKUP_CODES: 'backup', // Static backup codes
-  WEBAUTHN: 'webauthn', // WebAuthn as MFA method
+  TOTP: "totp", // Time-based One-Time Password (Google Authenticator, Authy)
+  SMS: "sms", // SMS verification codes
+  EMAIL: "email", // Email verification codes
+  BACKUP_CODES: "backup", // Static backup codes
+  WEBAUTHN: "webauthn", // WebAuthn as MFA method
 };
 
 /**
  * MFA Status Types
  */
 export const MFA_STATUS = {
-  ENABLED: 'enabled',
-  DISABLED: 'disabled',
-  PENDING: 'pending',
-  REQUIRED: 'required',
+  ENABLED: "enabled",
+  DISABLED: "disabled",
+  PENDING: "pending",
+  REQUIRED: "required",
 };
 
 /**
@@ -32,7 +32,7 @@ export const MFA_STATUS = {
 export class MFAService {
   constructor(authToken) {
     this.authToken = authToken;
-    this.baseUrl = 'http://localhost:5000/api/auth/mfa';
+    this.baseUrl = "http://localhost:5000/api/auth/mfa";
   }
 
   /**
@@ -40,8 +40,8 @@ export class MFAService {
    */
   async _makeRequest(endpoint, options = {}) {
     const headers = {
-      'Content-Type': 'application/json',
-      ...options.headers
+      "Content-Type": "application/json",
+      ...options.headers,
     };
 
     if (this.authToken) {
@@ -49,14 +49,16 @@ export class MFAService {
     }
 
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
-      method: 'POST',
+      method: "POST",
       ...options,
       headers,
     });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+      throw new Error(
+        errorData.message || `HTTP error! status: ${response.status}`,
+      );
     }
 
     return await response.json();
@@ -66,13 +68,13 @@ export class MFAService {
    * Get user's MFA status and enabled methods
    */
   async getMFAStatus() {
-    const headers = { 'Content-Type': 'application/json' };
+    const headers = { "Content-Type": "application/json" };
     if (this.authToken) {
       headers.Authorization = `Bearer ${this.authToken}`;
     }
 
     const response = await fetch(`${this.baseUrl}/status`, {
-      method: 'GET',
+      method: "GET",
       headers,
     });
 
@@ -88,13 +90,13 @@ export class MFAService {
    * Returns QR code and secret for authenticator apps
    */
   async setupTOTP(email) {
-    const headers = { 'Content-Type': 'application/json' };
+    const headers = { "Content-Type": "application/json" };
     if (this.authToken) {
       headers.Authorization = `Bearer ${this.authToken}`;
     }
 
     const response = await fetch(`${this.baseUrl}/totp/setup`, {
-      method: 'POST',
+      method: "POST",
       headers,
       body: JSON.stringify({ email }),
     });
@@ -110,7 +112,7 @@ export class MFAService {
    * Verify TOTP setup with code from authenticator app
    */
   async verifyTOTPSetup(code) {
-    return await this._makeRequest('/totp/verify', {
+    return await this._makeRequest("/totp/verify", {
       body: JSON.stringify({
         token: code,
         sessionId: this.sessionId || null,
@@ -122,13 +124,13 @@ export class MFAService {
    * Verify TOTP code during authentication
    */
   async verifyTOTP(token) {
-    const headers = { 'Content-Type': 'application/json' };
+    const headers = { "Content-Type": "application/json" };
     if (this.authToken) {
       headers.Authorization = `Bearer ${this.authToken}`;
     }
 
     const response = await fetch(`${this.baseUrl}/totp/verify`, {
-      method: 'POST',
+      method: "POST",
       headers,
       body: JSON.stringify({
         token,
@@ -138,7 +140,7 @@ export class MFAService {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || 'Invalid token');
+      throw new Error(errorData.message || "Invalid token");
     }
 
     return await response.json();
@@ -148,20 +150,20 @@ export class MFAService {
    * Setup SMS-based MFA
    */
   async setupSMS(phoneNumber) {
-    const headers = { 'Content-Type': 'application/json' };
+    const headers = { "Content-Type": "application/json" };
     if (this.authToken) {
       headers.Authorization = `Bearer ${this.authToken}`;
     }
 
     const response = await fetch(`${this.baseUrl}/sms/setup`, {
-      method: 'POST',
+      method: "POST",
       headers,
       body: JSON.stringify({ phoneNumber }),
     });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || 'Invalid phone number format');
+      throw new Error(errorData.message || "Invalid phone number format");
     }
 
     return await response.json();
@@ -171,7 +173,7 @@ export class MFAService {
    * Send SMS verification code
    */
   async sendSMSCode() {
-    return await this._makeRequest('/sms/send', {
+    return await this._makeRequest("/sms/send", {
       body: JSON.stringify({
         sessionId: this.sessionId || null,
       }),
@@ -182,7 +184,7 @@ export class MFAService {
    * Verify SMS code
    */
   async verifySMS(code) {
-    return await this._makeRequest(`${this.baseUrl}/sms/verify`, 'POST', {
+    return await this._makeRequest(`${this.baseUrl}/sms/verify`, "POST", {
       code,
       sessionId: this.sessionId || null,
     });
@@ -192,8 +194,8 @@ export class MFAService {
    * Setup email-based MFA
    */
   async setupEmail(email) {
-    return await this._makeRequest('/email/setup', {
-      method: 'POST',
+    return await this._makeRequest("/email/setup", {
+      method: "POST",
       body: JSON.stringify({ email }),
     });
   }
@@ -202,8 +204,8 @@ export class MFAService {
    * Send email verification code
    */
   async sendEmailCode() {
-    return await this._makeRequest('/email/send', {
-      method: 'POST',
+    return await this._makeRequest("/email/send", {
+      method: "POST",
       body: JSON.stringify({ sessionId: this.sessionId || null }),
     });
   }
@@ -212,8 +214,8 @@ export class MFAService {
    * Verify email code
    */
   async verifyEmail(code) {
-    return await this._makeRequest('/email/verify', {
-      method: 'POST',
+    return await this._makeRequest("/email/verify", {
+      method: "POST",
       body: JSON.stringify({ code, sessionId: this.sessionId || null }),
     });
   }
@@ -222,8 +224,8 @@ export class MFAService {
    * Generate backup codes
    */
   async generateBackupCodes() {
-    return await this._makeRequest('/backup-codes/generate', {
-      method: 'POST',
+    return await this._makeRequest("/backup-codes/generate", {
+      method: "POST",
       body: JSON.stringify({}),
     });
   }
@@ -232,8 +234,8 @@ export class MFAService {
    * Use a backup code for verification
    */
   async useBackupCode(code) {
-    return await this._makeRequest('/backup-codes/use', {
-      method: 'POST',
+    return await this._makeRequest("/backup-codes/use", {
+      method: "POST",
       body: JSON.stringify({ code, sessionId: this.sessionId || null }),
     });
   }
@@ -242,14 +244,14 @@ export class MFAService {
    * Get remaining backup codes count
    */
   async getBackupCodesCount() {
-    return await this._makeRequest(`${this.baseUrl}/backup-codes/count`, 'GET');
+    return await this._makeRequest(`${this.baseUrl}/backup-codes/count`, "GET");
   }
 
   /**
    * Verify MFA challenge (generic method for any MFA type)
    */
   async verifyMFAChallenge(challengeId, method, code) {
-    return await this._makeRequest(`${this.baseUrl}/challenge/verify`, 'POST', {
+    return await this._makeRequest(`${this.baseUrl}/challenge/verify`, "POST", {
       challengeId,
       method,
       code,
@@ -261,8 +263,8 @@ export class MFAService {
    * Disable specific MFA method
    */
   async disableMFA(method, confirmationCode = null) {
-    return await this._makeRequest('/disable', {
-      method: 'POST',
+    return await this._makeRequest("/disable", {
+      method: "POST",
       body: JSON.stringify({ method, confirmationCode }),
     });
   }
@@ -271,7 +273,7 @@ export class MFAService {
    * Enable MFA method
    */
   async enableMFA(method) {
-    return await this._makeRequest(`${this.baseUrl}/enable`, 'POST', {
+    return await this._makeRequest(`${this.baseUrl}/enable`, "POST", {
       method,
     });
   }
@@ -280,8 +282,8 @@ export class MFAService {
    * Challenge MFA during login
    */
   async challengeMFA(sessionId, method = null) {
-    return await this._makeRequest('/challenge', {
-      method: 'POST',
+    return await this._makeRequest("/challenge", {
+      method: "POST",
       body: JSON.stringify({ sessionId, method }),
     });
   }
@@ -290,24 +292,28 @@ export class MFAService {
    * Complete MFA challenge
    */
   async completeMFAChallenge(challengeId, response) {
-    return await this._makeRequest(`${this.baseUrl}/challenge/complete`, 'POST', {
-      challengeId,
-      response,
-    });
+    return await this._makeRequest(
+      `${this.baseUrl}/challenge/complete`,
+      "POST",
+      {
+        challengeId,
+        response,
+      },
+    );
   }
 
   /**
    * Get MFA recovery options
    */
   async getRecoveryOptions() {
-    return await this._makeRequest(`${this.baseUrl}/recovery`, 'GET');
+    return await this._makeRequest(`${this.baseUrl}/recovery`, "GET");
   }
 
   /**
    * Reset MFA using recovery method
    */
   async resetMFA(recoveryCode) {
-    return await this._makeRequest(`${this.baseUrl}/reset`, 'POST', {
+    return await this._makeRequest(`${this.baseUrl}/reset`, "POST", {
       recoveryCode,
     });
   }
@@ -316,14 +322,17 @@ export class MFAService {
    * Check if user requires MFA for current session
    */
   async requiresMFA(userId) {
-    return await this._makeRequest(`${this.baseUrl}/required?userId=${userId}`, 'GET');
+    return await this._makeRequest(
+      `${this.baseUrl}/required?userId=${userId}`,
+      "GET",
+    );
   }
 
   /**
    * Validate MFA session
    */
   async validateMFASession(sessionToken) {
-    return await this._makeRequest(`${this.baseUrl}/validate-session`, 'POST', {
+    return await this._makeRequest(`${this.baseUrl}/validate-session`, "POST", {
       sessionToken,
     });
   }
@@ -332,14 +341,14 @@ export class MFAService {
    * Get MFA settings for user
    */
   async getMFASettings() {
-    return await this._makeRequest(`${this.baseUrl}/settings`, 'GET');
+    return await this._makeRequest(`${this.baseUrl}/settings`, "GET");
   }
 
   /**
    * Update MFA settings
    */
   async updateMFASettings(settings) {
-    return await this._makeRequest(`${this.baseUrl}/settings`, 'PUT', settings);
+    return await this._makeRequest(`${this.baseUrl}/settings`, "PUT", settings);
   }
 
   /**
@@ -360,35 +369,45 @@ export class MFAService {
    * Get trusted devices
    */
   async getTrustedDevices() {
-    return await this._makeRequest(`${this.baseUrl}/trusted-devices`, 'GET');
+    return await this._makeRequest(`${this.baseUrl}/trusted-devices`, "GET");
   }
 
   /**
    * Add trusted device
    */
   async addTrustedDevice(deviceInfo) {
-    return await this._makeRequest(`${this.baseUrl}/trusted-devices`, 'POST', deviceInfo);
+    return await this._makeRequest(
+      `${this.baseUrl}/trusted-devices`,
+      "POST",
+      deviceInfo,
+    );
   }
 
   /**
    * Remove trusted device
    */
   async removeTrustedDevice(deviceId) {
-    return await this._makeRequest(`${this.baseUrl}/trusted-devices/${deviceId}`, 'DELETE');
+    return await this._makeRequest(
+      `${this.baseUrl}/trusted-devices/${deviceId}`,
+      "DELETE",
+    );
   }
 
   /**
    * Get MFA audit log
    */
   async getMFAAuditLog(limit = 50) {
-    return await this._makeRequest(`${this.baseUrl}/audit?limit=${limit}`, 'GET');
+    return await this._makeRequest(
+      `${this.baseUrl}/audit?limit=${limit}`,
+      "GET",
+    );
   }
 
   /**
    * Check device trust status
    */
   async checkDeviceTrust(deviceFingerprint) {
-    return await this._makeRequest(`${this.baseUrl}/check-device`, 'POST', {
+    return await this._makeRequest(`${this.baseUrl}/check-device`, "POST", {
       deviceFingerprint,
     });
   }
@@ -400,9 +419,9 @@ export class MFAService {
  * @returns {string} Formatted phone number
  */
 export function formatPhoneNumber(phone) {
-  if (!phone) return '';
+  if (!phone) return "";
   // Remove all non-digit characters
-  const cleaned = phone.replace(/\D/g, '');
+  const cleaned = phone.replace(/\D/g, "");
   // Format as (XXX) XXX-XXXX for 10-digit numbers
   if (cleaned.length === 10) {
     return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
@@ -443,11 +462,11 @@ export function validateSMSCode(code) {
  */
 export function getMFAMethodDisplayName(method) {
   const displayNames = {
-    [MFA_METHODS.TOTP]: 'Authenticator App',
-    [MFA_METHODS.SMS]: 'SMS Text Message',
-    [MFA_METHODS.EMAIL]: 'Email Code',
-    [MFA_METHODS.BACKUP_CODES]: 'Backup Codes',
-    [MFA_METHODS.WEBAUTHN]: 'Security Key',
+    [MFA_METHODS.TOTP]: "Authenticator App",
+    [MFA_METHODS.SMS]: "SMS Text Message",
+    [MFA_METHODS.EMAIL]: "Email Code",
+    [MFA_METHODS.BACKUP_CODES]: "Backup Codes",
+    [MFA_METHODS.WEBAUTHN]: "Security Key",
   };
   return displayNames[method] || method;
 }
@@ -459,13 +478,13 @@ export function getMFAMethodDisplayName(method) {
  */
 export function getMFAMethodIcon(method) {
   const icons = {
-    [MFA_METHODS.TOTP]: 'shield',
-    [MFA_METHODS.SMS]: 'smartphone',
-    [MFA_METHODS.EMAIL]: 'mail',
-    [MFA_METHODS.BACKUP_CODES]: 'key',
-    [MFA_METHODS.WEBAUTHN]: 'fingerprint',
+    [MFA_METHODS.TOTP]: "shield",
+    [MFA_METHODS.SMS]: "smartphone",
+    [MFA_METHODS.EMAIL]: "mail",
+    [MFA_METHODS.BACKUP_CODES]: "key",
+    [MFA_METHODS.WEBAUTHN]: "fingerprint",
   };
-  return icons[method] || 'shield';
+  return icons[method] || "shield";
 }
 
 // Export singleton instance

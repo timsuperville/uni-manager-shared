@@ -3,11 +3,11 @@
  * Components for permission-based rendering and route protection
  */
 
-import React, { createContext, useContext } from 'react';
-import PropTypes from 'prop-types';
-import { Navigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth.js';
-import { RBACUtils, PermissionUtils } from '../rbac/utils';
+import React, { createContext, useContext } from "react";
+import PropTypes from "prop-types";
+import { Navigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth.js";
+import { RBACUtils, PermissionUtils } from "../rbac/utils";
 
 // Create RBAC Context
 const RBACContext = createContext(null);
@@ -57,7 +57,7 @@ function useRBAC() {
   const context = useContext(RBACContext);
 
   if (!context) {
-    throw new Error('useRBAC must be used within an RBACProvider');
+    throw new Error("useRBAC must be used within an RBACProvider");
   }
 
   return context;
@@ -142,13 +142,13 @@ function RoleGuard({
  */
 function ApplicationGuard({
   application,
-  fallback = <Navigate to='/unauthorized' replace />,
+  fallback = <Navigate to="/unauthorized" replace />,
   children,
 }) {
   const { canAccessApplication, isAuthenticated } = useRBAC();
 
   if (!isAuthenticated) {
-    return <Navigate to='/login' replace />;
+    return <Navigate to="/login" replace />;
   }
 
   if (!canAccessApplication(application)) {
@@ -169,7 +169,7 @@ function RouteGuard({
   roles,
   minimumLevel = null,
   requireAuth = true,
-  redirectTo = '/unauthorized',
+  redirectTo = "/unauthorized",
   children,
 }) {
   const {
@@ -184,7 +184,7 @@ function RouteGuard({
 
   // Check authentication
   if (requireAuth && !isAuthenticated) {
-    return <Navigate to='/login' replace />;
+    return <Navigate to="/login" replace />;
   }
 
   // Check permissions
@@ -227,7 +227,7 @@ function RouteGuard({
  */
 function AdminGuard({
   application = null,
-  fallback = <Navigate to='/unauthorized' replace />,
+  fallback = <Navigate to="/unauthorized" replace />,
   children,
 }) {
   const { isApplicationAdmin, isAnyAdmin } = useRBAC();
@@ -292,11 +292,7 @@ function ConditionalRender({
 /**
  * Higher-Order Component for permission-based rendering
  */
-function withPermissions(
-  Component,
-  requiredPermissions = [],
-  options = {}
-) {
+function withPermissions(Component, requiredPermissions = [], options = {}) {
   return function PermissionWrappedComponent(props) {
     const { requireAll = false, fallback = null, redirectTo = null } = options;
 

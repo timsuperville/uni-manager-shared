@@ -1,5 +1,5 @@
 /* eslint-env browser */
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from "react";
 
 /**
  * useNotificationPreferences - Custom hook for notification preference management
@@ -20,7 +20,7 @@ export const useNotificationPreferences = (userId = null) => {
 
   // Build API URL
   const buildApiUrl = useCallback((endpoint) => {
-    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
     return `${baseUrl}/api/notifications/preferences${endpoint}`;
   }, []);
 
@@ -29,8 +29,8 @@ export const useNotificationPreferences = (userId = null) => {
     try {
       const response = await fetch(url, {
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${typeof localStorage !== "undefined" && localStorage.getItem('authToken')}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${typeof localStorage !== "undefined" && localStorage.getItem("authToken")}`,
           ...options.headers,
         },
         ...options,
@@ -38,7 +38,7 @@ export const useNotificationPreferences = (userId = null) => {
 
       if (!response.ok) {
         throw new Error(
-          `API request failed: ${response.status} ${response.statusText}`
+          `API request failed: ${response.status} ${response.statusText}`,
         );
       }
 
@@ -56,7 +56,7 @@ export const useNotificationPreferences = (userId = null) => {
     setError(null);
 
     try {
-      const url = buildApiUrl(userId ? `?userId=${userId}` : '');
+      const url = buildApiUrl(userId ? `?userId=${userId}` : "");
       const response = await apiRequest(url);
 
       setPreferences(response.preferences || {});
@@ -77,9 +77,9 @@ export const useNotificationPreferences = (userId = null) => {
       setError(null);
 
       try {
-        const url = buildApiUrl('');
+        const url = buildApiUrl("");
         const response = await apiRequest(url, {
-          method: 'PUT',
+          method: "PUT",
           body: JSON.stringify({
             preferences: newPreferences,
             userId,
@@ -97,7 +97,7 @@ export const useNotificationPreferences = (userId = null) => {
         setIsLoading(false);
       }
     },
-    [userId, buildApiUrl, apiRequest]
+    [userId, buildApiUrl, apiRequest],
   );
 
   // Reset preferences to default
@@ -106,9 +106,9 @@ export const useNotificationPreferences = (userId = null) => {
     setError(null);
 
     try {
-      const url = buildApiUrl('/reset');
+      const url = buildApiUrl("/reset");
       const response = await apiRequest(url, {
-        method: 'POST',
+        method: "POST",
         body: JSON.stringify({ userId }),
       });
 
@@ -127,7 +127,7 @@ export const useNotificationPreferences = (userId = null) => {
   // Export preferences
   const exportPreferences = useCallback(async () => {
     try {
-      const url = buildApiUrl('/export');
+      const url = buildApiUrl("/export");
       const response = await apiRequest(url);
 
       return {
@@ -135,7 +135,7 @@ export const useNotificationPreferences = (userId = null) => {
         metadata: {
           exportedAt: new Date().toISOString(),
           userId,
-          version: '1.0',
+          version: "1.0",
         },
       };
     } catch (_error) {
@@ -151,9 +151,9 @@ export const useNotificationPreferences = (userId = null) => {
       setError(null);
 
       try {
-        const url = buildApiUrl('/import');
+        const url = buildApiUrl("/import");
         const response = await apiRequest(url, {
-          method: 'POST',
+          method: "POST",
           body: JSON.stringify({
             preferences: importedData.preferences,
             userId,
@@ -171,7 +171,7 @@ export const useNotificationPreferences = (userId = null) => {
         setIsLoading(false);
       }
     },
-    [userId, buildApiUrl, apiRequest]
+    [userId, buildApiUrl, apiRequest],
   );
 
   // Refresh preferences

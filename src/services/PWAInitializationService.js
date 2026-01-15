@@ -5,7 +5,7 @@
  * Manages PWA setup and initialization across all frontend applications
  */
 
-import PWAManager from './PWAManager.js';
+import PWAManager from "./PWAManager.js";
 
 class PWAInitializationService {
   constructor() {
@@ -16,13 +16,13 @@ class PWAInitializationService {
       enableBackgroundSync: true,
       enableOfflineSupport: true,
       enableInstallPrompt: true,
-      cacheStrategy: 'networkFirst',
+      cacheStrategy: "networkFirst",
       syncRetryAttempts: 3,
       notificationDefaults: {
-        icon: '/icons/icon-192x192.png',
-        badge: '/icons/icon-72x72.png',
-        vibrate: [200, 100, 200]
-      }
+        icon: "/icons/icon-192x192.png",
+        badge: "/icons/icon-72x72.png",
+        vibrate: [200, 100, 200],
+      },
     };
   }
 
@@ -32,7 +32,6 @@ class PWAInitializationService {
   async initialize(appConfig = {}) {
     try {
       if (this.initialized) {
-
         return this.pwaManager;
       }
 
@@ -46,7 +45,6 @@ class PWAInitializationService {
       if (success) {
         this.initialized = true;
 
-
         // Set up app-specific features
         await this.setupAppFeatures();
 
@@ -58,11 +56,9 @@ class PWAInitializationService {
 
         return this.pwaManager;
       } else {
-
         return null;
       }
     } catch (_error) {
-
       return null;
     }
   }
@@ -76,32 +72,28 @@ class PWAInitializationService {
       const currentApp = this.getCurrentApp();
 
       switch (currentApp) {
-        case 'church':
+        case "church":
           await this.setupChurchAppFeatures();
           break;
-        case 'home':
+        case "home":
           await this.setupHomeAppFeatures();
           break;
-        case 'admin':
+        case "admin":
           await this.setupAdminAppFeatures();
           break;
-        case 'business':
+        case "business":
           await this.setupBusinessAppFeatures();
           break;
-        case 'personal':
+        case "personal":
           await this.setupPersonalAppFeatures();
           break;
-        case 'playback':
+        case "playback":
           await this.setupPlaybackAppFeatures();
           break;
         default:
           await this.setupMainWebsiteFeatures();
       }
-
-
-    } catch (_error) {
-
-    }
+    } catch (_error) {}
   }
 
   /**
@@ -110,9 +102,9 @@ class PWAInitializationService {
   async setupChurchAppFeatures() {
     // Cache critical church resources
     const churchResources = [
-      '/church/services',
-      '/church/members',
-      '/church/events'
+      "/church/services",
+      "/church/members",
+      "/church/events",
     ];
 
     await this.cacheResources(churchResources);
@@ -129,11 +121,7 @@ class PWAInitializationService {
    */
   async setupHomeAppFeatures() {
     // Cache critical home resources
-    const homeResources = [
-      '/home/dashboard',
-      '/home/family',
-      '/home/budget'
-    ];
+    const homeResources = ["/home/dashboard", "/home/family", "/home/budget"];
 
     await this.cacheResources(homeResources);
 
@@ -150,9 +138,9 @@ class PWAInitializationService {
   async setupAdminAppFeatures() {
     // Cache critical admin resources
     const adminResources = [
-      '/admin/dashboard',
-      '/admin/users',
-      '/admin/analytics'
+      "/admin/dashboard",
+      "/admin/users",
+      "/admin/analytics",
     ];
 
     await this.cacheResources(adminResources);
@@ -170,9 +158,9 @@ class PWAInitializationService {
   async setupBusinessAppFeatures() {
     // Cache critical business resources
     const businessResources = [
-      '/business/dashboard',
-      '/business/projects',
-      '/business/clients'
+      "/business/dashboard",
+      "/business/projects",
+      "/business/clients",
     ];
 
     await this.cacheResources(businessResources);
@@ -187,9 +175,9 @@ class PWAInitializationService {
   async setupPersonalAppFeatures() {
     // Cache critical personal resources
     const personalResources = [
-      '/personal/dashboard',
-      '/personal/goals',
-      '/personal/notes'
+      "/personal/dashboard",
+      "/personal/goals",
+      "/personal/notes",
     ];
 
     await this.cacheResources(personalResources);
@@ -204,9 +192,9 @@ class PWAInitializationService {
   async setupPlaybackAppFeatures() {
     // Cache critical playback resources
     const playbackResources = [
-      '/playback/dashboard',
-      '/playback/media',
-      '/playback/playlists'
+      "/playback/dashboard",
+      "/playback/media",
+      "/playback/playlists",
     ];
 
     await this.cacheResources(playbackResources);
@@ -221,11 +209,11 @@ class PWAInitializationService {
   async setupMainWebsiteFeatures() {
     // Cache main website resources
     const websiteResources = [
-      '/',
-      '/about',
-      '/features',
-      '/pricing',
-      '/contact'
+      "/",
+      "/about",
+      "/features",
+      "/pricing",
+      "/contact",
     ];
 
     await this.cacheResources(websiteResources);
@@ -241,11 +229,8 @@ class PWAInitializationService {
     try {
       if (this.pwaManager && urls.length > 0) {
         await this.pwaManager.cacheResources(urls);
-
       }
-    } catch (_error) {
-
-    }
+    } catch (_error) {}
   }
 
   /**
@@ -253,38 +238,42 @@ class PWAInitializationService {
    */
   registerEventListeners() {
     // Connection status changes
-    typeof window !== "undefined" && window.addEventListener('connectionchange', (event) => {
-      this.handleConnectionChange(event.detail.isOnline);
-    });
+    typeof window !== "undefined" &&
+      window.addEventListener("connectionchange", (event) => {
+        this.handleConnectionChange(event.detail.isOnline);
+      });
 
     // App visibility changes
-    typeof document !== "undefined" && document.addEventListener('visibilitychange', () => {
-      this.handleVisibilityChange();
-    });
+    typeof document !== "undefined" &&
+      document.addEventListener("visibilitychange", () => {
+        this.handleVisibilityChange();
+      });
 
     // Before unload (app closing)
-    typeof window !== "undefined" && window.addEventListener('beforeunload', () => {
-      this.handleAppClosing();
-    });
+    typeof window !== "undefined" &&
+      window.addEventListener("beforeunload", () => {
+        this.handleAppClosing();
+      });
 
     // Handle app updates
-    typeof window !== "undefined" && window.addEventListener('appupdateavailable', () => {
-      this.handleAppUpdateAvailable();
-    });
+    typeof window !== "undefined" &&
+      window.addEventListener("appupdateavailable", () => {
+        this.handleAppUpdateAvailable();
+      });
   }
 
   /**
    * Handle connection status changes
    */
   handleConnectionChange(isOnline) {
-    const message = isOnline ?
-      'Connection restored - syncing data...' :
-      'You are offline - changes will sync when reconnected';
+    const message = isOnline
+      ? "Connection restored - syncing data..."
+      : "You are offline - changes will sync when reconnected";
 
-    this.showNotification('Connection Status', {
+    this.showNotification("Connection Status", {
       body: message,
-      icon: isOnline ? '/icons/icon-online.png' : '/icons/icon-offline.png',
-      tag: 'connection-status'
+      icon: isOnline ? "/icons/icon-online.png" : "/icons/icon-offline.png",
+      tag: "connection-status",
     });
 
     // Update UI elements
@@ -313,13 +302,13 @@ class PWAInitializationService {
    * Handle app update availability
    */
   handleAppUpdateAvailable() {
-    this.showNotification('App Update Available', {
-      body: 'A new version is ready. Refresh to update.',
+    this.showNotification("App Update Available", {
+      body: "A new version is ready. Refresh to update.",
       requireInteraction: true,
       actions: [
-        { action: 'update', title: 'Update Now' },
-        { action: 'later', title: 'Later' }
-      ]
+        { action: "update", title: "Update Now" },
+        { action: "later", title: "Later" },
+      ],
     });
   }
 
@@ -328,14 +317,15 @@ class PWAInitializationService {
    */
   async performInitialSync() {
     try {
-      if (typeof navigator !== "undefined" && navigator.onLine && this.pwaManager) {
+      if (
+        typeof navigator !== "undefined" &&
+        navigator.onLine &&
+        this.pwaManager
+      ) {
         // Process any queued sync items
         await this.pwaManager.processSyncQueue();
-
       }
-    } catch (_error) {
-
-    }
+    } catch (_error) {}
   }
 
   /**
@@ -350,9 +340,7 @@ class PWAInitializationService {
           await this.pwaManager.processSyncQueue();
         }
       }
-    } catch (_error) {
-
-    }
+    } catch (_error) {}
   }
 
   /**
@@ -364,12 +352,10 @@ class PWAInitializationService {
       const formData = this.collectUnsavedFormData();
 
       if (formData && Object.keys(formData).length > 0) {
-        typeof localStorage !== "undefined" && localStorage.setItem('pendingFormData', JSON.stringify(formData));
-
+        typeof localStorage !== "undefined" &&
+          localStorage.setItem("pendingFormData", JSON.stringify(formData));
       }
-    } catch (_error) {
-
-    }
+    } catch (_error) {}
   }
 
   /**
@@ -379,14 +365,16 @@ class PWAInitializationService {
     const formData = {};
 
     // Collect data from forms with data-persist attribute
-    const persistentForms = typeof document !== "undefined" && document.querySelectorAll('form[data-persist]');
+    const persistentForms =
+      typeof document !== "undefined" &&
+      document.querySelectorAll("form[data-persist]");
 
     persistentForms.forEach((form, index) => {
       const formId = form.id || `form_${index}`;
-      const inputs = form.querySelectorAll('input, textarea, select');
+      const inputs = form.querySelectorAll("input, textarea, select");
 
-      inputs.forEach(input => {
-        if (input.value && input.value.trim() !== '') {
+      inputs.forEach((input) => {
+        if (input.value && input.value.trim() !== "") {
           if (!formData[formId]) formData[formId] = {};
           formData[formId][input.name || input.id] = input.value;
         }
@@ -401,21 +389,27 @@ class PWAInitializationService {
    */
   updateConnectionStatusUI(isOnline) {
     // Update status indicators
-    const statusElements = typeof document !== "undefined" && document.querySelectorAll('[data-connection-status]');
-    statusElements.forEach(element => {
-      element.textContent = isOnline ? 'Online' : 'Offline';
-      element.className = isOnline ? 'status-online' : 'status-offline';
+    const statusElements =
+      typeof document !== "undefined" &&
+      document.querySelectorAll("[data-connection-status]");
+    statusElements.forEach((element) => {
+      element.textContent = isOnline ? "Online" : "Offline";
+      element.className = isOnline ? "status-online" : "status-offline";
     });
 
     // Show/hide offline features
-    const offlineElements = typeof document !== "undefined" && document.querySelectorAll('[data-offline-only]');
-    offlineElements.forEach(element => {
-      element.style.display = isOnline ? 'none' : 'block';
+    const offlineElements =
+      typeof document !== "undefined" &&
+      document.querySelectorAll("[data-offline-only]");
+    offlineElements.forEach((element) => {
+      element.style.display = isOnline ? "none" : "block";
     });
 
-    const onlineElements = typeof document !== "undefined" && document.querySelectorAll('[data-online-only]');
-    onlineElements.forEach(element => {
-      element.style.display = isOnline ? 'block' : 'none';
+    const onlineElements =
+      typeof document !== "undefined" &&
+      document.querySelectorAll("[data-online-only]");
+    onlineElements.forEach((element) => {
+      element.style.display = isOnline ? "block" : "none";
     });
   }
 
@@ -427,14 +421,12 @@ class PWAInitializationService {
       if (this.pwaManager) {
         const notificationOptions = {
           ...this.config.notificationDefaults,
-          ...options
+          ...options,
         };
 
         await this.pwaManager.showNotification(title, notificationOptions);
       }
-    } catch (_error) {
-
-    }
+    } catch (_error) {}
   }
 
   /**
@@ -447,7 +439,6 @@ class PWAInitializationService {
       }
       return null;
     } catch (_error) {
-
       return null;
     }
   }
@@ -458,14 +449,14 @@ class PWAInitializationService {
   getCurrentApp() {
     const path = typeof window !== "undefined" && window.location.pathname;
 
-    if (path.startsWith('/church')) return 'church';
-    if (path.startsWith('/home')) return 'home';
-    if (path.startsWith('/admin')) return 'admin';
-    if (path.startsWith('/business')) return 'business';
-    if (path.startsWith('/personal')) return 'personal';
-    if (path.startsWith('/playback')) return 'playback';
+    if (path.startsWith("/church")) return "church";
+    if (path.startsWith("/home")) return "home";
+    if (path.startsWith("/admin")) return "admin";
+    if (path.startsWith("/business")) return "business";
+    if (path.startsWith("/personal")) return "personal";
+    if (path.startsWith("/playback")) return "playback";
 
-    return 'website';
+    return "website";
   }
 
   /**
@@ -473,7 +464,6 @@ class PWAInitializationService {
    */
   setupChurchNotifications() {
     // Set up service reminders, event notifications, etc.
-
   }
 
   /**
@@ -481,7 +471,6 @@ class PWAInitializationService {
    */
   setupFamilyNotifications() {
     // Set up family event reminders, chore notifications, etc.
-
   }
 
   /**
@@ -489,7 +478,6 @@ class PWAInitializationService {
    */
   setupAdminNotifications() {
     // Set up system alerts, user activity notifications, etc.
-
   }
 
   /**
@@ -497,7 +485,6 @@ class PWAInitializationService {
    */
   setupBusinessNotifications() {
     // Set up project deadlines, client notifications, etc.
-
   }
 
   /**
@@ -505,7 +492,6 @@ class PWAInitializationService {
    */
   setupPersonalNotifications() {
     // Set up goal reminders, personal task notifications, etc.
-
   }
 
   /**
@@ -513,7 +499,6 @@ class PWAInitializationService {
    */
   setupMediaNotifications() {
     // Set up playback notifications, media updates, etc.
-
   }
 
   /**
@@ -521,7 +506,6 @@ class PWAInitializationService {
    */
   setupMarketingNotifications() {
     // Set up feature announcements, newsletter notifications, etc.
-
   }
 
   /**
@@ -529,7 +513,6 @@ class PWAInitializationService {
    */
   setupOfflineServiceSync() {
     // Handle offline service creation and sync
-
   }
 
   /**
@@ -537,7 +520,6 @@ class PWAInitializationService {
    */
   setupOfflineBudgetSync() {
     // Handle offline budget changes and sync
-
   }
 
   /**
@@ -545,7 +527,6 @@ class PWAInitializationService {
    */
   setupSystemMonitoring() {
     // Set up real-time system monitoring notifications
-
   }
 
   /**
@@ -556,7 +537,7 @@ class PWAInitializationService {
       initialized: this.initialized,
       pwaManagerStatus: this.pwaManager ? this.pwaManager.getStatus() : null,
       currentApp: this.getCurrentApp(),
-      config: this.config
+      config: this.config,
     };
   }
 
@@ -566,16 +547,22 @@ class PWAInitializationService {
   async cleanup() {
     try {
       // Remove event listeners
-      typeof window !== "undefined" && window.removeEventListener('connectionchange', this.handleConnectionChange);
-      typeof document !== "undefined" && document.removeEventListener('visibilitychange', this.handleVisibilityChange);
-      typeof window !== "undefined" && window.removeEventListener('beforeunload', this.handleAppClosing);
+      typeof window !== "undefined" &&
+        window.removeEventListener(
+          "connectionchange",
+          this.handleConnectionChange,
+        );
+      typeof document !== "undefined" &&
+        document.removeEventListener(
+          "visibilitychange",
+          this.handleVisibilityChange,
+        );
+      typeof window !== "undefined" &&
+        window.removeEventListener("beforeunload", this.handleAppClosing);
 
       // Save any pending data
       this.savePendingData();
-
-    } catch (_error) {
-
-    }
+    } catch (_error) {}
   }
 }
 

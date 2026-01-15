@@ -29,13 +29,16 @@ class TokenService {
 
     // Persist to localStorage
     try {
-      localStorage.setItem('uni_manager_tokens', JSON.stringify({
-        accessToken,
-        refreshToken,
-        expiresAt: this.tokenExpiry,
-      }));
+      localStorage.setItem(
+        "uni_manager_tokens",
+        JSON.stringify({
+          accessToken,
+          refreshToken,
+          expiresAt: this.tokenExpiry,
+        }),
+      );
     } catch (err) {
-      console.error('Failed to store tokens:', err);
+      console.error("Failed to store tokens:", err);
     }
   }
 
@@ -99,9 +102,9 @@ class TokenService {
     this.tokenExpiry = null;
 
     try {
-      localStorage.removeItem('uni_manager_tokens');
+      localStorage.removeItem("uni_manager_tokens");
     } catch (err) {
-      console.error('Failed to clear tokens from storage:', err);
+      console.error("Failed to clear tokens from storage:", err);
     }
   }
 
@@ -111,7 +114,7 @@ class TokenService {
    */
   loadFromStorage() {
     try {
-      const stored = localStorage.getItem('uni_manager_tokens');
+      const stored = localStorage.getItem("uni_manager_tokens");
       if (stored) {
         const { accessToken, refreshToken, expiresAt } = JSON.parse(stored);
         this.accessToken = accessToken;
@@ -119,7 +122,7 @@ class TokenService {
         this.tokenExpiry = expiresAt;
       }
     } catch (err) {
-      console.error('Failed to load tokens from storage:', err);
+      console.error("Failed to load tokens from storage:", err);
       this.clearTokens();
     }
   }
@@ -132,15 +135,15 @@ class TokenService {
   decodeToken(token) {
     try {
       if (!token) return null;
-      const parts = token.split('.');
+      const parts = token.split(".");
       if (parts.length !== 3) return null;
 
       const decoded = JSON.parse(
-        atob(parts[1].replace(/-/g, '+').replace(/_/g, '/'))
+        atob(parts[1].replace(/-/g, "+").replace(/_/g, "/")),
       );
       return decoded;
     } catch (err) {
-      console.error('Failed to decode token:', err);
+      console.error("Failed to decode token:", err);
       return null;
     }
   }
@@ -154,10 +157,10 @@ class TokenService {
     return token
       ? {
           Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         }
       : {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         };
   }
 }

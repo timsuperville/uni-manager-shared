@@ -1,6 +1,6 @@
 /* eslint-env browser */
 /* global WebSocket, setInterval, clearInterval, setTimeout, clearTimeout */
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from "react";
 
 /**
  * useWebSocket - Custom hook for WebSocket connection management
@@ -12,10 +12,10 @@ import { useState, useEffect, useCallback, useRef } from 'react';
  * - Error handling and retry logic
  * - Heartbeat/ping-pong support
  */
-export const useWebSocket = (endpoint = '') => {
+export const useWebSocket = (endpoint = "") => {
   // State management
   const [isConnected, setIsConnected] = useState(false);
-  const [connectionStatus, setConnectionStatus] = useState('disconnected');
+  const [connectionStatus, setConnectionStatus] = useState("disconnected");
   const [error, setError] = useState(null);
 
   // Refs
@@ -34,8 +34,8 @@ export const useWebSocket = (endpoint = '') => {
   const buildWebSocketUrl = useCallback(() => {
     const baseUrl =
       import.meta.env.VITE_WS_URL ||
-      import.meta.env.VITE_API_URL?.replace('http', 'ws') ||
-      'ws://localhost:5000';
+      import.meta.env.VITE_API_URL?.replace("http", "ws") ||
+      "ws://localhost:5000";
     return `${baseUrl}/ws${endpoint}`;
   }, [endpoint]);
 
@@ -45,16 +45,16 @@ export const useWebSocket = (endpoint = '') => {
       const data = JSON.parse(event.data);
 
       // Handle heartbeat
-      if (data.type === 'ping') {
+      if (data.type === "ping") {
         if (wsRef.current?.readyState === WebSocket.OPEN) {
-          wsRef.current.send(JSON.stringify({ type: 'pong' }));
+          wsRef.current.send(JSON.stringify({ type: "pong" }));
         }
         return;
       }
 
       // Notify subscribers
       subscribersRef.current.forEach((callback, eventType) => {
-        if (data.event === eventType || eventType === '*') {
+        if (data.event === eventType || eventType === "*") {
           try {
             callback(data);
           } catch (_error) {
@@ -72,7 +72,7 @@ export const useWebSocket = (endpoint = '') => {
   // Handle WebSocket connection open
   const handleOpen = useCallback(() => {
     setIsConnected(true);
-    setConnectionStatus('connected');
+    setConnectionStatus("connected");
     setError(null);
     reconnectAttemptsRef.current = 0;
 
@@ -83,7 +83,7 @@ export const useWebSocket = (endpoint = '') => {
 
     heartbeatIntervalRef.current = setInterval(() => {
       if (wsRef.current?.readyState === WebSocket.OPEN) {
-        wsRef.current.send(JSON.stringify({ type: 'ping' }));
+        wsRef.current.send(JSON.stringify({ type: "ping" }));
       }
     }, heartbeatInterval);
 
@@ -94,7 +94,7 @@ export const useWebSocket = (endpoint = '') => {
   // Handle WebSocket connection close
   const handleClose = useCallback((event) => {
     setIsConnected(false);
-    setConnectionStatus('disconnected');
+    setConnectionStatus("disconnected");
 
     // Clear heartbeat
     if (heartbeatIntervalRef.current) {
@@ -107,7 +107,7 @@ export const useWebSocket = (endpoint = '') => {
       event.code !== 1000 &&
       reconnectAttemptsRef.current < maxReconnectAttempts
     ) {
-      setConnectionStatus('reconnecting');
+      setConnectionStatus("reconnecting");
       reconnectAttemptsRef.current += 1;
 
       reconnectTimeoutRef.current = setTimeout(
@@ -115,7 +115,7 @@ export const useWebSocket = (endpoint = '') => {
           connect();
         },
         reconnectInterval *
-          Math.pow(2, Math.min(reconnectAttemptsRef.current - 1, 5))
+          Math.pow(2, Math.min(reconnectAttemptsRef.current - 1, 5)),
       );
 
       // eslint-disable-next-line no-console
@@ -123,7 +123,7 @@ export const useWebSocket = (endpoint = '') => {
       //   `WebSocket disconnected. Reconnecting... (${reconnectAttemptsRef.current}/${maxReconnectAttempts})`
       // );
     } else {
-      setConnectionStatus('failed');
+      setConnectionStatus("failed");
       // eslint-disable-next-line no-console
       // console.log('WebSocket connection failed or manually closed');
     }
@@ -131,8 +131,8 @@ export const useWebSocket = (endpoint = '') => {
 
   // Handle WebSocket error
   const handleError = useCallback(() => {
-    setError('WebSocket connection error');
-    setConnectionStatus('error');
+    setError("WebSocket connection error");
+    setConnectionStatus("error");
     // eslint-disable-next-line no-console
     // console.error('WebSocket error:', event);
   }, []);
@@ -150,15 +150,15 @@ export const useWebSocket = (endpoint = '') => {
       wsRef.current = new WebSocket(wsUrl);
 
       // Add event listeners
-      wsRef.current.addEventListener('open', handleOpen);
-      wsRef.current.addEventListener('close', handleClose);
-      wsRef.current.addEventListener('error', handleError);
-      wsRef.current.addEventListener('message', handleMessage);
+      wsRef.current.addEventListener("open", handleOpen);
+      wsRef.current.addEventListener("close", handleClose);
+      wsRef.current.addEventListener("error", handleError);
+      wsRef.current.addEventListener("message", handleMessage);
 
-      setConnectionStatus('connecting');
+      setConnectionStatus("connecting");
     } catch (_error) {
-      setError('Failed to create WebSocket connection');
-      setConnectionStatus('failed');
+      setError("Failed to create WebSocket connection");
+      setConnectionStatus("failed");
       // eslint-disable-next-line no-console
       // console.error('Failed to create WebSocket connection:', error);
     }
@@ -177,12 +177,12 @@ export const useWebSocket = (endpoint = '') => {
     }
 
     if (wsRef.current) {
-      wsRef.current.close(1000, 'Manual disconnect');
+      wsRef.current.close(1000, "Manual disconnect");
       wsRef.current = null;
     }
 
     setIsConnected(false);
-    setConnectionStatus('disconnected');
+    setConnectionStatus("disconnected");
     reconnectAttemptsRef.current = 0;
   }, []);
 
@@ -205,7 +205,7 @@ export const useWebSocket = (endpoint = '') => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       try {
         const messageString =
-          typeof message === 'string' ? message : JSON.stringify(message);
+          typeof message === "string" ? message : JSON.stringify(message);
         wsRef.current.send(messageString);
         return true;
       } catch (_error) {

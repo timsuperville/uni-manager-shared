@@ -2,16 +2,16 @@
  * SignupForm Component
  * Unified signup form with app-specific branding
  */
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import PropTypes from 'prop-types';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import PropTypes from "prop-types";
 import {
   validateEmail,
   validatePassword,
   validateName,
   getPasswordStrength,
-} from '../utils/authValidation.js';
-import { getCurrentAppConfig } from '../config/appConfigs.js';
+} from "../utils/authValidation.js";
+import { getCurrentAppConfig } from "../config/appConfigs.js";
 import {
   AuthContainer,
   AuthCardContent,
@@ -21,12 +21,12 @@ import {
   AuthDivider,
   Alert,
   GoogleIcon,
-} from './AuthUIComponents.jsx';
+} from "./AuthUIComponents.jsx";
 
 // Dynamic import for enhanced auth service based on environment
 const getAuthService = async () => {
   try {
-    const { default: authService } = await import('../services/authService.js');
+    const { default: authService } = await import("../services/authService.js");
     return authService;
   } catch (_error) {
     return {
@@ -42,20 +42,20 @@ const SignupForm = ({
   onLogin,
   isLoading = false,
   error = null,
-  className = '',
+  className = "",
   authService: providedAuthService = null,
-  appType = 'default',
-  loginPath = '/auth/login',
+  appType = "default",
+  loginPath = "/auth/login",
 }) => {
   const navigate = useNavigate();
   const appConfig = getCurrentAppConfig(appType);
 
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
     agreeToTerms: false,
   });
 
@@ -66,7 +66,7 @@ const SignupForm = ({
   const [authService, setAuthService] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [success, setSuccess] = useState('');
+  const [success, setSuccess] = useState("");
 
   // Initialize auth service
   useEffect(() => {
@@ -95,13 +95,13 @@ const SignupForm = ({
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: type === "checkbox" ? checked : value,
     }));
 
     if (errors[name]) {
       setErrors((prev) => ({
         ...prev,
-        [name]: '',
+        [name]: "",
       }));
     }
   };
@@ -119,7 +119,7 @@ const SignupForm = ({
 
       setErrors((prev) => ({
         ...prev,
-        email: '',
+        email: "",
       }));
 
       setEmailChecking(true);
@@ -128,7 +128,7 @@ const SignupForm = ({
         if (!result.available) {
           setErrors((prev) => ({
             ...prev,
-            email: 'Email is already registered',
+            email: "Email is already registered",
           }));
         }
       } catch (_error) {
@@ -156,12 +156,12 @@ const SignupForm = ({
       if (formData.password !== formData.confirmPassword) {
         setErrors((prev) => ({
           ...prev,
-          confirmPassword: 'Passwords do not match',
+          confirmPassword: "Passwords do not match",
         }));
       } else {
         setErrors((prev) => ({
           ...prev,
-          confirmPassword: '',
+          confirmPassword: "",
         }));
       }
     }
@@ -173,15 +173,15 @@ const SignupForm = ({
       const result = await authService.googleSignup();
       if (result.success) {
         if (result.requiresVerification) {
-          navigate('/auth/verify-email');
+          navigate("/auth/verify-email");
         } else {
-          navigate('/onboarding');
+          navigate("/onboarding");
         }
       }
     } catch (_error) {
       setErrors((prev) => ({
         ...prev,
-        general: 'Google signup failed',
+        general: "Google signup failed",
       }));
     }
   };
@@ -193,11 +193,13 @@ const SignupForm = ({
 
     // Validate first name
     const firstNameValidation = validateName(formData.firstName);
-    if (!firstNameValidation.isValid) newErrors.firstName = firstNameValidation.error;
+    if (!firstNameValidation.isValid)
+      newErrors.firstName = firstNameValidation.error;
 
     // Validate last name
     const lastNameValidation = validateName(formData.lastName);
-    if (!lastNameValidation.isValid) newErrors.lastName = lastNameValidation.error;
+    if (!lastNameValidation.isValid)
+      newErrors.lastName = lastNameValidation.error;
 
     // Validate email
     const emailValidation = validateEmail(formData.email);
@@ -205,16 +207,17 @@ const SignupForm = ({
 
     // Validate password
     const passwordValidation = validatePassword(formData.password);
-    if (!passwordValidation.isValid) newErrors.password = passwordValidation.error;
+    if (!passwordValidation.isValid)
+      newErrors.password = passwordValidation.error;
 
     // Confirm password match
     if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
+      newErrors.confirmPassword = "Passwords do not match";
     }
 
     // Check terms agreement
     if (!formData.agreeToTerms) {
-      newErrors.agreeToTerms = 'You must agree to the terms and conditions';
+      newErrors.agreeToTerms = "You must agree to the terms and conditions";
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -225,7 +228,7 @@ const SignupForm = ({
     if (!authService) {
       setErrors((prev) => ({
         ...prev,
-        general: 'Authentication service not available',
+        general: "Authentication service not available",
       }));
       return;
     }
@@ -242,17 +245,17 @@ const SignupForm = ({
 
       if (result.success) {
         if (result.requiresVerification) {
-          navigate('/auth/verify-email', {
+          navigate("/auth/verify-email", {
             state: { email: formData.email },
           });
         } else {
-          navigate('/onboarding');
+          navigate("/onboarding");
         }
       }
     } catch (_error) {
       setErrors((prev) => ({
         ...prev,
-        general: error?.message || 'Registration failed',
+        general: error?.message || "Registration failed",
       }));
     } finally {
       setIsSubmitting(false);
@@ -273,16 +276,47 @@ const SignupForm = ({
     <button
       type="button"
       className="text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400"
-      onClick={() => (show === 'password' ? setShowPassword(!showPassword) : setShowConfirmPassword(!showConfirmPassword))}
+      onClick={() =>
+        show === "password"
+          ? setShowPassword(!showPassword)
+          : setShowConfirmPassword(!showConfirmPassword)
+      }
     >
-      {(show === 'password' ? showPassword : showConfirmPassword) ? (
-        <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+      {(show === "password" ? showPassword : showConfirmPassword) ? (
+        <svg
+          className="h-5 w-5"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+          />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+          />
         </svg>
       ) : (
-        <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+        <svg
+          className="h-5 w-5"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+          />
         </svg>
       )}
     </button>
@@ -293,7 +327,9 @@ const SignupForm = ({
       <AuthCardContent>
         {/* Header */}
         <div className="text-center mb-6 sm:mb-8">
-          <div className="text-4xl sm:text-5xl mb-3 sm:mb-4">{appConfig.branding.icon}</div>
+          <div className="text-4xl sm:text-5xl mb-3 sm:mb-4">
+            {appConfig.branding.icon}
+          </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">
             Join {appConfig.appName}
           </h2>
@@ -307,7 +343,11 @@ const SignupForm = ({
 
         {/* Error message */}
         {(error || errors.general) && (
-          <Alert type="error" message={error || errors.general} className="mb-6" />
+          <Alert
+            type="error"
+            message={error || errors.general}
+            className="mb-6"
+          />
         )}
 
         {/* OAuth Signup Buttons */}
@@ -324,7 +364,11 @@ const SignupForm = ({
           <AuthDivider text="Or continue with email" />
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6" role="form">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-5 sm:space-y-6"
+          role="form"
+        >
           {/* Name fields */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
             <AuthInput
@@ -369,8 +413,18 @@ const SignupForm = ({
             autoComplete="email"
             disabled={emailChecking}
             icon={
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                />
               </svg>
             }
           />
@@ -380,7 +434,7 @@ const SignupForm = ({
             <AuthInput
               id="password"
               name="password"
-              type={showPassword ? 'text' : 'password'}
+              type={showPassword ? "text" : "password"}
               label="Password"
               value={formData.password}
               onChange={handleChange}
@@ -397,10 +451,15 @@ const SignupForm = ({
                   <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
                     Password strength
                   </span>
-                  <span className={`text-xs font-bold uppercase tracking-wider ${passwordStrength.score >= 3 ? 'text-emerald-600 dark:text-emerald-400' :
-                    passwordStrength.score >= 2 ? 'text-amber-600 dark:text-amber-400' :
-                      'text-rose-600 dark:text-rose-400'
-                    }`}>
+                  <span
+                    className={`text-xs font-bold uppercase tracking-wider ${
+                      passwordStrength.score >= 3
+                        ? "text-emerald-600 dark:text-emerald-400"
+                        : passwordStrength.score >= 2
+                          ? "text-amber-600 dark:text-amber-400"
+                          : "text-rose-600 dark:text-rose-400"
+                    }`}
+                  >
                     {passwordStrength.label}
                   </span>
                 </div>
@@ -408,12 +467,15 @@ const SignupForm = ({
                   {[0, 1, 2, 3].map((step) => (
                     <div
                       key={step}
-                      className={`flex-1 rounded-full transition-all duration-500 ease-out ${passwordStrength.score > step
-                          ? passwordStrength.score >= 3 ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]'
-                            : passwordStrength.score >= 2 ? 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]'
-                              : 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]'
-                          : 'bg-gray-200 dark:bg-gray-600'
-                        }`}
+                      className={`flex-1 rounded-full transition-all duration-500 ease-out ${
+                        passwordStrength.score > step
+                          ? passwordStrength.score >= 3
+                            ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"
+                            : passwordStrength.score >= 2
+                              ? "bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]"
+                              : "bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]"
+                          : "bg-gray-200 dark:bg-gray-600"
+                      }`}
                     />
                   ))}
                 </div>
@@ -428,7 +490,7 @@ const SignupForm = ({
           <AuthInput
             id="confirmPassword"
             name="confirmPassword"
-            type={showConfirmPassword ? 'text' : 'password'}
+            type={showConfirmPassword ? "text" : "password"}
             label="Confirm password"
             value={formData.confirmPassword}
             onChange={handleChange}
@@ -451,13 +513,22 @@ const SignupForm = ({
                 onChange={handleChange}
                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mt-1"
               />
-              <label htmlFor="agreeToTerms" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
-                I agree to the{' '}
-                <a href="/terms" className="text-blue-600 hover:text-blue-500 dark:text-blue-400 font-medium">
+              <label
+                htmlFor="agreeToTerms"
+                className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
+              >
+                I agree to the{" "}
+                <a
+                  href="/terms"
+                  className="text-blue-600 hover:text-blue-500 dark:text-blue-400 font-medium"
+                >
                   Terms of Service
-                </a>{' '}
-                and{' '}
-                <a href="/privacy" className="text-blue-600 hover:text-blue-500 dark:text-blue-400 font-medium">
+                </a>{" "}
+                and{" "}
+                <a
+                  href="/privacy"
+                  className="text-blue-600 hover:text-blue-500 dark:text-blue-400 font-medium"
+                >
                   Privacy Policy
                 </a>
               </label>
@@ -477,14 +548,14 @@ const SignupForm = ({
               loading={isSubmitting}
               variant="primary"
             >
-              {isSubmitting ? 'Creating account...' : 'Create account'}
+              {isSubmitting ? "Creating account..." : "Create account"}
             </AuthButton>
           </div>
 
           {/* Login Link */}
           <div className="text-center pt-2">
             <span className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-              Already have an account?{' '}
+              Already have an account?{" "}
               <button
                 type="button"
                 className="font-semibold text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 underline underline-offset-2"

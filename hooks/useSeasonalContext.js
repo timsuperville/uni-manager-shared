@@ -3,7 +3,7 @@
  * Manages seasonal context and data
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback } from "react";
 
 export function useSeasonalContext() {
   const [season, setSeason] = useState(null);
@@ -22,7 +22,7 @@ export function useSeasonalContext() {
     season,
     loading,
     updateSeason,
-    resetSeason
+    resetSeason,
   };
 }
 

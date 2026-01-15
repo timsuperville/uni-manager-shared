@@ -12,18 +12,16 @@ import {
   generateDeviceFingerprint,
   getDeviceInfo,
   trackUserActivity,
-} from '../utils/socialAuth.js';
+} from "../utils/socialAuth.js";
 import {
   getProviderConfig,
   generatePKCE,
   generateNonce,
   generateState,
-} from '../config/oauthProviders.js';
-import { getCurrentAppConfig } from '../config/appConfigs.js';
-import { tokenStorage } from '../utils/tokenStorage.js';
-import {
-  validateCredentials,
-} from '../utils/authValidation.js';
+} from "../config/oauthProviders.js";
+import { getCurrentAppConfig } from "../config/appConfigs.js";
+import { tokenStorage } from "../utils/tokenStorage.js";
+import { validateCredentials } from "../utils/authValidation.js";
 
 class AuthService {
   constructor(config = {}) {
@@ -32,9 +30,9 @@ class AuthService {
 
     // Convert full URLs to relative paths for _makeRequest
     const transformedEndpoints = {};
-    Object.keys(endpoints).forEach(key => {
+    Object.keys(endpoints).forEach((key) => {
       const url = endpoints[key];
-      if (url && url.startsWith('http')) {
+      if (url && url.startsWith("http")) {
         // Extract path from full URL
         try {
           transformedEndpoints[key] = new globalThis.URL(url).pathname;
@@ -48,24 +46,24 @@ class AuthService {
 
     // Merge app-specific config with defaults
     this.config = {
-      apiBaseUrl: config.apiBaseUrl || '', // Empty string uses relative paths (proxied by Vite)
+      apiBaseUrl: config.apiBaseUrl || "", // Empty string uses relative paths (proxied by Vite)
       endpoints: {
-        login: '/api/v1/auth/login',
-        logout: '/api/v1/auth/logout',
-        signup: '/api/v1/auth/signup',
-        forgotPassword: '/api/v1/auth/forgot-password',
-        resetPassword: '/api/v1/auth/reset-password',
-        refreshToken: '/api/v1/auth/refresh-token',
-        validateToken: '/api/v1/auth/validate-token',
-        verify: '/api/v1/auth/verify-token',
+        login: "/api/v1/auth/login",
+        logout: "/api/v1/auth/logout",
+        signup: "/api/v1/auth/signup",
+        forgotPassword: "/api/v1/auth/forgot-password",
+        resetPassword: "/api/v1/auth/reset-password",
+        refreshToken: "/api/v1/auth/refresh-token",
+        validateToken: "/api/v1/auth/validate-token",
+        verify: "/api/v1/auth/verify-token",
         ...transformedEndpoints,
       },
-      appType: config.appType || 'default',
+      appType: config.appType || "default",
       ...config,
     };
 
     // Core auth state
-    this.apiEndpoint = this.config.endpoints.login.replace('/login', '');
+    this.apiEndpoint = this.config.endpoints.login.replace("/login", "");
     this.currentUser = null;
     this.sessionToken = null;
     this.deviceFingerprint = null;
@@ -100,25 +98,31 @@ class AuthService {
    * Helper to safely handle API responses
    */
   async _handleResponse(response) {
-    const contentType = response.headers.get('content-type');
+    const contentType = response.headers.get("content-type");
     let data;
 
-    if (contentType && contentType.includes('application/json')) {
+    if (contentType && contentType.includes("application/json")) {
       try {
         data = await response.json();
       } catch (error) {
-        throw new Error('Invalid JSON response from server');
+        throw new Error("Invalid JSON response from server");
       }
     } else {
       // Handle non-JSON responses (usually 404s or 500s throwing HTML)
       const text = await response.text();
       // throw new Error(response.statusText || 'Server error');
       // For debugging, you might log the text, but don't expose it to user
-      throw new Error(`Server Error (${response.status}): Please try again later.`);
+      throw new Error(
+        `Server Error (${response.status}): Please try again later.`,
+      );
     }
 
     if (!response.ok) {
-      throw new Error(data.message || data.error || `Request failed with status ${response.status}`);
+      throw new Error(
+        data.message ||
+          data.error ||
+          `Request failed with status ${response.status}`,
+      );
     }
 
     return data;
@@ -132,8 +136,8 @@ class AuthService {
     if (!token) return null;
 
     try {
-      const response = await this._makeRequest('verify', {
-        method: 'POST',
+      const response = await this._makeRequest("verify", {
+        method: "POST",
         body: JSON.stringify({
           token,
           deviceFingerprint: this.deviceFingerprint,
@@ -173,18 +177,18 @@ class AuthService {
 
     // Check rate limiting
     if (this.isRateLimited(email)) {
-      throw new Error('Too many login attempts. Please try again later.');
+      throw new Error("Too many login attempts. Please try again later.");
     }
 
     try {
       // Validate credentials client-side
       const validation = validateCredentials(credentials);
       if (!validation.isValid) {
-        throw new Error(validation.errors.join(', '));
+        throw new Error(validation.errors.join(", "));
       }
 
-      const response = await this._makeRequest('login', {
-        method: 'POST',
+      const response = await this._makeRequest("login", {
+        method: "POST",
         body: JSON.stringify({
           ...credentials,
           appType: this.config.appType,
@@ -232,7 +236,7 @@ class AuthService {
 
       // Record failed login attempt (should ideally be caught by error handler above)
       this.recordLoginAttempt(email);
-      throw new Error(responseData.message || 'Login failed');
+      throw new Error(responseData.message || "Login failed");
     } catch (_error) {
       // console.error(`[Auth-${this.config.appType}] Login error:`, _error);
       this.recordLoginAttempt(email);
@@ -249,8 +253,8 @@ class AuthService {
 
       if (token) {
         // Notify backend of logout
-        await this._makeRequest('logout', {
-          method: 'POST',
+        await this._makeRequest("logout", {
+          method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -281,8 +285,8 @@ class AuthService {
    */
   async signup(userData) {
     try {
-      const response = await this._makeRequest('signup', {
-        method: 'POST',
+      const response = await this._makeRequest("signup", {
+        method: "POST",
         body: JSON.stringify({
           ...userData,
           appType: this.config.appType,
@@ -301,7 +305,7 @@ class AuthService {
           user: responseData.user,
         };
       }
-      throw new Error(responseData.message || 'Signup failed');
+      throw new Error(responseData.message || "Signup failed");
     } catch (error) {
       throw error;
     }
@@ -311,8 +315,8 @@ class AuthService {
    * Forgot password
    */
   async forgotPassword(email) {
-    const response = await this._makeRequest('forgotPassword', {
-      method: 'POST',
+    const response = await this._makeRequest("forgotPassword", {
+      method: "POST",
       body: JSON.stringify({
         email,
         appType: this.config.appType,
@@ -331,8 +335,8 @@ class AuthService {
    * Reset password
    */
   async resetPassword(token, newPassword) {
-    const response = await this._makeRequest('resetPassword', {
-      method: 'POST',
+    const response = await this._makeRequest("resetPassword", {
+      method: "POST",
       body: JSON.stringify({
         token,
         newPassword,
@@ -361,7 +365,7 @@ class AuthService {
 
     if (!providerConfig) {
       throw new Error(
-        `OAuth provider ${providerId} not supported for ${appConfig.name}`
+        `OAuth provider ${providerId} not supported for ${appConfig.name}`,
       );
     }
 
@@ -371,22 +375,22 @@ class AuthService {
     const nonce = generateNonce();
 
     // Store PKCE parameters and state
-    if (typeof sessionStorage !== 'undefined') {
-      sessionStorage.setItem('pkce_verifier', codeVerifier);
-      sessionStorage.setItem('oauth_state', state);
-      sessionStorage.setItem('oauth_nonce', nonce);
-      sessionStorage.setItem('oauth_provider', providerId);
+    if (typeof sessionStorage !== "undefined") {
+      sessionStorage.setItem("pkce_verifier", codeVerifier);
+      sessionStorage.setItem("oauth_state", state);
+      sessionStorage.setItem("oauth_nonce", nonce);
+      sessionStorage.setItem("oauth_provider", providerId);
     }
 
     // Build authorization URL
     const authParams = new URLSearchParams({
-      response_type: 'code',
+      response_type: "code",
       client_id: providerConfig.clientId,
       redirect_uri: providerConfig.redirectUri,
-      scope: providerConfig.scopes.join(' '),
+      scope: providerConfig.scopes.join(" "),
       state: state,
       code_challenge: codeChallenge,
-      code_challenge_method: 'S256',
+      code_challenge_method: "S256",
       nonce: nonce,
       ...options.additionalParams,
     });
@@ -394,7 +398,7 @@ class AuthService {
     const authUrl = `${providerConfig.authorizationEndpoint}?${authParams.toString()}`;
 
     // Track OAuth initiation
-    trackUserActivity('oauth_init', {
+    trackUserActivity("oauth_init", {
       provider: providerId,
       app: appConfig.name,
       deviceFingerprint: this.deviceFingerprint,
@@ -413,31 +417,31 @@ class AuthService {
 
     // Verify state parameter
     const storedState =
-      typeof sessionStorage !== 'undefined'
-        ? sessionStorage.getItem('oauth_state')
+      typeof sessionStorage !== "undefined"
+        ? sessionStorage.getItem("oauth_state")
         : null;
     if (state !== storedState) {
-      throw new Error('Invalid OAuth state parameter');
+      throw new Error("Invalid OAuth state parameter");
     }
 
     const providerId =
-      typeof sessionStorage !== 'undefined'
-        ? sessionStorage.getItem('oauth_provider')
+      typeof sessionStorage !== "undefined"
+        ? sessionStorage.getItem("oauth_provider")
         : null;
     const codeVerifier =
-      typeof sessionStorage !== 'undefined'
-        ? sessionStorage.getItem('pkce_verifier')
+      typeof sessionStorage !== "undefined"
+        ? sessionStorage.getItem("pkce_verifier")
         : null;
 
     if (!providerId || !codeVerifier) {
-      throw new Error('Missing OAuth session data');
+      throw new Error("Missing OAuth session data");
     }
 
     // Exchange code for tokens
     const tokenResponse = await this.exchangeOAuthCode(
       providerId,
       code,
-      codeVerifier
+      codeVerifier,
     );
 
     // Store authentication data
@@ -451,11 +455,11 @@ class AuthService {
     this.sessionToken = tokenResponse.accessToken;
 
     // Clear OAuth session data
-    if (typeof sessionStorage !== 'undefined') {
-      sessionStorage.removeItem('pkce_verifier');
-      sessionStorage.removeItem('oauth_state');
-      sessionStorage.removeItem('oauth_nonce');
-      sessionStorage.removeItem('oauth_provider');
+    if (typeof sessionStorage !== "undefined") {
+      sessionStorage.removeItem("pkce_verifier");
+      sessionStorage.removeItem("oauth_state");
+      sessionStorage.removeItem("oauth_nonce");
+      sessionStorage.removeItem("oauth_provider");
     }
 
     return {
@@ -473,7 +477,7 @@ class AuthService {
     const providerConfig = getProviderConfig(providerId, appConfig.name);
 
     const tokenParams = {
-      grant_type: 'authorization_code',
+      grant_type: "authorization_code",
       client_id: providerConfig.clientId,
       code: code,
       redirect_uri: providerConfig.redirectUri,
@@ -481,10 +485,10 @@ class AuthService {
     };
 
     const response = await fetch(providerConfig.tokenEndpoint, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        Accept: 'application/json',
+        "Content-Type": "application/x-www-form-urlencoded",
+        Accept: "application/json",
       },
       body: new URLSearchParams(tokenParams).toString(),
     });
@@ -498,14 +502,14 @@ class AuthService {
     // Get user info from provider
     const userInfo = await this.getOAuthUserInfo(
       providerId,
-      tokenData.access_token
+      tokenData.access_token,
     );
 
     // Register user with our backend
-    const authResponse = await this._makeRequest('login', {
-      method: 'POST',
+    const authResponse = await this._makeRequest("login", {
+      method: "POST",
       body: JSON.stringify({
-        authType: 'oauth',
+        authType: "oauth",
         provider: providerId,
         oauthToken: tokenData.access_token,
         userInfo: userInfo,
@@ -518,7 +522,7 @@ class AuthService {
     const authData = await authResponse.json();
 
     if (!authResponse.ok || !authData.success) {
-      throw new Error(authData.message || 'OAuth authentication failed');
+      throw new Error(authData.message || "OAuth authentication failed");
     }
 
     return {
@@ -538,7 +542,7 @@ class AuthService {
     const response = await fetch(providerConfig.userInfoEndpoint, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
-        Accept: 'application/json',
+        Accept: "application/json",
       },
     });
 
@@ -572,11 +576,11 @@ class AuthService {
     try {
       const refreshToken = await tokenStorage.getRefreshToken();
       if (!refreshToken) {
-        throw new Error('No refresh token available');
+        throw new Error("No refresh token available");
       }
 
-      const response = await this._makeRequest('refreshToken', {
-        method: 'POST',
+      const response = await this._makeRequest("refreshToken", {
+        method: "POST",
         body: JSON.stringify({
           refreshToken,
           deviceFingerprint: this.deviceFingerprint,
@@ -602,7 +606,7 @@ class AuthService {
         };
       }
 
-      throw new Error(responseData.message || 'Token refresh failed');
+      throw new Error(responseData.message || "Token refresh failed");
     } catch (_error) {
       // console.error('Token refresh failed:', _error);
       await this.clearStoredAuth();
@@ -618,8 +622,8 @@ class AuthService {
       const token = await this.getStoredToken();
       if (!token) return false;
 
-      const response = await this._makeRequest('validateToken', {
-        method: 'POST',
+      const response = await this._makeRequest("validateToken", {
+        method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -637,20 +641,26 @@ class AuthService {
    * Switch current active church
    */
   async switchChurch(churchId) {
-    if (!this.currentUser) throw new Error('User not authenticated');
+    if (!this.currentUser) throw new Error("User not authenticated");
 
     // Optimistic check (though backend validation is source of truth)
-    if (this.currentUser.currentChurch && this.currentUser.currentChurch.toString() === churchId) {
+    if (
+      this.currentUser.currentChurch &&
+      this.currentUser.currentChurch.toString() === churchId
+    ) {
       return { success: true, user: this.currentUser, noChange: true };
     }
 
-    const response = await fetch(`${this.config.apiBaseUrl}/api/v1/church/${churchId}/select`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.sessionToken}`
-      }
-    });
+    const response = await fetch(
+      `${this.config.apiBaseUrl}/api/v1/church/${churchId}/select`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${this.sessionToken}`,
+        },
+      },
+    );
 
     const responseData = await this._handleResponse(response);
 
@@ -664,10 +674,10 @@ class AuthService {
 
       return {
         success: true,
-        user: updatedUser
+        user: updatedUser,
       };
     }
-    throw new Error(responseData.message || 'Failed to switch church');
+    throw new Error(responseData.message || "Failed to switch church");
   }
 
   /**
@@ -748,7 +758,7 @@ class AuthService {
     if (!this.currentUser) return;
 
     try {
-      trackUserActivity('session_active', {
+      trackUserActivity("session_active", {
         userId: this.currentUser.id,
         app: this.config.appType,
         deviceFingerprint: this.deviceFingerprint,
@@ -790,7 +800,7 @@ class AuthService {
     const url = `${this.config.apiBaseUrl}${this.config.endpoints[endpoint] || endpoint}`;
 
     const defaultHeaders = {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       ...options.headers,
     };
 

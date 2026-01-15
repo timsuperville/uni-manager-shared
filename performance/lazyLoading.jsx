@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState, useEffect, useRef } from 'react';
+import { lazy, Suspense, useState, useEffect, useRef } from "react";
 
 /**
  * Enhanced lazy loading wrapper with error handling and loading states
@@ -7,7 +7,9 @@ export const createLazyComponent = (importFunc, fallback = null) => {
   const LazyComponent = lazy(importFunc);
 
   return (props) => (
-    <Suspense fallback={fallback || <div className="loading-spinner">Loading...</div>}>
+    <Suspense
+      fallback={fallback || <div className="loading-spinner">Loading...</div>}
+    >
       <LazyComponent {...props} />
     </Suspense>
   );
@@ -50,7 +52,7 @@ export const LazyImage = ({ src, alt, className, placeholder }) => {
           observer.disconnect();
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
     if (imgRef.current) {
@@ -69,7 +71,7 @@ export const LazyImage = ({ src, alt, className, placeholder }) => {
           onLoad={() => setIsLoaded(true)}
           style={{
             opacity: isLoaded ? 1 : 0,
-            transition: 'opacity 0.3s ease'
+            transition: "opacity 0.3s ease",
           }}
         />
       ) : (
@@ -93,7 +95,7 @@ export const LazySection = ({ children, threshold = 0.1 }) => {
           setIsVisible(true);
         }
       },
-      { threshold }
+      { threshold },
     );
 
     if (ref.current) {

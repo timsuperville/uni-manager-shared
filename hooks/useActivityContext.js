@@ -3,7 +3,7 @@
  * Manages activity context and data
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback } from "react";
 
 export function useActivityContext() {
   const [activity, setActivity] = useState(null);
@@ -22,7 +22,7 @@ export function useActivityContext() {
     activity,
     loading,
     updateActivity,
-    resetActivity
+    resetActivity,
   };
 }
 

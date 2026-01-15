@@ -1,112 +1,116 @@
-import { renderHook, act } from '@testing-library/react';
-import { useOAuth } from '../hooks/useOAuth';
-import { vi } from 'vitest';
+import { renderHook, act } from "@testing-library/react";
+import { useOAuth } from "../hooks/useOAuth";
+import { vi } from "vitest";
 
-describe('useOAuth', () => {
-    let mockWindowOpen;
-    let mockPopup;
+describe("useOAuth", () => {
+  let mockWindowOpen;
+  let mockPopup;
 
-    beforeEach(() => {
-        // Mock window.open
-        mockPopup = {
-            closed: false,
-            close: vi.fn(),
-        };
-        mockWindowOpen = vi.fn(() => mockPopup);
-        global.window.open = mockWindowOpen;
+  beforeEach(() => {
+    // Mock window.open
+    mockPopup = {
+      closed: false,
+      close: vi.fn(),
+    };
+    mockWindowOpen = vi.fn(() => mockPopup);
+    global.window.open = mockWindowOpen;
 
-        // Use fake timers
-        vi.useFakeTimers();
+    // Use fake timers
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.clearAllMocks();
+  });
+
+  it("should initialize with default state", () => {
+    const { result } = renderHook(() => useOAuth());
+    expect(result.current.isLoading).toBe(false);
+    expect(result.current.error).toBe(null);
+  });
+
+  it("should open popup and set loading state on login", () => {
+    const { result } = renderHook(() => useOAuth());
+
+    act(() => {
+      result.current.loginWithProvider("google");
     });
 
-    afterEach(() => {
-        vi.useRealTimers();
-        vi.clearAllMocks();
+    expect(mockWindowOpen).toHaveBeenCalledWith(
+      expect.stringContaining("/auth/google"),
+      "uni_manager_google_login",
+      expect.stringContaining("width=500"),
+    );
+    expect(result.current.isLoading).toBe(true);
+    expect(result.current.error).toBe(null);
+  });
+
+  it("should handle successful oauth message", () => {
+    const { result } = renderHook(() => useOAuth());
+
+    act(() => {
+      result.current.loginWithProvider("google");
     });
 
-    it('should initialize with default state', () => {
-        const { result } = renderHook(() => useOAuth());
-        expect(result.current.isLoading).toBe(false);
-        expect(result.current.error).toBe(null);
+    act(() => {
+      window.dispatchEvent(
+        new MessageEvent("message", {
+          data: { type: "OAUTH_SUCCESS", data: { token: "fake-token" } },
+        }),
+      );
     });
 
-    it('should open popup and set loading state on login', () => {
-        const { result } = renderHook(() => useOAuth());
+    expect(result.current.isLoading).toBe(false);
+    expect(mockPopup.close).toHaveBeenCalled();
+  });
 
-        act(() => {
-            result.current.loginWithProvider('google');
-        });
+  it("should handle oauth error message", () => {
+    const { result } = renderHook(() => useOAuth());
 
-        expect(mockWindowOpen).toHaveBeenCalledWith(
-            expect.stringContaining('/auth/google'),
-            'uni_manager_google_login',
-            expect.stringContaining('width=500')
-        );
-        expect(result.current.isLoading).toBe(true);
-        expect(result.current.error).toBe(null);
+    act(() => {
+      result.current.loginWithProvider("google");
     });
 
-    it('should handle successful oauth message', () => {
-        const { result } = renderHook(() => useOAuth());
-
-        act(() => {
-            result.current.loginWithProvider('google');
-        });
-
-        act(() => {
-            window.dispatchEvent(new MessageEvent('message', {
-                data: { type: 'OAUTH_SUCCESS', data: { token: 'fake-token' } }
-            }));
-        });
-
-        expect(result.current.isLoading).toBe(false);
-        expect(mockPopup.close).toHaveBeenCalled();
+    act(() => {
+      window.dispatchEvent(
+        new MessageEvent("message", {
+          data: { type: "OAUTH_ERROR", error: "Auth failed" },
+        }),
+      );
     });
 
-    it('should handle oauth error message', () => {
-        const { result } = renderHook(() => useOAuth());
+    expect(result.current.isLoading).toBe(false);
+    expect(result.current.error).toBe("Auth failed");
+    expect(mockPopup.close).toHaveBeenCalled();
+  });
 
-        act(() => {
-            result.current.loginWithProvider('google');
-        });
+  it("should handle popup block error", () => {
+    global.window.open.mockReturnValue(null);
+    const { result } = renderHook(() => useOAuth());
 
-        act(() => {
-            window.dispatchEvent(new MessageEvent('message', {
-                data: { type: 'OAUTH_ERROR', error: 'Auth failed' }
-            }));
-        });
-
-        expect(result.current.isLoading).toBe(false);
-        expect(result.current.error).toBe('Auth failed');
-        expect(mockPopup.close).toHaveBeenCalled();
+    act(() => {
+      result.current.loginWithProvider("google");
     });
 
-    it('should handle popup block error', () => {
-        global.window.open.mockReturnValue(null);
-        const { result } = renderHook(() => useOAuth());
+    expect(result.current.error).toContain("Popup blocked");
+    expect(result.current.isLoading).toBe(false);
+  });
 
-        act(() => {
-            result.current.loginWithProvider('google');
-        });
+  it("should detect manually closed popup", () => {
+    const { result } = renderHook(() => useOAuth());
 
-        expect(result.current.error).toContain('Popup blocked');
-        expect(result.current.isLoading).toBe(false);
+    act(() => {
+      result.current.loginWithProvider("google");
     });
 
-    it('should detect manually closed popup', () => {
-        const { result } = renderHook(() => useOAuth());
+    // Simulate popup closed
+    mockPopup.closed = true;
 
-        act(() => {
-            result.current.loginWithProvider('google');
-        });
-
-        // Simulate popup closed
-        mockPopup.closed = true;
-
-        act(() => {
-            vi.advanceTimersByTime(1000);
-        });
-
-        expect(result.current.isLoading).toBe(false);
+    act(() => {
+      vi.advanceTimersByTime(1000);
     });
+
+    expect(result.current.isLoading).toBe(false);
+  });
 });

@@ -4,31 +4,38 @@
  * Handles OAuth providers (Google, Microsoft, LinkedIn, GitHub, Spotify, Apple)
  */
 
-import { getCurrentAppConfig } from '../config/appConfigs.js';
+import { getCurrentAppConfig } from "../config/appConfigs.js";
 
 /**
  * Generate device fingerprint for security
  */
 export const generateDeviceFingerprint = async () => {
-  if (typeof window === 'undefined' || typeof document === 'undefined')
-    return 'server-render';
+  if (typeof window === "undefined" || typeof document === "undefined")
+    return "server-render";
 
-  const canvas = typeof document !== "undefined" && document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-  ctx.textBaseline = 'top';
-  ctx.font = '14px Arial';
-  ctx.fillText('Device fingerprint', 2, 2);
+  const canvas =
+    typeof document !== "undefined" && document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+  ctx.textBaseline = "top";
+  ctx.font = "14px Arial";
+  ctx.fillText("Device fingerprint", 2, 2);
 
   const fingerprint = [
-    typeof navigator !== 'undefined' ? typeof navigator !== "undefined" && navigator.userAgent : 'unknown',
-    typeof navigator !== 'undefined' ? typeof navigator !== "undefined" && navigator.language : 'en',
-    typeof screen !== 'undefined'
-      ? screen.width + 'x' + screen.height
-      : '1920x1080',
+    typeof navigator !== "undefined"
+      ? typeof navigator !== "undefined" && navigator.userAgent
+      : "unknown",
+    typeof navigator !== "undefined"
+      ? typeof navigator !== "undefined" && navigator.language
+      : "en",
+    typeof screen !== "undefined"
+      ? screen.width + "x" + screen.height
+      : "1920x1080",
     new Date().getTimezoneOffset(),
-    typeof navigator !== 'undefined' ? typeof navigator !== "undefined" && navigator.platform : 'unknown',
+    typeof navigator !== "undefined"
+      ? typeof navigator !== "undefined" && navigator.platform
+      : "unknown",
     canvas.toDataURL(),
-  ].join('|');
+  ].join("|");
 
   // Simple hash function
   let hash = 0;
@@ -45,13 +52,13 @@ export const generateDeviceFingerprint = async () => {
  * Get device information for session management
  */
 export const getDeviceInfo = () => {
-  if (typeof window === 'undefined') {
+  if (typeof window === "undefined") {
     return {
-      userAgent: 'server-render',
-      language: 'en',
-      timezone: 'UTC',
-      screenResolution: '1920x1080',
-      platform: 'server',
+      userAgent: "server-render",
+      language: "en",
+      timezone: "UTC",
+      screenResolution: "1920x1080",
+      platform: "server",
     };
   }
 
@@ -70,52 +77,52 @@ export const getDeviceInfo = () => {
  */
 export const OAUTH_PROVIDERS = {
   google: {
-    name: 'Google',
-    icon: 'FcGoogle',
-    color: '#4285f4',
+    name: "Google",
+    icon: "FcGoogle",
+    color: "#4285f4",
     getAuthUrl: (appConfig) =>
-      `${appConfig.apiEndpoints.login.replace('/login', '')}/google`,
-    scopes: ['profile', 'email'],
+      `${appConfig.apiEndpoints.login.replace("/login", "")}/google`,
+    scopes: ["profile", "email"],
   },
   microsoft: {
-    name: 'Microsoft',
-    icon: 'SiMicrosoft',
-    color: '#00a4ef',
+    name: "Microsoft",
+    icon: "SiMicrosoft",
+    color: "#00a4ef",
     getAuthUrl: (appConfig) =>
-      `${appConfig.apiEndpoints.login.replace('/login', '')}/microsoft`,
-    scopes: ['User.Read'],
+      `${appConfig.apiEndpoints.login.replace("/login", "")}/microsoft`,
+    scopes: ["User.Read"],
   },
   linkedin: {
-    name: 'LinkedIn',
-    icon: 'FaLinkedin',
-    color: '#0077b5',
+    name: "LinkedIn",
+    icon: "FaLinkedin",
+    color: "#0077b5",
     getAuthUrl: (appConfig) =>
-      `${appConfig.apiEndpoints.login.replace('/login', '')}/linkedin`,
-    scopes: ['r_liteprofile', 'r_emailaddress'],
+      `${appConfig.apiEndpoints.login.replace("/login", "")}/linkedin`,
+    scopes: ["r_liteprofile", "r_emailaddress"],
   },
   github: {
-    name: 'GitHub',
-    icon: 'FaGithub',
-    color: '#333',
+    name: "GitHub",
+    icon: "FaGithub",
+    color: "#333",
     getAuthUrl: (appConfig) =>
-      `${appConfig.apiEndpoints.login.replace('/login', '')}/github`,
-    scopes: ['user:email'],
+      `${appConfig.apiEndpoints.login.replace("/login", "")}/github`,
+    scopes: ["user:email"],
   },
   spotify: {
-    name: 'Spotify',
-    icon: 'FaSpotify',
-    color: '#1db954',
+    name: "Spotify",
+    icon: "FaSpotify",
+    color: "#1db954",
     getAuthUrl: (appConfig) =>
-      `${appConfig.apiEndpoints.login.replace('/login', '')}/spotify`,
-    scopes: ['user-read-email', 'user-read-private'],
+      `${appConfig.apiEndpoints.login.replace("/login", "")}/spotify`,
+    scopes: ["user-read-email", "user-read-private"],
   },
   apple: {
-    name: 'Apple',
-    icon: 'FaApple',
-    color: '#000',
+    name: "Apple",
+    icon: "FaApple",
+    color: "#000",
     getAuthUrl: (appConfig) =>
-      `${appConfig.apiEndpoints.login.replace('/login', '')}/apple`,
-    scopes: ['name', 'email'],
+      `${appConfig.apiEndpoints.login.replace("/login", "")}/apple`,
+    scopes: ["name", "email"],
   },
 };
 
@@ -150,7 +157,7 @@ export const initiateOAuthLogin = (providerId, options = {}) => {
   }
 
   if (!appConfig.features.socialLogin?.enabled) {
-    throw new Error('Social login is not enabled for this app');
+    throw new Error("Social login is not enabled for this app");
   }
 
   if (!appConfig.features.socialLogin.providers.includes(providerId)) {
@@ -158,17 +165,19 @@ export const initiateOAuthLogin = (providerId, options = {}) => {
   }
 
   const authUrl = provider.getAuthUrl(appConfig);
-  const redirectUrl = options.redirectUrl || typeof window !== "undefined" && window.location.origin;
+  const redirectUrl =
+    options.redirectUrl ||
+    (typeof window !== "undefined" && window.location.origin);
 
   // Store redirect URL for after OAuth callback
-  if (typeof window !== 'undefined') {
-    sessionStorage.setItem('oauthRedirectUrl', redirectUrl);
-    sessionStorage.setItem('oauthProvider', providerId);
+  if (typeof window !== "undefined") {
+    sessionStorage.setItem("oauthRedirectUrl", redirectUrl);
+    sessionStorage.setItem("oauthProvider", providerId);
   }
 
   // Redirect to OAuth provider
-  if (typeof window !== 'undefined') {
-     window.location.href = authUrl;
+  if (typeof window !== "undefined") {
+    window.location.href = authUrl;
   }
 
   return authUrl;
@@ -182,11 +191,11 @@ export const handleOAuthCallback = async (code, state, provider) => {
 
   try {
     const response = await fetch(
-      `${appConfig.apiEndpoints.login.replace('/login', '')}/oauth/callback`,
+      `${appConfig.apiEndpoints.login.replace("/login", "")}/oauth/callback`,
       {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           code,
@@ -198,23 +207,23 @@ export const handleOAuthCallback = async (code, state, provider) => {
     );
 
     if (!response.ok) {
-      throw new Error('OAuth authentication failed');
+      throw new Error("OAuth authentication failed");
     }
 
     const result = await response.json();
 
     // Clear OAuth storage
-    if (typeof window !== 'undefined') {
-      sessionStorage.removeItem('oauthRedirectUrl');
-      sessionStorage.removeItem('oauthProvider');
+    if (typeof window !== "undefined") {
+      sessionStorage.removeItem("oauthRedirectUrl");
+      sessionStorage.removeItem("oauthProvider");
     }
 
     return result;
   } catch (error) {
     // Clear OAuth storage on error
-    if (typeof window !== 'undefined') {
-      sessionStorage.removeItem('oauthRedirectUrl');
-      sessionStorage.removeItem('oauthProvider');
+    if (typeof window !== "undefined") {
+      sessionStorage.removeItem("oauthRedirectUrl");
+      sessionStorage.removeItem("oauthProvider");
     }
     throw error;
   }
@@ -224,12 +233,14 @@ export const handleOAuthCallback = async (code, state, provider) => {
  * Check if user is in OAuth callback flow
  */
 export const isOAuthCallback = () => {
-  if (typeof window === 'undefined') return false;
+  if (typeof window === "undefined") return false;
 
-  const urlParams = new URLSearchParams(typeof window !== "undefined" && window.location.search);
-  const hasCode = urlParams.has('code');
-  const hasState = urlParams.has('state');
-  const hasProvider = sessionStorage.getItem('oauthProvider');
+  const urlParams = new URLSearchParams(
+    typeof window !== "undefined" && window.location.search,
+  );
+  const hasCode = urlParams.has("code");
+  const hasState = urlParams.has("state");
+  const hasProvider = sessionStorage.getItem("oauthProvider");
 
   return hasCode && (hasState || hasProvider);
 };
@@ -238,9 +249,9 @@ export const isOAuthCallback = () => {
  * Get OAuth redirect URL after successful authentication
  */
 export const getOAuthRedirectUrl = () => {
-  if (typeof window === 'undefined') return '/';
+  if (typeof window === "undefined") return "/";
 
-  return sessionStorage.getItem('oauthRedirectUrl') || '/';
+  return sessionStorage.getItem("oauthRedirectUrl") || "/";
 };
 
 /**
@@ -251,7 +262,7 @@ export const sessionUtils = {
    * Start activity tracking
    */
   startActivityTracking: (callback, interval = 60000) => {
-    if (typeof window === 'undefined') return null;
+    if (typeof window === "undefined") return null;
 
     let lastActivity = Date.now();
 
@@ -262,15 +273,16 @@ export const sessionUtils = {
 
     // Track user activity
     const events = [
-      'mousedown',
-      'mousemove',
-      'keypress',
-      'scroll',
-      'touchstart',
-      'click',
+      "mousedown",
+      "mousemove",
+      "keypress",
+      "scroll",
+      "touchstart",
+      "click",
     ];
     events.forEach((event) => {
-      typeof document !== "undefined" && document.addEventListener(event, trackActivity, true);
+      typeof document !== "undefined" &&
+        document.addEventListener(event, trackActivity, true);
     });
 
     // Periodic check for session validity
@@ -278,13 +290,14 @@ export const sessionUtils = {
       const timeSinceActivity = Date.now() - lastActivity;
       if (timeSinceActivity > 30 * 60 * 1000) {
         // 30 minutes of inactivity
-        callback(null, 'SESSION_INACTIVE');
+        callback(null, "SESSION_INACTIVE");
       }
     }, interval);
 
     return () => {
       events.forEach((event) => {
-        typeof document !== "undefined" && document.removeEventListener(event, trackActivity, true);
+        typeof document !== "undefined" &&
+          document.removeEventListener(event, trackActivity, true);
       });
       clearInterval(intervalId);
     };
@@ -302,13 +315,13 @@ export const sessionUtils = {
    * Get session info
    */
   getSessionInfo: () => {
-    if (typeof window === 'undefined') return null;
+    if (typeof window === "undefined") return null;
 
     return {
-      sessionId: sessionStorage.getItem('sessionId'),
-      deviceFingerprint: sessionStorage.getItem('deviceFingerprint'),
-      lastActivity: parseInt(sessionStorage.getItem('lastActivity') || '0'),
-      loginTime: parseInt(sessionStorage.getItem('loginTime') || '0'),
+      sessionId: sessionStorage.getItem("sessionId"),
+      deviceFingerprint: sessionStorage.getItem("deviceFingerprint"),
+      lastActivity: parseInt(sessionStorage.getItem("lastActivity") || "0"),
+      loginTime: parseInt(sessionStorage.getItem("loginTime") || "0"),
     };
   },
 };
@@ -317,20 +330,20 @@ export const sessionUtils = {
  * Track user activity for analytics and security
  */
 export const trackUserActivity = async (event, data = {}) => {
-  if (typeof window === 'undefined') return;
+  if (typeof window === "undefined") return;
 
   try {
     const activityData = {
       event,
       timestamp: new Date().toISOString(),
-      deviceFingerprint: sessionStorage.getItem('deviceFingerprint'),
-      sessionId: sessionStorage.getItem('sessionId'),
+      deviceFingerprint: sessionStorage.getItem("deviceFingerprint"),
+      sessionId: sessionStorage.getItem("sessionId"),
       ...data,
     };
 
     // Store locally for now - could be sent to analytics service
     const activities = JSON.parse(
-      sessionStorage.getItem('userActivities') || '[]',
+      sessionStorage.getItem("userActivities") || "[]",
     );
     activities.push(activityData);
 
@@ -339,7 +352,7 @@ export const trackUserActivity = async (event, data = {}) => {
       activities.splice(0, activities.length - 100);
     }
 
-    sessionStorage.setItem('userActivities', JSON.stringify(activities));
+    sessionStorage.setItem("userActivities", JSON.stringify(activities));
 
     // Could send to analytics endpoint here
     // console.log('User activity tracked:', activityData);

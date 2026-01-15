@@ -53,7 +53,7 @@ export {
 
   // Events
   AUTH_EVENTS,
-} from './constants.js';
+} from "./constants.js";
 
 // ==================== EXPORT UTILITIES ====================
 
@@ -62,17 +62,17 @@ export {
  */
 export function listAvailableConstants() {
   return {
-    session: ['SESSION_STATUS', 'SESSION_CONFIG'],
-    mfa: ['MFA_METHOD', 'MFA_STATUS', 'MFA_CONFIG'],
-    auth: ['AUTH_ACTIONS', 'AUTH_ERROR_CODES'],
-    roles: ['USER_ROLES', 'ROLE_HIERARCHY'],
-    permissions: ['PERMISSION_CATEGORIES', 'PERMISSION_ACTIONS'],
-    device: ['DEVICE_CONFIG'],
-    password: ['PASSWORD_POLICY'],
-    rate_limit: ['RATE_LIMIT'],
-    oauth: ['OAUTH_PROVIDERS'],
-    storage: ['STORAGE_KEYS'],
-    api: ['AUTH_ENDPOINTS', 'HTTP_STATUS'],
-    events: ['AUTH_EVENTS'],
+    session: ["SESSION_STATUS", "SESSION_CONFIG"],
+    mfa: ["MFA_METHOD", "MFA_STATUS", "MFA_CONFIG"],
+    auth: ["AUTH_ACTIONS", "AUTH_ERROR_CODES"],
+    roles: ["USER_ROLES", "ROLE_HIERARCHY"],
+    permissions: ["PERMISSION_CATEGORIES", "PERMISSION_ACTIONS"],
+    device: ["DEVICE_CONFIG"],
+    password: ["PASSWORD_POLICY"],
+    rate_limit: ["RATE_LIMIT"],
+    oauth: ["OAUTH_PROVIDERS"],
+    storage: ["STORAGE_KEYS"],
+    api: ["AUTH_ENDPOINTS", "HTTP_STATUS"],
+    events: ["AUTH_EVENTS"],
   };
 }

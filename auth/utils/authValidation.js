@@ -11,7 +11,7 @@ export const validateEmail = (email) => {
   if (!email) {
     return {
       isValid: false,
-      error: 'Email is required'
+      error: "Email is required",
     };
   }
 
@@ -19,13 +19,13 @@ export const validateEmail = (email) => {
   if (!emailRegex.test(email)) {
     return {
       isValid: false,
-      error: 'Please enter a valid email address'
+      error: "Please enter a valid email address",
     };
   }
 
   return {
     isValid: true,
-    error: null
+    error: null,
   };
 };
 
@@ -41,7 +41,7 @@ export const validatePassword = (password, options = {}) => {
     requireSpecialChars = true,
   } = options;
 
-  if (!password) return 'Password is required';
+  if (!password) return "Password is required";
 
   const errors = [];
 
@@ -50,24 +50,24 @@ export const validatePassword = (password, options = {}) => {
   }
 
   if (requireUppercase && !/[A-Z]/.test(password)) {
-    errors.push('uppercase letter');
+    errors.push("uppercase letter");
   }
 
   if (requireLowercase && !/[a-z]/.test(password)) {
-    errors.push('lowercase letter');
+    errors.push("lowercase letter");
   }
 
   if (requireNumbers && !/\d/.test(password)) {
-    errors.push('number');
+    errors.push("number");
   }
 
   if (requireSpecialChars && !/[!@#$%^&*(),.?':{}|<>]/.test(password)) {
-    errors.push('special character');
+    errors.push("special character");
   }
 
   if (errors.length > 1) {
     const lastError = errors.pop();
-    return `Password must contain at least one ${errors.join(', ')} and ${lastError}`;
+    return `Password must contain at least one ${errors.join(", ")} and ${lastError}`;
   } else if (errors.length === 1) {
     return `Password must contain at least one ${errors[0]}`;
   }
@@ -117,10 +117,10 @@ export const calculatePasswordStrength = (password) => {
  * Get password strength label
  */
 export const getPasswordStrengthLabel = (strength) => {
-  if (strength < 30) return { label: 'Weak', color: 'red' };
-  if (strength < 60) return { label: 'Fair', color: 'orange' };
-  if (strength < 80) return { label: 'Good', color: 'yellow' };
-  return { label: 'Strong', color: 'green' };
+  if (strength < 30) return { label: "Weak", color: "red" };
+  if (strength < 60) return { label: "Fair", color: "orange" };
+  if (strength < 80) return { label: "Good", color: "yellow" };
+  return { label: "Strong", color: "green" };
 };
 
 /**
@@ -135,7 +135,7 @@ export const validateCredentials = ({ email, password }) => {
   }
 
   if (!password) {
-    errors.push('Password is required');
+    errors.push("Password is required");
   }
 
   return {
@@ -156,7 +156,7 @@ export const validateSignupData = ({
   const errors = [];
 
   if (!name || name.trim().length < 2) {
-    errors.push('Name must be at least 2 characters');
+    errors.push("Name must be at least 2 characters");
   }
 
   const emailValidation = validateEmail(email);
@@ -170,7 +170,7 @@ export const validateSignupData = ({
   }
 
   if (password !== confirmPassword) {
-    errors.push('Passwords do not match');
+    errors.push("Passwords do not match");
   }
 
   return {
@@ -187,7 +187,7 @@ export const validateResetPassword = ({ password, confirmPassword, token }) => {
   const errors = [];
 
   if (!token) {
-    errors.push('Reset token is required');
+    errors.push("Reset token is required");
   }
 
   const passwordValidation = validatePassword(password);
@@ -196,7 +196,7 @@ export const validateResetPassword = ({ password, confirmPassword, token }) => {
   }
 
   if (password !== confirmPassword) {
-    errors.push('Passwords do not match');
+    errors.push("Passwords do not match");
   }
 
   return {
@@ -210,13 +210,13 @@ export const validateResetPassword = ({ password, confirmPassword, token }) => {
  * Validate authentication response data
  */
 export const validateAuthData = (authData) => {
-  if (!authData) return { isValid: false, error: 'No auth data provided' };
+  if (!authData) return { isValid: false, error: "No auth data provided" };
 
   const { user, accessToken } = authData;
 
-  if (!user) return { isValid: false, error: 'User data missing' };
-  if (!user.email) return { isValid: false, error: 'User email missing' };
-  if (!accessToken) return { isValid: false, error: 'Access token missing' };
+  if (!user) return { isValid: false, error: "User data missing" };
+  if (!user.email) return { isValid: false, error: "User email missing" };
+  if (!accessToken) return { isValid: false, error: "Access token missing" };
 
   return { isValid: true };
 };
@@ -224,7 +224,7 @@ export const validateAuthData = (authData) => {
 /**
  * Validate name field
  */
-export const validateName = (name, fieldName = 'Name') => {
+export const validateName = (name, fieldName = "Name") => {
   if (!name) return `${fieldName} is required`;
 
   const trimmedName = name.trim();
@@ -260,7 +260,7 @@ export const formatValidationErrors = (errors) => {
 
   return errors.map((error) => ({
     message: error,
-    type: 'validation',
+    type: "validation",
   }));
 };
 
@@ -273,7 +273,7 @@ export const validatePasswordStrength = getPasswordStrength;
  * Validate authentication token format
  */
 export const validateToken = (token) => {
-  if (!token || typeof token !== 'string') return false;
+  if (!token || typeof token !== "string") return false;
   // JWT format check: xxx.yyy.zzz
   return /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(token);
 };
@@ -282,7 +282,7 @@ export const validateToken = (token) => {
  * Validate MFA code format (4-6 digits)
  */
 export const validateMFACode = (code) => {
-  if (!code || typeof code !== 'string') return false;
+  if (!code || typeof code !== "string") return false;
   return /^\d{4,6}$/.test(code.trim());
 };
 
@@ -290,9 +290,9 @@ export const validateMFACode = (code) => {
  * Validate phone number format
  */
 export const validatePhoneNumber = (phone) => {
-  if (!phone || typeof phone !== 'string') return false;
+  if (!phone || typeof phone !== "string") return false;
   // Remove non-digits
-  const digits = phone.replace(/\D/g, '');
+  const digits = phone.replace(/\D/g, "");
   // Accept 10 or 11 digits
   return digits.length === 10 || digits.length === 11;
 };
@@ -301,12 +301,12 @@ export const validatePhoneNumber = (phone) => {
  * Sanitize user input to prevent XSS
  */
 export const sanitizeInput = (input) => {
-  if (typeof input !== 'string') return input;
+  if (typeof input !== "string") return input;
   return input
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;')
-    .replace(/\//g, '&#x2F;');
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#x27;")
+    .replace(/\//g, "&#x2F;");
 };

@@ -15,7 +15,7 @@
  * Handles session management, token storage, device fingerprinting, cross-tab sync
  */
 export function getSessionService() {
-  return import('./SessionService.js').then(m => m.default);
+  return import("./SessionService.js").then((m) => m.default);
 }
 
 /**
@@ -23,7 +23,7 @@ export function getSessionService() {
  * Handles login, signup, password reset, verification
  */
 export function getAuthService() {
-  return import('./authService.js').then(m => m.default);
+  return import("./authService.js").then((m) => m.default);
 }
 
 /**
@@ -31,7 +31,7 @@ export function getAuthService() {
  * Handles multi-factor authentication setup and verification
  */
 export function getMFAService() {
-  return import('./mfaService.js').then(m => m.default);
+  return import("./mfaService.js").then((m) => m.default);
 }
 
 /**
@@ -39,7 +39,7 @@ export function getMFAService() {
  * Handles token generation, validation, refresh
  */
 export function getTokenService() {
-  return import('./TokenService.js').then(m => m.default);
+  return import("./TokenService.js").then((m) => m.default);
 }
 
 /**
@@ -47,7 +47,7 @@ export function getTokenService() {
  * Handles OAuth provider integration and authentication
  */
 export function getOAuthService() {
-  return import('./oauthService.js').then(m => m.default);
+  return import("./oauthService.js").then((m) => m.default);
 }
 
 /**
@@ -55,7 +55,7 @@ export function getOAuthService() {
  * Handles role-based access control and permissions
  */
 export function getRBACService() {
-  return import('./rbacService.js').then(m => m.default);
+  return import("./rbacService.js").then((m) => m.default);
 }
 
 /**
@@ -63,7 +63,7 @@ export function getRBACService() {
  * Handles security monitoring and fraud detection
  */
 export function getSecurityService() {
-  return import('./securityService.js').then(m => m.default);
+  return import("./securityService.js").then((m) => m.default);
 }
 
 /**
@@ -71,7 +71,7 @@ export function getSecurityService() {
  * Handles device fingerprinting and trust management
  */
 export function getDeviceService() {
-  return import('./DeviceService.js').then(m => m.default);
+  return import("./DeviceService.js").then((m) => m.default);
 }
 
 /**
@@ -79,7 +79,7 @@ export function getDeviceService() {
  * Handles shared data caching
  */
 export function getCacheService() {
-  return import('./sharedDataCache.js').then(m => m.default);
+  return import("./sharedDataCache.js").then((m) => m.default);
 }
 
 /**
@@ -87,7 +87,7 @@ export function getCacheService() {
  * Handles cross-application integration
  */
 export function getCrossAppService() {
-  return import('./crossAppIntegration.js').then(m => m.default);
+  return import("./crossAppIntegration.js").then((m) => m.default);
 }
 
 // ==================== SYNCHRONOUS EXPORTS (for already-loaded services) ====================

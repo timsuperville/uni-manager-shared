@@ -3,7 +3,7 @@
  * Tests OAuth provider configurations across all applications
  */
 
-import { OAUTH_PROVIDERS } from '../utils/socialAuth.js';
+import { OAUTH_PROVIDERS } from "../utils/socialAuth.js";
 
 /**
  * Test OAuth provider configurations for all apps
@@ -23,12 +23,12 @@ export const testOAuthConfigurations = () => {
 
   // Define app configurations to test
   const appTypes = [
-    'church',
-    'admin',
-    'business',
-    'home',
-    'personal',
-    'playback',
+    "church",
+    "admin",
+    "business",
+    "home",
+    "personal",
+    "playback",
   ];
 
   appTypes.forEach((appType) => {
@@ -48,14 +48,14 @@ export const testOAuthConfigurations = () => {
         results.summary.appsWithOAuth++;
         results.summary.totalEnabledProviders += enabledProviders.length;
         enabledProviders.forEach((p) =>
-          results.summary.uniqueProviders.add(p.id)
+          results.summary.uniqueProviders.add(p.id),
         );
       }
     } catch (_error) {
       results.issues.push({
         app: appType,
         error: error.message,
-        type: 'configuration_error',
+        type: "configuration_error",
       });
     }
   });
@@ -70,15 +70,15 @@ export const testOAuthConfigurations = () => {
  * Get mock app configuration for testing
  */
 const getMockAppConfig = (appType) => {
-  const baseApiUrl = 'http://localhost:5000';
+  const baseApiUrl = "http://localhost:5000";
 
   const configs = {
     church: {
       features: {
         socialLogin: {
           enabled: true,
-          providers: ['google'],
-          googleClientId: 'mock-google-client-id',
+          providers: ["google"],
+          googleClientId: "mock-google-client-id",
         },
       },
       apiEndpoints: {
@@ -89,9 +89,9 @@ const getMockAppConfig = (appType) => {
       features: {
         socialLogin: {
           enabled: true,
-          providers: ['google', 'microsoft'],
-          googleClientId: 'mock-google-client-id',
-          microsoftClientId: 'mock-microsoft-client-id',
+          providers: ["google", "microsoft"],
+          googleClientId: "mock-google-client-id",
+          microsoftClientId: "mock-microsoft-client-id",
         },
       },
       apiEndpoints: {
@@ -102,9 +102,9 @@ const getMockAppConfig = (appType) => {
       features: {
         socialLogin: {
           enabled: true,
-          providers: ['google', 'linkedin'],
-          googleClientId: 'mock-google-client-id',
-          linkedinClientId: 'mock-linkedin-client-id',
+          providers: ["google", "linkedin"],
+          googleClientId: "mock-google-client-id",
+          linkedinClientId: "mock-linkedin-client-id",
         },
       },
       apiEndpoints: {
@@ -126,9 +126,9 @@ const getMockAppConfig = (appType) => {
       features: {
         socialLogin: {
           enabled: true,
-          providers: ['google', 'github'],
-          googleClientId: 'mock-google-client-id',
-          githubClientId: 'mock-github-client-id',
+          providers: ["google", "github"],
+          googleClientId: "mock-google-client-id",
+          githubClientId: "mock-github-client-id",
         },
       },
       apiEndpoints: {
@@ -139,10 +139,10 @@ const getMockAppConfig = (appType) => {
       features: {
         socialLogin: {
           enabled: true,
-          providers: ['google', 'spotify', 'apple'],
-          googleClientId: 'mock-google-client-id',
-          spotifyClientId: 'mock-spotify-client-id',
-          appleClientId: 'mock-apple-client-id',
+          providers: ["google", "spotify", "apple"],
+          googleClientId: "mock-google-client-id",
+          spotifyClientId: "mock-spotify-client-id",
+          appleClientId: "mock-apple-client-id",
         },
       },
       apiEndpoints: {
@@ -188,13 +188,13 @@ export const validateOAuthProvider = (providerId) => {
     };
   }
 
-  const requiredFields = ['name', 'icon', 'color', 'getAuthUrl', 'scopes'];
+  const requiredFields = ["name", "icon", "color", "getAuthUrl", "scopes"];
   const missingFields = requiredFields.filter((field) => !provider[field]);
 
   if (missingFields.length > 0) {
     return {
       valid: false,
-      error: `Provider '${providerId}' missing required fields: ${missingFields.join(', ')}`,
+      error: `Provider '${providerId}' missing required fields: ${missingFields.join(", ")}`,
     };
   }
 
@@ -219,19 +219,19 @@ export const generateOAuthReport = () => {
   // Add recommendations based on test results
   if (report.summary.appsWithOAuth === 0) {
     report.recommendations.push(
-      'Consider enabling OAuth for at least one application to improve user experience'
+      "Consider enabling OAuth for at least one application to improve user experience",
     );
   }
 
   if (report.issues.length > 0) {
     report.recommendations.push(
-      'Fix configuration errors before deploying OAuth functionality'
+      "Fix configuration errors before deploying OAuth functionality",
     );
   }
 
   if (report.summary.uniqueProviders.length < 3) {
     report.recommendations.push(
-      'Consider adding more OAuth providers to give users more login options'
+      "Consider adding more OAuth providers to give users more login options",
     );
   }
 

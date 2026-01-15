@@ -1,28 +1,28 @@
 // Unified Toast Provider for all Uni-Manager applications
-import React, { useState, useCallback, createContext, useContext } from 'react';
-import PropTypes from 'prop-types';
-import Toast from './Toast';
+import React, { useState, useCallback, createContext, useContext } from "react";
+import PropTypes from "prop-types";
+import Toast from "./Toast";
 
 const ToastContext = createContext();
 
 export const useToast = () => {
   const context = useContext(ToastContext);
   if (!context) {
-    throw new Error('useToast must be used within a ToastProvider');
+    throw new Error("useToast must be used within a ToastProvider");
   }
   return context;
 };
 
 export const ToastProvider = ({
   children,
-  position = 'top-right',
+  position = "top-right",
   maxToasts = 5,
-  className = '',
+  className = "",
 }) => {
   const [toasts, setToasts] = useState([]);
 
   const addToast = useCallback(
-    (message, type = 'info', options = {}) => {
+    (message, type = "info", options = {}) => {
       const id = Date.now() + Math.random();
       const {
         duration = 5000,
@@ -60,19 +60,19 @@ export const ToastProvider = ({
 
   // Convenience methods
   const showSuccess = useCallback(
-    (message, options) => addToast(message, 'success', options),
+    (message, options) => addToast(message, "success", options),
     [addToast],
   );
   const showError = useCallback(
-    (message, options) => addToast(message, 'error', options),
+    (message, options) => addToast(message, "error", options),
     [addToast],
   );
   const showWarning = useCallback(
-    (message, options) => addToast(message, 'warning', options),
+    (message, options) => addToast(message, "warning", options),
     [addToast],
   );
   const showInfo = useCallback(
-    (message, options) => addToast(message, 'info', options),
+    (message, options) => addToast(message, "info", options),
     [addToast],
   );
 
@@ -89,12 +89,12 @@ export const ToastProvider = ({
 
   const getContainerPosition = () => {
     const positions = {
-      'top-right': 'fixed top-4 right-4 z-50',
-      'top-left': 'fixed top-4 left-4 z-50',
-      'bottom-right': 'fixed bottom-4 right-4 z-50',
-      'bottom-left': 'fixed bottom-4 left-4 z-50',
+      "top-right": "fixed top-4 right-4 z-50",
+      "top-left": "fixed top-4 left-4 z-50",
+      "bottom-right": "fixed bottom-4 right-4 z-50",
+      "bottom-left": "fixed bottom-4 left-4 z-50",
     };
-    return positions[position] || positions['top-right'];
+    return positions[position] || positions["top-right"];
   };
 
   return (
@@ -123,10 +123,10 @@ export const ToastProvider = ({
 ToastProvider.propTypes = {
   children: PropTypes.node.isRequired,
   position: PropTypes.oneOf([
-    'top-left',
-    'top-right',
-    'bottom-left',
-    'bottom-right',
+    "top-left",
+    "top-right",
+    "bottom-left",
+    "bottom-right",
   ]),
   maxToasts: PropTypes.number,
   className: PropTypes.string,

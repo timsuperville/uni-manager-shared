@@ -4,10 +4,13 @@
  * useDeviceTrust - Device Trust Management Hook
  * Handles device fingerprinting, trust, and verification
  */
-import { useCallback, useState, useEffect, useMemo } from 'react';
-import { useAuth } from './useAuth.js';
-import { MFAService } from '../services/mfaService.js';
-import { generateDeviceFingerprint, getDeviceInfo } from '../utils/socialAuth.js';
+import { useCallback, useState, useEffect, useMemo } from "react";
+import { useAuth } from "./useAuth.js";
+import { MFAService } from "../services/mfaService.js";
+import {
+  generateDeviceFingerprint,
+  getDeviceInfo,
+} from "../utils/socialAuth.js";
 
 export function useDeviceTrust() {
   const { token } = useAuth();
@@ -26,8 +29,8 @@ export function useDeviceTrust() {
         const fingerprint = await generateDeviceFingerprint();
         setDeviceFingerprint(fingerprint);
       } catch (err) {
-        console.error('Failed to generate fingerprint:', err);
-        setError('Failed to generate device ID');
+        console.error("Failed to generate fingerprint:", err);
+        setError("Failed to generate device ID");
       }
     };
     initFingerprint();
@@ -45,7 +48,7 @@ export function useDeviceTrust() {
         const result = await mfaService.checkDeviceTrust(deviceFingerprint);
         setIsTrusted(result.isTrusted);
       } catch (err) {
-        console.error('Failed to check device trust:', err);
+        console.error("Failed to check device trust:", err);
         // Don't set error here to avoid blocking UI, just assume untrusted
         setIsTrusted(false);
       } finally {
@@ -64,13 +67,13 @@ export function useDeviceTrust() {
     try {
       const deviceInfo = {
         fingerprint: deviceFingerprint,
-        ...getDeviceInfo()
+        ...getDeviceInfo(),
       };
       await mfaService.addTrustedDevice(deviceInfo);
       setIsTrusted(true);
     } catch (err) {
-      console.error('Failed to trust device:', err);
-      setError(err.message || 'Failed to trust device');
+      console.error("Failed to trust device:", err);
+      setError(err.message || "Failed to trust device");
       throw err;
     } finally {
       setIsLoading(false);
@@ -86,8 +89,8 @@ export function useDeviceTrust() {
       await mfaService.removeTrustedDevice(deviceFingerprint);
       setIsTrusted(false);
     } catch (err) {
-      console.error('Failed to untrust device:', err);
-      setError(err.message || 'Failed to untrust device');
+      console.error("Failed to untrust device:", err);
+      setError(err.message || "Failed to untrust device");
       throw err;
     } finally {
       setIsLoading(false);

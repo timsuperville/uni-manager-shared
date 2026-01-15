@@ -25,7 +25,7 @@
  * };
  */
 
-import { useAuth as useAuthFromProvider } from '../context/AuthContext.jsx';
+import { useAuth as useAuthFromProvider } from "../context/AuthContext.jsx";
 
 /**
  * @typedef {Object} UseAuthReturn

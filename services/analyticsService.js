@@ -15,11 +15,11 @@
 
 /* global window, document, localStorage, sessionStorage, WebSocket, fetch, URLSearchParams, console, navigator, setTimeout, process */
 
-import ApiService from './apiService';
+import ApiService from "./apiService";
 
 class AnalyticsService {
   constructor() {
-    this.baseUrl = '/analytics';
+    this.baseUrl = "/analytics";
     this.apiService = new ApiService();
     this.websocket = null;
     this.isConnected = false;
@@ -33,17 +33,17 @@ class AnalyticsService {
    */
   async getDashboard(options = {}) {
     try {
-      const { timeframe = '24h', userId, applicationId } = options;
+      const { timeframe = "24h", userId, applicationId } = options;
 
       const params = new URLSearchParams({
         timeframe,
       });
 
-      if (userId) params.append('userId', userId);
-      if (applicationId) params.append('applicationId', applicationId);
+      if (userId) params.append("userId", userId);
+      if (applicationId) params.append("applicationId", applicationId);
 
       const response = await this.apiService.get(
-        `${this.baseUrl}/dashboard?${params}`
+        `${this.baseUrl}/dashboard?${params}`,
       );
       return response.data;
     } catch (error) {
@@ -57,17 +57,17 @@ class AnalyticsService {
    */
   async getUserBehaviorAnalytics(options = {}) {
     try {
-      const { timeframe = '24h', userId, applicationId } = options;
+      const { timeframe = "24h", userId, applicationId } = options;
 
       const params = new URLSearchParams({
         timeframe,
       });
 
-      if (userId) params.append('userId', userId);
-      if (applicationId) params.append('applicationId', applicationId);
+      if (userId) params.append("userId", userId);
+      if (applicationId) params.append("applicationId", applicationId);
 
       const response = await this.apiService.get(
-        `${this.baseUrl}/user-behavior?${params}`
+        `${this.baseUrl}/user-behavior?${params}`,
       );
       return response.data;
     } catch (error) {
@@ -81,15 +81,17 @@ class AnalyticsService {
    */
   async getPerformanceAnalytics(options = {}) {
     try {
-      const { timeframe = '24h', applicationId } = options;
+      const { timeframe = "24h", applicationId } = options;
 
       const params = new URLSearchParams({
         timeframe,
       });
 
-      if (applicationId) params.append('applicationId', applicationId);
+      if (applicationId) params.append("applicationId", applicationId);
 
-      const response = await this.apiService.get(`${this.baseUrl}/performance/metrics?${params}`);
+      const response = await this.apiService.get(
+        `${this.baseUrl}/performance/metrics?${params}`,
+      );
       return response.data;
     } catch (error) {
       // console.error('Failed to get performance analytics:', error);
@@ -100,10 +102,10 @@ class AnalyticsService {
   /**
    * Get membership growth data for Church app
    */
-  async getMembershipGrowth(churchId, timeframe = 'year') {
+  async getMembershipGrowth(churchId, timeframe = "year") {
     try {
       const response = await this.apiService.get(
-        `/church/${churchId}/dashboard/membership-growth?period=${timeframe}`
+        `/church/${churchId}/dashboard/membership-growth?period=${timeframe}`,
       );
       return response.data;
     } catch (error) {
@@ -116,16 +118,16 @@ class AnalyticsService {
    */
   async getSecurityAnalytics(options = {}) {
     try {
-      const { timeframe = '24h', applicationId } = options;
+      const { timeframe = "24h", applicationId } = options;
 
       const params = new URLSearchParams({
         timeframe,
       });
 
-      if (applicationId) params.append('applicationId', applicationId);
+      if (applicationId) params.append("applicationId", applicationId);
 
       const response = await this.apiService.get(
-        `${this.baseUrl}/security?${params}`
+        `${this.baseUrl}/security?${params}`,
       );
       return response.data;
     } catch (error) {
@@ -139,7 +141,9 @@ class AnalyticsService {
    */
   async getRealTimeMetrics() {
     try {
-      const response = await this.apiService.get(`${this.baseUrl}/real-time/metrics`);
+      const response = await this.apiService.get(
+        `${this.baseUrl}/real-time/metrics`,
+      );
       return response.data;
     } catch (error) {
       // console.error('Failed to get real-time metrics:', error);
@@ -152,7 +156,9 @@ class AnalyticsService {
    */
   async getActiveAlerts() {
     try {
-      const response = await this.apiService.get(`${this.baseUrl}/real-time/alerts`);
+      const response = await this.apiService.get(
+        `${this.baseUrl}/real-time/alerts`,
+      );
       return response.data;
     } catch (error) {
       // console.error('Failed to get active alerts:', error);
@@ -176,7 +182,7 @@ class AnalyticsService {
             sessionId: this.getSessionId(),
             applicationId: this.getApplicationId(),
           },
-        }
+        },
       );
       return response.data;
     } catch (error) {
@@ -192,20 +198,30 @@ class AnalyticsService {
   async trackPerformanceMetric(metricType, value, context = {}) {
     try {
       // Validate inputs before sending
-      if (!metricType || typeof metricType !== 'string') {
-        console.warn('Invalid metricType for performance tracking:', metricType);
+      if (!metricType || typeof metricType !== "string") {
+        console.warn(
+          "Invalid metricType for performance tracking:",
+          metricType,
+        );
         return null;
       }
 
-      if (typeof value !== 'number' || isNaN(value) || !isFinite(value)) {
-        console.warn('Invalid value for performance tracking:', { metricType, value });
+      if (typeof value !== "number" || isNaN(value) || !isFinite(value)) {
+        console.warn("Invalid value for performance tracking:", {
+          metricType,
+          value,
+        });
         return null;
       }
 
-      // NOTE: Analytics backend not yet implemented - see missing_features.md  
+      // NOTE: Analytics backend not yet implemented - see missing_features.md
       // Skip API call in development to prevent 404 errors
       if (import.meta.env.DEV) {
-        console.debug('[Analytics] Skipped in dev:', { metricType, value, context: context?.pageUrl });
+        console.debug("[Analytics] Skipped in dev:", {
+          metricType,
+          value,
+          context: context?.pageUrl,
+        });
         return null;
       }
 
@@ -219,11 +235,11 @@ class AnalyticsService {
             timestamp: new Date().toISOString(),
             applicationId: this.getApplicationId(),
           },
-        }
+        },
       );
       return response.data;
     } catch (error) {
-      console.error('Failed to track performance metric:', error);
+      console.error("Failed to track performance metric:", error);
       // Don't throw error for tracking to avoid disrupting user experience
       return null;
     }
@@ -234,15 +250,18 @@ class AnalyticsService {
    */
   async trackSecurityEvent(eventType, severity, details = {}) {
     try {
-      const response = await this.apiService.post(`${this.baseUrl}/track/security`, {
-        eventType,
-        severity,
-        details: {
-          ...details,
-          timestamp: new Date().toISOString(),
-          applicationId: this.getApplicationId(),
+      const response = await this.apiService.post(
+        `${this.baseUrl}/track/security`,
+        {
+          eventType,
+          severity,
+          details: {
+            ...details,
+            timestamp: new Date().toISOString(),
+            applicationId: this.getApplicationId(),
+          },
         },
-      });
+      );
       return response.data;
     } catch (error) {
       // console.error('Failed to track security event:', error);
@@ -257,16 +276,19 @@ class AnalyticsService {
   async getPredictiveInsights(options = {}) {
     try {
       const {
-        type = 'userEngagement',
-        timeframe = '7d',
+        type = "userEngagement",
+        timeframe = "7d",
         parameters = {},
       } = options;
 
-      const response = await this.apiService.post(`${this.baseUrl}/ai/insights`, {
-        type,
-        timeframe,
-        parameters,
-      });
+      const response = await this.apiService.post(
+        `${this.baseUrl}/ai/insights`,
+        {
+          type,
+          timeframe,
+          parameters,
+        },
+      );
       return response.data;
     } catch (error) {
       // console.error('Failed to get predictive insights:', error);
@@ -282,11 +304,11 @@ class AnalyticsService {
       const { userId, applicationId } = options;
 
       const params = new URLSearchParams();
-      if (userId) params.append('userId', userId);
-      if (applicationId) params.append('applicationId', applicationId);
+      if (userId) params.append("userId", userId);
+      if (applicationId) params.append("applicationId", applicationId);
 
       const response = await this.apiService.get(
-        `${this.baseUrl}/ai/recommendations?${params}`
+        `${this.baseUrl}/ai/recommendations?${params}`,
       );
       return response.data;
     } catch (error) {
@@ -302,7 +324,7 @@ class AnalyticsService {
     try {
       const response = await this.apiService.post(
         `${this.baseUrl}/query/custom`,
-        query
+        query,
       );
       return response.data;
     } catch (error) {
@@ -317,19 +339,19 @@ class AnalyticsService {
   async exportData(options = {}) {
     try {
       const {
-        format = 'json',
-        timeframe = '24h',
-        dataTypes = ['userBehavior', 'performance', 'security'],
+        format = "json",
+        timeframe = "24h",
+        dataTypes = ["userBehavior", "performance", "security"],
       } = options;
 
       const params = new URLSearchParams({
         format,
         timeframe,
-        dataTypes: dataTypes.join(','),
+        dataTypes: dataTypes.join(","),
       });
 
       const response = await fetch(`${this.baseUrl}/export?${params}`, {
-        method: 'GET',
+        method: "GET",
         headers: {
           Authorization: `Bearer ${this.getAuthToken()}`,
         },
@@ -339,7 +361,7 @@ class AnalyticsService {
         throw new Error(`Export failed: ${response.statusText}`);
       }
 
-      if (format === 'json') {
+      if (format === "json") {
         return await response.json();
       } else {
         return await response.text();
@@ -373,7 +395,10 @@ class AnalyticsService {
         return this.websocket;
       }
 
-      const protocol = typeof window !== "undefined" && window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const protocol =
+        typeof window !== "undefined" && window.location.protocol === "https:"
+          ? "wss:"
+          : "ws:";
       const wsUrl = `${protocol}//${typeof window !== "undefined" && window.location.host}/analytics/stream`;
 
       this.websocket = new WebSocket(wsUrl);
@@ -386,15 +411,15 @@ class AnalyticsService {
         // Subscribe to real-time updates
         this.websocket.send(
           JSON.stringify({
-            type: 'subscribe',
+            type: "subscribe",
             channels: [
-              'metrics',
-              'alerts',
-              'user-behavior',
-              'performance',
-              'security',
+              "metrics",
+              "alerts",
+              "user-behavior",
+              "performance",
+              "security",
             ],
-          })
+          }),
         );
       };
 
@@ -454,7 +479,7 @@ class AnalyticsService {
    */
   disconnectWebSocket() {
     if (this.websocket) {
-      this.websocket.close(1000, 'Manual disconnect');
+      this.websocket.close(1000, "Manual disconnect");
       this.websocket = null;
       this.isConnected = false;
     }
@@ -479,7 +504,7 @@ class AnalyticsService {
   trackPageView(path, title) {
     const userId = this.getCurrentUserId();
     if (userId) {
-      this.trackUserBehavior(userId, 'page_view', {
+      this.trackUserBehavior(userId, "page_view", {
         pageUrl: path,
         pageTitle: title,
         referrer: typeof document !== "undefined" && document.referrer,
@@ -494,7 +519,7 @@ class AnalyticsService {
   trackInteraction(element, action, details = {}) {
     const userId = this.getCurrentUserId();
     if (userId) {
-      this.trackUserBehavior(userId, 'interaction', {
+      this.trackUserBehavior(userId, "interaction", {
         element,
         action,
         details,
@@ -508,7 +533,12 @@ class AnalyticsService {
    * Auto-track performance timing
    */
   trackPerformanceTiming() {
-    if (typeof window !== "undefined" && window.performance && typeof window !== "undefined" && window.performance.timing) {
+    if (
+      typeof window !== "undefined" &&
+      window.performance &&
+      typeof window !== "undefined" &&
+      window.performance.timing
+    ) {
       const timing = typeof window !== "undefined" && window.performance.timing;
       const navigationStart = timing.navigationStart;
 
@@ -523,7 +553,12 @@ class AnalyticsService {
 
       Object.entries(metrics).forEach(([metric, value]) => {
         // Ensure value is a valid positive number
-        if (typeof value === 'number' && !isNaN(value) && isFinite(value) && value > 0) {
+        if (
+          typeof value === "number" &&
+          !isNaN(value) &&
+          isFinite(value) &&
+          value > 0
+        ) {
           this.trackPerformanceMetric(metric, value, {
             pageUrl: typeof window !== "undefined" && window.location.pathname,
             userAgent: typeof navigator !== "undefined" && navigator.userAgent,
@@ -538,7 +573,10 @@ class AnalyticsService {
    */
   getCurrentUserId() {
     // This would typically come from your auth context or local storage
-    const user = JSON.parse(typeof localStorage !== "undefined" && localStorage.getItem('user') || '{}');
+    const user = JSON.parse(
+      (typeof localStorage !== "undefined" && localStorage.getItem("user")) ||
+        "{}",
+    );
     return user.id || null;
   }
 
@@ -546,10 +584,10 @@ class AnalyticsService {
    * Get session ID
    */
   getSessionId() {
-    let sessionId = sessionStorage.getItem('analytics_session_id');
+    let sessionId = sessionStorage.getItem("analytics_session_id");
     if (!sessionId) {
       sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      sessionStorage.setItem('analytics_session_id', sessionId);
+      sessionStorage.setItem("analytics_session_id", sessionId);
     }
     return sessionId;
   }
@@ -560,20 +598,24 @@ class AnalyticsService {
   getApplicationId() {
     // Determine application ID based on current path or configuration
     const path = typeof window !== "undefined" && window.location.pathname;
-    if (path.includes('/church')) return 'church';
-    if (path.includes('/admin')) return 'admin';
-    if (path.includes('/business')) return 'business';
-    if (path.includes('/personal')) return 'personal';
-    if (path.includes('/home')) return 'home';
-    if (path.includes('/playback')) return 'playback';
-    return 'main-website';
+    if (path.includes("/church")) return "church";
+    if (path.includes("/admin")) return "admin";
+    if (path.includes("/business")) return "business";
+    if (path.includes("/personal")) return "personal";
+    if (path.includes("/home")) return "home";
+    if (path.includes("/playback")) return "playback";
+    return "main-website";
   }
 
   /**
    * Get auth token
    */
   getAuthToken() {
-    return typeof localStorage !== "undefined" && localStorage.getItem('auth_token') || '';
+    return (
+      (typeof localStorage !== "undefined" &&
+        localStorage.getItem("auth_token")) ||
+      ""
+    );
   }
 
   /**
@@ -589,26 +631,26 @@ class AnalyticsService {
         case 400:
           return new Error(`Bad Request: ${message}`);
         case 401:
-          return new Error('Unauthorized: Please log in again');
+          return new Error("Unauthorized: Please log in again");
         case 403:
           return new Error(
-            'Forbidden: You do not have permission to access this resource'
+            "Forbidden: You do not have permission to access this resource",
           );
         case 404:
-          return new Error('Not Found: The requested resource was not found');
+          return new Error("Not Found: The requested resource was not found");
         case 429:
-          return new Error('Rate Limit Exceeded: Please try again later');
+          return new Error("Rate Limit Exceeded: Please try again later");
         case 500:
-          return new Error('Server Error: Please try again later');
+          return new Error("Server Error: Please try again later");
         default:
           return new Error(`HTTP ${status}: ${message}`);
       }
     } else if (error.request) {
       // Network error
-      return new Error('Network Error: Please check your internet connection');
+      return new Error("Network Error: Please check your internet connection");
     } else {
       // Other error
-      return new Error(error.message || 'An unexpected error occurred');
+      return new Error(error.message || "An unexpected error occurred");
     }
   }
 
@@ -622,28 +664,28 @@ class AnalyticsService {
       const results = await Promise.allSettled(
         events.map((event) => {
           switch (event.type) {
-            case 'user_behavior':
+            case "user_behavior":
               return this.trackUserBehavior(
                 event.userId,
                 event.eventType,
-                event.eventData
+                event.eventData,
               );
-            case 'performance':
+            case "performance":
               return this.trackPerformanceMetric(
                 event.metricType,
                 event.value,
-                event.context
+                event.context,
               );
-            case 'security':
+            case "security":
               return this.trackSecurityEvent(
                 event.eventType,
                 event.severity,
-                event.details
+                event.details,
               );
             default:
               throw new Error(`Unknown event type: ${event.type}`);
           }
-        })
+        }),
       );
 
       return results;
@@ -658,36 +700,39 @@ class AnalyticsService {
    */
   initializeAutoTracking() {
     // Track page load performance
-    typeof window !== "undefined" && window.addEventListener('load', () => {
-      setTimeout(() => this.trackPerformanceTiming(), 100);
-    });
+    typeof window !== "undefined" &&
+      window.addEventListener("load", () => {
+        setTimeout(() => this.trackPerformanceTiming(), 100);
+      });
 
     // Track page visibility changes
-    typeof document !== "undefined" && document.addEventListener('visibilitychange', () => {
-      const userId = this.getCurrentUserId();
-      if (userId) {
-        this.trackUserBehavior(userId, 'page_visibility_change', {
-          hidden: typeof document !== "undefined" && document.hidden,
-          timestamp: new Date().toISOString(),
-        });
-      }
-    });
+    typeof document !== "undefined" &&
+      document.addEventListener("visibilitychange", () => {
+        const userId = this.getCurrentUserId();
+        if (userId) {
+          this.trackUserBehavior(userId, "page_visibility_change", {
+            hidden: typeof document !== "undefined" && document.hidden,
+            timestamp: new Date().toISOString(),
+          });
+        }
+      });
 
     // Track clicks on important elements
-    typeof document !== "undefined" && document.addEventListener('click', (event) => {
-      const target = event.target;
-      if (
-        target.tagName === 'BUTTON' ||
-        target.tagName === 'A' ||
-        target.hasAttribute('data-track')
-      ) {
-        this.trackInteraction(target.tagName.toLowerCase(), 'click', {
-          text: target.textContent?.trim(),
-          className: target.className,
-          id: target.id,
-        });
-      }
-    });
+    typeof document !== "undefined" &&
+      document.addEventListener("click", (event) => {
+        const target = event.target;
+        if (
+          target.tagName === "BUTTON" ||
+          target.tagName === "A" ||
+          target.hasAttribute("data-track")
+        ) {
+          this.trackInteraction(target.tagName.toLowerCase(), "click", {
+            text: target.textContent?.trim(),
+            className: target.className,
+            id: target.id,
+          });
+        }
+      });
 
     // console.log('Analytics auto-tracking initialized');
   }
@@ -697,7 +742,7 @@ class AnalyticsService {
 export const analyticsService = new AnalyticsService();
 
 // Initialize auto-tracking when the service is imported
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
   analyticsService.initializeAutoTracking();
 }
 

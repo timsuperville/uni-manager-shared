@@ -11,8 +11,8 @@
 
 /* global console */
 
-import { useCallback } from 'react';
-import { useAuth } from './useAuth.js';
+import { useCallback } from "react";
+import { useAuth } from "./useAuth.js";
 
 /**
  * @typedef {Object} UseSessionReturn
@@ -38,7 +38,7 @@ export function useSession() {
     try {
       await refreshAuth();
     } catch (err) {
-      console.error('Failed to renew session:', err);
+      console.error("Failed to renew session:", err);
       throw err;
     }
   }, [refreshAuth]);
@@ -47,7 +47,7 @@ export function useSession() {
    * Destroy session
    */
   const handleDestroySession = useCallback(async () => {
-    console.log('Session will be destroyed');
+    console.log("Session will be destroyed");
     // TODO: Implement session destruction
   }, []);
 

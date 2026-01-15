@@ -1,7 +1,7 @@
 /* eslint-env browser */
 /* global localStorage, console */
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 /**
  * Custom hook for managing user authentication state
@@ -25,10 +25,13 @@ export function useAuth() {
   useEffect(() => {
     const checkAuthStatus = () => {
       try {
-        const authStatus = typeof localStorage !== "undefined" && localStorage.getItem('isAuthenticated');
-        const userData = typeof localStorage !== "undefined" && localStorage.getItem('user');
+        const authStatus =
+          typeof localStorage !== "undefined" &&
+          localStorage.getItem("isAuthenticated");
+        const userData =
+          typeof localStorage !== "undefined" && localStorage.getItem("user");
 
-        if (authStatus === 'true' && userData) {
+        if (authStatus === "true" && userData) {
           setIsAuthenticated(true);
           setUser(JSON.parse(userData));
         } else {
@@ -49,31 +52,34 @@ export function useAuth() {
 
   const login = (userData) => {
     try {
-      typeof localStorage !== "undefined" && localStorage.setItem('isAuthenticated', 'true');
-      typeof localStorage !== "undefined" && localStorage.setItem('user', JSON.stringify(userData));
+      typeof localStorage !== "undefined" &&
+        localStorage.setItem("isAuthenticated", "true");
+      typeof localStorage !== "undefined" &&
+        localStorage.setItem("user", JSON.stringify(userData));
       setIsAuthenticated(true);
       setUser(userData);
 
       // Navigate only if navigate function is available (not in test environment)
-      if (navigate && typeof navigate === 'function') {
-        navigate('/dashboard');
+      if (navigate && typeof navigate === "function") {
+        navigate("/dashboard");
       }
     } catch (_error) {
       // console.error('Error during login:', error);
-      throw new Error('Failed to save authentication data');
+      throw new Error("Failed to save authentication data");
     }
   };
 
   const logout = () => {
     try {
-      typeof localStorage !== "undefined" && localStorage.removeItem('isAuthenticated');
-      typeof localStorage !== "undefined" && localStorage.removeItem('user');
+      typeof localStorage !== "undefined" &&
+        localStorage.removeItem("isAuthenticated");
+      typeof localStorage !== "undefined" && localStorage.removeItem("user");
       setIsAuthenticated(false);
       setUser(null);
 
       // Navigate only if navigate function is available (not in test environment)
-      if (navigate && typeof navigate === 'function') {
-        navigate('/login');
+      if (navigate && typeof navigate === "function") {
+        navigate("/login");
       }
     } catch (_error) {
       // console.error('Error during logout:', error);
@@ -83,11 +89,12 @@ export function useAuth() {
   const updateUser = (updatedUserData) => {
     try {
       const newUserData = { ...user, ...updatedUserData };
-      typeof localStorage !== "undefined" && localStorage.setItem('user', JSON.stringify(newUserData));
+      typeof localStorage !== "undefined" &&
+        localStorage.setItem("user", JSON.stringify(newUserData));
       setUser(newUserData);
     } catch (_error) {
       // console.error('Error updating user data:', error);
-      throw new Error('Failed to update user data');
+      throw new Error("Failed to update user data");
     }
   };
 

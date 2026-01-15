@@ -7,7 +7,7 @@
 /* eslint-env browser */
 /* global URLSearchParams, fetch, localStorage, setTimeout, clearInterval, setInterval, console */
 
-import { getEnvironmentConfig } from '../../../core/config/environment';
+import { getEnvironmentConfig } from "../../../core/config/environment";
 
 class AnalyticsDashboardAPIService {
   constructor() {
@@ -26,13 +26,13 @@ class AnalyticsDashboardAPIService {
   async getDashboardData(applicationId, options = {}) {
     try {
       const {
-        dateRange = '7d',
+        dateRange = "7d",
         userId,
         organizationId,
-        refreshCache = false
+        refreshCache = false,
       } = options;
 
-      const cacheKey = `dashboard_${applicationId}_${dateRange}_${userId || 'all'}_${organizationId || 'all'}`;
+      const cacheKey = `dashboard_${applicationId}_${dateRange}_${userId || "all"}_${organizationId || "all"}`;
 
       // Check cache first
       if (!refreshCache && this.cache.has(cacheKey)) {
@@ -44,22 +44,24 @@ class AnalyticsDashboardAPIService {
 
       const params = new URLSearchParams({
         dateRange,
-        refreshCache: refreshCache.toString()
+        refreshCache: refreshCache.toString(),
       });
 
-      if (userId) params.append('userId', userId);
-      if (organizationId) params.append('organizationId', organizationId);
+      if (userId) params.append("userId", userId);
+      if (organizationId) params.append("organizationId", organizationId);
 
       const response = await this.fetchWithRetry(
         `${this.baseURL}/app-dashboard/${applicationId}?${params}`,
         {
-          method: 'GET',
-          headers: this.getHeaders()
-        }
+          method: "GET",
+          headers: this.getHeaders(),
+        },
       );
 
       if (!response.ok) {
-        throw new Error(`Dashboard API error: ${response.status} ${response.statusText}`);
+        throw new Error(
+          `Dashboard API error: ${response.status} ${response.statusText}`,
+        );
       }
 
       const result = await response.json();
@@ -67,7 +69,7 @@ class AnalyticsDashboardAPIService {
       // Cache the result
       this.cache.set(cacheKey, {
         data: result,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       });
 
       return result;
@@ -85,19 +87,21 @@ class AnalyticsDashboardAPIService {
       const { userId, organizationId } = options;
 
       const params = new URLSearchParams();
-      if (userId) params.append('userId', userId);
-      if (organizationId) params.append('organizationId', organizationId);
+      if (userId) params.append("userId", userId);
+      if (organizationId) params.append("organizationId", organizationId);
 
       const response = await this.fetchWithRetry(
         `${this.baseURL}/realtime/${applicationId}?${params}`,
         {
-          method: 'GET',
-          headers: this.getHeaders()
-        }
+          method: "GET",
+          headers: this.getHeaders(),
+        },
       );
 
       if (!response.ok) {
-        throw new Error(`Real-time API error: ${response.status} ${response.statusText}`);
+        throw new Error(
+          `Real-time API error: ${response.status} ${response.statusText}`,
+        );
       }
 
       return await response.json();
@@ -112,22 +116,24 @@ class AnalyticsDashboardAPIService {
    */
   async getUserBehaviorAnalytics(applicationId, options = {}) {
     try {
-      const { dateRange = '7d', userId, organizationId } = options;
+      const { dateRange = "7d", userId, organizationId } = options;
 
       const params = new URLSearchParams({ dateRange });
-      if (userId) params.append('userId', userId);
-      if (organizationId) params.append('organizationId', organizationId);
+      if (userId) params.append("userId", userId);
+      if (organizationId) params.append("organizationId", organizationId);
 
       const response = await this.fetchWithRetry(
         `${this.baseURL}/behavior/${applicationId}?${params}`,
         {
-          method: 'GET',
-          headers: this.getHeaders()
-        }
+          method: "GET",
+          headers: this.getHeaders(),
+        },
       );
 
       if (!response.ok) {
-        throw new Error(`User behavior API error: ${response.status} ${response.statusText}`);
+        throw new Error(
+          `User behavior API error: ${response.status} ${response.statusText}`,
+        );
       }
 
       return await response.json();
@@ -142,22 +148,24 @@ class AnalyticsDashboardAPIService {
    */
   async getPerformanceAnalytics(applicationId, options = {}) {
     try {
-      const { dateRange = '7d', userId, organizationId } = options;
+      const { dateRange = "7d", userId, organizationId } = options;
 
       const params = new URLSearchParams({ dateRange });
-      if (userId) params.append('userId', userId);
-      if (organizationId) params.append('organizationId', organizationId);
+      if (userId) params.append("userId", userId);
+      if (organizationId) params.append("organizationId", organizationId);
 
       const response = await this.fetchWithRetry(
         `${this.baseURL}/performance/${applicationId}?${params}`,
         {
-          method: 'GET',
-          headers: this.getHeaders()
-        }
+          method: "GET",
+          headers: this.getHeaders(),
+        },
       );
 
       if (!response.ok) {
-        throw new Error(`Performance API error: ${response.status} ${response.statusText}`);
+        throw new Error(
+          `Performance API error: ${response.status} ${response.statusText}`,
+        );
       }
 
       return await response.json();
@@ -172,22 +180,24 @@ class AnalyticsDashboardAPIService {
    */
   async getSecurityAnalytics(applicationId, options = {}) {
     try {
-      const { dateRange = '7d', userId, organizationId } = options;
+      const { dateRange = "7d", userId, organizationId } = options;
 
       const params = new URLSearchParams({ dateRange });
-      if (userId) params.append('userId', userId);
-      if (organizationId) params.append('organizationId', organizationId);
+      if (userId) params.append("userId", userId);
+      if (organizationId) params.append("organizationId", organizationId);
 
       const response = await this.fetchWithRetry(
         `${this.baseURL}/security/${applicationId}?${params}`,
         {
-          method: 'GET',
-          headers: this.getHeaders()
-        }
+          method: "GET",
+          headers: this.getHeaders(),
+        },
       );
 
       if (!response.ok) {
-        throw new Error(`Security API error: ${response.status} ${response.statusText}`);
+        throw new Error(
+          `Security API error: ${response.status} ${response.statusText}`,
+        );
       }
 
       return await response.json();
@@ -202,22 +212,24 @@ class AnalyticsDashboardAPIService {
    */
   async getEngagementAnalytics(applicationId, options = {}) {
     try {
-      const { dateRange = '7d', userId, organizationId } = options;
+      const { dateRange = "7d", userId, organizationId } = options;
 
       const params = new URLSearchParams({ dateRange });
-      if (userId) params.append('userId', userId);
-      if (organizationId) params.append('organizationId', organizationId);
+      if (userId) params.append("userId", userId);
+      if (organizationId) params.append("organizationId", organizationId);
 
       const response = await this.fetchWithRetry(
         `${this.baseURL}/engagement/${applicationId}?${params}`,
         {
-          method: 'GET',
-          headers: this.getHeaders()
-        }
+          method: "GET",
+          headers: this.getHeaders(),
+        },
       );
 
       if (!response.ok) {
-        throw new Error(`Engagement API error: ${response.status} ${response.statusText}`);
+        throw new Error(
+          `Engagement API error: ${response.status} ${response.statusText}`,
+        );
       }
 
       return await response.json();
@@ -232,22 +244,24 @@ class AnalyticsDashboardAPIService {
    */
   async getFeatureUsageAnalytics(applicationId, options = {}) {
     try {
-      const { dateRange = '7d', userId, organizationId } = options;
+      const { dateRange = "7d", userId, organizationId } = options;
 
       const params = new URLSearchParams({ dateRange });
-      if (userId) params.append('userId', userId);
-      if (organizationId) params.append('organizationId', organizationId);
+      if (userId) params.append("userId", userId);
+      if (organizationId) params.append("organizationId", organizationId);
 
       const response = await this.fetchWithRetry(
         `${this.baseURL}/features/${applicationId}?${params}`,
         {
-          method: 'GET',
-          headers: this.getHeaders()
-        }
+          method: "GET",
+          headers: this.getHeaders(),
+        },
       );
 
       if (!response.ok) {
-        throw new Error(`Feature usage API error: ${response.status} ${response.statusText}`);
+        throw new Error(
+          `Feature usage API error: ${response.status} ${response.statusText}`,
+        );
       }
 
       return await response.json();
@@ -262,22 +276,24 @@ class AnalyticsDashboardAPIService {
    */
   async getErrorTrackingAnalytics(applicationId, options = {}) {
     try {
-      const { dateRange = '7d', userId, organizationId } = options;
+      const { dateRange = "7d", userId, organizationId } = options;
 
       const params = new URLSearchParams({ dateRange });
-      if (userId) params.append('userId', userId);
-      if (organizationId) params.append('organizationId', organizationId);
+      if (userId) params.append("userId", userId);
+      if (organizationId) params.append("organizationId", organizationId);
 
       const response = await this.fetchWithRetry(
         `${this.baseURL}/errors/${applicationId}?${params}`,
         {
-          method: 'GET',
-          headers: this.getHeaders()
-        }
+          method: "GET",
+          headers: this.getHeaders(),
+        },
       );
 
       if (!response.ok) {
-        throw new Error(`Error tracking API error: ${response.status} ${response.statusText}`);
+        throw new Error(
+          `Error tracking API error: ${response.status} ${response.statusText}`,
+        );
       }
 
       return await response.json();
@@ -292,20 +308,19 @@ class AnalyticsDashboardAPIService {
    */
   async trackEvent(eventData) {
     try {
-      const response = await this.fetchWithRetry(
-        `${this.baseURL}/track`,
-        {
-          method: 'POST',
-          headers: {
-            ...this.getHeaders(),
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(eventData)
-        }
-      );
+      const response = await this.fetchWithRetry(`${this.baseURL}/track`, {
+        method: "POST",
+        headers: {
+          ...this.getHeaders(),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(eventData),
+      });
 
       if (!response.ok) {
-        throw new Error(`Track event API error: ${response.status} ${response.statusText}`);
+        throw new Error(
+          `Track event API error: ${response.status} ${response.statusText}`,
+        );
       }
 
       return await response.json();
@@ -323,23 +338,25 @@ class AnalyticsDashboardAPIService {
       const { userId, organizationId } = options;
 
       const params = new URLSearchParams();
-      if (userId) params.append('userId', userId);
-      if (organizationId) params.append('organizationId', organizationId);
+      if (userId) params.append("userId", userId);
+      if (organizationId) params.append("organizationId", organizationId);
 
       const response = await this.fetchWithRetry(
         `${this.baseURL}/realtime/${applicationId}?${params}`,
         {
-          method: 'PUT',
+          method: "PUT",
           headers: {
             ...this.getHeaders(),
-            'Content-Type': 'application/json'
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify(metrics)
-        }
+          body: JSON.stringify(metrics),
+        },
       );
 
       if (!response.ok) {
-        throw new Error(`Update metrics API error: ${response.status} ${response.statusText}`);
+        throw new Error(
+          `Update metrics API error: ${response.status} ${response.statusText}`,
+        );
       }
 
       return await response.json();
@@ -355,33 +372,35 @@ class AnalyticsDashboardAPIService {
   async exportDashboardData(applicationId, options = {}) {
     try {
       const {
-        dateRange = '30d',
-        format = 'json',
+        dateRange = "30d",
+        format = "json",
         userId,
-        organizationId
+        organizationId,
       } = options;
 
       const params = new URLSearchParams({
         dateRange,
-        format
+        format,
       });
 
-      if (userId) params.append('userId', userId);
-      if (organizationId) params.append('organizationId', organizationId);
+      if (userId) params.append("userId", userId);
+      if (organizationId) params.append("organizationId", organizationId);
 
       const response = await this.fetchWithRetry(
         `${this.baseURL}/export/${applicationId}?${params}`,
         {
-          method: 'GET',
-          headers: this.getHeaders()
-        }
+          method: "GET",
+          headers: this.getHeaders(),
+        },
       );
 
       if (!response.ok) {
-        throw new Error(`Export API error: ${response.status} ${response.statusText}`);
+        throw new Error(
+          `Export API error: ${response.status} ${response.statusText}`,
+        );
       }
 
-      if (format === 'csv') {
+      if (format === "csv") {
         return await response.text();
       } else {
         return await response.json();
@@ -397,12 +416,13 @@ class AnalyticsDashboardAPIService {
    */
   async getAvailableApplications() {
     try {
-      const cacheKey = 'available_applications';
+      const cacheKey = "available_applications";
 
       // Check cache first (applications don't change often)
       if (this.cache.has(cacheKey)) {
         const cached = this.cache.get(cacheKey);
-        if (Date.now() - cached.timestamp < this.cacheTimeout * 6) { // Cache for 30 minutes
+        if (Date.now() - cached.timestamp < this.cacheTimeout * 6) {
+          // Cache for 30 minutes
           return cached.data;
         }
       }
@@ -410,13 +430,15 @@ class AnalyticsDashboardAPIService {
       const response = await this.fetchWithRetry(
         `${this.baseURL}/applications`,
         {
-          method: 'GET',
-          headers: this.getHeaders()
-        }
+          method: "GET",
+          headers: this.getHeaders(),
+        },
       );
 
       if (!response.ok) {
-        throw new Error(`Applications API error: ${response.status} ${response.statusText}`);
+        throw new Error(
+          `Applications API error: ${response.status} ${response.statusText}`,
+        );
       }
 
       const result = await response.json();
@@ -424,7 +446,7 @@ class AnalyticsDashboardAPIService {
       // Cache the result
       this.cache.set(cacheKey, {
         data: result,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       });
 
       return result;
@@ -439,7 +461,7 @@ class AnalyticsDashboardAPIService {
    */
   subscribeToRealTimeUpdates(applicationId, callback, options = {}) {
     try {
-      const subscriptionKey = `${applicationId}_${options.userId || 'all'}`;
+      const subscriptionKey = `${applicationId}_${options.userId || "all"}`;
 
       // Store callback for this subscription
       this.realTimeSubscriptions.set(subscriptionKey, callback);
@@ -487,13 +509,14 @@ class AnalyticsDashboardAPIService {
    */
   getHeaders() {
     const headers = {
-      'Accept': 'application/json'
+      Accept: "application/json",
     };
 
     // Add auth token if available
-    const token = typeof localStorage !== "undefined" && localStorage.getItem('authToken');
+    const token =
+      typeof localStorage !== "undefined" && localStorage.getItem("authToken");
     if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
+      headers["Authorization"] = `Bearer ${token}`;
     }
 
     return headers;
@@ -506,7 +529,7 @@ class AnalyticsDashboardAPIService {
     try {
       const response = await fetch(url, {
         ...options,
-        timeout: 10000 // 10 second timeout
+        timeout: 10000, // 10 second timeout
       });
 
       return response;
@@ -526,8 +549,8 @@ class AnalyticsDashboardAPIService {
   isRetryableError(error) {
     // Retry on network errors, timeouts, and 5xx server errors
     return (
-      error.name === 'TypeError' || // Network error
-      error.name === 'TimeoutError' ||
+      error.name === "TypeError" || // Network error
+      error.name === "TimeoutError" ||
       (error.response && error.response.status >= 500)
     );
   }
@@ -538,10 +561,12 @@ class AnalyticsDashboardAPIService {
   handleAPIError(error) {
     if (error.response) {
       // Server responded with error status
-      return new Error(`API Error: ${error.response.status} - ${error.response.statusText}`);
+      return new Error(
+        `API Error: ${error.response.status} - ${error.response.statusText}`,
+      );
     } else if (error.request) {
       // Request made but no response received
-      return new Error('Network Error: No response from server');
+      return new Error("Network Error: No response from server");
     } else {
       // Something else happened
       return new Error(`Request Error: ${error.message}`);
@@ -552,7 +577,7 @@ class AnalyticsDashboardAPIService {
    * Delay utility for retries
    */
   delay(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }
 

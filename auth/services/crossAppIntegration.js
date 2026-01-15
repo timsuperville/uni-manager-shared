@@ -7,7 +7,7 @@
  * @module services/crossAppIntegration
  */
 
-import CrossAppService from './CrossAppService.js';
+import CrossAppService from "./CrossAppService.js";
 
 /**
  * Cross App Integration Service

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
+import React, { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 import {
   MFAService,
   MFA_METHODS,
@@ -8,7 +8,7 @@ import {
   formatPhoneNumber,
   getMFAMethodDisplayName,
   getMFAMethodIcon,
-} from '../services/mfaService.js';
+} from "../services/mfaService.js";
 
 /**
  * MFA Setup Wizard Component
@@ -33,10 +33,10 @@ export function MFASetupWizard({ onComplete, onCancel, apiService }) {
 
   // Form data
   const [formData, setFormData] = useState({
-    phoneNumber: '',
-    email: '',
-    verificationCode: '',
-    verificationId: '',
+    phoneNumber: "",
+    email: "",
+    verificationCode: "",
+    verificationId: "",
   });
 
   // Available MFA methods
@@ -46,21 +46,21 @@ export function MFASetupWizard({ onComplete, onCancel, apiService }) {
       name: getMFAMethodDisplayName(MFA_METHODS.TOTP),
       icon: getMFAMethodIcon(MFA_METHODS.TOTP),
       description:
-        'Use an authenticator app like Google Authenticator or Authy',
+        "Use an authenticator app like Google Authenticator or Authy",
       recommended: true,
     },
     {
       id: MFA_METHODS.SMS,
       name: getMFAMethodDisplayName(MFA_METHODS.SMS),
       icon: getMFAMethodIcon(MFA_METHODS.SMS),
-      description: 'Receive verification codes via text message',
+      description: "Receive verification codes via text message",
       recommended: false,
     },
     {
       id: MFA_METHODS.EMAIL,
       name: getMFAMethodDisplayName(MFA_METHODS.EMAIL),
       icon: getMFAMethodIcon(MFA_METHODS.EMAIL),
-      description: 'Receive verification codes via email',
+      description: "Receive verification codes via email",
       recommended: false,
     },
   ];
@@ -87,7 +87,7 @@ export function MFASetupWizard({ onComplete, onCancel, apiService }) {
         setError(result.error);
       }
     } catch (_err) {
-      setError('Failed to setup authenticator app');
+      setError("Failed to setup authenticator app");
     } finally {
       setLoading(false);
     }
@@ -95,7 +95,7 @@ export function MFASetupWizard({ onComplete, onCancel, apiService }) {
 
   const handleSMSSetup = async () => {
     if (!formData.phoneNumber) {
-      setError('Please enter your phone number');
+      setError("Please enter your phone number");
       return;
     }
 
@@ -119,7 +119,7 @@ export function MFASetupWizard({ onComplete, onCancel, apiService }) {
         setError(result.error);
       }
     } catch (_err) {
-      setError('Failed to setup SMS verification');
+      setError("Failed to setup SMS verification");
     } finally {
       setLoading(false);
     }
@@ -127,7 +127,7 @@ export function MFASetupWizard({ onComplete, onCancel, apiService }) {
 
   const handleEmailSetup = async () => {
     if (!formData.email) {
-      setError('Please enter your email address');
+      setError("Please enter your email address");
       return;
     }
 
@@ -150,7 +150,7 @@ export function MFASetupWizard({ onComplete, onCancel, apiService }) {
         setError(result.error);
       }
     } catch (_err) {
-      setError('Failed to setup email verification');
+      setError("Failed to setup email verification");
     } finally {
       setLoading(false);
     }
@@ -158,7 +158,7 @@ export function MFASetupWizard({ onComplete, onCancel, apiService }) {
 
   const handleVerification = async () => {
     if (!formData.verificationCode) {
-      setError('Please enter the verification code');
+      setError("Please enter the verification code");
       return;
     }
 
@@ -167,14 +167,14 @@ export function MFASetupWizard({ onComplete, onCancel, apiService }) {
       selectedMethod === MFA_METHODS.TOTP &&
       !validateTOTPCode(formData.verificationCode)
     ) {
-      setError('Please enter a valid 6-digit code');
+      setError("Please enter a valid 6-digit code");
       return;
     }
     if (
       selectedMethod === MFA_METHODS.SMS &&
       !validateSMSCode(formData.verificationCode)
     ) {
-      setError('Please enter a valid verification code');
+      setError("Please enter a valid verification code");
       return;
     }
 
@@ -191,17 +191,17 @@ export function MFASetupWizard({ onComplete, onCancel, apiService }) {
         case MFA_METHODS.SMS:
           result = await mfaService.verifySMSSetup(
             formData.verificationId,
-            formData.verificationCode
+            formData.verificationCode,
           );
           break;
         case MFA_METHODS.EMAIL:
           result = await mfaService.verifyEmailSetup(
             formData.verificationId,
-            formData.verificationCode
+            formData.verificationCode,
           );
           break;
         default:
-          throw new Error('Invalid MFA method');
+          throw new Error("Invalid MFA method");
       }
 
       if (result.success) {
@@ -218,7 +218,7 @@ export function MFASetupWizard({ onComplete, onCancel, apiService }) {
         setError(result.error);
       }
     } catch (_err) {
-      setError('Verification failed. Please try again.');
+      setError("Verification failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -237,26 +237,26 @@ export function MFASetupWizard({ onComplete, onCancel, apiService }) {
     switch (currentStep) {
       case 1:
         return (
-          <div className='mfa-method-selection'>
+          <div className="mfa-method-selection">
             <h2>Choose Your Security Method</h2>
             <p>
               Select how you'd like to secure your account with two-factor
               authentication:
             </p>
 
-            <div className='method-options'>
+            <div className="method-options">
               {availableMethods.map((method) => (
                 <button
                   key={method.id}
                   onClick={() => handleMethodSelection(method.id)}
-                  className={`method-option ${method.recommended ? 'recommended' : ''}`}
+                  className={`method-option ${method.recommended ? "recommended" : ""}`}
                   disabled={loading}
                 >
-                  <div className='method-icon'>{method.icon}</div>
-                  <div className='method-info'>
+                  <div className="method-icon">{method.icon}</div>
+                  <div className="method-info">
                     <h3>{method.name}</h3>
                     {method.recommended && (
-                      <span className='recommended-badge'>Recommended</span>
+                      <span className="recommended-badge">Recommended</span>
                     )}
                     <p>{method.description}</p>
                   </div>
@@ -268,29 +268,29 @@ export function MFASetupWizard({ onComplete, onCancel, apiService }) {
 
       case 2:
         return (
-          <div className='mfa-method-setup'>
+          <div className="mfa-method-setup">
             <h2>Setup {getMFAMethodDisplayName(selectedMethod)}</h2>
 
             {selectedMethod === MFA_METHODS.TOTP && (
-              <div className='totp-setup'>
+              <div className="totp-setup">
                 <p>
                   We'll help you set up an authenticator app for secure login.
                 </p>
                 <button
                   onClick={handleTOTPSetup}
                   disabled={loading}
-                  className='setup-button'
+                  className="setup-button"
                 >
-                  {loading ? 'Setting up...' : 'Generate QR Code'}
+                  {loading ? "Setting up..." : "Generate QR Code"}
                 </button>
               </div>
             )}
 
             {selectedMethod === MFA_METHODS.SMS && (
-              <div className='sms-setup'>
+              <div className="sms-setup">
                 <p>Enter your phone number to receive verification codes:</p>
                 <input
-                  type='tel'
+                  type="tel"
                   value={formData.phoneNumber}
                   onChange={(e) =>
                     setFormData((prev) => ({
@@ -298,24 +298,24 @@ export function MFASetupWizard({ onComplete, onCancel, apiService }) {
                       phoneNumber: e.target.value,
                     }))
                   }
-                  placeholder='+1 (555) 123-4567'
-                  className='phone-input'
+                  placeholder="+1 (555) 123-4567"
+                  className="phone-input"
                 />
                 <button
                   onClick={handleSMSSetup}
                   disabled={loading || !formData.phoneNumber}
-                  className='setup-button'
+                  className="setup-button"
                 >
-                  {loading ? 'Sending...' : 'Send Verification Code'}
+                  {loading ? "Sending..." : "Send Verification Code"}
                 </button>
               </div>
             )}
 
             {selectedMethod === MFA_METHODS.EMAIL && (
-              <div className='email-setup'>
+              <div className="email-setup">
                 <p>Enter your email address to receive verification codes:</p>
                 <input
-                  type='email'
+                  type="email"
                   value={formData.email}
                   onChange={(e) =>
                     setFormData((prev) => ({
@@ -323,15 +323,15 @@ export function MFASetupWizard({ onComplete, onCancel, apiService }) {
                       email: e.target.value,
                     }))
                   }
-                  placeholder='your@email.com'
-                  className='email-input'
+                  placeholder="your@email.com"
+                  className="email-input"
                 />
                 <button
                   onClick={handleEmailSetup}
                   disabled={loading || !formData.email}
-                  className='setup-button'
+                  className="setup-button"
                 >
-                  {loading ? 'Sending...' : 'Send Verification Code'}
+                  {loading ? "Sending..." : "Send Verification Code"}
                 </button>
               </div>
             )}
@@ -340,21 +340,21 @@ export function MFASetupWizard({ onComplete, onCancel, apiService }) {
 
       case 3:
         return (
-          <div className='mfa-verification'>
+          <div className="mfa-verification">
             <h2>Verify Your Setup</h2>
 
             {selectedMethod === MFA_METHODS.TOTP && setupData.totp && (
-              <div className='totp-verification'>
+              <div className="totp-verification">
                 <p>Scan this QR code with your authenticator app:</p>
-                <div className='qr-code-container'>
+                <div className="qr-code-container">
                   <img
                     src={setupData.totp.qrCode}
-                    alt='QR Code'
-                    className='qr-code'
+                    alt="QR Code"
+                    className="qr-code"
                   />
                 </div>
                 <p>
-                  Or enter this code manually:{' '}
+                  Or enter this code manually:{" "}
                   <code>{setupData.totp.manualEntryKey}</code>
                 </p>
                 <p>Then enter the 6-digit code from your app:</p>
@@ -363,13 +363,13 @@ export function MFASetupWizard({ onComplete, onCancel, apiService }) {
 
             {(selectedMethod === MFA_METHODS.SMS ||
               selectedMethod === MFA_METHODS.EMAIL) && (
-              <div className='code-verification'>
+              <div className="code-verification">
                 <p>Enter the verification code we sent to you:</p>
               </div>
             )}
 
             <input
-              type='text'
+              type="text"
               value={formData.verificationCode}
               onChange={(e) =>
                 setFormData((prev) => ({
@@ -378,50 +378,50 @@ export function MFASetupWizard({ onComplete, onCancel, apiService }) {
                 }))
               }
               placeholder={
-                selectedMethod === MFA_METHODS.TOTP ? '123456' : 'Enter code'
+                selectedMethod === MFA_METHODS.TOTP ? "123456" : "Enter code"
               }
-              className='verification-input'
+              className="verification-input"
               maxLength={selectedMethod === MFA_METHODS.TOTP ? 6 : 8}
             />
 
             <button
               onClick={handleVerification}
               disabled={loading || !formData.verificationCode}
-              className='verify-button'
+              className="verify-button"
             >
-              {loading ? 'Verifying...' : 'Verify & Enable'}
+              {loading ? "Verifying..." : "Verify & Enable"}
             </button>
           </div>
         );
 
       case 4:
         return (
-          <div className='mfa-success'>
+          <div className="mfa-success">
             <h2>🎉 Success!</h2>
             <p>Two-factor authentication has been enabled for your account.</p>
 
             {setupData.backupCodes && setupData.backupCodes.length > 0 && (
-              <div className='backup-codes'>
+              <div className="backup-codes">
                 <h3>🔐 Backup Codes</h3>
                 <p>
                   Save these backup codes in a safe place. You can use them to
-                  access your account if you lose your{' '}
+                  access your account if you lose your{" "}
                   {getMFAMethodDisplayName(selectedMethod).toLowerCase()}:
                 </p>
-                <div className='codes-list'>
+                <div className="codes-list">
                   {setupData.backupCodes.map((code, index) => (
-                    <code key={index} className='backup-code'>
+                    <code key={index} className="backup-code">
                       {code}
                     </code>
                   ))}
                 </div>
-                <p className='backup-warning'>
+                <p className="backup-warning">
                   ⚠️ These codes can only be used once. Store them securely!
                 </p>
               </div>
             )}
 
-            <button onClick={handleComplete} className='complete-button'>
+            <button onClick={handleComplete} className="complete-button">
               Complete Setup
             </button>
           </div>
@@ -433,13 +433,13 @@ export function MFASetupWizard({ onComplete, onCancel, apiService }) {
   };
 
   return (
-    <div className='mfa-setup-wizard'>
-      <div className='wizard-header'>
-        <div className='step-indicator'>
+    <div className="mfa-setup-wizard">
+      <div className="wizard-header">
+        <div className="step-indicator">
           {[1, 2, 3, 4].map((step) => (
             <div
               key={step}
-              className={`step ${currentStep >= step ? 'active' : ''} ${currentStep > step ? 'completed' : ''}`}
+              className={`step ${currentStep >= step ? "active" : ""} ${currentStep > step ? "completed" : ""}`}
             >
               {step}
             </div>
@@ -447,24 +447,24 @@ export function MFASetupWizard({ onComplete, onCancel, apiService }) {
         </div>
       </div>
 
-      <div className='wizard-content'>
-        {error && <div className='error-message'>{error}</div>}
+      <div className="wizard-content">
+        {error && <div className="error-message">{error}</div>}
 
         {renderStepContent()}
       </div>
 
-      <div className='wizard-footer'>
+      <div className="wizard-footer">
         {currentStep > 1 && currentStep < 4 && (
           <button
             onClick={() => setCurrentStep((prev) => prev - 1)}
-            className='back-button'
+            className="back-button"
             disabled={loading}
           >
             Back
           </button>
         )}
 
-        <button onClick={onCancel} className='cancel-button' disabled={loading}>
+        <button onClick={onCancel} className="cancel-button" disabled={loading}>
           Cancel
         </button>
       </div>

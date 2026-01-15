@@ -10,16 +10,16 @@
 class TokenStorage {
   constructor() {
     this.storageKeys = {
-      accessToken: 'uni_auth_access_token',
-      refreshToken: 'uni_auth_refresh_token',
-      user: 'uni_auth_user_data',
-      sessionId: 'uni_auth_session_id',
+      accessToken: "uni_auth_access_token",
+      refreshToken: "uni_auth_refresh_token",
+      user: "uni_auth_user_data",
+      sessionId: "uni_auth_session_id",
     };
 
     // Use sessionStorage by default for security
-    this.storage = typeof window !== 'undefined' ? window.sessionStorage : null;
+    this.storage = typeof window !== "undefined" ? window.sessionStorage : null;
     this.persistentStorage =
-      typeof window !== 'undefined' ? window.localStorage : null;
+      typeof window !== "undefined" ? window.localStorage : null;
   }
 
   /**
@@ -54,7 +54,7 @@ class TokenStorage {
 
       return true;
     } catch (_error) {
-      if (typeof console !== 'undefined') {
+      if (typeof console !== "undefined") {
         // console.error('Error setting tokens:', error);
       }
       return false;
@@ -73,7 +73,7 @@ class TokenStorage {
         null
       );
     } catch (_error) {
-      if (typeof console !== 'undefined') {
+      if (typeof console !== "undefined") {
         // console.error('Error getting access token:', error);
       }
       return null;
@@ -91,7 +91,7 @@ class TokenStorage {
         null
       );
     } catch (_error) {
-      if (typeof console !== 'undefined') {
+      if (typeof console !== "undefined") {
         // console.error('Error getting refresh token:', error);
       }
       return null;
@@ -109,7 +109,7 @@ class TokenStorage {
 
       return userData ? JSON.parse(userData) : null;
     } catch (_error) {
-      if (typeof console !== 'undefined') {
+      if (typeof console !== "undefined") {
         // console.error('Error getting user data:', error);
       }
       return null;
@@ -127,7 +127,7 @@ class TokenStorage {
         null
       );
     } catch (_error) {
-      if (typeof console !== 'undefined') {
+      if (typeof console !== "undefined") {
         // console.error('Error getting session ID:', error);
       }
       return null;
@@ -147,7 +147,7 @@ class TokenStorage {
 
       return true;
     } catch (_error) {
-      if (typeof console !== 'undefined') {
+      if (typeof console !== "undefined") {
         // console.error('Error clearing tokens:', error);
       }
       return false;
@@ -187,7 +187,7 @@ class TokenStorage {
         isAuthenticated: !!(accessToken && user),
       };
     } catch (_error) {
-      if (typeof console !== 'undefined') {
+      if (typeof console !== "undefined") {
         // console.error('Error getting auth data:', error);
       }
       return {
@@ -218,7 +218,7 @@ class TokenStorage {
 
       return true;
     } catch (_error) {
-      if (typeof console !== 'undefined') {
+      if (typeof console !== "undefined") {
         // console.error('Error updating user data:', error);
       }
       return false;
@@ -275,7 +275,7 @@ export const getTokenExpiryTime = (token = null) => {
   if (!tokenToCheck) return null;
   try {
     // eslint-disable-next-line no-undef
-    const decoded = JSON.parse(atob(tokenToCheck.split('.')[1]));
+    const decoded = JSON.parse(atob(tokenToCheck.split(".")[1]));
     return decoded.exp ? new Date(decoded.exp * 1000) : null;
   } catch {
     return null;

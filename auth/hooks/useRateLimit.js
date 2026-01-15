@@ -7,8 +7,8 @@
 
 /* global fetch, setInterval, clearInterval */
 
-import { useState, useCallback, useEffect } from 'react';
-import securityService from '../services/securityService';
+import { useState, useCallback, useEffect } from "react";
+import securityService from "../services/securityService";
 
 /**
  * Hook for rate limiting functionality
@@ -18,7 +18,7 @@ import securityService from '../services/securityService';
 export const useRateLimit = (options = {}) => {
   const {
     identifier = null, // IP address or user ID
-    action = 'default', // Type of action being rate limited
+    action = "default", // Type of action being rate limited
     maxAttempts = 5,
     windowMs = 60000, // 1 minute
     autoDetectIP = true,
@@ -42,22 +42,22 @@ export const useRateLimit = (options = {}) => {
 
     try {
       // In development, use a default IP
-      if (import.meta.env.MODE === 'development') {
-        const defaultIP = '127.0.0.1';
+      if (import.meta.env.MODE === "development") {
+        const defaultIP = "127.0.0.1";
         setClientIP(defaultIP);
         return defaultIP;
       }
 
       // In production, you would implement actual IP detection
       // This could be done via API call to your backend
-      const response = await fetch('/api/auth/client-ip');
+      const response = await fetch("/api/auth/client-ip");
       const data = await response.json();
-      const detectedIP = data.ip || '127.0.0.1';
+      const detectedIP = data.ip || "127.0.0.1";
       setClientIP(detectedIP);
       return detectedIP;
     } catch (_error) {
       // console.error('Error detecting client IP:', error);
-      const fallbackIP = '127.0.0.1';
+      const fallbackIP = "127.0.0.1";
       setClientIP(fallbackIP);
       return fallbackIP;
     }
@@ -76,7 +76,7 @@ export const useRateLimit = (options = {}) => {
         targetIdentifier,
         action,
         maxAttempts,
-        windowMs
+        windowMs,
       );
 
       setRateLimitStatus(status);
@@ -117,7 +117,7 @@ export const useRateLimit = (options = {}) => {
         return false;
       }
     },
-    [identifier, action, checkRateLimit, detectClientIP]
+    [identifier, action, checkRateLimit, detectClientIP],
   );
 
   /**
@@ -131,7 +131,7 @@ export const useRateLimit = (options = {}) => {
 
         if (!status.allowed) {
           throw new Error(
-            `Rate limit exceeded: ${status.reason}. Try again in ${status.remainingTime} seconds.`
+            `Rate limit exceeded: ${status.reason}. Try again in ${status.remainingTime} seconds.`,
           );
         }
 
@@ -161,7 +161,7 @@ export const useRateLimit = (options = {}) => {
         };
       }
     },
-    [checkRateLimit, recordAttempt, rateLimitStatus]
+    [checkRateLimit, recordAttempt, rateLimitStatus],
   );
 
   /**
@@ -188,7 +188,7 @@ export const useRateLimit = (options = {}) => {
    * Get remaining time in human-readable format
    */
   const getFormattedRemainingTime = useCallback(() => {
-    if (rateLimitStatus.remainingTime <= 0) return '';
+    if (rateLimitStatus.remainingTime <= 0) return "";
 
     const minutes = Math.floor(rateLimitStatus.remainingTime / 60);
     const seconds = rateLimitStatus.remainingTime % 60;
@@ -260,7 +260,7 @@ export const useRateLimit = (options = {}) => {
 export const useLoginRateLimit = (userIdentifier = null) => {
   return useRateLimit({
     identifier: userIdentifier,
-    action: 'login',
+    action: "login",
     maxAttempts: 5,
     windowMs: 15 * 60 * 1000, // 15 minutes
   });
@@ -272,7 +272,7 @@ export const useLoginRateLimit = (userIdentifier = null) => {
 export const useMFARateLimit = (userIdentifier = null) => {
   return useRateLimit({
     identifier: userIdentifier,
-    action: 'mfa',
+    action: "mfa",
     maxAttempts: 3,
     windowMs: 5 * 60 * 1000, // 5 minutes
   });
@@ -281,7 +281,7 @@ export const useMFARateLimit = (userIdentifier = null) => {
 /**
  * Hook specifically for API rate limiting
  */
-export const useAPIRateLimit = (endpoint = 'api') => {
+export const useAPIRateLimit = (endpoint = "api") => {
   return useRateLimit({
     action: endpoint,
     maxAttempts: 60,
@@ -295,11 +295,10 @@ export const useAPIRateLimit = (endpoint = 'api') => {
 export const usePasswordResetRateLimit = (userIdentifier = null) => {
   return useRateLimit({
     identifier: userIdentifier,
-    action: 'password_reset',
+    action: "password_reset",
     maxAttempts: 3,
     windowMs: 60 * 60 * 1000, // 1 hour
   });
 };
 
 export default useRateLimit;
-

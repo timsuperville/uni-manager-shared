@@ -27,19 +27,21 @@
 export function extractRoutes(routes) {
   const paths = new Set();
 
-  function traverse(routeArray, basePath = '') {
-    routeArray.forEach(route => {
+  function traverse(routeArray, basePath = "") {
+    routeArray.forEach((route) => {
       if (route.path) {
-        const fullPath = `${basePath}${route.path}`.replace(/\/+/g, '/');
+        const fullPath = `${basePath}${route.path}`.replace(/\/+/g, "/");
         paths.add(fullPath);
 
         // Handle path parameters (e.g., /user/:id)
-        const paramPattern = fullPath.replace(/:\w+/g, '[^/]+');
+        const paramPattern = fullPath.replace(/:\w+/g, "[^/]+");
         paths.add(paramPattern);
       }
 
       if (route.children) {
-        const childBasePath = route.path ? `${basePath}${route.path}` : basePath;
+        const childBasePath = route.path
+          ? `${basePath}${route.path}`
+          : basePath;
         traverse(route.children, childBasePath);
       }
     });
@@ -63,7 +65,7 @@ export function isValidPath(path, validRoutes) {
 
   // Check against patterns (for parameterized routes)
   for (const route of validRoutes) {
-    if (route.includes('[^/]+')) {
+    if (route.includes("[^/]+")) {
       const pattern = new RegExp(`^${route}$`);
       if (pattern.test(path)) {
         return true;
@@ -72,12 +74,12 @@ export function isValidPath(path, validRoutes) {
   }
 
   // External links are valid
-  if (path.startsWith('http://') || path.startsWith('https://')) {
+  if (path.startsWith("http://") || path.startsWith("https://")) {
     return true;
   }
 
   // Hash links are valid
-  if (path.startsWith('#')) {
+  if (path.startsWith("#")) {
     return true;
   }
 
@@ -91,13 +93,13 @@ export function isValidPath(path, validRoutes) {
  */
 export function findLinks(container) {
   const links = [];
-  const anchorElements = container.querySelectorAll('a[href]');
+  const anchorElements = container.querySelectorAll("a[href]");
 
-  anchorElements.forEach(element => {
+  anchorElements.forEach((element) => {
     links.push({
-      href: element.getAttribute('href'),
+      href: element.getAttribute("href"),
       text: element.textContent,
-      element
+      element,
     });
   });
 
@@ -119,20 +121,20 @@ export function validateLinks(container, routes) {
     validLinks: [],
     brokenLinks: [],
     externalLinks: [],
-    hashLinks: []
+    hashLinks: [],
   };
 
-  links.forEach(link => {
+  links.forEach((link) => {
     const { href, text, element } = link;
 
     // Skip empty hrefs
-    if (!href || href === '#') {
+    if (!href || href === "#") {
       result.hashLinks.push({ href, text, element });
       return;
     }
 
     // Categorize external links
-    if (href.startsWith('http://') || href.startsWith('https://')) {
+    if (href.startsWith("http://") || href.startsWith("https://")) {
       result.externalLinks.push({ href, text, element });
       return;
     }
@@ -154,9 +156,10 @@ export function validateLinks(container, routes) {
  * @returns {string} Formatted report
  */
 export function generateReport(validationResult) {
-  const { totalLinks, validLinks, brokenLinks, externalLinks, hashLinks } = validationResult;
+  const { totalLinks, validLinks, brokenLinks, externalLinks, hashLinks } =
+    validationResult;
 
-  let report = '=== Link Validation Report ===\n\n';
+  let report = "=== Link Validation Report ===\n\n";
   report += `Total Links: ${totalLinks}\n`;
   report += `✅ Valid Links: ${validLinks.length}\n`;
   report += `❌ Broken Links: ${brokenLinks.length}\n`;
@@ -164,15 +167,15 @@ export function generateReport(validationResult) {
   report += `🔗 Hash Links: ${hashLinks.length}\n\n`;
 
   if (brokenLinks.length > 0) {
-    report += '=== Broken Links ===\n';
+    report += "=== Broken Links ===\n";
     brokenLinks.forEach(({ href, text }) => {
       report += `❌ ${href} (Text: "${text}")\n`;
     });
-    report += '\n';
+    report += "\n";
   }
 
   if (externalLinks.length > 0) {
-    report += '=== External Links (Manual Verification Recommended) ===\n';
+    report += "=== External Links (Manual Verification Recommended) ===\n";
     externalLinks.forEach(({ href, text }) => {
       report += `🌐 ${href} (Text: "${text}")\n`;
     });
@@ -192,7 +195,8 @@ export function toHaveValidLinks(container, routes) {
   const pass = result.brokenLinks.length === 0;
 
   const message = pass
-    ? () => `Expected to have broken links, but all ${result.totalLinks} links are valid`
+    ? () =>
+        `Expected to have broken links, but all ${result.totalLinks} links are valid`
     : () => {
         const report = generateReport(result);
         return `Expected all links to be valid, but found ${result.brokenLinks.length} broken links:\n\n${report}`;
@@ -200,7 +204,7 @@ export function toHaveValidLinks(container, routes) {
 
   return {
     pass,
-    message
+    message,
   };
 }
 
@@ -211,5 +215,5 @@ export default {
   findLinks,
   validateLinks,
   generateReport,
-  toHaveValidLinks
+  toHaveValidLinks,
 };
