@@ -21,7 +21,7 @@ import {
   ValidationSchema,
   PaginationParams,
   PaginatedResponse,
-} from './BaseService';
+} from "./BaseService";
 import {
   Notification,
   CreateNotificationRequest,
@@ -33,12 +33,12 @@ import {
   BulkNotificationRequest,
   NotificationStats,
   PushSubscription,
-} from '../types';
-import { ApiClient } from '../core/ApiClient';
+} from "../types";
+import { ApiClient } from "../core/ApiClient";
 
 export class NotificationService extends BaseService {
   constructor(client: ApiClient) {
-    super(client, '/notifications', 'NotificationService');
+    super(client, "/notifications", "NotificationService");
   }
 
   // ===============================================
@@ -48,7 +48,7 @@ export class NotificationService extends BaseService {
   private static readonly SCHEMAS = {
     notificationId: {
       notificationId: {
-        type: 'string' as const,
+        type: "string" as const,
         required: true,
         minLength: 1,
       },
@@ -56,53 +56,53 @@ export class NotificationService extends BaseService {
 
     createNotification: {
       title: {
-        type: 'string' as const,
+        type: "string" as const,
         required: true,
         minLength: 1,
         maxLength: 255,
       },
       message: {
-        type: 'string' as const,
+        type: "string" as const,
         required: true,
         minLength: 1,
         maxLength: 1000,
       },
       type: {
-        type: 'string' as const,
+        type: "string" as const,
         required: true,
         validator: (value: string) =>
-          ['info', 'success', 'warning', 'error', 'announcement'].includes(
+          ["info", "success", "warning", "error", "announcement"].includes(
             value,
-          ) || 'Invalid notification type',
+          ) || "Invalid notification type",
       },
-      recipients: { type: 'array' as const, required: true },
-      scheduledFor: { type: 'string' as const },
-      templateId: { type: 'string' as const },
+      recipients: { type: "array" as const, required: true },
+      scheduledFor: { type: "string" as const },
+      templateId: { type: "string" as const },
     },
 
     updateNotification: {
       title: {
-        type: 'string' as const,
+        type: "string" as const,
         minLength: 1,
         maxLength: 255,
       },
       message: {
-        type: 'string' as const,
+        type: "string" as const,
         minLength: 1,
         maxLength: 1000,
       },
       status: {
-        type: 'string' as const,
+        type: "string" as const,
         validator: (value: string) =>
-          ['draft', 'scheduled', 'sent', 'cancelled'].includes(value) ||
-          'Invalid notification status',
+          ["draft", "scheduled", "sent", "cancelled"].includes(value) ||
+          "Invalid notification status",
       },
-      scheduledFor: { type: 'string' as const },
+      scheduledFor: { type: "string" as const },
     },
 
     templateId: {
       templateId: {
-        type: 'string' as const,
+        type: "string" as const,
         required: true,
         minLength: 1,
       },
@@ -110,65 +110,65 @@ export class NotificationService extends BaseService {
 
     createTemplate: {
       name: {
-        type: 'string' as const,
+        type: "string" as const,
         required: true,
         minLength: 1,
         maxLength: 255,
       },
       subject: {
-        type: 'string' as const,
+        type: "string" as const,
         required: true,
         minLength: 1,
         maxLength: 255,
       },
       bodyTemplate: {
-        type: 'string' as const,
+        type: "string" as const,
         required: true,
         minLength: 1,
       },
       type: {
-        type: 'string' as const,
+        type: "string" as const,
         required: true,
         validator: (value: string) =>
-          ['email', 'push', 'sms', 'in-app'].includes(value) ||
-          'Invalid template type',
+          ["email", "push", "sms", "in-app"].includes(value) ||
+          "Invalid template type",
       },
     },
 
     updateTemplate: {
       name: {
-        type: 'string' as const,
+        type: "string" as const,
         minLength: 1,
         maxLength: 255,
       },
       subject: {
-        type: 'string' as const,
+        type: "string" as const,
         minLength: 1,
         maxLength: 255,
       },
       bodyTemplate: {
-        type: 'string' as const,
+        type: "string" as const,
         minLength: 1,
       },
-      isActive: { type: 'boolean' as const },
+      isActive: { type: "boolean" as const },
     },
 
     bulkNotification: {
       notifications: {
-        type: 'array' as const,
+        type: "array" as const,
         required: true,
         validator: (value: any[]) =>
-          value.length > 0 || 'At least one notification is required',
+          value.length > 0 || "At least one notification is required",
       },
-      templateId: { type: 'string' as const },
-      scheduledFor: { type: 'string' as const },
+      templateId: { type: "string" as const },
+      scheduledFor: { type: "string" as const },
     },
 
     preferences: {
-      emailNotifications: { type: 'boolean' as const },
-      pushNotifications: { type: 'boolean' as const },
-      smsNotifications: { type: 'boolean' as const },
-      inAppNotifications: { type: 'boolean' as const },
+      emailNotifications: { type: "boolean" as const },
+      pushNotifications: { type: "boolean" as const },
+      smsNotifications: { type: "boolean" as const },
+      inAppNotifications: { type: "boolean" as const },
     },
   } as const;
 
@@ -248,7 +248,7 @@ export class NotificationService extends BaseService {
       sent: boolean;
       sentCount: number;
       failedCount: number;
-    }>(this.buildIdEndpoint(notificationId, '/send'), {});
+    }>(this.buildIdEndpoint(notificationId, "/send"), {});
   }
 
   /**
@@ -261,7 +261,7 @@ export class NotificationService extends BaseService {
     this.validateRequest({ notificationId }, schema);
 
     return this.post<{ success: boolean }>(
-      this.buildIdEndpoint(notificationId, '/cancel'),
+      this.buildIdEndpoint(notificationId, "/cancel"),
       {},
     );
   }
@@ -271,7 +271,7 @@ export class NotificationService extends BaseService {
    */
   async getUserNotifications(
     filters: {
-      status?: 'read' | 'unread' | 'archived';
+      status?: "read" | "unread" | "archived";
       type?: string;
       dateFrom?: string;
       dateTo?: string;
@@ -304,7 +304,7 @@ export class NotificationService extends BaseService {
     const queryString =
       Object.keys(allParams).length > 0
         ? new URLSearchParams(allParams).toString()
-        : '';
+        : "";
 
     const endpoint = queryString
       ? `${this.baseEndpoint}/user?${queryString}`
@@ -321,7 +321,7 @@ export class NotificationService extends BaseService {
     this.validateRequest({ notificationId }, schema);
 
     return this.post<{ success: boolean }>(
-      this.buildIdEndpoint(notificationId, '/read'),
+      this.buildIdEndpoint(notificationId, "/read"),
       {},
     );
   }
@@ -336,7 +336,7 @@ export class NotificationService extends BaseService {
     return this.post<{
       successful: string[];
       failed: string[];
-    }>(this.baseEndpoint + '/mark-read', { notificationIds });
+    }>(this.baseEndpoint + "/mark-read", { notificationIds });
   }
 
   /**
@@ -349,7 +349,7 @@ export class NotificationService extends BaseService {
     this.validateRequest({ notificationId }, schema);
 
     return this.post<{ success: boolean }>(
-      this.buildIdEndpoint(notificationId, '/archive'),
+      this.buildIdEndpoint(notificationId, "/archive"),
       {},
     );
   }
@@ -368,7 +368,7 @@ export class NotificationService extends BaseService {
     this.validateRequest(templateData, schema);
 
     return this.post<NotificationTemplate>(
-      this.baseEndpoint + '/templates',
+      this.baseEndpoint + "/templates",
       templateData,
     );
   }
@@ -381,7 +381,7 @@ export class NotificationService extends BaseService {
     this.validateRequest({ templateId }, schema);
 
     return this.get<NotificationTemplate>(
-      this.buildIdEndpoint(templateId, '/templates'),
+      this.buildIdEndpoint(templateId, "/templates"),
     );
   }
 
@@ -400,7 +400,7 @@ export class NotificationService extends BaseService {
     this.validateRequest(updates, updateSchema);
 
     return this.patch<NotificationTemplate>(
-      this.buildIdEndpoint(templateId, '/templates'),
+      this.buildIdEndpoint(templateId, "/templates"),
       updates,
     );
   }
@@ -413,7 +413,7 @@ export class NotificationService extends BaseService {
     this.validateRequest({ templateId }, schema);
 
     return this.delete<{ success: boolean }>(
-      this.buildIdEndpoint(templateId, '/templates'),
+      this.buildIdEndpoint(templateId, "/templates"),
     );
   }
 
@@ -433,7 +433,7 @@ export class NotificationService extends BaseService {
       queryParams.type = filters.type;
     }
 
-    if (filters.isActive !=== undefined) {
+    if (filters.isActive !== undefined) {
       queryParams.isActive = String(filters.isActive);
     }
 
@@ -444,7 +444,7 @@ export class NotificationService extends BaseService {
     const queryString =
       Object.keys(allParams).length > 0
         ? new URLSearchParams(allParams).toString()
-        : '';
+        : "";
 
     const endpoint = queryString
       ? `${this.baseEndpoint}/templates?${queryString}`
@@ -471,7 +471,7 @@ export class NotificationService extends BaseService {
       subject: string;
       body: string;
       htmlBody?: string;
-    }>(this.buildIdEndpoint(templateId, '/templates/preview'), { data });
+    }>(this.buildIdEndpoint(templateId, "/templates/preview"), { data });
   }
 
   // ===============================================
@@ -494,7 +494,7 @@ export class NotificationService extends BaseService {
       jobId: string;
       totalNotifications: number;
       estimatedCompletion: string;
-    }>(this.baseEndpoint + '/bulk', bulkRequest);
+    }>(this.baseEndpoint + "/bulk", bulkRequest);
   }
 
   /**
@@ -502,7 +502,7 @@ export class NotificationService extends BaseService {
    */
   async getBulkOperationStatus(jobId: string): Promise<{
     id: string;
-    status: 'pending' | 'processing' | 'completed' | 'failed';
+    status: "pending" | "processing" | "completed" | "failed";
     progress: {
       total: number;
       completed: number;
@@ -515,7 +515,7 @@ export class NotificationService extends BaseService {
   }> {
     return this.get<{
       id: string;
-      status: 'pending' | 'processing' | 'completed' | 'failed';
+      status: "pending" | "processing" | "completed" | "failed";
       progress: {
         total: number;
         completed: number;
@@ -537,7 +537,7 @@ export class NotificationService extends BaseService {
    */
   async getUserPreferences(): Promise<NotificationPreferences> {
     return this.get<NotificationPreferences>(
-      this.baseEndpoint + '/preferences',
+      this.baseEndpoint + "/preferences",
     );
   }
 
@@ -551,7 +551,7 @@ export class NotificationService extends BaseService {
     this.validateRequest(preferences, schema);
 
     return this.patch<NotificationPreferences>(
-      this.baseEndpoint + '/preferences',
+      this.baseEndpoint + "/preferences",
       preferences,
     );
   }
@@ -563,7 +563,7 @@ export class NotificationService extends BaseService {
     subscription: PushSubscription,
   ): Promise<{ success: boolean }> {
     return this.post<{ success: boolean }>(
-      this.baseEndpoint + '/push/subscribe',
+      this.baseEndpoint + "/push/subscribe",
       subscription,
     );
   }
@@ -573,7 +573,7 @@ export class NotificationService extends BaseService {
    */
   async unsubscribeFromPush(endpoint: string): Promise<{ success: boolean }> {
     return this.post<{ success: boolean }>(
-      this.baseEndpoint + '/push/unsubscribe',
+      this.baseEndpoint + "/push/unsubscribe",
       { endpoint },
     );
   }
@@ -609,7 +609,7 @@ export class NotificationService extends BaseService {
     const queryString =
       Object.keys(queryParams).length > 0
         ? new URLSearchParams(queryParams).toString()
-        : '';
+        : "";
 
     const endpoint = queryString
       ? `${this.baseEndpoint}/stats?${queryString}`
@@ -649,7 +649,7 @@ export class NotificationService extends BaseService {
         reason: string;
         timestamp: string;
       }>;
-    }>(this.buildIdEndpoint(notificationId, '/delivery-report'));
+    }>(this.buildIdEndpoint(notificationId, "/delivery-report"));
   }
 
   // ===============================================
@@ -660,14 +660,14 @@ export class NotificationService extends BaseService {
    * Get unread notification count
    */
   async getUnreadCount(): Promise<{ count: number }> {
-    return this.get<{ count: number }>(this.baseEndpoint + '/unread-count');
+    return this.get<{ count: number }>(this.baseEndpoint + "/unread-count");
   }
 
   /**
    * Test notification delivery
    */
   async testNotification(
-    type: 'email' | 'push' | 'sms',
+    type: "email" | "push" | "sms",
     recipient: string,
     message: string,
   ): Promise<{
@@ -679,7 +679,7 @@ export class NotificationService extends BaseService {
       sent: boolean;
       deliveryTime: number;
       error?: string;
-    }>(this.baseEndpoint + '/test', {
+    }>(this.baseEndpoint + "/test", {
       type,
       recipient,
       message,
@@ -697,7 +697,7 @@ export class NotificationService extends BaseService {
     const queryString =
       Object.keys(paginationParams).length > 0
         ? new URLSearchParams(paginationParams).toString()
-        : '';
+        : "";
 
     const endpoint = queryString
       ? `${this.baseEndpoint}/users/${userId}/history?${queryString}`

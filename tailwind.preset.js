@@ -2,6 +2,7 @@ import { colors, typography } from "./theme/index.js";
 
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: "class",
   theme: {
     extend: {
       colors: {
@@ -64,6 +65,23 @@ export default {
   },
   plugins: [],
   safelist: [
+    // Layout and Auth Structure
+    "min-h-screen",
+    "flex",
+    "flex-col",
+    "justify-center",
+    "items-center",
+    "w-full",
+    "max-w-md",
+    "sm:mx-auto",
+    "sm:w-full",
+    "sm:max-w-md",
+    "sm:rounded-lg",
+    "sm:px-10",
+    "py-12",
+    "sm:px-6",
+    "lg:px-8",
+
     // Auth component color classes
     "bg-amber-600",
     "hover:bg-amber-700",
