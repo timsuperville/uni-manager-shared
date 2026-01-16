@@ -204,9 +204,11 @@ describe("AppSwitcher", () => {
       const adminOption = screen.getByText("Administration");
       await user.click(adminOption);
 
-      expect(
-        screen.getByText("Switching to Administration..."),
-      ).toBeInTheDocument();
+      await waitFor(() => {
+        expect(
+          screen.getByText("Switching to Administration..."),
+        ).toBeInTheDocument();
+      });
     });
 
     it("should disable buttons during switching", async () => {
