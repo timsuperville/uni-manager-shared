@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, waitFor } from "@testing-library/react";
+import { render, waitFor, act } from "@testing-library/react";
 import { AuthProvider, useAuth } from "../context/AuthContext";
 import React from "react";
 
@@ -104,7 +104,9 @@ describe("AuthContext - switchChurch", () => {
     });
 
     // Call switchChurch
-    const result = await authContext.switchChurch("church2");
+    const result = await act(async () => {
+      return await authContext.switchChurch("church2");
+    });
 
     expect(mockAuthService.switchChurch).toHaveBeenCalledWith("church2");
     expect(result.success).toBe(true);
@@ -148,7 +150,10 @@ describe("AuthContext - switchChurch", () => {
     });
 
     // Start switch (don't await)
-    const switchCall = authContext.switchChurch("church2");
+    let switchCall;
+    act(() => {
+      switchCall = authContext.switchChurch("church2");
+    });
 
     // Verify loading state
     await waitFor(() => {
@@ -189,9 +194,11 @@ describe("AuthContext - switchChurch", () => {
     });
 
     // Call switchChurch and expect error
-    await expect(authContext.switchChurch("church2")).rejects.toThrow(
-      "Not a member of this church",
-    );
+    await act(async () => {
+      await expect(authContext.switchChurch("church2")).rejects.toThrow(
+        "Not a member of this church",
+      );
+    });
 
     // Verify error state
     await waitFor(() => {
@@ -238,7 +245,9 @@ describe("AuthContext - switchChurch", () => {
     });
 
     // Call switchChurch
-    await authContext.switchChurch("church2");
+    await act(async () => {
+      await authContext.switchChurch("church2");
+    });
 
     // Verify callback was called with updated user
     await waitFor(() => {
@@ -275,7 +284,9 @@ describe("AuthContext - switchChurch", () => {
     });
 
     // Switch to current church
-    const result = await authContext.switchChurch("church1");
+    const result = await act(async () => {
+      return await authContext.switchChurch("church1");
+    });
 
     expect(mockAuthService.switchChurch).toHaveBeenCalledWith("church1");
     expect(result.noChange).toBe(true);
