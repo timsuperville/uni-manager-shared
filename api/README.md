@@ -70,9 +70,7 @@ const MyComponent: React.FC = () => {
   const { user, login, logout } = useAuth();
   const { getChurches, createChurch } = useChurch();
 
-  const { data: churches, isLoading } = useApiQuery("churches-list", () =>
-    getChurches(),
-  );
+  const { data: churches, isLoading } = useApiQuery("churches-list", () => getChurches());
 
   return <div>{/* Your component JSX */}</div>;
 };
@@ -150,10 +148,7 @@ const cacheManager = new CacheManager({
 Provides API services to your React application tree.
 
 ```tsx
-<ApiProvider
-  config={apiConfig}
-  onError={(error) => console.error("API Error:", error)}
->
+<ApiProvider config={apiConfig} onError={(error) => console.error("API Error:", error)}>
   <App />
 </ApiProvider>
 ```
@@ -182,11 +177,7 @@ const { user, isAuthenticated, isLoading, login, logout, signup } = useAuth();
 Data fetching with loading states and caching.
 
 ```typescript
-const { data, isLoading, error, refetch } = useApiQuery(
-  "unique-key",
-  () => api.church.getChurches(),
-  { cacheTime: 300000 },
-);
+const { data, isLoading, error, refetch } = useApiQuery("unique-key", () => api.church.getChurches(), { cacheTime: 300000 });
 ```
 
 #### useApiMutation
@@ -194,13 +185,10 @@ const { data, isLoading, error, refetch } = useApiQuery(
 Data mutations with loading states and callbacks.
 
 ```typescript
-const { mutate, isLoading, error } = useApiMutation(
-  (churchData) => api.church.createChurch(churchData),
-  {
-    onSuccess: (data) => console.log("Created:", data),
-    onError: (error) => console.error("Failed:", error),
-  },
-);
+const { mutate, isLoading, error } = useApiMutation((churchData) => api.church.createChurch(churchData), {
+  onSuccess: (data) => console.log("Created:", data),
+  onError: (error) => console.error("Failed:", error),
+});
 ```
 
 ## Services
@@ -459,11 +447,7 @@ useEffect(() => {
 #### After (useApiQuery)
 
 ```typescript
-const {
-  data: churches,
-  isLoading: loading,
-  error,
-} = useApiQuery("churches", () => api.church.getChurches());
+const { data: churches, isLoading: loading, error } = useApiQuery("churches", () => api.church.getChurches());
 ```
 
 ## Best Practices
@@ -489,15 +473,12 @@ return <DataDisplay data={data} />;
 ### 3. Implement Optimistic Updates
 
 ```typescript
-const { mutate } = useApiMutation(
-  (updates) => api.church.updateChurch(churchId, updates),
-  {
-    onSuccess: () => {
-      // Invalidate and refetch
-      queryClient.invalidateQueries(["church", churchId]);
-    },
+const { mutate } = useApiMutation((updates) => api.church.updateChurch(churchId, updates), {
+  onSuccess: () => {
+    // Invalidate and refetch
+    queryClient.invalidateQueries(["church", churchId]);
   },
-);
+});
 ```
 
 ### 4. Use TypeScript Types

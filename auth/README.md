@@ -116,13 +116,7 @@ function LoginPage() {
     toast.error("Please check your credentials");
   };
 
-  return (
-    <UniversalLoginForm
-      appType="business"
-      onSuccess={handleSuccess}
-      onError={handleError}
-    />
-  );
+  return <UniversalLoginForm appType="business" onSuccess={handleSuccess} onError={handleError} />;
 }
 ```
 
@@ -130,17 +124,7 @@ function LoginPage() {
 
 ```jsx
 function CustomLoginPage() {
-  return (
-    <UniversalLoginForm
-      appType="default"
-      appTitle="My Custom App"
-      appDescription="Welcome to our special portal"
-      theme="dark"
-      redirectPath="/custom-dashboard"
-      showRememberMe={false}
-      showRegistration={true}
-    />
-  );
+  return <UniversalLoginForm appType="default" appTitle="My Custom App" appDescription="Welcome to our special portal" theme="dark" redirectPath="/custom-dashboard" showRememberMe={false} showRegistration={true} />;
 }
 ```
 
@@ -203,11 +187,7 @@ npm test -- --coverage UniversalLoginForm.test.jsx
 Full TypeScript interfaces are available:
 
 ```typescript
-import type {
-  LoginFormProps,
-  LoginResult,
-  User,
-} from "@shared/auth/types/auth.types";
+import type { LoginFormProps, LoginResult, User } from "@shared/auth/types/auth.types";
 
 const handleSuccess = (result: LoginResult) => {
   console.log("Logged in user:", result.user);
