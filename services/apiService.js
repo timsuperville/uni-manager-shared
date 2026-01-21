@@ -1,4 +1,5 @@
 // Shared API Service for Uni-Manager applications
+/* global window, fetch, console, URLSearchParams */
 import {
   getApiBaseUrl,
   getSharedEnvironmentConfig,
@@ -16,8 +17,21 @@ class ApiService {
   // Generic request method
   async request(endpoint, options = {}) {
     const url = `${this.baseURL}${endpoint}`;
+    // Auto-inject auth token if available
+    let token = null;
+    if (typeof window !== "undefined") {
+      token =
+        window.sessionStorage?.getItem("uni_auth_access_token") ||
+        window.localStorage?.getItem("uni_auth_access_token");
+    }
+
+    const headers = { ...this.defaultHeaders, ...options.headers };
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
     const config = {
-      headers: { ...this.defaultHeaders, ...options.headers },
+      headers,
       ...options,
     };
 
@@ -81,7 +95,7 @@ class ApiService {
         `${this.baseURL.replace("/api", "")}/health`,
       );
       return await response.json();
-    } catch (_error) {
+    } catch (error) {
       // console.error('Health check failed:', error);
       return { status: "error", message: error.message };
     }

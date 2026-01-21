@@ -60,7 +60,7 @@ const UserMenu = ({
   const initials =
     user.firstName && user.lastName
       ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase()
-      : user.email[0].toUpperCase();
+      : (user.email?.[0] || "U").toUpperCase();
 
   return (
     <div className={`relative ${className}`} ref={menuRef}>

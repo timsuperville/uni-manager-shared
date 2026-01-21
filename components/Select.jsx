@@ -52,6 +52,7 @@ const Select = ({
   required = false,
   clearable = false,
   loading = false,
+  onSearchChange,
   ...props
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -80,71 +81,31 @@ const Select = ({
     }
   }, [isOpen, searchable]);
 
-  const filteredOptions = searchable
-    ? options.filter((option) =>
-        option.label.toLowerCase().includes(searchTerm.toLowerCase()),
-      )
-    : options;
-
-  const getSelectedOption = () => {
-    if (multiple) {
-      return options.filter((option) => value?.includes(option.value));
-    }
-    return options.find((option) => option.value === value);
+  // Handle search changes
+  const handleSearchChange = (e) => {
+    const term = e.target.value;
+    setSearchTerm(term);
+    onSearchChange?.(term);
   };
+
+  const filteredOptions =
+    searchable && !onSearchChange
+      ? options.filter((option) =>
+          option.label.toLowerCase().includes(searchTerm.toLowerCase()),
+        )
+      : options;
 
   const handleOptionClick = (option) => {
     if (multiple) {
       const newValue = value?.includes(option.value)
         ? value.filter((v) => v !== option.value)
         : [...(value || []), option.value];
-      onChange?.(newValue);
+      onChange(newValue);
     } else {
-      onChange?.(option.value);
+      onChange(option.value);
       setIsOpen(false);
-      setSearchTerm("");
     }
   };
-
-  const handleClear = (e) => {
-    e.stopPropagation();
-    onChange?.(multiple ? [] : "");
-  };
-
-  const getSizeClasses = () => {
-    const sizes = {
-      small: "px-3 py-1.5 text-sm",
-      medium: "px-3 py-2 text-sm",
-      large: "px-4 py-3 text-base",
-    };
-    return sizes[size] || sizes.medium;
-  };
-
-  const getVariantClasses = () => {
-    const variants = {
-      default: "border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700",
-      outlined:
-        "border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700",
-      filled: "border-transparent bg-gray-100 dark:bg-gray-800",
-    };
-    return variants[variant] || variants.default;
-  };
-
-  const selectedOption = getSelectedOption();
-  const hasValue = multiple
-    ? value?.length > 0
-    : value !== undefined && value !== "";
-
-  const buttonClasses = `
-    relative w-full cursor-pointer rounded-md border
-    ${getSizeClasses()}
-    ${getVariantClasses()}
-    ${error ? "border-red-500 ring-red-500" : "focus:ring-blue-500 focus:border-blue-500"}
-    ${disabled ? "cursor-not-allowed opacity-50" : "hover:border-gray-400 dark:hover:border-gray-500"}
-    text-left focus:outline-none focus:ring-2 focus:ring-offset-2
-    transition-colors duration-200
-    ${className}
-  `.trim();
 
   const dropdownClasses = `
     absolute z-10 mt-1 w-full bg-white dark:bg-gray-700 shadow-lg rounded-md border
@@ -155,86 +116,31 @@ const Select = ({
 
   return (
     <div ref={selectRef} className="relative">
-      {/* Select Button */}
       <button
         type="button"
-        className={buttonClasses}
+        className={`
+          relative w-full bg-white dark:bg-gray-700 border rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 sm:text-sm
+          ${error ? "border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500" : "border-gray-300 dark:border-gray-600 dark:text-gray-100"}
+          ${disabled ? "bg-gray-100 text-gray-500 cursor-not-allowed dark:bg-gray-800 dark:text-gray-500" : ""}
+          ${className}
+        `}
         onClick={() => !disabled && setIsOpen(!isOpen)}
-        disabled={disabled}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
-        {...props}
+        aria-labelledby="listbox-label"
+        disabled={disabled}
       >
-        <span className="flex items-center justify-between">
-          <span className="block truncate">
-            {multiple && selectedOption?.length > 0 ? (
-              <span className="flex flex-wrap gap-1">
-                {selectedOption.map((opt) => (
-                  <span
-                    key={opt.value}
-                    className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200"
-                  >
-                    {opt.label}
-                  </span>
-                ))}
-              </span>
-            ) : selectedOption ? (
-              selectedOption.label || selectedOption.label
-            ) : (
-              <span className="text-gray-500 dark:text-gray-400">
-                {placeholder}
-              </span>
-            )}
-          </span>
-
-          <span className="flex items-center ml-2">
-            {loading && (
-              <svg
-                className="animate-spin h-4 w-4 text-gray-400 mr-2"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                />
-              </svg>
-            )}
-
-            {clearable && hasValue && !disabled && (
-              <button
-                type="button"
-                onClick={handleClear}
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 mr-2"
-                aria-label="Clear selection"
-              >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-            )}
-
-            <ChevronDownIcon />
-          </span>
+        <span className="block truncate">
+          {multiple
+            ? value && value.length > 0
+              ? `${value.length} selected`
+              : placeholder
+            : value
+              ? options.find((o) => o.value === value)?.label || value
+              : placeholder}
+        </span>
+        <span className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+          <ChevronDownIcon />
         </span>
       </button>
 
@@ -248,7 +154,7 @@ const Select = ({
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
               placeholder="Search options..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={handleSearchChange}
             />
           </div>
         )}
@@ -317,7 +223,7 @@ const Select = ({
         {multiple ? (
           value?.map((val) => <option key={val} value={val} selected />)
         ) : (
-          <option value={value || ""} selected />
+          <option value={value || ""}>{placeholder}</option>
         )}
       </select>
     </div>
@@ -340,6 +246,7 @@ Select.propTypes = {
     ),
   ]),
   onChange: PropTypes.func,
+  onSearchChange: PropTypes.func,
   placeholder: PropTypes.string,
   disabled: PropTypes.bool,
   searchable: PropTypes.bool,

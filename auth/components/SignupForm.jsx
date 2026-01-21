@@ -175,7 +175,7 @@ const SignupForm = ({
         if (result.requiresVerification) {
           navigate("/auth/verify-email");
         } else {
-          navigate("/onboarding");
+          navigate("/profile");
         }
       }
     } catch (_error) {
@@ -249,7 +249,7 @@ const SignupForm = ({
             state: { email: formData.email },
           });
         } else {
-          navigate("/onboarding");
+          navigate("/profile");
         }
       }
     } catch (_error) {
