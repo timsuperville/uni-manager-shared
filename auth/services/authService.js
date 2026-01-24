@@ -109,7 +109,7 @@ class AuthService {
       }
     } else {
       // Handle non-JSON responses (usually 404s or 500s throwing HTML)
-      const text = await response.text();
+      // const text = await response.text();
       // throw new Error(response.statusText || 'Server error');
       // For debugging, you might log the text, but don't expose it to user
       throw new Error(
@@ -120,8 +120,8 @@ class AuthService {
     if (!response.ok) {
       throw new Error(
         data.message ||
-          data.error ||
-          `Request failed with status ${response.status}`,
+        data.error ||
+        `Request failed with status ${response.status}`,
       );
     }
 
@@ -156,6 +156,23 @@ class AuthService {
 
       this.currentUser = responseData.user;
       this.sessionToken = token;
+
+      if (process.env.NODE_ENV === "development") {
+        console.log("[AuthService] Session verified:", {
+          hasUser: !!responseData.user,
+          currentChurch: responseData.user?.currentChurch,
+          churchType: typeof responseData.user?.currentChurch,
+          rawUser: responseData.user,
+        });
+
+        // Update storage with fresh data to ensure persistence
+        if (responseData.user) {
+          tokenStorage
+            .updateUser(responseData.user)
+            .catch((err) => console.error("Failed to update storage", err));
+        }
+      }
+
       return responseData.user;
     } catch (_error) {
       // console.error('Session verification failed:', error);
@@ -807,6 +824,7 @@ class AuthService {
     const requestOptions = {
       ...options,
       headers: defaultHeaders,
+      credentials: "include",
     };
 
     return fetch(url, requestOptions);

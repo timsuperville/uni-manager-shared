@@ -12,6 +12,7 @@ const UserMenu = ({
   onSettingsClick,
   showProfileLink = true,
   showSettingsLink = true,
+  children,
   position = "bottom-right", // 'bottom-right', 'bottom-left', 'top-right', 'top-left'
 }) => {
   const { user, logout } = useAuth();
@@ -132,6 +133,13 @@ const UserMenu = ({
 
           {/* Menu Items */}
           <div className="py-2">
+            {children && (
+              <>
+                <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-700 mb-2">
+                  {children}
+                </div>
+              </>
+            )}
             {showProfileLink && appConfig.features.profileManagement && (
               <button
                 onClick={() => {

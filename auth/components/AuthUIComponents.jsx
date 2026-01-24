@@ -19,7 +19,7 @@ export const AuthButton = ({
   className = "",
 }) => {
   const baseStyles =
-    "inline-flex items-center justify-center px-4 py-3 sm:py-3.5 border border-transparent text-sm sm:text-base font-semibold rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed transform active:scale-[0.98]";
+    "inline-flex items-center justify-center px-4 py-3 sm:py-3.5 border border-transparent text-sm sm:text-base font-semibold rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-200 disabled:opacity-60 transform active:scale-[0.98]";
 
   const variants = {
     primary:
@@ -94,7 +94,7 @@ export const OAuthButton = ({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="w-full flex items-center justify-center gap-3 px-4 py-3 sm:py-3.5 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 text-sm sm:text-base font-medium text-gray-700 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 active:scale-[0.98] active:shadow-inner"
+      className="w-full flex items-center justify-center gap-3 px-4 py-3 sm:py-3.5 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 text-sm sm:text-base font-medium text-gray-700 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition-all duration-200 active:scale-[0.98] active:shadow-inner"
     >
       {icon && (
         <span className="flex-shrink-0 transition-transform group-hover:scale-110">

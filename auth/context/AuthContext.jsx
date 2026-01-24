@@ -398,19 +398,45 @@ export const AuthProvider = ({
       }
       await initializeAuth();
       return true;
+      return true;
     } catch (error) {
       const errorMessage = error?.message || "Refresh failed";
 
-      setAuthState((prev) => ({
-        ...prev,
-        error: errorMessage,
+      // If refresh fails, we must logout to prevent loops and invalid states
+      console.warn(
+        "[AuthContext] Refresh failed, logging out...",
+        errorMessage,
+      );
+
+      // Clear local state
+      const newState = {
+        user: null,
+        isAuthenticated: false,
         isLoading: false,
-      }));
+        lastActivity: Date.now(),
+        error: errorMessage,
+      };
+
+      setAuthState((prev) => ({ ...prev, ...newState }));
+
+      // Clear persistence
+      try {
+        await authService.logout();
+      } catch (e) {
+        // Ignore logout errors (likely already invalid)
+      }
 
       // Notify error callback after state update
       if (onErrorRef.current) {
         setTimeout(() => {
           onErrorRef.current(error);
+        }, 0);
+      }
+
+      // Notify state change
+      if (onAuthStateChangeRef.current) {
+        setTimeout(() => {
+          onAuthStateChangeRef.current(newState);
         }, 0);
       }
 

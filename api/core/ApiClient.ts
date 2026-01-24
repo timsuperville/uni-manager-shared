@@ -77,6 +77,7 @@ export class ApiClient {
         Accept: "application/json",
         ...this.config.defaultHeaders,
       },
+      withCredentials: true,
     });
   }
 
