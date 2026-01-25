@@ -120,8 +120,8 @@ class AuthService {
     if (!response.ok) {
       throw new Error(
         data.message ||
-        data.error ||
-        `Request failed with status ${response.status}`,
+          data.error ||
+          `Request failed with status ${response.status}`,
       );
     }
 
