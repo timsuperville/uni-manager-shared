@@ -3,6 +3,10 @@
 @source "./auth";
 @source "./components";
 @source "./features";
+
+/* Enable class-based dark mode for Tailwind v4 */
+@variant dark (&:where(.dark, .dark *));
+
 /* Global styles shared across all apps */
 * {
   box-sizing: border-box;
@@ -15,5 +19,9 @@ body {
     "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  @apply bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100 transition-colors duration-200;
+  /* Global Body Styles */
 }
+
+
+
+
