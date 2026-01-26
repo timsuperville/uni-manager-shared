@@ -663,6 +663,131 @@ export const AuthProvider = ({
     setAuthState((prev) => ({ ...prev, error: null }));
   }, []); // Empty dependency array - stable reference
 
+  /**
+   * Update user profile
+   */
+  const updateProfile = useCallback(
+    async (profileData) => {
+      try {
+        setAuthState((prev) => ({ ...prev, isLoading: true, error: null }));
+
+        const result = await authService.updateProfile(profileData);
+
+        const newState = {
+          user: result.user,
+          isLoading: false,
+        };
+
+        setAuthState((prev) => ({ ...prev, ...newState }));
+
+        // Notify callback
+        if (onAuthStateChangeRef.current) {
+          setTimeout(() => {
+            onAuthStateChangeRef.current(newState);
+          }, 0);
+        }
+
+        return result;
+      } catch (error) {
+        const errorMessage = error?.message || "Update profile failed";
+
+        setAuthState((prev) => ({
+          ...prev,
+          error: errorMessage,
+          isLoading: false,
+        }));
+
+        if (onErrorRef.current) {
+          setTimeout(() => {
+            onErrorRef.current(error);
+          }, 0);
+        }
+        throw error;
+      }
+    },
+    [authService],
+  );
+
+  /**
+   * Upload avatar image
+   */
+  const uploadAvatar = useCallback(
+    async (file) => {
+      try {
+        const result = await authService.uploadAvatar(file);
+
+        // Update user state with new avatar URL
+        setAuthState((prev) => ({
+          ...prev,
+          user: {
+            ...prev.user,
+            avatarUrl: result.avatarUrl,
+          },
+        }));
+
+        return result;
+      } catch (error) {
+        if (onErrorRef.current) {
+          setTimeout(() => {
+            onErrorRef.current(error);
+          }, 0);
+        }
+        throw error;
+      }
+    },
+    [authService],
+  );
+
+  /**
+   * Upload cover image
+   */
+  const uploadCoverImage = useCallback(
+    async (file) => {
+      try {
+        const result = await authService.uploadCoverImage(file);
+
+        // Update user state with new cover URL
+        setAuthState((prev) => ({
+          ...prev,
+          user: {
+            ...prev.user,
+            coverImageUrl: result.coverImageUrl,
+          },
+        }));
+
+        return result;
+      } catch (error) {
+        if (onErrorRef.current) {
+          setTimeout(() => {
+            onErrorRef.current(error);
+          }, 0);
+        }
+        throw error;
+      }
+    },
+    [authService],
+  );
+
+  /**
+   * Change password
+   */
+  const changePassword = useCallback(
+    async (currentPassword, newPassword) => {
+      try {
+        const result = await authService.changePassword(currentPassword, newPassword);
+        return result;
+      } catch (error) {
+        if (onErrorRef.current) {
+          setTimeout(() => {
+            onErrorRef.current(error);
+          }, 0);
+        }
+        throw error;
+      }
+    },
+    [authService],
+  );
+
   const contextValue = {
     // State
     ...authState,
@@ -679,6 +804,12 @@ export const AuthProvider = ({
     checkAuthState,
     updateActivity,
     clearError,
+
+    // Profile management
+    updateProfile,
+    uploadAvatar,
+    uploadCoverImage,
+    changePassword,
 
     // Utilities
     authService,
