@@ -157,20 +157,11 @@ class AuthService {
       this.currentUser = responseData.user;
       this.sessionToken = token;
 
-      if (process.env.NODE_ENV === "development") {
-        console.log("[AuthService] Session verified:", {
-          hasUser: !!responseData.user,
-          currentChurch: responseData.user?.currentChurch,
-          churchType: typeof responseData.user?.currentChurch,
-          rawUser: responseData.user,
+      // Update storage with fresh data to ensure persistence
+      if (responseData.user) {
+        tokenStorage.updateUser(responseData.user).catch(() => {
+          // Silently handle storage update failure
         });
-
-        // Update storage with fresh data to ensure persistence
-        if (responseData.user) {
-          tokenStorage
-            .updateUser(responseData.user)
-            .catch((err) => console.error("Failed to update storage", err));
-        }
       }
 
       return responseData.user;
@@ -301,31 +292,27 @@ class AuthService {
    * User signup/registration
    */
   async signup(userData) {
-    try {
-      const response = await this._makeRequest("signup", {
-        method: "POST",
-        body: JSON.stringify({
-          ...userData,
-          appType: this.config.appType,
-          deviceFingerprint: this.deviceFingerprint,
-          deviceInfo: getDeviceInfo(),
-        }),
-      });
+    const response = await this._makeRequest("signup", {
+      method: "POST",
+      body: JSON.stringify({
+        ...userData,
+        appType: this.config.appType,
+        deviceFingerprint: this.deviceFingerprint,
+        deviceInfo: getDeviceInfo(),
+      }),
+    });
 
-      const responseData = await this._handleResponse(response);
+    const responseData = await this._handleResponse(response);
 
-      if (responseData.success) {
-        return {
-          success: true,
-          message: responseData.message,
-          requiresVerification: responseData.requiresVerification,
-          user: responseData.user,
-        };
-      }
-      throw new Error(responseData.message || "Signup failed");
-    } catch (error) {
-      throw error;
+    if (responseData.success) {
+      return {
+        success: true,
+        message: responseData.message,
+        requiresVerification: responseData.requiresVerification,
+        user: responseData.user,
+      };
     }
+    throw new Error(responseData.message || "Signup failed");
   }
 
   /**

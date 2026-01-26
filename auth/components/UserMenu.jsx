@@ -4,27 +4,21 @@
  */
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
+import { usePresence } from "@shared/context"; // Use alias to ensure singleton consistency with App
 import { getCurrentAppConfig } from "../config/appConfigs.js";
 import { motion, AnimatePresence } from "framer-motion";
 import { User, LogOut, ChevronDown, SlidersHorizontal } from "lucide-react";
 import { useLocation } from "react-router-dom";
 
-/**
- * Helper to format system roles into friendly display names
- */
-const formatRole = (role) => {
-  if (!role) return "User";
-  return role
-    .replace(/_/g, " ") // super_admin -> super admin
-    .replace(/\b\w/g, (c) => c.toUpperCase()); // super admin -> Super Admin
-};
+import { UserAvatar } from "../../components/ui";
+import UserMenuSkeleton from "../../components/skeletons/UserMenuSkeleton";
+import { formatRole, getUserDisplayName } from "../../utils";
 
 /**
- * A generic, accessible generic user menu.
- * @param {React.ReactNode} customHeader - Optional content to render at the top of the menu (e.g. ChurchSelector)
- * @param {string} position - Dropdown position
+ * UserMenuItem Component
+ * accessible menu item with support for icons and variants
  */
-const MenuItem = React.forwardRef(
+const UserMenuItem = React.forwardRef(
   (
     {
       icon: Icon,
@@ -75,15 +69,7 @@ const MenuItem = React.forwardRef(
   },
 );
 
-const UserMenuSkeleton = () => (
-  <div className="flex items-center space-x-3 p-2 rounded-xl animate-pulse">
-    <div className="w-9 h-9 rounded-full bg-gray-200 dark:bg-gray-700" />
-    <div className="hidden md:block space-y-2">
-      <div className="h-3 w-24 bg-gray-200 dark:bg-gray-700 rounded" />
-      <div className="h-2 w-16 bg-gray-200 dark:bg-gray-700 rounded" />
-    </div>
-  </div>
-);
+UserMenuItem.displayName = "UserMenuItem";
 
 const UserMenu = ({
   className = "",
@@ -96,22 +82,27 @@ const UserMenu = ({
   position = "bottom-right",
 }) => {
   const { user, logout, isLoading } = useAuth();
+  // Safe usePresence (optional consumption)
+  let isConnected = true;
+  let status = "available";
+  let setStatus = () => {};
+  try {
+    const presence = usePresence();
+    isConnected = presence.isConnected;
+    status = presence.status || "available";
+    setStatus = presence.setStatus || (() => {});
+  } catch (e) {
+    console.error("PresenceContext missing or failed in UserMenu:", e);
+    // PresenceProvider might not be up in all apps yet
+  }
+
   const appConfig = getCurrentAppConfig();
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
-  const [isDark, setIsDark] = useState(false);
   const [focusedIndex, setFocusedIndex] = useState(-1);
   const menuRef = useRef(null);
   const buttonRef = useRef(null);
   const menuItemsRef = useRef([]);
-
-  // Initialize Dark Mode state
-  useEffect(() => {
-    if (typeof document !== "undefined") {
-      const isDarkMode = document.documentElement.classList.contains("dark");
-      setIsDark(isDarkMode);
-    }
-  }, []);
 
   // Close on click outside
   useEffect(() => {
@@ -131,7 +122,7 @@ const UserMenu = ({
     (e) => {
       if (!isOpen) return;
 
-      const items = menuItemsRef.current.filter(Boolean); // Filter nulls
+      const items = menuItemsRef.current.filter(Boolean);
       const lastIndex = items.length - 1;
 
       switch (e.key) {
@@ -181,6 +172,12 @@ const UserMenu = ({
     await logout();
   };
 
+  const toggleStatus = (e) => {
+    e.stopPropagation(); // Prevent menu from closing if we want to keep it open, or let it close
+    const newStatus = status === "available" ? "unavailable" : "available";
+    setStatus(newStatus);
+  };
+
   const getPositionClasses = () => {
     switch (position) {
       case "bottom-left":
@@ -195,13 +192,13 @@ const UserMenu = ({
     }
   };
 
+  const getStatusColor = () => {
+    if (!isConnected) return "bg-gray-400";
+    return status === "available" ? "bg-green-500" : "bg-amber-500";
+  };
+
   if (isLoading) return <UserMenuSkeleton />;
   if (!user) return null;
-
-  const initials =
-    user.firstName && user.lastName
-      ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase()
-      : (user.email?.[0] || "U").toUpperCase();
 
   return (
     <div className={`relative ${className}`} ref={menuRef}>
@@ -214,29 +211,23 @@ const UserMenu = ({
         className="flex items-center space-x-3 p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
       >
         <div className="relative">
-          {user.avatarUrl ? (
-            <img
-              src={user.avatarUrl}
-              alt={`${user.firstName}'s avatar`}
-              className="w-9 h-9 rounded-full object-cover shadow-sm border border-gray-200 dark:border-gray-700"
-            />
-          ) : (
-            <div
-              style={{ backgroundColor: appConfig.branding.primaryColor }}
-              className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-semibold shadow-sm"
-            >
-              {initials}
-            </div>
-          )}
+          <UserAvatar user={user} appConfig={appConfig} size="md" />
           {/* Online Indicator */}
-          <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white dark:border-gray-900 rounded-full" />
+          <span
+            className={`absolute bottom-0 right-0 w-2.5 h-2.5 border-2 border-white dark:border-gray-900 rounded-full ${getStatusColor()}`}
+            title={
+              !isConnected
+                ? "Offline"
+                : status === "available"
+                  ? "Online"
+                  : "Away / Busy"
+            }
+          />
         </div>
 
         <div className="hidden md:block text-left">
           <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 leading-tight">
-            {user.firstName && user.lastName
-              ? `${user.firstName} ${user.lastName}`
-              : user.email}
+            {getUserDisplayName(user)}
           </p>
           <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">
             {user.churchRole ||
@@ -262,29 +253,26 @@ const UserMenu = ({
             {/* Header / Brand Area */}
             <div className="p-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50">
               <div className="flex items-center gap-3">
-                {user.avatarUrl ? (
-                  <img
-                    src={user.avatarUrl}
-                    alt="Avatar"
-                    className="w-10 h-10 rounded-full object-cover shadow-sm"
-                  />
-                ) : (
-                  <div
-                    style={{ backgroundColor: appConfig.branding.primaryColor }}
-                    className="w-10 h-10 rounded-full flex items-center justify-center text-white font-medium shadow-sm"
-                  >
-                    {initials}
-                  </div>
-                )}
+                <UserAvatar user={user} appConfig={appConfig} size="lg" />
                 <div className="min-w-0">
                   <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
-                    {user.firstName
-                      ? `${user.firstName} ${user.lastName}`
-                      : "User"}
+                    {getUserDisplayName(user)}
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
                     {user.email}
                   </p>
+                  {/* Status Toggle in Header */}
+                  <button
+                    onClick={toggleStatus}
+                    className="mt-1 text-xs flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                  >
+                    <span
+                      className={`w-1.5 h-1.5 rounded-full ${status === "available" ? "bg-green-500" : "bg-amber-500"}`}
+                    />
+                    <span className="text-gray-600 dark:text-gray-300">
+                      {status === "available" ? "Available" : "Unavailable"}
+                    </span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -301,7 +289,7 @@ const UserMenu = ({
               {children}
 
               {showProfileLink && appConfig.features.profileManagement && (
-                <MenuItem
+                <UserMenuItem
                   ref={(el) => (menuItemsRef.current[0] = el)}
                   icon={User}
                   label="View Profile"
@@ -314,7 +302,7 @@ const UserMenu = ({
               )}
 
               {showPreferencesLink && (
-                <MenuItem
+                <UserMenuItem
                   ref={(el) => (menuItemsRef.current[1] = el)}
                   icon={SlidersHorizontal}
                   label="Preferences"
@@ -328,7 +316,7 @@ const UserMenu = ({
 
               <div className="h-px bg-gray-100 dark:bg-gray-800 my-1 mx-2" />
 
-              <MenuItem
+              <UserMenuItem
                 ref={(el) => (menuItemsRef.current[2] = el)}
                 icon={LogOut}
                 label="Sign out"
