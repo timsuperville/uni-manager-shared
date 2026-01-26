@@ -120,8 +120,8 @@ class AuthService {
     if (!response.ok) {
       throw new Error(
         data.message ||
-          data.error ||
-          `Request failed with status ${response.status}`,
+        data.error ||
+        `Request failed with status ${response.status}`,
       );
     }
 
@@ -348,6 +348,7 @@ class AuthService {
       }),
     });
 
+
     const responseData = await response.json();
 
     return {
@@ -356,9 +357,132 @@ class AuthService {
     };
   }
 
+  /**
+   * Update user profile
+   */
+  async updateProfile(profileData) {
+    const response = await this._makeRequest("updateProfile", {
+      method: "PUT",
+      body: JSON.stringify(profileData),
+    });
+
+    const responseData = await this._handleResponse(response);
+
+    if (responseData.success) {
+      // Update current user data
+      this.currentUser = { ...this.currentUser, ...responseData.user };
+      return {
+        success: true,
+        user: responseData.user,
+        message: responseData.message || "Profile updated successfully",
+      };
+    }
+
+    throw new Error(responseData.message || "Failed to update profile");
+  }
+
+  /**
+   * Upload avatar image
+   */
+  async uploadAvatar(file) {
+    const formData = new globalThis.FormData();
+    formData.append("avatar", file);
+
+    const response = await fetch(
+      `${this.config.apiBaseUrl}/profile/avatar`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${this.sessionToken}`,
+        },
+        body: formData,
+        credentials: "include",
+      }
+    );
+
+    const responseData = await this._handleResponse(response);
+
+    if (responseData.success) {
+      // Update current user avatar
+      this.currentUser = {
+        ...this.currentUser,
+        avatarUrl: responseData.avatarUrl,
+      };
+      return {
+        success: true,
+        avatarUrl: responseData.avatarUrl,
+        message: responseData.message || "Avatar uploaded successfully",
+      };
+    }
+
+    throw new Error(responseData.message || "Failed to upload avatar");
+  }
+
+  /**
+   * Upload cover image
+   */
+  async uploadCoverImage(file) {
+    const formData = new globalThis.FormData();
+    formData.append("cover", file);
+
+    const response = await fetch(
+      `${this.config.apiBaseUrl}/profile/cover`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${this.sessionToken}`,
+        },
+        body: formData,
+        credentials: "include",
+      }
+    );
+
+    const responseData = await this._handleResponse(response);
+
+    if (responseData.success) {
+      // Update current user cover
+      this.currentUser = {
+        ...this.currentUser,
+        coverImageUrl: responseData.coverImageUrl,
+      };
+      return {
+        success: true,
+        coverImageUrl: responseData.coverImageUrl,
+        message: responseData.message || "Cover image uploaded successfully",
+      };
+    }
+
+    throw new Error(responseData.message || "Failed to upload cover image");
+  }
+
+  /**
+   * Change user password
+   */
+  async changePassword(currentPassword, newPassword) {
+    const response = await this._makeRequest("profile/change-password", {
+      method: "POST",
+      body: JSON.stringify({
+        currentPassword,
+        newPassword,
+      }),
+    });
+
+    const responseData = await this._handleResponse(response);
+
+    if (responseData.success) {
+      return {
+        success: true,
+        message: responseData.message || "Password changed successfully",
+      };
+    }
+
+    throw new Error(responseData.message || "Failed to change password");
+  }
+
   // ===============================
   // OAUTH AUTHENTICATION
   // ===============================
+
 
   /**
    * Start OAuth authentication flow
