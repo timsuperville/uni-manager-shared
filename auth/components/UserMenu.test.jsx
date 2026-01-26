@@ -1,4 +1,5 @@
 import { render, screen, fireEvent } from "@testing-library/react";
+import "@testing-library/jest-dom";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { BrowserRouter } from "react-router-dom";
 import UserMenu from "./UserMenu";
@@ -9,12 +10,19 @@ const renderWithProviders = (ui) => {
   return render(<BrowserRouter>{ui}</BrowserRouter>);
 };
 
-// Mock Lucide icons to avoid rendering issues
 vi.mock("lucide-react", () => ({
   User: () => <span data-testid="icon-user" />,
   LogOut: () => <span data-testid="icon-logout" />,
   ChevronDown: () => <span data-testid="icon-chevron" />,
   SlidersHorizontal: () => <span data-testid="icon-sliders" />,
+}));
+
+vi.mock("../../context/PresenceContext", () => ({
+  usePresence: () => ({
+    isConnected: true,
+    status: "available",
+    setStatus: vi.fn(),
+  }),
 }));
 
 describe("UserMenu Component", () => {
