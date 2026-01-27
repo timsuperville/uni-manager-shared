@@ -363,6 +363,9 @@ class AuthService {
   async updateProfile(profileData) {
     const response = await this._makeRequest("updateProfile", {
       method: "PUT",
+      headers: {
+        Authorization: `Bearer ${this.sessionToken}`,
+      },
       body: JSON.stringify(profileData),
     });
 
@@ -370,10 +373,11 @@ class AuthService {
 
     if (responseData.success) {
       // Update current user data
-      this.currentUser = { ...this.currentUser, ...responseData.user };
+      const updatedUser = responseData.user || responseData.data;
+      this.currentUser = { ...this.currentUser, ...updatedUser };
       return {
         success: true,
-        user: responseData.user,
+        user: this.currentUser,
         message: responseData.message || "Profile updated successfully",
       };
     }
@@ -388,17 +392,19 @@ class AuthService {
     const formData = new globalThis.FormData();
     formData.append("avatar", file);
 
-    const response = await fetch(
-      `${this.config.apiBaseUrl}/profile/avatar`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${this.sessionToken}`,
-        },
-        body: formData,
-        credentials: "include",
-      }
-    );
+    // Use configured endpoint or fallback
+    const endpoint = this.config.endpoints.uploadAvatar
+      ? this._getEndpointUrl("uploadAvatar")
+      : `${this.config.apiBaseUrl}/profile/avatar`;
+
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${this.sessionToken}`,
+      },
+      body: formData,
+      credentials: "include",
+    });
 
     const responseData = await this._handleResponse(response);
 
@@ -425,17 +431,19 @@ class AuthService {
     const formData = new globalThis.FormData();
     formData.append("cover", file);
 
-    const response = await fetch(
-      `${this.config.apiBaseUrl}/profile/cover`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${this.sessionToken}`,
-        },
-        body: formData,
-        credentials: "include",
-      }
-    );
+    // Use configured endpoint or fallback
+    const endpoint = this.config.endpoints.uploadCoverImage
+      ? this._getEndpointUrl("uploadCoverImage")
+      : `${this.config.apiBaseUrl}/profile/cover`;
+
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${this.sessionToken}`,
+      },
+      body: formData,
+      credentials: "include",
+    });
 
     const responseData = await this._handleResponse(response);
 
@@ -459,7 +467,8 @@ class AuthService {
    * Change user password
    */
   async changePassword(currentPassword, newPassword) {
-    const response = await this._makeRequest("profile/change-password", {
+    // Use the standard "changePassword" key which should be in appConfigs
+    const response = await this._makeRequest("changePassword", {
       method: "POST",
       body: JSON.stringify({
         currentPassword,
@@ -922,10 +931,25 @@ class AuthService {
   }
 
   /**
+   * Helper to get full endpoint URL, handling absolute URLs correctly
+   */
+  _getEndpointUrl(key) {
+    const endpoint = this.config.endpoints[key];
+    if (!endpoint) return null;
+    // If endpoint is already absolute (from APP_CONFIGS), return as is
+    if (endpoint.startsWith("http")) return endpoint;
+    // Otherwise prepend base URL
+    return `${this.config.apiBaseUrl}${endpoint}`;
+  }
+
+  /**
    * Make authenticated API request
    */
   async _makeRequest(endpoint, options = {}) {
-    const url = `${this.config.apiBaseUrl}${this.config.endpoints[endpoint] || endpoint}`;
+    const endpointPath = this.config.endpoints[endpoint] || endpoint;
+    const url = endpointPath.startsWith("http")
+      ? endpointPath
+      : `${this.config.apiBaseUrl}${endpointPath}`;
 
     const defaultHeaders = {
       "Content-Type": "application/json",

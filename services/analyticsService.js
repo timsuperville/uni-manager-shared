@@ -13,19 +13,49 @@
  * - WebSocket connections for real-time updates
  */
 
-/* global window, document, localStorage, sessionStorage, WebSocket, fetch, URLSearchParams, console, navigator, setTimeout, process */
+/* global window, document, localStorage, sessionStorage, WebSocket, fetch, URLSearchParams, console, navigator, setTimeout */
 
-import ApiService from "./apiService";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api/v1";
 
 class AnalyticsService {
   constructor() {
     this.baseUrl = "/analytics";
-    this.apiService = new ApiService();
+    this.baseUrl = "/analytics";
     this.websocket = null;
     this.isConnected = false;
     this.retryCount = 0;
     this.maxRetries = 3;
     this.retryDelay = 1000;
+  }
+
+  async _request(endpoint, options = {}) {
+    const token = this.getAuthToken();
+    const headers = {
+      "Content-Type": "application/json",
+      ...options.headers,
+    };
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    const config = {
+      ...options,
+      headers,
+    };
+
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+    if (!response.ok) {
+      // Create an error object similar to what axios might return for compatibility
+      const errorData = await response.json().catch(() => ({}));
+      const error = new Error(errorData.message || response.statusText);
+      error.response = {
+        status: response.status,
+        data: errorData
+      };
+      throw error;
+    }
+    const data = await response.json();
+    return { data }; // maintain { data: ... } structure expected by methods
   }
 
   /**
@@ -42,7 +72,7 @@ class AnalyticsService {
       if (userId) params.append("userId", userId);
       if (applicationId) params.append("applicationId", applicationId);
 
-      const response = await this.apiService.get(
+      const response = await this._request(
         `${this.baseUrl}/dashboard?${params}`,
       );
       return response.data;
@@ -66,7 +96,7 @@ class AnalyticsService {
       if (userId) params.append("userId", userId);
       if (applicationId) params.append("applicationId", applicationId);
 
-      const response = await this.apiService.get(
+      const response = await this._request(
         `${this.baseUrl}/user-behavior?${params}`,
       );
       return response.data;
@@ -89,7 +119,7 @@ class AnalyticsService {
 
       if (applicationId) params.append("applicationId", applicationId);
 
-      const response = await this.apiService.get(
+      const response = await this._request(
         `${this.baseUrl}/performance/metrics?${params}`,
       );
       return response.data;
@@ -104,7 +134,7 @@ class AnalyticsService {
    */
   async getMembershipGrowth(churchId, timeframe = "year") {
     try {
-      const response = await this.apiService.get(
+      const response = await this._request(
         `/church/${churchId}/dashboard/membership-growth?period=${timeframe}`,
       );
       return response.data;
@@ -126,7 +156,7 @@ class AnalyticsService {
 
       if (applicationId) params.append("applicationId", applicationId);
 
-      const response = await this.apiService.get(
+      const response = await this._request(
         `${this.baseUrl}/security?${params}`,
       );
       return response.data;
@@ -141,7 +171,7 @@ class AnalyticsService {
    */
   async getRealTimeMetrics() {
     try {
-      const response = await this.apiService.get(
+      const response = await this._request(
         `${this.baseUrl}/real-time/metrics`,
       );
       return response.data;
@@ -156,7 +186,7 @@ class AnalyticsService {
    */
   async getActiveAlerts() {
     try {
-      const response = await this.apiService.get(
+      const response = await this._request(
         `${this.baseUrl}/real-time/alerts`,
       );
       return response.data;
@@ -171,17 +201,20 @@ class AnalyticsService {
    */
   async trackUserBehavior(userId, eventType, eventData = {}) {
     try {
-      const response = await this.apiService.post(
+      const response = await this._request(
         `${this.baseUrl}/track/user-behavior`,
         {
-          userId,
-          eventType,
-          eventData: {
-            ...eventData,
-            timestamp: new Date().toISOString(),
-            sessionId: this.getSessionId(),
-            applicationId: this.getApplicationId(),
-          },
+          method: "POST",
+          body: JSON.stringify({
+            userId,
+            eventType,
+            eventData: {
+              ...eventData,
+              timestamp: new Date().toISOString(),
+              sessionId: this.getSessionId(),
+              applicationId: this.getApplicationId(),
+            },
+          }),
         },
       );
       return response.data;
@@ -225,16 +258,19 @@ class AnalyticsService {
         return null;
       }
 
-      const response = await this.apiService.post(
+      const response = await this._request(
         `${this.baseUrl}/track/performance`,
         {
-          metricType,
-          value,
-          context: {
-            ...context,
-            timestamp: new Date().toISOString(),
-            applicationId: this.getApplicationId(),
-          },
+          method: "POST",
+          body: JSON.stringify({
+            metricType,
+            value,
+            context: {
+              ...context,
+              timestamp: new Date().toISOString(),
+              applicationId: this.getApplicationId(),
+            },
+          }),
         },
       );
       return response.data;
@@ -250,16 +286,19 @@ class AnalyticsService {
    */
   async trackSecurityEvent(eventType, severity, details = {}) {
     try {
-      const response = await this.apiService.post(
+      const response = await this._request(
         `${this.baseUrl}/track/security`,
         {
-          eventType,
-          severity,
-          details: {
-            ...details,
-            timestamp: new Date().toISOString(),
-            applicationId: this.getApplicationId(),
-          },
+          method: "POST",
+          body: JSON.stringify({
+            eventType,
+            severity,
+            details: {
+              ...details,
+              timestamp: new Date().toISOString(),
+              applicationId: this.getApplicationId(),
+            },
+          }),
         },
       );
       return response.data;
@@ -281,12 +320,15 @@ class AnalyticsService {
         parameters = {},
       } = options;
 
-      const response = await this.apiService.post(
+      const response = await this._request(
         `${this.baseUrl}/ai/insights`,
         {
-          type,
-          timeframe,
-          parameters,
+          method: "POST",
+          body: JSON.stringify({
+            type,
+            timeframe,
+            parameters,
+          }),
         },
       );
       return response.data;
@@ -307,7 +349,7 @@ class AnalyticsService {
       if (userId) params.append("userId", userId);
       if (applicationId) params.append("applicationId", applicationId);
 
-      const response = await this.apiService.get(
+      const response = await this._request(
         `${this.baseUrl}/ai/recommendations?${params}`,
       );
       return response.data;
@@ -322,9 +364,12 @@ class AnalyticsService {
    */
   async executeCustomQuery(query) {
     try {
-      const response = await this.apiService.post(
+      const response = await this._request(
         `${this.baseUrl}/query/custom`,
-        query,
+        {
+          method: "POST",
+          body: JSON.stringify(query)
+        },
       );
       return response.data;
     } catch (error) {
@@ -377,7 +422,7 @@ class AnalyticsService {
    */
   async getServiceHealth() {
     try {
-      const response = await this.apiService.get(`${this.baseUrl}/health`);
+      const response = await this._request(`${this.baseUrl}/health`);
       return response.data;
     } catch (error) {
       // console.error('Failed to get service health:', error);
@@ -575,7 +620,7 @@ class AnalyticsService {
     // This would typically come from your auth context or local storage
     const user = JSON.parse(
       (typeof localStorage !== "undefined" && localStorage.getItem("user")) ||
-        "{}",
+      "{}",
     );
     return user.id || null;
   }

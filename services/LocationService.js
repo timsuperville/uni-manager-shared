@@ -1,8 +1,30 @@
 /* eslint-disable no-console, no-undef */
-import ApiService from "./apiService";
 
-const API_BASE = "/api/v1/locations";
-const locationApi = new ApiService();
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+const API_BASE = `${API_BASE_URL}/api/v1/locations`;
+
+// Helper for requests
+const request = async (endpoint, options = {}) => {
+  const token = localStorage.getItem("token");
+  const headers = {
+    "Content-Type": "application/json",
+    ...options.headers,
+  };
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  const config = {
+    ...options,
+    headers,
+  };
+
+  const response = await fetch(endpoint, config);
+  if (!response.ok) {
+    throw new Error(`API Error: ${response.statusText}`);
+  }
+  return response.json();
+};
 
 // Simple in-memory cache
 const cache = {
@@ -20,10 +42,10 @@ export const LocationService = {
     if (cache.countries) return cache.countries;
 
     try {
-      const response = await locationApi.get(`${API_BASE}/countries`);
-      const data = response.data || [];
-      cache.countries = data;
-      return data;
+      const data = await request(`${API_BASE}/countries`);
+      const countries = data.data || data || []; // Handle {data: []} or []
+      cache.countries = countries;
+      return countries;
     } catch (error) {
       console.error("Failed to fetch countries", error);
       return [];
@@ -43,11 +65,10 @@ export const LocationService = {
     }
 
     try {
-      const response = await locationApi.get(`${API_BASE}/subdivisions`, {
-        country: countryCode,
-      });
-      cache.subdivisions[countryCode] = response;
-      return response;
+      // Assuming query param for country
+      const data = await request(`${API_BASE}/subdivisions?country=${countryCode}`);
+      cache.subdivisions[countryCode] = data;
+      return data;
     } catch (error) {
       console.error(`Failed to fetch subdivisions for ${countryCode}`, error);
       return { subdivisions: [], subdivisionType: "areas" };
@@ -67,10 +88,8 @@ export const LocationService = {
     }
 
     try {
-      const response = await locationApi.get(
-        `${API_BASE}/address-formats/${countryCode}`,
-      );
-      const format = response.format;
+      const data = await request(`${API_BASE}/address-formats/${countryCode}`);
+      const format = data.format;
       cache.addressFormats[countryCode] = format;
       return format;
     } catch (error) {
@@ -89,7 +108,6 @@ export const LocationService = {
       if (!timeZone) return null;
 
       // Simple mapping for common timezones to country codes
-      // In a real app, this would be more comprehensive or usage an IP API
       if (
         timeZone.startsWith("America/New_York") ||
         timeZone.startsWith("America/Los_Angeles") ||
@@ -102,7 +120,6 @@ export const LocationService = {
       if (timeZone.startsWith("Australia/Sydney")) return "AU";
       if (timeZone.startsWith("America/Toronto")) return "CA";
 
-      // Heuristic: Last part of timezone often indicates region, but unreliable for country code mapping directly
       return null;
     } catch (e) {
       return null;
@@ -119,16 +136,11 @@ export const LocationService = {
     if (!query || query.length < 2) return [];
 
     try {
-      const params = { q: query, limit: 10 };
-      if (countryCode) params.country = countryCode;
+      const params = new URLSearchParams({ q: query, limit: "10" });
+      if (countryCode) params.append("country", countryCode);
 
-      // Use direct axios call if ApiService wrapper doesn't support query params in this way,
-      // but ApiService.get(url, config) usually supports params.
-      // Assuming ApiService.get supports query params in URL or config:
-      const response = await locationApi.get(
-        `${API_BASE}/cities/suggestions?${queryString}`,
-      );
-      return response.suggestions || [];
+      const data = await request(`${API_BASE}/cities/suggestions?${params.toString()}`);
+      return data.suggestions || [];
     } catch (error) {
       console.error("Failed to fetch city suggestions", error);
       return [];
@@ -145,7 +157,6 @@ export const LocationService = {
   reverseGeocode: async (lat, lng) => {
     try {
       // Using OSM Nominatim API directly from client side
-      // Note: In production, this should ideally be proxied through backend to handle rate limits/caching
       const response = await fetch(
         `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10&addressdetails=1`,
         {

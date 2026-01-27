@@ -27,13 +27,14 @@ import {
 
 export class ChurchService extends BaseService {
   constructor(client: ApiClient) {
-    super(client, "/churches", "ChurchService");
+    super(client, "/church", "ChurchService");
   }
 
   // ==================== CHURCH MANAGEMENT ====================
 
   /**
    * Get all churches with optional filtering and pagination
+   * Note: This usually maps to discovery or search in this backend
    */
   async getChurches(
     filters?: ChurchFilters,
@@ -57,10 +58,10 @@ export class ChurchService extends BaseService {
     ).toString();
 
     const endpoint = queryString
-      ? this.buildEndpoint(`?${queryString}`)
-      : this.buildEndpoint();
+      ? this.buildEndpoint(`/onboarding/search?${queryString}`) // Fallback to search if general list doesn't exist
+      : this.buildEndpoint("/onboarding/search");
 
-    return this.getList<Church>(endpoint, undefined, { cacheTTL: 300000 }); // 5 minutes cache
+    return this.post<PaginatedResponse<Church>>(endpoint, { filters }, { cacheTTL: 300000 });
   }
 
   /**
@@ -77,6 +78,24 @@ export class ChurchService extends BaseService {
 
     this.validateRequest({ churchId }, schema);
     return this.get<Church>(this.buildIdEndpoint(churchId));
+  }
+
+  /**
+   * Get available denominations
+   */
+  async getDenominations(): Promise<string[]> {
+    return this.get<string[]>(this.buildEndpoint("/onboarding/denominations"), {
+      cacheTTL: 3600000, // 1 hour cache
+    });
+  }
+
+  /**
+   * Get available ministry types
+   */
+  async getMinistryTypes(): Promise<string[]> {
+    return this.get<string[]>(this.buildEndpoint("/onboarding/ministries"), {
+      cacheTTL: 3600000, // 1 hour cache
+    });
   }
 
   /**
@@ -140,7 +159,7 @@ export class ChurchService extends BaseService {
     };
 
     const validatedData = this.validateRequest(churchData, schema);
-    return this.post<Church>(this.buildEndpoint(), validatedData, {
+    return this.post<Church>(this.buildEndpoint("/onboarding/create"), validatedData, {
       cache: false,
     });
   }

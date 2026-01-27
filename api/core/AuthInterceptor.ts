@@ -5,7 +5,7 @@
  * and authentication-related request/response processing.
  */
 
-import { AxiosRequestConfig, AxiosResponse, AxiosError } from "axios";
+import { InternalAxiosRequestConfig, AxiosResponse, AxiosError, AxiosRequestConfig } from "axios";
 
 export interface AuthTokens {
   accessToken: string;
@@ -29,6 +29,7 @@ export interface AuthInterceptorConfig {
   autoRefresh?: boolean;
   refreshThreshold?: number; // Minutes before expiry to refresh
   maxRetries?: number;
+  enableStats?: boolean;
 }
 
 export class AuthInterceptor {
@@ -56,7 +57,7 @@ export class AuthInterceptor {
   /**
    * Request interceptor - adds authentication token
    */
-  onRequest(config: AxiosRequestConfig): AxiosRequestConfig {
+  onRequest(config: InternalAxiosRequestConfig): InternalAxiosRequestConfig {
     const token = this.getValidToken();
 
     if (token) {
@@ -326,9 +327,9 @@ export class AuthInterceptor {
       // SSR or Node.js environment
       return {
         getItem: () => null,
-        setItem: () => {},
-        removeItem: () => {},
-        clear: () => {},
+        setItem: () => { },
+        removeItem: () => { },
+        clear: () => { },
         length: 0,
         key: () => null,
       };
@@ -336,13 +337,13 @@ export class AuthInterceptor {
 
     switch (this.config.tokenStorage) {
       case "sessionStorage":
-        return typeof window !== "undefined" && window.sessionStorage;
+        return (typeof window !== "undefined" ? window.sessionStorage : null) as Storage;
       case "memory":
         // Simple in-memory storage (not persistent)
         return this.createMemoryStorage();
       case "localStorage":
       default:
-        return typeof window !== "undefined" && window.localStorage;
+        return (typeof window !== "undefined" ? window.localStorage : null) as Storage;
     }
   }
 

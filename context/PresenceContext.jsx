@@ -117,7 +117,7 @@ export const PresenceProvider = ({ children }) => {
     } catch (error) {
       console.error("Failed to create WebSocket connection:", error);
     }
-  }, [user]);
+  }, [user?.id]); // Depend on ID, not object reference
 
   const disconnect = useCallback(() => {
     if (reconnectTimeoutRef.current) {
@@ -136,7 +136,7 @@ export const PresenceProvider = ({ children }) => {
 
   // Handle connection lifecycle
   useEffect(() => {
-    if (user) {
+    if (user?.id) {
       connect();
     } else {
       disconnect();
@@ -145,7 +145,7 @@ export const PresenceProvider = ({ children }) => {
     return () => {
       disconnect();
     };
-  }, [user, connect, disconnect]);
+  }, [user?.id, connect, disconnect]);
 
   const updateStatus = useCallback((newStatus) => {
     setStatus(newStatus);

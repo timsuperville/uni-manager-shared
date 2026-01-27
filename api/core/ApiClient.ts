@@ -13,7 +13,7 @@ import axios, {
 } from "axios";
 import { ErrorHandler } from "./ErrorHandler";
 import { CacheManager } from "./CacheManager";
-import { AuthInterceptor } from "./AuthInterceptor";
+import { AuthInterceptor, AuthInterceptorConfig } from "./AuthInterceptor";
 
 export interface ApiClientConfig {
   baseURL: string;
@@ -22,6 +22,7 @@ export interface ApiClientConfig {
   cacheEnabled?: boolean;
   authEnabled?: boolean;
   defaultHeaders?: Record<string, string>;
+  authConfig?: AuthInterceptorConfig;
 }
 
 export interface RequestOptions {
@@ -63,7 +64,7 @@ export class ApiClient {
     this.setupAxiosInstance();
     this.errorHandler = new ErrorHandler(this.config.retryAttempts || 3);
     this.cacheManager = new CacheManager();
-    this.authInterceptor = new AuthInterceptor();
+    this.authInterceptor = new AuthInterceptor(this.config.authConfig);
 
     this.setupInterceptors();
   }
@@ -141,7 +142,7 @@ export class ApiClient {
       url: endpoint,
       data,
       timeout: options.timeout || this.config.timeout,
-      headers: options.headers,
+      headers: options.headers as any,
       onUploadProgress: options.onUploadProgress,
       onDownloadProgress: options.onDownloadProgress,
     };
