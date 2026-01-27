@@ -1,6 +1,7 @@
 /* eslint-disable no-console, no-undef */
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 const API_BASE = `${API_BASE_URL}/api/v1/locations`;
 
 // Helper for requests
@@ -66,7 +67,9 @@ export const LocationService = {
 
     try {
       // Assuming query param for country
-      const data = await request(`${API_BASE}/subdivisions?country=${countryCode}`);
+      const data = await request(
+        `${API_BASE}/subdivisions?country=${countryCode}`,
+      );
       cache.subdivisions[countryCode] = data;
       return data;
     } catch (error) {
@@ -139,7 +142,9 @@ export const LocationService = {
       const params = new URLSearchParams({ q: query, limit: "10" });
       if (countryCode) params.append("country", countryCode);
 
-      const data = await request(`${API_BASE}/cities/suggestions?${params.toString()}`);
+      const data = await request(
+        `${API_BASE}/cities/suggestions?${params.toString()}`,
+      );
       return data.suggestions || [];
     } catch (error) {
       console.error("Failed to fetch city suggestions", error);

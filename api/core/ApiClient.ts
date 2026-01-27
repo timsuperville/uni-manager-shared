@@ -187,7 +187,7 @@ export class ApiClient {
 
       return apiResponse;
     } catch (_error) {
-      throw this.errorHandler.transformError(error as AxiosError);
+      throw this.errorHandler.transformError(_error as AxiosError);
     }
   }
 

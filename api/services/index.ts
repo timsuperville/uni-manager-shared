@@ -14,12 +14,13 @@ import { NotificationService } from "./NotificationService";
 
 // Import types for easier access
 export * from "../types";
-export {
-  ApiClient,
+export { ApiClient } from "../core/ApiClient";
+export type {
   ApiClientConfig,
   RequestOptions,
   ApiResponse as ApiClientResponse,
 } from "../core/ApiClient";
+
 export * from "../core/ErrorHandler";
 export * from "../core/CacheManager";
 export * from "../core/AuthInterceptor";

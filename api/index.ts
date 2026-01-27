@@ -6,21 +6,29 @@
  */
 
 // Core exports
-export { ApiClient, ApiClientConfig, RequestOptions } from "./core/ApiClient";
+export { ApiClient } from "./core/ApiClient";
+export type {
+  ApiClientConfig,
+  RequestOptions,
+  ApiResponse,
+} from "./core/ApiClient";
 
-export { ErrorHandler, ApiError, ApiErrorType } from "./core/ErrorHandler";
+export { ErrorHandler, ApiErrorType } from "./core/ErrorHandler";
+export type { ApiError, ErrorContext } from "./core/ErrorHandler";
 
-export { CacheManager, CacheOptions, CacheStats } from "./core/CacheManager";
+export { CacheManager } from "./core/CacheManager";
+export type { CacheOptions, CacheStats, CacheEntry } from "./core/CacheManager";
 
-export {
-  AuthInterceptor,
+export { AuthInterceptor } from "./core/AuthInterceptor";
+export type {
   AuthTokens,
   AuthInterceptorConfig,
+  TokenRefreshResponse,
 } from "./core/AuthInterceptor";
 
 // Service exports
-export {
-  BaseService,
+export { BaseService } from "./services/BaseService";
+export type {
   ValidationSchema,
   PaginationParams,
   PaginatedResponse,
@@ -32,7 +40,6 @@ export { ChurchService } from "./services/ChurchService";
 // Main service registry
 export {
   default as ApiServices,
-  ApiServiceConfig,
   createApiServices,
   createDevApiServices,
   createProdApiServices,
@@ -41,6 +48,7 @@ export {
   getAuthService,
   getChurchService,
 } from "./services";
+export type { ApiServiceConfig } from "./services";
 
 // Type exports
 export * from "./types";
