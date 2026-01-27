@@ -45,11 +45,11 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({
       setError(null);
     } catch (_err) {
       const errorMessage =
-        err instanceof Error
-          ? err.message
+        _err instanceof Error
+          ? _err.message
           : "Failed to initialize API services";
       setError(errorMessage);
-      onError?.(err instanceof Error ? err : new Error(errorMessage));
+      onError?.(_err instanceof Error ? _err : new Error(errorMessage));
     }
   }, [config, onError]);
 
