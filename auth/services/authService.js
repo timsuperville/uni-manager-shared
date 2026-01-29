@@ -22,6 +22,7 @@ import {
 import { getCurrentAppConfig } from "../config/appConfigs.js";
 import { tokenStorage } from "../utils/tokenStorage.js";
 import { validateCredentials } from "../utils/authValidation.js";
+import { getApiBaseUrl } from "../../api/config/apiConfig.js";
 
 class AuthService {
   constructor(config = {}) {
@@ -46,7 +47,7 @@ class AuthService {
 
     // Merge app-specific config with defaults
     this.config = {
-      apiBaseUrl: config.apiBaseUrl || "", // Empty string uses relative paths (proxied by Vite)
+      apiBaseUrl: config.apiBaseUrl || getApiBaseUrl(), // Use centralized API URL config
       endpoints: {
         login: "/api/v1/auth/login",
         logout: "/api/v1/auth/logout",

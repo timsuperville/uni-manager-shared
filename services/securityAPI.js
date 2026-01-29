@@ -17,11 +17,12 @@
  */
 
 import axios from "axios";
+import { getApiBaseUrl } from "../api/config/apiConfig.js";
 
 class SecurityAPIService {
   constructor() {
     // API Configuration
-    this.baseURL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
+    this.baseURL = `${getApiBaseUrl()}/api`; // Use centralized API URL config
     this.cache = new Map();
     this.cacheTimeout = 5 * 60 * 1000; // 5 minutes
     this.retryAttempts = 3;

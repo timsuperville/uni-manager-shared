@@ -1,7 +1,8 @@
 /* eslint-disable no-console, no-undef */
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+import { getApiBaseUrl } from "../api/config/apiConfig.js";
+
+const API_BASE_URL = getApiBaseUrl();
 const API_BASE = `${API_BASE_URL}/api/v1/locations`;
 
 // Helper for requests
@@ -29,185 +30,198 @@ const request = async (endpoint, options = {}) => {
 
 // Simple in-memory cache
 const cache = {
-  countries: null,
-  subdivisions: {},
-  addressFormats: {},
+  data: {},
+  set(key, value, ttl = 300000) {
+    // 5 minutes default
+    this.data[key] = {
+      value,
+      expiry: Date.now() + ttl,
+    };
+  },
+  get(key) {
+    const item = this.data[key];
+    if (!item) return null;
+    if (Date.now() > item.expiry) {
+      delete this.data[key];
+      return null;
+    }
+    return item.value;
+  },
+  invalidate(pattern) {
+    const regex = new RegExp(pattern);
+    Object.keys(this.data).forEach((key) => {
+      if (regex.test(key)) {
+        delete this.data[key];
+      }
+    });
+  },
 };
 
+/**
+ * Location Service - Handles all location-related API calls
+ */
 export const LocationService = {
   /**
-   * Get all supported countries
-   * @returns {Promise<Array>} Array of countries
+   * Get all countries
    */
-  getCountries: async () => {
-    if (cache.countries) return cache.countries;
+  async getCountries() {
+    const cacheKey = "countries";
+    const cached = cache.get(cacheKey);
+    if (cached) return cached;
 
     try {
       const data = await request(`${API_BASE}/countries`);
-      const countries = data.data || data || []; // Handle {data: []} or []
-      cache.countries = countries;
-      return countries;
-    } catch (error) {
-      console.error("Failed to fetch countries", error);
-      return [];
-    }
-  },
-
-  /**
-   * Get subdivisions for a country
-   * @param {string} countryCode - Country code (e.g. 'US')
-   * @returns {Promise<object>} Subdivisions data including dynamic label type
-   */
-  getSubdivisions: async (countryCode) => {
-    if (!countryCode) return { subdivisions: [], subdivisionType: "areas" };
-
-    if (cache.subdivisions[countryCode]) {
-      return cache.subdivisions[countryCode];
-    }
-
-    try {
-      // Assuming query param for country
-      const data = await request(
-        `${API_BASE}/subdivisions?country=${countryCode}`,
-      );
-      cache.subdivisions[countryCode] = data;
+      cache.set(cacheKey, data);
       return data;
     } catch (error) {
-      console.error(`Failed to fetch subdivisions for ${countryCode}`, error);
-      return { subdivisions: [], subdivisionType: "areas" };
+      console.error("[LocationService] Failed to fetch countries:", error);
+      throw error;
     }
   },
 
   /**
-   * Get cities for a specific state/region
-   * @param {string} countryCode - Country code
-   * @param {string} stateCode - State/Region code
-   * @returns {Promise<Array>} Array of cities
+   * Get states/provinces for a country
+   * @param {string} countryCode - ISO country code (e.g., 'US', 'CA')
    */
-  getCities: async (countryCode, stateCode) => {
-    if (!countryCode || !stateCode) return [];
+  async getStates(countryCode) {
+    if (!countryCode) {
+      throw new Error("Country code is required");
+    }
 
-    // Check if we have cached cities (optional, maybe skip for now)
+    const cacheKey = `states-${countryCode}`;
+    const cached = cache.get(cacheKey);
+    if (cached) return cached;
 
     try {
-      // Use the new endpoint
-      const data = await request(
-        `${API_BASE}/countries/${countryCode}/states/${stateCode}/cities`
+      const data = await request(`${API_BASE}/countries/${countryCode}/states`);
+      cache.set(cacheKey, data);
+      return data;
+    } catch (error) {
+      console.error(
+        `[LocationService] Failed to fetch states for ${countryCode}:`,
+        error,
       );
-      return data.data || [];
-    } catch (error) {
-      console.error(`Failed to fetch cities for ${countryCode}/${stateCode}`, error);
-      return [];
+      throw error;
     }
   },
 
   /**
-   * Get address format for a country
-   * @param {string} countryCode - Country code
-   * @returns {Promise<object>} Address format configuration
+   * Get cities for a state
+   * @param {string} countryCode - ISO country code
+   * @param {string} stateCode - State/province code
    */
-  getAddressFormat: async (countryCode) => {
-    if (!countryCode) return null;
-
-    if (cache.addressFormats[countryCode]) {
-      return cache.addressFormats[countryCode];
+  async getCities(countryCode, stateCode) {
+    if (!countryCode || !stateCode) {
+      throw new Error("Country code and state code are required");
     }
+
+    const cacheKey = `cities-${countryCode}-${stateCode}`;
+    const cached = cache.get(cacheKey);
+    if (cached) return cached;
 
     try {
-      const data = await request(`${API_BASE}/address-formats/${countryCode}`);
-      const format = data.format;
-      cache.addressFormats[countryCode] = format;
-      return format;
+      const data = await request(
+        `${API_BASE}/countries/${countryCode}/states/${stateCode}/cities`,
+      );
+      cache.set(cacheKey, data);
+      return data;
     } catch (error) {
-      // Fallback or silence error if endpoint missing/not critical
-      return null;
+      console.error(
+        `[LocationService] Failed to fetch cities for ${countryCode}/${stateCode}:`,
+        error,
+      );
+      throw error;
     }
   },
 
   /**
-   * Detect user's country based on browser timezone
-   * @returns {string|null} Detected country code or null
-   */
-  detectCountry: () => {
-    try {
-      const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      if (!timeZone) return null;
-
-      // Simple mapping for common timezones to country codes
-      if (
-        timeZone.startsWith("America/New_York") ||
-        timeZone.startsWith("America/Los_Angeles") ||
-        timeZone.startsWith("America/Chicago")
-      )
-        return "US";
-      if (timeZone.startsWith("Europe/London")) return "GB";
-      if (timeZone.startsWith("Europe/Paris")) return "FR";
-      if (timeZone.startsWith("Asia/Tokyo")) return "JP";
-      if (timeZone.startsWith("Australia/Sydney")) return "AU";
-      if (timeZone.startsWith("America/Toronto")) return "CA";
-
-      return null;
-    } catch (e) {
-      return null;
-    }
-  },
-
-  /**
-   * Get city suggestions based on query and country
+   * Search locations by name
    * @param {string} query - Search query
-   * @param {string} countryCode - Country code to filter by (optional)
-   * @returns {Promise<Array>} Array of city suggestions
+   * @param {string} type - Type of location ('country', 'state', 'city')
    */
-  getCitySuggestions: async (query, countryCode) => {
-    if (!query || query.length < 2) return [];
+  async searchLocations(query, type = "all") {
+    if (!query || query.length < 2) {
+      return [];
+    }
+
+    const cacheKey = `search-${type}-${query}`;
+    const cached = cache.get(cacheKey);
+    if (cached) return cached;
 
     try {
-      const params = new URLSearchParams({ q: query, limit: "10" });
-      if (countryCode) params.append("country", countryCode);
-
       const data = await request(
-        `${API_BASE}/cities/suggestions?${params.toString()}`,
+        `${API_BASE}/search?q=${encodeURIComponent(query)}&type=${type}`,
       );
-      return data.suggestions || [];
+      cache.set(cacheKey, data, 60000); // 1 minute for searches
+      return data;
     } catch (error) {
-      console.error("Failed to fetch city suggestions", error);
-      return [];
+      console.error(`[LocationService] Failed to search locations:`, error);
+      throw error;
     }
   },
 
   /**
-   * Reverse geocode coordinates to get address details (City, State, Country)
-   * Uses OpenStreetMap Nominatim (Free, no key required for low volume)
-   * @param {number} lat - Latitude
-   * @param {number} lng - Longitude
-   * @returns {Promise<object|null>} Address details or null
+   * Get location details by coordinates
+   * @param {number} latitude
+   * @param {number} longitude
    */
-  reverseGeocode: async (lat, lng) => {
+  async getLocationByCoords(latitude, longitude) {
+    if (!latitude || !longitude) {
+      throw new Error("Latitude and longitude are required");
+    }
+
     try {
-      // Using OSM Nominatim API directly from client side
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10&addressdetails=1`,
+      const data = await request(
+        `${API_BASE}/geocode?lat=${latitude}&lng=${longitude}`,
+      );
+      return data;
+    } catch (error) {
+      console.error(`[LocationService] Failed to geocode coordinates:`, error);
+      throw error;
+    }
+  },
+
+  /**
+   * Get user's current location (requires geolocation permission)
+   */
+  async getCurrentLocation() {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject(new Error("Geolocation is not supported by this browser"));
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          try {
+            const location = await this.getLocationByCoords(
+              position.coords.latitude,
+              position.coords.longitude,
+            );
+            resolve(location);
+          } catch (error) {
+            reject(error);
+          }
+        },
+        (error) => reject(error),
         {
-          headers: {
-            "User-Agent": "UniManager/1.0", // Required by OSM policy
-          },
+          enableHighAccuracy: true,
+          timeout: 5000,
+          maximumAge: 0,
         },
       );
+    });
+  },
 
-      if (!response.ok) throw new Error("Geocoding failed");
-
-      const data = await response.json();
-      const addr = data.address || {};
-
-      return {
-        city: addr.city || addr.town || addr.village || addr.municipality,
-        state: addr.state || addr.region,
-        countryCode: addr.country_code ? addr.country_code.toUpperCase() : null,
-        country: addr.country,
-      };
-    } catch (error) {
-      console.error("Reverse geocoding failed", error);
-      return null;
+  /**
+   * Clear location cache
+   * @param {string} pattern - Optional regex pattern to match keys
+   */
+  clearCache(pattern = null) {
+    if (pattern) {
+      cache.invalidate(pattern);
+    } else {
+      cache.data = {};
     }
   },
 };
