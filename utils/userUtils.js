@@ -12,7 +12,16 @@
  */
 export const getUserAvatar = (user) => {
   if (!user) return null;
-  return user.avatarUrl || user.avatar || null;
+  const url = user.avatarUrl || user.avatar || null;
+
+  // If URL starts with /uploads, prepend backend URL for img tags
+  // Vite proxy only works for fetch/XHR, not img src
+  if (url && url.startsWith("/uploads")) {
+    const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+    return `${backendUrl}${url}`;
+  }
+
+  return url;
 };
 
 /**
@@ -24,7 +33,16 @@ export const getUserAvatar = (user) => {
  */
 export const getUserCoverImage = (user) => {
   if (!user) return null;
-  return user.coverImageUrl || user.coverImage || null;
+  const url = user.coverImageUrl || user.coverImage || null;
+
+  // If URL starts with /uploads, prepend backend URL for img tags
+  // Vite proxy only works for fetch/XHR, not img src
+  if (url && url.startsWith("/uploads")) {
+    const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+    return `${backendUrl}${url}`;
+  }
+
+  return url;
 };
 
 /**
