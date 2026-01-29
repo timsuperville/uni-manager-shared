@@ -3,6 +3,8 @@
  * Provides standardized access to user data fields
  */
 
+import { getAbsoluteUploadUrl } from "../api/utils";
+
 /**
  * Get user's avatar URL with fallback
  * Checks both avatarUrl (immediate upload response) and avatar (persisted DB field)
@@ -13,15 +15,7 @@
 export const getUserAvatar = (user) => {
   if (!user) return null;
   const url = user.avatarUrl || user.avatar || null;
-
-  // If URL starts with /uploads, prepend backend URL for img tags
-  // Vite proxy only works for fetch/XHR, not img src
-  if (url && url.startsWith("/uploads")) {
-    const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
-    return `${backendUrl}${url}`;
-  }
-
-  return url;
+  return getAbsoluteUploadUrl(url);
 };
 
 /**
@@ -34,15 +28,7 @@ export const getUserAvatar = (user) => {
 export const getUserCoverImage = (user) => {
   if (!user) return null;
   const url = user.coverImageUrl || user.coverImage || null;
-
-  // If URL starts with /uploads, prepend backend URL for img tags
-  // Vite proxy only works for fetch/XHR, not img src
-  if (url && url.startsWith("/uploads")) {
-    const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
-    return `${backendUrl}${url}`;
-  }
-
-  return url;
+  return getAbsoluteUploadUrl(url);
 };
 
 /**
