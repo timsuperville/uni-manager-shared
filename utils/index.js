@@ -5,3 +5,4 @@ export * from "./liturgicalCalendar";
 export * from "./performance";
 export * from "./performanceOptimizations";
 export * from "./responsiveUtils";
+export * from "./userUtils";
