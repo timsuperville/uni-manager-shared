@@ -131,7 +131,7 @@ class SecurityAPIService {
       this.emit("profileUpdated", updatedProfile);
 
       return updatedProfile;
-    } catch (_error) {
+    } catch (error) {
       throw this.handleAPIError(error);
     }
   }
@@ -197,7 +197,7 @@ class SecurityAPIService {
       }
 
       return result;
-    } catch (_error) {
+    } catch (error) {
       throw this.handleAPIError(error);
     }
   }
@@ -227,7 +227,7 @@ class SecurityAPIService {
       this.setCacheData(cacheKey, recommendations, 2 * 60 * 1000); // 2-minute cache
 
       return recommendations;
-    } catch (_error) {
+    } catch (error) {
       return this.handleErrorWithFallback("getSecurityRecommendations", []);
     }
   }
@@ -258,7 +258,7 @@ class SecurityAPIService {
       this.setCacheData(cacheKey, badgeData);
 
       return badgeData;
-    } catch (_error) {
+    } catch (error) {
       return this.handleErrorWithFallback("getBadgesAndAchievements", {
         badges: [],
         achievements: [],
@@ -295,7 +295,7 @@ class SecurityAPIService {
       }
 
       return result;
-    } catch (_error) {
+    } catch (error) {
       throw this.handleAPIError(error);
     }
   }
@@ -317,7 +317,7 @@ class SecurityAPIService {
         context,
       );
       return response.data;
-    } catch (_error) {
+    } catch (error) {
       // Fail secure - deny access on error
       return {
         granted: false,
@@ -345,7 +345,7 @@ class SecurityAPIService {
       this.emit("contextUpdated", response.data);
 
       return response.data;
-    } catch (_error) {
+    } catch (error) {
       throw this.handleAPIError(error);
     }
   }
@@ -401,7 +401,7 @@ class SecurityAPIService {
       });
 
       return true;
-    } catch (_error) {
+    } catch (error) {
       // console.warn('🔐 Failed to report security event:', error);
       return false;
     }
@@ -420,7 +420,7 @@ class SecurityAPIService {
     try {
       const response = await this.api.post("/security/batch", { operations });
       return response.data;
-    } catch (_error) {
+    } catch (error) {
       // Process operations individually if batch fails
       // console.warn('🔐 Batch operation failed, processing individually');
       return Promise.allSettled(
@@ -666,7 +666,7 @@ class SecurityAPIService {
       this.invalidateCachePattern(userId);
 
       return true;
-    } catch (_error) {
+    } catch (error) {
       throw this.handleAPIError(error);
     }
   }
