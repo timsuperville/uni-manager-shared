@@ -120,8 +120,8 @@ class AuthService {
     if (!response.ok) {
       throw new Error(
         data.message ||
-        data.error ||
-        `Request failed with status ${response.status}`,
+          data.error ||
+          `Request failed with status ${response.status}`,
       );
     }
 
@@ -370,7 +370,6 @@ class AuthService {
       }),
     });
 
-
     const responseData = await response.json();
 
     return {
@@ -470,14 +469,16 @@ class AuthService {
     const responseData = await this._handleResponse(response);
 
     if (responseData.success) {
-      // Update current user cover
+      // Update current user cover (set both fields for persistence)
       this.currentUser = {
         ...this.currentUser,
         coverImageUrl: responseData.coverImageUrl,
+        coverImage: responseData.coverImageUrl, // Also set coverImage for persistence
       };
       return {
         success: true,
         coverImageUrl: responseData.coverImageUrl,
+        user: responseData.user,
         message: responseData.message || "Cover image uploaded successfully",
       };
     }
@@ -513,7 +514,6 @@ class AuthService {
   // ===============================
   // OAUTH AUTHENTICATION
   // ===============================
-
 
   /**
    * Start OAuth authentication flow
