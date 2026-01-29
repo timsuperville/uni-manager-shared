@@ -79,6 +79,29 @@ export const LocationService = {
   },
 
   /**
+   * Get cities for a specific state/region
+   * @param {string} countryCode - Country code
+   * @param {string} stateCode - State/Region code
+   * @returns {Promise<Array>} Array of cities
+   */
+  getCities: async (countryCode, stateCode) => {
+    if (!countryCode || !stateCode) return [];
+
+    // Check if we have cached cities (optional, maybe skip for now)
+
+    try {
+      // Use the new endpoint
+      const data = await request(
+        `${API_BASE}/countries/${countryCode}/states/${stateCode}/cities`
+      );
+      return data.data || [];
+    } catch (error) {
+      console.error(`Failed to fetch cities for ${countryCode}/${stateCode}`, error);
+      return [];
+    }
+  },
+
+  /**
    * Get address format for a country
    * @param {string} countryCode - Country code
    * @returns {Promise<object>} Address format configuration

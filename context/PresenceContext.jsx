@@ -8,7 +8,7 @@ import React, {
 } from "react";
 import { useAuth } from "../auth/context/AuthContext";
 
-const PresenceContext = createContext(null);
+export const PresenceContext = createContext(null);
 
 export const PresenceProvider = ({ children }) => {
   const { user } = useAuth();

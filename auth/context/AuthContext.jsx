@@ -722,6 +722,7 @@ export const AuthProvider = ({
           user: {
             ...prev.user,
             avatarUrl: result.avatarUrl,
+            avatar: result.avatarUrl,
           },
         }));
 
@@ -752,6 +753,7 @@ export const AuthProvider = ({
           user: {
             ...prev.user,
             coverImageUrl: result.coverImageUrl,
+            coverImage: result.coverImageUrl,
           },
         }));
 

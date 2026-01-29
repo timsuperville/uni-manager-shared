@@ -17,13 +17,7 @@ vi.mock("lucide-react", () => ({
   SlidersHorizontal: () => <span data-testid="icon-sliders" />,
 }));
 
-vi.mock("../../context/PresenceContext", () => ({
-  usePresence: () => ({
-    isConnected: true,
-    status: "available",
-    setStatus: vi.fn(),
-  }),
-}));
+
 
 describe("UserMenu Component", () => {
   // Setup default mocks

@@ -145,12 +145,30 @@ class AuthService {
         }),
       });
 
-      // Use safe parser but don't throw on error, just return null
+      // Explicitly check for invalid token (401/403)
+      if (response.status === 401 || response.status === 403) {
+        await this.clearStoredAuth();
+        return null;
+      }
+
+      // If server error or network issue (response not ok but not 401/403), or if response parsing fails
+      // We assume offline/temporary issue and restore session from storage
       let responseData;
       try {
-        responseData = await this._handleResponse(response);
+        if (response.ok) {
+          responseData = await this._handleResponse(response);
+        } else {
+          throw new Error(`Server returned ${response.status}`);
+        }
       } catch (e) {
-        await this.clearStoredAuth();
+        // Fallback to offline session restoration
+        // console.warn('Session verification failed, restoring from storage (Offline Mode)', e);
+        const storedUser = await tokenStorage.getUser();
+        if (storedUser) {
+          this.currentUser = storedUser;
+          this.sessionToken = token;
+          return storedUser;
+        }
         return null;
       }
 
@@ -166,9 +184,13 @@ class AuthService {
 
       return responseData.user;
     } catch (_error) {
-      // console.error('Session verification failed:', error);
-      // Clear auth on verification failure
-      await this.clearStoredAuth();
+      // Network error (fetch failed) -> Restore from storage (Offline Mode)
+      const storedUser = await tokenStorage.getUser();
+      if (storedUser) {
+        this.currentUser = storedUser;
+        this.sessionToken = token;
+        return storedUser;
+      }
       return null;
     }
   }

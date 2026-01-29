@@ -2,9 +2,9 @@
  * UserMenu Component
  * Unified user menu with app-specific branding, accessibility, and animations
  */
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect, useCallback, useContext } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
-import { usePresence } from "@shared/context"; // Use alias to ensure singleton consistency with App
+import { PresenceContext } from "../../context/PresenceContext"; // Use relative path to ensure context identity match
 import { getCurrentAppConfig } from "../config/appConfigs.js";
 import { motion, AnimatePresence } from "framer-motion";
 import { User, LogOut, ChevronDown, SlidersHorizontal } from "lucide-react";
@@ -83,18 +83,16 @@ const UserMenu = ({
 }) => {
   const { user, logout, isLoading } = useAuth();
   // Safe usePresence (optional consumption)
-  let isConnected = true;
-  let status = "available";
-  let setStatus = () => {};
-  try {
-    const presence = usePresence();
-    isConnected = presence.isConnected;
-    status = presence.status || "available";
-    setStatus = presence.setStatus || (() => {});
-  } catch (e) {
-    console.error("PresenceContext missing or failed in UserMenu:", e);
-    // PresenceProvider might not be up in all apps yet
-  }
+
+
+  // Safe presence consumption
+  // We use useContext directly instead of the hook because the hook throws if provider is missing
+  // This allows UserMenu to work in apps without PresenceProvider while still being reactive
+  const presence = useContext(PresenceContext);
+
+  const isConnected = presence?.isConnected ?? true;
+  const status = presence?.status || "available";
+  const setStatus = presence?.setStatus || (() => { });
 
   const appConfig = getCurrentAppConfig();
   const location = useLocation();
@@ -193,8 +191,8 @@ const UserMenu = ({
   };
 
   const getStatusColor = () => {
-    if (!isConnected) return "bg-gray-400";
-    return status === "available" ? "bg-green-500" : "bg-amber-500";
+    // Show status color even if offline/disconnected to ensure UI feedback
+    return status === "available" ? "bg-green-500" : "bg-gray-400";
   };
 
   if (isLoading) return <UserMenuSkeleton />;
@@ -212,15 +210,18 @@ const UserMenu = ({
       >
         <div className="relative">
           <UserAvatar user={user} appConfig={appConfig} size="md" />
-          {/* Online Indicator */}
+          {/* Availability Indicator */}
           <span
-            className={`absolute bottom-0 right-0 w-2.5 h-2.5 border-2 border-white dark:border-gray-900 rounded-full ${getStatusColor()}`}
+            className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 border-2 border-white dark:border-gray-900 rounded-full ${getStatusColor()} ring-1 ring-white/20 dark:ring-gray-900/20`}
             title={
               !isConnected
-                ? "Offline"
+                ? `Offline (${status === "available" ? "Available" : "Unavailable"})`
                 : status === "available"
-                  ? "Online"
-                  : "Away / Busy"
+                  ? "Available"
+                  : "Unavailable"
+            }
+            aria-label={
+              status === "available" ? "Available" : "Unavailable"
             }
           />
         </div>
@@ -267,7 +268,7 @@ const UserMenu = ({
                     className="mt-1 text-xs flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                   >
                     <span
-                      className={`w-1.5 h-1.5 rounded-full ${status === "available" ? "bg-green-500" : "bg-amber-500"}`}
+                      className={`w-1.5 h-1.5 rounded-full ${status === "available" ? "bg-green-500" : "bg-gray-400"}`}
                     />
                     <span className="text-gray-600 dark:text-gray-300">
                       {status === "available" ? "Available" : "Unavailable"}
