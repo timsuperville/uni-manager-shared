@@ -5,6 +5,16 @@
  * all 6 Uni-Manager applications with consistent patterns and types.
  */
 
+// Configuration exports (Single source of truth)
+export type { ApiConfig } from "./config/apiConfig";
+export {
+  getApiBaseUrl,
+  getAbsoluteUrl,
+  getDefaultApiConfig,
+  createDevApiConfig,
+  createProdApiConfig,
+} from "./config/apiConfig";
+
 // Core exports
 export { ApiClient } from "./core/ApiClient";
 export type {
