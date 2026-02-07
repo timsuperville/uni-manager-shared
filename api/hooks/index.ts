@@ -53,11 +53,13 @@ export const useAuth = () => {
         setIsAuthenticated(authStatus.isAuthenticated);
         setUser(authStatus.user || null);
         setError(null);
-      } catch (_err) {
+      } catch (error) {
         setIsAuthenticated(false);
         setUser(null);
         setError(
-          err instanceof Error ? err.message : "Authentication check failed",
+          error instanceof Error
+            ? error.message
+            : "Authentication check failed",
         );
       } finally {
         setIsLoading(false);
@@ -76,9 +78,9 @@ export const useAuth = () => {
         setUser(response.user);
         setIsAuthenticated(true);
         return response;
-      } catch (_err) {
-        setError(err instanceof Error ? err.message : "Login failed");
-        throw err;
+      } catch (error) {
+        setError(error instanceof Error ? error.message : "Login failed");
+        throw error;
       } finally {
         setIsLoading(false);
       }
@@ -110,9 +112,9 @@ export const useAuth = () => {
         setUser(response.user);
         setIsAuthenticated(true);
         return response;
-      } catch (_err) {
-        setError(err instanceof Error ? err.message : "Signup failed");
-        throw err;
+      } catch (error) {
+        setError(error instanceof Error ? error.message : "Signup failed");
+        throw error;
       } finally {
         setIsLoading(false);
       }
@@ -129,57 +131,6 @@ export const useAuth = () => {
     logout,
     signup,
     authService: api.auth,
-  };
-};
-
-/**
- * Hook for church operations
- */
-export const useChurch = () => {
-  const api = useApi();
-
-  const getChurches = useCallback(
-    async (filters?: any, pagination?: any) => {
-      return api.church.getChurches(filters, pagination);
-    },
-    [api],
-  );
-
-  const getChurch = useCallback(
-    async (churchId: string) => {
-      return api.church.getChurch(churchId);
-    },
-    [api],
-  );
-
-  const createChurch = useCallback(
-    async (churchData: any) => {
-      return api.church.createChurch(churchData);
-    },
-    [api],
-  );
-
-  const updateChurch = useCallback(
-    async (churchId: string, updates: any) => {
-      return api.church.updateChurch(churchId, updates);
-    },
-    [api],
-  );
-
-  const searchChurches = useCallback(
-    async (query: string, filters?: any) => {
-      return api.church.searchChurches(query, filters);
-    },
-    [api],
-  );
-
-  return {
-    getChurches,
-    getChurch,
-    createChurch,
-    updateChurch,
-    searchChurches,
-    churchService: api.church,
   };
 };
 
@@ -211,8 +162,8 @@ export function useApiQuery<T>(
       const result = await queryFn();
       setData(result);
       setIsFetched(true);
-    } catch (_err) {
-      setError(err instanceof Error ? err.message : "Query failed");
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Query failed");
       setData(null);
     } finally {
       setIsLoading(false);
@@ -263,8 +214,11 @@ export function useApiMutation<TData, TVariables>(
         setData(result);
         onSuccess?.(result, variables);
         return result;
-      } catch (_err) {
-        const error = err instanceof Error ? err : new Error("Mutation failed");
+      } catch (caughtError) {
+        const error =
+          caughtError instanceof Error
+            ? caughtError
+            : new Error("Mutation failed");
         setError(error.message);
         onError?.(error, variables);
         throw error;
@@ -355,8 +309,11 @@ export const useFileUpload = (
           );
 
         return uploadResult;
-      } catch (_err) {
-        const error = err instanceof Error ? err : new Error("Upload failed");
+      } catch (caughtError) {
+        const error =
+          caughtError instanceof Error
+            ? caughtError
+            : new Error("Upload failed");
         setError(error.message);
         onError?.(error);
         throw error;

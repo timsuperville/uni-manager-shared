@@ -595,6 +595,38 @@ export const AuthProvider = ({
     }
   }, []); // Empty dependency array - run only once
 
+  // Listen for global auth failure events (from interceptor)
+  useEffect(() => {
+    const handleAuthFailure = () => {
+      setAuthState((prev) => ({
+        ...prev,
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+        lastActivity: Date.now(),
+        error: "Session expired. Please log in again.",
+      }));
+
+      // Notify callback
+      if (onAuthStateChangeRef.current) {
+        onAuthStateChangeRef.current({
+          user: null,
+          isAuthenticated: false,
+        });
+      }
+    };
+
+    if (typeof window !== "undefined") {
+      window.addEventListener("auth:failure", handleAuthFailure);
+    }
+
+    return () => {
+      if (typeof window !== "undefined") {
+        window.removeEventListener("auth:failure", handleAuthFailure);
+      }
+    };
+  }, []);
+
   // Set up activity tracking
   useEffect(() => {
     if (!authState.isAuthenticated) return;

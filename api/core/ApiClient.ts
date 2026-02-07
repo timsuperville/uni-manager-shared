@@ -32,6 +32,7 @@ export interface RequestOptions {
   retryAttempts?: number;
   timeout?: number;
   headers?: Record<string, string>;
+  params?: Record<string, string | number | boolean | undefined>;
   onUploadProgress?: (progressEvent: any) => void;
   onDownloadProgress?: (progressEvent: any) => void;
 }
@@ -143,6 +144,7 @@ export class ApiClient {
       data,
       timeout: options.timeout || this.config.timeout,
       headers: options.headers as any,
+      params: options.params,
       onUploadProgress: options.onUploadProgress,
       onDownloadProgress: options.onDownloadProgress,
     };
@@ -154,7 +156,7 @@ export class ApiClient {
       this.config.cacheEnabled
     ) {
       const cacheKey = this.cacheManager.generateKey(endpoint, data);
-      const cachedResponse = this.cacheManager.get<T>(cacheKey);
+      const cachedResponse = this.cacheManager.get<ApiResponse<T>>(cacheKey);
 
       if (cachedResponse) {
         return cachedResponse;

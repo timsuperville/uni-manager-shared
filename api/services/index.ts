@@ -1,15 +1,7 @@
-/**
- * Unified API Service Registry
- *
- * Main entry point for all API services providing a consistent
- * interface for all applications in the Uni-Manager ecosystem.
- */
-
 import { ApiClient, ApiClientConfig } from "../core/ApiClient";
 import { AuthService } from "./AuthService";
 import { FileService } from "./FileService";
 import { NotificationService } from "./NotificationService";
-
 // Import types for easier access
 export * from "../types";
 export { ApiClient } from "../core/ApiClient";
@@ -182,13 +174,6 @@ export class ApiServices {
       (window as any).clearApiCache = () => this.clearAllCaches();
       (window as any).apiCacheStats = () => this.getCacheStats();
       (window as any).apiHealthCheck = () => this.healthCheck();
-
-      // console.log('🔧 API Services Debug Mode Enabled');
-      // console.log('Available commands:');
-      // console.log('  - typeof window !== "undefined" && window.apiServices: Access to all API services');
-      // console.log('  - typeof window !== "undefined" && window.clearApiCache(): Clear all API caches');
-      // console.log('  - typeof window !== "undefined" && window.apiCacheStats(): Get cache statistics');
-      // console.log('  - typeof window !== "undefined" && window.apiHealthCheck(): Check service health');
     }
   }
 

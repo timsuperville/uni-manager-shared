@@ -65,7 +65,6 @@ export * from "./types";
 export {
   useApi,
   useAuth,
-  useChurch,
   useApiQuery,
   useApiMutation,
   useFileUpload,

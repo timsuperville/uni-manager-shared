@@ -214,6 +214,27 @@ export const LocationService = {
   },
 
   /**
+   * Detect country from browser settings
+   */
+  detectCountry() {
+    try {
+      const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      if (!timeZone) return "";
+
+      // Very basic mapping for common timezones
+      if (timeZone.startsWith("America/")) return "US";
+      if (timeZone.startsWith("Europe/London")) return "GB";
+      if (timeZone.startsWith("Europe/")) return "DE"; // Fallback for Europe
+      if (timeZone.startsWith("Asia/Tokyo")) return "JP";
+      if (timeZone.startsWith("Australia/")) return "AU";
+
+      return "";
+    } catch (e) {
+      return "";
+    }
+  },
+
+  /**
    * Clear location cache
    * @param {string} pattern - Optional regex pattern to match keys
    */
