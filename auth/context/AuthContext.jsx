@@ -776,7 +776,10 @@ export const AuthProvider = ({
   const changePassword = useCallback(
     async (currentPassword, newPassword) => {
       try {
-        const result = await authService.changePassword(currentPassword, newPassword);
+        const result = await authService.changePassword(
+          currentPassword,
+          newPassword,
+        );
         return result;
       } catch (error) {
         if (onErrorRef.current) {
@@ -788,6 +791,56 @@ export const AuthProvider = ({
       }
     },
     [authService],
+  );
+
+  /**
+   * Update user preferences
+   * Currently stores preferences locally in user state
+   * TODO: Wire up backend API endpoint when available
+   */
+  const updatePreferences = useCallback(
+    async (preferences) => {
+      try {
+        // For now, update local state only
+        // When backend is ready, uncomment this:
+        // const result = await authService.updatePreferences(preferences);
+
+        // Update local user state with new preferences
+        setAuthState((prev) => ({
+          ...prev,
+          user: {
+            ...prev.user,
+            preferences: {
+              ...(prev.user?.preferences || {}),
+              ...preferences,
+            },
+          },
+        }));
+
+        // Also update in localStorage for persistence
+        const currentUser = authState.user;
+        if (currentUser) {
+          const updatedUser = {
+            ...currentUser,
+            preferences: {
+              ...(currentUser.preferences || {}),
+              ...preferences,
+            },
+          };
+          await tokenStorage.updateUser(updatedUser);
+        }
+
+        return { success: true, message: "Preferences updated successfully" };
+      } catch (error) {
+        if (onErrorRef.current) {
+          setTimeout(() => {
+            onErrorRef.current(error);
+          }, 0);
+        }
+        throw error;
+      }
+    },
+    [authState.user],
   );
 
   const contextValue = {
@@ -812,6 +865,7 @@ export const AuthProvider = ({
     uploadAvatar,
     uploadCoverImage,
     changePassword,
+    updatePreferences,
 
     // Utilities
     authService,
