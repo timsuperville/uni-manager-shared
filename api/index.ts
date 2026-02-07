@@ -45,7 +45,6 @@ export type {
 } from "./services/BaseService";
 
 export { AuthService } from "./services/AuthService";
-export { ChurchService } from "./services/ChurchService";
 
 // Main service registry
 export {
@@ -56,7 +55,6 @@ export {
   initializeApiServices,
   getApiServices,
   getAuthService,
-  getChurchService,
 } from "./services";
 export type { ApiServiceConfig } from "./services";
 

@@ -87,10 +87,11 @@ frontend/shared/api/
 │   ├── ErrorHandler.ts  # Centralized error handling
 │   ├── CacheManager.ts  # Intelligent caching system
 │   └── AuthInterceptor.ts # Authentication management
-├── services/            # Feature-specific services
-│   ├── BaseService.ts   # Abstract base class
+├── services/            # Shared services only
+│   ├── BaseService.ts   # Abstract base class for all services
 │   ├── AuthService.ts   # Authentication operations
-│   ├── ChurchService.ts # Church management
+│   ├── FileService.ts   # File management
+│   ├── NotificationService.ts # Notifications
 │   └── index.ts         # Service registry
 ├── types/               # TypeScript definitions
 │   └── index.ts         # All type definitions
@@ -100,6 +101,19 @@ frontend/shared/api/
 │   └── ApiProvider.tsx  # Context provider
 └── examples/            # Integration examples
     └── integration-examples.tsx
+
+frontend/apps/church/src/features/
+├── church/
+│   └── services/ChurchService.ts    # Church-specific operations
+├── events/
+│   └── services/EventService.ts     # Event management
+├── songs/
+│   └── services/SongService.ts      # Song library
+└── services/
+    └── services/WorshipService.ts   # Worship services
+
+Note: Feature-specific services now live in their respective feature folders
+and import shared infrastructure from @shared/api
 ```
 
 ### Core Classes
@@ -208,24 +222,35 @@ Handles authentication operations.
 - `changePassword(data)` - Change user password
 - `checkAuthStatus()` - Check authentication status
 
-### ChurchService
+### Feature-Specific Services
 
-Manages church-related operations.
+**Important:** Feature-specific services (ChurchService, EventService, SongService, etc.) now live in their respective app feature folders, not in the shared API layer.
 
-**Available Methods:**
+For example:
 
-- `getChurches(filters?, pagination?)` - List churches
-- `getChurch(id)` - Get specific church
-- `createChurch(data)` - Create new church
-- `updateChurch(id, updates)` - Update church
-- `deleteChurch(id)` - Delete church
-- `searchChurches(query, filters?)` - Search churches
-- `getChurchMembers(churchId, filters?, pagination?)` - Get church members
-- `getChurchMember(churchId, memberId)` - Get specific member
-- `updateChurchMember(churchId, memberId, updates)` - Update member
-- `removeChurchMember(churchId, memberId)` - Remove member
+- `ChurchService` → `apps/church/src/features/church/services/ChurchService.ts`
+- `EventService` → `apps/church/src/features/events/services/EventService.ts`
+- `SongService` → `apps/church/src/features/songs/services/SongService.ts`
+- `WorshipService` → `apps/church/src/features/services/services/WorshipService.ts`
+
+All feature services extend `BaseService` from `@shared/api` and follow the same patterns:
+
+```typescript
+import { BaseService, ValidationSchema } from "@shared/api";
+import type { ApiClient } from "@shared/api";
+
+class ChurchService extends BaseService {
+  constructor(client: ApiClient) {
+    super(client, "churches");
+  }
+
+  // Church-specific methods...
+}
+```
 
 ### EventService
+
+**Location:** `apps/church/src/features/events/services/EventService.ts`
 
 Comprehensive event management system.
 

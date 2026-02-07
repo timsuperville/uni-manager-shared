@@ -7,8 +7,6 @@
 
 import { ApiClient, ApiClientConfig } from "../core/ApiClient";
 import { AuthService } from "./AuthService";
-import { ChurchService } from "./ChurchService";
-import { EventService } from "./EventService";
 import { FileService } from "./FileService";
 import { NotificationService } from "./NotificationService";
 
@@ -31,7 +29,6 @@ export interface ApiServiceConfig extends ApiClientConfig {
   enableDebugLogging?: boolean;
   serviceTimeout?: {
     auth?: number;
-    church?: number;
     default?: number;
   };
 }
@@ -39,8 +36,6 @@ export interface ApiServiceConfig extends ApiClientConfig {
 export class ApiServices {
   private client: ApiClient;
   private _auth: AuthService;
-  private _church: ChurchService;
-  private _events: EventService;
   private _files: FileService;
   private _notifications: NotificationService;
 
@@ -57,8 +52,6 @@ export class ApiServices {
 
     // Initialize services
     this._auth = new AuthService(this.client);
-    this._church = new ChurchService(this.client);
-    this._events = new EventService(this.client);
     this._files = new FileService(this.client);
     this._notifications = new NotificationService(this.client);
 
@@ -73,20 +66,6 @@ export class ApiServices {
    */
   get auth(): AuthService {
     return this._auth;
-  }
-
-  /**
-   * Church management service
-   */
-  get church(): ChurchService {
-    return this._church;
-  }
-
-  /**
-   * Event management service
-   */
-  get events(): EventService {
-    return this._events;
   }
 
   /**
@@ -162,14 +141,6 @@ export class ApiServices {
         results.auth = "up";
       } catch (_error) {
         results.auth = "down";
-      }
-
-      // Test church service with a simple request
-      try {
-        await this.church.getChurches({}, { page: 1, limit: 1 });
-        results.church = "up";
-      } catch (_error) {
-        results.church = "down";
       }
 
       // Determine overall status
@@ -307,14 +278,7 @@ export function getAuthService(): AuthService {
   return getApiServices().auth;
 }
 
-/**
- * Convenience function to get church service
- */
-export function getChurchService(): ChurchService {
-  return getApiServices().church;
-}
-
 // ==================== EXPORTS ====================
 
-export { AuthService, ChurchService };
+export { AuthService };
 export default ApiServices;

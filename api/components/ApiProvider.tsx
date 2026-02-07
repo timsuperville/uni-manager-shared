@@ -5,6 +5,7 @@
  */
 
 import React, { useEffect, useState, useMemo } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ApiServices } from "../services";
 import type { ApiServiceConfig } from "../services";
 
@@ -36,6 +37,20 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({
   const [apiServices, setApiServices] = useState<ApiServices | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Create a client for React Query
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            refetchOnWindowFocus: false,
+            retry: 1,
+            staleTime: 60 * 1000, // 1 minute default stale time
+          },
+        },
+      }),
+  );
 
   useEffect(() => {
     try {
@@ -77,7 +92,9 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({
   }
 
   return (
-    <ApiContext.Provider value={contextValue}>{children}</ApiContext.Provider>
+    <QueryClientProvider client={queryClient}>
+      <ApiContext.Provider value={contextValue}>{children}</ApiContext.Provider>
+    </QueryClientProvider>
   );
 };
 
