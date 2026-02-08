@@ -26,12 +26,14 @@ const ApiContext = React.createContext<ApiContextValue | null>(null);
 interface ApiProviderProps {
   children: React.ReactNode;
   config: ApiServiceConfig;
+  services?: ApiServices;
   onError?: (error: Error) => void;
 }
 
 export const ApiProvider: React.FC<ApiProviderProps> = ({
   children,
   config,
+  services: existingServices,
   onError,
 }) => {
   const [apiServices, setApiServices] = useState<ApiServices | null>(null);
@@ -54,6 +56,12 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({
 
   useEffect(() => {
     try {
+      if (existingServices) {
+        setApiServices(existingServices);
+        setIsInitialized(true);
+        setError(null);
+        return;
+      }
       const services = new ApiServices(config);
       setApiServices(services);
       setIsInitialized(true);
@@ -66,7 +74,7 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({
       setError(errorMessage);
       onError?.(_err instanceof Error ? _err : new Error(errorMessage));
     }
-  }, [config, onError]);
+  }, [config, existingServices, onError]);
 
   const contextValue = useMemo(() => {
     if (!apiServices) {

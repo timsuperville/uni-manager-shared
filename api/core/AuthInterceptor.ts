@@ -5,7 +5,12 @@
  * and authentication-related request/response processing.
  */
 
-import { InternalAxiosRequestConfig, AxiosResponse, AxiosError, AxiosRequestConfig } from "axios";
+import {
+  InternalAxiosRequestConfig,
+  AxiosResponse,
+  AxiosError,
+  AxiosRequestConfig,
+} from "axios";
 
 export interface AuthTokens {
   accessToken: string;
@@ -61,7 +66,7 @@ export class AuthInterceptor {
     const token = this.getValidToken();
 
     if (token) {
-      config.headers = config.headers || {};
+      config.headers = (config.headers || {}) as any;
       config.headers[this.config.headerName] =
         `${this.config.tokenPrefix} ${token}`;
     }
@@ -166,6 +171,13 @@ export class AuthInterceptor {
   }
 
   /**
+   * Check if token exists
+   */
+  hasToken(): boolean {
+    return !!this.tokens?.accessToken;
+  }
+
+  /**
    * Check if token is expired or about to expire
    */
   isTokenExpired(): boolean {
@@ -265,11 +277,28 @@ export class AuthInterceptor {
 
   private loadTokensFromStorage(): void {
     try {
-      const storage = this.getStorage();
+      let storage = this.getStorage();
 
-      const accessToken = storage.getItem(this.config.tokenKey);
-      const refreshToken = storage.getItem(this.config.refreshTokenKey);
-      const expiresAt = storage.getItem(`${this.config.tokenKey}_expires`);
+      let accessToken = storage.getItem(this.config.tokenKey);
+      let refreshToken = storage.getItem(this.config.refreshTokenKey);
+      let expiresAt = storage.getItem(`${this.config.tokenKey}_expires`);
+
+      // Fallback to alternative storage if token not found
+      if (!accessToken && typeof window !== "undefined") {
+        const fallbackStorage =
+          this.config.tokenStorage === "localStorage"
+            ? window.sessionStorage
+            : window.localStorage;
+
+        const fallbackToken = fallbackStorage.getItem(this.config.tokenKey);
+        if (fallbackToken) {
+          accessToken = fallbackToken;
+          refreshToken = fallbackStorage.getItem(this.config.refreshTokenKey);
+          expiresAt = fallbackStorage.getItem(
+            `${this.config.tokenKey}_expires`,
+          );
+        }
+      }
 
       if (accessToken) {
         this.tokens = {
@@ -327,9 +356,9 @@ export class AuthInterceptor {
       // SSR or Node.js environment
       return {
         getItem: () => null,
-        setItem: () => { },
-        removeItem: () => { },
-        clear: () => { },
+        setItem: () => {},
+        removeItem: () => {},
+        clear: () => {},
         length: 0,
         key: () => null,
       };
@@ -337,13 +366,17 @@ export class AuthInterceptor {
 
     switch (this.config.tokenStorage) {
       case "sessionStorage":
-        return (typeof window !== "undefined" ? window.sessionStorage : null) as Storage;
+        return (
+          typeof window !== "undefined" ? window.sessionStorage : null
+        ) as Storage;
       case "memory":
         // Simple in-memory storage (not persistent)
         return this.createMemoryStorage();
       case "localStorage":
       default:
-        return (typeof window !== "undefined" ? window.localStorage : null) as Storage;
+        return (
+          typeof window !== "undefined" ? window.localStorage : null
+        ) as Storage;
     }
   }
 

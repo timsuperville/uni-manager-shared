@@ -5,7 +5,7 @@
  * with React applications across the Uni-Manager ecosystem.
  */
 
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState, useRef } from "react";
 import { ApiServices } from "../services";
 import type { User } from "../types";
 import { ApiContext } from "../components/ApiProvider";
@@ -153,13 +153,24 @@ export function useApiQuery<T>(
 
   const { enabled = true, refetchOnMount = true } = options || {};
 
+  const queryFnRef = useRef(queryFn);
+
+  // Update ref when queryFn changes
+  useEffect(() => {
+    queryFnRef.current = queryFn;
+  }, [queryFn]);
+
+  // Stable key for dependency array
+  const queryKeyString = JSON.stringify(queryKey);
+
   const execute = useCallback(async () => {
     if (!enabled) return;
 
     try {
       setIsLoading(true);
       setError(null);
-      const result = await queryFn();
+      // Use ref to avoid dependency on queryFn which changes on every render
+      const result = await queryFnRef.current();
       setData(result);
       setIsFetched(true);
     } catch (error) {
@@ -168,7 +179,7 @@ export function useApiQuery<T>(
     } finally {
       setIsLoading(false);
     }
-  }, [queryFn, enabled]);
+  }, [enabled]); // Removes queryFn from dependencies
 
   const refetch = useCallback(() => {
     return execute();
@@ -178,7 +189,7 @@ export function useApiQuery<T>(
     if (enabled && (!isFetched || refetchOnMount)) {
       execute();
     }
-  }, [execute, enabled, isFetched, refetchOnMount]);
+  }, [execute, enabled, isFetched, refetchOnMount, queryKeyString]);
 
   return {
     data,

@@ -314,6 +314,13 @@ export class ApiClient {
   }
 
   /**
+   * Check if authentication token exists
+   */
+  hasAuthToken(): boolean {
+    return this.authInterceptor.hasToken();
+  }
+
+  /**
    * Clear authentication token
    */
   clearAuthToken(): void {

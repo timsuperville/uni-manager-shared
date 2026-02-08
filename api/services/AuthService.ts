@@ -385,6 +385,11 @@ export class AuthService extends BaseService {
    * Check authentication status
    */
   async checkAuthStatus(): Promise<{ isAuthenticated: boolean; user?: User }> {
+    // Check if token exists in client storage
+    if (!this.client.hasAuthToken()) {
+      return { isAuthenticated: false };
+    }
+
     try {
       const user = await this.getCurrentUser();
       return { isAuthenticated: true, user };

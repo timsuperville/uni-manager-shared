@@ -214,6 +214,11 @@ export function createDevApiServices(baseURL?: string): ApiServices {
     retryAttempts: 1,
     cacheEnabled: true,
     authEnabled: true,
+    authConfig: {
+      tokenKey: "uni_auth_access_token",
+      refreshTokenKey: "uni_auth_refresh_token",
+      tokenStorage: "sessionStorage",
+    },
   });
 }
 
@@ -228,6 +233,11 @@ export function createProdApiServices(baseURL: string): ApiServices {
     retryAttempts: 3,
     cacheEnabled: true,
     authEnabled: true,
+    authConfig: {
+      tokenKey: "uni_auth_access_token",
+      refreshTokenKey: "uni_auth_refresh_token",
+      tokenStorage: "sessionStorage",
+    },
   });
 }
 
