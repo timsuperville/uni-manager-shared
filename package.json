@@ -44,6 +44,7 @@
   "dependencies": {
     "@vitest/coverage-v8": "^4.0.16",
     "@vitest/ui": "^4.0.16",
+    "idb-keyval": "^6.2.2",
     "lerna": "9.0.3",
     "socket.io-client": "^4.8.3",
     "swagger-jsdoc": "6.2.8"

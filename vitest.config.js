@@ -28,6 +28,7 @@ export default defineConfig({
       "hooks/**/*.{test,spec}.{js,jsx,ts,tsx}",
       "services/**/*.{test,spec}.{js,jsx,ts,tsx}",
       "utils/**/*.{test,spec}.{js,jsx,ts,tsx}",
+      "api/**/*.{test,spec}.{js,jsx,ts,tsx}",
     ],
     coverage: {
       provider: "v8",

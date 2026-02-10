@@ -9,6 +9,9 @@ import { useCallback, useContext, useEffect, useState, useRef } from "react";
 import { ApiServices } from "../services";
 import type { User } from "../types";
 import { ApiContext } from "../components/ApiProvider";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { syncEngine } from "../syncEngine";
+import { useOnlineStatus } from "../../hooks/useOnlineStatus";
 
 // ==================== TYPES ====================
 
@@ -138,63 +141,29 @@ export const useAuth = () => {
  * Generic hook for API queries with caching and loading states
  */
 export function useApiQuery<T>(
-  queryKey: string,
+  queryKey: string | any[],
   queryFn: () => Promise<T>,
   options?: {
     enabled?: boolean;
     refetchOnMount?: boolean;
     cacheTime?: number;
+    staleTime?: number;
   },
 ) {
-  const [data, setData] = useState<T | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [isFetched, setIsFetched] = useState(false);
+  const { enabled = true, refetchOnMount = true, staleTime } = options || {};
 
-  const { enabled = true, refetchOnMount = true } = options || {};
-
-  const queryFnRef = useRef(queryFn);
-
-  // Update ref when queryFn changes
-  useEffect(() => {
-    queryFnRef.current = queryFn;
-  }, [queryFn]);
-
-  // Stable key for dependency array
-  const queryKeyString = JSON.stringify(queryKey);
-
-  const execute = useCallback(async () => {
-    if (!enabled) return;
-
-    try {
-      setIsLoading(true);
-      setError(null);
-      // Use ref to avoid dependency on queryFn which changes on every render
-      const result = await queryFnRef.current();
-      setData(result);
-      setIsFetched(true);
-    } catch (error) {
-      setError(error instanceof Error ? error.message : "Query failed");
-      setData(null);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [enabled]); // Removes queryFn from dependencies
-
-  const refetch = useCallback(() => {
-    return execute();
-  }, [execute]);
-
-  useEffect(() => {
-    if (enabled && (!isFetched || refetchOnMount)) {
-      execute();
-    }
-  }, [execute, enabled, isFetched, refetchOnMount, queryKeyString]);
+  const { data, isLoading, error, isFetched, refetch } = useQuery({
+    queryKey: Array.isArray(queryKey) ? queryKey : [queryKey],
+    queryFn,
+    enabled,
+    refetchOnMount,
+    staleTime,
+  });
 
   return {
-    data,
+    data: data ?? null,
     isLoading,
-    error,
+    error: error ? error.message : null,
     isFetched,
     refetch,
   };
@@ -208,49 +177,32 @@ export function useApiMutation<TData, TVariables>(
   options?: {
     onSuccess?: (data: TData, variables: TVariables) => void;
     onError?: (error: Error, variables: TVariables) => void;
+    mutationKey?: string;
+    mutationName?: string; // e.g., 'ministry.create'
   },
 ) {
-  const [data, setData] = useState<TData | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const { onSuccess, onError } = options || {};
-
-  const mutate = useCallback(
-    async (variables: TVariables) => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        const result = await mutationFn(variables);
-        setData(result);
-        onSuccess?.(result, variables);
-        return result;
-      } catch (caughtError) {
-        const error =
-          caughtError instanceof Error
-            ? caughtError
-            : new Error("Mutation failed");
-        setError(error.message);
-        onError?.(error, variables);
-        throw error;
-      } finally {
-        setIsLoading(false);
+  const isOnline = useOnlineStatus();
+  const { mutateAsync, data, isPending, error, reset } = useMutation({
+    mutationFn: async (variables: TVariables) => {
+      if (!isOnline && options?.mutationName) {
+        await syncEngine.queueMutation(
+          options.mutationKey || "general",
+          [variables],
+          options.mutationName,
+        );
+        return { offline: true } as any;
       }
+      return mutationFn(variables);
     },
-    [mutationFn, onSuccess, onError],
-  );
-
-  const reset = useCallback(() => {
-    setData(null);
-    setError(null);
-    setIsLoading(false);
-  }, []);
+    ...options,
+    mutationKey: options?.mutationKey ? [options.mutationKey] : undefined,
+  });
 
   return {
-    mutate,
-    data,
-    isLoading,
-    error,
+    mutate: mutateAsync,
+    data: data ?? null,
+    isLoading: isPending,
+    error: error ? error.message : null,
     reset,
   };
 }
