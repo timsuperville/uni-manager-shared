@@ -345,6 +345,7 @@ export interface EventFilters {
   requiresRegistration?: boolean;
   churchId?: string;
   search?: string;
+  groupId?: string;
 }
 
 // ==================== EVENT REQUESTS ====================
