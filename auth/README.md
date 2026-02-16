@@ -1,6 +1,6 @@
-# Universal Login Form Component
+# Shared Authentication System
 
-A comprehensive, reusable login component designed to work across all frontend applications in the Uni-Manager system.
+A comprehensive, reusable authentication system designed to work across all frontend applications in the Uni-Manager system.
 
 ## Features
 
@@ -15,11 +15,11 @@ A comprehensive, reusable login component designed to work across all frontend a
 ## Quick Start
 
 ```jsx
-import { UniversalLoginForm } from "@shared/auth/components/UniversalLoginForm";
+import { LoginForm } from "@shared/auth";
 
 // Basic usage
 export function LoginPage() {
-  return <UniversalLoginForm appType="admin" />;
+  return <LoginForm appType="admin" />;
 }
 ```
 
@@ -116,7 +116,7 @@ function LoginPage() {
     toast.error("Please check your credentials");
   };
 
-  return <UniversalLoginForm appType="business" onSuccess={handleSuccess} onError={handleError} />;
+  return <LoginForm appType="business" onSuccess={handleSuccess} onError={handleError} />;
 }
 ```
 
@@ -124,7 +124,7 @@ function LoginPage() {
 
 ```jsx
 function CustomLoginPage() {
-  return <UniversalLoginForm appType="default" appTitle="My Custom App" appDescription="Welcome to our special portal" theme="dark" redirectPath="/custom-dashboard" showRememberMe={false} showRegistration={true} />;
+  return <LoginForm appType="default" appTitle="My Custom App" appDescription="Welcome to our special portal" theme="dark" redirectPath="/custom-dashboard" showRememberMe={false} showRegistration={true} />;
 }
 ```
 
@@ -134,14 +134,14 @@ Replace existing login forms by importing and using the Universal component:
 
 ```jsx
 // Before: App-specific login form
-import { LoginForm } from "./features/auth/components/LoginForm";
+import { LoginForm as OldLoginForm } from "./features/auth/components/LoginForm";
 
-// After: Universal login form
-import { UniversalLoginForm } from "@shared/auth/components/UniversalLoginForm";
+// After: Shared auth login form
+import { LoginForm } from "@shared/auth";
 
 export function AuthPage() {
   return (
-    <UniversalLoginForm
+    <LoginForm
       appType="admin"
       onSuccess={(result) => {
         // Existing success logic
@@ -175,11 +175,11 @@ The component includes built-in validation:
 The component comes with comprehensive test coverage:
 
 ```bash
-# Run tests for the Universal Login component
-npm test -- UniversalLoginForm.test.jsx
+# Run tests for the LoginForm component
+npm test -- LoginForm.test.jsx
 
 # Run with coverage
-npm test -- --coverage UniversalLoginForm.test.jsx
+npm test -- --coverage LoginForm.test.jsx
 ```
 
 ## TypeScript Support
@@ -198,20 +198,20 @@ const handleSuccess = (result: LoginResult) => {
 
 ### From Existing Login Forms
 
-1. **Import the Universal component**:
+1. **Import the LoginForm component**:
 
    ```jsx
-   import { UniversalLoginForm } from "@shared/auth/components/UniversalLoginForm";
+   import { LoginForm } from "@shared/auth";
    ```
 
-2. **Replace existing form with Universal component**:
+2. **Replace existing form with LoginForm component**:
 
    ```jsx
    // Before
-   <LoginForm onSuccess={handleSuccess} />
+   <OldLoginForm onSuccess={handleSuccess} />
 
    // After
-   <UniversalLoginForm
+   <LoginForm
      appType="admin"
      onSuccess={handleSuccess}
    />
@@ -246,17 +246,17 @@ const handleSuccess = (result: LoginResult) => {
 import { MemoryRouter } from "react-router-dom";
 
 <MemoryRouter>
-  <UniversalLoginForm appType="admin" />
+  <LoginForm appType="admin" />
 </MemoryRouter>;
 ```
 
-**Authentication not working**: Verify your AuthContext is properly set up:
+**Authentication not working**: Verify your AuthProvider is properly set up:
 
 ```jsx
-import { AuthProvider } from "@shared/auth/context/AuthContext";
+import { AuthProvider } from "@shared/auth";
 
 <AuthProvider>
-  <UniversalLoginForm appType="admin" />
+  <LoginForm appType="admin" />
 </AuthProvider>;
 ```
 
@@ -270,13 +270,14 @@ import type { LoginFormProps } from "@shared/auth/types/auth.types";
 
 ## Contributing
 
-When modifying the Universal Login Form:
+When modifying the authentication system:
 
-1. Update the component in `UniversalLoginForm.jsx`
-2. Add/update tests in `UniversalLoginForm.test.jsx`
-3. Update TypeScript interfaces in `auth.types.ts`
+1. Update components in `components/`
+2. Add/update tests in `tests/`
+3. Update TypeScript interfaces in `types/auth.types.ts`
 4. Update this README with any new features
-5. Test across all app types to ensure compatibility
+5. Test across all apps to ensure compatibility
+6. Run linting and formatting
 
 ## Performance
 

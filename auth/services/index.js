@@ -10,6 +10,34 @@
  * import { sessionService, authService, mfaService } from '@shared/auth/services';
  */
 
+// ==================== DIRECT EXPORTS (New Refactored Services) ====================
+
+/**
+ * Rate Limiting Service
+ * Handles login attempt tracking and rate limiting
+ */
+export { RateLimitService } from "./RateLimitService.js";
+
+/**
+ * Token Management Service
+ * Handles token storage, validation, and auto-refresh
+ */
+export { TokenManagementService } from "./TokenManagementService.js";
+
+/**
+ * Email/Password Authentication Service
+ * Handles traditional email/password authentication flows
+ */
+export { EmailPasswordAuthService } from "./EmailPasswordAuthService.js";
+
+/**
+ * OAuth Authentication Service
+ * Handles OAuth 2.0 provider integration and authentication
+ */
+export { OAuthAuthService } from "./OAuthAuthService.js";
+
+// ==================== LAZY-LOADED SERVICES ====================
+
 /**
  * Get session service (consolidated from 4 files)
  * Handles session management, token storage, device fingerprinting, cross-tab sync
@@ -32,22 +60,6 @@ export function getAuthService() {
  */
 export function getMFAService() {
   return import("./mfaService.js").then((m) => m.default);
-}
-
-/**
- * Get token service
- * Handles token generation, validation, refresh
- */
-export function getTokenService() {
-  return import("./TokenService.js").then((m) => m.default);
-}
-
-/**
- * Get OAuth service
- * Handles OAuth provider integration and authentication
- */
-export function getOAuthService() {
-  return import("./oauthService.js").then((m) => m.default);
 }
 
 /**
@@ -87,7 +99,25 @@ export function getCacheService() {
  * Handles cross-application integration
  */
 export function getCrossAppService() {
-  return import("./crossAppIntegration.js").then((m) => m.default);
+  return import("./CrossAppService.js").then((m) => m.default);
+}
+
+/**
+ * Get token service (backward compatibility)
+ * Returns TokenManagementService instance
+ */
+export function getTokenService() {
+  // Return the TokenManagementService class for backward compatibility
+  return Promise.resolve(TokenManagementService);
+}
+
+/**
+ * Get OAuth service (backward compatibility)
+ * Returns OAuthAuthService instance
+ */
+export function getOAuthService() {
+  // Return the OAuthAuthService class for backward compatibility
+  return Promise.resolve(OAuthAuthService);
 }
 
 // ==================== SYNCHRONOUS EXPORTS (for already-loaded services) ====================

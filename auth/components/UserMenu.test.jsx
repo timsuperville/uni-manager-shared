@@ -17,8 +17,6 @@ vi.mock("lucide-react", () => ({
   SlidersHorizontal: () => <span data-testid="icon-sliders" />,
 }));
 
-
-
 describe("UserMenu Component", () => {
   // Setup default mocks
   const mockUser = {

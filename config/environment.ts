@@ -34,3 +34,13 @@ export const getApiUrl = (): string => {
   const config = getSharedEnvironmentConfig();
   return config.api.baseUrl;
 };
+
+export const getWebSocketUrl = (): string => {
+  const config = getSharedEnvironmentConfig();
+  // Return WS URL if specified, otherwise transform API URL
+  const wsUrl = import.meta.env.VITE_WS_URL;
+  if (wsUrl) return wsUrl;
+
+  const baseUrl = config.api.baseUrl;
+  return baseUrl.replace(/^http/, "ws");
+};

@@ -23,6 +23,8 @@ import { getCurrentAppConfig } from "../config/appConfigs.js";
 import { tokenStorage } from "../utils/tokenStorage.js";
 import { validateCredentials } from "../utils/authValidation.js";
 import { getApiBaseUrl } from "../../api/config/apiConfig.js";
+import { RateLimitService } from "./RateLimitService.js";
+import { TokenManagementService } from "./TokenManagementService.js";
 
 class AuthService {
   constructor(config = {}) {
@@ -69,9 +71,21 @@ class AuthService {
     this.sessionToken = null;
     this.deviceFingerprint = null;
     this.activityTracker = null;
-    this.loginAttempts = new Map();
-    this.maxLoginAttempts = 5;
-    this.lockoutDuration = 15 * 60 * 1000; // 15 minutes
+
+    // Initialize service dependencies
+    this.rateLimitService = new RateLimitService({
+      maxLoginAttempts: this.config.maxLoginAttempts || 5,
+      lockoutDuration: this.config.lockoutDuration || 15 * 60 * 1000,
+    });
+    this.tokenService = new TokenManagementService({
+      onTokenRefreshed: this.config.onTokenRefreshed,
+      onTokenExpired: this.config.onTokenExpired,
+    });
+
+    // Backward compatibility - keep old properties
+    this.loginAttempts = this.rateLimitService.loginAttempts;
+    this.maxLoginAttempts = this.rateLimitService.maxAttempts;
+    this.lockoutDuration = this.rateLimitService.lockoutDuration;
   }
 
   /**

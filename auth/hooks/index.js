@@ -12,6 +12,13 @@
 
 export { default as useAuth } from "./useAuth.js";
 
+// ==================== CORE CONTEXT HOOKS ====================
+
+// Internal hooks for AuthContext refactoring
+export { useAuthState } from "./useAuthState.js";
+export { useAuthActions } from "./useAuthActions.js";
+export { useAuthCallbacks } from "./useAuthCallbacks.js";
+
 // ==================== SPECIALIZED HOOKS ====================
 
 // Login/Logout

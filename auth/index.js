@@ -1,3 +1,5 @@
+import React from "react";
+
 /**
  * Unified Authentication System - Main Export Hub
  * ================================================
@@ -7,7 +9,7 @@
  * - Custom Hooks (9 specialized hooks)
  * - UI Components (forms, MFA, session, RBAC, etc.)
  * - Services (consolidated session, auth, MFA, etc.)
- * - Type Definitions (16 JSDoc types, 200+ constants)
+ * - Type Definitions (comprehensive TypeScript types)
  * - Configuration (app configs, OAuth providers)
  *
  * Quick Start:
@@ -100,12 +102,34 @@ export { default as ForgotPasswordForm } from "./components/ForgotPasswordForm.j
 
 // --- MFA Components ---
 
-export { default as MFAVerification } from "./components/MFAVerification.jsx";
-export { default as MFASetup } from "./components/MFASetup.jsx";
-export { default as MFASetupWizard } from "./components/MFASetupWizard.jsx";
-export { default as MFAManagement } from "./components/MFAManagement.jsx";
-export { default as MFAManagementDashboard } from "./components/MFAManagementDashboard.jsx";
+// Note: MFAVerification, MFASetup, MFAManagement are lazy-loaded below for performance
 export { default as MFALoginIntegration } from "./components/MFALoginIntegration.jsx";
+
+// --- MFA Components (Lazy Loaded for Performance) ---
+
+/**
+ * MFA Verification Component (Lazy Loaded)
+ * Shows when user needs to verify MFA code
+ */
+export const MFAVerification = React.lazy(
+  () => import("./components/MFAVerification.jsx"),
+);
+
+/**
+ * MFA Setup Wizard Component (Lazy Loaded)
+ * Guides user through MFA setup process
+ */
+export const MFASetupWizard = React.lazy(
+  () => import("./components/MFASetupWizard.jsx"),
+);
+
+/**
+ * MFA Management Dashboard Component (Lazy Loaded)
+ * Allows user to manage MFA settings
+ */
+export const MFAManagementDashboard = React.lazy(
+  () => import("./components/MFAManagementDashboard.jsx"),
+);
 
 // --- OAuth Components ---
 
@@ -115,11 +139,9 @@ export { default as OAuthCallback } from "./components/OAuthCallback.jsx";
 // --- Authorization & RBAC ---
 
 export { default as ProtectedRoute } from "./components/ProtectedRoute.jsx";
-export { default as RBACComponents } from "./components/RBACComponents.jsx";
 
 // --- Session Management ---
 
-export { default as SessionManagementDashboard } from "./components/SessionManagementDashboard.jsx";
 export { default as SessionWarning } from "./components/SessionWarning.jsx";
 
 // --- Security ---
@@ -134,6 +156,43 @@ export { default as AppSwitcher } from "./components/AppSwitcher.jsx";
 // --- User Management ---
 
 export { default as UserMenu } from "./components/UserMenu.jsx";
+
+// --- Session Components (Lazy Loaded) ---
+
+/**
+ * Session Management Dashboard Component (Lazy Loaded)
+ */
+export const SessionManagementDashboard = React.lazy(
+  () => import("./components/SessionManagementDashboard.jsx"),
+);
+
+/**
+ * Active Sessions List Component (Lazy Loaded)
+ * TODO: Component file needs to be created
+ */
+// export const ActiveSessionsList = React.lazy(
+//   () => import("./components/ActiveSessionsList.jsx"),
+// );
+
+// --- RBAC Components (Lazy Loaded) ---
+
+/**
+ * Permission Guard Component (Lazy Loaded)
+ * Shows content only if user has required permissions
+ */
+export const PermissionGuard = React.lazy(() =>
+  import("./rbac/RBACComponents.jsx").then((m) => ({
+    default: m.PermissionGuard,
+  })),
+);
+
+/**
+ * Role Guard Component (Lazy Loaded)
+ * Shows content only if user has required role
+ */
+export const RoleGuard = React.lazy(() =>
+  import("./rbac/RBACComponents.jsx").then((m) => ({ default: m.RoleGuard })),
+);
 
 /**
  * Component utilities
@@ -181,10 +240,10 @@ export {
 // ============================================================================
 
 /**
- * Type Definitions (JSDoc - for IDE intellisense)
- * Export JSDoc types for TypeScript-like type checking
+ * Type Definitions (TypeScript)
+ * Export TypeScript types for full type checking support
  */
-export * from "./types/auth.types.js";
+export * from "./types/auth.types";
 
 /**
  * Constants - Single source of truth for all auth values

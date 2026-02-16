@@ -4,11 +4,11 @@
  */
 
 import { useCallback, useMemo } from "react";
-import { useCacheManager } from "../utils/intelligentCache";
-import { useUserPreferences } from "./useUserPreferences";
-import { useMinistryContext } from "./useMinistryContext";
-import { useSeasonalContext } from "./useSeasonalContext";
-import { useActivityContext } from "./useActivityContext";
+import { useCacheManager } from "../utils/intelligentCache.js";
+import { useUserPreferences } from "./useUserPreferences.js";
+import { useMinistryContext } from "./useMinistryContext.js";
+import { useSeasonalContext } from "./useSeasonalContext.js";
+import { useActivityContext } from "./useActivityContext.js";
 
 // Enhanced User Preferences with Intelligent Caching
 export const useCachedUserPreferences = (userId) => {

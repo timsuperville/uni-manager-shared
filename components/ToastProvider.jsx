@@ -81,6 +81,7 @@ export const ToastProvider = ({
     showError,
     showWarning,
     showInfo,
+    showToast: addToast,
     addToast,
     removeToast,
     clearAllToasts,

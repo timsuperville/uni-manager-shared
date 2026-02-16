@@ -627,7 +627,7 @@ export const cacheManager = new CacheManager();
 /**
  * React hook for intelligent caching
  */
-export function useIntelligentCache() {
+export function useCacheManager() {
   const [cacheStats, setCacheStats] = useState({});
   const statsInterval = useRef(null);
 

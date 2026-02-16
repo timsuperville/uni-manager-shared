@@ -2,7 +2,13 @@
  * UserMenu Component
  * Unified user menu with app-specific branding, accessibility, and animations
  */
-import React, { useState, useRef, useEffect, useCallback, useContext } from "react";
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+  useContext,
+} from "react";
 import { useAuth } from "../context/AuthContext.jsx";
 import { PresenceContext } from "../../context/PresenceContext"; // Use relative path to ensure context identity match
 import { getCurrentAppConfig } from "../config/appConfigs.js";
@@ -84,7 +90,6 @@ const UserMenu = ({
   const { user, logout, isLoading } = useAuth();
   // Safe usePresence (optional consumption)
 
-
   // Safe presence consumption
   // We use useContext directly instead of the hook because the hook throws if provider is missing
   // This allows UserMenu to work in apps without PresenceProvider while still being reactive
@@ -92,7 +97,7 @@ const UserMenu = ({
 
   const isConnected = presence?.isConnected ?? true;
   const status = presence?.status || "available";
-  const setStatus = presence?.setStatus || (() => { });
+  const setStatus = presence?.setStatus || (() => {});
 
   const appConfig = getCurrentAppConfig();
   const location = useLocation();
@@ -220,9 +225,7 @@ const UserMenu = ({
                   ? "Available"
                   : "Unavailable"
             }
-            aria-label={
-              status === "available" ? "Available" : "Unavailable"
-            }
+            aria-label={status === "available" ? "Available" : "Unavailable"}
           />
         </div>
 
