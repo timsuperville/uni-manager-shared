@@ -1,11 +1,9 @@
-/* Shared App Styles - Tailwind CSS v4 */
-@import "tailwindcss";
-@source "./auth";
-@source "./components";
-@source "./features";
-
-/* Enable class-based dark mode for Tailwind v4 */
-@variant dark (&:where(.dark, .dark *));
+/* ================================================================
+   Shared Base Styles
+   NOTE: This file is now only used by frontend/main-website.
+   All other apps (admin, church, home, business, personal, playback)
+   have their own src/index.css with @import "tailwindcss" + @source.
+   ================================================================ */
 
 /* Global styles shared across all apps */
 * {
@@ -19,9 +17,4 @@ body {
     "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* Global Body Styles */
 }
-
-
-
-
