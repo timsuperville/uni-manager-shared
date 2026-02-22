@@ -5,8 +5,10 @@ import React from "react";
 import PropTypes from "prop-types";
 
 // Environment-specific configuration
-const isProd = import.meta.env?.MODE || "development" === "production";
-const isStaging = import.meta.env?.MODE || "development" === "staging";
+const isProd = (import.meta.env?.MODE || "development") === "production";
+const isStaging = (import.meta.env?.MODE || "development") === "staging";
+const API_BASE = import.meta.env?.VITE_API_URL || "http://localhost:5000";
+
 
 // Error Boundary Component for React
 export class ErrorBoundary extends React.Component {
@@ -137,31 +139,31 @@ export class ErrorBoundary extends React.Component {
           : null,
         domContentLoaded: navigation
           ? navigation.domContentLoadedEventEnd -
-            navigation.domContentLoadedEventStart
+          navigation.domContentLoadedEventStart
           : null,
         memoryUsage: performance.memory
           ? {
-              usedJSHeapSize: performance.memory.usedJSHeapSize,
-              totalJSHeapSize: performance.memory.totalJSHeapSize,
-              jsHeapSizeLimit: performance.memory.jsHeapSizeLimit,
-            }
+            usedJSHeapSize: performance.memory.usedJSHeapSize,
+            totalJSHeapSize: performance.memory.totalJSHeapSize,
+            jsHeapSizeLimit: performance.memory.jsHeapSizeLimit,
+          }
           : null,
         connectionType:
           typeof navigator !== "undefined" && navigator.connection
             ? typeof navigator !== "undefined" &&
-              navigator.connection.effectiveType
+            navigator.connection.effectiveType
             : null,
         timing: performance.timing
           ? {
-              pageLoadTime:
-                performance.timing.loadEventEnd -
-                performance.timing.navigationStart,
-              domReadyTime:
-                performance.timing.domContentLoadedEventEnd -
-                performance.timing.navigationStart,
-              connectTime:
-                performance.timing.connectEnd - performance.timing.connectStart,
-            }
+            pageLoadTime:
+              performance.timing.loadEventEnd -
+              performance.timing.navigationStart,
+            domReadyTime:
+              performance.timing.domContentLoadedEventEnd -
+              performance.timing.navigationStart,
+            connectTime:
+              performance.timing.connectEnd - performance.timing.connectStart,
+          }
           : null,
       };
     } catch (_e) {
@@ -192,7 +194,7 @@ export class ErrorBoundary extends React.Component {
     try {
       const userInfo = JSON.parse(
         (typeof localStorage !== "undefined" && localStorage.getItem("user")) ||
-          "{}",
+        "{}",
       );
       return {
         isAuthenticated: !!userInfo.id,
@@ -221,7 +223,7 @@ export class ErrorBoundary extends React.Component {
       return JSON.parse(
         (typeof localStorage !== "undefined" &&
           localStorage.getItem("featureFlags")) ||
-          "{}",
+        "{}",
       );
     } catch (_e) {
       return {};
@@ -352,7 +354,7 @@ export class ErrorBoundary extends React.Component {
   }
 
   async sendToErrorLogging(errorReport) {
-    return fetch("/errors/log", {
+    return fetch(`${API_BASE}/api/v1/errors/log`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -385,7 +387,7 @@ export class ErrorBoundary extends React.Component {
       },
     };
 
-    return fetch("/feedback/submit", {
+    return fetch(`${API_BASE}/api/v1/feedback/submit`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -423,16 +425,14 @@ ${errorReport.autoFeedback.reproductionSteps}
 - Device Pixel Ratio: ${errorReport.viewportInfo.devicePixelRatio}
 
 **Performance Context:**
-${
-  errorReport.performanceInfo.memoryUsage
-    ? `- Memory Usage: ${Math.round(errorReport.performanceInfo.memoryUsage.usedJSHeapSize / 1024 / 1024)}MB`
-    : ""
-}
-${
-  errorReport.performanceInfo.connectionType
-    ? `- Connection: ${errorReport.performanceInfo.connectionType}`
-    : ""
-}
+${errorReport.performanceInfo.memoryUsage
+        ? `- Memory Usage: ${Math.round(errorReport.performanceInfo.memoryUsage.usedJSHeapSize / 1024 / 1024)}MB`
+        : ""
+      }
+${errorReport.performanceInfo.connectionType
+        ? `- Connection: ${errorReport.performanceInfo.connectionType}`
+        : ""
+      }
 
 **Technical Details:**
 \`\`\`
@@ -462,7 +462,7 @@ ${errorReport.componentStack}
       const stored = JSON.parse(
         (typeof localStorage !== "undefined" &&
           localStorage.getItem("pendingErrorReports")) ||
-          "[]",
+        "[]",
       );
       stored.push({
         ...errorReport,
@@ -739,32 +739,32 @@ const collectAdvancedErrorContext = (baseError) => {
     performanceInfo: {
       memory: performance.memory
         ? {
-            usedJSHeapSize: performance.memory.usedJSHeapSize,
-            totalJSHeapSize: performance.memory.totalJSHeapSize,
-            jsHeapSizeLimit: performance.memory.jsHeapSizeLimit,
-          }
+          usedJSHeapSize: performance.memory.usedJSHeapSize,
+          totalJSHeapSize: performance.memory.totalJSHeapSize,
+          jsHeapSizeLimit: performance.memory.jsHeapSizeLimit,
+        }
         : null,
       timing: performance.timing
         ? {
-            loadTime:
-              performance.timing.loadEventEnd -
-              performance.timing.navigationStart,
-            domReady:
-              performance.timing.domContentLoadedEventEnd -
-              performance.timing.navigationStart,
-          }
+          loadTime:
+            performance.timing.loadEventEnd -
+            performance.timing.navigationStart,
+          domReady:
+            performance.timing.domContentLoadedEventEnd -
+            performance.timing.navigationStart,
+        }
         : null,
       connection:
         typeof navigator !== "undefined" && navigator.connection
           ? {
-              effectiveType:
-                typeof navigator !== "undefined" &&
-                navigator.connection.effectiveType,
-              downlink:
-                typeof navigator !== "undefined" &&
-                navigator.connection.downlink,
-              rtt: typeof navigator !== "undefined" && navigator.connection.rtt,
-            }
+            effectiveType:
+              typeof navigator !== "undefined" &&
+              navigator.connection.effectiveType,
+            downlink:
+              typeof navigator !== "undefined" &&
+              navigator.connection.downlink,
+            rtt: typeof navigator !== "undefined" && navigator.connection.rtt,
+          }
           : null,
     },
 
@@ -840,16 +840,14 @@ const sendToFeedbackSystem = async (errorData) => {
 - Online: ${errorData.environment?.onLine}
 
 **Performance Context:**
-${
-  errorData.performanceInfo?.memory
-    ? `- Memory Usage: ${Math.round(errorData.performanceInfo.memory.usedJSHeapSize / 1024 / 1024)}MB`
-    : ""
-}
-${
-  errorData.performanceInfo?.connection
-    ? `- Connection: ${errorData.performanceInfo.connection.effectiveType}`
-    : ""
-}
+${errorData.performanceInfo?.memory
+        ? `- Memory Usage: ${Math.round(errorData.performanceInfo.memory.usedJSHeapSize / 1024 / 1024)}MB`
+        : ""
+      }
+${errorData.performanceInfo?.connection
+        ? `- Connection: ${errorData.performanceInfo.connection.effectiveType}`
+        : ""
+      }
 
 **Recent User Activity:**
 ${errorData.recentActivity?.map((activity, i) => `${i + 1}. ${activity}`).join("\n") || "No recent activity recorded"}
