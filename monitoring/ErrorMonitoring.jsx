@@ -136,31 +136,31 @@ export class ErrorBoundary extends React.Component {
           : null,
         domContentLoaded: navigation
           ? navigation.domContentLoadedEventEnd -
-            navigation.domContentLoadedEventStart
+          navigation.domContentLoadedEventStart
           : null,
         memoryUsage: performance.memory
           ? {
-              usedJSHeapSize: performance.memory.usedJSHeapSize,
-              totalJSHeapSize: performance.memory.totalJSHeapSize,
-              jsHeapSizeLimit: performance.memory.jsHeapSizeLimit,
-            }
+            usedJSHeapSize: performance.memory.usedJSHeapSize,
+            totalJSHeapSize: performance.memory.totalJSHeapSize,
+            jsHeapSizeLimit: performance.memory.jsHeapSizeLimit,
+          }
           : null,
         connectionType:
           typeof navigator !== "undefined" && navigator.connection
             ? typeof navigator !== "undefined" &&
-              navigator.connection.effectiveType
+            navigator.connection.effectiveType
             : null,
         timing: performance.timing
           ? {
-              pageLoadTime:
-                performance.timing.loadEventEnd -
-                performance.timing.navigationStart,
-              domReadyTime:
-                performance.timing.domContentLoadedEventEnd -
-                performance.timing.navigationStart,
-              connectTime:
-                performance.timing.connectEnd - performance.timing.connectStart,
-            }
+            pageLoadTime:
+              performance.timing.loadEventEnd -
+              performance.timing.navigationStart,
+            domReadyTime:
+              performance.timing.domContentLoadedEventEnd -
+              performance.timing.navigationStart,
+            connectTime:
+              performance.timing.connectEnd - performance.timing.connectStart,
+          }
           : null,
       };
     } catch (_e) {
@@ -191,7 +191,7 @@ export class ErrorBoundary extends React.Component {
     try {
       const userInfo = JSON.parse(
         (typeof localStorage !== "undefined" && localStorage.getItem("user")) ||
-          "{}",
+        "{}",
       );
       return {
         isAuthenticated: !!userInfo.id,
@@ -220,7 +220,7 @@ export class ErrorBoundary extends React.Component {
       return JSON.parse(
         (typeof localStorage !== "undefined" &&
           localStorage.getItem("featureFlags")) ||
-          "{}",
+        "{}",
       );
     } catch (_e) {
       return {};
@@ -424,16 +424,14 @@ ${errorReport.autoFeedback.reproductionSteps}
 - Device Pixel Ratio: ${errorReport.viewportInfo.devicePixelRatio}
 
 **Performance Context:**
-${
-  errorReport.performanceInfo.memoryUsage
-    ? `- Memory Usage: ${Math.round(errorReport.performanceInfo.memoryUsage.usedJSHeapSize / 1024 / 1024)}MB`
-    : ""
-}
-${
-  errorReport.performanceInfo.connectionType
-    ? `- Connection: ${errorReport.performanceInfo.connectionType}`
-    : ""
-}
+${errorReport.performanceInfo.memoryUsage
+        ? `- Memory Usage: ${Math.round(errorReport.performanceInfo.memoryUsage.usedJSHeapSize / 1024 / 1024)}MB`
+        : ""
+      }
+${errorReport.performanceInfo.connectionType
+        ? `- Connection: ${errorReport.performanceInfo.connectionType}`
+        : ""
+      }
 
 **Technical Details:**
 \`\`\`
@@ -463,7 +461,7 @@ ${errorReport.componentStack}
       const stored = JSON.parse(
         (typeof localStorage !== "undefined" &&
           localStorage.getItem("pendingErrorReports")) ||
-          "[]",
+        "[]",
       );
       stored.push({
         ...errorReport,
@@ -740,32 +738,32 @@ const collectAdvancedErrorContext = (baseError) => {
     performanceInfo: {
       memory: performance.memory
         ? {
-            usedJSHeapSize: performance.memory.usedJSHeapSize,
-            totalJSHeapSize: performance.memory.totalJSHeapSize,
-            jsHeapSizeLimit: performance.memory.jsHeapSizeLimit,
-          }
+          usedJSHeapSize: performance.memory.usedJSHeapSize,
+          totalJSHeapSize: performance.memory.totalJSHeapSize,
+          jsHeapSizeLimit: performance.memory.jsHeapSizeLimit,
+        }
         : null,
       timing: performance.timing
         ? {
-            loadTime:
-              performance.timing.loadEventEnd -
-              performance.timing.navigationStart,
-            domReady:
-              performance.timing.domContentLoadedEventEnd -
-              performance.timing.navigationStart,
-          }
+          loadTime:
+            performance.timing.loadEventEnd -
+            performance.timing.navigationStart,
+          domReady:
+            performance.timing.domContentLoadedEventEnd -
+            performance.timing.navigationStart,
+        }
         : null,
       connection:
         typeof navigator !== "undefined" && navigator.connection
           ? {
-              effectiveType:
-                typeof navigator !== "undefined" &&
-                navigator.connection.effectiveType,
-              downlink:
-                typeof navigator !== "undefined" &&
-                navigator.connection.downlink,
-              rtt: typeof navigator !== "undefined" && navigator.connection.rtt,
-            }
+            effectiveType:
+              typeof navigator !== "undefined" &&
+              navigator.connection.effectiveType,
+            downlink:
+              typeof navigator !== "undefined" &&
+              navigator.connection.downlink,
+            rtt: typeof navigator !== "undefined" && navigator.connection.rtt,
+          }
           : null,
     },
 
@@ -841,16 +839,14 @@ const sendToFeedbackSystem = async (errorData) => {
 - Online: ${errorData.environment?.onLine}
 
 **Performance Context:**
-${
-  errorData.performanceInfo?.memory
-    ? `- Memory Usage: ${Math.round(errorData.performanceInfo.memory.usedJSHeapSize / 1024 / 1024)}MB`
-    : ""
-}
-${
-  errorData.performanceInfo?.connection
-    ? `- Connection: ${errorData.performanceInfo.connection.effectiveType}`
-    : ""
-}
+${errorData.performanceInfo?.memory
+        ? `- Memory Usage: ${Math.round(errorData.performanceInfo.memory.usedJSHeapSize / 1024 / 1024)}MB`
+        : ""
+      }
+${errorData.performanceInfo?.connection
+        ? `- Connection: ${errorData.performanceInfo.connection.effectiveType}`
+        : ""
+      }
 
 **Recent User Activity:**
 ${errorData.recentActivity?.map((activity, i) => `${i + 1}. ${activity}`).join("\n") || "No recent activity recorded"}
@@ -925,7 +921,7 @@ export const setupGlobalErrorHandling = () => {
       }
     });
 
-  // Handle unhandled promise rejections
+  // Handle unhandled promise rejections — fires in all environments
   typeof window !== "undefined" &&
     window.addEventListener("unhandledrejection", (event) => {
       const baseError = {
@@ -939,23 +935,17 @@ export const setupGlobalErrorHandling = () => {
 
       const enhancedError = collectAdvancedErrorContext(baseError);
 
-      if (isProd || isStaging) {
-        Promise.all([
-          fetch("/errors/log", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(enhancedError),
-          }),
-          sendToFeedbackSystem(enhancedError),
-        ]).catch((err) => {
-          // console.error('Failed to report unhandled rejection:', err);
-        });
-      }
+      Promise.all([
+        fetch("/api/v1/errors/log", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(enhancedError),
+        }),
+        sendToFeedbackSystem(enhancedError),
+      ]).catch(() => { /* swallow — don't loop on monitor failure */ });
     });
 
-  // Handle uncaught errors
+  // Handle uncaught errors — fires in all environments
   typeof window !== "undefined" &&
     window.addEventListener("error", (event) => {
       const baseError = {
@@ -972,21 +962,51 @@ export const setupGlobalErrorHandling = () => {
 
       const enhancedError = collectAdvancedErrorContext(baseError);
 
-      if (isProd || isStaging) {
-        Promise.all([
-          fetch("/errors/log", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(enhancedError),
-          }),
-          sendToFeedbackSystem(enhancedError),
-        ]).catch((err) => {
-          // console.error('Failed to report uncaught error:', err);
-        });
-      }
+      Promise.all([
+        fetch("/api/v1/errors/log", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(enhancedError),
+        }),
+        sendToFeedbackSystem(enhancedError),
+      ]).catch(() => { /* swallow */ });
     });
+};
+
+/**
+ * Layer 3 — Fetch interceptor: automatically reports 5xx responses
+ * to /api/v1/errors/log without any per-call instrumentation.
+ * Call once from main.jsx alongside setupGlobalErrorHandling().
+ */
+export const installFetchInterceptor = () => {
+  if (typeof window === "undefined" || window.__fetchInterceptorInstalled) return;
+  window.__fetchInterceptorInstalled = true;
+
+  const _originalFetch = window.fetch;
+  window.fetch = async function interceptedFetch(...args) {
+    const response = await _originalFetch.apply(this, args);
+    // Skip reporting calls to our own ingest endpoints to prevent loops
+    const url = typeof args[0] === "string" ? args[0] : args[0]?.url ?? "";
+    const isMonitoringCall = /\/api\/v1\/(errors|feedback)\//i.test(url);
+    if (!isMonitoringCall && response.status >= 500) {
+      const errorPayload = {
+        type: "network-5xx",
+        message: `HTTP ${response.status} on ${response.url || url}`,
+        stack: new Error().stack,
+        timestamp: new Date().toISOString(),
+        url: typeof window !== "undefined" && window.location.href,
+        appType: import.meta.env.VITE_APP_TYPE || "unknown",
+        severity: response.status >= 503 ? "critical" : "high",
+        networkInfo: { status: response.status, endpoint: response.url || url },
+      };
+      _originalFetch("/api/v1/errors/log", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(errorPayload),
+      }).catch(() => { /* swallow */ });
+    }
+    return response;
+  };
 };
 
 // Performance monitoring
@@ -1061,10 +1081,14 @@ export const setupHealthCheck = () => {
   }, 30000); // Check every 30 seconds
 };
 
-// Initialize all monitoring in production
+// Initialize all monitoring — global handlers run in every environment;
+// performance monitoring and health checks remain prod/staging-only.
 export const initializeMonitoring = () => {
+  // Always set up global error capture (unhandledrejection, uncaught, fetch 5xx)
+  setupGlobalErrorHandling();
+  installFetchInterceptor();
+  // Performance monitoring and periodic health checks only in production
   if (isProd || isStaging) {
-    setupGlobalErrorHandling();
     setupPerformanceMonitoring();
     setupHealthCheck();
   }
