@@ -8,12 +8,18 @@
 /* global window */
 
 class TokenStorage {
-  constructor() {
+  /**
+   * @param {string} [namespace="uni"] - App-specific prefix for storage keys.
+   *   Each app MUST use its own namespace so sessions never bleed between apps
+   *   running on the same origin (e.g. admin vs home on localhost).
+   */
+  constructor(namespace = "uni") {
+    const ns = namespace;
     this.storageKeys = {
-      accessToken: "uni_auth_access_token",
-      refreshToken: "uni_auth_refresh_token",
-      user: "uni_auth_user_data",
-      sessionId: "uni_auth_session_id",
+      accessToken: `${ns}_auth_access_token`,
+      refreshToken: `${ns}_auth_refresh_token`,
+      user: `${ns}_auth_user_data`,
+      sessionId: `${ns}_auth_session_id`,
     };
 
     // Use sessionStorage by default for security
@@ -282,6 +288,9 @@ export const getTokenExpiryTime = (token = null) => {
   }
 };
 
-// Export singleton instance
+// Export the class so AuthService can create per-app scoped instances
+export { TokenStorage };
+
+// Export singleton instance (default namespace "uni" — backward compatible)
 export const tokenStorage = new TokenStorage();
 export default tokenStorage;

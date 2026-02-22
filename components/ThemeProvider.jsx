@@ -45,7 +45,26 @@ const ThemeContext = createContext({
   ...defaultTokens,
   theme: "system",
   setTheme: () => null,
+  /** The actual resolved value ("dark" | "light") currently applied to <html>. */
+  resolvedTheme: "dark",
 });
+
+/** Apply the correct class to <html> and return the resolved theme. */
+function applyTheme(theme) {
+  const root = window.document.documentElement;
+  root.classList.remove("light", "dark");
+
+  if (theme === "system") {
+    const resolved = window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
+    root.classList.add(resolved);
+    return resolved;
+  }
+
+  root.classList.add(theme);
+  return theme;
+}
 
 // Theme provider component
 export const ThemeProvider = ({
@@ -53,6 +72,8 @@ export const ThemeProvider = ({
   tokens = {},
   defaultTheme = "system",
   storageKey = "uni-manager-theme",
+  /** Optional callback fired whenever setTheme is called by user action. */
+  onThemeChange,
 }) => {
   // Merge provided tokens with defaults
   const mergedTokens = {
@@ -71,33 +92,56 @@ export const ThemeProvider = ({
     borderRadius: { ...defaultTokens.borderRadius, ...tokens.borderRadius },
   };
 
-  const [theme, setTheme] = useState(() => {
-    return localStorage.getItem(storageKey) || defaultTheme;
-  });
+  const [theme, setThemeState] = useState(
+    () => localStorage.getItem(storageKey) || defaultTheme,
+  );
 
+  const [resolvedTheme, setResolvedTheme] = useState(() =>
+    applyTheme(localStorage.getItem(storageKey) || defaultTheme),
+  );
+
+  // ── Sync <html> class whenever theme preference changes ──────────────────
   useEffect(() => {
-    const root = window.document.documentElement;
-    root.classList.remove("light", "dark");
+    const resolved = applyTheme(theme);
+    setResolvedTheme(resolved);
 
-    if (theme === "system") {
-      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
-        .matches
-        ? "dark"
-        : "light";
-      root.classList.add(systemTheme);
-      return;
+    // If in system mode, keep watching for OS-level changes
+    if (theme !== "system") return;
+
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const onOsChange = () => {
+      const newResolved = applyTheme("system");
+      setResolvedTheme(newResolved);
+    };
+
+    // Use the modern addEventListener API with a fallback for Safari < 14
+    if (mq.addEventListener) {
+      mq.addEventListener("change", onOsChange);
+    } else {
+      mq.addListener(onOsChange); // legacy
     }
 
-    root.classList.add(theme);
+    return () => {
+      if (mq.removeEventListener) {
+        mq.removeEventListener("change", onOsChange);
+      } else {
+        mq.removeListener(onOsChange); // legacy
+      }
+    };
   }, [theme]);
+
+  const setTheme = (newTheme) => {
+    localStorage.setItem(storageKey, newTheme);
+    setThemeState(newTheme);
+    // Notify parent (e.g. to persist to backend)
+    onThemeChange?.(newTheme);
+  };
 
   const value = {
     ...mergedTokens,
-    theme,
-    setTheme: (theme) => {
-      localStorage.setItem(storageKey, theme);
-      setTheme(theme);
-    },
+    theme, // "system" | "dark" | "light"  (user's preference)
+    resolvedTheme, // "dark"   | "light"            (what's actually applied)
+    setTheme,
   };
 
   return (
@@ -115,13 +159,19 @@ ThemeProvider.propTypes = {
   }),
   defaultTheme: PropTypes.string,
   storageKey: PropTypes.string,
+  onThemeChange: PropTypes.func,
 };
 
 // Hook to use theme
 export const useTheme = () => {
   const context = useContext(ThemeContext);
   if (!context) {
-    return { ...defaultTokens, theme: "system", setTheme: () => null };
+    return {
+      ...defaultTokens,
+      theme: "system",
+      resolvedTheme: "dark",
+      setTheme: () => null,
+    };
   }
   return context;
 };

@@ -20,7 +20,8 @@ import {
   generateState,
 } from "../config/oauthProviders.js";
 import { getCurrentAppConfig } from "../config/appConfigs.js";
-import { tokenStorage } from "../utils/tokenStorage.js";
+import { TokenStorage } from "../utils/tokenStorage.js";
+
 import { validateCredentials } from "../utils/authValidation.js";
 import { getApiBaseUrl } from "../../api/config/apiConfig.js";
 import { RateLimitService } from "./RateLimitService.js";
@@ -82,7 +83,12 @@ class AuthService {
       onTokenExpired: this.config.onTokenExpired,
     });
 
-    // Backward compatibility - keep old properties
+    // Per-app scoped token storage — prevents session bleed across apps on the same origin
+    // e.g. admin uses 'admin_auth_*', home uses 'home_auth_*', church uses 'church_auth_*'
+    const storageNamespace = config.storageNamespace || config.appType || "uni";
+    this.tokenStorage = new TokenStorage(storageNamespace);
+
+    // Backward compatibility — keep old properties
     this.loginAttempts = this.rateLimitService.loginAttempts;
     this.maxLoginAttempts = this.rateLimitService.maxAttempts;
     this.lockoutDuration = this.rateLimitService.lockoutDuration;
@@ -178,7 +184,7 @@ class AuthService {
       } catch (e) {
         // Fallback to offline session restoration
         // console.warn('Session verification failed, restoring from storage (Offline Mode)', e);
-        const storedUser = await tokenStorage.getUser();
+        const storedUser = await this.tokenStorage.getUser();
         if (storedUser) {
           this.currentUser = storedUser;
           this.sessionToken = token;
@@ -192,7 +198,7 @@ class AuthService {
 
       // Update storage with fresh data to ensure persistence
       if (responseData.user) {
-        tokenStorage.updateUser(responseData.user).catch(() => {
+        this.tokenStorage.updateUser(responseData.user).catch(() => {
           // Silently handle storage update failure
         });
       }
@@ -200,7 +206,7 @@ class AuthService {
       return responseData.user;
     } catch (_error) {
       // Network error (fetch failed) -> Restore from storage (Offline Mode)
-      const storedUser = await tokenStorage.getUser();
+      const storedUser = await this.tokenStorage.getUser();
       if (storedUser) {
         this.currentUser = storedUser;
         this.sessionToken = token;
@@ -247,7 +253,7 @@ class AuthService {
 
       if (responseData.success && responseData.accessToken) {
         // Store authentication data
-        await tokenStorage.setTokens({
+        await this.tokenStorage.setTokens({
           accessToken: responseData.accessToken,
           refreshToken: responseData.refreshToken,
           user: responseData.user,
@@ -619,7 +625,7 @@ class AuthService {
     );
 
     // Store authentication data
-    await tokenStorage.setTokens({
+    await this.tokenStorage.setTokens({
       accessToken: tokenResponse.accessToken,
       refreshToken: tokenResponse.refreshToken,
       user: tokenResponse.user,
@@ -736,7 +742,7 @@ class AuthService {
    */
   async getStoredToken() {
     try {
-      return await tokenStorage.getAccessToken();
+      return await this.tokenStorage.getAccessToken();
     } catch (_error) {
       // console.error('Failed to get stored token:', error);
       return null;
@@ -748,7 +754,7 @@ class AuthService {
    */
   async refreshToken() {
     try {
-      const refreshToken = await tokenStorage.getRefreshToken();
+      const refreshToken = await this.tokenStorage.getRefreshToken();
       if (!refreshToken) {
         throw new Error("No refresh token available");
       }
@@ -765,7 +771,7 @@ class AuthService {
       const responseData = await response.json();
 
       if (response.ok && responseData.success) {
-        await tokenStorage.setTokens({
+        await this.tokenStorage.setTokens({
           accessToken: responseData.accessToken,
           refreshToken: responseData.refreshToken,
           user: responseData.user,
@@ -843,7 +849,7 @@ class AuthService {
       const updatedUser = responseData.data || responseData.user;
 
       // Update stored tokens/user
-      await tokenStorage.updateUser(updatedUser);
+      await this.tokenStorage.updateUser(updatedUser);
       this.currentUser = updatedUser;
 
       return {
@@ -859,7 +865,7 @@ class AuthService {
    */
   async clearStoredAuth() {
     try {
-      await tokenStorage.clearTokens();
+      await this.tokenStorage.clearTokens();
     } catch (_error) {
       // console.error('Failed to clear stored auth:', error);
     }
