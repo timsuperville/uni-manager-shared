@@ -99,6 +99,10 @@ export class ErrorBoundary extends React.Component {
       // User session context (if available)
       userContext: this.getUserContext(),
 
+      // Promote identity fields to top level for ErrorLog schema compatibility
+      userId: this.getUserContext().userId || undefined,
+      userEmail: this.getUserContext().userEmail || undefined,
+
       // Error categorization
       errorCategory: this.categorizeError(error),
       severity: this.calculateSeverity(error, errorInfo),
@@ -189,12 +193,50 @@ export class ErrorBoundary extends React.Component {
 
   getUserContext() {
     try {
-      const userInfo = JSON.parse(
-        (typeof localStorage !== "undefined" && localStorage.getItem("user")) ||
-        "{}",
-      );
+      // Probe all known storage patterns across apps in priority order
+      let userInfo = {};
+
+      // Pattern 1: shared hooks/useAuth.js stores { id, email, role, ... } under "user"
+      const rawUser = typeof localStorage !== "undefined" && localStorage.getItem("user");
+      if (rawUser) {
+        try { userInfo = JSON.parse(rawUser); } catch (_) { }
+      }
+
+      // Pattern 2: CrossAppService stores under "uni_manager_auth"
+      if (!userInfo.id) {
+        const crossApp = typeof localStorage !== "undefined" && localStorage.getItem("uni_manager_auth");
+        if (crossApp) {
+          try {
+            const parsed = JSON.parse(crossApp);
+            userInfo = parsed.user || parsed;
+          } catch (_) { }
+        }
+      }
+
+      // Pattern 3: Decode JWT payload from any known token key
+      // (admin_auth_token, auth_token, authToken, accessToken)
+      if (!userInfo.id) {
+        const tokenKeys = ["admin_auth_token", "auth_token", "authToken", "accessToken"];
+        for (const key of tokenKeys) {
+          const token = typeof localStorage !== "undefined" && localStorage.getItem(key);
+          if (token) {
+            try {
+              const payload = JSON.parse(atob(token.split(".")[1]));
+              userInfo = {
+                id: payload.id || payload.sub || payload._id,
+                email: payload.email,
+                role: payload.role,
+              };
+              if (userInfo.id) break;
+            } catch (_) { }
+          }
+        }
+      }
+
       return {
-        isAuthenticated: !!userInfo.id,
+        isAuthenticated: !!(userInfo.id || userInfo._id),
+        userId: userInfo.id || userInfo._id || null,
+        userEmail: userInfo.email || userInfo.userEmail || null,
         userRole: userInfo.role,
         lastActiveTime:
           typeof localStorage !== "undefined" &&
