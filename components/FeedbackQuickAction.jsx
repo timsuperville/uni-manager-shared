@@ -1,22 +1,21 @@
-// Feedback Quick Action Component
-// Provides easy access to feedback submission across all applications
+// FeedbackQuickAction — Shared Feedback Submission Component
+// Variants:
+//   "sidebar-item" — pinned nav row for sidebar footer (preferred for sidebar apps)
+//   "button"       — inline button for header placement
+//   "floating"     — FAB, only for apps without a persistent sidebar (e.g. playback)
+//
+// Uses inline styles throughout to avoid Tailwind JIT scanning gaps in shared/.
 
 import React, { useState } from "react";
 
-export const FeedbackQuickAction = ({
-  size = "default",
-  variant = "button",
-  position = "bottom-right",
-  showLabel = true,
-}) => {
-  const [isOpen, setIsOpen] = useState(false);
+// ─── Feedback Modal ────────────────────────────────────────────────────────────
+function FeedbackModal({ onClose, appType }) {
   const [feedback, setFeedback] = useState({
     type: "general",
     priority: "medium",
     category: "feedback",
     title: "",
     description: "",
-    email: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -24,330 +23,546 @@ export const FeedbackQuickAction = ({
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-
     try {
-      const enhancedFeedback = {
+      const payload = {
         ...feedback,
+        appType:
+          appType ||
+          (typeof window !== "undefined" && import.meta?.env?.VITE_APP_TYPE) ||
+          "unknown",
         timestamp: new Date().toISOString(),
-        url: typeof window !== "undefined" && window.location.href,
-        userAgent: typeof navigator !== "undefined" && navigator.userAgent,
-        appType: process.env.VITE_APP_TYPE || "unknown",
+        url: typeof window !== "undefined" ? window.location.href : "",
+        userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "",
         context: {
-          pathname: typeof window !== "undefined" && window.location.pathname,
-          search: typeof window !== "undefined" && window.location.search,
-          referrer: typeof document !== "undefined" && document.referrer,
+          pathname:
+            typeof window !== "undefined" ? window.location.pathname : "",
           viewport: {
-            width: typeof window !== "undefined" && window.innerWidth,
-            height: typeof window !== "undefined" && window.innerHeight,
-          },
-          screen: {
-            width: screen.width,
-            height: screen.height,
-          },
-          performance: {
-            memory: performance.memory
-              ? {
-                  usedJSHeapSize: performance.memory.usedJSHeapSize,
-                  totalJSHeapSize: performance.memory.totalJSHeapSize,
-                }
-              : null,
-            connection:
-              typeof navigator !== "undefined" && navigator.connection
-                ? {
-                    effectiveType:
-                      typeof navigator !== "undefined" &&
-                      navigator.connection.effectiveType,
-                    downlink:
-                      typeof navigator !== "undefined" &&
-                      navigator.connection.downlink,
-                  }
-                : null,
+            width: typeof window !== "undefined" ? window.innerWidth : 0,
+            height: typeof window !== "undefined" ? window.innerHeight : 0,
           },
         },
       };
 
       const response = await fetch("/api/feedback/submit", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(enhancedFeedback),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
 
       if (response.ok) {
         setSubmitted(true);
-        setFeedback({
-          type: "general",
-          priority: "medium",
-          category: "feedback",
-          title: "",
-          description: "",
-          email: "",
-        });
-
         setTimeout(() => {
-          setIsOpen(false);
+          onClose();
           setSubmitted(false);
         }, 2000);
       } else {
         throw new Error("Failed to submit feedback");
       }
-    } catch (_error) {
-      // console.error('Error submitting feedback:', error);
+    } catch (_err) {
       alert("Failed to submit feedback. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const sizeClasses = {
-    small: "w-10 h-10",
-    default: "w-12 h-12",
-    large: "w-14 h-14",
+  // ── Shared input style ──
+  const inputStyle = {
+    width: "100%",
+    boxSizing: "border-box",
+    padding: "8px 10px",
+    borderRadius: "8px",
+    border: "1px solid rgba(128,128,128,0.25)",
+    background: "rgba(128,128,128,0.08)",
+    color: "inherit",
+    fontSize: "13px",
+    outline: "none",
+    fontFamily: "inherit",
   };
 
-  const positionClasses = {
-    "bottom-right": "fixed bottom-6 right-6",
-    "bottom-left": "fixed bottom-6 left-6",
-    "top-right": "fixed top-6 right-6",
-    "top-left": "fixed top-6 left-6",
-    inline: "relative",
-  };
-
-  if (variant === "floating") {
-    return (
-      <>
-        {/* Floating Action Button */}
-        <div className={`${positionClasses[position]} z-40`}>
-          <button
-            onClick={() => setIsOpen(true)}
-            className={`${sizeClasses[size]} bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center group`}
-            title="Send Feedback"
-          >
+  return (
+    // Scrim
+    <div
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 9999,
+        background: "rgba(0,0,0,0.55)",
+        backdropFilter: "blur(4px)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "16px",
+      }}
+    >
+      {/* Panel */}
+      <div
+        style={{
+          width: "100%",
+          maxWidth: "440px",
+          maxHeight: "90vh",
+          overflowY: "auto",
+          borderRadius: "14px",
+          background: "var(--bg-surface-3, #1e293b)",
+          border: "1px solid rgba(255,255,255,0.1)",
+          boxShadow: "0 24px 60px rgba(0,0,0,0.5)",
+          padding: "20px",
+          color: "var(--text-primary, #f1f5f9)",
+          fontFamily: "var(--font-body, system-ui, sans-serif)",
+          animation: "feedback-slide-in 0.2s ease both",
+        }}
+      >
+        {/* Header */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "16px",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             <svg
-              className="w-6 h-6"
+              width="16"
+              height="16"
               fill="none"
-              stroke="currentColor"
               viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth="2"
             >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                strokeWidth={2}
-                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a8.955 8.955 0 01-2.697-.413l-2.725.689a1.125 1.125 0 01-1.375-1.375l.688-2.725A8.962 8.962 0 013 12C3 7.582 6.582 4 12 4s8 3.582 8 8z"
+                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
               />
             </svg>
-            {showLabel && (
-              <span className="absolute right-full mr-3 bg-gray-800 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                Send Feedback
-              </span>
-            )}
+            <span style={{ fontSize: "15px", fontWeight: "600" }}>
+              Share Feedback
+            </span>
+          </div>
+          <button
+            onClick={onClose}
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              padding: "4px",
+              color: "var(--text-muted, #94a3b8)",
+              borderRadius: "6px",
+            }}
+          >
+            <svg
+              width="16"
+              height="16"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
           </button>
         </div>
 
-        {/* Feedback Modal */}
-        {isOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-              <div className="p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    Send Feedback
-                  </h3>
-                  <button
-                    onClick={() => setIsOpen(false)}
-                    className="text-gray-400 hover:text-gray-600"
-                  >
-                    <svg
-                      className="w-6 h-6"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
-                  </button>
-                </div>
-
-                {submitted ? (
-                  <div className="text-center py-8">
-                    <svg
-                      className="w-16 h-16 text-green-500 mx-auto mb-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                    <h4 className="text-lg font-medium text-gray-900 mb-2">
-                      Thank you!
-                    </h4>
-                    <p className="text-gray-600">
-                      Your feedback has been submitted successfully.
-                    </p>
-                  </div>
-                ) : (
-                  <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Type
-                        </label>
-                        <select
-                          value={feedback.type}
-                          onChange={(e) =>
-                            setFeedback({ ...feedback, type: e.target.value })
-                          }
-                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                          <option value="general">General Feedback</option>
-                          <option value="bug_report">Bug Report</option>
-                          <option value="feature_request">
-                            Feature Request
-                          </option>
-                          <option value="improvement">Improvement</option>
-                          <option value="question">Question</option>
-                          <option value="complaint">Complaint</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Priority
-                        </label>
-                        <select
-                          value={feedback.priority}
-                          onChange={(e) =>
-                            setFeedback({
-                              ...feedback,
-                              priority: e.target.value,
-                            })
-                          }
-                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                          <option value="low">Low</option>
-                          <option value="medium">Medium</option>
-                          <option value="high">High</option>
-                          <option value="urgent">Urgent</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Title
-                      </label>
-                      <input
-                        type="text"
-                        value={feedback.title}
-                        onChange={(e) =>
-                          setFeedback({ ...feedback, title: e.target.value })
-                        }
-                        placeholder="Brief summary of your feedback"
-                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Description
-                      </label>
-                      <textarea
-                        value={feedback.description}
-                        onChange={(e) =>
-                          setFeedback({
-                            ...feedback,
-                            description: e.target.value,
-                          })
-                        }
-                        placeholder="Please provide detailed feedback..."
-                        rows={4}
-                        className="w-full border border-gray-300 rounded-md px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Email (optional)
-                      </label>
-                      <input
-                        type="email"
-                        value={feedback.email}
-                        onChange={(e) =>
-                          setFeedback({ ...feedback, email: e.target.value })
-                        }
-                        placeholder="your@email.com"
-                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                      <p className="text-xs text-gray-500 mt-1">
-                        Provide your email if you'd like a response
-                      </p>
-                    </div>
-
-                    <div className="flex justify-end space-x-3 pt-4">
-                      <button
-                        type="button"
-                        onClick={() => setIsOpen(false)}
-                        className="px-4 py-2 text-gray-600 hover:text-gray-800"
-                        disabled={isSubmitting}
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        type="submit"
-                        disabled={
-                          isSubmitting ||
-                          !feedback.title ||
-                          !feedback.description
-                        }
-                        className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {isSubmitting ? "Submitting..." : "Send Feedback"}
-                      </button>
-                    </div>
-                  </form>
-                )}
+        {submitted ? (
+          <div style={{ textAlign: "center", padding: "24px 0" }}>
+            <svg
+              width="40"
+              height="40"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="var(--success, #22c55e)"
+              strokeWidth="2"
+              style={{ margin: "0 auto 12px" }}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+            <p
+              style={{
+                fontSize: "15px",
+                fontWeight: "600",
+                marginBottom: "4px",
+              }}
+            >
+              Thank you!
+            </p>
+            <p
+              style={{ fontSize: "13px", color: "var(--text-muted, #94a3b8)" }}
+            >
+              Your feedback has been submitted.
+            </p>
+          </div>
+        ) : (
+          <form
+            onSubmit={handleSubmit}
+            style={{ display: "flex", flexDirection: "column", gap: "12px" }}
+          >
+            {/* Type + Priority row */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "10px",
+              }}
+            >
+              <div>
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "11px",
+                    fontWeight: "600",
+                    color: "var(--text-muted, #94a3b8)",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em",
+                    marginBottom: "5px",
+                  }}
+                >
+                  Type
+                </label>
+                <select
+                  value={feedback.type}
+                  onChange={(e) =>
+                    setFeedback({ ...feedback, type: e.target.value })
+                  }
+                  style={inputStyle}
+                >
+                  <option value="general">General</option>
+                  <option value="bug_report">Bug Report</option>
+                  <option value="feature_request">Feature Request</option>
+                  <option value="improvement">Improvement</option>
+                  <option value="question">Question</option>
+                </select>
+              </div>
+              <div>
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "11px",
+                    fontWeight: "600",
+                    color: "var(--text-muted, #94a3b8)",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em",
+                    marginBottom: "5px",
+                  }}
+                >
+                  Priority
+                </label>
+                <select
+                  value={feedback.priority}
+                  onChange={(e) =>
+                    setFeedback({ ...feedback, priority: e.target.value })
+                  }
+                  style={inputStyle}
+                >
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                  <option value="urgent">Urgent</option>
+                </select>
               </div>
             </div>
-          </div>
+
+            {/* Title */}
+            <div>
+              <label
+                style={{
+                  display: "block",
+                  fontSize: "11px",
+                  fontWeight: "600",
+                  color: "var(--text-muted, #94a3b8)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.05em",
+                  marginBottom: "5px",
+                }}
+              >
+                Title
+              </label>
+              <input
+                type="text"
+                value={feedback.title}
+                onChange={(e) =>
+                  setFeedback({ ...feedback, title: e.target.value })
+                }
+                placeholder="Brief summary..."
+                required
+                style={inputStyle}
+              />
+            </div>
+
+            {/* Description */}
+            <div>
+              <label
+                style={{
+                  display: "block",
+                  fontSize: "11px",
+                  fontWeight: "600",
+                  color: "var(--text-muted, #94a3b8)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.05em",
+                  marginBottom: "5px",
+                }}
+              >
+                Description
+              </label>
+              <textarea
+                value={feedback.description}
+                onChange={(e) =>
+                  setFeedback({ ...feedback, description: e.target.value })
+                }
+                placeholder="Describe your feedback in detail..."
+                rows={4}
+                required
+                style={{ ...inputStyle, resize: "none" }}
+              />
+            </div>
+
+            {/* Actions */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: "8px",
+                paddingTop: "4px",
+              }}
+            >
+              <button
+                type="button"
+                onClick={onClose}
+                disabled={isSubmitting}
+                style={{
+                  padding: "8px 14px",
+                  borderRadius: "8px",
+                  border: "1px solid rgba(128,128,128,0.25)",
+                  background: "transparent",
+                  color: "var(--text-secondary, #94a3b8)",
+                  fontSize: "13px",
+                  cursor: "pointer",
+                  fontFamily: "inherit",
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={
+                  isSubmitting || !feedback.title || !feedback.description
+                }
+                style={{
+                  padding: "8px 18px",
+                  borderRadius: "8px",
+                  border: "none",
+                  background: "var(--primary-resonance, #22d3ee)",
+                  color: "#000",
+                  fontSize: "13px",
+                  fontWeight: "600",
+                  cursor: isSubmitting ? "not-allowed" : "pointer",
+                  opacity:
+                    isSubmitting || !feedback.title || !feedback.description
+                      ? 0.5
+                      : 1,
+                  fontFamily: "inherit",
+                }}
+              >
+                {isSubmitting ? "Sending…" : "Send Feedback"}
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
+
+      {/* Keyframe injected once */}
+      <style>{`
+        @keyframes feedback-slide-in {
+          from { opacity: 0; transform: translateY(12px) scale(0.97); }
+          to   { opacity: 1; transform: translateY(0)   scale(1);    }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+// ─── Public Component ──────────────────────────────────────────────────────────
+export const FeedbackQuickAction = ({
+  variant = "sidebar-item",
+  position = "bottom-right",
+  appType,
+  accentColor,
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const iconSvg = (
+    <svg
+      width="15"
+      height="15"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      style={{ flexShrink: 0 }}
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+      />
+    </svg>
+  );
+
+  // ── VARIANT: sidebar-item ──────────────────────────────────────────────────
+  if (variant === "sidebar-item") {
+    const accent = accentColor || "var(--primary-resonance, #22d3ee)";
+    return (
+      <>
+        <button
+          id="feedback-sidebar-trigger"
+          onClick={() => setIsOpen(true)}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "10px",
+            width: "100%",
+            padding: "8px 12px",
+            borderRadius: "8px",
+            border: "none",
+            background: "transparent",
+            color: "var(--text-secondary, #94a3b8)",
+            fontSize: "13px",
+            fontWeight: "500",
+            cursor: "pointer",
+            textAlign: "left",
+            transition: "all 150ms ease",
+            fontFamily: "var(--font-body, inherit)",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background =
+              "var(--nav-hover, rgba(255,255,255,0.06))";
+            e.currentTarget.style.color = accent;
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "transparent";
+            e.currentTarget.style.color = "var(--text-secondary, #94a3b8)";
+          }}
+          title="Share feedback or report a bug"
+        >
+          <span style={{ color: "var(--text-muted, #64748b)", flexShrink: 0 }}>
+            {iconSvg}
+          </span>
+          <span>Share Feedback</span>
+        </button>
+        {isOpen && (
+          <FeedbackModal onClose={() => setIsOpen(false)} appType={appType} />
         )}
       </>
     );
   }
 
-  // Regular button variant
+  // ── VARIANT: button (inline header button) ─────────────────────────────────
+  if (variant === "button") {
+    return (
+      <>
+        <button
+          id="feedback-header-trigger"
+          onClick={() => setIsOpen(true)}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "6px",
+            padding: "6px 12px",
+            borderRadius: "8px",
+            border: "1px solid rgba(128,128,128,0.25)",
+            background: "transparent",
+            color: "var(--text-secondary, #64748b)",
+            fontSize: "13px",
+            fontWeight: "500",
+            cursor: "pointer",
+            transition: "all 150ms ease",
+            fontFamily: "var(--font-body, inherit)",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "rgba(128,128,128,0.1)";
+            e.currentTarget.style.color = "var(--text-primary, inherit)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "transparent";
+            e.currentTarget.style.color = "var(--text-secondary, #64748b)";
+          }}
+        >
+          {iconSvg}
+          <span>Feedback</span>
+        </button>
+        {isOpen && (
+          <FeedbackModal onClose={() => setIsOpen(false)} appType={appType} />
+        )}
+      </>
+    );
+  }
+
+  // ── VARIANT: floating (FAB — for apps without sidebar, e.g. playback) ──────
+  const positionMap = {
+    "bottom-right": { bottom: "24px", right: "24px" },
+    "bottom-left": { bottom: "24px", left: "24px" },
+    "top-right": { top: "24px", right: "24px" },
+    "top-left": { top: "24px", left: "24px" },
+  };
+
   return (
-    <button
-      onClick={() => setIsOpen(true)}
-      className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
-    >
-      <svg
-        className="w-4 h-4 mr-2"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a8.955 8.955 0 01-2.697-.413l-2.725.689a1.125 1.125 0 01-1.375-1.375l.688-2.725A8.962 8.962 0 013 12C3 7.582 6.582 4 12 4s8 3.582 8 8z"
-        />
-      </svg>
-      Feedback
-    </button>
+    <>
+      <div style={{ position: "fixed", zIndex: 40, ...positionMap[position] }}>
+        <button
+          id="feedback-fab-trigger"
+          onClick={() => setIsOpen(true)}
+          title="Send Feedback"
+          style={{
+            width: "48px",
+            height: "48px",
+            borderRadius: "50%",
+            background: "var(--primary-resonance, #22d3ee)",
+            border: "none",
+            color: "#000",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
+            transition: "transform 150ms ease, box-shadow 150ms ease",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = "scale(1.08)";
+            e.currentTarget.style.boxShadow = "0 6px 28px rgba(0,0,0,0.4)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = "scale(1)";
+            e.currentTarget.style.boxShadow = "0 4px 20px rgba(0,0,0,0.3)";
+          }}
+        >
+          <svg
+            width="20"
+            height="20"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+            />
+          </svg>
+        </button>
+      </div>
+      {isOpen && (
+        <FeedbackModal onClose={() => setIsOpen(false)} appType={appType} />
+      )}
+    </>
   );
 };
 
