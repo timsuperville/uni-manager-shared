@@ -2,11 +2,69 @@ import React from "react";
 import PropTypes from "prop-types";
 import { submitFeedbackSilently } from "./FeedbackQuickAction";
 
+// ─── Silent Error Logger ────────────────────────────────────────────────────
+// Posts directly to the ErrorLog /errors/log endpoint so crashes surface
+// in the admin Error Resonance dashboard, NOT just the Sentiment Feed.
+// Fire-and-forget — never throws, never surfaces to the user.
+async function reportErrorSilently({
+  message,
+  stack,
+  componentStack,
+  appType,
+  severity = "critical",
+}) {
+  try {
+    const namespaces = [
+      appType,
+      "admin",
+      "home",
+      "church",
+      "personal",
+      "business",
+      "uni",
+    ].filter(Boolean);
+    let authToken = null;
+    for (const ns of namespaces) {
+      authToken =
+        window.sessionStorage?.getItem(`${ns}_auth_access_token`) ||
+        window.localStorage?.getItem(`${ns}_auth_access_token`);
+      if (authToken) break;
+    }
+    const headers = { "Content-Type": "application/json" };
+    if (authToken) headers["Authorization"] = `Bearer ${authToken}`;
+
+    await fetch("/api/v1/errors/log", {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        message: message || "Unhandled React Error",
+        stack,
+        componentStack,
+        severity,
+        appType: appType || "unknown",
+        url: window.location.href,
+        path: window.location.pathname,
+        userAgent: navigator.userAgent,
+        category: "rendering",
+        environment:
+          typeof import.meta !== "undefined" &&
+          import.meta?.env?.MODE === "production"
+            ? "production"
+            : "development",
+      }),
+    });
+  } catch {
+    // Intentionally silent
+  }
+}
+
 /**
  * Global Error Boundary
  * Wraps the entire application to catch unhandled runtime errors
  * providing a graceful fallback UI instead of a whitespace crash.
- * Also auto-reports every crash as an error-report feedback entry.
+ * Auto-reports every crash to BOTH:
+ *   - POST /api/v1/errors/log     → errorlogs (Error Resonance dashboard)
+ *   - POST /api/v1/feedback/submit → feedback_reports (Sentiment Feed)
  */
 class GlobalErrorBoundary extends React.Component {
   constructor(props) {
@@ -26,14 +84,28 @@ class GlobalErrorBoundary extends React.Component {
     }
     this.setState({ errorInfo });
 
-    // Auto-report crash as a feedback entry (fire-and-forget, fully silent)
+    const message = error?.message || "Unknown error";
+    const stack = error?.stack || "";
+    const componentStack = errorInfo?.componentStack || "";
+
+    // ── Dual reporting: ErrorLog (forensic) + FeedbackReport (sentiment) ──
+    // ErrorLog: surfaces in Error Resonance, enables dedup + regression tracking
+    reportErrorSilently({
+      message,
+      stack,
+      componentStack,
+      appType,
+      severity: "critical",
+    });
+
+    // FeedbackReport: fire-and-forget, links the crash to the Sentiment Feed
     submitFeedbackSilently({
-      title: `[Auto] Crash: ${error?.message || "Unknown error"}`,
+      title: `[Auto] Crash: ${message}`,
       description: [
         `Error: ${error?.toString?.() || error}`,
         "",
         "Component Stack:",
-        errorInfo?.componentStack || "(unavailable)",
+        componentStack || "(unavailable)",
       ].join("\n"),
       appType,
       severity: "critical",
