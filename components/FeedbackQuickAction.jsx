@@ -7,6 +7,7 @@
 // Uses inline styles throughout to avoid Tailwind JIT scanning gaps in shared/.
 
 import React, { useState } from "react";
+import { useFrustrationDetector } from "../hooks/useFrustrationDetector";
 
 // ─── Silent auto-submit utility (used by ErrorBoundary, no UI) ─────────────────
 // Fire-and-forget — never throws, never alerts the user.
@@ -78,13 +79,18 @@ export async function submitFeedbackSilently({
 }
 
 // ─── Feedback Modal ────────────────────────────────────────────────────────────
-function FeedbackModal({ onClose, appType }) {
+function FeedbackModal({
+  onClose,
+  appType,
+  initialTitle = "",
+  initialDescription = "",
+}) {
   const [feedback, setFeedback] = useState({
     type: "general",
     priority: "medium",
     category: "feedback",
-    title: "",
-    description: "",
+    title: initialTitle,
+    description: initialDescription,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -562,6 +568,35 @@ export const FeedbackQuickAction = ({
   accentColor,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  // Pre-fill context provided by passive frustration detection
+  const [prefill, setPrefill] = useState({ title: "", description: "" });
+
+  // Passive frustration detection — auto-reports silently and caches prefill
+  // for the next manual modal open so context is already populated.
+  useFrustrationDetector({
+    appType,
+    onFrustrated: async ({ signal, path }) => {
+      const title =
+        signal === "rage-click"
+          ? `Repeated click detected on ${path}`
+          : `Rapid navigation on ${path}`;
+      const description =
+        signal === "rage-click"
+          ? `The user clicked rapidly in the same area, which may indicate a broken interaction or unresponsive element at ${path}.`
+          : `The user navigated rapidly across multiple pages starting at ${path}, which may indicate difficulty finding what they need.`;
+
+      // 1. Pre-fill so the next manual open already has context
+      setPrefill({ title, description });
+
+      // 2. Silently auto-report the frustration signal
+      await submitFeedbackSilently({
+        title,
+        description,
+        appType,
+        severity: "medium",
+      });
+    },
+  });
 
   const iconSvg = (
     <svg
@@ -664,7 +699,12 @@ export const FeedbackQuickAction = ({
           <span>Feedback</span>
         </button>
         {isOpen && (
-          <FeedbackModal onClose={() => setIsOpen(false)} appType={appType} />
+          <FeedbackModal
+            onClose={() => setIsOpen(false)}
+            appType={appType}
+            initialTitle={prefill.title}
+            initialDescription={prefill.description}
+          />
         )}
       </>
     );
@@ -810,7 +850,12 @@ export const FeedbackQuickAction = ({
         </button>
       </div>
       {isOpen && (
-        <FeedbackModal onClose={() => setIsOpen(false)} appType={appType} />
+        <FeedbackModal
+          onClose={() => setIsOpen(false)}
+          appType={appType}
+          initialTitle={prefill.title}
+          initialDescription={prefill.description}
+        />
       )}
     </>
   );
