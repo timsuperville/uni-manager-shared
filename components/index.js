@@ -1,16 +1,52 @@
-// Shared React components for all Uni-Manager applications
-// Button is now exported from ./ui
-export { default as Modal } from "./Modal";
+// @shared/components — Ecosystem Kernel barrel
+// Usage: import { Button, Modal, ... } from "@shared/components"
+//        import { Button, Modal, ... } from "@shared/components/ui"  (ui-only)
+//
+// ── Primitives resolved to ui/ (Liquid Glass, CSS vars) ───────────────────────
+// Modal, Select, Input, etc. come from ./ui via the wildcard below.
+// DO NOT re-export them here again — that causes name collisions.
+//
+// ── Auth / Layout utilities ───────────────────────────────────────────────────
 export { default as LoadingSpinner } from "./LoadingSpinner";
 export { default as RoleGuard } from "./RoleGuard";
 export { ThemeProvider, useTheme, tokens } from "./ThemeProvider";
+export { default as GlobalErrorBoundary } from "./GlobalErrorBoundary";
+export { default as EnvironmentDebugBanner } from "./EnvironmentDebugBanner";
 
-// New unified components
+// ── Feedback / Notifications ──────────────────────────────────────────────────
 export { default as Toast } from "./Toast";
 export { ToastProvider, useToast, useToastNotification } from "./ToastProvider";
 export { default as ConfirmDialog } from "./ConfirmDialog";
-export { default as Select } from "./Select";
-export { default as GlobalErrorBoundary } from "./GlobalErrorBoundary";
+export {
+  FeedbackQuickAction,
+  submitFeedbackSilently,
+} from "./FeedbackQuickAction";
+export { NpsSurvey } from "./NpsSurvey";
 
-// UI Components
+// ── Feature components ────────────────────────────────────────────────────────
+export { default as ActivityFeed } from "./ActivityFeed";
+export { default as AdvancedSearch } from "./AdvancedSearch";
+export { default as ChurchCard } from "./ChurchCard";
+export { default as DataExport } from "./DataExport";
+export { default as LazyWidget } from "./LazyWidget";
+export { default as MonitoringDashboard } from "./MonitoringDashboard";
+export { default as PerformanceDashboard } from "./PerformanceDashboard";
+export { default as ErrorBoundary } from "./ErrorBoundary";
+export { default as RealTimeNotifications } from "./RealTimeNotifications";
+export { default as ThemeToggle } from "./ThemeToggle";
+
+// ── Mobile-optimized shared components ───────────────────────────────────────
+export { default as MobileOptimizedLayout } from "./MobileOptimizedLayout";
+export { default as MobileFormComponents } from "./MobileFormComponents";
+export { default as MobileInvitationCard } from "./MobileInvitationCard";
+export { default as MobileMemberCard } from "./MobileMemberCard";
+export { default as MobilePagination } from "./MobilePagination";
+
+// ── SelectDropdown — rich custom picker (different from native <select> in ui/Input) ──
+// Import as: import { SelectDropdown } from "@shared/components"
+export { default as SelectDropdown } from "./Select";
+
+// ── Liquid Glass UI primitives ────────────────────────────────────────────────
+// Source of truth for: Modal, Button, Card, Badge, Input, Select, ProgressBar,
+// Toggle, Spinner, EmptyState, FormField, WizardStepper, etc.
 export * from "./ui";
