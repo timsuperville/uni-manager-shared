@@ -140,31 +140,31 @@ export class ErrorBoundary extends React.Component {
           : null,
         domContentLoaded: navigation
           ? navigation.domContentLoadedEventEnd -
-          navigation.domContentLoadedEventStart
+            navigation.domContentLoadedEventStart
           : null,
         memoryUsage: performance.memory
           ? {
-            usedJSHeapSize: performance.memory.usedJSHeapSize,
-            totalJSHeapSize: performance.memory.totalJSHeapSize,
-            jsHeapSizeLimit: performance.memory.jsHeapSizeLimit,
-          }
+              usedJSHeapSize: performance.memory.usedJSHeapSize,
+              totalJSHeapSize: performance.memory.totalJSHeapSize,
+              jsHeapSizeLimit: performance.memory.jsHeapSizeLimit,
+            }
           : null,
         connectionType:
           typeof navigator !== "undefined" && navigator.connection
             ? typeof navigator !== "undefined" &&
-            navigator.connection.effectiveType
+              navigator.connection.effectiveType
             : null,
         timing: performance.timing
           ? {
-            pageLoadTime:
-              performance.timing.loadEventEnd -
-              performance.timing.navigationStart,
-            domReadyTime:
-              performance.timing.domContentLoadedEventEnd -
-              performance.timing.navigationStart,
-            connectTime:
-              performance.timing.connectEnd - performance.timing.connectStart,
-          }
+              pageLoadTime:
+                performance.timing.loadEventEnd -
+                performance.timing.navigationStart,
+              domReadyTime:
+                performance.timing.domContentLoadedEventEnd -
+                performance.timing.navigationStart,
+              connectTime:
+                performance.timing.connectEnd - performance.timing.connectStart,
+            }
           : null,
       };
     } catch (_e) {
@@ -197,28 +197,39 @@ export class ErrorBoundary extends React.Component {
       let userInfo = {};
 
       // Pattern 1: shared hooks/useAuth.js stores { id, email, role, ... } under "user"
-      const rawUser = typeof localStorage !== "undefined" && localStorage.getItem("user");
+      const rawUser =
+        typeof localStorage !== "undefined" && localStorage.getItem("user");
       if (rawUser) {
-        try { userInfo = JSON.parse(rawUser); } catch (_) { }
+        try {
+          userInfo = JSON.parse(rawUser);
+        } catch (_) {}
       }
 
       // Pattern 2: CrossAppService stores under "uni_manager_auth"
       if (!userInfo.id) {
-        const crossApp = typeof localStorage !== "undefined" && localStorage.getItem("uni_manager_auth");
+        const crossApp =
+          typeof localStorage !== "undefined" &&
+          localStorage.getItem("uni_manager_auth");
         if (crossApp) {
           try {
             const parsed = JSON.parse(crossApp);
             userInfo = parsed.user || parsed;
-          } catch (_) { }
+          } catch (_) {}
         }
       }
 
       // Pattern 3: Decode JWT payload from any known token key
       // (admin_auth_token, auth_token, authToken, accessToken)
       if (!userInfo.id) {
-        const tokenKeys = ["admin_auth_token", "auth_token", "authToken", "accessToken"];
+        const tokenKeys = [
+          "admin_auth_token",
+          "auth_token",
+          "authToken",
+          "accessToken",
+        ];
         for (const key of tokenKeys) {
-          const token = typeof localStorage !== "undefined" && localStorage.getItem(key);
+          const token =
+            typeof localStorage !== "undefined" && localStorage.getItem(key);
           if (token) {
             try {
               const payload = JSON.parse(atob(token.split(".")[1]));
@@ -228,7 +239,7 @@ export class ErrorBoundary extends React.Component {
                 role: payload.role,
               };
               if (userInfo.id) break;
-            } catch (_) { }
+            } catch (_) {}
           }
         }
       }
@@ -262,7 +273,7 @@ export class ErrorBoundary extends React.Component {
       return JSON.parse(
         (typeof localStorage !== "undefined" &&
           localStorage.getItem("featureFlags")) ||
-        "{}",
+          "{}",
       );
     } catch (_e) {
       return {};
@@ -466,14 +477,16 @@ ${errorReport.autoFeedback.reproductionSteps}
 - Device Pixel Ratio: ${errorReport.viewportInfo.devicePixelRatio}
 
 **Performance Context:**
-${errorReport.performanceInfo.memoryUsage
-        ? `- Memory Usage: ${Math.round(errorReport.performanceInfo.memoryUsage.usedJSHeapSize / 1024 / 1024)}MB`
-        : ""
-      }
-${errorReport.performanceInfo.connectionType
-        ? `- Connection: ${errorReport.performanceInfo.connectionType}`
-        : ""
-      }
+${
+  errorReport.performanceInfo.memoryUsage
+    ? `- Memory Usage: ${Math.round(errorReport.performanceInfo.memoryUsage.usedJSHeapSize / 1024 / 1024)}MB`
+    : ""
+}
+${
+  errorReport.performanceInfo.connectionType
+    ? `- Connection: ${errorReport.performanceInfo.connectionType}`
+    : ""
+}
 
 **Technical Details:**
 \`\`\`
@@ -503,7 +516,7 @@ ${errorReport.componentStack}
       const stored = JSON.parse(
         (typeof localStorage !== "undefined" &&
           localStorage.getItem("pendingErrorReports")) ||
-        "[]",
+          "[]",
       );
       stored.push({
         ...errorReport,
@@ -780,32 +793,32 @@ const collectAdvancedErrorContext = (baseError) => {
     performanceInfo: {
       memory: performance.memory
         ? {
-          usedJSHeapSize: performance.memory.usedJSHeapSize,
-          totalJSHeapSize: performance.memory.totalJSHeapSize,
-          jsHeapSizeLimit: performance.memory.jsHeapSizeLimit,
-        }
+            usedJSHeapSize: performance.memory.usedJSHeapSize,
+            totalJSHeapSize: performance.memory.totalJSHeapSize,
+            jsHeapSizeLimit: performance.memory.jsHeapSizeLimit,
+          }
         : null,
       timing: performance.timing
         ? {
-          loadTime:
-            performance.timing.loadEventEnd -
-            performance.timing.navigationStart,
-          domReady:
-            performance.timing.domContentLoadedEventEnd -
-            performance.timing.navigationStart,
-        }
+            loadTime:
+              performance.timing.loadEventEnd -
+              performance.timing.navigationStart,
+            domReady:
+              performance.timing.domContentLoadedEventEnd -
+              performance.timing.navigationStart,
+          }
         : null,
       connection:
         typeof navigator !== "undefined" && navigator.connection
           ? {
-            effectiveType:
-              typeof navigator !== "undefined" &&
-              navigator.connection.effectiveType,
-            downlink:
-              typeof navigator !== "undefined" &&
-              navigator.connection.downlink,
-            rtt: typeof navigator !== "undefined" && navigator.connection.rtt,
-          }
+              effectiveType:
+                typeof navigator !== "undefined" &&
+                navigator.connection.effectiveType,
+              downlink:
+                typeof navigator !== "undefined" &&
+                navigator.connection.downlink,
+              rtt: typeof navigator !== "undefined" && navigator.connection.rtt,
+            }
           : null,
     },
 
@@ -881,14 +894,16 @@ const sendToFeedbackSystem = async (errorData) => {
 - Online: ${errorData.environment?.onLine}
 
 **Performance Context:**
-${errorData.performanceInfo?.memory
-        ? `- Memory Usage: ${Math.round(errorData.performanceInfo.memory.usedJSHeapSize / 1024 / 1024)}MB`
-        : ""
-      }
-${errorData.performanceInfo?.connection
-        ? `- Connection: ${errorData.performanceInfo.connection.effectiveType}`
-        : ""
-      }
+${
+  errorData.performanceInfo?.memory
+    ? `- Memory Usage: ${Math.round(errorData.performanceInfo.memory.usedJSHeapSize / 1024 / 1024)}MB`
+    : ""
+}
+${
+  errorData.performanceInfo?.connection
+    ? `- Connection: ${errorData.performanceInfo.connection.effectiveType}`
+    : ""
+}
 
 **Recent User Activity:**
 ${errorData.recentActivity?.map((activity, i) => `${i + 1}. ${activity}`).join("\n") || "No recent activity recorded"}
@@ -912,7 +927,7 @@ ${errorData.stack || "No stack trace available"}
     },
   };
 
-  return fetch("/feedback/submit", {
+  return fetch("/api/v1/feedback/submit", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -984,7 +999,9 @@ export const setupGlobalErrorHandling = () => {
           body: JSON.stringify(enhancedError),
         }),
         sendToFeedbackSystem(enhancedError),
-      ]).catch(() => { /* swallow — don't loop on monitor failure */ });
+      ]).catch(() => {
+        /* swallow — don't loop on monitor failure */
+      });
     });
 
   // Handle uncaught errors — fires in all environments
@@ -1011,7 +1028,9 @@ export const setupGlobalErrorHandling = () => {
           body: JSON.stringify(enhancedError),
         }),
         sendToFeedbackSystem(enhancedError),
-      ]).catch(() => { /* swallow */ });
+      ]).catch(() => {
+        /* swallow */
+      });
     });
 };
 
@@ -1021,14 +1040,15 @@ export const setupGlobalErrorHandling = () => {
  * Call once from main.jsx alongside setupGlobalErrorHandling().
  */
 export const installFetchInterceptor = () => {
-  if (typeof window === "undefined" || window.__fetchInterceptorInstalled) return;
+  if (typeof window === "undefined" || window.__fetchInterceptorInstalled)
+    return;
   window.__fetchInterceptorInstalled = true;
 
   const _originalFetch = window.fetch;
   window.fetch = async function interceptedFetch(...args) {
     const response = await _originalFetch.apply(this, args);
     // Skip reporting calls to our own ingest endpoints to prevent loops
-    const url = typeof args[0] === "string" ? args[0] : args[0]?.url ?? "";
+    const url = typeof args[0] === "string" ? args[0] : (args[0]?.url ?? "");
     const isMonitoringCall = /\/api\/v1\/(errors|feedback)\//i.test(url);
     if (!isMonitoringCall && response.status >= 500) {
       const errorPayload = {
@@ -1045,7 +1065,9 @@ export const installFetchInterceptor = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(errorPayload),
-      }).catch(() => { /* swallow */ });
+      }).catch(() => {
+        /* swallow */
+      });
     }
     return response;
   };
