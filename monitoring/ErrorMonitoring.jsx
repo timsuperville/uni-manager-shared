@@ -7,7 +7,19 @@ import PropTypes from "prop-types";
 // Environment-specific configuration
 const isProd = (import.meta.env?.MODE || "development") === "production";
 const isStaging = (import.meta.env?.MODE || "development") === "staging";
-const API_BASE = import.meta.env?.VITE_API_URL || "http://localhost:5000";
+
+// ── Ingest endpoints ────────────────────────────────────────────────────────
+// Raw fetch (NOT @shared/api) is intentional here. Reasons:
+//   1. This module is initialised in main.jsx BEFORE React renders — the
+//      ApiProvider context does not exist yet.
+//   2. installFetchInterceptor() wraps window.fetch globally; using the
+//      ApiClient (which calls window.fetch) would cause self-reporting loops.
+//   3. The monitor must survive even if ApiClient itself is the error source.
+// In dev: Vite proxy rewrites these relative paths → localhost:5000.
+// In prod: VITE_API_URL is set to the absolute backend origin.
+const API_BASE = import.meta.env?.VITE_API_URL || "";
+const INGEST_ERRORS = `${API_BASE}/api/v1/errors/log`;
+const INGEST_FEEDBACK = `${API_BASE}/api/v1/feedback/submit`;
 
 // Error Boundary Component for React
 export class ErrorBoundary extends React.Component {
@@ -404,9 +416,7 @@ export class ErrorBoundary extends React.Component {
   }
 
   async sendToErrorLogging(errorReport) {
-    // Use relative URL so Vite proxy routes it correctly in dev;
-    // in production the reverse-proxy handles /api/v1 routing.
-    return fetch(`/api/v1/errors/log`, {
+    return fetch(INGEST_ERRORS, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -439,7 +449,7 @@ export class ErrorBoundary extends React.Component {
       },
     };
 
-    return fetch(`/api/v1/feedback/submit`, {
+    return fetch(INGEST_FEEDBACK, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -538,7 +548,7 @@ ${errorReport.componentStack}
         <div className="min-h-screen flex items-center justify-center bg-gray-50">
           <div className="max-w-lg w-full bg-white shadow-lg rounded-lg p-6">
             <div className="flex items-center mb-4">
-              <div className="flex-shrink-0">
+              <div className="shrink-0">
                 <svg
                   className="h-8 w-8 text-red-500"
                   fill="none"
@@ -927,7 +937,7 @@ ${errorData.stack || "No stack trace available"}
     },
   };
 
-  return fetch("/api/v1/feedback/submit", {
+  return fetch(INGEST_FEEDBACK, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -1061,7 +1071,7 @@ export const installFetchInterceptor = () => {
         severity: response.status >= 503 ? "critical" : "high",
         networkInfo: { status: response.status, endpoint: response.url || url },
       };
-      _originalFetch("/api/v1/errors/log", {
+      _originalFetch(INGEST_ERRORS, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(errorPayload),
