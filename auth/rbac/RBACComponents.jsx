@@ -6,6 +6,7 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth.js";
+import { useFeatureGate } from "../hooks/useFeatureGate.js";
 
 /**
  * Permission Guard Component
@@ -485,6 +486,26 @@ export function withRoles(roles = [], options = {}) {
   };
 }
 
+/**
+ * Feature Gate Guard Component
+ * Renders children only when the named feature gate is enabled.
+ *
+ * @example
+ * // Hide an entire section if 'business.advanced_analytics' gate is off
+ * <FeatureGuard featureKey="business.advanced_analytics">
+ *   <AnalyticsDashboard />
+ * </FeatureGuard>
+ *
+ * // Show a "Coming Soon" label instead
+ * <FeatureGuard featureKey="home.budget_goals" fallback={<span>Coming soon</span>}>
+ *   <BudgetGoals />
+ * </FeatureGuard>
+ */
+export function FeatureGuard({ featureKey, children, fallback = null }) {
+  const isEnabled = useFeatureGate(featureKey);
+  return isEnabled ? children : fallback;
+}
+
 // Export all components
 export default {
   PermissionGuard,
@@ -496,4 +517,5 @@ export default {
   PermissionMenuItem,
   withPermissions,
   withRoles,
+  FeatureGuard,
 };

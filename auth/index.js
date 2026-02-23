@@ -74,6 +74,17 @@ export { usePermissions } from "./hooks/usePermissions.js";
 export { useRateLimit } from "./hooks/useRateLimit.js";
 
 /**
+ * Feature Gate Hooks — check if a platform feature is enabled for this user
+ * useFeatureGate(featureKey) → boolean  — single key
+ * useFeatureGates([...keys])  → Record<key, boolean> — batch
+ */
+export {
+  useFeatureGate,
+  useFeatureGates,
+  invalidateFeatureGateCache,
+} from "./hooks/useFeatureGate.js";
+
+/**
  * Hook utilities
  */
 export { listAvailableHooks } from "./hooks/index.js";
@@ -192,6 +203,17 @@ export const PermissionGuard = React.lazy(() =>
  */
 export const RoleGuard = React.lazy(() =>
   import("./rbac/RBACComponents.jsx").then((m) => ({ default: m.RoleGuard })),
+);
+
+/**
+ * Feature Gate Guard Component (Lazy Loaded)
+ * Renders children only when a named feature gate is enabled.
+ * @example <FeatureGuard featureKey="home.budget_goals"><BudgetGoals /></FeatureGuard>
+ */
+export const FeatureGuard = React.lazy(() =>
+  import("./rbac/RBACComponents.jsx").then((m) => ({
+    default: m.FeatureGuard,
+  })),
 );
 
 /**
