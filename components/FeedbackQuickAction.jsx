@@ -62,6 +62,40 @@ function FeedbackModal({ onClose, appType }) {
           ? "production"
           : "development";
 
+      // ── Token — probe sessionStorage then localStorage with app namespace ──
+      // TokenStorage stores tokens as {namespace}_auth_access_token.
+      // Try the current app first, then all known apps as fallback.
+      const getStoredToken = () => {
+        if (typeof window === "undefined") return null;
+        const namespaces = [
+          appName,
+          "admin",
+          "church",
+          "personal",
+          "home",
+          "business",
+          "uni",
+        ].filter(Boolean);
+        for (const ns of namespaces) {
+          const key = `${ns}_auth_access_token`;
+          const tok =
+            window.sessionStorage?.getItem(key) ||
+            window.localStorage?.getItem(key);
+          if (tok) return tok;
+        }
+        return null;
+      };
+      const authToken = getStoredToken();
+
+      // ── Path — strip Vite BASE_URL so we record the in-app route ──────────
+      // e.g. full pathname '/admin/dashboard' with base '/admin/' → '/dashboard'
+      const fullPathname =
+        typeof window !== "undefined" ? window.location.pathname : "/";
+      const base = import.meta?.env?.BASE_URL || "/";
+      const inAppPath = fullPathname.startsWith(base)
+        ? "/" + fullPathname.slice(base.length)
+        : fullPathname;
+
       // Build the structured FeedbackReport payload the backend expects
       const payload = {
         type: typeMap[feedback.type] || "user-feedback",
@@ -76,8 +110,7 @@ function FeedbackModal({ onClose, appType }) {
           page: {
             url:
               typeof window !== "undefined" ? window.location.href : "unknown",
-            path:
-              typeof window !== "undefined" ? window.location.pathname : "/",
+            path: inAppPath,
             referrer: typeof document !== "undefined" ? document.referrer : "",
             timestamp: new Date().toISOString(),
           },
@@ -102,9 +135,12 @@ function FeedbackModal({ onClose, appType }) {
         },
       };
 
+      const reqHeaders = { "Content-Type": "application/json" };
+      if (authToken) reqHeaders["Authorization"] = `Bearer ${authToken}`;
+
       const response = await fetch("/api/v1/feedback/submit", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: reqHeaders,
         body: JSON.stringify(payload),
       });
 
