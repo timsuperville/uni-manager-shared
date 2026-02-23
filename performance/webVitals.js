@@ -45,7 +45,9 @@ class WebVitalsMonitor {
           entryTypes: ["navigation", "paint", "largest-contentful-paint"],
         });
       } catch (e) {
-        console.warn("Performance Observer not fully supported");
+        if (import.meta.env.DEV) {
+          console.warn("Performance Observer not fully supported");
+        }
       }
     }
   }
@@ -107,7 +109,9 @@ class WebVitalsMonitor {
         body: JSON.stringify(payload),
       });
     } catch (error) {
-      console.error("Failed to send Web Vitals:", error);
+      if (import.meta.env.DEV) {
+        console.error("Failed to send Web Vitals:", error);
+      }
     }
   }
 

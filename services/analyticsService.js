@@ -228,18 +228,22 @@ class AnalyticsService {
     try {
       // Validate inputs before sending
       if (!metricType || typeof metricType !== "string") {
-        console.warn(
-          "Invalid metricType for performance tracking:",
-          metricType,
-        );
+        if (import.meta.env.DEV) {
+          console.warn(
+            "Invalid metricType for performance tracking:",
+            metricType,
+          );
+        }
         return null;
       }
 
       if (typeof value !== "number" || isNaN(value) || !isFinite(value)) {
-        console.warn("Invalid value for performance tracking:", {
-          metricType,
-          value,
-        });
+        if (import.meta.env.DEV) {
+          console.warn("Invalid value for performance tracking:", {
+            metricType,
+            value,
+          });
+        }
         return null;
       }
 
@@ -271,7 +275,9 @@ class AnalyticsService {
       );
       return response.data;
     } catch (error) {
-      console.error("Failed to track performance metric:", error);
+      if (import.meta.env.DEV) {
+        console.error("Failed to track performance metric:", error);
+      }
       // Don't throw error for tracking to avoid disrupting user experience
       return null;
     }
