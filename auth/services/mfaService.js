@@ -32,7 +32,7 @@ export const MFA_STATUS = {
 export class MFAService {
   constructor(authToken) {
     this.authToken = authToken;
-    this.baseUrl = "http://localhost:5000/api/auth/mfa";
+    this.baseUrl = `${import.meta.env.VITE_API_URL || ""}/api/v1/auth/mfa`;
   }
 
   /**

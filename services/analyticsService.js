@@ -15,7 +15,7 @@
 
 /* global window, document, localStorage, sessionStorage, WebSocket, fetch, URLSearchParams, console, navigator, setTimeout */
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api/v1";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "";
 
 class AnalyticsService {
   constructor() {
@@ -50,7 +50,7 @@ class AnalyticsService {
       const error = new Error(errorData.message || response.statusText);
       error.response = {
         status: response.status,
-        data: errorData
+        data: errorData,
       };
       throw error;
     }
@@ -171,9 +171,7 @@ class AnalyticsService {
    */
   async getRealTimeMetrics() {
     try {
-      const response = await this._request(
-        `${this.baseUrl}/real-time/metrics`,
-      );
+      const response = await this._request(`${this.baseUrl}/real-time/metrics`);
       return response.data;
     } catch (error) {
       // console.error('Failed to get real-time metrics:', error);
@@ -186,9 +184,7 @@ class AnalyticsService {
    */
   async getActiveAlerts() {
     try {
-      const response = await this._request(
-        `${this.baseUrl}/real-time/alerts`,
-      );
+      const response = await this._request(`${this.baseUrl}/real-time/alerts`);
       return response.data;
     } catch (error) {
       // console.error('Failed to get active alerts:', error);
@@ -286,21 +282,18 @@ class AnalyticsService {
    */
   async trackSecurityEvent(eventType, severity, details = {}) {
     try {
-      const response = await this._request(
-        `${this.baseUrl}/track/security`,
-        {
-          method: "POST",
-          body: JSON.stringify({
-            eventType,
-            severity,
-            details: {
-              ...details,
-              timestamp: new Date().toISOString(),
-              applicationId: this.getApplicationId(),
-            },
-          }),
-        },
-      );
+      const response = await this._request(`${this.baseUrl}/track/security`, {
+        method: "POST",
+        body: JSON.stringify({
+          eventType,
+          severity,
+          details: {
+            ...details,
+            timestamp: new Date().toISOString(),
+            applicationId: this.getApplicationId(),
+          },
+        }),
+      });
       return response.data;
     } catch (error) {
       // console.error('Failed to track security event:', error);
@@ -320,17 +313,14 @@ class AnalyticsService {
         parameters = {},
       } = options;
 
-      const response = await this._request(
-        `${this.baseUrl}/ai/insights`,
-        {
-          method: "POST",
-          body: JSON.stringify({
-            type,
-            timeframe,
-            parameters,
-          }),
-        },
-      );
+      const response = await this._request(`${this.baseUrl}/ai/insights`, {
+        method: "POST",
+        body: JSON.stringify({
+          type,
+          timeframe,
+          parameters,
+        }),
+      });
       return response.data;
     } catch (error) {
       // console.error('Failed to get predictive insights:', error);
@@ -364,13 +354,10 @@ class AnalyticsService {
    */
   async executeCustomQuery(query) {
     try {
-      const response = await this._request(
-        `${this.baseUrl}/query/custom`,
-        {
-          method: "POST",
-          body: JSON.stringify(query)
-        },
-      );
+      const response = await this._request(`${this.baseUrl}/query/custom`, {
+        method: "POST",
+        body: JSON.stringify(query),
+      });
       return response.data;
     } catch (error) {
       // console.error('Failed to execute custom query:', error);
@@ -620,7 +607,7 @@ class AnalyticsService {
     // This would typically come from your auth context or local storage
     const user = JSON.parse(
       (typeof localStorage !== "undefined" && localStorage.getItem("user")) ||
-      "{}",
+        "{}",
     );
     return user.id || null;
   }
