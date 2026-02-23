@@ -453,7 +453,7 @@ function ReportingDashboard() {
                     size="small"
                     startIcon={<PreviewIcon />}
                     onClick={() => {
-                      // TODO: Implement preview functionality
+                      // NOTE: Preview feature not yet implemented — shows coming-soon toast
                       showNotification("Preview feature coming soon", "info");
                     }}
                   >
@@ -537,7 +537,7 @@ function ReportingDashboard() {
             </MenuItemComponent>
             <MenuItemComponent
               onClick={() => {
-                // TODO: Implement edit functionality
+                // NOTE: Edit feature not yet implemented — shows coming-soon toast
                 showNotification("Edit feature coming soon", "info");
                 setMenuAnchor(null);
               }}
@@ -547,7 +547,7 @@ function ReportingDashboard() {
             </MenuItemComponent>
             <MenuItemComponent
               onClick={() => {
-                // TODO: Implement duplicate functionality
+                // NOTE: Duplicate feature not yet implemented — shows coming-soon toast
                 showNotification("Duplicate feature coming soon", "info");
                 setMenuAnchor(null);
               }}
