@@ -1,10 +1,12 @@
 import React from "react";
 import PropTypes from "prop-types";
+import { submitFeedbackSilently } from "./FeedbackQuickAction";
 
 /**
  * Global Error Boundary
  * Wraps the entire application to catch unhandled runtime errors
  * providing a graceful fallback UI instead of a whitespace crash.
+ * Also auto-reports every crash as an error-report feedback entry.
  */
 class GlobalErrorBoundary extends React.Component {
   constructor(props) {
@@ -18,13 +20,24 @@ class GlobalErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    // You can also log the error to an error reporting service
-    console.error(
-      `[${this.props.appType || "APP"}] Critical Error:`,
-      error,
-      errorInfo,
-    );
+    const appType = this.props.appType || "unknown";
+    if (process.env.NODE_ENV !== "test") {
+      console.error(`[${appType}] Critical Error:`, error, errorInfo);
+    }
     this.setState({ errorInfo });
+
+    // Auto-report crash as a feedback entry (fire-and-forget, fully silent)
+    submitFeedbackSilently({
+      title: `[Auto] Crash: ${error?.message || "Unknown error"}`,
+      description: [
+        `Error: ${error?.toString?.() || error}`,
+        "",
+        "Component Stack:",
+        errorInfo?.componentStack || "(unavailable)",
+      ].join("\n"),
+      appType,
+      severity: "critical",
+    });
   }
 
   render() {

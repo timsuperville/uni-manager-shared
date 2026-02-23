@@ -1,4 +1,5 @@
 import React from "react";
+import { submitFeedbackSilently } from "./FeedbackQuickAction";
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -11,7 +12,21 @@ class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    // console.error('ErrorBoundary caught an error:', error, errorInfo);
+    if (process.env.NODE_ENV !== "test") {
+      console.error("[ErrorBoundary]", error, errorInfo);
+    }
+    // Auto-report silently — zero user friction
+    submitFeedbackSilently({
+      title: `[Auto] Component crash: ${error?.message || "Unknown error"}`,
+      description: [
+        `Error: ${error?.toString?.() || error}`,
+        "",
+        "Component Stack:",
+        errorInfo?.componentStack || "(unavailable)",
+      ].join("\n"),
+      appType: this.props.appType || "unknown",
+      severity: "high",
+    });
   }
 
   render() {

@@ -8,6 +8,75 @@
 
 import React, { useState } from "react";
 
+// ─── Silent auto-submit utility (used by ErrorBoundary, no UI) ─────────────────
+// Fire-and-forget — never throws, never alerts the user.
+export async function submitFeedbackSilently({
+  title,
+  description,
+  appType = "unknown",
+  severity = "high",
+} = {}) {
+  try {
+    // Probe token from sessionStorage / localStorage across all known namespaces
+    const namespaces = [
+      appType,
+      "admin",
+      "church",
+      "personal",
+      "home",
+      "business",
+      "uni",
+    ].filter(Boolean);
+    let authToken = null;
+    for (const ns of namespaces) {
+      const key = `${ns}_auth_access_token`;
+      authToken =
+        window.sessionStorage?.getItem(key) ||
+        window.localStorage?.getItem(key);
+      if (authToken) break;
+    }
+
+    const headers = { "Content-Type": "application/json" };
+    if (authToken) headers["Authorization"] = `Bearer ${authToken}`;
+
+    await fetch("/api/v1/feedback/submit", {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        type: "error-report",
+        category: "bug",
+        severity,
+        userInput: { title, description, allowContact: false },
+        systemContext: {
+          page: {
+            url: window.location.href,
+            path: window.location.pathname,
+            referrer: document.referrer || "",
+            timestamp: new Date().toISOString(),
+          },
+          browser: {
+            userAgent: navigator.userAgent,
+            viewport: { width: window.innerWidth, height: window.innerHeight },
+            language: navigator.language,
+            timezone:
+              Intl?.DateTimeFormat?.()?.resolvedOptions?.()?.timeZone || "",
+          },
+          application: {
+            name: appType,
+            environment:
+              typeof import.meta !== "undefined" &&
+              import.meta?.env?.MODE === "production"
+                ? "production"
+                : "development",
+          },
+        },
+      }),
+    });
+  } catch {
+    // Intentionally silent — never surface auto-report errors to users
+  }
+}
+
 // ─── Feedback Modal ────────────────────────────────────────────────────────────
 function FeedbackModal({ onClose, appType }) {
   const [feedback, setFeedback] = useState({
@@ -594,6 +663,91 @@ export const FeedbackQuickAction = ({
           {iconSvg}
           <span>Feedback</span>
         </button>
+        {isOpen && (
+          <FeedbackModal onClose={() => setIsOpen(false)} appType={appType} />
+        )}
+      </>
+    );
+  }
+
+  // ── VARIANT: quick-react (3-emoji inline strip) ──────────────────────────────
+  // Positive (😊) → silent positive signal + done. Neutral/negative → opens full modal.
+  if (variant === "quick-react") {
+    const [reacted, setReacted] = useState(false);
+    const [isOpen, setIsOpen] = useState(false);
+
+    const handleReact = async (emoji, sentiment) => {
+      if (reacted) return;
+      if (sentiment === "positive") {
+        setReacted(true);
+        await submitFeedbackSilently({
+          title: `Quick reaction: ${emoji}`,
+          description: `User gave a positive quick reaction on ${window.location.pathname}`,
+          appType,
+          severity: "low",
+        });
+      } else {
+        // Neutral / negative → open full modal for detail
+        setIsOpen(true);
+      }
+    };
+
+    return (
+      <>
+        {reacted ? (
+          <span
+            style={{
+              fontSize: "12px",
+              color: "var(--text-secondary, #64748b)",
+              padding: "4px 8px",
+            }}
+          >
+            Thanks! 🙌
+          </span>
+        ) : (
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "4px",
+              background: "rgba(128,128,128,0.06)",
+              borderRadius: "20px",
+              padding: "4px 8px",
+              border: "1px solid rgba(128,128,128,0.15)",
+            }}
+          >
+            {[
+              { emoji: "😊", label: "Great", sentiment: "positive" },
+              { emoji: "😐", label: "Okay", sentiment: "neutral" },
+              { emoji: "😤", label: "Frustrating", sentiment: "negative" },
+            ].map(({ emoji, label, sentiment }) => (
+              <button
+                key={sentiment}
+                id={`quick-react-${sentiment}`}
+                title={label}
+                onClick={() => handleReact(emoji, sentiment)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  fontSize: "18px",
+                  padding: "2px 4px",
+                  borderRadius: "6px",
+                  lineHeight: 1,
+                  transition: "transform 120ms ease",
+                }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.transform = "scale(1.25)")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.transform = "scale(1)")
+                }
+              >
+                {emoji}
+              </button>
+            ))}
+          </div>
+        )}
         {isOpen && (
           <FeedbackModal onClose={() => setIsOpen(false)} appType={appType} />
         )}
