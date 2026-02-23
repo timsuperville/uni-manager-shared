@@ -39,7 +39,9 @@ const ChurchSelector = ({ className = "" }) => {
       setIsOpen(false);
       navigate("/dashboard");
     } catch (error) {
-      console.error("Failed to switch church:", error);
+      if (import.meta.env.DEV) {
+        console.error("Failed to switch church:", error);
+      }
     }
   };
 

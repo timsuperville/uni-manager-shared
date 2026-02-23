@@ -127,7 +127,9 @@ export const SSOProvider = ({ children, config = {} }) => {
 
         dispatch({ type: "SET_LOADING", payload: false });
       } catch (error) {
-        console.error("SSO initialization failed:", error);
+        if (import.meta.env.DEV) {
+          console.error("SSO initialization failed:", error);
+        }
         dispatch({ type: "SET_ERROR", payload: error.message });
         dispatch({ type: "SET_LOADING", payload: false });
       }
@@ -168,7 +170,9 @@ export const SSOProvider = ({ children, config = {} }) => {
           payload: { appId, session },
         });
       } catch (error) {
-        console.error("App switch failed:", error);
+        if (import.meta.env.DEV) {
+          console.error("App switch failed:", error);
+        }
         dispatch({ type: "SET_ERROR", payload: error.message });
         throw error;
       }

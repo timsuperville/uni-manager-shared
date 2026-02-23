@@ -74,7 +74,9 @@ export const LocationService = {
       cache.set(cacheKey, data);
       return data;
     } catch (error) {
-      console.error("[LocationService] Failed to fetch countries:", error);
+      if (import.meta.env.DEV) {
+        console.error("[LocationService] Failed to fetch countries:", error);
+      }
       throw error;
     }
   },
@@ -97,10 +99,12 @@ export const LocationService = {
       cache.set(cacheKey, data);
       return data;
     } catch (error) {
-      console.error(
-        `[LocationService] Failed to fetch states for ${countryCode}:`,
-        error,
-      );
+      if (import.meta.env.DEV) {
+        console.error(
+          `[LocationService] Failed to fetch states for ${countryCode}:`,
+          error,
+        );
+      }
       throw error;
     }
   },
@@ -126,10 +130,12 @@ export const LocationService = {
       cache.set(cacheKey, data);
       return data;
     } catch (error) {
-      console.error(
-        `[LocationService] Failed to fetch cities for ${countryCode}/${stateCode}:`,
-        error,
-      );
+      if (import.meta.env.DEV) {
+        console.error(
+          `[LocationService] Failed to fetch cities for ${countryCode}/${stateCode}:`,
+          error,
+        );
+      }
       throw error;
     }
   },
@@ -155,7 +161,9 @@ export const LocationService = {
       cache.set(cacheKey, data, 60000); // 1 minute for searches
       return data;
     } catch (error) {
-      console.error(`[LocationService] Failed to search locations:`, error);
+      if (import.meta.env.DEV) {
+        console.error(`[LocationService] Failed to search locations:`, error);
+      }
       throw error;
     }
   },
@@ -176,7 +184,12 @@ export const LocationService = {
       );
       return data;
     } catch (error) {
-      console.error(`[LocationService] Failed to geocode coordinates:`, error);
+      if (import.meta.env.DEV) {
+        console.error(
+          `[LocationService] Failed to geocode coordinates:`,
+          error,
+        );
+      }
       throw error;
     }
   },

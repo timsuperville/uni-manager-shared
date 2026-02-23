@@ -48,7 +48,9 @@ export function useSessionManagement() {
       // Also trigger useAuth logout to update context
       if (logout) await logout();
     } catch (err) {
-      console.error("Failed to invalidate session:", err);
+      if (import.meta.env.DEV) {
+        console.error("Failed to invalidate session:", err);
+      }
     }
   }, [logout]);
 
@@ -89,7 +91,9 @@ export function useUserSessions(userId) {
           setUserSessions(data.sessions || []);
         }
       } catch (err) {
-        console.error("Failed to fetch user sessions:", err);
+        if (import.meta.env.DEV) {
+          console.error("Failed to fetch user sessions:", err);
+        }
       } finally {
         setLoading(false);
       }
@@ -109,7 +113,9 @@ export function useUserSessions(userId) {
       }
       setUserSessions([]);
     } catch (err) {
-      console.error("Failed to invalidate all sessions:", err);
+      if (import.meta.env.DEV) {
+        console.error("Failed to invalidate all sessions:", err);
+      }
     } finally {
       setLoading(false);
     }
@@ -126,7 +132,9 @@ export function useUserSessions(userId) {
         }
         setUserSessions((prev) => prev.filter((s) => s.id !== sessionId));
       } catch (err) {
-        console.error("Failed to invalidate session:", err);
+        if (import.meta.env.DEV) {
+          console.error("Failed to invalidate session:", err);
+        }
       }
     },
     [token],
@@ -178,7 +186,9 @@ export function useSessionSecurity(sessionId) {
           setSecurityAlerts([]);
         }
       } catch (err) {
-        console.error("Security check failed:", err);
+        if (import.meta.env.DEV) {
+          console.error("Security check failed:", err);
+        }
         setSecurityStatus("warning");
       }
     };
@@ -231,7 +241,9 @@ export function useSessionAnalytics(userId, refreshInterval = 30000) {
           setAnalytics(data);
         }
       } catch (err) {
-        console.error("Failed to fetch analytics:", err);
+        if (import.meta.env.DEV) {
+          console.error("Failed to fetch analytics:", err);
+        }
       } finally {
         setLoading(false);
       }

@@ -255,14 +255,16 @@ export class ErrorHandler {
     };
 
     // In a real application, this would send to logging service
-    console.error("[API Error]", {
-      type: error.type,
-      message: error.message,
-      statusCode: error.statusCode,
-      context,
-      timestamp: error.timestamp,
-      stack: error.stack,
-    });
+    if (import.meta.env.DEV) {
+      console.error("[API Error]", {
+        type: error.type,
+        message: error.message,
+        statusCode: error.statusCode,
+        context,
+        timestamp: error.timestamp,
+        stack: error.stack,
+      });
+    }
 
     // Send to external error tracking service (e.g., Sentry)
     if (typeof window !== "undefined" && (window as any).errorTracker) {

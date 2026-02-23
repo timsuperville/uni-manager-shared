@@ -63,20 +63,26 @@ export const syncEngine = {
           await this.dequeueMutation(entry.id);
           console.log(`[SyncEngine] Successfully synced: ${entry.id}`);
         } else {
-          console.warn(
-            `[SyncEngine] Service or method not found for ${entry.mutationFnName}`,
-          );
+          if (import.meta.env.DEV) {
+            console.warn(
+              `[SyncEngine] Service or method not found for ${entry.mutationFnName}`,
+            );
+          }
           // Consider manual resolution or removal if invalid
         }
       } catch (error) {
-        console.error(`[SyncEngine] Failed to sync ${entry.id}:`, error);
+        if (import.meta.env.DEV) {
+          console.error(`[SyncEngine] Failed to sync ${entry.id}:`, error);
+        }
         // Increment retries or handle backoff
         entry.retries += 1;
         if (entry.retries > 5) {
           await this.dequeueMutation(entry.id);
-          console.error(
-            `[SyncEngine] Max retries reached for ${entry.id}. Dropping.`,
-          );
+          if (import.meta.env.DEV) {
+            console.error(
+              `[SyncEngine] Max retries reached for ${entry.id}. Dropping.`,
+            );
+          }
         }
       }
     }

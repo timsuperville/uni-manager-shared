@@ -359,9 +359,11 @@ export function withPermissions(permissions = [], options = {}) {
         if (redirectTo) {
           // Note: useNavigate should be called conditionally, which breaks rules of hooks
           // For now, return fallback in this case
-          console.warn(
-            "withPermissions: redirectTo not supported without useNavigate hook",
-          );
+          if (import.meta.env.DEV) {
+            console.warn(
+              "withPermissions: redirectTo not supported without useNavigate hook",
+            );
+          }
         }
         return fallback;
       }
@@ -374,9 +376,11 @@ export function withPermissions(permissions = [], options = {}) {
 
       if (!hasPermission) {
         if (redirectTo) {
-          console.warn(
-            "withPermissions: redirectTo not supported without useNavigate hook",
-          );
+          if (import.meta.env.DEV) {
+            console.warn(
+              "withPermissions: redirectTo not supported without useNavigate hook",
+            );
+          }
         }
         if (fallback) {
           if (typeof fallback === "function") {
@@ -416,9 +420,11 @@ export function withRoles(roles = [], options = {}) {
 
       if (!auth || !auth.hasRole) {
         if (redirectTo) {
-          console.warn(
-            "withRoles: redirectTo not supported without useNavigate hook",
-          );
+          if (import.meta.env.DEV) {
+            console.warn(
+              "withRoles: redirectTo not supported without useNavigate hook",
+            );
+          }
         }
         if (fallback) {
           if (typeof fallback === "function") {
@@ -436,9 +442,11 @@ export function withRoles(roles = [], options = {}) {
         const hasLevel = auth.hasMinimumRoleLevel(minimumLevel);
         if (!hasLevel) {
           if (redirectTo) {
-            console.warn(
-              "withRoles: redirectTo not supported without useNavigate hook",
-            );
+            if (import.meta.env.DEV) {
+              console.warn(
+                "withRoles: redirectTo not supported without useNavigate hook",
+              );
+            }
           }
           if (fallback) {
             if (typeof fallback === "function") {
@@ -463,9 +471,11 @@ export function withRoles(roles = [], options = {}) {
 
       if (!hasRole) {
         if (redirectTo) {
-          console.warn(
-            "withRoles: redirectTo not supported without useNavigate hook",
-          );
+          if (import.meta.env.DEV) {
+            console.warn(
+              "withRoles: redirectTo not supported without useNavigate hook",
+            );
+          }
         }
         if (fallback) {
           if (typeof fallback === "function") {

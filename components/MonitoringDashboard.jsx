@@ -60,7 +60,9 @@ const MonitoringDashboard = () => {
       }
     } catch (err) {
       setError(err.message);
-      console.error("Dashboard fetch error:", err);
+      if (import.meta.env.DEV) {
+        console.error("Dashboard fetch error:", err);
+      }
     } finally {
       setLoading(false);
     }
@@ -101,7 +103,9 @@ const MonitoringDashboard = () => {
         fetchDashboardData(); // Refresh data
       }
     } catch (err) {
-      console.error("Failed to resolve alert:", err);
+      if (import.meta.env.DEV) {
+        console.error("Failed to resolve alert:", err);
+      }
     }
   };
 

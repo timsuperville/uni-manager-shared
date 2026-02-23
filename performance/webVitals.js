@@ -73,9 +73,14 @@ class WebVitalsMonitor {
         entry.startTime || entry.loadEventEnd,
       );
       if (rating === "poor") {
-        console.warn(
-          "Poor " + metricName + ": " + (entry.startTime || entry.loadEventEnd),
-        );
+        if (import.meta.env.DEV) {
+          console.warn(
+            "Poor " +
+              metricName +
+              ": " +
+              (entry.startTime || entry.loadEventEnd),
+          );
+        }
       }
     }
   }

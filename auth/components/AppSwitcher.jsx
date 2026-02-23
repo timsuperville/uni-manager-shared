@@ -55,7 +55,9 @@ const AppSwitcher = () => {
       setIsOpen(false);
       await switchToApp(appId);
     } catch (error) {
-      console.error("App switch failed:", error);
+      if (import.meta.env.DEV) {
+        console.error("App switch failed:", error);
+      }
       // Error handling is managed by SSOContext
     } finally {
       setSwitching(null);

@@ -166,7 +166,9 @@ export class TokenManagementService {
           }
         }
       } catch (error) {
-        console.error("Auto-refresh failed:", error);
+        if (import.meta.env.DEV) {
+          console.error("Auto-refresh failed:", error);
+        }
         if (this.onTokenExpired) {
           this.onTokenExpired(error);
         }

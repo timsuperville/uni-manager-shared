@@ -213,14 +213,16 @@ export abstract class BaseService {
    * Log service errors
    */
   protected logError(error: ApiError, context?: string): void {
-    console.error(`[${this.serviceName}${context ? `:${context}` : ""}]`, {
-      type: error.type,
-      message: error.message,
-      statusCode: error.statusCode,
-      timestamp: error.timestamp,
-      service: this.serviceName,
-      context,
-    });
+    if (import.meta.env.DEV) {
+      console.error(`[${this.serviceName}${context ? `:${context}` : ""}]`, {
+        type: error.type,
+        message: error.message,
+        statusCode: error.statusCode,
+        timestamp: error.timestamp,
+        service: this.serviceName,
+        context,
+      });
+    }
   }
 
   /**

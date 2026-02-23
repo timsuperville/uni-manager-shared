@@ -409,7 +409,9 @@ const pwaNotificationService = new PWANotificationService();
 if ("serviceWorker" in navigator) {
   typeof navigator !== "undefined" &&
     navigator.serviceWorker.ready.then(() => {
-      pwaNotificationService.initialize().catch(console.error);
+      pwaNotificationService.initialize().catch((e) => {
+        if (import.meta.env.DEV) console.error(e);
+      });
     });
 }
 

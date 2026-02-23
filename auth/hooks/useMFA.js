@@ -95,7 +95,9 @@ export function useMFA() {
               const codes = await mfaService.generateBackupCodes();
               setBackupCodes(codes.backupCodes || codes);
             } catch (e) {
-              console.warn("Failed to auto-generate backup codes", e);
+              if (import.meta.env.DEV) {
+                console.warn("Failed to auto-generate backup codes", e);
+              }
             }
           }
         } else {

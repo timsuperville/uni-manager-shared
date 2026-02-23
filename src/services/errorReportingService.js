@@ -51,7 +51,9 @@ class ErrorReportingService {
       });
     } catch (loggingError) {
       // Failsafe: Don't let error logging crash the app
-      console.error("Failed to report error to backend:", loggingError);
+      if (import.meta.env.DEV) {
+        console.error("Failed to report error to backend:", loggingError);
+      }
     }
   }
 

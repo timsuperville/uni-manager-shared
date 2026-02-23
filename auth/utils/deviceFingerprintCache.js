@@ -50,10 +50,12 @@ export function getCachedDeviceFingerprint() {
       }
     } catch (error) {
       // SessionStorage might be disabled or full
-      console.warn(
-        "[DeviceFingerprintCache] Failed to read from sessionStorage:",
-        error,
-      );
+      if (import.meta.env.DEV) {
+        console.warn(
+          "[DeviceFingerprintCache] Failed to read from sessionStorage:",
+          error,
+        );
+      }
     }
   }
 
@@ -80,10 +82,12 @@ export function setCachedDeviceFingerprint(fingerprint) {
       sessionStorage.setItem(STORAGE_TIME_KEY, now.toString());
     } catch (error) {
       // SessionStorage might be disabled or full
-      console.warn(
-        "[DeviceFingerprintCache] Failed to write to sessionStorage:",
-        error,
-      );
+      if (import.meta.env.DEV) {
+        console.warn(
+          "[DeviceFingerprintCache] Failed to write to sessionStorage:",
+          error,
+        );
+      }
     }
   }
 }
@@ -103,10 +107,12 @@ export function clearCachedDeviceFingerprint() {
       sessionStorage.removeItem(STORAGE_KEY);
       sessionStorage.removeItem(STORAGE_TIME_KEY);
     } catch (error) {
-      console.warn(
-        "[DeviceFingerprintCache] Failed to clear sessionStorage:",
-        error,
-      );
+      if (import.meta.env.DEV) {
+        console.warn(
+          "[DeviceFingerprintCache] Failed to clear sessionStorage:",
+          error,
+        );
+      }
     }
   }
 }

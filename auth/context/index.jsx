@@ -91,7 +91,9 @@ export function getAuthContext() {
     const { AuthContext } = require("./AuthContext.jsx");
     return AuthContext;
   } catch (error) {
-    console.error("Failed to get AuthContext:", error);
+    if (import.meta.env.DEV) {
+      console.error("Failed to get AuthContext:", error);
+    }
     return null;
   }
 }
@@ -146,7 +148,9 @@ export function getAuthState() {
     // For now, return null - use hooks instead
     return null;
   } catch (error) {
-    console.error("Failed to get auth state:", error);
+    if (import.meta.env.DEV) {
+      console.error("Failed to get auth state:", error);
+    }
     return null;
   }
 }
@@ -178,9 +182,11 @@ export function createCustomAuthProvider(config = {}) {
  * Kept for backward compatibility
  */
 export function useAuthContext() {
-  console.warn(
-    "useAuthContext is deprecated. Use useAuth from @shared/auth/hooks instead.",
-  );
+  if (import.meta.env.DEV) {
+    console.warn(
+      "useAuthContext is deprecated. Use useAuth from @shared/auth/hooks instead.",
+    );
+  }
   const { useAuth } = require("./AuthContext.jsx");
   return useAuth();
 }
@@ -203,7 +209,9 @@ export async function getHookAuth() {
     const hooks = await import("../hooks/useAuth.js");
     return hooks.useAuth;
   } catch (error) {
-    console.error("Failed to get useAuth from hooks:", error);
+    if (import.meta.env.DEV) {
+      console.error("Failed to get useAuth from hooks:", error);
+    }
     return null;
   }
 }
@@ -245,7 +253,9 @@ export function isAuthContextReady() {
     const { AuthContext } = require("./AuthContext.jsx");
     return AuthContext !== null && AuthContext !== undefined;
   } catch (error) {
-    console.error("Failed to check auth context status:", error);
+    if (import.meta.env.DEV) {
+      console.error("Failed to check auth context status:", error);
+    }
     return false;
   }
 }

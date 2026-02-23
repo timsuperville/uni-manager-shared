@@ -26,7 +26,9 @@ export const MFAManagementDashboard = ({ onClose }) => {
       setError("");
     } catch (err) {
       setError(`Failed to load MFA status: ${err.message}`);
-      console.error("MFA status loading error:", err);
+      if (import.meta.env.DEV) {
+        console.error("MFA status loading error:", err);
+      }
     } finally {
       setLoading(false);
     }
@@ -55,7 +57,9 @@ export const MFAManagementDashboard = ({ onClose }) => {
       setError("");
     } catch (err) {
       setError(`Failed to disable ${method}: ${err.message}`);
-      console.error("MFA disable error:", err);
+      if (import.meta.env.DEV) {
+        console.error("MFA disable error:", err);
+      }
     } finally {
       setDisablingMethod("");
     }
@@ -78,7 +82,9 @@ export const MFAManagementDashboard = ({ onClose }) => {
       setError("");
     } catch (err) {
       setError(`Failed to regenerate backup codes: ${err.message}`);
-      console.error("Backup codes regeneration error:", err);
+      if (import.meta.env.DEV) {
+        console.error("Backup codes regeneration error:", err);
+      }
     } finally {
       setRegeneratingCodes(false);
     }

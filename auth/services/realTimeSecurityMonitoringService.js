@@ -112,7 +112,9 @@ class RealTimeSecurityMonitoringService {
         try {
           handler(data);
         } catch (error) {
-          console.error(`Error in ${event} handler:`, error);
+          if (import.meta.env.DEV) {
+            console.error(`Error in ${event} handler:`, error);
+          }
         }
       });
     }

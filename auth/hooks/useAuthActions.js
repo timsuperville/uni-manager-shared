@@ -255,10 +255,12 @@ export function useAuthActions(
       return false;
     } catch (error) {
       const errorMessage = error?.message || "Token refresh failed";
-      console.warn(
-        "[useAuthActions] Refresh failed, logging out...",
-        errorMessage,
-      );
+      if (import.meta.env.DEV) {
+        console.warn(
+          "[useAuthActions] Refresh failed, logging out...",
+          errorMessage,
+        );
+      }
 
       // Logout on refresh failure to prevent invalid state
       resetState();

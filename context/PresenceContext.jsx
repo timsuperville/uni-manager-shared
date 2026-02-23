@@ -99,7 +99,9 @@ export const PresenceProvider = ({ children }) => {
       };
 
       ws.onerror = (error) => {
-        console.error("WebSocket error:", error);
+        if (import.meta.env.DEV) {
+          console.error("WebSocket error:", error);
+        }
         // onError usually precedes onClose, so actual handling happens in onClose
       };
 
@@ -111,11 +113,15 @@ export const PresenceProvider = ({ children }) => {
             // Heartbeat response
           }
         } catch (e) {
-          console.error("Error parsing WebSocket message:", e);
+          if (import.meta.env.DEV) {
+            console.error("Error parsing WebSocket message:", e);
+          }
         }
       };
     } catch (error) {
-      console.error("Failed to create WebSocket connection:", error);
+      if (import.meta.env.DEV) {
+        console.error("Failed to create WebSocket connection:", error);
+      }
     }
   }, [user?.id]); // Depend on ID, not object reference
 

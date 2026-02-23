@@ -38,7 +38,9 @@ export function useSession() {
     try {
       await refreshAuth();
     } catch (err) {
-      console.error("Failed to renew session:", err);
+      if (import.meta.env.DEV) {
+        console.error("Failed to renew session:", err);
+      }
       throw err;
     }
   }, [refreshAuth]);

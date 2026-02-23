@@ -37,7 +37,9 @@ export function useLogout() {
     try {
       await authLogout();
     } catch (err) {
-      console.error("Logout error:", err);
+      if (import.meta.env.DEV) {
+        console.error("Logout error:", err);
+      }
       throw err;
     }
   }, [authLogout]);

@@ -155,7 +155,9 @@ class SessionService {
       this.emit(AUTH_EVENTS.SESSION_STARTED, session);
       return session;
     } catch (error) {
-      console.error("Failed to create session:", error);
+      if (import.meta.env.DEV) {
+        console.error("Failed to create session:", error);
+      }
       throw error;
     }
   }
@@ -494,7 +496,9 @@ class SessionService {
         });
       }
     } catch (error) {
-      console.warn("Cross-tab sync not available:", error);
+      if (import.meta.env.DEV) {
+        console.warn("Cross-tab sync not available:", error);
+      }
     }
   }
 
@@ -531,7 +535,9 @@ class SessionService {
     try {
       this.crossTabChannel.postMessage({ type, payload });
     } catch (error) {
-      console.warn("Cross-tab broadcast failed:", error);
+      if (import.meta.env.DEV) {
+        console.warn("Cross-tab broadcast failed:", error);
+      }
     }
   }
 
@@ -807,7 +813,9 @@ class SessionService {
         try {
           listener.callback(data);
         } catch (error) {
-          console.error(`Error in ${event} listener:`, error);
+          if (import.meta.env.DEV) {
+            console.error(`Error in ${event} listener:`, error);
+          }
         }
       }
     });

@@ -67,7 +67,9 @@ const OAuthCallback = ({ onSuccess, onError, redirectPath = "/" }) => {
           }, 2000);
         }
       } catch (error) {
-        console.error("OAuth callback error:", error);
+        if (import.meta.env.DEV) {
+          console.error("OAuth callback error:", error);
+        }
         setStatus("error");
         setMessage(error.message || "Authentication failed");
 

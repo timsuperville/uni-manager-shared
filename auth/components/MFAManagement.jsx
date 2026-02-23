@@ -69,7 +69,9 @@ const MFAManagement = ({ className = "" }) => {
       }
     } catch (err) {
       setError("Failed to load MFA status");
-      console.error("MFA status error:", err);
+      if (import.meta.env.DEV) {
+        console.error("MFA status error:", err);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -88,7 +90,9 @@ const MFAManagement = ({ className = "" }) => {
         setTrustedDevices(data.data || []);
       }
     } catch (err) {
-      console.error("Trusted devices error:", err);
+      if (import.meta.env.DEV) {
+        console.error("Trusted devices error:", err);
+      }
     }
   };
 

@@ -64,7 +64,9 @@ export function useAuthCallbacks(
       try {
         await actions.refreshAuth();
       } catch (error) {
-        console.warn("[useAuthCallbacks] Auto-refresh failed:", error);
+        if (import.meta.env.DEV) {
+          console.warn("[useAuthCallbacks] Auto-refresh failed:", error);
+        }
       }
     }, refreshInterval);
 
@@ -157,7 +159,9 @@ export function useAuthCallbacks(
     const checkExpiry = () => {
       const now = Date.now();
       if (state.sessionExpiry && now >= state.sessionExpiry) {
-        console.warn("[useAuthCallbacks] Session expired");
+        if (import.meta.env.DEV) {
+          console.warn("[useAuthCallbacks] Session expired");
+        }
         if (actions?.logout) {
           actions.logout();
         }

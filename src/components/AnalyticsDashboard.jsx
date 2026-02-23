@@ -104,7 +104,9 @@ const AnalyticsDashboard = ({
           dateRange: selectedDateRange,
           timestamp: new Date().toISOString(),
         },
-      }).catch(console.error);
+      }).catch((e) => {
+        if (import.meta.env.DEV) console.error(e);
+      });
     }
   }, [applicationId, selectedCategory, selectedDateRange, trackEvent]);
 

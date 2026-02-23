@@ -30,7 +30,9 @@ const ChatRoom = ({ roomId, user, onClose }) => {
           });
         }
       } catch (err) {
-        console.error("Failed to load chat history", err);
+        if (import.meta.env.DEV) {
+          console.error("Failed to load chat history", err);
+        }
       }
     };
 

@@ -90,7 +90,9 @@ export function useOAuth() {
         }
       }, 1000);
     } catch (err) {
-      console.error("OAuth Error:", err);
+      if (import.meta.env.DEV) {
+        console.error("OAuth Error:", err);
+      }
       setError(err.message);
       setIsLoading(false);
     }

@@ -69,7 +69,9 @@ export function RealTimeSecurityProvider({ children }) {
       } catch (err) {
         setError(err.message);
         setSystemHealth("error");
-        console.error("Security monitoring initialization failed:", err);
+        if (import.meta.env.DEV) {
+          console.error("Security monitoring initialization failed:", err);
+        }
       }
     },
     [],
@@ -170,14 +172,18 @@ export function RealTimeSecurityProvider({ children }) {
   const reportSecurityEvent = useCallback(
     async (event) => {
       if (!isConnected || !securityServiceRef.current) {
-        console.warn("Cannot report security event: service not connected");
+        if (import.meta.env.DEV) {
+          console.warn("Cannot report security event: service not connected");
+        }
         return;
       }
 
       try {
         await securityServiceRef.current.processSecurityEvent(event);
       } catch (err) {
-        console.error("Failed to report security event:", err);
+        if (import.meta.env.DEV) {
+          console.error("Failed to report security event:", err);
+        }
       }
     },
     [isConnected],
@@ -198,7 +204,9 @@ export function RealTimeSecurityProvider({ children }) {
       await securityServiceRef.current.updateConfiguration(config);
       setMonitoringConfig((prev) => ({ ...prev, ...config }));
     } catch (err) {
-      console.error("Failed to update monitoring configuration:", err);
+      if (import.meta.env.DEV) {
+        console.error("Failed to update monitoring configuration:", err);
+      }
     }
   }, []);
 

@@ -403,10 +403,12 @@ export const AuthProvider = ({
       const errorMessage = error?.message || "Refresh failed";
 
       // If refresh fails, we must logout to prevent loops and invalid states
-      console.warn(
-        "[AuthContext] Refresh failed, logging out...",
-        errorMessage,
-      );
+      if (import.meta.env.DEV) {
+        console.warn(
+          "[AuthContext] Refresh failed, logging out...",
+          errorMessage,
+        );
+      }
 
       // Clear local state
       const newState = {

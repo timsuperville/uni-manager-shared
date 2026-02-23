@@ -23,7 +23,9 @@ class GlobalErrorBoundary extends React.Component {
       });
 
     // Also log to console for development
-    console.error("Global Error Boundary caught an error:", error, errorInfo);
+    if (import.meta.env.DEV) {
+      console.error("Global Error Boundary caught an error:", error, errorInfo);
+    }
   }
 
   render() {

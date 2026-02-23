@@ -169,7 +169,9 @@ const NotificationToast = ({
       try {
         const audio = new Audio("/sounds/notification.mp3");
         audio.volume = 0.3;
-        audio.play().catch(console.warn);
+        audio.play().catch((e) => {
+          if (import.meta.env.DEV) console.warn(e);
+        });
       } catch (_error) {
         // console.warn('Failed to play notification sound:', error);
       }
