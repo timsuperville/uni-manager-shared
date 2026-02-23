@@ -1,0 +1,149 @@
+import { useEffect } from "react";
+import PropTypes from "prop-types";
+
+/**
+ * Modal — Liquid Glass Design System
+ *
+ * Full-screen backdrop modal with glass panel. Closes on backdrop click,
+ * Escape key, or explicit onClose call. Uses CSS custom properties.
+ *
+ * @param {boolean}   open       - Whether the modal is visible
+ * @param {function}  onClose    - Called when the modal should close
+ * @param {string}    title      - Dialog title
+ * @param {ReactNode} children   - Modal body content
+ * @param {ReactNode} footer     - Rendered in a bottom action bar (optional)
+ * @param {number}    maxWidth   - Max panel width in px (default 640)
+ * @param {string}    className  - Extra classes for the inner panel
+ */
+export function Modal({
+  open,
+  onClose,
+  title,
+  children,
+  footer,
+  maxWidth = 640,
+  className = "",
+}) {
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e) => {
+      if (e.key === "Escape") onClose?.();
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [open, onClose]);
+
+  if (!open) return null;
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={title}
+      onClick={(e) => e.target === e.currentTarget && onClose?.()}
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(0,0,0,0.55)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 1000,
+        padding: "1rem",
+      }}
+    >
+      <div
+        className={className}
+        style={{
+          background:
+            "var(--glass-surface, var(--glass-bg, rgba(15,15,35,0.92)))",
+          border:
+            "1px solid var(--glass-outline, var(--glass-border, rgba(255,255,255,0.12)))",
+          borderRadius: "var(--radius-lg, 0.75rem)",
+          backdropFilter: "blur(24px) saturate(180%)",
+          WebkitBackdropFilter: "blur(24px) saturate(180%)",
+          maxWidth,
+          width: "100%",
+          maxHeight: "85vh",
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+          boxShadow: "0 24px 64px rgba(0,0,0,0.45)",
+        }}
+      >
+        {/* Header */}
+        <div
+          style={{
+            padding: "1rem 1.5rem",
+            borderBottom:
+              "1px solid var(--glass-outline, rgba(255,255,255,0.08))",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <h3
+            style={{
+              margin: 0,
+              fontSize: "var(--text-lg, 1.125rem)",
+              fontWeight: 600,
+              color: "var(--text-primary, inherit)",
+            }}
+          >
+            {title}
+          </h3>
+          <button
+            onClick={onClose}
+            aria-label="Close dialog"
+            style={{
+              background: "none",
+              border: "none",
+              color: "var(--text-secondary, rgba(255,255,255,0.6))",
+              cursor: "pointer",
+              fontSize: "1.1rem",
+              padding: "2px 6px",
+              borderRadius: "4px",
+              lineHeight: 1,
+              transition: "color 0.15s",
+            }}
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Body */}
+        <div style={{ padding: "1.5rem", overflowY: "auto", flex: 1 }}>
+          {children}
+        </div>
+
+        {/* Footer */}
+        {footer && (
+          <div
+            style={{
+              padding: "1rem 1.5rem",
+              borderTop:
+                "1px solid var(--glass-outline, rgba(255,255,255,0.08))",
+              display: "flex",
+              justifyContent: "flex-end",
+              gap: "0.5rem",
+            }}
+          >
+            {footer}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+Modal.propTypes = {
+  open: PropTypes.bool.isRequired,
+  onClose: PropTypes.func,
+  title: PropTypes.string,
+  children: PropTypes.node,
+  footer: PropTypes.node,
+  maxWidth: PropTypes.number,
+  className: PropTypes.string,
+};
+
+export default Modal;

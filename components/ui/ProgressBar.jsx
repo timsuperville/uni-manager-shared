@@ -1,69 +1,83 @@
 import PropTypes from "prop-types";
 
 /**
- * Reusable ProgressBar component with customizable colors and sizes
+ * ProgressBar — Liquid Glass Design System
+ *
+ * Uses CSS custom properties so it automatically adapts to each app's
+ * colour palette (home = emerald, church = violet, admin = cobalt, etc.)
+ *
+ * @param {number}  value     - Current value (0–max)
+ * @param {number}  max       - Maximum value (default 100)
+ * @param {number}  height    - Bar height in px (default 6)
+ * @param {string}  color     - Override fill colour (any CSS value). Takes
+ *                              priority over `variant`.
+ * @param {string}  variant   - Semantic colour: 'primary'|'success'|'error'|
+ *                              'warning'. Resolved via CSS vars.
+ * @param {boolean} animated  - Adds a shimmer/pulse animation on the fill
+ * @param {string}  className - Extra classes for the wrapper element
  */
 export function ProgressBar({
-  value,
+  value = 0,
   max = 100,
-  color = "blue",
-  size = "md",
-  showLabel = false,
-  label,
+  height = 6,
+  color,
+  variant = "primary",
+  animated = false,
   className = "",
   ...props
 }) {
-  const percentage = Math.min(100, Math.max(0, (value / max) * 100));
+  const pct = Math.min(100, Math.max(0, (value / max) * 100));
 
-  const colorClasses = {
-    blue: "bg-blue-500",
-    green: "bg-green-500",
-    purple: "bg-purple-500",
-    orange: "bg-orange-500",
-    red: "bg-red-500",
+  const variantColor = {
+    primary: "var(--primary-resonance, var(--color-primary, #6366f1))",
+    success: "var(--accent-emerald, var(--color-success, #22c55e))",
+    error: "var(--accent-rose, var(--color-error, #ef4444))",
+    warning: "var(--accent-amber, var(--color-warning, #f59e0b))",
   };
 
-  const sizeClasses = {
-    sm: "h-1",
-    md: "h-2",
-    lg: "h-3",
-  };
-
-  const bgColorClass = colorClasses[color] || colorClasses.blue;
-  const heightClass = sizeClasses[size] || sizeClasses.md;
+  const fillColor = color ?? variantColor[variant] ?? variantColor.primary;
 
   return (
-    <div className={className} {...props}>
-      {(showLabel || label) && (
-        <div className="flex justify-between items-center mb-1">
-          {label && (
-            <span className="text-sm font-medium text-gray-700">{label}</span>
-          )}
-          {showLabel && (
-            <span className="text-sm font-medium text-gray-700">
-              {Math.round(percentage)}%
-            </span>
-          )}
-        </div>
-      )}
+    <div
+      className={className}
+      style={{
+        width: "100%",
+        height,
+        borderRadius: height / 2,
+        background:
+          "var(--glass-outline, var(--glass-border, rgba(255,255,255,0.12)))",
+        overflow: "hidden",
+      }}
+      role="progressbar"
+      aria-valuenow={Math.round(pct)}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      {...props}
+    >
       <div
-        className={`w-full bg-gray-200 rounded-full overflow-hidden ${heightClass}`}
-      >
-        <div
-          className={`${bgColorClass} ${heightClass} rounded-full transition-all duration-300`}
-          style={{ width: `${percentage}%` }}
-        />
-      </div>
+        style={{
+          width: `${pct}%`,
+          height: "100%",
+          background: fillColor,
+          borderRadius: height / 2,
+          transition: "width 0.4s ease",
+          animation: animated
+            ? "progress-shimmer 1.5s ease-in-out infinite"
+            : undefined,
+        }}
+      />
     </div>
   );
 }
 
 ProgressBar.propTypes = {
-  value: PropTypes.number.isRequired,
+  value: PropTypes.number,
   max: PropTypes.number,
-  color: PropTypes.oneOf(["blue", "green", "purple", "orange", "red"]),
-  size: PropTypes.oneOf(["sm", "md", "lg"]),
-  showLabel: PropTypes.bool,
-  label: PropTypes.string,
+  height: PropTypes.number,
+  color: PropTypes.string,
+  variant: PropTypes.oneOf(["primary", "success", "error", "warning"]),
+  animated: PropTypes.bool,
   className: PropTypes.string,
 };
+
+export default ProgressBar;

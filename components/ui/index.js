@@ -1,4 +1,7 @@
-// UI Components
+// UI Components — Liquid Glass Design System
+// All components use CSS custom properties (var(--*)) so they automatically
+// adopt each app's colour palette (home=emerald, church=violet, admin=cobalt, etc.)
+
 export { default as Button } from "./Button";
 export { default as UserAvatar } from "./UserAvatar";
 export { Card, CardHeader, CardContent, CardTitle, CardBody } from "./Card";
@@ -17,4 +20,14 @@ export { Input, Select, Textarea } from "./Input";
 export { Progress, CircularProgress } from "./Progress";
 export { Switch } from "./Switch";
 export { ProgressCard, QuickActionCard } from "./CompositeCards";
-export { ProgressBar } from "./ProgressBar";
+
+// Liquid Glass primitives (CSS vars — zero hardcoded colours)
+export { ProgressBar, default as ProgressBarDefault } from "./ProgressBar";
+export { Toggle } from "./Toggle";
+export { Modal } from "./Modal";
+export { Spinner } from "./Spinner";
+export { EmptyState } from "./EmptyState";
+export { OptionCard } from "./OptionCard";
+export { SectionCard } from "./SectionCard";
+export { FormField } from "./FormField";
+export { WizardStepper } from "./WizardStepper";
