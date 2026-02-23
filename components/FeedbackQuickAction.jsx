@@ -24,26 +24,85 @@ function FeedbackModal({ onClose, appType }) {
     e.preventDefault();
     setIsSubmitting(true);
     try {
+      // Map frontend type values → FeedbackReport.type enum
+      // Allowed: 'user-feedback' | 'error-report' | 'broken-link' | 'performance-issue'
+      const typeMap = {
+        general: "user-feedback",
+        bug_report: "error-report",
+        feature_request: "user-feedback",
+        improvement: "user-feedback",
+        question: "user-feedback",
+      };
+
+      // Map frontend type → FeedbackReport.category enum
+      // Allowed: 'bug' | 'feature' | 'improvement' | 'other'
+      const categoryFromType = {
+        general: "other",
+        bug_report: "bug",
+        feature_request: "feature",
+        improvement: "improvement",
+        question: "other",
+      };
+
+      // Map frontend priority string → FeedbackReport.severity enum
+      // Allowed: 'low' | 'medium' | 'high' | 'critical'
+      const severityMap = {
+        low: "low",
+        medium: "medium",
+        high: "high",
+        urgent: "critical",
+      };
+
+      const appName =
+        appType ||
+        (typeof window !== "undefined" && import.meta?.env?.VITE_APP_TYPE) ||
+        "unknown";
+      const env =
+        typeof window !== "undefined" && import.meta?.env?.MODE === "production"
+          ? "production"
+          : "development";
+
+      // Build the structured FeedbackReport payload the backend expects
       const payload = {
-        ...feedback,
-        appType:
-          appType ||
-          (typeof window !== "undefined" && import.meta?.env?.VITE_APP_TYPE) ||
-          "unknown",
-        timestamp: new Date().toISOString(),
-        url: typeof window !== "undefined" ? window.location.href : "",
-        userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "",
-        context: {
-          pathname:
-            typeof window !== "undefined" ? window.location.pathname : "",
-          viewport: {
-            width: typeof window !== "undefined" ? window.innerWidth : 0,
-            height: typeof window !== "undefined" ? window.innerHeight : 0,
+        type: typeMap[feedback.type] || "user-feedback",
+        category: categoryFromType[feedback.type] || "other",
+        severity: severityMap[feedback.priority] || "medium",
+        userInput: {
+          title: feedback.title,
+          description: feedback.description,
+          allowContact: false,
+        },
+        systemContext: {
+          page: {
+            url:
+              typeof window !== "undefined" ? window.location.href : "unknown",
+            path:
+              typeof window !== "undefined" ? window.location.pathname : "/",
+            referrer: typeof document !== "undefined" ? document.referrer : "",
+            timestamp: new Date().toISOString(),
+          },
+          browser: {
+            userAgent:
+              typeof navigator !== "undefined"
+                ? navigator.userAgent
+                : "unknown",
+            viewport: {
+              width: typeof window !== "undefined" ? window.innerWidth : 0,
+              height: typeof window !== "undefined" ? window.innerHeight : 0,
+            },
+            language:
+              typeof navigator !== "undefined" ? navigator.language : "",
+            timezone:
+              Intl?.DateTimeFormat?.()?.resolvedOptions?.()?.timeZone || "",
+          },
+          application: {
+            name: appName,
+            environment: env,
           },
         },
       };
 
-      const response = await fetch("/api/feedback/submit", {
+      const response = await fetch("/api/v1/feedback/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -56,10 +115,11 @@ function FeedbackModal({ onClose, appType }) {
           setSubmitted(false);
         }, 2000);
       } else {
-        throw new Error("Failed to submit feedback");
+        const errBody = await response.json().catch(() => ({}));
+        throw new Error(errBody.message || `Server error ${response.status}`);
       }
     } catch (_err) {
-      alert("Failed to submit feedback. Please try again.");
+      alert(`Failed to submit feedback: ${_err.message}`);
     } finally {
       setIsSubmitting(false);
     }
