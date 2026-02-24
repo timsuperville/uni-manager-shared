@@ -97,7 +97,7 @@ export const OAuthButton = ({
       className="w-full flex items-center justify-center gap-3 px-4 py-3 sm:py-3.5 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 text-sm sm:text-base font-medium text-gray-700 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition-all duration-200 active:scale-[0.98] active:shadow-inner"
     >
       {icon && (
-        <span className="flex-shrink-0 transition-transform group-hover:scale-110">
+        <span className="shrink-0 transition-transform group-hover:scale-110">
           {icon}
         </span>
       )}
@@ -369,7 +369,7 @@ export const Alert = ({ type = "error", message, className = "" }) => {
       className={`${bg} ${border} ${text} backdrop-blur-sm border px-4 py-3 rounded-xl flex items-start gap-3 shadow-sm ${className}`}
       role="alert"
     >
-      <div className="flex-shrink-0 mt-0.5">{icon}</div>
+      <div className="shrink-0 mt-0.5">{icon}</div>
       <div className="text-sm font-medium leading-5">{message}</div>
     </div>
   );

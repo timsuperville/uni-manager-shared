@@ -139,7 +139,7 @@ const SessionWarning = ({
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center">
           <svg
-            className="w-5 h-5 mr-2 flex-shrink-0"
+            className="w-5 h-5 mr-2 shrink-0"
             fill="currentColor"
             viewBox="0 0 20 20"
             aria-hidden="true"

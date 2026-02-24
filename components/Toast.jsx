@@ -148,7 +148,7 @@ const Toast = ({
   return (
     <div className={getToastStyles()}>
       {/* Icon */}
-      <div className={`flex-shrink-0 ${getIconColor()}`}>
+      <div className={`shrink-0 ${getIconColor()}`}>
         {icons[type] || icons.info}
       </div>
 
@@ -159,7 +159,7 @@ const Toast = ({
 
       {/* Close Button */}
       {showCloseButton && (
-        <div className="ml-4 flex-shrink-0">
+        <div className="ml-4 shrink-0">
           <button
             type="button"
             className="inline-flex text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-blue-600 transition-colors duration-200"

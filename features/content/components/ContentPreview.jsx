@@ -506,7 +506,7 @@ const ContentPreview = ({
                     </div>
                   ) : (
                     <div className="flex space-x-3">
-                      <div className="w-16 h-16 bg-gray-300 rounded flex-shrink-0"></div>
+                      <div className="w-16 h-16 bg-gray-300 rounded shrink-0"></div>
                       <div className="flex-1">
                         <div className="font-medium text-sm">
                           {preview.title}

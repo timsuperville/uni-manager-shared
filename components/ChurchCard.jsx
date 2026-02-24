@@ -141,7 +141,7 @@ const ChurchCard = ({
 
         {address && (
           <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-            <MapPin className="w-4 h-4 flex-shrink-0" />
+            <MapPin className="w-4 h-4 shrink-0" />
             <span className="line-clamp-1">
               {address.city}, {address.state || address.country}
             </span>
@@ -155,7 +155,7 @@ const ChurchCard = ({
 
         {memberCount !== undefined && memberCount > 0 && (
           <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-            <Users className="w-4 h-4 flex-shrink-0" />
+            <Users className="w-4 h-4 shrink-0" />
             <span>{memberCount} members</span>
           </div>
         )}
@@ -163,7 +163,7 @@ const ChurchCard = ({
         {createdAt && !isVisiting && !hasPendingRequest && (
           // Only show established date if not in the specific onboarding/visiting context where it might clutter
           <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-            <Calendar className="w-4 h-4 flex-shrink-0" />
+            <Calendar className="w-4 h-4 shrink-0" />
             <span>Joined {formatDate(createdAt)}</span>
           </div>
         )}

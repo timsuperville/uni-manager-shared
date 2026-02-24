@@ -347,7 +347,7 @@ const NotificationToast = ({
       )}
 
       {/* Content */}
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         {avatar ? (
           <Avatar src={avatar} alt="Notification" size="sm" />
         ) : (
@@ -391,7 +391,7 @@ const NotificationToast = ({
       </div>
 
       {/* Close button */}
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         <Button
           variant="ghost"
           size="xs"

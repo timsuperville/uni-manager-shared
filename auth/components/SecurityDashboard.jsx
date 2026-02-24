@@ -142,7 +142,7 @@ const SecurityDashboard = ({
       <div className={`security-dashboard ${className}`}>
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
           <div className="flex items-center">
-            <div className="flex-shrink-0">
+            <div className="shrink-0">
               <svg
                 className="h-5 w-5 text-red-400"
                 viewBox="0 0 20 20"
@@ -221,7 +221,7 @@ const SecurityDashboard = ({
           {/* Security Score */}
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center">
-              <div className="flex-shrink-0">
+              <div className="shrink-0">
                 <div
                   className={`text-3xl font-bold ${getSecurityScoreColor(securityStats.securityScore)}`}
                 >
@@ -246,7 +246,7 @@ const SecurityDashboard = ({
           {/* Total Events */}
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center">
-              <div className="flex-shrink-0">
+              <div className="shrink-0">
                 <div className="text-3xl font-bold text-blue-600">
                   {securityStats.totalEvents}
                 </div>
@@ -266,7 +266,7 @@ const SecurityDashboard = ({
           {/* High Risk Events */}
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center">
-              <div className="flex-shrink-0">
+              <div className="shrink-0">
                 <div
                   className={`text-3xl font-bold ${securityStats.highRiskEvents > 0 ? "text-red-600" : "text-green-600"}`}
                 >
@@ -285,7 +285,7 @@ const SecurityDashboard = ({
           {/* Active Rate Limits */}
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center">
-              <div className="flex-shrink-0">
+              <div className="shrink-0">
                 <div
                   className={`text-3xl font-bold ${securityStats.activeRateLimits > 0 ? "text-orange-600" : "text-green-600"}`}
                 >

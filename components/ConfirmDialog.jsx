@@ -182,7 +182,7 @@ const ConfirmDialog = ({
             {/* Icon */}
             <div
               className={`
-              mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full 
+              mx-auto shrink-0 flex items-center justify-center h-12 w-12 rounded-full 
               ${typeStyles.iconBg} sm:mx-0 sm:h-10 sm:w-10
             `}
             >
