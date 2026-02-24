@@ -60,7 +60,7 @@ export const flex = (extra = {}) => ({
 // ── Glass surface objects ─────────────────────────────────────────────────────
 
 /**
- * Standard Liquid Glass card / panel surface.
+ * Standard Liquid Glass card / panel surface — blur(24px) saturate(180%).
  * Use for any raised container that needs the frosted-glass treatment.
  */
 export const glassPanel = {
@@ -69,6 +69,30 @@ export const glassPanel = {
   backdropFilter: "blur(24px) saturate(180%)",
   WebkitBackdropFilter: "blur(24px) saturate(180%)",
   borderRadius: "var(--radius-lg, 0.75rem)",
+};
+
+/**
+ * Lighter glass card surface — blur(16px) saturate(160%).
+ * Use for secondary cards, list items, and nested surfaces.
+ */
+export const glassCard = {
+  background: "var(--glass-surface, rgba(15,15,35,0.85))",
+  border: "1px solid var(--glass-outline, rgba(255,255,255,0.12))",
+  backdropFilter: "blur(16px) saturate(160%)",
+  WebkitBackdropFilter: "blur(16px) saturate(160%)",
+  borderRadius: "var(--radius-lg, 0.75rem)",
+};
+
+/**
+ * Deep modal glass surface — blur(32px) saturate(200%).
+ * Use for modal dialogs and high-prominence overlays.
+ */
+export const glassModal = {
+  background: "var(--glass-surface, rgba(15,15,35,0.95))",
+  border: "1px solid var(--glass-outline, rgba(255,255,255,0.12))",
+  backdropFilter: "blur(32px) saturate(200%)",
+  WebkitBackdropFilter: "blur(32px) saturate(200%)",
+  borderRadius: "var(--radius-xl, 1rem)",
 };
 
 /**
