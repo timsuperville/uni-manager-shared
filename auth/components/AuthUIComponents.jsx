@@ -23,13 +23,13 @@ export const AuthButton = ({
 
   const variants = {
     primary:
-      "text-white bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 hover:from-blue-700 hover:via-blue-800 hover:to-indigo-900 focus:ring-blue-500 shadow-blue-500/30 hover:shadow-blue-500/40",
+      "text-white bg-linear-to-r from-blue-600 via-blue-700 to-indigo-800 hover:from-blue-700 hover:via-blue-800 hover:to-indigo-900 focus:ring-blue-500 shadow-blue-500/30 hover:shadow-blue-500/40",
     secondary:
       "text-blue-700 dark:text-blue-300 bg-white/50 dark:bg-gray-800/50 hover:bg-white/80 dark:hover:bg-gray-700/80 backdrop-blur-sm border border-blue-100 dark:border-blue-900 focus:ring-blue-500",
     success:
-      "text-white bg-gradient-to-r from-emerald-500 to-teal-700 hover:from-emerald-600 hover:to-teal-800 focus:ring-emerald-500 shadow-emerald-500/30 hover:shadow-emerald-500/40",
+      "text-white bg-linear-to-r from-emerald-500 to-teal-700 hover:from-emerald-600 hover:to-teal-800 focus:ring-emerald-500 shadow-emerald-500/30 hover:shadow-emerald-500/40",
     danger:
-      "text-white bg-gradient-to-r from-red-500 to-rose-700 hover:from-red-600 hover:to-rose-800 focus:ring-red-500 shadow-red-500/30 hover:shadow-red-500/40",
+      "text-white bg-linear-to-r from-red-500 to-rose-700 hover:from-red-600 hover:to-rose-800 focus:ring-red-500 shadow-red-500/30 hover:shadow-red-500/40",
   };
 
   const widthClass = fullWidth ? "w-full" : "";

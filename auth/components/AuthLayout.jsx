@@ -27,7 +27,7 @@ const AuthLayout = ({
       {showBackground && (
         <div className="hidden lg:flex lg:flex-1 lg:relative overflow-hidden">
           <div
-            className={`absolute inset-0 bg-gradient-to-br ${appConfig.branding.gradientFrom} ${appConfig.branding.gradientTo} animate-gradient-xy`}
+            className={`absolute inset-0 bg-linear-to-br ${appConfig.branding.gradientFrom} ${appConfig.branding.gradientTo} animate-gradient-xy`}
           >
             {/* Decorative Circles */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-20">
@@ -156,11 +156,11 @@ const AuthLayout = ({
           {/* Mobile logo */}
           {showLogo && (
             <div className="lg:hidden text-center mb-10">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-3xl shadow-lg mb-4">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-linear-to-br from-blue-500 to-indigo-600 text-white text-3xl shadow-lg mb-4">
                 {appConfig.branding.icon || "🚀"}
               </div>
               <h1
-                className={`text-3xl font-bold bg-gradient-to-r ${appConfig.branding.gradientFrom} ${appConfig.branding.gradientTo} bg-clip-text text-transparent`}
+                className={`text-3xl font-bold bg-linear-to-r ${appConfig.branding.gradientFrom} ${appConfig.branding.gradientTo} bg-clip-text text-transparent`}
               >
                 {appConfig.appName}
               </h1>

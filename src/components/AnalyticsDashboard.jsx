@@ -252,7 +252,7 @@ const AnalyticsDashboard = ({
   if (dashboardLoading && !dashboardData) {
     return (
       <div
-        className={`w-full min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-300 rounded-lg p-6 ${className}`}
+        className={`w-full min-h-screen flex items-center justify-center bg-linear-to-br from-slate-100 to-slate-300 rounded-lg p-6 ${className}`}
       >
         <div className="text-center">
           <div className="w-10 h-10 border-4 border-gray-300 border-t-indigo-500 rounded-full animate-spin mx-auto mb-4" />
@@ -284,9 +284,9 @@ const AnalyticsDashboard = ({
 
   return (
     <div
-      className={`w-full min-h-screen bg-gradient-to-br from-slate-100 to-slate-300 rounded-lg p-6 shadow-xl relative overflow-hidden ${
+      className={`w-full min-h-screen bg-linear-to-br from-slate-100 to-slate-300 rounded-lg p-6 shadow-xl relative overflow-hidden ${
         isFullscreen
-          ? "fixed inset-0 z-50 rounded-none p-8 bg-gradient-to-br from-indigo-600 to-purple-700 text-white"
+          ? "fixed inset-0 z-50 rounded-none p-8 bg-linear-to-br from-indigo-600 to-purple-700 text-white"
           : ""
       } ${className}`}
     >
@@ -297,7 +297,7 @@ const AnalyticsDashboard = ({
             className={`text-4xl font-bold ${
               isFullscreen
                 ? "text-white"
-                : "bg-gradient-to-r from-indigo-600 to-purple-700 bg-clip-text text-transparent"
+                : "bg-linear-to-r from-indigo-600 to-purple-700 bg-clip-text text-transparent"
             } m-0 mb-2`}
           >
             {currentApp.name} Analytics
@@ -468,7 +468,7 @@ const AnalyticsDashboard = ({
           className={`grid grid-cols-4 gap-4 mb-6 p-4 rounded-lg ${
             isFullscreen
               ? "bg-white/10 backdrop-blur-md"
-              : "bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-100"
+              : "bg-linear-to-r from-indigo-50 to-purple-50 border border-indigo-100"
           }`}
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -578,7 +578,7 @@ const AnalyticsDashboard = ({
               className={`p-4 rounded-lg border ${
                 isFullscreen
                   ? "bg-white/10 backdrop-blur-md border-white/20"
-                  : "bg-gradient-to-br from-indigo-50 to-purple-50 border-indigo-200 shadow-md"
+                  : "bg-linear-to-br from-indigo-50 to-purple-50 border-indigo-200 shadow-md"
               }`}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
