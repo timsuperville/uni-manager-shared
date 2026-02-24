@@ -128,3 +128,57 @@ export const inputBase = {
  * Alias maintained for semantic clarity at call sites.
  */
 export const selectBase = inputBase;
+
+// ── Overlay / scrim ───────────────────────────────────────────────────────────
+
+/**
+ * Dark, non-blurring modal scrim (backdrop div).
+ * Use behind modals and drawers as a click-capture overlay.
+ * For glass-blurred backdrops, use `glassOverlay` instead.
+ */
+export const overlayScrim = {
+  position: "fixed",
+  inset: 0,
+  background: "var(--overlay-scrim, rgba(0,0,0,0.6))",
+};
+
+// ── Semantic error surface ────────────────────────────────────────────────────
+
+/**
+ * Container style for inline error messages, banners, and destructive states.
+ * Provides a subtle red-tinted surface with a coloured border.
+ */
+export const errorSurface = {
+  background: "var(--color-error-surface, rgba(220,38,38,0.08))",
+  border: "1px solid var(--color-error-border, rgba(220,38,38,0.3))",
+  borderRadius: "var(--radius-sm, 0.375rem)",
+};
+
+/** Error text colour — for headings and copy on error surfaces. */
+export const errorText = { color: "var(--color-error, hsl(0,70%,60%))" };
+
+// ── Semantic success surface ──────────────────────────────────────────────────
+
+/**
+ * Container style for inline success messages, confirmations, and positive states.
+ * Provides a subtle green-tinted surface with a coloured border.
+ */
+export const successSurface = {
+  background: "var(--color-success-surface, rgba(16,185,129,0.08))",
+  border: "1px solid var(--color-success-border, rgba(16,185,129,0.3))",
+  borderRadius: "var(--radius-sm, 0.375rem)",
+};
+
+/** Success text colour — for copy on success surfaces. */
+export const successText = { color: "var(--color-success, hsl(160,70%,50%))" };
+
+// ── Skeleton / loading shimmer ────────────────────────────────────────────────
+
+/**
+ * Base style for skeleton loading placeholder elements.
+ * Apply `animate-pulse` className alongside this style.
+ */
+export const skeletonBase = {
+  background: "var(--glass-outline, rgba(255,255,255,0.12))",
+  borderRadius: "var(--radius-sm, 0.375rem)",
+};
