@@ -110,7 +110,7 @@ const DashboardCard = ({
 
           {/* Icon */}
           {Icon && (
-            <div className="flex-shrink-0">
+            <div className="shrink-0">
               <div
                 className="
                 w-12 h-12
