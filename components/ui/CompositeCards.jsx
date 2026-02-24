@@ -4,8 +4,42 @@ import { Card } from "./Card";
 
 /**
  * QuickActionCard - Displays quick action with icon, title, description, and button
- * Refactored to use Card and Button primitives
+ * Migrated to CSS variable tokens (SHARED-001 mop-up — was not in original sweep).
+ *
+ * The `color` prop maps to semantic token suffixes on the CSS variable set.
+ * All apps define --primary-resonance, --color-success, --color-warning,
+ * --text-primary, --text-muted, --glass-surface, --glass-outline.
  */
+
+// Semantic accent config — maps the `color` prop to CSS variable fallback colours.
+// We use inline style with CSS vars so any app's index.css overrides take effect.
+const COLOR_VARS = {
+  blue: {
+    bg: "var(--primary-resonance, #6366f1)",
+    text: "var(--primary-resonance, #6366f1)",
+    light: "var(--glass-surface, rgba(15,15,35,0.7))",
+    border: "var(--glass-outline, rgba(255,255,255,0.12))",
+  },
+  green: {
+    bg: "var(--color-success, #10b981)",
+    text: "var(--color-success, #10b981)",
+    light: "var(--glass-surface, rgba(15,15,35,0.7))",
+    border: "var(--glass-outline, rgba(255,255,255,0.12))",
+  },
+  purple: {
+    bg: "var(--cobalt, #7c3aed)",
+    text: "var(--cobalt, #7c3aed)",
+    light: "var(--glass-surface, rgba(15,15,35,0.7))",
+    border: "var(--glass-outline, rgba(255,255,255,0.12))",
+  },
+  orange: {
+    bg: "var(--color-warning, #f59e0b)",
+    text: "var(--color-warning, #f59e0b)",
+    light: "var(--glass-surface, rgba(15,15,35,0.7))",
+    border: "var(--glass-outline, rgba(255,255,255,0.12))",
+  },
+};
+
 export function QuickActionCard({
   title,
   description,
@@ -14,51 +48,41 @@ export function QuickActionCard({
   color = "blue",
   actionText = "Get Started",
 }) {
-  const colorConfig = {
-    blue: {
-      bg: "bg-blue-500",
-      text: "text-blue-600",
-      light: "bg-blue-50",
-      border: "border-blue-200",
-    },
-    green: {
-      bg: "bg-green-500",
-      text: "text-green-600",
-      light: "bg-green-50",
-      border: "border-green-200",
-    },
-    purple: {
-      bg: "bg-purple-500",
-      text: "text-purple-600",
-      light: "bg-purple-50",
-      border: "border-purple-200",
-    },
-    orange: {
-      bg: "bg-orange-500",
-      text: "text-orange-600",
-      light: "bg-orange-50",
-      border: "border-orange-200",
-    },
-  };
-
-  const colors = colorConfig[color] || colorConfig.blue;
+  const colors = COLOR_VARS[color] || COLOR_VARS.blue;
 
   return (
     <Card
       hover
-      className={`${colors.light} border ${colors.border}`}
+      style={{
+        background: colors.light,
+        border: `1px solid ${colors.border}`,
+      }}
       padding="lg"
     >
       <div className="flex items-start space-x-4">
-        <div className={`${colors.bg} rounded-lg p-3 flex-shrink-0`}>
+        <div
+          className="rounded-lg p-3 shrink-0"
+          style={{ background: colors.bg }}
+        >
           <span className="text-white text-xl">{icon}</span>
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className={`text-lg font-medium ${colors.text} mb-1`}>{title}</h3>
-          <p className="text-gray-600 text-sm mb-4">{description}</p>
+          <h3
+            className="text-lg font-medium mb-1"
+            style={{ color: colors.text }}
+          >
+            {title}
+          </h3>
+          <p
+            className="text-sm mb-4"
+            style={{ color: "var(--text-muted, #94a3b8)" }}
+          >
+            {description}
+          </p>
           <button
             onClick={action}
-            className={`${colors.bg} hover:${colors.bg.replace("500", "600")} text-white px-4 py-2 rounded-md text-sm font-medium transition-colors`}
+            className="px-4 py-2 rounded-md text-sm font-medium transition-colors text-white"
+            style={{ background: colors.bg }}
           >
             {actionText}
           </button>
@@ -79,7 +103,7 @@ QuickActionCard.propTypes = {
 
 /**
  * ProgressCard - Displays progress towards a goal with progress bar
- * Refactored to use Card and ProgressBar primitives
+ * Migrated to CSS variable tokens (SHARED-001 mop-up).
  */
 export function ProgressCard({
   title,
@@ -90,25 +114,27 @@ export function ProgressCard({
   color = "blue",
 }) {
   const percentage = target > 0 ? Math.min((progress / target) * 100, 100) : 0;
-
-  const colorConfig = {
-    blue: { text: "text-blue-600", light: "bg-blue-50" },
-    green: { text: "text-green-600", light: "bg-green-50" },
-    purple: { text: "text-purple-600", light: "bg-purple-50" },
-    orange: { text: "text-orange-600", light: "bg-orange-50" },
-  };
-
-  const colors = colorConfig[color] || colorConfig.blue;
+  const colors = COLOR_VARS[color] || COLOR_VARS.blue;
 
   return (
-    <Card className={colors.light} padding="lg">
+    <Card style={{ background: colors.light }} padding="lg">
       <div className="flex items-center justify-between mb-4">
-        <h3 className={`text-lg font-medium ${colors.text}`}>{title}</h3>
-        <span className="text-sm text-gray-500">{Math.round(percentage)}%</span>
+        <h3 className="text-lg font-medium" style={{ color: colors.text }}>
+          {title}
+        </h3>
+        <span
+          className="text-sm"
+          style={{ color: "var(--text-muted, #94a3b8)" }}
+        >
+          {Math.round(percentage)}%
+        </span>
       </div>
 
       <div className="mb-4">
-        <div className="flex justify-between text-sm text-gray-600 mb-2">
+        <div
+          className="flex justify-between text-sm mb-2"
+          style={{ color: "var(--text-muted, #94a3b8)" }}
+        >
           <span>
             {progress} {unit}
           </span>
@@ -116,15 +142,22 @@ export function ProgressCard({
             {target} {unit}
           </span>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-2">
+        <div
+          className="w-full rounded-full h-2"
+          style={{ background: "var(--glass-outline, rgba(255,255,255,0.12))" }}
+        >
           <div
-            className={`bg-${color}-500 h-2 rounded-full transition-all duration-300`}
-            style={{ width: `${percentage}%` }}
+            className="h-2 rounded-full transition-all duration-300"
+            style={{ width: `${percentage}%`, background: colors.bg }}
           />
         </div>
       </div>
 
-      {description && <p className="text-sm text-gray-600">{description}</p>}
+      {description && (
+        <p className="text-sm" style={{ color: "var(--text-muted, #94a3b8)" }}>
+          {description}
+        </p>
+      )}
     </Card>
   );
 }
