@@ -27,16 +27,16 @@ const Progress = ({
   const getVariantClasses = () => {
     switch (variant) {
       case "success":
-        return "bg-green-500";
+        return "[background:var(--accent-emerald,#22c55e)]";
       case "warning":
-        return "bg-yellow-500";
+        return "[background:var(--warning,#eab308)]";
       case "danger":
       case "error":
-        return "bg-red-500";
+        return "[background:var(--danger,#ef4444)]";
       case "info":
-        return "bg-blue-500";
+        return "[background:var(--badge-info-text,#60a5fa)]";
       default:
-        return "bg-blue-600";
+        return "[background:var(--primary-resonance,#4f46e5)]";
     }
   };
 
@@ -44,17 +44,19 @@ const Progress = ({
     <div className={`w-full ${className}`} {...props}>
       {(showLabel || label) && (
         <div className="flex justify-between items-center mb-2">
-          <span className="text-sm font-medium text-gray-700">
+          <span className="text-sm font-medium text-(--text-primary,inherit)">
             {label || `${Math.round(percentage)}%`}
           </span>
           {showLabel && !label && (
-            <span className="text-sm text-gray-500">
+            <span className="text-sm text-(--text-muted,rgba(255,255,255,0.5))">
               {value}/{max}
             </span>
           )}
         </div>
       )}
-      <div className={`w-full bg-gray-200 rounded-full ${getSizeClasses()}`}>
+      <div
+        className={`w-full [background:var(--glass-outline,rgba(255,255,255,0.12))] rounded-full ${getSizeClasses()}`}
+      >
         <div
           className={`${getSizeClasses()} ${getVariantClasses()} rounded-full transition-all duration-300 ease-in-out`}
           style={{ width: `${percentage}%` }}
@@ -90,16 +92,16 @@ const CircularProgress = ({
   const getVariantColor = () => {
     switch (variant) {
       case "success":
-        return "#10b981";
+        return "var(--accent-emerald, #10b981)";
       case "warning":
-        return "#f59e0b";
+        return "var(--warning, #f59e0b)";
       case "danger":
       case "error":
-        return "#ef4444";
+        return "var(--danger, #ef4444)";
       case "info":
-        return "#3b82f6";
+        return "var(--badge-info-text, #3b82f6)";
       default:
-        return "#2563eb";
+        return "var(--primary-resonance, #4f46e5)";
     }
   };
 
@@ -122,7 +124,7 @@ const CircularProgress = ({
           cx={sizeValue / 2}
           cy={sizeValue / 2}
           r={radius}
-          stroke="#e5e7eb"
+          stroke="var(--glass-outline, #e5e7eb)"
           strokeWidth={strokeWidth}
           fill="transparent"
         />
@@ -141,7 +143,7 @@ const CircularProgress = ({
       </svg>
       {showLabel && (
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-sm font-medium text-gray-700">
+          <span className="text-sm font-medium text-(--text-primary,inherit)">
             {Math.round(percentage)}%
           </span>
         </div>

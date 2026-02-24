@@ -11,20 +11,20 @@ const Badge = ({
   const getVariantClasses = () => {
     switch (variant) {
       case "success":
-        return "bg-green-100 text-green-800 border-green-200";
+        return "[background:var(--badge-success-bg,rgba(34,197,94,0.15))] [color:var(--badge-success-text,#4ade80)] [border-color:var(--badge-success-border,rgba(34,197,94,0.3))]";
       case "warning":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+        return "[background:var(--badge-warning-bg,rgba(234,179,8,0.15))] [color:var(--badge-warning-text,#facc15)] [border-color:var(--badge-warning-border,rgba(234,179,8,0.3))]";
       case "danger":
       case "error":
-        return "bg-red-100 text-red-800 border-red-200";
+        return "[background:var(--badge-danger-bg,rgba(239,68,68,0.15))] [color:var(--badge-danger-text,#f87171)] [border-color:var(--badge-danger-border,rgba(239,68,68,0.3))]";
       case "info":
-        return "bg-blue-100 text-blue-800 border-blue-200";
+        return "[background:var(--badge-info-bg,rgba(59,130,246,0.15))] [color:var(--badge-info-text,#60a5fa)] [border-color:var(--badge-info-border,rgba(59,130,246,0.3))]";
       case "secondary":
-        return "bg-gray-100 text-gray-800 border-gray-200";
+        return "[background:var(--glass-surface,rgba(255,255,255,0.06))] [color:var(--text-muted,rgba(255,255,255,0.55))] [border-color:var(--glass-outline,rgba(255,255,255,0.12))]";
       case "outline":
-        return "bg-transparent text-gray-600 border-gray-300";
+        return "bg-transparent [color:var(--text-muted,rgba(255,255,255,0.55))] [border-color:var(--glass-outline,rgba(255,255,255,0.18))]";
       default:
-        return "bg-blue-100 text-blue-800 border-blue-200";
+        return "[background:var(--badge-info-bg,rgba(59,130,246,0.15))] [color:var(--badge-info-text,#60a5fa)] [border-color:var(--badge-info-border,rgba(59,130,246,0.3))]";
     }
   };
 

@@ -19,19 +19,25 @@ export function Button({
   // Map legacy/home variants to shared variants or define new ones
   const variantMap = {
     // Standard Shared Variants
-    default: "bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500",
-    destructive: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500",
+    default:
+      "[background:var(--primary-resonance,#4f46e5)] text-white hover:[background:var(--primary-resonance-dark,#4338ca)] focus:ring-(--primary-resonance,#4f46e5)/50",
+    destructive:
+      "[background:var(--danger,#ef4444)] text-white hover:[background:var(--danger-dark,#dc2626)] focus:ring-(--danger,#ef4444)/50",
     outline:
-      "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:ring-blue-500",
-    ghost: "text-gray-700 hover:bg-gray-100 focus:ring-gray-500",
-    link: "text-blue-600 underline-offset-4 hover:underline focus:ring-blue-500",
+      "border border-(--glass-outline,rgba(255,255,255,0.18)) [background:var(--glass-surface,rgba(255,255,255,0.05))] text-(--text-primary,inherit) hover:[background:var(--glass-surface-hover,rgba(255,255,255,0.1))] focus:ring-(--primary-resonance,#4f46e5)/50",
+    ghost:
+      "text-(--text-primary,inherit) hover:[background:var(--glass-surface-hover,rgba(255,255,255,0.08))] focus:ring-(--glass-outline,rgba(255,255,255,0.12))/50",
+    link: "text-(--primary-resonance,#4f46e5) underline-offset-4 hover:underline focus:ring-(--primary-resonance,#4f46e5)/50",
 
     // Home App Aliases / Extensions
-    primary: "bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500", // Alias for default
+    primary:
+      "[background:var(--primary-resonance,#4f46e5)] text-white hover:[background:var(--primary-resonance-dark,#4338ca)] focus:ring-(--primary-resonance,#4f46e5)/50",
     secondary:
-      "bg-gray-100 text-gray-700 hover:bg-gray-200 focus:ring-gray-500",
-    danger: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500", // Alias for destructive
-    success: "bg-green-600 text-white hover:bg-green-700 focus:ring-green-500",
+      "[background:var(--glass-surface,rgba(255,255,255,0.08))] text-(--text-primary,inherit) hover:[background:var(--glass-surface-hover,rgba(255,255,255,0.13))] focus:ring-(--glass-outline,rgba(255,255,255,0.12))/50",
+    danger:
+      "[background:var(--danger,#ef4444)] text-white hover:[background:var(--danger-dark,#dc2626)] focus:ring-(--danger,#ef4444)/50",
+    success:
+      "[background:var(--accent-emerald,#22c55e)] text-white hover:[background:var(--accent-emerald-dark,#16a34a)] focus:ring-(--accent-emerald,#22c55e)/50",
   };
 
   const sizeStyles = {

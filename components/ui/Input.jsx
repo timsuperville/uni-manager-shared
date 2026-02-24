@@ -26,14 +26,13 @@ const Input = ({
 
   const getVariantClasses = () => {
     if (error) {
-      return "border-red-300 focus:border-red-500 focus:ring-red-500";
+      return "border-(--danger,#ef4444) focus:border-(--danger,#ef4444) focus:ring-(--danger,#ef4444)/40";
     }
 
     switch (variant) {
       case "outline":
-        return "border-gray-300 focus:border-blue-500 focus:ring-blue-500";
       default:
-        return "border-gray-300 focus:border-blue-500 focus:ring-blue-500";
+        return "border-(--glass-outline,rgba(255,255,255,0.18)) focus:border-(--primary-resonance,#4f46e5) focus:ring-(--primary-resonance,#4f46e5)/30";
     }
   };
 
@@ -48,7 +47,7 @@ const Input = ({
         block w-full rounded-md shadow-sm
         ${getSizeClasses()}
         ${getVariantClasses()}
-        ${disabled ? "bg-gray-50 text-gray-500 cursor-not-allowed" : "bg-white"}
+        ${disabled ? "[background:var(--bg-surface-0,rgba(255,255,255,0.02))] text-(--text-muted,rgba(255,255,255,0.4)) cursor-not-allowed" : "[background:var(--bg-surface-1,rgba(255,255,255,0.05))] text-(--text-primary,inherit)"}
         focus:outline-none focus:ring-1
         transition-colors duration-200
         ${className}
@@ -82,9 +81,9 @@ const Select = ({
 
   const getVariantClasses = () => {
     if (error) {
-      return "border-red-300 focus:border-red-500 focus:ring-red-500";
+      return "border-(--danger,#ef4444) focus:border-(--danger,#ef4444) focus:ring-(--danger,#ef4444)/40";
     }
-    return "border-gray-300 focus:border-blue-500 focus:ring-blue-500";
+    return "border-(--glass-outline,rgba(255,255,255,0.18)) focus:border-(--primary-resonance,#4f46e5) focus:ring-(--primary-resonance,#4f46e5)/30";
   };
 
   return (
@@ -96,7 +95,7 @@ const Select = ({
         block w-full rounded-md shadow-sm
         ${getSizeClasses()}
         ${getVariantClasses()}
-        ${disabled ? "bg-gray-50 text-gray-500 cursor-not-allowed" : "bg-white"}
+        ${disabled ? "[background:var(--bg-surface-0,rgba(255,255,255,0.02))] text-(--text-muted,rgba(255,255,255,0.4)) cursor-not-allowed" : "[background:var(--bg-surface-1,rgba(255,255,255,0.05))] text-(--text-primary,inherit)"}
         focus:outline-none focus:ring-1
         transition-colors duration-200
         ${className}
@@ -125,9 +124,9 @@ const Textarea = ({
 }) => {
   const getVariantClasses = () => {
     if (error) {
-      return "border-red-300 focus:border-red-500 focus:ring-red-500";
+      return "border-(--danger,#ef4444) focus:border-(--danger,#ef4444) focus:ring-(--danger,#ef4444)/40";
     }
-    return "border-gray-300 focus:border-blue-500 focus:ring-blue-500";
+    return "border-(--glass-outline,rgba(255,255,255,0.18)) focus:border-(--primary-resonance,#4f46e5) focus:ring-(--primary-resonance,#4f46e5)/30";
   };
 
   return (
@@ -140,7 +139,7 @@ const Textarea = ({
       className={`
         block w-full rounded-md shadow-sm px-3 py-2 text-sm
         ${getVariantClasses()}
-        ${disabled ? "bg-gray-50 text-gray-500 cursor-not-allowed" : "bg-white"}
+        ${disabled ? "[background:var(--bg-surface-0,rgba(255,255,255,0.02))] text-(--text-muted,rgba(255,255,255,0.4)) cursor-not-allowed" : "[background:var(--bg-surface-1,rgba(255,255,255,0.05))] text-(--text-primary,inherit)"}
         focus:outline-none focus:ring-1
         transition-colors duration-200
         resize-vertical

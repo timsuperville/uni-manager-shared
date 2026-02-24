@@ -17,9 +17,9 @@ const DashboardCard = ({
   ...props
 }) => {
   const trendColors = {
-    up: "text-emerald-600 dark:text-emerald-400",
-    down: "text-red-600 dark:text-red-400",
-    neutral: "text-gray-500 dark:text-gray-400",
+    up: "text-(--accent-emerald,#4ade80)",
+    down: "text-(--danger,#f87171)",
+    neutral: "text-(--text-muted,rgba(255,255,255,0.5))",
   };
 
   const handleClick = interactive && onClick ? onClick : undefined;
@@ -39,14 +39,14 @@ const DashboardCard = ({
         <div className="flex items-start justify-between">
           <div className="flex-1">
             {/* Title */}
-            <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
+            <p className="text-sm font-medium text-(--text-muted,rgba(255,255,255,0.55)) mb-1">
               {title}
             </p>
 
             {/* Value */}
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+            <p className="text-2xl font-bold text-(--text-primary,inherit) mb-1">
               {loading ? (
-                <span className="inline-block w-16 h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></span>
+                <span className="inline-block w-16 h-6 [background:var(--glass-outline,rgba(255,255,255,0.12))] rounded animate-pulse"></span>
               ) : (
                 value
               )}
@@ -54,7 +54,7 @@ const DashboardCard = ({
 
             {/* Subtitle */}
             {subtitle && (
-              <p className="text-xs text-gray-500 dark:text-gray-400">
+              <p className="text-xs text-(--text-muted,rgba(255,255,255,0.5))">
                 {subtitle}
               </p>
             )}
@@ -113,15 +113,14 @@ const DashboardCard = ({
             <div className="flex-shrink-0">
               <div
                 className="
-                w-12 h-12 
-                bg-gradient-to-br from-blue-50 to-blue-100 
-                dark:from-blue-900/30 dark:to-blue-800/30 
-                rounded-xl 
+                w-12 h-12
+                [background:var(--glass-surface,rgba(255,255,255,0.06))]
+                rounded-xl
                 flex items-center justify-center
-                border border-blue-200 dark:border-blue-700/50
+                border border-(--glass-outline,rgba(255,255,255,0.15))
               "
               >
-                <Icon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                <Icon className="w-6 h-6 text-(--primary-resonance,#6366f1)" />
               </div>
             </div>
           )}
@@ -166,9 +165,9 @@ const ActionCard = ({
       variant="outlined"
       interactive={true}
       className={`
-        group 
-        hover:border-blue-300 dark:hover:border-blue-600 
-        transition-all duration-200 
+        group
+        hover:border-(--primary-resonance,#4f46e5)
+        transition-all duration-200
         ${className}
       `}
       {...props}
@@ -178,28 +177,28 @@ const ActionCard = ({
           {Icon && (
             <div
               className="
-              w-10 h-10 
-              bg-blue-50 dark:bg-blue-900/30 
-              rounded-lg 
-              flex items-center justify-center 
-              group-hover:bg-blue-100 dark:group-hover:bg-blue-800/50 
+              w-10 h-10
+              [background:var(--glass-surface,rgba(255,255,255,0.06))]
+              rounded-lg
+              flex items-center justify-center
+              group-hover:[background:var(--glass-surface-hover,rgba(255,255,255,0.1))]
               transition-colors duration-200
             "
             >
-              <Icon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              <Icon className="w-5 h-5 text-(--primary-resonance,#6366f1)" />
             </div>
           )}
           <div className="flex-1 min-w-0">
-            <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">
+            <h3 className="text-sm font-medium text-(--text-primary,inherit) mb-1">
               {title}
             </h3>
             {description && (
-              <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+              <p className="text-xs text-(--text-muted,rgba(255,255,255,0.5)) mb-3">
                 {description}
               </p>
             )}
             {action && (
-              <div className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+              <div className="text-xs text-(--primary-resonance,#6366f1) font-medium">
                 {action}
               </div>
             )}

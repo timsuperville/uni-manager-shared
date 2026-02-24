@@ -30,7 +30,10 @@ const TabsList = ({
   ...props
 }) => {
   return (
-    <div className={`border-b border-gray-200 ${className}`} {...props}>
+    <div
+      className={`border-b border-(--glass-outline,rgba(255,255,255,0.15)) ${className}`}
+      {...props}
+    >
       <nav className="-mb-px flex space-x-8">
         {React.Children.map(children, (child) =>
           React.cloneElement(child, { activeTab, setActiveTab }),
@@ -54,8 +57,8 @@ const TabsTrigger = ({
     <button
       className={`py-2 px-1 border-b-2 font-medium text-sm ${
         isActive
-          ? "border-blue-500 text-blue-600"
-          : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+          ? "border-(--primary-resonance,#4f46e5) text-(--primary-resonance,#4f46e5)"
+          : "border-transparent text-(--text-muted,rgba(255,255,255,0.5)) hover:text-(--text-primary,inherit) hover:border-(--glass-outline,rgba(255,255,255,0.3))"
       } ${className}`}
       onClick={() => setActiveTab(value)}
       {...props}
