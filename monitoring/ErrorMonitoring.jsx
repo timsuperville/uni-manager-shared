@@ -700,7 +700,7 @@ ${errorReport.componentStack}
             {/* Feedback Modal */}
             {this.state.showFeedbackModal && (
               <div
-                className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+                className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
                 onClick={() => this.setState({ showFeedbackModal: false })}
               >
                 <div

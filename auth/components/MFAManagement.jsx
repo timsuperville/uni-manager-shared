@@ -364,7 +364,7 @@ const MFAManagement = ({ className = "" }) => {
     <>
       {/* Disable MFA Confirmation */}
       {showDisableConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-md mx-4">
             <div className="flex items-center space-x-3 mb-4">
               <AlertCircle className="text-red-600" size={24} />
@@ -397,7 +397,7 @@ const MFAManagement = ({ className = "" }) => {
 
       {/* Regenerate Backup Codes Confirmation */}
       {showRegenerateConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-md mx-4">
             <div className="flex items-center space-x-3 mb-4">
               <Key className="text-yellow-600" size={24} />
@@ -513,7 +513,7 @@ const MFAManagement = ({ className = "" }) => {
 
       {/* MFA Setup Modal */}
       {showSetup && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <MFASetup
             onSetupComplete={handleSetupComplete}
             onCancel={() => setShowSetup(false)}
@@ -524,7 +524,7 @@ const MFAManagement = ({ className = "" }) => {
 
       {/* MFA Verification Modal */}
       {showVerification && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <MFAVerification
             userId={mfaStatus?.userId} // This would need to come from auth context
             onVerificationSuccess={handleVerificationSuccess}

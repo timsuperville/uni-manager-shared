@@ -500,10 +500,7 @@ const NotificationCenter = ({
   return (
     <>
       {/* Overlay */}
-      <div
-        className="fixed inset-0 bg-black bg-opacity-25 z-40"
-        onClick={onClose}
-      />
+      <div className="fixed inset-0 bg-black/25 z-40" onClick={onClose} />
 
       {/* Notification Center Panel */}
       <div
