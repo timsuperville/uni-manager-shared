@@ -75,7 +75,9 @@ export const PresenceProvider = ({ children }) => {
 
       ws.onclose = (event) => {
         if (!isMountedRef.current) return;
-        console.log("WebSocket disconnected:", event.code, event.reason);
+        if (import.meta.env.DEV) {
+          console.log("WebSocket disconnected:", event.code, event.reason);
+        }
         setIsConnected(false);
         setSocket(null);
         wsRef.current = null;
@@ -87,9 +89,11 @@ export const PresenceProvider = ({ children }) => {
             1000 * Math.pow(2, reconnectAttemptsRef.current),
             30000,
           );
-          console.log(
-            `Reconnecting in ${delay}ms... (Attempt ${reconnectAttemptsRef.current + 1})`,
-          );
+          if (import.meta.env.DEV) {
+            console.log(
+              `Reconnecting in ${delay}ms... (Attempt ${reconnectAttemptsRef.current + 1})`,
+            );
+          }
 
           reconnectTimeoutRef.current = setTimeout(() => {
             reconnectAttemptsRef.current += 1;
