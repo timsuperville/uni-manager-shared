@@ -258,9 +258,9 @@ const AuthLayout = ({ children, appType, showLogo = true }) => {
         {/* ══════════════════════════════════════════════════════════════
             RIGHT PANEL — Form slot
         ══════════════════════════════════════════════════════════════ */}
-        <div className="flex-1 flex flex-col justify-center overflow-y-auto py-10 px-4 sm:px-8 lg:px-12 relative z-10">
+        <div className="flex-1 flex flex-col justify-center overflow-y-auto py-4 sm:py-8 px-4 sm:px-8 lg:px-12 relative z-10">
           {/* Mobile-only branded header */}
-          <div className="lg:hidden text-center mb-8 animate-[fadeInDown_0.4s_ease_both]">
+          <div className="lg:hidden text-center mb-3 animate-[fadeInDown_0.4s_ease_both]">
             <div
               className={`inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-linear-to-br ${identity.gradient} text-white text-2xl shadow-lg mb-3`}
             >
@@ -286,7 +286,7 @@ const AuthLayout = ({ children, appType, showLogo = true }) => {
           </AuthShellContext.Provider>
 
           {/* Footer */}
-          <div className="w-full max-w-md mx-auto mt-8 text-center animate-[fadeIn_0.6s_ease_0.2s_both]">
+          <div className="w-full max-w-md mx-auto mt-3 sm:mt-6 text-center animate-[fadeIn_0.6s_ease_0.2s_both]">
             <p className="text-xs text-gray-400 dark:text-gray-600">
               © {new Date().getFullYear()} Uni-Manager. All rights reserved.
             </p>
