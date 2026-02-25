@@ -51,9 +51,8 @@ const SecurityDashboard = ({
           events: highRiskEvents,
         });
       }
-    } catch (_err) {
-      // console.error('Error loading security data:', err);
-      setError(err.message);
+    } catch (err) {
+      setError(err?.message ?? "Failed to load security data");
     } finally {
       setLoading(false);
     }

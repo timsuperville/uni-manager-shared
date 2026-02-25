@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/index.jsx";
 import { getCurrentAppConfig } from "../config/appConfigs.js";
 
@@ -9,6 +10,7 @@ import { getCurrentAppConfig } from "../config/appConfigs.js";
  */
 const OAuthCallback = ({ onSuccess, onError, redirectPath = "/" }) => {
   const { handleOAuthCallback, loading } = useAuth();
+  const navigate = useNavigate();
   const [status, setStatus] = useState("processing");
   const [message, setMessage] = useState("Processing authentication...");
 
@@ -60,11 +62,8 @@ const OAuthCallback = ({ onSuccess, onError, redirectPath = "/" }) => {
         if (onSuccess) {
           onSuccess(authData);
         } else {
-          // Default redirect after successful authentication
-          setTimeout(() => {
-            if (typeof window !== "undefined")
-              window.location.href = redirectPath;
-          }, 2000);
+          // Use React Router navigate — preserves SPA state, no hard reload
+          setTimeout(() => navigate(redirectPath), 1500);
         }
       } catch (error) {
         if (import.meta.env.DEV) {
@@ -156,10 +155,7 @@ const OAuthCallback = ({ onSuccess, onError, redirectPath = "/" }) => {
           {status === "error" && (
             <div className="space-y-4">
               <button
-                onClick={() => {
-                  if (typeof window !== "undefined")
-                    window.location.href = "/login";
-                }}
+                onClick={() => navigate("/auth/login")}
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2"
                 style={{
                   backgroundColor: brandColor,
@@ -169,9 +165,7 @@ const OAuthCallback = ({ onSuccess, onError, redirectPath = "/" }) => {
               </button>
 
               <button
-                onClick={() => {
-                  if (typeof window !== "undefined") window.location.href = "/";
-                }}
+                onClick={() => navigate("/")}
                 className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2"
               >
                 Go Home

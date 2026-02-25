@@ -1,11 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import MFAVerification from "./MFAVerification.jsx";
 import { MFASetupWizard } from "./MFASetupWizard.jsx";
 
 /**
  * MFA Login Integration Component
- * Handles the MFA flow during login process
+ * Handles the MFA flow during login process.
+ *
+ * AUTH-05: Replaced raw <style> tag with Tailwind classes.
+ * AUTH-13: Moved the side-effect `onLoginComplete()` call from the render path
+ *          into a useEffect so it never fires during the render cycle.
  */
 export function MFALoginIntegration({
   loginResult,
@@ -15,41 +19,33 @@ export function MFALoginIntegration({
 }) {
   const [showSetup, setShowSetup] = useState(false);
 
-  // Check if MFA is required or if user wants to set it up
   const isMFARequired = loginResult?.requiresMFA;
   const isMFASetupPrompt = loginResult?.promptMFASetup;
   const sessionId = loginResult?.sessionId;
   const availableMethods = loginResult?.availableMethods || [];
 
-  const handleMFAVerificationSuccess = (result) => {
-    if (onLoginComplete) {
-      onLoginComplete({
-        ...result,
-        mfaVerified: true,
-      });
+  // AUTH-13: Fire the "no MFA required" completion as a side-effect, not in render
+  useEffect(() => {
+    if (!isMFARequired && !isMFASetupPrompt && onLoginComplete) {
+      onLoginComplete({ mfaNotRequired: true });
     }
+  }, [isMFARequired, isMFASetupPrompt, onLoginComplete]);
+
+  const handleMFAVerificationSuccess = (result) => {
+    onLoginComplete?.({ ...result, mfaVerified: true });
   };
 
   const handleMFASetupComplete = (setupResult) => {
     setShowSetup(false);
-    if (onLoginComplete) {
-      onLoginComplete({
-        mfaSetup: setupResult,
-        mfaEnabled: true,
-      });
-    }
+    onLoginComplete?.({ mfaSetup: setupResult, mfaEnabled: true });
   };
 
   const handleSkipMFASetup = () => {
     setShowSetup(false);
-    if (onLoginComplete) {
-      onLoginComplete({
-        mfaSkipped: true,
-      });
-    }
+    onLoginComplete?.({ mfaSkipped: true });
   };
 
-  // If MFA is required, show verification
+  // MFA verification required
   if (isMFARequired && sessionId) {
     return (
       <MFAVerification
@@ -62,7 +58,7 @@ export function MFALoginIntegration({
     );
   }
 
-  // If MFA setup is prompted and user chooses to set it up
+  // MFA setup flow (user opted in or setup was prompted + user clicked "Set Up")
   if ((isMFASetupPrompt || showSetup) && !isMFARequired) {
     return (
       <MFASetupWizard
@@ -73,165 +69,72 @@ export function MFALoginIntegration({
     );
   }
 
-  // If MFA setup is suggested but not required
+  // AUTH-05: MFA setup upsell prompt — replaces the 100-line inline <style> block
+  // with Tailwind/Liquid Glass classes consistent with the rest of the auth system.
   if (isMFASetupPrompt && !showSetup) {
     return (
-      <div className="mfa-setup-prompt">
-        <div className="prompt-container">
-          <div className="prompt-header">
-            <div className="security-icon">🔒</div>
-            <h2>Secure Your Account</h2>
-            <p>
-              Protect your account with two-factor authentication. This adds an
-              extra layer of security to prevent unauthorized access.
-            </p>
+      <div className="max-w-sm mx-auto p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 text-center">
+          {/* Icon */}
+          <div className="text-5xl mb-4" aria-hidden="true">
+            🔒
           </div>
 
-          <div className="benefits-list">
-            <div className="benefit-item">
-              <span className="benefit-icon">✅</span>
-              <span>Prevent unauthorized access</span>
-            </div>
-            <div className="benefit-item">
-              <span className="benefit-icon">✅</span>
-              <span>Secure sensitive data</span>
-            </div>
-            <div className="benefit-item">
-              <span className="benefit-icon">✅</span>
-              <span>Peace of mind</span>
-            </div>
-          </div>
+          {/* Copy */}
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+            Secure Your Account
+          </h2>
+          <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed mb-5">
+            Protect your account with two-factor authentication — an extra layer
+            of security that prevents unauthorized access even if your password
+            is compromised.
+          </p>
 
-          <div className="prompt-actions">
-            <button onClick={() => setShowSetup(true)} className="setup-button">
+          {/* Benefits */}
+          <ul className="text-left space-y-2 mb-6 bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+            {[
+              "Prevent unauthorized access",
+              "Secure sensitive data",
+              "Peace of mind",
+            ].map((benefit) => (
+              <li
+                key={benefit}
+                className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300"
+              >
+                <span className="text-green-500 shrink-0" aria-hidden="true">
+                  ✓
+                </span>
+                {benefit}
+              </li>
+            ))}
+          </ul>
+
+          {/* CTAs */}
+          <div className="flex flex-col gap-3">
+            <button
+              onClick={() => setShowSetup(true)}
+              className="w-full py-3 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            >
               Set Up Two-Factor Authentication
             </button>
-
-            <button onClick={handleSkipMFASetup} className="skip-button">
+            <button
+              onClick={handleSkipMFASetup}
+              className="w-full py-2.5 px-4 rounded-xl border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors focus:outline-none"
+            >
               Skip for now
             </button>
           </div>
 
-          <p className="skip-note">
+          <p className="mt-4 text-xs text-gray-400 dark:text-gray-500">
             You can always enable two-factor authentication later in your
             account settings.
           </p>
         </div>
-
-        <style>{`
-          .mfa-setup-prompt {
-            max-width: 450px;
-            margin: 0 auto;
-            padding: 2rem;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-          }
-
-          .prompt-container {
-            background: white;
-            border-radius: 0.75rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-            text-align: center;
-          }
-
-          .prompt-header {
-            margin-bottom: 1.5rem;
-          }
-
-          .security-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-          }
-
-          .prompt-header h2 {
-            margin: 0 0 1rem 0;
-            color: #1f2937;
-            font-size: 1.5rem;
-          }
-
-          .prompt-header p {
-            margin: 0;
-            color: #6b7280;
-            line-height: 1.6;
-          }
-
-          .benefits-list {
-            text-align: left;
-            margin: 1.5rem 0;
-            padding: 1rem;
-            background: #f8fafc;
-            border-radius: 0.5rem;
-          }
-
-          .benefit-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 0.75rem;
-          }
-
-          .benefit-item:last-child {
-            margin-bottom: 0;
-          }
-
-          .benefit-icon {
-            font-size: 1rem;
-          }
-
-          .prompt-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-            margin: 1.5rem 0;
-          }
-
-          .setup-button {
-            background: #3b82f6;
-            color: white;
-            border: none;
-            padding: 0.875rem 1.5rem;
-            border-radius: 0.5rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
-          }
-
-          .setup-button:hover {
-            background: #2563eb;
-          }
-
-          .skip-button {
-            background: transparent;
-            border: 1px solid #d1d5db;
-            color: #6b7280;
-            padding: 0.875rem 1.5rem;
-            border-radius: 0.5rem;
-            cursor: pointer;
-            transition: all 0.2s;
-          }
-
-          .skip-button:hover {
-            background: #f9fafb;
-            border-color: #9ca3af;
-          }
-
-          .skip-note {
-            color: #9ca3af;
-            font-size: 0.875rem;
-            margin: 1rem 0 0 0;
-          }
-        `}</style>
       </div>
     );
   }
 
-  // No MFA flow needed, complete login immediately
-  if (onLoginComplete) {
-    onLoginComplete({
-      mfaNotRequired: true,
-    });
-  }
-
+  // No MFA flow — useEffect above handles completion; render nothing
   return null;
 }
 

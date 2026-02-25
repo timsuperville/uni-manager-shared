@@ -17,7 +17,72 @@
  */
 
 import React, { useState, useEffect, useRef } from "react";
-import { Shield, AlertCircle, Smartphone, Key, Check } from "lucide-react";
+
+// Inline SVG components — consistent with _authUI, no lucide-react dep (AUTH-10)
+const ShieldIcon = () => (
+  <svg
+    className="w-6 h-6"
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+    aria-hidden="true"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+    />
+  </svg>
+);
+const SmartphoneIcon = () => (
+  <svg
+    className="w-6 h-6"
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+    aria-hidden="true"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"
+    />
+  </svg>
+);
+const KeyIcon = () => (
+  <svg
+    className="w-6 h-6"
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+    aria-hidden="true"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
+    />
+  </svg>
+);
+const AlertCircleIcon = () => (
+  <svg
+    className="w-4 h-4"
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+    aria-hidden="true"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+    />
+  </svg>
+);
 
 const MFAVerification = ({
   userId,
@@ -25,6 +90,7 @@ const MFAVerification = ({
   onCancel,
   className = "",
   deviceFingerprint = null,
+  apiService = null, // AUTH-03: injected service replaces raw fetch
 }) => {
   const [verificationMode, setVerificationMode] = useState("totp"); // 'totp' or 'backup'
   const [token, setToken] = useState("");
@@ -60,12 +126,10 @@ const MFAVerification = ({
     }
   };
 
-  const handleKeyPress = (e) => {
+  const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      if (canSubmit()) {
-        handleVerification();
-      }
+      if (canSubmit()) handleVerification();
     }
   };
 
@@ -79,28 +143,40 @@ const MFAVerification = ({
 
   const handleVerification = async () => {
     if (!canSubmit()) return;
-
     setIsVerifying(true);
     setError("");
-
     try {
-      const response = await fetch("/api/auth/mfa/verify", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+      let data;
+      if (apiService?.verifyMFA) {
+        // Route through injected service — keeps all API calls in one layer (AUTH-03)
+        data = await apiService.verifyMFA({
           userId,
           token,
           deviceFingerprint: trustDevice ? deviceFingerprint : null,
           trustDevice,
-        }),
-      });
+        });
+      } else {
+        // Fallback: direct fetch — only if no service injected
+        if (process.env.NODE_ENV === "development") {
+          console.warn(
+            "[MFAVerification] No apiService provided — falling back to raw fetch. " +
+              "Pass apiService prop for proper API layer separation.",
+          );
+        }
+        const response = await fetch("/api/auth/mfa/verify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId,
+            token,
+            deviceFingerprint: trustDevice ? deviceFingerprint : null,
+            trustDevice,
+          }),
+        });
+        data = await response.json();
+      }
 
-      const data = await response.json();
-
-      if (data.success && data.data.verified) {
-        // Success - call parent success handler
+      if (data?.success && data?.data?.verified) {
         onVerificationSuccess({
           verified: true,
           deviceTrusted: data.data.deviceTrusted,
@@ -108,33 +184,22 @@ const MFAVerification = ({
           bypassedDueToTrust: data.data.bypassedDueToTrust,
         });
       } else {
-        // Failed verification
-        const errorMessage = data.message || "Invalid verification code";
+        const errorMessage = data?.message || "Invalid verification code";
         setError(errorMessage);
-
-        // Check for rate limiting hints
         if (
           errorMessage.includes("too many") ||
           errorMessage.includes("rate limit")
         ) {
           setRemainingAttempts(0);
         } else {
-          // Estimate remaining attempts (rough)
           const currentAttempts =
             remainingAttempts !== null ? remainingAttempts - 1 : 4;
           setRemainingAttempts(Math.max(0, currentAttempts));
         }
-
-        // Clear token on failure
         setToken("");
-
-        // Refocus input
-        if (inputRef.current) {
-          inputRef.current.focus();
-        }
+        inputRef.current?.focus();
       }
     } catch (_err) {
-      // console.error('MFA verification error:', err);
       setError(
         "Verification failed. Please check your connection and try again.",
       );
@@ -161,7 +226,7 @@ const MFAVerification = ({
     <div className="space-y-4">
       <div className="text-center">
         <div className="flex items-center justify-center space-x-3 mb-4">
-          <Smartphone className="text-blue-600" size={24} />
+          <SmartphoneIcon />
           <h3 className="text-lg font-medium text-gray-900">
             Enter Authenticator Code
           </h3>
@@ -202,7 +267,7 @@ const MFAVerification = ({
     <div className="space-y-4">
       <div className="text-center">
         <div className="flex items-center justify-center space-x-3 mb-4">
-          <Key className="text-blue-600" size={24} />
+          <KeyIcon />
           <h3 className="text-lg font-medium text-gray-900">
             Enter Backup Code
           </h3>
@@ -274,9 +339,22 @@ const MFAVerification = ({
       <div className="p-8">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="flex items-center justify-center space-x-3 mb-4">
-            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-              <Shield className="text-blue-600" size={24} />
+          <div className="flex items-center justify-center mb-4">
+            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="lucide lucide-shield"
+              >
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              </svg>
             </div>
           </div>
           <h2 className="text-xl font-bold text-gray-900">
@@ -300,7 +378,7 @@ const MFAVerification = ({
           {error && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-4">
               <div className="flex items-start space-x-2">
-                <AlertCircle className="text-red-600 mt-0.5" size={16} />
+                <AlertCircleIcon />
                 <div className="text-sm">
                   <p className="text-red-700">{error}</p>
                   {remainingAttempts !== null && remainingAttempts > 0 && (

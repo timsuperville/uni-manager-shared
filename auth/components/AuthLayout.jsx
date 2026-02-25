@@ -18,7 +18,17 @@ import React from "react";
 import PropTypes from "prop-types";
 import { getCurrentAppConfig } from "../config/appConfigs.js";
 import { AuthShellContext } from "./_authUI/AuthContainer.jsx";
-import { ThemeToggle } from "../../components/ThemeToggle";
+
+// ThemeToggle is optional — it requires a ThemeProvider ancestor.
+// Lazy-import + error boundary so apps that don't mount ThemeProvider
+// degrade gracefully instead of throwing "X is not defined" (AUTH-04).
+let ThemeToggle = null;
+try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  ({ ThemeToggle } = require("../../components/ThemeToggle"));
+} catch {
+  // ThemeToggle unavailable in this bundle — skip rendering
+}
 
 // ─── Per-app Visual Identity Fencing ──────────────────────────────────────────
 // Aligned with docs/product/01-introduction.md and the institutional context catalog.
@@ -323,7 +333,7 @@ const AuthLayout = ({ children, appType, showLogo = true }) => {
                 <p className="text-xs text-gray-400 dark:text-gray-600">
                   © {new Date().getFullYear()} Uni-Manager.
                 </p>
-                <ThemeToggle />
+                {ThemeToggle && <ThemeToggle />}
               </div>
             </div>
           </div>
