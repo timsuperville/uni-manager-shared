@@ -18,6 +18,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { getCurrentAppConfig } from "../config/appConfigs.js";
 import { AuthShellContext } from "./_authUI/AuthContainer.jsx";
+import { ThemeToggle } from "../../components/ThemeToggle";
 
 // ─── Per-app Visual Identity Fencing ──────────────────────────────────────────
 // Aligned with docs/product/01-introduction.md and the institutional context catalog.
@@ -277,7 +278,7 @@ const AuthLayout = ({ children, appType, showLogo = true }) => {
         {/* ══════════════════════════════════════════════════════════════
             RIGHT PANEL — Form slot
         ══════════════════════════════════════════════════════════════ */}
-        <div className="flex-1 flex flex-col justify-center overflow-y-auto py-4 sm:py-8 px-4 sm:px-8 lg:px-12 relative z-10">
+        <div className="flex-1 flex flex-col justify-center overflow-y-auto py-4 sm:py-8 px-4 sm:px-8 lg:px-12 relative z-10 bg-gray-50 dark:bg-[hsl(222,47%,6%)]">
           {/* Mobile-only compact branded header */}
           <div className="lg:hidden text-center mb-3 animate-[fadeInDown_0.4s_ease_both]">
             {/* Gradient pill — replaces the empty icon slot */}
@@ -311,11 +312,12 @@ const AuthLayout = ({ children, appType, showLogo = true }) => {
             </div>
           </AuthShellContext.Provider>
 
-          {/* Footer */}
-          <div className="w-full max-w-md mx-auto mt-3 sm:mt-6 text-center animate-[fadeIn_0.6s_ease_0.2s_both]">
+          {/* Footer — copyright + theme toggle */}
+          <div className="w-full max-w-md mx-auto mt-3 sm:mt-6 flex items-center justify-between animate-[fadeIn_0.6s_ease_0.2s_both]">
             <p className="text-xs text-gray-400 dark:text-gray-600">
-              © {new Date().getFullYear()} Uni-Manager. All rights reserved.
+              © {new Date().getFullYear()} Uni-Manager.
             </p>
+            <ThemeToggle />
           </div>
         </div>
       </div>
