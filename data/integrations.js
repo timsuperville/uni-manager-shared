@@ -1,39 +1,15 @@
 // shared/data/integrations.js
-// Heroicons are large; in environments where the package isn't available (e.g. when this shared
-// module is consumed by a workspace that didn't list @heroicons/react), we provide lightweight
-// fallbacks. Attempt dynamic require inside a try/catch to avoid build resolution failures.
-let CalendarIcon,
+// Static integration database used by the Integrations Hub across shells.
+import {
+  CalendarIcon,
   VideoCameraIcon,
   EnvelopeIcon,
   CreditCardIcon,
   LinkIcon,
   Cog6ToothIcon,
   BuildingOfficeIcon,
-  MegaphoneIcon;
-try {
-  // eslint-disable-next-line import/no-extraneous-dependencies
-  ({
-    CalendarIcon,
-    VideoCameraIcon,
-    EnvelopeIcon,
-    CreditCardIcon,
-    LinkIcon,
-    Cog6ToothIcon,
-    BuildingOfficeIcon,
-    MegaphoneIcon,
-  } = require("@heroicons/react/24/outline"));
-} catch (_e) {
-  const Fallback = (name) => (props) =>
-    React.createElement("span", { ...props, "data-icon": name });
-  CalendarIcon = Fallback("calendar");
-  VideoCameraIcon = Fallback("video");
-  EnvelopeIcon = Fallback("envelope");
-  CreditCardIcon = Fallback("credit-card");
-  LinkIcon = Fallback("link");
-  Cog6ToothIcon = Fallback("cog");
-  BuildingOfficeIcon = Fallback("building");
-  MegaphoneIcon = Fallback("megaphone");
-}
+  MegaphoneIcon,
+} from "@heroicons/react/24/outline";
 
 // Brand icons from react-icons
 import {
