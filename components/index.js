@@ -43,6 +43,24 @@ export { default as MobilePagination } from "./MobilePagination";
 // Import as: import { SelectDropdown } from "@shared/components"
 export { default as SelectDropdown } from "./Select";
 
+// ── Consolidated from monitoring/, context/, performance/, services/ ──────────
+// Canonical home: these components now live here; old paths have shims.
+export {
+  ErrorBoundary as ErrorMonitoringBoundary,
+  setupGlobalErrorHandling,
+  installFetchInterceptor,
+  setupPerformanceMonitoring,
+  setupHealthCheck,
+  initializeMonitoring,
+} from "./ErrorMonitoring";
+export {
+  PresenceProvider,
+  usePresence,
+  PresenceContext,
+} from "./PresenceContext";
+export { PerformanceDashboard } from "./PerformanceDashboard";
+export { ApiProvider, useApi } from "./ApiProvider";
+
 // ── Liquid Glass UI primitives ────────────────────────────────────────────────
 // Source of truth for: Modal, Button, Card, Badge, Input, Select, ProgressBar,
 // Toggle, Spinner, EmptyState, FormField, WizardStepper, etc.
