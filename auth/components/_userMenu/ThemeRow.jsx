@@ -3,37 +3,51 @@ import { Palette } from "lucide-react";
 import { ThemeToggle } from "../../../components/ThemeToggle";
 
 /**
- * ThemeRow — "Appearance" label + three-state ThemeToggle in the menu.
- * Memoised — never re-renders unless the parent re-mounts.
+ * ThemeRow — Appearance toggle row inside the user menu.
+ *
+ * Mobile  (< md): just the ThemeToggle button, centred in the row.
+ * Desktop (≥ md): full row — "Palette + Appearance" label on the left,
+ *                 labelled ThemeToggle on the right.
  */
 const ThemeRow = memo(function ThemeRow() {
   return (
     <div
       style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "7px 10px",
+        padding: "6px 10px",
         borderRadius: "8px",
       }}
     >
+      {/* ── Mobile: icon-only toggle, centred ── */}
+      <div className="flex md:hidden justify-center">
+        <ThemeToggle />
+      </div>
+
+      {/* ── Desktop: labelled row ── */}
       <div
+        className="hidden md:flex"
         style={{
-          display: "flex",
           alignItems: "center",
-          gap: "10px",
-          fontSize: "13px",
-          fontWeight: "500",
-          color: "var(--text-secondary)",
+          justifyContent: "space-between",
         }}
       >
-        <Palette
-          size={15}
-          style={{ color: "var(--text-muted)", flexShrink: 0 }}
-        />
-        Appearance
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "10px",
+            fontSize: "13px",
+            fontWeight: "500",
+            color: "var(--text-secondary)",
+          }}
+        >
+          <Palette
+            size={15}
+            style={{ color: "var(--text-muted)", flexShrink: 0 }}
+          />
+          Appearance
+        </div>
+        <ThemeToggle showLabel />
       </div>
-      <ThemeToggle showLabel />
     </div>
   );
 });
