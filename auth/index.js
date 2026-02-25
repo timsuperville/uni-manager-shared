@@ -111,36 +111,13 @@ export { default as SignupForm } from "./components/SignupForm.jsx";
  */
 export { default as ForgotPasswordForm } from "./components/ForgotPasswordForm.jsx";
 
-// --- MFA Components ---
+// --- MFA Components (Lazy Loaded — used internally by LoginForm) ---
 
-// Note: MFAVerification, MFASetup, MFAManagement are lazy-loaded below for performance
-export { default as MFALoginIntegration } from "./components/MFALoginIntegration.jsx";
-
-// --- MFA Components (Lazy Loaded for Performance) ---
-
-/**
- * MFA Verification Component (Lazy Loaded)
- * Shows when user needs to verify MFA code
- */
 export const MFAVerification = React.lazy(
   () => import("./components/MFAVerification.jsx"),
 );
 
-/**
- * MFA Setup Wizard Component (Lazy Loaded)
- * Guides user through MFA setup process
- */
-export const MFASetupWizard = React.lazy(
-  () => import("./components/MFASetupWizard.jsx"),
-);
-
-/**
- * MFA Management Dashboard Component (Lazy Loaded)
- * Allows user to manage MFA settings
- */
-export const MFAManagementDashboard = React.lazy(
-  () => import("./components/MFAManagementDashboard.jsx"),
-);
+export const MFASetup = React.lazy(() => import("./components/MFASetup.jsx"));
 
 // --- OAuth Components ---
 
@@ -150,10 +127,6 @@ export { default as OAuthCallback } from "./components/OAuthCallback.jsx";
 // --- Authorization & RBAC ---
 
 export { default as ProtectedRoute } from "./components/ProtectedRoute.jsx";
-
-// --- Session Management ---
-
-export { default as SessionWarning } from "./components/SessionWarning.jsx";
 
 // --- Security ---
 
