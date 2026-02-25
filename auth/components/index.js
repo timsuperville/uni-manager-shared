@@ -47,18 +47,8 @@ export { default as OAuthCallback } from "./OAuthCallback.jsx";
 // Authorization & Access Control
 // ============================================================================
 
-/** ProtectedRoute — wraps routes that require authentication */
+/** ProtectedRoute — auth gate; home/ProtectedRoute wraps this */
 export { default as ProtectedRoute } from "./ProtectedRoute.jsx";
-
-/** RBACComponents — role-based access control UI elements */
-export { default as RBACComponents } from "./RBACComponents.jsx";
-
-// ============================================================================
-// Session Management
-// ============================================================================
-
-/** SessionManagementDashboard — view and manage active sessions */
-export { default as SessionManagementDashboard } from "./SessionManagementDashboard.jsx";
 
 // ============================================================================
 // Security Components

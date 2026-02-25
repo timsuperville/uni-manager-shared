@@ -126,6 +126,7 @@ export { default as OAuthCallback } from "./components/OAuthCallback.jsx";
 
 // --- Authorization & RBAC ---
 
+/** ProtectedRoute — home/ProtectedRoute.jsx wraps this as SharedProtectedRoute */
 export { default as ProtectedRoute } from "./components/ProtectedRoute.jsx";
 
 // --- Security ---
@@ -141,21 +142,6 @@ export { default as AuthLayout } from "./components/AuthLayout.jsx";
 
 export { default as UserMenu } from "./components/UserMenu.jsx";
 
-// --- Session Components (Lazy Loaded) ---
-
-/**
- * Session Management Dashboard Component (Lazy Loaded)
- */
-export const SessionManagementDashboard = React.lazy(
-  () => import("./components/SessionManagementDashboard.jsx"),
-);
-
-/**
- * Active Sessions List Component (Lazy Loaded)
- * TODO: Component file needs to be created
- */
-// export const ActiveSessionsList = React.lazy(
-//   () => import("./components/ActiveSessionsList.jsx"),
 // );
 
 // --- RBAC Components (Lazy Loaded) ---
