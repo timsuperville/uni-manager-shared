@@ -21,7 +21,7 @@ import {
   AuthDivider,
   Alert,
   GoogleIcon,
-} from "./AuthUIComponents.jsx";
+} from "./_authUI/AuthUIComponents.jsx";
 
 // Dynamic import for enhanced auth service based on environment
 const getAuthService = async () => {

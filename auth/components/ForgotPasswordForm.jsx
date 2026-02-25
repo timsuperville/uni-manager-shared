@@ -11,7 +11,7 @@ import {
   AuthButton,
   AuthInput,
   Alert,
-} from "./AuthUIComponents.jsx";
+} from "./_authUI/AuthUIComponents.jsx";
 
 const ForgotPasswordForm = ({
   onSubmit,

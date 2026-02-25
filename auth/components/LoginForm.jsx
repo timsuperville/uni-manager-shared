@@ -12,7 +12,7 @@ import {
   AuthDivider,
   Alert,
   GoogleIcon,
-} from "./AuthUIComponents.jsx";
+} from "./_authUI/AuthUIComponents.jsx";
 
 /**
  * LoginForm - Main Authentication Form Component
