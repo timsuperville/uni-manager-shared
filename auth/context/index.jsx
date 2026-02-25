@@ -264,8 +264,7 @@ export function isAuthContextReady() {
  * Log current context configuration (development only)
  */
 export function logContextConfig() {
-  if (process.env.NODE_ENV !== "development") {
-    console.warn("Context config logging only available in development");
+  if (!import.meta.env.DEV) {
     return;
   }
 
