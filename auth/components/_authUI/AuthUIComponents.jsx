@@ -1,9 +1,19 @@
 /**
- * _authUI barrel
+ * @deprecated
  *
- * Re-exports every auth form primitive so that existing consumers can keep
- * importing from "./AuthUIComponents" without change, while each primitive
- * now lives in its own sovereign file.
+ * This file is a legacy compatibility shim created during the AuthUIComponents
+ * → _authUI/ split. It exists solely to avoid breaking consumer imports that
+ * were temporarily pointed here during the refactor.
+ *
+ * STATUS: Safe to delete once this file has zero importers.
+ * VERIFIED CLEAR: All known consumers (LoginForm, SignupForm,
+ *   ForgotPasswordForm) have been migrated to import from "./_authUI"
+ *   (index.js) as of commit 18eb5c929.
+ *
+ * HOW TO DELETE:
+ *   1. Run: grep -r "AuthUIComponents" frontend/
+ *   2. If no results → delete this file.
+ *   3. If results remain → migrate those importers to "./_authUI" first.
  */
 
 export { AuthButton } from "./AuthButton.jsx";
