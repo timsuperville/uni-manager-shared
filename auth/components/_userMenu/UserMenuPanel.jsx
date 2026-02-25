@@ -7,7 +7,7 @@ import { useLocation } from "react-router-dom";
 import { UserAvatar } from "../../../components/ui";
 import UserMenuItem from "./UserMenuItem";
 import PresenceToggle from "./PresenceToggle";
-import ThemeRow from "./ThemeRow";
+
 import MenuDivider from "./MenuDivider";
 import { DROPDOWN_W } from "./positionUtils";
 import { getUserDisplayName } from "../../../utils";
@@ -185,7 +185,6 @@ function UserMenuPanel({
               />
             )}
 
-            <ThemeRow />
             <MenuDivider />
 
             <UserMenuItem
