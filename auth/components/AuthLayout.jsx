@@ -19,16 +19,7 @@ import PropTypes from "prop-types";
 import { getCurrentAppConfig } from "../config/appConfigs.js";
 import { AuthShellContext } from "./_authUI/AuthContainer.jsx";
 
-// ThemeToggle is optional — it requires a ThemeProvider ancestor.
-// Lazy-import + error boundary so apps that don't mount ThemeProvider
-// degrade gracefully instead of throwing "X is not defined" (AUTH-04).
-let ThemeToggle = null;
-try {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  ({ ThemeToggle } = require("../../components/ThemeToggle"));
-} catch {
-  // ThemeToggle unavailable in this bundle — skip rendering
-}
+import { ThemeToggle } from "../../components/ThemeToggle";
 
 // ─── Per-app Visual Identity Fencing ──────────────────────────────────────────
 // Aligned with docs/product/01-introduction.md and the institutional context catalog.
