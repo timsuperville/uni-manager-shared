@@ -58,6 +58,7 @@ const UserMenu = ({
   children,
   customHeader = null,
   position = "bottom-right",
+  roleLabel: roleLabelProp, // optional override — bypasses auto-detection
 }) => {
   const { user, logout, isLoading } = useAuth();
 
@@ -227,11 +228,20 @@ const UserMenu = ({
   const prefsActive =
     location.pathname === "/preferences" || location.pathname === "/settings";
   const isProfileActive = location.pathname === "/profile";
+  // Compute the role label shown in the trigger pill and identity header.
+  // Priority:
+  //   1. Explicit `roleLabel` prop (caller knows best)
+  //   2. Domain-specific fields on the user object (churchRole, title, position)
+  //   3. user.role — ONLY if it is a recognised role in THIS app's permissions
+  //      config. This prevents the global system role (e.g. super_admin →
+  //      "Super Admin") from leaking into unrelated app contexts.
+  const appRoles = appConfig.permissions?.roles ?? [];
   const roleLabel =
-    user?.churchRole ||
-    user?.title ||
-    user?.position ||
-    (user?.role ? formatRole(user.role) : null);
+    roleLabelProp ??
+    user?.churchRole ??
+    user?.title ??
+    user?.position ??
+    (user?.role && appRoles.includes(user.role) ? formatRole(user.role) : null);
 
   const triggerId = `user-menu-trigger-${uid}`;
   const panelId = `user-menu-panel-${uid}`;
@@ -314,6 +324,7 @@ UserMenu.propTypes = {
   showPreferencesLink: PropTypes.bool,
   children: PropTypes.node,
   customHeader: PropTypes.node,
+  roleLabel: PropTypes.string, // override auto-detected role label
   position: PropTypes.oneOf([
     "bottom-right",
     "bottom-left",
