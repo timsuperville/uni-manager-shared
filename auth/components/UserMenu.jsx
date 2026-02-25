@@ -1,6 +1,22 @@
 /**
- * UserMenu Component
- * Unified user menu with app-specific branding, accessibility, and animations
+ * UserMenu Component — Liquid Glass Edition
+ *
+ * Unified user menu used across ALL Uni-Manager apps.
+ * Styling is driven entirely by CSS custom properties (var(--token)) so the
+ * component automatically inherits each app's Liquid Glass theme without
+ * any per-app overrides.
+ *
+ * Props:
+ *   onProfileClick        – called when "View Profile" is clicked
+ *   onPreferencesClick    – called when "Preferences" is clicked
+ *   showProfileLink       – whether to show the Profile item (default true)
+ *   showPreferencesLink   – whether to show the Preferences item (default true)
+ *   customHeader          – optional ReactNode injected below the identity header
+ *                           (used by church for the ChurchSelector)
+ *   children              – optional extra menu items added before the standard ones
+ *   position              – dropdown anchor: "bottom-right" | "bottom-left" |
+ *                           "top-right" | "top-left"  (default "bottom-right")
+ *   className             – extra class on the root wrapper
  */
 import React, {
   useState,
@@ -10,7 +26,7 @@ import React, {
   useContext,
 } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
-import { PresenceContext } from "../../context/PresenceContext"; // Use relative path to ensure context identity match
+import { PresenceContext } from "../../context/PresenceContext";
 import { getCurrentAppConfig } from "../config/appConfigs.js";
 import { motion, AnimatePresence } from "framer-motion";
 import { User, LogOut, ChevronDown, SlidersHorizontal } from "lucide-react";
@@ -20,55 +36,93 @@ import { UserAvatar } from "../../components/ui";
 import UserMenuSkeleton from "../../components/skeletons/UserMenuSkeleton";
 import { formatRole, getUserDisplayName } from "../../utils";
 
-/**
- * UserMenuItem Component
- * accessible menu item with support for icons and variants
- */
+// ─── UserMenuItem ─────────────────────────────────────────────────────────────
+// Accessible menu button — uses CSS vars so it respects each app's accent colour.
+
 const UserMenuItem = React.forwardRef(
   (
-    {
-      icon: Icon,
-      label,
-      onClick,
-      className = "",
-      variant = "default",
-      active = false,
-    },
+    { icon: Icon, label, onClick, variant = "default", active = false },
     ref,
   ) => {
-    const baseClasses =
-      "w-full flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg focus:outline-none transition-colors group relative";
-    const variants = {
-      default: active
-        ? "bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300"
-        : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:bg-gray-100 dark:focus:bg-gray-800",
-      danger:
-        "text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 focus:bg-red-50 dark:focus:bg-red-900/20",
-    };
+    const [hovered, setHovered] = useState(false);
 
-    const iconClasses =
-      variant === "danger"
-        ? "w-4 h-4 group-hover:scale-110 transition-transform"
-        : `w-4 h-4 transition-colors ${active ? "text-indigo-600 dark:text-indigo-400" : "text-gray-400 group-hover:text-indigo-600 dark:text-gray-500 dark:group-hover:text-indigo-400"}`;
+    const isDanger = variant === "danger";
+
+    const bg = active
+      ? "var(--primary-subtle, hsla(187,84%,44%,0.12))"
+      : hovered && isDanger
+        ? "var(--color-error-surface, hsla(0,75%,60%,0.1))"
+        : hovered
+          ? "var(--nav-hover, hsla(0,0%,100%,0.06))"
+          : "transparent";
+
+    const textColor = isDanger
+      ? "var(--color-error, hsl(0,75%,60%))"
+      : active
+        ? "var(--text-accent, var(--primary-resonance))"
+        : "var(--text-secondary)";
+
+    const iconColor = isDanger
+      ? "var(--color-error, hsl(0,75%,60%))"
+      : active || hovered
+        ? "var(--primary-resonance)"
+        : "var(--text-muted)";
 
     return (
       <button
         ref={ref}
         onClick={onClick}
-        className={`${baseClasses} ${variants[variant]} ${className}`}
         role="menuitem"
         aria-current={active ? "page" : undefined}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        style={{
+          width: "100%",
+          display: "flex",
+          alignItems: "center",
+          gap: "10px",
+          padding: "9px 10px",
+          borderRadius: "8px",
+          background: bg,
+          border: "none",
+          color: textColor,
+          fontSize: "13px",
+          fontWeight: active ? "600" : "500",
+          cursor: "pointer",
+          transition: "all 150ms ease",
+          textAlign: "left",
+          position: "relative",
+          outline: "none",
+        }}
       >
+        {/* Active left accent bar */}
         {active && (
-          <motion.div
-            layoutId="active-menu-item"
-            className="absolute left-0 w-1 h-6 bg-indigo-600 dark:bg-indigo-400 rounded-r-full"
+          <motion.span
+            layoutId="active-user-menu-item"
+            style={{
+              position: "absolute",
+              left: 0,
+              top: "20%",
+              height: "60%",
+              width: "2px",
+              borderRadius: "0 2px 2px 0",
+              background: "var(--primary-resonance)",
+              boxShadow:
+                "0 0 6px var(--primary-glow, var(--primary-resonance))",
+            }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           />
         )}
-        <Icon className={iconClasses} />
+        <Icon
+          size={15}
+          style={{
+            color: iconColor,
+            flexShrink: 0,
+            transition: "color 150ms ease",
+          }}
+        />
         {label}
       </button>
     );
@@ -76,6 +130,30 @@ const UserMenuItem = React.forwardRef(
 );
 
 UserMenuItem.displayName = "UserMenuItem";
+
+// ─── Divider ──────────────────────────────────────────────────────────────────
+
+function MenuDivider() {
+  return (
+    <div
+      role="separator"
+      style={{
+        height: "1px",
+        background: "var(--glass-outline)",
+        margin: "4px 8px",
+      }}
+    />
+  );
+}
+
+// ─── UserMenu ─────────────────────────────────────────────────────────────────
+
+const DROPDOWN_POSITION = {
+  "bottom-right": { top: "calc(100% + 8px)", right: 0 },
+  "bottom-left": { top: "calc(100% + 8px)", left: 0 },
+  "top-right": { bottom: "calc(100% + 8px)", right: 0 },
+  "top-left": { bottom: "calc(100% + 8px)", left: 0 },
+};
 
 const UserMenu = ({
   className = "",
@@ -88,60 +166,55 @@ const UserMenu = ({
   position = "bottom-right",
 }) => {
   const { user, logout, isLoading } = useAuth();
-  // Safe usePresence (optional consumption)
 
-  // Safe presence consumption
-  // We use useContext directly instead of the hook because the hook throws if provider is missing
-  // This allows UserMenu to work in apps without PresenceProvider while still being reactive
+  // Safe presence consumption — works even if PresenceProvider is absent
   const presence = useContext(PresenceContext);
-
   const isConnected = presence?.isConnected ?? true;
   const status = presence?.status || "available";
   const setStatus = presence?.setStatus || (() => {});
 
   const appConfig = getCurrentAppConfig();
   const location = useLocation();
+
   const [isOpen, setIsOpen] = useState(false);
   const [focusedIndex, setFocusedIndex] = useState(-1);
+  const [triggerHover, setTriggerHover] = useState(false);
+
   const menuRef = useRef(null);
   const buttonRef = useRef(null);
   const menuItemsRef = useRef([]);
 
-  // Close on click outside
+  // ── Close on click outside ──────────────────────────────────────────────────
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
+    if (!isOpen) return;
+    const handler = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
         setIsOpen(false);
       }
     };
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
   }, [isOpen]);
 
-  // Keyboard Navigation
+  // ── Keyboard navigation ─────────────────────────────────────────────────────
   const handleKeyDown = useCallback(
     (e) => {
       if (!isOpen) return;
-
       const items = menuItemsRef.current.filter(Boolean);
       const lastIndex = items.length - 1;
-
       switch (e.key) {
         case "ArrowDown":
           e.preventDefault();
-          setFocusedIndex((prev) => (prev < lastIndex ? prev + 1 : 0));
+          setFocusedIndex((p) => (p < lastIndex ? p + 1 : 0));
           break;
         case "ArrowUp":
           e.preventDefault();
-          setFocusedIndex((prev) => (prev > 0 ? prev - 1 : lastIndex));
+          setFocusedIndex((p) => (p > 0 ? p - 1 : lastIndex));
           break;
         case "Enter":
           e.preventDefault();
-          if (focusedIndex >= 0 && items[focusedIndex]) {
+          if (focusedIndex >= 0 && items[focusedIndex])
             items[focusedIndex].click();
-          }
           break;
         case "Escape":
           setIsOpen(false);
@@ -155,72 +228,105 @@ const UserMenu = ({
   );
 
   useEffect(() => {
-    if (isOpen) {
-      window.addEventListener("keydown", handleKeyDown);
-    } else {
-      setFocusedIndex(-1);
-    }
+    if (isOpen) window.addEventListener("keydown", handleKeyDown);
+    else setFocusedIndex(-1);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, handleKeyDown]);
 
-  // Focus effect
   useEffect(() => {
     if (focusedIndex >= 0 && menuItemsRef.current[focusedIndex]) {
       menuItemsRef.current[focusedIndex].focus();
     }
   }, [focusedIndex]);
 
+  // ── Handlers ────────────────────────────────────────────────────────────────
   const handleLogout = async () => {
     setIsOpen(false);
     await logout();
   };
 
   const toggleStatus = (e) => {
-    e.stopPropagation(); // Prevent menu from closing if we want to keep it open, or let it close
-    const newStatus = status === "available" ? "unavailable" : "available";
-    setStatus(newStatus);
+    e.stopPropagation();
+    setStatus(status === "available" ? "unavailable" : "available");
   };
 
-  const getPositionClasses = () => {
-    switch (position) {
-      case "bottom-left":
-        return "top-full left-0 mt-2";
-      case "top-right":
-        return "bottom-full right-0 mb-2";
-      case "top-left":
-        return "bottom-full left-0 mb-2";
-      case "bottom-right":
-      default:
-        return "top-full right-0 mt-2";
-    }
-  };
+  // ── Derived values ───────────────────────────────────────────────────────────
+  const statusDotColor =
+    status === "available"
+      ? "var(--color-success, hsl(142,71%,45%))"
+      : "var(--text-ghost,  hsla(0,0%,100%,0.2))";
 
-  const getStatusColor = () => {
-    // Show status color even if offline/disconnected to ensure UI feedback
-    return status === "available" ? "bg-green-500" : "bg-gray-400";
-  };
+  const positionStyle =
+    DROPDOWN_POSITION[position] ?? DROPDOWN_POSITION["bottom-right"];
 
+  // Respect app config but default to showing profile if flag is absent
+  const showProfile =
+    showProfileLink && (appConfig.features?.profileManagement ?? true);
+
+  // Preferences active on /preferences OR /settings (apps vary)
+  const prefsActive =
+    location.pathname === "/preferences" || location.pathname === "/settings";
+
+  // ── Early returns ────────────────────────────────────────────────────────────
   if (isLoading) return <UserMenuSkeleton />;
   if (!user) return null;
 
+  // ── Trigger style helpers ────────────────────────────────────────────────────
+  const triggerBorder =
+    isOpen || triggerHover
+      ? "var(--glass-outline-active, var(--primary-resonance))"
+      : "var(--glass-outline)";
+
+  const triggerBg = isOpen
+    ? "var(--primary-subtle, hsla(187,84%,44%,0.1))"
+    : triggerHover
+      ? "var(--nav-hover, hsla(0,0%,100%,0.06))"
+      : "var(--bg-surface-1, hsla(0,0%,100%,0.04))";
+
   return (
-    <div className={`relative ${className}`} ref={menuRef}>
+    <div className={`relative user-menu ${className}`} ref={menuRef}>
+      {/* ── Trigger pill ───────────────────────────────────────────────────── */}
       <button
         ref={buttonRef}
-        onClick={() => setIsOpen(!isOpen)}
+        id="user-menu-trigger"
+        onClick={() => setIsOpen((v) => !v)}
+        onMouseEnter={() => setTriggerHover(true)}
+        onMouseLeave={() => setTriggerHover(false)}
         aria-expanded={isOpen}
         aria-haspopup="true"
-        aria-label="User Menu"
-        className="flex items-center space-x-3 p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+        aria-label="User menu"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+          padding: "4px 10px 4px 4px",
+          borderRadius: "100px",
+          border: `1px solid ${triggerBorder}`,
+          background: triggerBg,
+          cursor: "pointer",
+          transition: "all 200ms ease",
+          outline: "none",
+        }}
       >
-        <div className="relative">
-          <UserAvatar user={user} appConfig={appConfig} size="md" />
-          {/* Availability Indicator */}
+        {/* Avatar + presence dot */}
+        <div style={{ position: "relative", flexShrink: 0 }}>
+          <UserAvatar user={user} appConfig={appConfig} size="xs" />
           <span
-            className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 border-2 border-white dark:border-gray-900 rounded-full ${getStatusColor()} ring-1 ring-white/20 dark:ring-gray-900/20`}
+            style={{
+              position: "absolute",
+              bottom: "-2px",
+              right: "-2px",
+              width: "9px",
+              height: "9px",
+              borderRadius: "50%",
+              background: statusDotColor,
+              border:
+                "2px solid var(--bg-sidebar, var(--bg-obsidian, #0a0e1a))",
+              transition: "background 300ms ease",
+            }}
             title={
               !isConnected
-                ? `Offline (${status === "available" ? "Available" : "Unavailable"})`
+                ? `Offline · ${status === "available" ? "Available" : "Unavailable"}`
                 : status === "available"
                   ? "Available"
                   : "Unavailable"
@@ -229,70 +335,151 @@ const UserMenu = ({
           />
         </div>
 
-        <div className="hidden md:block text-left">
-          <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 leading-tight">
-            {getUserDisplayName(user)}
-          </p>
-          <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">
-            {user.churchRole ||
-              user.title ||
-              user.position ||
-              formatRole(user.role)}
-          </p>
-        </div>
+        {/* Display name — hidden on mobile */}
+        <span
+          className="hidden md:block"
+          style={{
+            fontSize: "12px",
+            fontWeight: "500",
+            color: "var(--text-secondary)",
+            maxWidth: "120px",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            lineHeight: 1,
+          }}
+        >
+          {getUserDisplayName(user)}
+        </span>
+
+        {/* Chevron */}
         <ChevronDown
-          className={`w-4 h-4 text-gray-400 dark:text-gray-500 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+          size={12}
+          style={{
+            color: "var(--text-ghost, var(--text-muted))",
+            transform: isOpen ? "rotate(180deg)" : "none",
+            transition: "transform 200ms ease",
+            flexShrink: 0,
+          }}
         />
       </button>
 
+      {/* ── Dropdown panel ─────────────────────────────────────────────────── */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            initial={{ opacity: 0, y: 8, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            exit={{ opacity: 0, y: 8, scale: 0.96 }}
             transition={{ duration: 0.15, ease: "easeOut" }}
-            className={`absolute ${getPositionClasses()} w-72 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl z-50 overflow-hidden ring-1 ring-black/5`}
+            role="menu"
+            aria-label="User menu options"
+            style={{
+              position: "absolute",
+              ...positionStyle,
+              zIndex: 9000,
+              width: "260px",
+              borderRadius: "var(--radius-lg, 14px)",
+              border: "1px solid var(--glass-outline)",
+              background: "var(--bg-sidebar)",
+              backdropFilter: "blur(24px) saturate(180%)",
+              WebkitBackdropFilter: "blur(24px) saturate(180%)",
+              boxShadow:
+                "0 16px 48px hsla(222,47%,4%,0.5), 0 0 0 1px var(--glass-outline)",
+              overflow: "hidden",
+            }}
           >
-            {/* Header / Brand Area */}
-            <div className="p-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50">
-              <div className="flex items-center gap-3">
-                <UserAvatar user={user} appConfig={appConfig} size="lg" />
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
+            {/* Identity header */}
+            <div
+              style={{
+                padding: "14px 16px",
+                borderBottom: "1px solid var(--glass-outline)",
+                background: "hsla(0,0%,100%,0.02)",
+              }}
+            >
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "12px" }}
+              >
+                <UserAvatar user={user} appConfig={appConfig} size="md" />
+
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: "13px",
+                      fontWeight: "600",
+                      color: "var(--text-primary)",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
                     {getUserDisplayName(user)}
                   </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                  <p
+                    style={{
+                      margin: "2px 0 0",
+                      fontSize: "11px",
+                      color: "var(--text-muted)",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
                     {user.email}
                   </p>
-                  {/* Status Toggle in Header */}
+
+                  {/* Presence status toggle */}
                   <button
                     onClick={toggleStatus}
-                    className="mt-1 text-xs flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                    style={{
+                      marginTop: "6px",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "5px",
+                      padding: "2px 8px",
+                      borderRadius: "100px",
+                      background: "var(--bg-surface-1, hsla(0,0%,100%,0.04))",
+                      border: "1px solid var(--glass-outline)",
+                      cursor: "pointer",
+                      fontSize: "11px",
+                      fontWeight: "500",
+                      color: "var(--text-secondary)",
+                      transition: "all 150ms ease",
+                    }}
                   >
                     <span
-                      className={`w-1.5 h-1.5 rounded-full ${status === "available" ? "bg-green-500" : "bg-gray-400"}`}
+                      style={{
+                        width: "6px",
+                        height: "6px",
+                        borderRadius: "50%",
+                        background: statusDotColor,
+                        flexShrink: 0,
+                      }}
                     />
-                    <span className="text-gray-600 dark:text-gray-300">
-                      {status === "available" ? "Available" : "Unavailable"}
-                    </span>
+                    {status === "available" ? "Available" : "Unavailable"}
                   </button>
                 </div>
               </div>
             </div>
 
-            {/* Content Slot (e.g. Church Selector) */}
+            {/* Custom header slot (e.g. ChurchSelector) */}
             {customHeader && (
-              <div className="px-3 py-2 border-b border-gray-100 dark:border-gray-800">
+              <div
+                style={{
+                  padding: "8px 12px",
+                  borderBottom: "1px solid var(--glass-outline)",
+                }}
+              >
                 {customHeader}
               </div>
             )}
 
-            {/* Menu Items */}
-            <div className="p-2 space-y-0.5" role="menu">
+            {/* Menu items */}
+            <div style={{ padding: "6px" }} role="menu">
               {children}
 
-              {showProfileLink && appConfig.features.profileManagement && (
+              {showProfile && (
                 <UserMenuItem
                   ref={(el) => (menuItemsRef.current[0] = el)}
                   icon={User}
@@ -310,7 +497,7 @@ const UserMenu = ({
                   ref={(el) => (menuItemsRef.current[1] = el)}
                   icon={SlidersHorizontal}
                   label="Preferences"
-                  active={location.pathname === "/preferences"}
+                  active={prefsActive}
                   onClick={() => {
                     setIsOpen(false);
                     onPreferencesClick?.();
@@ -318,7 +505,7 @@ const UserMenu = ({
                 />
               )}
 
-              <div className="h-px bg-gray-100 dark:bg-gray-800 my-1 mx-2" />
+              <MenuDivider />
 
               <UserMenuItem
                 ref={(el) => (menuItemsRef.current[2] = el)}
