@@ -33,7 +33,7 @@ describe("LoginForm", () => {
     it("renders login form with default app type", () => {
       renderLoginForm();
       expect(screen.getByLabelText(/email address/i)).toBeInTheDocument();
-      expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/^Password/i)).toBeInTheDocument();
       expect(
         screen.getByRole("button", { name: /sign in/i }),
       ).toBeInTheDocument();
@@ -65,7 +65,7 @@ describe("LoginForm", () => {
 
     it("shows password when show password button is clicked", async () => {
       renderLoginForm();
-      const passwordInput = screen.getByLabelText(/password/i);
+      const passwordInput = screen.getByLabelText(/^Password/i);
       expect(passwordInput).toHaveAttribute("type", "password");
 
       const toggleButton =
@@ -107,14 +107,16 @@ describe("LoginForm", () => {
 
     it("renders playback app configuration", () => {
       renderLoginForm({ appType: "playback" });
-      expect(screen.getByText(/media playback/i)).toBeInTheDocument();
+      expect(
+        screen.getByRole("heading", { name: /media playback/i }),
+      ).toBeInTheDocument();
     });
   });
 
   describe("Form Validation", () => {
     it("disables submit button when form is empty", () => {
-      renderLoginForm();
-      const submitButton = screen.getByRole("button", { name: /sign in/i });
+      const { container } = renderLoginForm();
+      const submitButton = container.querySelector('button[type="submit"]');
       expect(submitButton).toBeDisabled();
     });
 
@@ -122,7 +124,7 @@ describe("LoginForm", () => {
       renderLoginForm();
 
       const emailInput = screen.getByLabelText(/email address/i);
-      const passwordInput = screen.getByLabelText(/password/i);
+      const passwordInput = screen.getByLabelText(/^Password/i);
       const submitButton = screen.getByRole("button", { name: /sign in/i });
 
       fireEvent.change(emailInput, { target: { value: "test@example.com" } });
@@ -144,7 +146,7 @@ describe("LoginForm", () => {
 
     it("requires password", () => {
       renderLoginForm();
-      const passwordInput = screen.getByLabelText(/password/i);
+      const passwordInput = screen.getByLabelText(/^Password/i);
       expect(passwordInput).toHaveAttribute("required");
     });
   });
@@ -155,7 +157,7 @@ describe("LoginForm", () => {
       renderLoginForm({ onSuccess: mockOnSuccess });
 
       const emailInput = screen.getByLabelText(/email address/i);
-      const passwordInput = screen.getByLabelText(/password/i);
+      const passwordInput = screen.getByLabelText(/^Password/i);
       const submitButton = screen.getByRole("button", { name: /sign in/i });
 
       fireEvent.change(emailInput, { target: { value: "test@example.com" } });
@@ -203,13 +205,13 @@ describe("LoginForm", () => {
     it("has proper ARIA labels", () => {
       renderLoginForm();
       expect(screen.getByLabelText(/email address/i)).toBeInTheDocument();
-      expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/^Password/i)).toBeInTheDocument();
     });
 
     it("supports keyboard navigation", async () => {
       renderLoginForm();
       const emailInput = screen.getByLabelText(/email address/i);
-      const passwordInput = screen.getByLabelText(/password/i);
+      const passwordInput = screen.getByLabelText(/^Password/i);
 
       emailInput.focus();
       expect(document.activeElement).toBe(emailInput);

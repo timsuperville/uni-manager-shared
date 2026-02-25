@@ -28,16 +28,13 @@ describe("MFA Service", () => {
       const result = await mfaService.setupTOTP("test@example.com");
 
       expect(result).toEqual(mockResponse);
-      expect(fetch).toHaveBeenCalledWith(
-        "http://localhost:5000/api/auth/mfa/totp/setup",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email: "test@example.com" }),
+      expect(fetch).toHaveBeenCalledWith("/api/v1/auth/mfa/totp/setup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({ email: "test@example.com" }),
+      });
     });
 
     it("should verify TOTP token correctly", async () => {
@@ -49,16 +46,13 @@ describe("MFA Service", () => {
       const result = await mfaService.verifyTOTP("123456");
 
       expect(result.verified).toBe(true);
-      expect(fetch).toHaveBeenCalledWith(
-        "http://localhost:5000/api/auth/mfa/totp/verify",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ token: "123456", sessionId: null }),
+      expect(fetch).toHaveBeenCalledWith("/api/v1/auth/mfa/totp/verify", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({ token: "123456", sessionId: null }),
+      });
     });
 
     it("should handle TOTP verification failure", async () => {
@@ -88,16 +82,13 @@ describe("MFA Service", () => {
       const result = await mfaService.setupSMS("+1234567890");
 
       expect(result).toEqual(mockResponse);
-      expect(fetch).toHaveBeenCalledWith(
-        "http://localhost:5000/api/auth/mfa/sms/setup",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ phoneNumber: "+1234567890" }),
+      expect(fetch).toHaveBeenCalledWith("/api/v1/auth/mfa/sms/setup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({ phoneNumber: "+1234567890" }),
+      });
     });
 
     it("should send SMS verification code", async () => {
@@ -111,16 +102,13 @@ describe("MFA Service", () => {
       const result = await mfaService.sendSMSCode();
 
       expect(result).toEqual(mockResponse);
-      expect(fetch).toHaveBeenCalledWith(
-        "http://localhost:5000/api/auth/mfa/sms/send",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ sessionId: null }),
+      expect(fetch).toHaveBeenCalledWith("/api/v1/auth/mfa/sms/send", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({ sessionId: null }),
+      });
     });
   });
 
@@ -136,16 +124,13 @@ describe("MFA Service", () => {
       const result = await mfaService.setupEmail("test@example.com");
 
       expect(result).toEqual(mockResponse);
-      expect(fetch).toHaveBeenCalledWith(
-        "http://localhost:5000/api/auth/mfa/email/setup",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email: "test@example.com" }),
+      expect(fetch).toHaveBeenCalledWith("/api/v1/auth/mfa/email/setup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({ email: "test@example.com" }),
+      });
     });
 
     it("should verify email code correctly", async () => {
@@ -157,16 +142,13 @@ describe("MFA Service", () => {
       const result = await mfaService.verifyEmail("123456");
 
       expect(result.verified).toBe(true);
-      expect(fetch).toHaveBeenCalledWith(
-        "http://localhost:5000/api/auth/mfa/email/verify",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ code: "123456", sessionId: null }),
+      expect(fetch).toHaveBeenCalledWith("/api/v1/auth/mfa/email/verify", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({ code: "123456", sessionId: null }),
+      });
     });
   });
 
@@ -184,7 +166,7 @@ describe("MFA Service", () => {
 
       expect(result.backupCodes).toEqual(mockCodes);
       expect(fetch).toHaveBeenCalledWith(
-        "http://localhost:5000/api/auth/mfa/backup-codes/generate",
+        "/api/v1/auth/mfa/backup-codes/generate",
         {
           method: "POST",
           headers: {
@@ -204,16 +186,13 @@ describe("MFA Service", () => {
       const result = await mfaService.useBackupCode("123456");
 
       expect(result.verified).toBe(true);
-      expect(fetch).toHaveBeenCalledWith(
-        "http://localhost:5000/api/auth/mfa/backup-codes/use",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ code: "123456", sessionId: null }),
+      expect(fetch).toHaveBeenCalledWith("/api/v1/auth/mfa/backup-codes/use", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({ code: "123456", sessionId: null }),
+      });
     });
   });
 
@@ -233,15 +212,12 @@ describe("MFA Service", () => {
       const result = await mfaService.getMFAStatus();
 
       expect(result).toEqual(mockStatus);
-      expect(fetch).toHaveBeenCalledWith(
-        "http://localhost:5000/api/auth/mfa/status",
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
+      expect(fetch).toHaveBeenCalledWith("/api/v1/auth/mfa/status", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+      });
     });
 
     it("should disable MFA method successfully", async () => {
@@ -253,16 +229,13 @@ describe("MFA Service", () => {
       const result = await mfaService.disableMFA("totp");
 
       expect(result.success).toBe(true);
-      expect(fetch).toHaveBeenCalledWith(
-        "http://localhost:5000/api/auth/mfa/disable",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ method: "totp", confirmationCode: null }),
+      expect(fetch).toHaveBeenCalledWith("/api/v1/auth/mfa/disable", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({ method: "totp", confirmationCode: null }),
+      });
     });
 
     it("should challenge MFA during login", async () => {
@@ -279,16 +252,13 @@ describe("MFA Service", () => {
       const result = await mfaService.challengeMFA("user123");
 
       expect(result).toEqual(mockChallenge);
-      expect(fetch).toHaveBeenCalledWith(
-        "http://localhost:5000/api/auth/mfa/challenge",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ sessionId: "user123", method: null }),
+      expect(fetch).toHaveBeenCalledWith("/api/v1/auth/mfa/challenge", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({ sessionId: "user123", method: null }),
+      });
     });
   });
 
@@ -341,16 +311,13 @@ describe("MFA Service", () => {
 
       await serviceWithToken.getMFAStatus();
 
-      expect(fetch).toHaveBeenCalledWith(
-        "http://localhost:5000/api/auth/mfa/status",
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer test-token",
-          },
+      expect(fetch).toHaveBeenCalledWith("/api/v1/auth/mfa/status", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer test-token",
         },
-      );
+      });
     });
   });
 });

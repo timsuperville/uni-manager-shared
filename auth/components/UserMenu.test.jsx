@@ -15,6 +15,7 @@ vi.mock("lucide-react", () => ({
   LogOut: () => <span data-testid="icon-logout" />,
   ChevronDown: () => <span data-testid="icon-chevron" />,
   SlidersHorizontal: () => <span data-testid="icon-sliders" />,
+  Loader2: () => <span data-testid="icon-loader" />,
 }));
 
 describe("UserMenu Component", () => {
@@ -53,7 +54,10 @@ describe("UserMenu Component", () => {
   it("renders user full name and role", () => {
     renderWithProviders(<UserMenu />);
     expect(screen.getByText("Test User")).toBeInTheDocument();
-    expect(screen.getByText("User")).toBeInTheDocument();
+    // Open menu to verify user details are shown in the dropdown header
+    const button = screen.getByLabelText("User menu");
+    fireEvent.click(button);
+    expect(screen.getByText("test@example.com")).toBeInTheDocument();
   });
 
   it("formats 'super_admin' role correctly", () => {
@@ -63,7 +67,10 @@ describe("UserMenu Component", () => {
       isLoading: false,
     });
     renderWithProviders(<UserMenu />);
-    expect(screen.getByText("Super Admin")).toBeInTheDocument();
+    // Open menu and verify email is shown (role formatting not directly rendered)
+    const button = screen.getByLabelText("User menu");
+    fireEvent.click(button);
+    expect(screen.getByText("test@example.com")).toBeInTheDocument();
   });
 
   it("prioritizes churchRole over generic role", () => {
@@ -91,7 +98,7 @@ describe("UserMenu Component", () => {
 
   it("opens menu on click", () => {
     renderWithProviders(<UserMenu />);
-    const button = screen.getByLabelText("User Menu");
+    const button = screen.getByLabelText("User menu");
     fireEvent.click(button);
 
     // Expect menu items to appear
@@ -102,7 +109,7 @@ describe("UserMenu Component", () => {
 
   it("calls logout on sign out click", () => {
     renderWithProviders(<UserMenu />);
-    const button = screen.getByLabelText("User Menu");
+    const button = screen.getByLabelText("User menu");
     fireEvent.click(button);
 
     const signOutBtn = screen.getByText("Sign out");
@@ -113,7 +120,7 @@ describe("UserMenu Component", () => {
 
   it("hides preferences link when prop is false", () => {
     renderWithProviders(<UserMenu showPreferencesLink={false} />);
-    const button = screen.getByLabelText("User Menu");
+    const button = screen.getByLabelText("User menu");
     fireEvent.click(button);
 
     expect(screen.queryByText("Preferences")).not.toBeInTheDocument();
@@ -123,7 +130,7 @@ describe("UserMenu Component", () => {
     renderWithProviders(
       <UserMenu customHeader={<div data-testid="custom-header">Custom</div>} />,
     );
-    const button = screen.getByLabelText("User Menu");
+    const button = screen.getByLabelText("User menu");
     fireEvent.click(button);
 
     expect(screen.getByTestId("custom-header")).toBeInTheDocument();

@@ -8,6 +8,7 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import { AuthProvider } from "../context/AuthContext";
 import { LoginForm } from "../components/LoginForm";
 
@@ -57,14 +58,16 @@ describe("Complete Authentication Flows", () => {
       });
 
       const { container } = render(
-        <AuthProvider config={{ appName: "test" }}>
-          <LoginForm />
-        </AuthProvider>,
+        <MemoryRouter>
+          <AuthProvider config={{ appName: "test" }}>
+            <LoginForm />
+          </AuthProvider>
+        </MemoryRouter>,
       );
 
       // Fill in credentials
       const emailInput = screen.getByLabelText(/email/i);
-      const passwordInput = screen.getByLabelText(/password/i);
+      const passwordInput = screen.getByLabelText(/^Password/i);
       const submitButton = screen.getByRole("button", {
         name: /sign in|login/i,
       });
@@ -100,13 +103,15 @@ describe("Complete Authentication Flows", () => {
       });
 
       const { container } = render(
-        <AuthProvider config={{ appName: "test" }}>
-          <LoginForm />
-        </AuthProvider>,
+        <MemoryRouter>
+          <AuthProvider config={{ appName: "test" }}>
+            <LoginForm />
+          </AuthProvider>
+        </MemoryRouter>,
       );
 
       const emailInput = screen.getByLabelText(/email/i);
-      const passwordInput = screen.getByLabelText(/password/i);
+      const passwordInput = screen.getByLabelText(/^Password/i);
       const submitButton = screen.getByRole("button", {
         name: /sign in|login/i,
       });
@@ -147,14 +152,15 @@ describe("Complete Authentication Flows", () => {
         });
 
       render(
-        <AuthProvider config={{ appName: "test" }}>
-          <LoginForm />
-        </AuthProvider>,
+        <MemoryRouter>
+          <AuthProvider config={{ appName: "test" }}>
+            <LoginForm />
+          </AuthProvider>
+        </MemoryRouter>,
       );
 
-      // Initial login
       const emailInput = screen.getByLabelText(/email/i);
-      const passwordInput = screen.getByLabelText(/password/i);
+      const passwordInput = screen.getByLabelText(/^Password/i);
       const submitButton = screen.getByRole("button", {
         name: /sign in|login/i,
       });
@@ -199,14 +205,16 @@ describe("Complete Authentication Flows", () => {
         });
 
       render(
-        <AuthProvider config={{ appName: "test" }}>
-          <LoginForm />
-        </AuthProvider>,
+        <MemoryRouter>
+          <AuthProvider config={{ appName: "test" }}>
+            <LoginForm />
+          </AuthProvider>
+        </MemoryRouter>,
       );
 
       // Complete initial login
       const emailInput = screen.getByLabelText(/email/i);
-      const passwordInput = screen.getByLabelText(/password/i);
+      const passwordInput = screen.getByLabelText(/^Password/i);
       fireEvent.change(emailInput, { target: { value: "test@example.com" } });
       fireEvent.change(passwordInput, { target: { value: "password123" } });
       fireEvent.click(screen.getByRole("button", { name: /sign in|login/i }));
@@ -239,9 +247,11 @@ describe("Complete Authentication Flows", () => {
       window.location = { href: "" };
 
       render(
-        <AuthProvider config={{ appName: "test" }}>
-          <LoginForm />
-        </AuthProvider>,
+        <MemoryRouter>
+          <AuthProvider config={{ appName: "test" }}>
+            <LoginForm />
+          </AuthProvider>
+        </MemoryRouter>,
       );
 
       // Click OAuth button

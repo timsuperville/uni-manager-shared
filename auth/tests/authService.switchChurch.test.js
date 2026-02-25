@@ -6,14 +6,29 @@ import { tokenStorage } from "../utils/tokenStorage";
 global.fetch = vi.fn();
 
 // Mock tokenStorage
-vi.mock("../utils/tokenStorage", () => ({
-  tokenStorage: {
+vi.mock("../utils/tokenStorage", () => {
+  const mockTokenStorageInstance = {
     updateUser: vi.fn(),
     getAccessToken: vi.fn(),
     setTokens: vi.fn(),
     clearTokens: vi.fn(),
-  },
-}));
+    getUser: vi.fn(),
+    hasTokens: vi.fn(),
+    getAuthData: vi.fn().mockResolvedValue({}),
+  };
+
+  class MockTokenStorage {
+    constructor() {
+      Object.assign(this, mockTokenStorageInstance);
+    }
+  }
+
+  return {
+    TokenStorage: MockTokenStorage,
+    tokenStorage: mockTokenStorageInstance,
+    default: mockTokenStorageInstance,
+  };
+});
 
 describe("AuthService - switchChurch", () => {
   let authService;
