@@ -15,36 +15,29 @@ import {
 } from "./_authUI";
 
 /**
- * LoginForm - Main Authentication Form Component
- * Supports:
- * - Multi-factor authentication (MFA) with device trust
- * - Multiple application types with app-specific configurations
- * - Customizable themes and styling
- * - Cross-app compatibility
+ * LoginForm — Primary authentication form.
+ *
+ * Works in two modes:
+ *  - Nested inside AuthLayout → AuthContainer strips its own shell, this
+ *    form card floats inside the right panel.
+ *  - Standalone (legacy) → AuthContainer wraps in full-viewport shell.
  */
 export function LoginForm({
-  // App configuration
   appType = "default",
   appTitle,
   appDescription,
 
-  // UI customization
-  theme = "default",
   showRememberMe = true,
-  showRegistration = false,
+  showRegistration = true, // default true — AuthLayout adds context so reg link makes sense
 
-  // MFA configuration
   enableMFA = true,
   trustDeviceAvailable = true,
 
-  // Callbacks
   onSuccess,
   onError,
 
-  // Navigation
   redirectPath = "/dashboard",
 }) {
-  // Auth context
   const {
     login,
     verifyMFALogin,
@@ -57,251 +50,97 @@ export function LoginForm({
 
   const navigate = useNavigate();
 
-  // State management
   const [currentStep, setCurrentStep] = useState("login");
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     rememberMe: false,
   });
-  const [mfaToken, setMfaToken] = useState("");
-  const [deviceFingerprint, setDeviceFingerprint] = useState(null);
   const [trustDevice, setTrustDevice] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [debugInfo, setDebugInfo] = useState(null);
+  const [deviceFingerprint, setDeviceFingerprint] = useState(null);
 
-  /**
-   * App-specific configurations
-   * Defines title, icon, colors, and default redirect paths for each application
-   */
-  const appConfigs = {
+  // ─── App config ─────────────────────────────────────────────────────────────
+  const APP_CONFIGS = {
     admin: {
       title: "Admin Portal Access",
       description: "Sign in to access the administrative dashboard",
       icon: "🔐",
-      primaryColor: "blue",
-      defaultRedirect: "/dashboard",
+      registerPath: "/auth/register",
     },
     church: {
       title: "Church Management",
       description: "Sign in to manage church services and events",
       icon: "⛪",
-      primaryColor: "purple",
-      defaultRedirect: "/services",
+      registerPath: "/auth/register",
     },
     business: {
       title: "Business Portal",
       description: "Access your business management tools",
       icon: "💼",
-      primaryColor: "emerald",
-      defaultRedirect: "/overview",
+      registerPath: "/auth/register",
     },
     home: {
       title: "Home Management",
       description: "Manage your household and family activities",
       icon: "🏠",
-      primaryColor: "amber",
-      defaultRedirect: "/dashboard",
+      registerPath: "/auth/register",
     },
     personal: {
       title: "Personal Dashboard",
       description: "Access your personal productivity tools",
       icon: "👤",
-      primaryColor: "indigo",
-      defaultRedirect: "/dashboard",
+      registerPath: "/auth/register",
     },
     playback: {
       title: "Media Playback",
       description: "Control and manage media playback",
       icon: "🎵",
-      primaryColor: "pink",
-      defaultRedirect: "/player",
+      registerPath: "/auth/register",
     },
     default: {
       title: "Sign In",
       description: "Sign in to your account",
       icon: "🔑",
-      primaryColor: "gray",
-      defaultRedirect: "/dashboard",
+      registerPath: "/auth/register",
     },
   };
 
-  // Resolve configuration
-  const config = appConfigs[appType] || appConfigs.default;
+  const config = APP_CONFIGS[appType] ?? APP_CONFIGS.default;
   const finalTitle = appTitle || config.title;
   const finalDescription = appDescription || config.description;
-  const finalRedirectPath = redirectPath || config.defaultRedirect;
+  const finalRedirect = redirectPath || "/dashboard";
 
-  /**
-   * Tailwind Safe Color Classes (to ensure JIT generates them)
-   */
-  const colorClasses = {
-    blue: "bg-blue-600 hover:bg-blue-700 focus:ring-blue-500",
-    purple: "bg-purple-600 hover:bg-purple-700 focus:ring-purple-500",
-    emerald: "bg-emerald-600 hover:bg-emerald-700 focus:ring-emerald-500",
-    amber: "bg-amber-600 hover:bg-amber-700 focus:ring-amber-500",
-    indigo: "bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500",
-    pink: "bg-pink-600 hover:bg-pink-700 focus:ring-pink-500",
-    gray: "bg-gray-600 hover:bg-gray-700 focus:ring-gray-500",
-  };
-
-  /**
-   * Theme configurations
-   * Supports default (system adaptive), dark (forced), and minimal themes
-   */
-  const themes = {
-    default: {
-      background: "bg-gray-50 dark:bg-gray-900",
-      container: "bg-white dark:bg-gray-800 shadow-lg",
-      primary: colorClasses[config.primaryColor] || colorClasses.gray,
-      text: "text-gray-900 dark:text-white",
-      input:
-        "border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 shadow-sm",
-    },
-    dark: {
-      background: "bg-gray-900",
-      container: "bg-gray-800 shadow-2xl",
-      primary: colorClasses[config.primaryColor] || colorClasses.gray,
-      text: "text-white",
-      input:
-        "border border-gray-600 bg-gray-700 text-white placeholder-gray-400 focus:ring-2 shadow-sm",
-    },
-    minimal: {
-      background: "bg-white dark:bg-gray-900",
-      container: "border-2 border-gray-200 dark:border-gray-700",
-      primary: colorClasses[config.primaryColor] || colorClasses.gray,
-      text: "text-gray-900 dark:text-white",
-      input:
-        "border-b-2 border-gray-300 dark:border-gray-600 bg-transparent text-gray-900 dark:text-white focus:border-blue-500",
-    },
-  };
-
-  const currentTheme = themes[theme] || themes.default;
-
-  /**
-   * Generate device fingerprint for device trust
-   * Creates a unique identifier for the current device
-   */
+  // ─── Device fingerprint ──────────────────────────────────────────────────────
   const generateFingerprint = useCallback(() => {
     if (typeof document === "undefined") return null;
-
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
     ctx.textBaseline = "top";
     ctx.font = "14px Arial";
     ctx.fillText("Device fingerprint", 2, 2);
-
-    const fingerprint = [
-      typeof navigator !== "undefined" && navigator.userAgent,
-      typeof navigator !== "undefined" && navigator.language,
-      typeof screen !== "undefined" && screen.width + "x" + screen.height,
-      typeof Date !== "undefined" && new Date().getTimezoneOffset(),
+    const raw = [
+      navigator?.userAgent,
+      navigator?.language,
+      screen ? `${screen.width}x${screen.height}` : "",
+      new Date().getTimezoneOffset(),
       canvas.toDataURL(),
     ].join("|");
-
-    return btoa(fingerprint).slice(0, 32);
+    return btoa(raw).slice(0, 32);
   }, []);
 
-  /**
-   * Initialize device fingerprint on mount
-   */
   useEffect(() => {
     setDeviceFingerprint(generateFingerprint());
   }, [generateFingerprint]);
 
-  /**
-   * Monitor MFA state changes and update current step
-   */
+  // ─── MFA state transitions ───────────────────────────────────────────────────
   useEffect(() => {
-    if (enableMFA) {
-      if (mfaRequired) {
-        setCurrentStep("mfa-verification");
-      } else if (mfaSetupRequired) {
-        setCurrentStep("mfa-setup");
-      }
-    }
+    if (!enableMFA) return;
+    if (mfaRequired) setCurrentStep("mfa-verification");
+    else if (mfaSetupRequired) setCurrentStep("mfa-setup");
   }, [mfaRequired, mfaSetupRequired, enableMFA]);
 
-  /**
-   * Handle login form submission
-   */
-  const handleLoginSubmit = async (e) => {
-    e.preventDefault();
-    clearError();
-
-    try {
-      setDebugInfo("Attempting login...");
-      const result = await login({
-        email: formData.email,
-        password: formData.password,
-        rememberMe: formData.rememberMe,
-        appType,
-      });
-
-      setDebugInfo("Login response received");
-      if (result.success && !result.mfaRequired && !result.mfaSetupRequired) {
-        setDebugInfo("Login successful!");
-        if (onSuccess) {
-          onSuccess(result);
-        } else {
-          navigate(finalRedirectPath);
-        }
-      }
-      // MFA flow will be handled by useEffect watching for state changes
-    } catch (err) {
-      setDebugInfo(
-        `Error: ${err.message || "Unknown error"} | Type: ${err.name || "N/A"}`,
-      );
-      if (onError) {
-        onError(err);
-      }
-    }
-  };
-
-  /**
-   * Handle MFA verification
-   */
-  const handleMFAVerification = async (token) => {
-    clearError();
-    setMfaToken(token);
-
-    try {
-      const result = await verifyMFALogin(
-        token,
-        deviceFingerprint,
-        trustDevice,
-      );
-
-      if (result.success) {
-        setCurrentStep("login");
-        if (onSuccess) {
-          onSuccess(result);
-        } else {
-          navigate(finalRedirectPath);
-        }
-      }
-    } catch (err) {
-      if (onError) {
-        onError(err);
-      }
-    }
-  };
-
-  /**
-   * Handle MFA setup completion
-   */
-  const handleMFASetupComplete = () => {
-    setCurrentStep("login");
-    if (onSuccess) {
-      onSuccess({ success: true, mfaSetupCompleted: true });
-    } else {
-      navigate(finalRedirectPath);
-    }
-  };
-
-  /**
-   * Handle form input changes
-   */
+  // ─── Handlers ────────────────────────────────────────────────────────────────
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
@@ -310,19 +149,61 @@ export function LoginForm({
     }));
   };
 
-  /**
-   * Handle back to login button
-   */
+  const handleLoginSubmit = async (e) => {
+    e.preventDefault();
+    clearError();
+    try {
+      const result = await login({
+        email: formData.email,
+        password: formData.password,
+        rememberMe: formData.rememberMe,
+        appType,
+      });
+      if (result.success && !result.mfaRequired && !result.mfaSetupRequired) {
+        if (onSuccess) onSuccess(result);
+        else navigate(finalRedirect);
+      }
+      // MFA step changes handled via the useEffect above
+    } catch (err) {
+      if (process.env.NODE_ENV === "development") {
+        console.error("[LoginForm] Login error:", err);
+      }
+      onError?.(err);
+    }
+  };
+
+  const handleMFAVerification = async (token) => {
+    clearError();
+    try {
+      const result = await verifyMFALogin(
+        token,
+        deviceFingerprint,
+        trustDevice,
+      );
+      if (result.success) {
+        setCurrentStep("login");
+        if (onSuccess) onSuccess(result);
+        else navigate(finalRedirect);
+      }
+    } catch (err) {
+      onError?.(err);
+    }
+  };
+
+  const handleMFASetupComplete = () => {
+    setCurrentStep("login");
+    if (onSuccess) onSuccess({ success: true, mfaSetupCompleted: true });
+    else navigate(finalRedirect);
+  };
+
   const handleBackToLogin = () => {
     setCurrentStep("login");
     clearError();
-    setMfaToken("");
   };
 
-  // Validation
   const isFormValid = formData.email && formData.password;
 
-  // Render MFA Verification Step
+  // ─── MFA Verification step ───────────────────────────────────────────────────
   if (currentStep === "mfa-verification" && enableMFA) {
     return (
       <AuthContainer maxWidth="md">
@@ -350,7 +231,6 @@ export function LoginForm({
               Enter the code sent to your device
             </p>
           </div>
-
           <MFAVerification
             onVerify={handleMFAVerification}
             onBack={handleBackToLogin}
@@ -359,7 +239,7 @@ export function LoginForm({
               checked: trustDevice,
               onChange: setTrustDevice,
             }}
-            theme={currentTheme}
+            theme={{ text: "text-gray-900 dark:text-white", input: "lg-input" }}
             config={config}
             isLoading={isLoading}
             error={error}
@@ -369,7 +249,7 @@ export function LoginForm({
     );
   }
 
-  // Render MFA Setup Step
+  // ─── MFA Setup step ──────────────────────────────────────────────────────────
   if (currentStep === "mfa-setup" && enableMFA) {
     return (
       <AuthContainer maxWidth="lg">
@@ -382,11 +262,10 @@ export function LoginForm({
               Set up two-factor authentication for enhanced security
             </p>
           </div>
-
           <MFASetup
             onSetupComplete={handleMFASetupComplete}
             onSkip={handleMFASetupComplete}
-            theme={currentTheme}
+            theme={{ text: "text-gray-900 dark:text-white", input: "lg-input" }}
             config={config}
           />
         </AuthCardContent>
@@ -394,96 +273,105 @@ export function LoginForm({
     );
   }
 
-  // Render Login Form
+  // ─── Main login form ─────────────────────────────────────────────────────────
   return (
     <AuthContainer maxWidth="md">
       <AuthCardContent>
-        {/* Header */}
+        {/* Card header */}
         <div className="text-center mb-6 sm:mb-8">
-          <div className="text-4xl sm:text-5xl mb-3 sm:mb-4">{config.icon}</div>
-          <h2
-            className={`text-2xl sm:text-3xl font-extrabold ${currentTheme.text}`}
-          >
+          <div className="text-4xl sm:text-5xl mb-3 sm:mb-4" aria-hidden="true">
+            {config.icon}
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">
             {finalTitle}
           </h2>
-          <p className={`mt-2 text-sm ${currentTheme.text} opacity-75`}>
+          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
             {finalDescription}
           </p>
         </div>
 
-        {/* OAuth Login */}
-        <div>
-          <OAuthButton
-            provider="Google"
-            onClick={() => {
-              // TODO: Implement Google OAuth
-              console.log("Google login clicked");
-            }}
-            icon={<GoogleIcon className="w-5 h-5 sm:w-6 sm:h-6" />}
-          >
-            Sign in with Google
-          </OAuthButton>
+        {/* Google OAuth */}
+        <OAuthButton
+          provider="Google"
+          onClick={() => {
+            // TODO: Implement Google OAuth
+            if (process.env.NODE_ENV === "development") {
+              console.log(
+                "[LoginForm] Google OAuth clicked — not yet implemented",
+              );
+            }
+          }}
+          icon={<GoogleIcon className="w-5 h-5 sm:w-6 sm:h-6" />}
+        >
+          Sign in with Google
+        </OAuthButton>
 
-          <AuthDivider text="Or continue with email" />
-        </div>
+        <AuthDivider text="Or continue with email" />
 
-        {/* Form */}
+        {/* Email + password form */}
         <form className="space-y-5 sm:space-y-6" onSubmit={handleLoginSubmit}>
-          {/* Debug Info */}
-          {debugInfo && <Alert type="info" message={`Debug: ${debugInfo}`} />}
-
-          {/* Error Display */}
+          {/* Error banner */}
           {error && <Alert type="error" message={error} />}
 
-          {/* Email Field */}
+          {/* Email */}
           <div>
             <label
-              htmlFor="email"
-              className={`block text-sm font-medium ${currentTheme.text} mb-2`}
+              htmlFor="login-email"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
             >
               Email address
             </label>
             <input
-              id="email"
+              id="login-email"
               name="email"
               type="email"
               autoComplete="email"
               required
               value={formData.email}
               onChange={handleChange}
-              className={`w-full px-3 py-2 rounded-md ${currentTheme.input} placeholder-gray-400 focus:outline-none focus:ring-2`}
+              className="lg-input w-full px-3 py-2.5 rounded-lg text-sm"
               placeholder="Enter your email address"
             />
           </div>
 
-          {/* Password Field */}
+          {/* Password */}
           <div>
-            <label
-              htmlFor="password"
-              className={`block text-sm font-medium ${currentTheme.text} mb-2`}
-            >
-              Password
-            </label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label
+                htmlFor="login-password"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
+                Password
+              </label>
+              <button
+                type="button"
+                className="text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline focus:outline-none"
+                onClick={() => navigate("/auth/forgot-password")}
+              >
+                Forgot password?
+              </button>
+            </div>
             <div className="relative">
               <input
-                id="password"
+                id="login-password"
                 name="password"
                 type={showPassword ? "text" : "password"}
                 autoComplete="current-password"
                 required
                 value={formData.password}
                 onChange={handleChange}
-                className={`w-full px-3 py-2 rounded-md ${currentTheme.input} placeholder-gray-400 focus:outline-none focus:ring-2 pr-10`}
+                className="lg-input w-full px-3 py-2.5 rounded-lg text-sm pr-10"
                 placeholder="Enter your password"
               />
               <button
                 type="button"
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-500"
-                onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 transition-colors"
+                onClick={() => setShowPassword((v) => !v)}
               >
                 {showPassword ? (
                   <svg
-                    className="h-5 w-5"
+                    className="h-4.5 w-4.5"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
@@ -498,7 +386,7 @@ export function LoginForm({
                   </svg>
                 ) : (
                   <svg
-                    className="h-5 w-5"
+                    className="h-4.5 w-4.5"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
@@ -522,54 +410,50 @@ export function LoginForm({
             </div>
           </div>
 
-          {/* Remember Me */}
+          {/* Remember me */}
           {showRememberMe && (
-            <div className="flex items-center">
+            <div className="flex items-center gap-2">
               <input
-                id="rememberMe"
+                id="login-rememberMe"
                 name="rememberMe"
                 type="checkbox"
                 checked={formData.rememberMe}
                 onChange={handleChange}
-                className={`h-4 w-4 text-${config.primaryColor}-600 focus:ring-${config.primaryColor}-500 border-gray-300 rounded`}
+                className="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 focus:ring-offset-0 bg-white dark:bg-gray-700 cursor-pointer"
               />
               <label
-                htmlFor="rememberMe"
-                className={`ml-2 block text-sm ${currentTheme.text}`}
+                htmlFor="login-rememberMe"
+                className="text-sm text-gray-600 dark:text-gray-400 cursor-pointer select-none"
               >
                 Remember me
               </label>
             </div>
           )}
 
-          {/* Submit Button */}
-          <div className="pt-2">
+          {/* Submit */}
+          <div className="pt-1">
             <AuthButton
               type="submit"
               disabled={!isFormValid || isLoading}
               loading={isLoading}
               variant="primary"
             >
-              {isLoading ? "Signing in..." : "Sign in"}
+              {isLoading ? "Signing in…" : "Sign in"}
             </AuthButton>
           </div>
 
-          {/* Registration Link */}
+          {/* Registration link */}
           {showRegistration && (
-            <div className="text-center pt-2">
-              <span
-                className={`text-sm sm:text-base ${currentTheme.text} opacity-75`}
+            <p className="text-center text-sm text-gray-500 dark:text-gray-400">
+              {"Don't have an account? "}
+              <button
+                type="button"
+                className="font-semibold text-blue-600 dark:text-blue-400 hover:underline focus:outline-none"
+                onClick={() => navigate(config.registerPath)}
               >
-                Don't have an account?{" "}
-                <button
-                  type="button"
-                  className={`font-semibold text-${config.primaryColor}-600 hover:text-${config.primaryColor}-500 underline underline-offset-2`}
-                  onClick={() => navigate("/auth/register")}
-                >
-                  Create account
-                </button>
-              </span>
-            </div>
+                Create account
+              </button>
+            </p>
           )}
         </form>
       </AuthCardContent>
@@ -591,7 +475,6 @@ LoginForm.propTypes = {
   appDescription: PropTypes.string,
   onSuccess: PropTypes.func,
   onError: PropTypes.func,
-  theme: PropTypes.oneOf(["default", "dark", "minimal"]),
   redirectPath: PropTypes.string,
   showRememberMe: PropTypes.bool,
   showRegistration: PropTypes.bool,
@@ -599,10 +482,9 @@ LoginForm.propTypes = {
   trustDeviceAvailable: PropTypes.bool,
 };
 
-// Export as default
 export default LoginForm;
 
-// Backward compatibility aliases (deprecated - use LoginForm instead)
+// Backward-compat aliases (deprecated — import LoginForm directly)
 export const UnifiedLoginForm = LoginForm;
 export const UniversalLoginForm = LoginForm;
 export const EnhancedLoginForm = LoginForm;

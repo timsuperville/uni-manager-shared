@@ -6,12 +6,12 @@ import PropTypes from "prop-types";
  * with email") used to separate OAuth and email/password sections.
  */
 export const AuthDivider = ({ text = "Or" }) => (
-  <div className="relative my-6 sm:my-8 text-center">
+  <div className="relative my-4 sm:my-5 text-center">
     <div className="absolute inset-0 flex items-center">
       <div className="w-full border-t border-gray-200 dark:border-gray-700" />
     </div>
     <div className="relative inline-flex justify-center">
-      <span className="px-4 text-sm text-gray-500 dark:text-gray-400 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-full">
+      <span className="px-3 text-xs font-medium text-gray-400 dark:text-gray-500 bg-white dark:bg-gray-800 uppercase tracking-widest">
         {text}
       </span>
     </div>
