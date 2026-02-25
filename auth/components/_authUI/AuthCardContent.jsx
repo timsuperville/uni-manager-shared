@@ -6,7 +6,7 @@ import PropTypes from "prop-types";
  * AuthContainer card.
  */
 export const AuthCardContent = ({ children }) => (
-  <div className="px-6 py-8 sm:px-10 sm:py-12 space-y-6 sm:space-y-8">
+  <div className="px-6 py-6 sm:px-10 sm:py-10 space-y-5 sm:space-y-7">
     {children}
   </div>
 );

@@ -103,6 +103,15 @@ const APP_IDENTITY = {
   },
 };
 
+// Pillar entry animation — defined once outside the component so it's not
+// recreated on every render.
+const PILLAR_KEYFRAMES = `
+  @keyframes pillarSlideIn {
+    from { opacity: 0; transform: translateX(-12px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+`;
+
 // ─── Component ─────────────────────────────────────────────────────────────────
 
 const AuthLayout = ({ children, appType, showLogo = true }) => {
@@ -119,11 +128,16 @@ const AuthLayout = ({ children, appType, showLogo = true }) => {
 
   return (
     <>
-      {/* Outfit + Inter font resonance */}
+      {/*
+        Font & animation styles — inserted once per route mount.
+        Using a <link> would require document access; this is the safe React way
+        for a shared component that may mount in any app context.
+      */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap');
         .auth-layout-root { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
         .auth-layout-headline { font-family: 'Outfit', system-ui, sans-serif; }
+        ${PILLAR_KEYFRAMES}
       `}</style>
 
       <div className="auth-layout-root h-screen w-full flex overflow-hidden bg-gray-50 dark:bg-[hsl(222,47%,4%)] relative">
@@ -150,8 +164,8 @@ const AuthLayout = ({ children, appType, showLogo = true }) => {
             style={{ background: identity.accentLight }}
           />
 
-          {/* Subtle grid overlay — per LG spec */}
-          <div className="absolute inset-0 opacity-10">
+          {/* Subtle grid overlay — per Liquid Glass spec */}
+          <div className="absolute inset-0 opacity-10" aria-hidden="true">
             <svg
               className="absolute inset-0 h-full w-full"
               fill="none"
@@ -160,7 +174,7 @@ const AuthLayout = ({ children, appType, showLogo = true }) => {
             >
               <defs>
                 <pattern
-                  id="auth-grid"
+                  id={`auth-grid-${identityKey}`}
                   width="8"
                   height="8"
                   patternUnits="userSpaceOnUse"
@@ -173,26 +187,30 @@ const AuthLayout = ({ children, appType, showLogo = true }) => {
                   />
                 </pattern>
               </defs>
-              <rect width="100" height="100" fill="url(#auth-grid)" />
+              <rect
+                width="100"
+                height="100"
+                fill={`url(#auth-grid-${identityKey})`}
+              />
             </svg>
           </div>
 
           {/* Panel content */}
-          <div className="relative z-10 flex flex-col justify-between px-12 py-12 w-full max-w-xl mx-auto">
+          <div className="relative z-10 flex flex-col justify-between px-12 py-12 w-full h-full">
             {/* Top: Logo + app name */}
             {showLogo && (
               <div className="animate-[fadeInDown_0.5s_ease_both]">
                 <div className="inline-flex items-center gap-3 mb-2">
+                  {/* Logo icon — glass pill */}
                   <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center text-xl shadow-lg"
+                    className="w-9 h-9 rounded-xl shadow-lg flex items-center justify-center"
                     style={{
                       background: "hsla(0,0%,100%,0.15)",
                       backdropFilter: "blur(12px)",
                       border: "1px solid hsla(0,0%,100%,0.25)",
                     }}
-                  >
-                    {/* Intentionally no emoji fallback — branding icon should come from appConfig.logo in production */}
-                  </div>
+                    aria-hidden="true"
+                  />
                   <span
                     className="auth-layout-headline text-white/90 font-bold text-lg tracking-tight"
                     style={{ fontFamily: "'Outfit', system-ui, sans-serif" }}
@@ -204,8 +222,8 @@ const AuthLayout = ({ children, appType, showLogo = true }) => {
               </div>
             )}
 
-            {/* Middle: Tagline + description */}
-            <div className="space-y-6 animate-[fadeInUp_0.6s_ease_0.1s_both]">
+            {/* Middle: Tagline + description + feature pillars */}
+            <div className="space-y-8">
               <div>
                 <h1
                   className="text-4xl xl:text-5xl font-extrabold text-white leading-tight tracking-tight drop-shadow-sm mb-4"
@@ -213,22 +231,23 @@ const AuthLayout = ({ children, appType, showLogo = true }) => {
                 >
                   {identity.tagline}
                 </h1>
-                <p className="text-base text-white/75 max-w-xs leading-relaxed">
+                <p className="text-base text-white/70 max-w-xs leading-relaxed">
                   {identity.description}
                 </p>
               </div>
 
-              {/* Feature pillars — Liquid Glass cards */}
+              {/* Feature pillars — each animates in individually */}
               <div className="space-y-3">
                 {identity.pillars.map((pillar, i) => (
                   <div
-                    key={i}
+                    key={pillar.label}
                     className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 hover:scale-[1.02] hover:bg-white/15"
                     style={{
                       background: "hsla(0,0%,100%,0.08)",
                       backdropFilter: "blur(12px)",
                       border: "1px solid hsla(0,0%,100%,0.12)",
-                      animationDelay: `${0.15 + i * 0.08}s`,
+                      animation: `pillarSlideIn 0.4s ease both`,
+                      animationDelay: `${0.2 + i * 0.1}s`,
                     }}
                   >
                     <span
@@ -238,7 +257,7 @@ const AuthLayout = ({ children, appType, showLogo = true }) => {
                     >
                       {pillar.icon}
                     </span>
-                    <span className="text-sm font-medium text-white/90">
+                    <span className="text-sm font-medium text-white/90 leading-snug">
                       {pillar.label}
                     </span>
                   </div>
@@ -247,8 +266,8 @@ const AuthLayout = ({ children, appType, showLogo = true }) => {
             </div>
 
             {/* Bottom: Platform attribution */}
-            <div className="animate-[fadeIn_0.8s_ease_0.3s_both]">
-              <p className="text-xs text-white/40 font-medium tracking-wide uppercase">
+            <div className="animate-[fadeIn_0.8s_ease_0.4s_both]">
+              <p className="text-xs text-white/40 font-medium tracking-widest uppercase">
                 Uni-Manager · Total Life Orchestration
               </p>
             </div>
@@ -259,22 +278,29 @@ const AuthLayout = ({ children, appType, showLogo = true }) => {
             RIGHT PANEL — Form slot
         ══════════════════════════════════════════════════════════════ */}
         <div className="flex-1 flex flex-col justify-center overflow-y-auto py-4 sm:py-8 px-4 sm:px-8 lg:px-12 relative z-10">
-          {/* Mobile-only branded header */}
+          {/* Mobile-only compact branded header */}
           <div className="lg:hidden text-center mb-3 animate-[fadeInDown_0.4s_ease_both]">
+            {/* Gradient pill — replaces the empty icon slot */}
             <div
-              className={`inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-linear-to-br ${identity.gradient} text-white text-2xl shadow-lg mb-3`}
+              className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-2 text-white text-xs font-semibold tracking-wide uppercase`}
+              style={{
+                background: `linear-gradient(135deg, ${identity.glowColor}, hsla(0,0%,100%,0.05))`,
+                border: "1px solid hsla(0,0%,100%,0.15)",
+                backdropFilter: "blur(8px)",
+              }}
             >
-              {/* Logo slot */}
+              <span
+                className={`inline-block w-2 h-2 rounded-full bg-white/70`}
+                aria-hidden="true"
+              />
+              {appConfig.appName}
             </div>
             <h1
-              className="text-2xl font-bold text-gray-900 dark:text-white"
+              className="text-xl font-bold text-gray-900 dark:text-white"
               style={{ fontFamily: "'Outfit', system-ui, sans-serif" }}
             >
-              {appConfig.appName}
-            </h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
               {identity.tagline}
-            </p>
+            </h1>
           </div>
 
           {/* Form content — wrapped in AuthShellContext so AuthContainer
@@ -299,7 +325,7 @@ const AuthLayout = ({ children, appType, showLogo = true }) => {
 
 AuthLayout.propTypes = {
   children: PropTypes.node.isRequired,
-  /** Explicit app type — falls back to auto-detection via getCurrentAppConfig() if omitted */
+  /** Explicit app type — determines visual identity fencing. Falls back to auto-detection if omitted. */
   appType: PropTypes.oneOf([
     "church",
     "home",
