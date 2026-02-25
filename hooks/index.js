@@ -2,20 +2,24 @@
 export { useAuth } from "./useAuth.js";
 export { useLogin } from "./useLogin.js";
 
-// Search and personalization hooks
+// Search, personalization, and utility hooks
 export { useAdvancedSearch } from "./useAdvancedSearch.js";
 export * from "./useCachedPersonalization.js";
 export { useUserPreferences } from "./useUserPreferences.js";
-export { useMinistryContext } from "./useMinistryContext.js";
-export { useSeasonalContext } from "./useSeasonalContext.js";
-export { useActivityContext } from "./useActivityContext.js";
+export { useDebounce } from "./useDebounce.js";
 
-// Real-time hooks
+// Engagement / feedback hooks
+export { useNpsPulse } from "./useNpsPulse.js";
+export { useFrustrationDetector } from "./useFrustrationDetector.js";
+
+// Real-time and network hooks
 export * from "./useRealTime.js";
+export * from "./useWebSocket.js";
+export * from "./useOnlineStatus.js";
 
 // Notification hooks
 export { default as useNotifications } from "./useNotifications.js";
 export { default as useNotificationPreferences } from "./useNotificationPreferences.js";
-export * from "./useWebSocket.js";
-export * from "./useOnlineStatus.js";
+
+// UI helpers (re-exported from components for convenience)
 export { useToast } from "../components/ToastProvider";
