@@ -145,7 +145,7 @@ const AuthLayout = ({ children, appType, showLogo = true }) => {
         {/* ══════════════════════════════════════════════════════════════
             LEFT PANEL — Branded identity (lg+ only)
         ══════════════════════════════════════════════════════════════ */}
-        <div className="hidden lg:flex lg:flex-1 lg:relative overflow-hidden h-full">
+        <div className="hidden lg:flex lg:w-2/5 lg:relative overflow-hidden h-full shrink-0">
           {/* Gradient base */}
           <div
             className={`absolute inset-0 bg-linear-to-br ${identity.gradient}`}
@@ -278,46 +278,54 @@ const AuthLayout = ({ children, appType, showLogo = true }) => {
         {/* ══════════════════════════════════════════════════════════════
             RIGHT PANEL — Form slot
         ══════════════════════════════════════════════════════════════ */}
-        <div className="flex-1 flex flex-col justify-center overflow-y-auto py-4 sm:py-8 px-4 sm:px-8 lg:px-12 relative z-10 bg-gray-50 dark:bg-[hsl(222,47%,6%)]">
-          {/* Mobile-only compact branded header */}
-          <div className="lg:hidden text-center mb-3 animate-[fadeInDown_0.4s_ease_both]">
-            {/* Gradient pill — replaces the empty icon slot */}
-            <div
-              className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-2 text-white text-xs font-semibold tracking-wide uppercase`}
-              style={{
-                background: `linear-gradient(135deg, ${identity.glowColor}, hsla(0,0%,100%,0.05))`,
-                border: "1px solid hsla(0,0%,100%,0.15)",
-                backdropFilter: "blur(8px)",
-              }}
-            >
-              <span
-                className={`inline-block w-2 h-2 rounded-full bg-white/70`}
-                aria-hidden="true"
-              />
-              {appConfig.appName}
-            </div>
-            <h1
-              className="text-xl font-bold text-gray-900 dark:text-white"
-              style={{ fontFamily: "'Outfit', system-ui, sans-serif" }}
-            >
-              {identity.tagline}
-            </h1>
-          </div>
+        <div className="flex-1 flex flex-col overflow-y-auto relative z-10 bg-white dark:bg-[hsl(222,47%,6%)]">
+          {/* Scroll container — min-h-full lets my-auto on the inner content block
+              actually distribute remaining vertical space (true centering). When the
+              viewport is shorter than the content, overflow-y-auto on the parent kicks
+              in and turns this into a top-flush scrollable layout without ever clipping. */}
+          <div className="flex flex-col items-center px-4 sm:px-8 lg:px-12 py-4 sm:py-6 w-full min-h-full">
+            {/* my-auto = true vertical centering when space is available;
+                if viewport is too short, it falls back to top-flush + scroll */}
+            <div className="my-auto w-full max-w-md">
+              {/* Mobile-only compact branded header */}
+              <div className="lg:hidden text-center mb-4 animate-[fadeInDown_0.4s_ease_both]">
+                <span
+                  className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-2 text-white text-xs font-semibold tracking-wide uppercase"
+                  style={{
+                    background: identity.gradient.includes("emerald")
+                      ? "rgba(16, 185, 129, 0.9)"
+                      : identity.glowColor.replace(", 0.25)", ", 0.9)"),
+                  }}
+                >
+                  <span
+                    className="inline-block w-1.5 h-1.5 rounded-full bg-white/80"
+                    aria-hidden="true"
+                  />
+                  {appConfig.appName}
+                </span>
+                <h1
+                  className="block text-xl font-bold text-gray-900 dark:text-white"
+                  style={{ fontFamily: "'Outfit', system-ui, sans-serif" }}
+                >
+                  {identity.tagline}
+                </h1>
+              </div>
 
-          {/* Form content — wrapped in AuthShellContext so AuthContainer
-              knows it is nested and strips its own page shell */}
-          <AuthShellContext.Provider value={true}>
-            <div className="w-full max-w-md mx-auto animate-[fadeInUp_0.5s_ease_0.05s_both]">
-              {children}
-            </div>
-          </AuthShellContext.Provider>
+              {/* Form content — nested AuthShellContext strips AuthContainer's own page shell */}
+              <AuthShellContext.Provider value={true}>
+                <div className="animate-[fadeInUp_0.5s_ease_0.05s_both]">
+                  {children}
+                </div>
+              </AuthShellContext.Provider>
 
-          {/* Footer — copyright + theme toggle */}
-          <div className="w-full max-w-md mx-auto mt-3 sm:mt-6 flex items-center justify-between animate-[fadeIn_0.6s_ease_0.2s_both]">
-            <p className="text-xs text-gray-400 dark:text-gray-600">
-              © {new Date().getFullYear()} Uni-Manager.
-            </p>
-            <ThemeToggle />
+              {/* Footer — copyright + theme toggle */}
+              <div className="mt-4 sm:mt-5 flex items-center justify-between animate-[fadeIn_0.6s_ease_0.2s_both]">
+                <p className="text-xs text-gray-400 dark:text-gray-600">
+                  © {new Date().getFullYear()} Uni-Manager.
+                </p>
+                <ThemeToggle />
+              </div>
+            </div>
           </div>
         </div>
       </div>
