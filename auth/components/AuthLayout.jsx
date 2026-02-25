@@ -17,7 +17,6 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { getCurrentAppConfig } from "../config/appConfigs.js";
-import { ThemeToggle } from "../../components/ThemeToggle";
 
 // ─── Per-app Visual Identity Fencing ──────────────────────────────────────────
 // Aligned with docs/product/01-introduction.md and the institutional context catalog.
@@ -126,16 +125,11 @@ const AuthLayout = ({ children, appType, showLogo = true }) => {
         .auth-layout-headline { font-family: 'Outfit', system-ui, sans-serif; }
       `}</style>
 
-      <div className="auth-layout-root min-h-screen w-full flex overflow-hidden bg-gray-50 dark:bg-[hsl(222,47%,4%)] relative">
-        {/* ── Theme Toggle — sovereign top-right ── */}
-        <div className="absolute top-4 right-4 z-50">
-          <ThemeToggle />
-        </div>
-
+      <div className="auth-layout-root h-screen w-full flex overflow-hidden bg-gray-50 dark:bg-[hsl(222,47%,4%)] relative">
         {/* ══════════════════════════════════════════════════════════════
             LEFT PANEL — Branded identity (lg+ only)
         ══════════════════════════════════════════════════════════════ */}
-        <div className="hidden lg:flex lg:flex-1 lg:relative overflow-hidden">
+        <div className="hidden lg:flex lg:flex-1 lg:relative overflow-hidden h-full">
           {/* Gradient base */}
           <div
             className={`absolute inset-0 bg-linear-to-br ${identity.gradient}`}
@@ -263,7 +257,7 @@ const AuthLayout = ({ children, appType, showLogo = true }) => {
         {/* ══════════════════════════════════════════════════════════════
             RIGHT PANEL — Form slot
         ══════════════════════════════════════════════════════════════ */}
-        <div className="flex-1 flex flex-col justify-center py-10 px-4 sm:px-8 lg:px-12 relative z-10 min-h-screen">
+        <div className="flex-1 flex flex-col justify-center overflow-y-auto py-10 px-4 sm:px-8 lg:px-12 relative z-10">
           {/* Mobile-only branded header */}
           <div className="lg:hidden text-center mb-8 animate-[fadeInDown_0.4s_ease_both]">
             <div
