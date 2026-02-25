@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import { useAuth } from "../context/AuthContext.jsx";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import MFAVerification from "./MFAVerification";
 import MFASetup from "./MFASetup";
 import { getCurrentAppConfig } from "../config/appConfigs.js";
@@ -61,6 +61,18 @@ export function LoginForm({
   } = useAuth();
 
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // returnTo: safe redirect after login (used by AcceptInvitePage invite flow)
+  // Only honour paths that start with / to prevent open-redirect attacks.
+  const returnTo = (() => {
+    try {
+      const param = new URLSearchParams(location.search).get("returnTo");
+      return param && param.startsWith("/") ? param : null;
+    } catch {
+      return null;
+    }
+  })();
 
   const [currentStep, setCurrentStep] = useState("login");
   const [formData, setFormData] = useState({
@@ -77,7 +89,8 @@ export function LoginForm({
   const ui = appConfig?.ui ?? DEFAULT_UI;
   const finalTitle = appTitle || ui.loginTitle;
   const finalDescription = appDescription || ui.loginDescription;
-  const finalRedirect = redirectPath || "/dashboard";
+  // returnTo takes priority over redirectPath prop
+  const finalRedirect = returnTo || redirectPath || "/dashboard";
 
   // ─── Device fingerprint ──────────────────────────────────────────────────────
   const generateFingerprint = useCallback(() => {
