@@ -13,7 +13,7 @@
 export { AuthButton } from "./AuthButton.jsx";
 export { OAuthButton } from "./OAuthButton.jsx";
 export { AuthInput } from "./AuthInput.jsx";
-export { AuthContainer } from "./AuthContainer.jsx";
+export { AuthContainer, AuthShellContext } from "./AuthContainer.jsx";
 export { AuthCardContent } from "./AuthCardContent.jsx";
 export { AuthDivider } from "./AuthDivider.jsx";
 export { Alert } from "./Alert.jsx";

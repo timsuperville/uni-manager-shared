@@ -17,6 +17,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { getCurrentAppConfig } from "../config/appConfigs.js";
+import { AuthShellContext } from "./_authUI/AuthContainer.jsx";
 
 // ─── Per-app Visual Identity Fencing ──────────────────────────────────────────
 // Aligned with docs/product/01-introduction.md and the institutional context catalog.
@@ -276,10 +277,13 @@ const AuthLayout = ({ children, appType, showLogo = true }) => {
             </p>
           </div>
 
-          {/* Form content */}
-          <div className="w-full max-w-md mx-auto animate-[fadeInUp_0.5s_ease_0.05s_both]">
-            {children}
-          </div>
+          {/* Form content — wrapped in AuthShellContext so AuthContainer
+              knows it is nested and strips its own page shell */}
+          <AuthShellContext.Provider value={true}>
+            <div className="w-full max-w-md mx-auto animate-[fadeInUp_0.5s_ease_0.05s_both]">
+              {children}
+            </div>
+          </AuthShellContext.Provider>
 
           {/* Footer */}
           <div className="w-full max-w-md mx-auto mt-8 text-center animate-[fadeIn_0.6s_ease_0.2s_both]">
