@@ -37,14 +37,8 @@
 
 /**
  * LoginForm - Main authentication form component
- * Consolidates all login form variations into single component
- * Backward compatibility: UniversalLoginForm, EnhancedLoginForm still work
  */
-export {
-  default as LoginForm,
-  UniversalLoginForm,
-  EnhancedLoginForm,
-} from "./LoginForm.jsx";
+export { default as LoginForm } from "./LoginForm.jsx";
 
 /**
  * Signup/Registration Form

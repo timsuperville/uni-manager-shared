@@ -393,8 +393,3 @@ LoginForm.propTypes = {
 };
 
 export default LoginForm;
-
-// Backward-compat aliases (deprecated — import LoginForm directly)
-export const UnifiedLoginForm = LoginForm;
-export const UniversalLoginForm = LoginForm;
-export const EnhancedLoginForm = LoginForm;
