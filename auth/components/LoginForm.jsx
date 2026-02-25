@@ -346,7 +346,7 @@ export function LoginForm({
               <button
                 type="button"
                 className="text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline focus:outline-none"
-                onClick={() => navigate("/forgot-password")}
+                onClick={() => navigate("/auth/forgot-password")}
               >
                 Forgot password?
               </button>
