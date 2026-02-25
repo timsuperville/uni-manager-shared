@@ -6,7 +6,9 @@ const DashboardCard = ({
   title,
   value,
   subtitle,
+  caption,
   icon: Icon,
+  iconColor,
   trend,
   trendLabel,
   className = "",
@@ -112,19 +114,42 @@ const DashboardCard = ({
           {Icon && (
             <div className="shrink-0">
               <div
-                className="
-                w-12 h-12
-                [background:var(--glass-surface,rgba(255,255,255,0.06))]
-                rounded-xl
-                flex items-center justify-center
-                border border-(--glass-outline,rgba(255,255,255,0.15))
-              "
+                style={{
+                  width: 48,
+                  height: 48,
+                  background: iconColor
+                    ? `${iconColor}22`
+                    : "var(--glass-surface, rgba(255,255,255,0.06))",
+                  borderRadius: "0.75rem",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  border:
+                    "1px solid var(--glass-outline, rgba(255,255,255,0.15))",
+                  flexShrink: 0,
+                }}
               >
-                <Icon className="w-6 h-6 text-(--primary-resonance,#6366f1)" />
+                <Icon
+                  className="w-6 h-6"
+                  style={{
+                    color: iconColor || "var(--primary-resonance, #6366f1)",
+                  }}
+                />
               </div>
             </div>
           )}
         </div>
+        {caption && (
+          <p
+            style={{
+              fontSize: "var(--text-xs, 0.75rem)",
+              color: "var(--text-muted, rgba(255,255,255,0.5))",
+              margin: "0 1rem 0.75rem",
+            }}
+          >
+            {caption}
+          </p>
+        )}
       </CardContent>
     </Card>
   );
@@ -136,6 +161,9 @@ const StatCard = ({
   change,
   changeType = "neutral",
   icon: Icon,
+  iconColor,
+  subtitle,
+  caption,
   className = "",
   ...props
 }) => {
@@ -146,6 +174,9 @@ const StatCard = ({
       icon={Icon}
       trend={changeType}
       trendLabel={change}
+      subtitle={subtitle}
+      caption={caption}
+      iconColor={iconColor}
       className={className}
       {...props}
     />
@@ -229,6 +260,9 @@ StatCard.propTypes = {
   change: PropTypes.string,
   changeType: PropTypes.oneOf(["up", "down", "neutral"]),
   icon: PropTypes.elementType,
+  iconColor: PropTypes.string,
+  subtitle: PropTypes.string,
+  caption: PropTypes.string,
   className: PropTypes.string,
 };
 
