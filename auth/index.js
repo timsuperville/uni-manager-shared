@@ -162,7 +162,7 @@ export { default as SecurityDashboard } from "./components/SecurityDashboard.jsx
 // --- Layout Components ---
 
 export { default as AuthLayout } from "./components/AuthLayout.jsx";
-export { default as AppSwitcher } from "./components/AppSwitcher.jsx";
+// AppSwitcher removed — was dead code with zero consumers.
 
 // --- User Management ---
 

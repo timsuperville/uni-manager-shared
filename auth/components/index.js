@@ -166,11 +166,7 @@ export { default as SecurityDashboard } from "./SecurityDashboard.jsx";
  */
 export { default as AuthLayout } from "./AuthLayout.jsx";
 
-/**
- * App Switcher Component
- * Switch between different applications
- */
-export { default as AppSwitcher } from "./AppSwitcher.jsx";
+// AppSwitcher removed — was dead code with zero consumers.
 
 // ============================================================================
 // User Management
@@ -205,7 +201,7 @@ export function listAvailableComponents() {
     authorization: ["ProtectedRoute", "RBACComponents"],
     session: ["SessionManagementDashboard", "SessionWarning"],
     security: ["SecurityDashboard"],
-    layout: ["AuthLayout", "AppSwitcher"],
+    layout: ["AuthLayout"],
     user: ["UserMenu"],
   };
 }
