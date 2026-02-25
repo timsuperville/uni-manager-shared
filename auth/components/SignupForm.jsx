@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import {
@@ -25,7 +25,6 @@ const SignupForm = ({
   onLogin,
   isLoading = false,
   error = null,
-  className = "",
   authService: providedAuthService = null,
   appType = "default",
   loginPath = "/auth/login",
@@ -51,7 +50,10 @@ const SignupForm = ({
   );
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [success, setSuccess] = useState("");
+
+  // Ref for debouncing + cancelling stale email availability checks
+  const emailCheckTimerRef = useRef(null);
+  const emailCheckAbortRef = useRef(null);
 
   // Swap service if a new one is provided via props (test/story injection)
   useEffect(() => {
@@ -83,37 +85,48 @@ const SignupForm = ({
     }
   };
 
-  const handleEmailBlur = async () => {
-    if (formData.email && authService) {
-      const emailValidation = validateEmail(formData.email);
-      if (!emailValidation.isValid) {
-        setErrors((prev) => ({
-          ...prev,
-          email: emailValidation.error,
-        }));
-        return;
-      }
+  const handleEmailBlur = () => {
+    // Cancel any pending debounce + in-flight request from a previous blur
+    clearTimeout(emailCheckTimerRef.current);
+    emailCheckAbortRef.current?.abort();
 
-      setErrors((prev) => ({
-        ...prev,
-        email: "",
-      }));
+    if (!formData.email || !authService) return;
 
+    const emailValidation = validateEmail(formData.email);
+    if (!emailValidation.isValid) {
+      setErrors((prev) => ({ ...prev, email: emailValidation.error }));
+      return;
+    }
+    setErrors((prev) => ({ ...prev, email: "" }));
+
+    // Debounce 400 ms so rapid tab-through doesn't fire multiple requests
+    emailCheckTimerRef.current = setTimeout(async () => {
+      const controller = new AbortController();
+      emailCheckAbortRef.current = controller;
       setEmailChecking(true);
       try {
-        const result = await authService.checkEmailAvailability(formData.email);
+        const result = await authService.checkEmailAvailability(
+          formData.email,
+          { signal: controller.signal },
+        );
         if (!result.available) {
           setErrors((prev) => ({
             ...prev,
             email: "Email is already registered",
           }));
         }
-      } catch (_error) {
-        // Silent fail on availability check
+      } catch (err) {
+        // Ignore AbortError (user moved on); surface other errors in dev
+        if (
+          err?.name !== "AbortError" &&
+          process.env.NODE_ENV === "development"
+        ) {
+          console.warn("[SignupForm] Email availability check failed:", err);
+        }
       } finally {
         setEmailChecking(false);
       }
-    }
+    }, 400);
   };
 
   const handlePasswordBlur = () => {
@@ -254,19 +267,16 @@ const SignupForm = ({
       <AuthCardContent>
         {/* Header */}
         <div className="text-center mb-4 sm:mb-6">
-          <div className="text-4xl sm:text-5xl mb-3 sm:mb-4">
-            {appConfig.branding.icon}
+          <div className="text-4xl sm:text-5xl mb-3 sm:mb-4" aria-hidden="true">
+            {appConfig?.ui?.icon ?? "👤"}
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">
-            Join {appConfig.appName}
+            Join {appConfig?.appName ?? "Uni-Manager"}
           </h2>
           <p className="mt-2 text-sm sm:text-base text-gray-600 dark:text-gray-400">
             Create your account to get started
           </p>
         </div>
-
-        {/* Success Message */}
-        {success && <Alert type="success" message={success} className="mb-6" />}
 
         {/* Error message */}
         {(error || errors.general) && (
@@ -305,6 +315,7 @@ const SignupForm = ({
               error={errors.firstName}
               required
               autoComplete="given-name"
+              autoFocus
             />
 
             <AuthInput
@@ -520,7 +531,6 @@ SignupForm.propTypes = {
   onLogin: PropTypes.func,
   isLoading: PropTypes.bool,
   error: PropTypes.string,
-  className: PropTypes.string,
   authService: PropTypes.object,
   appType: PropTypes.string,
   loginPath: PropTypes.string,

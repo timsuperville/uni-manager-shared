@@ -54,6 +54,12 @@ export const APP_CONFIGS = {
       focusRing: "focus:ring-blue-500",
       accentColor: "accent-blue-500",
     },
+    ui: {
+      icon: "⛪",
+      loginTitle: "Church Management",
+      loginDescription: "Sign in to manage church services and events",
+      registerPath: "/auth/register",
+    },
   },
 
   admin: {
@@ -98,6 +104,12 @@ export const APP_CONFIGS = {
       gradientTo: "to-slate-700",
       focusRing: "focus:ring-slate-500",
       accentColor: "accent-slate-600",
+    },
+    ui: {
+      icon: "🔐",
+      loginTitle: "Admin Portal Access",
+      loginDescription: "Sign in to access the administrative dashboard",
+      registerPath: "/auth/register",
     },
   },
 
@@ -144,6 +156,12 @@ export const APP_CONFIGS = {
       focusRing: "focus:ring-emerald-500",
       accentColor: "accent-emerald-500",
     },
+    ui: {
+      icon: "💼",
+      loginTitle: "Business Portal",
+      loginDescription: "Access your business management tools",
+      registerPath: "/auth/register",
+    },
   },
 
   home: {
@@ -186,6 +204,12 @@ export const APP_CONFIGS = {
       gradientTo: "to-amber-600",
       focusRing: "focus:ring-amber-500",
       accentColor: "accent-amber-500",
+    },
+    ui: {
+      icon: "🏠",
+      loginTitle: "Home Management",
+      loginDescription: "Manage your household and family activities",
+      registerPath: "/auth/register",
     },
   },
 
@@ -232,6 +256,12 @@ export const APP_CONFIGS = {
       focusRing: "focus:ring-purple-500",
       accentColor: "accent-purple-500",
     },
+    ui: {
+      icon: "👤",
+      loginTitle: "Personal Dashboard",
+      loginDescription: "Access your personal productivity tools",
+      registerPath: "/auth/register",
+    },
   },
 
   playback: {
@@ -277,6 +307,12 @@ export const APP_CONFIGS = {
       gradientTo: "to-rose-600",
       focusRing: "focus:ring-rose-500",
       accentColor: "accent-rose-500",
+    },
+    ui: {
+      icon: "🎵",
+      loginTitle: "Media Playback",
+      loginDescription: "Control and manage media playback",
+      registerPath: "/auth/register",
     },
   },
 };

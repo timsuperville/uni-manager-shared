@@ -17,6 +17,7 @@ export const AuthInput = ({
   error,
   required = false,
   autoComplete,
+  autoFocus = false,
   disabled = false,
   icon,
   rightElement,
@@ -47,6 +48,7 @@ export const AuthInput = ({
         placeholder={placeholder}
         required={required}
         autoComplete={autoComplete}
+        autoFocus={autoFocus}
         disabled={disabled}
         className={`block w-full ${icon ? "pl-10" : "pl-4"} ${rightElement ? "pr-10" : "pr-4"} py-3 sm:py-3.5 text-sm sm:text-base border rounded-xl shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-4 transition-all duration-200 ${
           error
@@ -93,6 +95,7 @@ AuthInput.propTypes = {
   error: PropTypes.string,
   required: PropTypes.bool,
   autoComplete: PropTypes.string,
+  autoFocus: PropTypes.bool,
   disabled: PropTypes.bool,
   icon: PropTypes.node,
   rightElement: PropTypes.node,

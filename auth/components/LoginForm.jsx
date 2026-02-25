@@ -4,6 +4,8 @@ import { useAuth } from "../context/AuthContext.jsx";
 import { useNavigate } from "react-router-dom";
 import MFAVerification from "./MFAVerification";
 import MFASetup from "./MFASetup";
+import { getCurrentAppConfig } from "../config/appConfigs.js";
+import { validateEmail } from "../utils/authValidation.js";
 import {
   AuthContainer,
   AuthCardContent,
@@ -16,50 +18,12 @@ import {
   PasswordToggleButton,
 } from "./_authUI";
 
-// ─── App-level config — module scope so it's never recreated on re-render ─────
-const APP_CONFIGS = {
-  admin: {
-    title: "Admin Portal Access",
-    description: "Sign in to access the administrative dashboard",
-    icon: "🔐",
-    registerPath: "/auth/register",
-  },
-  church: {
-    title: "Church Management",
-    description: "Sign in to manage church services and events",
-    icon: "⛪",
-    registerPath: "/auth/register",
-  },
-  business: {
-    title: "Business Portal",
-    description: "Access your business management tools",
-    icon: "💼",
-    registerPath: "/auth/register",
-  },
-  home: {
-    title: "Home Management",
-    description: "Manage your household and family activities",
-    icon: "🏠",
-    registerPath: "/auth/register",
-  },
-  personal: {
-    title: "Personal Dashboard",
-    description: "Access your personal productivity tools",
-    icon: "👤",
-    registerPath: "/auth/register",
-  },
-  playback: {
-    title: "Media Playback",
-    description: "Control and manage media playback",
-    icon: "🎵",
-    registerPath: "/auth/register",
-  },
-  default: {
-    title: "Sign In",
-    description: "Sign in to your account",
-    icon: "🔑",
-    registerPath: "/auth/register",
-  },
+// Default UI config for unknown/unregistered appTypes
+const DEFAULT_UI = {
+  icon: "🔑",
+  loginTitle: "Sign In",
+  loginDescription: "Sign in to your account",
+  registerPath: "/auth/register",
 };
 
 /**
@@ -108,9 +72,11 @@ export function LoginForm({
   const [showPassword, setShowPassword] = useState(false);
   const [deviceFingerprint, setDeviceFingerprint] = useState(null);
 
-  const config = APP_CONFIGS[appType] ?? APP_CONFIGS.default;
-  const finalTitle = appTitle || config.title;
-  const finalDescription = appDescription || config.description;
+  // Pull ui branding from the single source of truth — appConfigs.js
+  const appConfig = getCurrentAppConfig(appType);
+  const ui = appConfig?.ui ?? DEFAULT_UI;
+  const finalTitle = appTitle || ui.loginTitle;
+  const finalDescription = appDescription || ui.loginDescription;
   const finalRedirect = redirectPath || "/dashboard";
 
   // ─── Device fingerprint ──────────────────────────────────────────────────────
@@ -203,7 +169,11 @@ export function LoginForm({
     clearError();
   };
 
-  const isFormValid = formData.email && formData.password;
+  // Validate both presence and email format for accurate button state
+  const isFormValid =
+    formData.email &&
+    validateEmail(formData.email).isValid &&
+    formData.password;
 
   // ─── MFA Verification step ───────────────────────────────────────────────────
   if (currentStep === "mfa-verification" && enableMFA) {
@@ -242,7 +212,7 @@ export function LoginForm({
               onChange: setTrustDevice,
             }}
             theme={{ text: "text-gray-900 dark:text-white", input: "lg-input" }}
-            config={config}
+            config={appConfig}
             isLoading={isLoading}
             error={error}
           />
@@ -268,7 +238,7 @@ export function LoginForm({
             onSetupComplete={handleMFASetupComplete}
             onSkip={handleMFASetupComplete}
             theme={{ text: "text-gray-900 dark:text-white", input: "lg-input" }}
-            config={config}
+            config={appConfig}
           />
         </AuthCardContent>
       </AuthContainer>
@@ -282,7 +252,7 @@ export function LoginForm({
         {/* Card header */}
         <div className="text-center mb-6 sm:mb-8">
           <div className="text-4xl sm:text-5xl mb-3 sm:mb-4" aria-hidden="true">
-            {config.icon}
+            {ui.icon}
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">
             {finalTitle}
@@ -325,6 +295,7 @@ export function LoginForm({
             placeholder="Enter your email address"
             required
             autoComplete="email"
+            autoFocus
           />
 
           {/* Password */}
@@ -346,7 +317,7 @@ export function LoginForm({
             }
           />
 
-          {/* Forgot password — sits below the password field, right-aligned */}
+          {/* Forgot password */}
           <div className="-mt-3 flex justify-end">
             <button
               type="button"
@@ -396,7 +367,7 @@ export function LoginForm({
               <button
                 type="button"
                 className="font-semibold text-blue-600 dark:text-blue-400 hover:underline focus:outline-none"
-                onClick={() => navigate(config.registerPath)}
+                onClick={() => navigate(ui.registerPath)}
               >
                 Create account
               </button>
@@ -409,15 +380,7 @@ export function LoginForm({
 }
 
 LoginForm.propTypes = {
-  appType: PropTypes.oneOf([
-    "admin",
-    "church",
-    "business",
-    "home",
-    "personal",
-    "playback",
-    "default",
-  ]),
+  appType: PropTypes.string,
   appTitle: PropTypes.string,
   appDescription: PropTypes.string,
   onSuccess: PropTypes.func,

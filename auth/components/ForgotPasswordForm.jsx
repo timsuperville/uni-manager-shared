@@ -2,7 +2,7 @@
  * ForgotPasswordForm — Email-only reset request form.
  * Works both standalone (legacy) and nested inside AuthLayout.
  */
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 import { validateEmail } from "../utils/authValidation.js";
@@ -14,6 +14,9 @@ import {
   Alert,
 } from "./_authUI";
 
+// Seconds to wait before auto-redirecting to login after a successful submission
+const SUCCESS_REDIRECT_DELAY = 5;
+
 const ForgotPasswordForm = ({
   onSubmit,
   onBackToLogin,
@@ -24,10 +27,32 @@ const ForgotPasswordForm = ({
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [localError, setLocalError] = useState("");
+  const [countdown, setCountdown] = useState(null);
+
+  // After success, start a countdown and auto-redirect to login
+  useEffect(() => {
+    if (!success) return;
+    setCountdown(SUCCESS_REDIRECT_DELAY);
+    const interval = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          navigate("/auth/login");
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [success, navigate]);
 
   const handleBack = () => {
-    if (onBackToLogin) onBackToLogin();
-    else navigate(-1);
+    if (onBackToLogin) {
+      onBackToLogin();
+    } else {
+      // Safe fallback: always stay in-app, never use navigate(-1)
+      navigate("/auth/login");
+    }
   };
 
   const handleSubmit = (e) => {
@@ -40,7 +65,20 @@ const ForgotPasswordForm = ({
       return;
     }
 
-    onSubmit?.({ email });
+    if (!onSubmit) {
+      // Guard: form should never be rendered without a submit handler.
+      // In dev, surface the misconfiguration clearly instead of silently no-op.
+      if (process.env.NODE_ENV === "development") {
+        console.error(
+          "[ForgotPasswordForm] No onSubmit handler provided. " +
+            "Use the app-specific wrapper (e.g. ForgotPasswordWrapper) " +
+            "rather than the raw shared component directly.",
+        );
+      }
+      return;
+    }
+
+    onSubmit({ email });
   };
 
   const displayError = error || localError;
@@ -59,6 +97,7 @@ const ForgotPasswordForm = ({
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
+            aria-hidden="true"
           >
             <path
               strokeLinecap="round"
@@ -79,12 +118,21 @@ const ForgotPasswordForm = ({
             Reset your password
           </h2>
           <p className="mt-1.5 text-sm text-gray-500 dark:text-gray-400">
-            Enter your email and we'll send you a reset link.
+            Enter your email and we&apos;ll send you a reset link.
           </p>
         </div>
 
         {/* Alerts */}
-        {success && <Alert type="success" message={success} />}
+        {success && (
+          <Alert
+            type="success"
+            message={
+              countdown !== null
+                ? `${success} Redirecting to sign in in ${countdown}s…`
+                : success
+            }
+          />
+        )}
         {displayError && !success && (
           <Alert type="error" message={displayError} />
         )}
@@ -105,12 +153,14 @@ const ForgotPasswordForm = ({
               error={localError}
               required
               autoComplete="email"
+              autoFocus
               icon={
                 <svg
                   className="w-4.5 h-4.5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
+                  aria-hidden="true"
                 >
                   <path
                     strokeLinecap="round"

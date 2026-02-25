@@ -89,6 +89,8 @@ export const Alert = ({ type = "error", message, className = "" }) => {
     <div
       className={`${bg} ${border} ${text} backdrop-blur-sm border px-4 py-3 rounded-xl flex items-start gap-3 shadow-sm ${className}`}
       role="alert"
+      aria-live="polite"
+      aria-atomic="true"
     >
       <div className="shrink-0 mt-0.5">{ICONS[type]}</div>
       <div className="text-sm font-medium leading-5">{message}</div>
