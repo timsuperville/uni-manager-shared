@@ -19,6 +19,7 @@ function UserMenuTrigger({
   roleLabel,
   hasPresence,
   isConnected,
+  status,
   statusDotColor,
   onToggle,
   onMouseEnter,
@@ -71,8 +72,8 @@ function UserMenuTrigger({
             }}
             title={
               !isConnected
-                ? `Offline · ${statusDotColor}`
-                : statusDotColor === "var(--color-success, hsl(142,71%,45%))"
+                ? "Offline"
+                : status === "available"
                   ? "Available"
                   : "Unavailable"
             }
@@ -153,6 +154,7 @@ UserMenuTrigger.propTypes = {
   roleLabel: PropTypes.string,
   hasPresence: PropTypes.bool.isRequired,
   isConnected: PropTypes.bool.isRequired,
+  status: PropTypes.string.isRequired,
   statusDotColor: PropTypes.string.isRequired,
   onToggle: PropTypes.func.isRequired,
   onMouseEnter: PropTypes.func.isRequired,

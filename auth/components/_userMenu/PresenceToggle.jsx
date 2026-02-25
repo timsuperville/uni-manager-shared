@@ -8,9 +8,11 @@ import { WifiOff } from "lucide-react";
  *
  * Props:
  *   status      — "available" | "unavailable"
- *   isConnected — false when WebSocket/presence connection is lost
- *   onToggle    — callback to flip the status
- *   dotColor    — CSS color string for the status indicator dot
+ *   isConnected — false when WebSocket/presence connection is lost;
+ *                 when false the button is visually disabled — status cannot
+ *                 be toggled while the socket is down.
+ *   onToggle    — callback to flip the status (no-op when !isConnected)
+ *   dotColor    — CSS colour string for the status indicator dot
  */
 const PresenceToggle = memo(function PresenceToggle({
   status,
@@ -20,7 +22,9 @@ const PresenceToggle = memo(function PresenceToggle({
 }) {
   return (
     <button
-      onClick={onToggle}
+      onClick={isConnected ? onToggle : undefined}
+      disabled={!isConnected}
+      title={!isConnected ? "Status unavailable while offline" : undefined}
       style={{
         marginTop: "7px",
         display: "inline-flex",
@@ -30,7 +34,8 @@ const PresenceToggle = memo(function PresenceToggle({
         borderRadius: "100px",
         background: "var(--bg-surface-1, hsla(0,0%,100%,0.04))",
         border: "1px solid var(--glass-outline)",
-        cursor: isConnected ? "pointer" : "default",
+        cursor: isConnected ? "pointer" : "not-allowed",
+        opacity: isConnected ? 1 : 0.6,
         fontSize: "11px",
         fontWeight: "500",
         color: "var(--text-secondary)",

@@ -5,22 +5,36 @@ import { motion } from "framer-motion";
 /**
  * UserMenuItem — accessible ARIA menuitem button.
  * All colours driven by CSS custom properties so it adapts to any app's theme.
- * Hover state managed via React (Tailwind hover: utiliites can't read CSS vars).
+ * Hover state managed via React (Tailwind hover: utilities can't read CSS vars).
+ *
+ * Props:
+ *   disabled — when true, dims the button, uses not-allowed cursor, and
+ *              prevents click events. Used e.g. during logout in-progress.
+ *   loading  — synonym for disabled with slightly different semantics.
+ *              Pass the spinner icon as `icon` when using this.
  */
 const UserMenuItem = memo(
   React.forwardRef(
     (
-      { icon: Icon, label, onClick, variant = "default", active = false },
+      {
+        icon: Icon,
+        label,
+        onClick,
+        variant = "default",
+        active = false,
+        disabled = false,
+      },
       ref,
     ) => {
       const [hovered, setHovered] = useState(false);
       const isDanger = variant === "danger";
+      const isInactive = disabled || (active === false && !hovered);
 
       const bg = active
         ? "var(--primary-subtle, hsla(187,84%,44%,0.12))"
-        : hovered && isDanger
+        : hovered && isDanger && !disabled
           ? "var(--color-error-surface, hsla(0,75%,60%,0.1))"
-          : hovered
+          : hovered && !disabled
             ? "var(--nav-hover, hsla(0,0%,100%,0.06))"
             : "transparent";
 
@@ -32,17 +46,19 @@ const UserMenuItem = memo(
 
       const iconColor = isDanger
         ? "var(--color-error, hsl(0,75%,60%))"
-        : active || hovered
+        : active || (hovered && !disabled)
           ? "var(--primary-resonance)"
           : "var(--text-muted)";
 
       return (
         <button
           ref={ref}
-          onClick={onClick}
+          onClick={disabled ? undefined : onClick}
           role="menuitem"
           aria-current={active ? "page" : undefined}
-          onMouseEnter={() => setHovered(true)}
+          aria-disabled={disabled || undefined}
+          disabled={disabled}
+          onMouseEnter={() => !disabled && setHovered(true)}
           onMouseLeave={() => setHovered(false)}
           style={{
             width: "100%",
@@ -56,7 +72,8 @@ const UserMenuItem = memo(
             color: textColor,
             fontSize: "13px",
             fontWeight: active ? "600" : "500",
-            cursor: "pointer",
+            cursor: disabled ? "not-allowed" : "pointer",
+            opacity: disabled ? 0.5 : 1,
             transition: "all 150ms ease",
             textAlign: "left",
             position: "relative",
@@ -107,6 +124,7 @@ UserMenuItem.propTypes = {
   onClick: PropTypes.func,
   variant: PropTypes.oneOf(["default", "danger"]),
   active: PropTypes.bool,
+  disabled: PropTypes.bool,
 };
 
 export default UserMenuItem;

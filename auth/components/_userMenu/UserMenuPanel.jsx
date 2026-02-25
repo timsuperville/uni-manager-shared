@@ -1,20 +1,22 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { AnimatePresence, motion } from "framer-motion";
-import { User, LogOut, SlidersHorizontal } from "lucide-react";
-import { useLocation } from "react-router-dom";
+import { User, LogOut, SlidersHorizontal, Loader2 } from "lucide-react";
 
 import { UserAvatar } from "../../../components/ui";
 import UserMenuItem from "./UserMenuItem";
 import PresenceToggle from "./PresenceToggle";
-
 import MenuDivider from "./MenuDivider";
 import { DROPDOWN_W } from "./positionUtils";
 import { getUserDisplayName } from "../../../utils";
 
 /**
  * UserMenuPanel — the portal-rendered Glass dropdown.
- * All data is passed in from UserMenu; this component is purely presentational.
+ * Purely presentational — all data/handlers come from UserMenu (orchestrator).
+ *
+ * Notable: useLocation was intentionally removed from this component.
+ * The orchestrator computes `isProfileActive` and passes it as a prop,
+ * keeping this component free of router hooks.
  */
 function UserMenuPanel({
   panelRef,
@@ -33,13 +35,14 @@ function UserMenuPanel({
   children,
   showProfile,
   showPreferencesLink,
+  isProfileActive,
   prefsActive,
   onProfileClick,
   onPreferencesClick,
   onClose,
   onLogout,
+  isLoggingOut,
 }) {
-  const location = useLocation();
   const { opensUpward } = dropdownCoords;
 
   const animVariant = {
@@ -165,7 +168,7 @@ function UserMenuPanel({
               <UserMenuItem
                 icon={User}
                 label="View Profile"
-                active={location.pathname === "/profile"}
+                active={isProfileActive}
                 onClick={() => {
                   onClose();
                   onProfileClick?.();
@@ -187,11 +190,13 @@ function UserMenuPanel({
 
             <MenuDivider />
 
+            {/* Sign out — disabled while logout is in-flight to prevent double-click */}
             <UserMenuItem
-              icon={LogOut}
-              label="Sign out"
+              icon={isLoggingOut ? Loader2 : LogOut}
+              label={isLoggingOut ? "Signing out…" : "Sign out"}
               onClick={onLogout}
               variant="danger"
+              disabled={isLoggingOut}
             />
           </div>
         </motion.div>
@@ -221,11 +226,13 @@ UserMenuPanel.propTypes = {
   children: PropTypes.node,
   showProfile: PropTypes.bool.isRequired,
   showPreferencesLink: PropTypes.bool.isRequired,
+  isProfileActive: PropTypes.bool.isRequired,
   prefsActive: PropTypes.bool.isRequired,
   onProfileClick: PropTypes.func,
   onPreferencesClick: PropTypes.func,
   onClose: PropTypes.func.isRequired,
   onLogout: PropTypes.func.isRequired,
+  isLoggingOut: PropTypes.bool.isRequired,
 };
 
 export default UserMenuPanel;

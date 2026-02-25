@@ -10,7 +10,6 @@
  *   _userMenu/UserMenuPanel     — the portal dropdown
  *   _userMenu/UserMenuItem      — individual menu items
  *   _userMenu/PresenceToggle    — online/offline status pill
- *   _userMenu/ThemeRow          — Appearance + ThemeToggle row
  *   _userMenu/MenuDivider       — separator
  *   _userMenu/positionUtils     — viewport-aware coordinate calculation
  *
@@ -75,6 +74,7 @@ const UserMenu = ({
 
   const [isOpen, setIsOpen] = useState(false);
   const [triggerHover, setTriggerHover] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [dropdownCoords, setDropdownCoords] = useState({
     top: 0,
     left: 0,
@@ -88,6 +88,17 @@ const UserMenu = ({
   useEffect(() => {
     setIsOpen(false);
   }, [location.pathname]);
+
+  // ── Body scroll lock on mobile while menu is open ─────────────────────────
+  // Prevents page scrolling behind the portal which would drift the coordinates.
+  useEffect(() => {
+    if (!isOpen || window.innerWidth >= 768) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [isOpen]);
 
   // ── Close on click outside (panel is in portal, so two-ref check) ─────────
   useEffect(() => {
@@ -185,9 +196,17 @@ const UserMenu = ({
   const handleToggle = useCallback(() => {
     isOpen ? setIsOpen(false) : openMenu();
   }, [isOpen, openMenu]);
+
+  // Keep menu open while logout is in-flight so the "Signing out…" state is
+  // visible. Re-enable the button if the logout request fails.
   const handleLogout = useCallback(async () => {
-    setIsOpen(false);
-    await logout();
+    setIsLoggingOut(true);
+    try {
+      await logout();
+      setIsOpen(false);
+    } catch {
+      setIsLoggingOut(false);
+    }
   }, [logout]);
   const handleToggleStatus = useCallback(
     (e) => {
@@ -207,6 +226,7 @@ const UserMenu = ({
     showProfileLink && (appConfig.features?.profileManagement ?? true);
   const prefsActive =
     location.pathname === "/preferences" || location.pathname === "/settings";
+  const isProfileActive = location.pathname === "/profile";
   const roleLabel =
     user?.churchRole ||
     user?.title ||
@@ -242,6 +262,7 @@ const UserMenu = ({
         roleLabel={roleLabel}
         hasPresence={hasPresence}
         isConnected={isConnected}
+        status={status}
         statusDotColor={statusDotColor}
         onToggle={handleToggle}
         onMouseEnter={() => setTriggerHover(true)}
@@ -269,11 +290,13 @@ const UserMenu = ({
             customHeader={customHeader}
             showProfile={showProfile}
             showPreferencesLink={showPreferencesLink}
+            isProfileActive={isProfileActive}
             prefsActive={prefsActive}
             onProfileClick={onProfileClick}
             onPreferencesClick={onPreferencesClick}
             onClose={() => setIsOpen(false)}
             onLogout={handleLogout}
+            isLoggingOut={isLoggingOut}
           >
             {children}
           </UserMenuPanel>,
