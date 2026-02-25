@@ -17,11 +17,10 @@ import { useCallback, useState, useEffect } from "react";
 import { useAuth } from "./useAuth.js";
 import { authService } from "../services/authService.js";
 
-// Get API URL from environment
-const API_URL =
-  import.meta.env.VITE_API_URL ||
-  import.meta.env.REACT_APP_API_URL ||
-  "http://localhost:5000/api";
+import { getApiBaseUrl } from "../../api/config/apiConfig.js";
+
+// Canonical API base — resolved once at module init (same as other @shared services)
+const API_URL = getApiBaseUrl();
 
 /**
  * useSessionManagement Hook

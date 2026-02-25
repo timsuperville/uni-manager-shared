@@ -1,6 +1,9 @@
 /* eslint-env browser */
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useWebSocket } from "./useWebSocket";
+import { getApiBaseUrl } from "../api/config/apiConfig.js";
+
+const _API_BASE = getApiBaseUrl();
 
 /**
  * useNotifications - Custom hook for notification management
@@ -40,8 +43,7 @@ export const useNotifications = ({
 
   // Build API URL
   const buildApiUrl = useCallback((endpoint, params = {}) => {
-    const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
-    const url = new URL(`${baseUrl}/api/notifications${endpoint}`);
+    const url = new URL(`${_API_BASE}/api/notifications${endpoint}`);
 
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== "") {

@@ -6,11 +6,9 @@
  */
 import { useCallback, useState, useEffect, useRef } from "react";
 
-// Get API URL from environment or default
-const API_URL =
-  import.meta.env.VITE_API_URL ||
-  import.meta.env.REACT_APP_API_URL ||
-  "http://localhost:5000/api";
+import { getApiBaseUrl } from "../../api/config/apiConfig.js";
+
+const API_URL = getApiBaseUrl();
 
 export function useOAuth() {
   const [isLoading, setIsLoading] = useState(false);

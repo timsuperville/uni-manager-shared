@@ -18,10 +18,11 @@ export const getSharedEnvironmentConfig = () => ({
   },
 });
 
-export const getApiBaseUrl = (): string => {
-  const config = getSharedEnvironmentConfig();
-  return config.api.baseUrl;
-};
+// ── Canonical API URL ──────────────────────────────────────────────────────
+// Single source of truth lives in @shared/api/config/apiConfig.ts.
+// Re-exported here so that consumers of @shared/config get the real value
+// (with SSR guard, origin-detection, and correct prod fallback logic).
+export { getApiBaseUrl } from "../api/config/apiConfig";
 
 export const getAppUrl = (
   appName: keyof ReturnType<typeof getSharedEnvironmentConfig>["apps"],
@@ -30,17 +31,10 @@ export const getAppUrl = (
   return config.apps[appName];
 };
 
-export const getApiUrl = (): string => {
-  const config = getSharedEnvironmentConfig();
-  return config.api.baseUrl;
-};
-
 export const getWebSocketUrl = (): string => {
-  const config = getSharedEnvironmentConfig();
-  // Return WS URL if specified, otherwise transform API URL
-  const wsUrl = import.meta.env.VITE_WS_URL;
-  if (wsUrl) return wsUrl;
-
-  const baseUrl = config.api.baseUrl;
-  return baseUrl.replace(/^http/, "ws");
+  // Prefer an explicitly configured WS URL
+  if (import.meta.env.VITE_WS_URL) return import.meta.env.VITE_WS_URL;
+  // Derive from the API URL (canonical env var → no double-declaration)
+  const apiBase = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  return apiBase.replace(/^http/, "ws");
 };

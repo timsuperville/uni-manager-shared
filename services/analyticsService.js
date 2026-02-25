@@ -15,11 +15,12 @@
 
 /* global window, document, localStorage, sessionStorage, WebSocket, fetch, URLSearchParams, console, navigator, setTimeout */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "";
+import { getApiBaseUrl } from "../api/config/apiConfig.js";
+
+const API_BASE_URL = getApiBaseUrl();
 
 class AnalyticsService {
   constructor() {
-    this.baseUrl = "/analytics";
     this.baseUrl = "/analytics";
     this.websocket = null;
     this.isConnected = false;

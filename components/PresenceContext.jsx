@@ -7,6 +7,7 @@ import React, {
   useCallback,
 } from "react";
 import { useAuth } from "../auth/context/AuthContext";
+import { getWebSocketUrl } from "../config/environment";
 
 export const PresenceContext = createContext(null);
 
@@ -41,10 +42,8 @@ export const PresenceProvider = ({ children }) => {
   const connect = useCallback(() => {
     if (!user || wsRef.current?.readyState === WebSocket.OPEN) return;
 
-    // URL construction
-    const baseUrl = import.meta.env?.VITE_API_URL || "http://localhost:5000";
-    // Convert http(s) to ws(s)
-    const wsUrl = baseUrl.replace(/^http/, "ws");
+    // URL construction — use the canonical WS URL utility
+    const wsUrl = getWebSocketUrl();
     const token = localStorage.getItem("token");
 
     const urlWithAuth = `${wsUrl}?token=${token}`;

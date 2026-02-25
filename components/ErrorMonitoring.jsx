@@ -1126,10 +1126,8 @@ const sendToAnalytics = (metric) => {
     userAgent: typeof navigator !== "undefined" && navigator.userAgent,
   };
 
-  // Use the backend URL for analytics
-  const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
-
-  fetch(`${backendUrl}/analytics/web-vitals`, {
+  // Use the shared API_BASE ingest endpoint for analytics
+  fetch(`${API_BASE}/analytics/web-vitals`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

@@ -4,8 +4,10 @@
  */
 /* global window */
 
-// Base API URL - can be overridden per app if needed
-const BASE_API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+import { getApiBaseUrl } from "../../api/config/apiConfig.js";
+
+// Base API URL — resolved from the canonical shared config (handles SSR, prod origin, dev fallback)
+const BASE_API_URL = getApiBaseUrl();
 
 export const APP_CONFIGS = {
   church: {

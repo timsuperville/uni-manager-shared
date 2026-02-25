@@ -1,6 +1,7 @@
 /* eslint-env browser */
 /* global WebSocket, setInterval, clearInterval, setTimeout, clearTimeout */
 import { useState, useEffect, useCallback, useRef } from "react";
+import { getWebSocketUrl } from "../config/environment";
 
 /**
  * useWebSocket - Custom hook for WebSocket connection management
@@ -32,11 +33,7 @@ export const useWebSocket = (endpoint = "") => {
 
   // Build WebSocket URL
   const buildWebSocketUrl = useCallback(() => {
-    const baseUrl =
-      import.meta.env.VITE_WS_URL ||
-      import.meta.env.VITE_API_URL?.replace("http", "ws") ||
-      "ws://localhost:5000";
-    return `${baseUrl}/ws${endpoint}`;
+    return `${getWebSocketUrl()}/ws${endpoint}`;
   }, [endpoint]);
 
   // Handle WebSocket message

@@ -1,5 +1,8 @@
 /* eslint-env browser */
 import { useState, useEffect, useCallback } from "react";
+import { getApiBaseUrl } from "../api/config/apiConfig.js";
+
+const _API_BASE = getApiBaseUrl();
 
 /**
  * useNotificationPreferences - Custom hook for notification preference management
@@ -20,8 +23,7 @@ export const useNotificationPreferences = (userId = null) => {
 
   // Build API URL
   const buildApiUrl = useCallback((endpoint) => {
-    const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
-    return `${baseUrl}/api/notifications/preferences${endpoint}`;
+    return `${_API_BASE}/api/notifications/preferences${endpoint}`;
   }, []);
 
   // API request wrapper
