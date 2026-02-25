@@ -9,10 +9,58 @@ import {
   AuthCardContent,
   AuthButton,
   OAuthButton,
+  AuthInput,
   AuthDivider,
   Alert,
   GoogleIcon,
+  PasswordToggleButton,
 } from "./_authUI";
+
+// ─── App-level config — module scope so it's never recreated on re-render ─────
+const APP_CONFIGS = {
+  admin: {
+    title: "Admin Portal Access",
+    description: "Sign in to access the administrative dashboard",
+    icon: "🔐",
+    registerPath: "/auth/register",
+  },
+  church: {
+    title: "Church Management",
+    description: "Sign in to manage church services and events",
+    icon: "⛪",
+    registerPath: "/auth/register",
+  },
+  business: {
+    title: "Business Portal",
+    description: "Access your business management tools",
+    icon: "💼",
+    registerPath: "/auth/register",
+  },
+  home: {
+    title: "Home Management",
+    description: "Manage your household and family activities",
+    icon: "🏠",
+    registerPath: "/auth/register",
+  },
+  personal: {
+    title: "Personal Dashboard",
+    description: "Access your personal productivity tools",
+    icon: "👤",
+    registerPath: "/auth/register",
+  },
+  playback: {
+    title: "Media Playback",
+    description: "Control and manage media playback",
+    icon: "🎵",
+    registerPath: "/auth/register",
+  },
+  default: {
+    title: "Sign In",
+    description: "Sign in to your account",
+    icon: "🔑",
+    registerPath: "/auth/register",
+  },
+};
 
 /**
  * LoginForm — Primary authentication form.
@@ -28,7 +76,7 @@ export function LoginForm({
   appDescription,
 
   showRememberMe = true,
-  showRegistration = true, // default true — AuthLayout adds context so reg link makes sense
+  showRegistration = true,
 
   enableMFA = true,
   trustDeviceAvailable = true,
@@ -59,52 +107,6 @@ export function LoginForm({
   const [trustDevice, setTrustDevice] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [deviceFingerprint, setDeviceFingerprint] = useState(null);
-
-  // ─── App config ─────────────────────────────────────────────────────────────
-  const APP_CONFIGS = {
-    admin: {
-      title: "Admin Portal Access",
-      description: "Sign in to access the administrative dashboard",
-      icon: "🔐",
-      registerPath: "/auth/register",
-    },
-    church: {
-      title: "Church Management",
-      description: "Sign in to manage church services and events",
-      icon: "⛪",
-      registerPath: "/auth/register",
-    },
-    business: {
-      title: "Business Portal",
-      description: "Access your business management tools",
-      icon: "💼",
-      registerPath: "/auth/register",
-    },
-    home: {
-      title: "Home Management",
-      description: "Manage your household and family activities",
-      icon: "🏠",
-      registerPath: "/auth/register",
-    },
-    personal: {
-      title: "Personal Dashboard",
-      description: "Access your personal productivity tools",
-      icon: "👤",
-      registerPath: "/auth/register",
-    },
-    playback: {
-      title: "Media Playback",
-      description: "Control and manage media playback",
-      icon: "🎵",
-      registerPath: "/auth/register",
-    },
-    default: {
-      title: "Sign In",
-      description: "Sign in to your account",
-      icon: "🔑",
-      registerPath: "/auth/register",
-    },
-  };
 
   const config = APP_CONFIGS[appType] ?? APP_CONFIGS.default;
   const finalTitle = appTitle || config.title;
@@ -294,7 +296,6 @@ export function LoginForm({
         <OAuthButton
           provider="Google"
           onClick={() => {
-            // TODO: Implement Google OAuth
             if (process.env.NODE_ENV === "development") {
               console.log(
                 "[LoginForm] Google OAuth clicked — not yet implemented",
@@ -314,100 +315,46 @@ export function LoginForm({
           {error && <Alert type="error" message={error} />}
 
           {/* Email */}
-          <div>
-            <label
-              htmlFor="login-email"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
-            >
-              Email address
-            </label>
-            <input
-              id="login-email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              required
-              value={formData.email}
-              onChange={handleChange}
-              className="lg-input w-full px-3 py-2.5 rounded-lg text-sm"
-              placeholder="Enter your email address"
-            />
-          </div>
+          <AuthInput
+            id="login-email"
+            name="email"
+            type="email"
+            label="Email address"
+            value={formData.email}
+            onChange={handleChange}
+            placeholder="Enter your email address"
+            required
+            autoComplete="email"
+          />
 
           {/* Password */}
-          <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <label
-                htmlFor="login-password"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
-                Password
-              </label>
-              <button
-                type="button"
-                className="text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline focus:outline-none"
-                onClick={() => navigate("/auth/forgot-password")}
-              >
-                Forgot password?
-              </button>
-            </div>
-            <div className="relative">
-              <input
-                id="login-password"
-                name="password"
-                type={showPassword ? "text" : "password"}
-                autoComplete="current-password"
-                required
-                value={formData.password}
-                onChange={handleChange}
-                className="lg-input w-full px-3 py-2.5 rounded-lg text-sm pr-10"
-                placeholder="Enter your password"
+          <AuthInput
+            id="login-password"
+            name="password"
+            type={showPassword ? "text" : "password"}
+            label="Password"
+            value={formData.password}
+            onChange={handleChange}
+            placeholder="Enter your password"
+            required
+            autoComplete="current-password"
+            rightElement={
+              <PasswordToggleButton
+                visible={showPassword}
+                onToggle={() => setShowPassword((v) => !v)}
               />
-              <button
-                type="button"
-                aria-label={showPassword ? "Hide password" : "Show password"}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 transition-colors"
-                onClick={() => setShowPassword((v) => !v)}
-              >
-                {showPassword ? (
-                  <svg
-                    className="h-4.5 w-4.5"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
-                    />
-                  </svg>
-                ) : (
-                  <svg
-                    className="h-4.5 w-4.5"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                    />
-                  </svg>
-                )}
-              </button>
-            </div>
+            }
+          />
+
+          {/* Forgot password — sits below the password field, right-aligned */}
+          <div className="-mt-3 flex justify-end">
+            <button
+              type="button"
+              className="text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline focus:outline-none"
+              onClick={() => navigate("/auth/forgot-password")}
+            >
+              Forgot password?
+            </button>
           </div>
 
           {/* Remember me */}

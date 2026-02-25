@@ -18,3 +18,8 @@ export { AuthCardContent } from "./AuthCardContent.jsx";
 export { AuthDivider } from "./AuthDivider.jsx";
 export { Alert } from "./Alert.jsx";
 export { GoogleIcon } from "./GoogleIcon.jsx";
+export {
+  EyeIcon,
+  EyeOffIcon,
+  PasswordToggleButton,
+} from "./PasswordToggle.jsx";
