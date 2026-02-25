@@ -13,7 +13,7 @@
  *   showPreferencesLink   – whether to show the Preferences item (default true)
  *   customHeader          – optional ReactNode injected below the identity header
  *                           (used by church for the ChurchSelector)
- *   children              – optional extra menu items added before the standard ones
+ *   children              – optional extra menu items rendered before the standard ones
  *   position              – dropdown anchor: "bottom-right" | "bottom-left" |
  *                           "top-right" | "top-left"  (default "bottom-right")
  *   className             – extra class on the root wrapper
@@ -29,15 +29,24 @@ import { useAuth } from "../context/AuthContext.jsx";
 import { PresenceContext } from "../../context/PresenceContext";
 import { getCurrentAppConfig } from "../config/appConfigs.js";
 import { motion, AnimatePresence } from "framer-motion";
-import { User, LogOut, ChevronDown, SlidersHorizontal } from "lucide-react";
+import {
+  User,
+  LogOut,
+  ChevronDown,
+  SlidersHorizontal,
+  WifiOff,
+  Palette,
+} from "lucide-react";
 import { useLocation } from "react-router-dom";
 
 import { UserAvatar } from "../../components/ui";
 import UserMenuSkeleton from "../../components/skeletons/UserMenuSkeleton";
+import { ThemeToggle } from "../../components/ThemeToggle";
 import { formatRole, getUserDisplayName } from "../../utils";
 
 // ─── UserMenuItem ─────────────────────────────────────────────────────────────
 // Accessible menu button — uses CSS vars so it respects each app's accent colour.
+// Hover state managed via React (Tailwind hover: utilities can't reference CSS vars).
 
 const UserMenuItem = React.forwardRef(
   (
@@ -45,7 +54,6 @@ const UserMenuItem = React.forwardRef(
     ref,
   ) => {
     const [hovered, setHovered] = useState(false);
-
     const isDanger = variant === "danger";
 
     const bg = active
@@ -93,6 +101,7 @@ const UserMenuItem = React.forwardRef(
           textAlign: "left",
           position: "relative",
           outline: "none",
+          fontFamily: "var(--font-body)",
         }}
       >
         {/* Active left accent bar */}
@@ -131,6 +140,41 @@ const UserMenuItem = React.forwardRef(
 
 UserMenuItem.displayName = "UserMenuItem";
 
+// ─── ThemeRow ─────────────────────────────────────────────────────────────────
+// Inline row that shows "Appearance" label + ThemeToggle side-by-side.
+
+function ThemeRow() {
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: "7px 10px",
+        borderRadius: "8px",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "10px",
+          fontSize: "13px",
+          fontWeight: "500",
+          color: "var(--text-secondary)",
+        }}
+      >
+        <Palette
+          size={15}
+          style={{ color: "var(--text-muted)", flexShrink: 0 }}
+        />
+        Appearance
+      </div>
+      <ThemeToggle showLabel />
+    </div>
+  );
+}
+
 // ─── Divider ──────────────────────────────────────────────────────────────────
 
 function MenuDivider() {
@@ -146,7 +190,7 @@ function MenuDivider() {
   );
 }
 
-// ─── UserMenu ─────────────────────────────────────────────────────────────────
+// ─── Constants ────────────────────────────────────────────────────────────────
 
 const DROPDOWN_POSITION = {
   "bottom-right": { top: "calc(100% + 8px)", right: 0 },
@@ -154,6 +198,22 @@ const DROPDOWN_POSITION = {
   "top-right": { bottom: "calc(100% + 8px)", right: 0 },
   "top-left": { bottom: "calc(100% + 8px)", left: 0 },
 };
+
+// Animation variants flip direction based on whether panel opens upward or downward
+const dropdownVariants = {
+  down: {
+    initial: { opacity: 0, y: 8, scale: 0.96 },
+    animate: { opacity: 1, y: 0, scale: 1 },
+    exit: { opacity: 0, y: 8, scale: 0.96 },
+  },
+  up: {
+    initial: { opacity: 0, y: -8, scale: 0.96 },
+    animate: { opacity: 1, y: 0, scale: 1 },
+    exit: { opacity: 0, y: -8, scale: 0.96 },
+  },
+};
+
+// ─── UserMenu ─────────────────────────────────────────────────────────────────
 
 const UserMenu = ({
   className = "",
@@ -177,14 +237,15 @@ const UserMenu = ({
   const location = useLocation();
 
   const [isOpen, setIsOpen] = useState(false);
-  const [focusedIndex, setFocusedIndex] = useState(-1);
   const [triggerHover, setTriggerHover] = useState(false);
 
+  // We derive focusable items from the DOM rather than hardcoding indices, so
+  // keyboard nav works correctly regardless of which items are shown or injected.
   const menuRef = useRef(null);
   const buttonRef = useRef(null);
-  const menuItemsRef = useRef([]);
+  const panelRef = useRef(null);
 
-  // ── Close on click outside ──────────────────────────────────────────────────
+  // ── Close on click outside ────────────────────────────────────────────────
   useEffect(() => {
     if (!isOpen) return;
     const handler = (e) => {
@@ -196,25 +257,42 @@ const UserMenu = ({
     return () => document.removeEventListener("mousedown", handler);
   }, [isOpen]);
 
-  // ── Keyboard navigation ─────────────────────────────────────────────────────
+  // ── Keyboard navigation — DOM-based, index-independent ───────────────────
   const handleKeyDown = useCallback(
     (e) => {
-      if (!isOpen) return;
-      const items = menuItemsRef.current.filter(Boolean);
-      const lastIndex = items.length - 1;
+      if (!isOpen || !panelRef.current) return;
+
+      // Gather all currently rendered [role="menuitem"] buttons in the panel
+      const items = Array.from(
+        panelRef.current.querySelectorAll('[role="menuitem"]'),
+      );
+      const focused = document.activeElement;
+      const currentIdx = items.indexOf(focused);
+
       switch (e.key) {
-        case "ArrowDown":
+        case "ArrowDown": {
           e.preventDefault();
-          setFocusedIndex((p) => (p < lastIndex ? p + 1 : 0));
+          const next = currentIdx < items.length - 1 ? currentIdx + 1 : 0;
+          items[next]?.focus();
           break;
-        case "ArrowUp":
+        }
+        case "ArrowUp": {
           e.preventDefault();
-          setFocusedIndex((p) => (p > 0 ? p - 1 : lastIndex));
+          const prev = currentIdx > 0 ? currentIdx - 1 : items.length - 1;
+          items[prev]?.focus();
           break;
-        case "Enter":
+        }
+        case "Home":
           e.preventDefault();
-          if (focusedIndex >= 0 && items[focusedIndex])
-            items[focusedIndex].click();
+          items[0]?.focus();
+          break;
+        case "End":
+          e.preventDefault();
+          items[items.length - 1]?.focus();
+          break;
+        case "Tab":
+          // Let Tab close the menu and move focus naturally
+          setIsOpen(false);
           break;
         case "Escape":
           setIsOpen(false);
@@ -224,22 +302,24 @@ const UserMenu = ({
           break;
       }
     },
-    [isOpen, focusedIndex],
+    [isOpen],
   );
 
   useEffect(() => {
-    if (isOpen) window.addEventListener("keydown", handleKeyDown);
-    else setFocusedIndex(-1);
+    if (isOpen) {
+      window.addEventListener("keydown", handleKeyDown);
+      // Focus the first menu item on open
+      requestAnimationFrame(() => {
+        if (panelRef.current) {
+          const first = panelRef.current.querySelector('[role="menuitem"]');
+          first?.focus();
+        }
+      });
+    }
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, handleKeyDown]);
 
-  useEffect(() => {
-    if (focusedIndex >= 0 && menuItemsRef.current[focusedIndex]) {
-      menuItemsRef.current[focusedIndex].focus();
-    }
-  }, [focusedIndex]);
-
-  // ── Handlers ────────────────────────────────────────────────────────────────
+  // ── Handlers ──────────────────────────────────────────────────────────────
   const handleLogout = async () => {
     setIsOpen(false);
     await logout();
@@ -250,28 +330,37 @@ const UserMenu = ({
     setStatus(status === "available" ? "unavailable" : "available");
   };
 
-  // ── Derived values ───────────────────────────────────────────────────────────
+  // ── Derived values ────────────────────────────────────────────────────────
   const statusDotColor =
     status === "available"
       ? "var(--color-success, hsl(142,71%,45%))"
-      : "var(--text-ghost,  hsla(0,0%,100%,0.2))";
+      : "var(--text-ghost, hsla(0,0%,100%,0.2))";
 
   const positionStyle =
     DROPDOWN_POSITION[position] ?? DROPDOWN_POSITION["bottom-right"];
+  const isUpward = position === "top-right" || position === "top-left";
+  const animVariant = isUpward ? dropdownVariants.up : dropdownVariants.down;
 
   // Respect app config but default to showing profile if flag is absent
   const showProfile =
     showProfileLink && (appConfig.features?.profileManagement ?? true);
 
-  // Preferences active on /preferences OR /settings (apps vary)
+  // Preferences active on /preferences OR /settings (apps use both)
   const prefsActive =
     location.pathname === "/preferences" || location.pathname === "/settings";
 
-  // ── Early returns ────────────────────────────────────────────────────────────
+  // Role subtitle: prefer domain-specific role fields, fall back to formatRole
+  const roleLabel =
+    user?.churchRole ||
+    user?.title ||
+    user?.position ||
+    (user?.role ? formatRole(user.role) : null);
+
+  // ── Early returns ─────────────────────────────────────────────────────────
   if (isLoading) return <UserMenuSkeleton />;
   if (!user) return null;
 
-  // ── Trigger style helpers ────────────────────────────────────────────────────
+  // ── Trigger styles ────────────────────────────────────────────────────────
   const triggerBorder =
     isOpen || triggerHover
       ? "var(--glass-outline-active, var(--primary-resonance))"
@@ -285,7 +374,7 @@ const UserMenu = ({
 
   return (
     <div className={`relative user-menu ${className}`} ref={menuRef}>
-      {/* ── Trigger pill ───────────────────────────────────────────────────── */}
+      {/* ── Trigger pill ─────────────────────────────────────────────────── */}
       <button
         ref={buttonRef}
         id="user-menu-trigger"
@@ -295,6 +384,7 @@ const UserMenu = ({
         aria-expanded={isOpen}
         aria-haspopup="true"
         aria-label="User menu"
+        aria-controls={isOpen ? "user-menu-panel" : undefined}
         style={{
           display: "flex",
           alignItems: "center",
@@ -335,22 +425,53 @@ const UserMenu = ({
           />
         </div>
 
-        {/* Display name — hidden on mobile */}
-        <span
-          className="hidden md:block"
-          style={{
-            fontSize: "12px",
-            fontWeight: "500",
-            color: "var(--text-secondary)",
-            maxWidth: "120px",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-            lineHeight: 1,
-          }}
-        >
-          {getUserDisplayName(user)}
-        </span>
+        {/* Name + role — hidden on mobile */}
+        <div className="hidden md:block" style={{ minWidth: 0 }}>
+          <p
+            style={{
+              margin: 0,
+              fontSize: "12px",
+              fontWeight: "500",
+              color: "var(--text-secondary)",
+              maxWidth: "110px",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              lineHeight: 1.2,
+            }}
+          >
+            {getUserDisplayName(user)}
+          </p>
+          {roleLabel && (
+            <p
+              style={{
+                margin: 0,
+                fontSize: "10px",
+                color: "var(--text-muted)",
+                maxWidth: "110px",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                lineHeight: 1.2,
+                textTransform: "capitalize",
+              }}
+            >
+              {roleLabel}
+            </p>
+          )}
+        </div>
+
+        {/* Offline indicator badge */}
+        {!isConnected && (
+          <WifiOff
+            size={12}
+            style={{
+              color: "var(--color-warning, hsl(38,95%,54%))",
+              flexShrink: 0,
+            }}
+            aria-label="Offline"
+          />
+        )}
 
         {/* Chevron */}
         <ChevronDown
@@ -364,13 +485,15 @@ const UserMenu = ({
         />
       </button>
 
-      {/* ── Dropdown panel ─────────────────────────────────────────────────── */}
+      {/* ── Dropdown panel ───────────────────────────────────────────────── */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 8, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 8, scale: 0.96 }}
+            ref={panelRef}
+            id="user-menu-panel"
+            initial={animVariant.initial}
+            animate={animVariant.animate}
+            exit={animVariant.exit}
             transition={{ duration: 0.15, ease: "easeOut" }}
             role="menu"
             aria-label="User menu options"
@@ -378,18 +501,18 @@ const UserMenu = ({
               position: "absolute",
               ...positionStyle,
               zIndex: 9000,
-              width: "260px",
+              width: "264px",
               borderRadius: "var(--radius-lg, 14px)",
               border: "1px solid var(--glass-outline)",
               background: "var(--bg-sidebar)",
               backdropFilter: "blur(24px) saturate(180%)",
               WebkitBackdropFilter: "blur(24px) saturate(180%)",
               boxShadow:
-                "0 16px 48px hsla(222,47%,4%,0.5), 0 0 0 1px var(--glass-outline)",
+                "0 16px 48px hsla(222,47%,4%,0.55), 0 0 0 1px var(--glass-outline)",
               overflow: "hidden",
             }}
           >
-            {/* Identity header */}
+            {/* ── Identity header ── */}
             <div
               style={{
                 padding: "14px 16px",
@@ -416,6 +539,25 @@ const UserMenu = ({
                   >
                     {getUserDisplayName(user)}
                   </p>
+
+                  {roleLabel && (
+                    <p
+                      style={{
+                        margin: "1px 0 0",
+                        fontSize: "11px",
+                        fontWeight: "500",
+                        color: "var(--primary-resonance)",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        textTransform: "capitalize",
+                        letterSpacing: "0.02em",
+                      }}
+                    >
+                      {roleLabel}
+                    </p>
+                  )}
+
                   <p
                     style={{
                       margin: "2px 0 0",
@@ -433,7 +575,7 @@ const UserMenu = ({
                   <button
                     onClick={toggleStatus}
                     style={{
-                      marginTop: "6px",
+                      marginTop: "7px",
                       display: "inline-flex",
                       alignItems: "center",
                       gap: "5px",
@@ -457,13 +599,17 @@ const UserMenu = ({
                         flexShrink: 0,
                       }}
                     />
-                    {status === "available" ? "Available" : "Unavailable"}
+                    {!isConnected
+                      ? "Offline"
+                      : status === "available"
+                        ? "Available"
+                        : "Unavailable"}
                   </button>
                 </div>
               </div>
             </div>
 
-            {/* Custom header slot (e.g. ChurchSelector) */}
+            {/* ── Custom header slot (e.g. ChurchSelector) ── */}
             {customHeader && (
               <div
                 style={{
@@ -475,13 +621,13 @@ const UserMenu = ({
               </div>
             )}
 
-            {/* Menu items */}
-            <div style={{ padding: "6px" }} role="menu">
+            {/* ── Menu items ── */}
+            <div style={{ padding: "6px" }}>
+              {/* Injected children appear first */}
               {children}
 
               {showProfile && (
                 <UserMenuItem
-                  ref={(el) => (menuItemsRef.current[0] = el)}
                   icon={User}
                   label="View Profile"
                   active={location.pathname === "/profile"}
@@ -494,7 +640,6 @@ const UserMenu = ({
 
               {showPreferencesLink && (
                 <UserMenuItem
-                  ref={(el) => (menuItemsRef.current[1] = el)}
                   icon={SlidersHorizontal}
                   label="Preferences"
                   active={prefsActive}
@@ -505,10 +650,12 @@ const UserMenu = ({
                 />
               )}
 
+              {/* Appearance / Theme row */}
+              <ThemeRow />
+
               <MenuDivider />
 
               <UserMenuItem
-                ref={(el) => (menuItemsRef.current[2] = el)}
                 icon={LogOut}
                 label="Sign out"
                 onClick={handleLogout}
