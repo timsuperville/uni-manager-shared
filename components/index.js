@@ -6,7 +6,7 @@
 // Modal, Select, Input, etc. come from ./ui via the wildcard below.
 // DO NOT re-export them here again — that causes name collisions.
 //
-// ── Auth / Layout utilities ───────────────────────────────────────────────────
+// ── Layout utilities ──────────────────────────────────────────────────────────
 export { default as LoadingSpinner } from "./LoadingSpinner";
 export { default as RoleGuard } from "./RoleGuard";
 export { ThemeProvider, useTheme, tokens } from "./ThemeProvider";
@@ -26,11 +26,8 @@ export { NpsSurvey } from "./NpsSurvey";
 // ── Feature components ────────────────────────────────────────────────────────
 export { default as ActivityFeed } from "./ActivityFeed";
 export { default as AdvancedSearch } from "./AdvancedSearch";
-export { default as ChurchCard } from "./ChurchCard";
 export { default as DataExport } from "./DataExport";
 export { default as LazyWidget } from "./LazyWidget";
-export { default as MonitoringDashboard } from "./MonitoringDashboard";
-export { default as PerformanceDashboard } from "./PerformanceDashboard";
 export { default as ErrorBoundary } from "./ErrorBoundary";
 export { default as RealTimeNotifications } from "./RealTimeNotifications";
 export { default as ThemeToggle } from "./ThemeToggle";

@@ -1,6 +1,20 @@
 /**
- * Core Color Palette
- * Based on Tailwind CSS default palette with custom extensions
+ * @deprecated shared/theme — PRE-LIQUID GLASS (hardcoded hex palette)
+ *
+ * This module predates the Liquid Glass design system migration.
+ * Apps now use CSS custom properties (var(--*)) defined in each app's
+ * index.css rather than JavaScript colour constants.
+ *
+ * DO NOT add new consumers of this module.
+ * DO NOT add new colours here.
+ *
+ * Status: DORMANT — kept only to avoid breaking any external tooling
+ * that may have imported it. Will be deleted in SHARED-002 Phase E.
+ *
+ * Replacement:
+ *   - Runtime theming → each app's index.css CSS custom property tokens
+ *   - Build-time Tailwind config → frontend/shared/tailwind.preset.js
+ *   - Style utilities (glass, flex, sp, error) → @shared/styles/styleUtils.js
  */
 
 export const colors = {
@@ -22,7 +36,7 @@ export const colors = {
     50: "#ecfdf5",
     100: "#d1fae5",
     200: "#a7f3d0",
-    300: "#6ee7b7", // Primary brand color for Home app
+    300: "#6ee7b7",
     400: "#34d399",
     500: "#10b981",
     600: "#059669",
@@ -82,31 +96,6 @@ export const colors = {
     800: "#991b1b",
     900: "#7f1d1d",
     950: "#450a0a",
-  },
-
-  // App Specific Semantic Colors
-  get admin() {
-    return this.sky;
-  }, // Admin App
-  get home() {
-    return this.emerald;
-  }, // Home App
-  get business() {
-    return this.blue;
-  }, // Business App
-
-  // Status Colors
-  get success() {
-    return this.emerald;
-  },
-  get warning() {
-    return this.amber;
-  },
-  get danger() {
-    return this.red;
-  },
-  get info() {
-    return this.blue;
   },
 };
 
