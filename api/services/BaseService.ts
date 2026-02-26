@@ -261,7 +261,7 @@ export abstract class BaseService {
   ): Promise<T> {
     try {
       const response = await this.client.get<T>(
-        endpoint,
+        this.buildEndpoint(endpoint),
         this.mergeOptions(options),
       );
       return this.transformResponse(response);
@@ -280,7 +280,7 @@ export abstract class BaseService {
   ): Promise<T> {
     try {
       const response = await this.client.post<T>(
-        endpoint,
+        this.buildEndpoint(endpoint),
         data,
         this.mergeOptions(options),
       );
@@ -300,7 +300,7 @@ export abstract class BaseService {
   ): Promise<T> {
     try {
       const response = await this.client.put<T>(
-        endpoint,
+        this.buildEndpoint(endpoint),
         data,
         this.mergeOptions(options),
       );
@@ -320,7 +320,7 @@ export abstract class BaseService {
   ): Promise<T> {
     try {
       const response = await this.client.patch<T>(
-        endpoint,
+        this.buildEndpoint(endpoint),
         data,
         this.mergeOptions(options),
       );
@@ -339,7 +339,7 @@ export abstract class BaseService {
   ): Promise<T> {
     try {
       const response = await this.client.delete<T>(
-        endpoint,
+        this.buildEndpoint(endpoint),
         this.mergeOptions(options),
       );
       return this.transformResponse(response);
@@ -358,10 +358,11 @@ export abstract class BaseService {
   ): Promise<PaginatedResponse<T>> {
     try {
       const queryParams = this.buildPaginationParams(params);
+      const base = this.buildEndpoint(endpoint);
       const url =
         Object.keys(queryParams).length > 0
-          ? `${endpoint}?${new URLSearchParams(queryParams).toString()}`
-          : endpoint;
+          ? `${base}?${new URLSearchParams(queryParams).toString()}`
+          : base;
 
       const response = await this.client.get(url, this.mergeOptions(options));
       return this.transformListResponse<T>(response);
@@ -380,7 +381,7 @@ export abstract class BaseService {
   ): Promise<T> {
     try {
       const response = await this.client.upload<T>(
-        endpoint,
+        this.buildEndpoint(endpoint),
         file,
         this.mergeOptions(options),
       );
@@ -398,7 +399,10 @@ export abstract class BaseService {
     options?: RequestOptions,
   ): Promise<Blob> {
     try {
-      return await this.client.download(endpoint, this.mergeOptions(options));
+      return await this.client.download(
+        this.buildEndpoint(endpoint),
+        this.mergeOptions(options),
+      );
     } catch (error) {
       this.handleError(error as ApiError, "DOWNLOAD");
     }
