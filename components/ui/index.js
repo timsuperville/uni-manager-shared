@@ -32,3 +32,4 @@ export { SectionCard } from "./SectionCard";
 export { FormField } from "./FormField";
 export { WizardStepper } from "./WizardStepper";
 export { RankMedal } from "./RankMedal";
+export { Alert, AlertTitle, AlertDescription } from "./Alert";
