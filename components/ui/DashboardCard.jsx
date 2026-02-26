@@ -190,7 +190,6 @@ const StatCard = ({
   // Resolve aliases
   const resolvedTitle = title ?? label;
   const resolvedSubtitle = subtitle ?? sub;
-  const resolvedInteractive = !!onClick;
   const variantBorder =
     STAT_VARIANT_BORDER[variant] ?? STAT_VARIANT_BORDER.default;
   const variantIconColor =
@@ -198,73 +197,93 @@ const StatCard = ({
     STAT_VARIANT_ICON_COLOR[variant] ??
     STAT_VARIANT_ICON_COLOR.default;
 
-  // If Icon is a string (emoji), render as a span; otherwise use DashboardCard's icon slot
   const isEmojiIcon = typeof Icon === "string";
 
-  if (isEmojiIcon) {
-    // Compact layout matching original Dashboard StatsRow design
-    return (
-      <button
-        type="button"
-        onClick={onClick}
-        className={`flex flex-col items-start gap-1.5 px-4 py-3.5 rounded-xl transition-all w-full text-left ${className}`}
-        style={{
-          background: "var(--glass-surface)",
-          border: `1px solid ${variantBorder}`,
-          backdropFilter: "var(--glass-blur)",
-          cursor: onClick ? "pointer" : "default",
-        }}
-        {...props}
-      >
-        <div className="flex items-center gap-2 w-full">
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex flex-col items-start gap-2 px-4 py-3.5 rounded-xl transition-all w-full text-left ${className}`}
+      style={{
+        background: "var(--glass-surface)",
+        border: `1px solid ${variantBorder}`,
+        backdropFilter: "var(--glass-blur)",
+        cursor: onClick ? "pointer" : "default",
+      }}
+      {...props}
+    >
+      <div className="flex items-center justify-between w-full">
+        {/* Icon slot: either emoji or Lucide component in a tinted badge */}
+        {isEmojiIcon ? (
           <span className="text-xl" style={{ color: variantIconColor }}>
             {Icon}
           </span>
+        ) : (
+          Icon && (
+            <div
+              className="flex items-center justify-center rounded-lg shrink-0"
+              style={{
+                width: 36,
+                height: 36,
+                background: `${variantIconColor}18`,
+                border: `1px solid ${variantIconColor}30`,
+              }}
+            >
+              <Icon className="w-4 h-4" style={{ color: variantIconColor }} />
+            </div>
+          )
+        )}
+        {/* Optional trend / change badge */}
+        {change && (
           <span
-            className="text-2xl font-bold ml-auto"
+            className="text-xs font-semibold px-1.5 py-0.5 rounded-full"
             style={{
-              color: "var(--text-primary)",
-              fontFamily: "var(--font-display)",
+              background:
+                changeType === "up"
+                  ? "var(--color-success-surface, rgba(74,222,128,0.1))"
+                  : changeType === "down"
+                    ? "var(--color-error-surface, rgba(248,113,113,0.1))"
+                    : "var(--glass-surface)",
+              color:
+                changeType === "up"
+                  ? "var(--color-success, #4ade80)"
+                  : changeType === "down"
+                    ? "var(--color-error, #f87171)"
+                    : "var(--text-muted)",
             }}
           >
-            {value}
+            {change}
           </span>
-        </div>
-        <div>
-          <p
-            className="text-xs font-medium"
-            style={{ color: "var(--text-secondary)" }}
-          >
-            {resolvedTitle}
+        )}
+      </div>
+      <div>
+        <p
+          className="text-2xl font-bold"
+          style={{
+            color: "var(--text-primary)",
+            fontFamily: "var(--font-display)",
+          }}
+        >
+          {value}
+        </p>
+        <p
+          className="text-xs font-medium"
+          style={{ color: "var(--text-secondary)" }}
+        >
+          {resolvedTitle}
+        </p>
+        {resolvedSubtitle && (
+          <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>
+            {resolvedSubtitle}
           </p>
-          {resolvedSubtitle && (
-            <p
-              className="text-xs mt-0.5"
-              style={{ color: "var(--text-muted)" }}
-            >
-              {resolvedSubtitle}
-            </p>
-          )}
-        </div>
-      </button>
-    );
-  }
-
-  return (
-    <DashboardCard
-      title={resolvedTitle}
-      value={value}
-      icon={Icon}
-      trend={changeType}
-      trendLabel={change}
-      subtitle={resolvedSubtitle}
-      caption={caption}
-      iconColor={variantIconColor}
-      className={className}
-      interactive={resolvedInteractive}
-      onClick={onClick}
-      {...props}
-    />
+        )}
+        {caption && (
+          <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>
+            {caption}
+          </p>
+        )}
+      </div>
+    </button>
   );
 };
 
