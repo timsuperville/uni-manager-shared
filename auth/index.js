@@ -177,8 +177,9 @@ export const FeatureGuard = React.lazy(() =>
 
 /**
  * Component utilities
+ * NOTE: listAvailableComponents was removed — it was never defined in components/index.js
+ * and caused a SyntaxError in ESM dev mode (blank white screen). TD-010.
  */
-export { listAvailableComponents } from "./components/index.js";
 
 // ============================================================================
 // SERVICES - Business Logic & State Management
