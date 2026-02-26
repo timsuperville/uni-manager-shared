@@ -25,6 +25,7 @@ export { ProgressCard, QuickActionCard } from "./CompositeCards";
 export { ProgressBar, default as ProgressBarDefault } from "./ProgressBar";
 export { Toggle } from "./Toggle";
 export { Modal } from "./Modal";
+export { Panel } from "./Panel";
 export { Spinner } from "./Spinner";
 export { EmptyState } from "./EmptyState";
 export { OptionCard } from "./OptionCard";
