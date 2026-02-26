@@ -288,30 +288,6 @@ const AuthLayout = ({ children, appType, showLogo = true }) => {
             {/* my-auto = true vertical centering when space is available;
                 if viewport is too short, it falls back to top-flush + scroll */}
             <div className="my-auto w-full max-w-md">
-              {/* Mobile-only compact branded header */}
-              <div className="lg:hidden text-center mb-4 animate-[fadeInDown_0.4s_ease_both]">
-                <span
-                  className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-2 text-white text-xs font-semibold tracking-wide uppercase"
-                  style={{
-                    background: identity.gradient.includes("emerald")
-                      ? "rgba(16, 185, 129, 0.9)"
-                      : identity.glowColor.replace(", 0.25)", ", 0.9)"),
-                  }}
-                >
-                  <span
-                    className="inline-block w-1.5 h-1.5 rounded-full bg-white/80"
-                    aria-hidden="true"
-                  />
-                  {appConfig.appName}
-                </span>
-                <h1
-                  className="block text-xl font-bold text-gray-900 dark:text-white"
-                  style={{ fontFamily: "'Outfit', system-ui, sans-serif" }}
-                >
-                  {identity.tagline}
-                </h1>
-              </div>
-
               {/* Form content — nested AuthShellContext strips AuthContainer's own page shell */}
               <AuthShellContext.Provider value={true}>
                 <div className="animate-[fadeInUp_0.5s_ease_0.05s_both]">
