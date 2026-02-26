@@ -155,7 +155,22 @@ const DashboardCard = ({
   );
 };
 
+// Variant → border-color mapping (for Dashboard StatsRow use-case)
+const STAT_VARIANT_BORDER = {
+  default: "var(--glass-outline)",
+  success: "var(--color-success-border, rgba(74,222,128,0.35))",
+  warning: "var(--color-warning-border, rgba(251,191,36,0.35))",
+  danger: "var(--color-error-border, rgba(248,113,113,0.35))",
+};
+const STAT_VARIANT_ICON_COLOR = {
+  default: "var(--text-secondary)",
+  success: "var(--color-success, #4ade80)",
+  warning: "var(--color-warning, #fbbf24)",
+  danger: "var(--color-error, #f87171)",
+};
+
 const StatCard = ({
+  // Standard API
   title,
   value,
   change,
@@ -165,19 +180,89 @@ const StatCard = ({
   subtitle,
   caption,
   className = "",
+  // Extended API (Dashboard StatsRow aliases)
+  label, // alias for title
+  sub, // alias for subtitle
+  variant = "default", // border + icon colour variant
+  onClick,
   ...props
 }) => {
+  // Resolve aliases
+  const resolvedTitle = title ?? label;
+  const resolvedSubtitle = subtitle ?? sub;
+  const resolvedInteractive = !!onClick;
+  const variantBorder =
+    STAT_VARIANT_BORDER[variant] ?? STAT_VARIANT_BORDER.default;
+  const variantIconColor =
+    iconColor ??
+    STAT_VARIANT_ICON_COLOR[variant] ??
+    STAT_VARIANT_ICON_COLOR.default;
+
+  // If Icon is a string (emoji), render as a span; otherwise use DashboardCard's icon slot
+  const isEmojiIcon = typeof Icon === "string";
+
+  if (isEmojiIcon) {
+    // Compact layout matching original Dashboard StatsRow design
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        className={`flex flex-col items-start gap-1.5 px-4 py-3.5 rounded-xl transition-all w-full text-left ${className}`}
+        style={{
+          background: "var(--glass-surface)",
+          border: `1px solid ${variantBorder}`,
+          backdropFilter: "var(--glass-blur)",
+          cursor: onClick ? "pointer" : "default",
+        }}
+        {...props}
+      >
+        <div className="flex items-center gap-2 w-full">
+          <span className="text-xl" style={{ color: variantIconColor }}>
+            {Icon}
+          </span>
+          <span
+            className="text-2xl font-bold ml-auto"
+            style={{
+              color: "var(--text-primary)",
+              fontFamily: "var(--font-display)",
+            }}
+          >
+            {value}
+          </span>
+        </div>
+        <div>
+          <p
+            className="text-xs font-medium"
+            style={{ color: "var(--text-secondary)" }}
+          >
+            {resolvedTitle}
+          </p>
+          {resolvedSubtitle && (
+            <p
+              className="text-xs mt-0.5"
+              style={{ color: "var(--text-muted)" }}
+            >
+              {resolvedSubtitle}
+            </p>
+          )}
+        </div>
+      </button>
+    );
+  }
+
   return (
     <DashboardCard
-      title={title}
+      title={resolvedTitle}
       value={value}
       icon={Icon}
       trend={changeType}
       trendLabel={change}
-      subtitle={subtitle}
+      subtitle={resolvedSubtitle}
       caption={caption}
-      iconColor={iconColor}
+      iconColor={variantIconColor}
       className={className}
+      interactive={resolvedInteractive}
+      onClick={onClick}
       {...props}
     />
   );
@@ -255,15 +340,21 @@ DashboardCard.propTypes = {
 };
 
 StatCard.propTypes = {
-  title: PropTypes.string.isRequired,
+  // Standard API
+  title: PropTypes.string,
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
   change: PropTypes.string,
   changeType: PropTypes.oneOf(["up", "down", "neutral"]),
-  icon: PropTypes.elementType,
+  icon: PropTypes.oneOfType([PropTypes.elementType, PropTypes.string]),
   iconColor: PropTypes.string,
   subtitle: PropTypes.string,
   caption: PropTypes.string,
   className: PropTypes.string,
+  // Extended API (Dashboard StatsRow aliases)
+  label: PropTypes.string,
+  sub: PropTypes.string,
+  variant: PropTypes.oneOf(["default", "success", "warning", "danger"]),
+  onClick: PropTypes.func,
 };
 
 ActionCard.propTypes = {
