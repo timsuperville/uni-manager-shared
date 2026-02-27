@@ -9,10 +9,10 @@ const safeConsole =
   typeof console !== "undefined"
     ? console
     : {
-        log: () => {},
-        warn: () => {},
-        error: () => {},
-      };
+      log: () => { },
+      warn: () => { },
+      error: () => { },
+    };
 
 const safePerformance = (() => {
   if (typeof performance !== "undefined") return performance;
@@ -23,9 +23,9 @@ const safePerformance = (() => {
 })();
 
 const safeSetInterval =
-  typeof setInterval !== "undefined" ? setInterval : () => {};
+  typeof setInterval !== "undefined" ? setInterval : () => { };
 const safeClearInterval =
-  typeof clearInterval !== "undefined" ? clearInterval : () => {};
+  typeof clearInterval !== "undefined" ? clearInterval : () => { };
 /* eslint-enable no-undef */
 
 import { useState, useEffect, useCallback, useRef } from "react";
@@ -415,7 +415,7 @@ class IntelligentCache {
       try {
         callback({ event, key, data, timestamp: Date.now() });
       } catch (_error) {
-        safeConsole.error("Cache listener error:", error);
+        safeConsole.error("Cache listener error:", _error);
       }
     });
   }

@@ -11,6 +11,9 @@ const Input = ({
   variant = "default",
   disabled = false,
   error = false,
+  fullWidth,
+  helperText,
+  label,
   ...props
 }) => {
   const getSizeClasses = () => {
@@ -66,6 +69,10 @@ const Select = ({
   size = "default",
   disabled = false,
   error = false,
+  options,
+  fullWidth,
+  helperText,
+  label,
   ...props
 }) => {
   const getSizeClasses = () => {
@@ -107,7 +114,13 @@ const Select = ({
           {placeholder}
         </option>
       )}
-      {children}
+      {options
+        ? options.map((opt) => (
+          <option key={opt.value !== undefined ? opt.value : opt.label} value={opt.value}>
+            {opt.label}
+          </option>
+        ))
+        : children}
     </select>
   );
 };
@@ -120,6 +133,9 @@ const Textarea = ({
   rows = 3,
   disabled = false,
   error = false,
+  fullWidth,
+  helperText,
+  label,
   ...props
 }) => {
   const getVariantClasses = () => {
@@ -163,8 +179,14 @@ Input.propTypes = {
 };
 
 Select.propTypes = {
-  children: PropTypes.node.isRequired,
+  children: PropTypes.node,
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  options: PropTypes.arrayOf(
+    PropTypes.shape({
+      value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      label: PropTypes.node,
+    })
+  ),
   onChange: PropTypes.func,
   placeholder: PropTypes.string,
   className: PropTypes.string,

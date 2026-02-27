@@ -53,6 +53,7 @@ Badge.propTypes = {
   children: PropTypes.node.isRequired,
   variant: PropTypes.oneOf([
     "default",
+    "primary",
     "success",
     "warning",
     "danger",
