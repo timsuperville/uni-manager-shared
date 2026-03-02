@@ -242,7 +242,7 @@ const MFAVerification = ({
           type="text"
           value={token}
           onChange={(e) => handleTokenChange(e.target.value)}
-          onKeyPress={handleKeyPress}
+          onKeyDown={handleKeyDown}
           placeholder="000000"
           className="text-center text-2xl font-mono tracking-widest w-48 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           maxLength={6}
@@ -283,7 +283,7 @@ const MFAVerification = ({
           type="text"
           value={token}
           onChange={(e) => handleTokenChange(e.target.value)}
-          onKeyPress={handleKeyPress}
+          onKeyDown={handleKeyDown}
           placeholder="XXXXXXXX"
           className="text-center text-xl font-mono tracking-wider w-64 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           maxLength={12}

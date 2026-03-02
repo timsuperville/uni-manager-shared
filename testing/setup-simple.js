@@ -5,23 +5,36 @@
 import { vi } from "vitest";
 import "@testing-library/jest-dom";
 
-// Mock sessionStorage and localStorage
-const storageMock = {
-  getItem: vi.fn(),
-  setItem: vi.fn(),
-  removeItem: vi.fn(),
-  clear: vi.fn(),
-  length: 0,
-  key: vi.fn(),
+const createStorageMock = () => {
+  let store = {};
+  return {
+    getItem: vi.fn((key) => store[key] || null),
+    setItem: vi.fn((key, value) => {
+      store[key] = value.toString();
+    }),
+    removeItem: vi.fn((key) => {
+      delete store[key];
+    }),
+    clear: vi.fn(() => {
+      store = {};
+    }),
+    get length() {
+      return Object.keys(store).length;
+    },
+    key: vi.fn((i) => Object.keys(store)[i] || null),
+  };
 };
 
+const sessionStorageMock = createStorageMock();
+const localStorageMock = createStorageMock();
+
 Object.defineProperty(globalThis, "sessionStorage", {
-  value: storageMock,
+  value: sessionStorageMock,
   writable: true,
 });
 
 Object.defineProperty(globalThis, "localStorage", {
-  value: storageMock,
+  value: localStorageMock,
   writable: true,
 });
 
@@ -75,6 +88,7 @@ globalThis.fetch = vi.fn(() =>
   Promise.resolve({
     ok: true,
     status: 200,
+    headers: new Headers({ "content-type": "application/json" }),
     json: () => Promise.resolve({ success: true }),
     text: () => Promise.resolve('{"success": true}'),
   }),

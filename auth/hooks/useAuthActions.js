@@ -92,6 +92,15 @@ export function useAuthActions(
 
         const result = await authService.login(credentials);
 
+        // MFA required — don't mark as authenticated yet
+        if (result.requiresMFA || result.mfaRequired) {
+          updateState({
+            isLoading: false,
+            mfaRequired: true,
+          });
+          return result;
+        }
+
         const newState = {
           user: result.user,
           isAuthenticated: true,

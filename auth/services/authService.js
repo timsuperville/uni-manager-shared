@@ -228,7 +228,7 @@ class AuthService {
 
     // Check rate limiting
     if (this.isRateLimited(email)) {
-      throw new Error("Too many login attempts. Please try again later.");
+      throw new Error("Too many attempts. Please try again later.");
     }
 
     try {

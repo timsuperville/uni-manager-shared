@@ -140,7 +140,9 @@ export function LoginForm({
         rememberMe: formData.rememberMe,
         appType,
       });
-      if (result.success && !result.mfaRequired && !result.mfaSetupRequired) {
+      const isMFAPending =
+        result?.mfaRequired || result?.requiresMFA || result?.mfaSetupRequired;
+      if (result?.success && !isMFAPending) {
         if (onSuccess) onSuccess(result);
         else navigate(finalRedirect);
       }
