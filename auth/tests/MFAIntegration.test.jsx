@@ -377,7 +377,7 @@ describe("MFA Integration Scenarios", () => {
       await serviceWithToken.getMFAStatus();
 
       expect(fetch).toHaveBeenCalledWith(
-        "http://localhost:5000/api/auth/mfa/status",
+        "/api/v1/auth/mfa/status",
         {
           method: "GET",
           headers: {
