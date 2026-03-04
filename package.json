@@ -13,6 +13,7 @@
     "./theme": "./theme/index.js",
     "./auth": "./auth/index.js",
     "./paypal": "./paypal/index.js",
+    "./command": "./command/index.js",
     "./tailwind.preset": "./tailwind.preset.js"
   },
   "scripts": {
