@@ -19,6 +19,7 @@ export * from "./useOnlineStatus.js";
 
 // Cross-app resonance hooks
 export { useFocusModeListener } from "./useFocusModeListener.js";
+export { useCapacityBridge } from "./useCapacityBridge.js";
 
 // Notification hooks
 export { default as useNotifications } from "./useNotifications.js";
