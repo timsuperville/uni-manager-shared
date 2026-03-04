@@ -9,8 +9,6 @@
  * const { session, isActive, timeRemaining, renewSession } = useSession();
  */
 
-/* global console */
-
 import { useCallback } from "react";
 import { useAuth } from "./useAuth.js";
 
@@ -29,7 +27,7 @@ import { useAuth } from "./useAuth.js";
  * @returns {UseSessionReturn} Session state and methods
  */
 export function useSession() {
-  const { session, refreshAuth } = useAuth();
+  const { session, sessionExpiry, refreshAuth, logout } = useAuth();
 
   /**
    * Renew session
@@ -46,17 +44,24 @@ export function useSession() {
   }, [refreshAuth]);
 
   /**
-   * Destroy session
+   * Destroy session — delegates to the canonical logout action
    */
   const handleDestroySession = useCallback(async () => {
-    console.log("Session will be destroyed");
-    // TODO: Implement session destruction
-  }, []);
+    await logout();
+  }, [logout]);
+
+  /**
+   * Compute milliseconds remaining until session expiry.
+   * Returns 0 when no expiry is set or when the session has expired.
+   */
+  const timeRemaining = sessionExpiry
+    ? Math.max(0, sessionExpiry - Date.now())
+    : 0;
 
   return {
     session: session || null,
     isActive: !!session,
-    timeRemaining: 0, // TODO: Get from session service
+    timeRemaining,
     renewSession: handleRenewSession,
     destroySession: handleDestroySession,
   };
