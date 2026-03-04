@@ -17,6 +17,11 @@ export * from "./useRealTime.js";
 export * from "./useWebSocket.js";
 export * from "./useOnlineStatus.js";
 
+// CRDT multi-player state sync (FB-016)
+export { useSync } from './sync/useSync.js';
+export { useProjectSync } from './sync/useProjectSync.js';
+
+
 // Cross-app resonance hooks
 export { useFocusModeListener } from "./useFocusModeListener.js";
 export { useCapacityBridge } from "./useCapacityBridge.js";
