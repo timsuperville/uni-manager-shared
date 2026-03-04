@@ -17,6 +17,9 @@ export * from "./useRealTime.js";
 export * from "./useWebSocket.js";
 export * from "./useOnlineStatus.js";
 
+// Cross-app resonance hooks
+export { useFocusModeListener } from "./useFocusModeListener.js";
+
 // Notification hooks
 export { default as useNotifications } from "./useNotifications.js";
 export { default as useNotificationPreferences } from "./useNotificationPreferences.js";
