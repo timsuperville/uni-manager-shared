@@ -200,6 +200,7 @@ export function useApiMutation<TData, TVariables>(
 
   return {
     mutate: mutateAsync,
+    mutateAsync,
     data: data ?? null,
     isLoading: isPending,
     error: error ? error.message : null,
