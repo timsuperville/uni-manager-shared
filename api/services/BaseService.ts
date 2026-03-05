@@ -45,18 +45,28 @@ export abstract class BaseService {
 
   constructor(client: ApiClient, baseEndpoint: string, serviceName: string) {
     this.client = client;
-    this.baseEndpoint = baseEndpoint.startsWith("/")
-      ? baseEndpoint
-      : `/${baseEndpoint}`;
+    // Preserve empty string as-is (services that own their own full paths).
+    // Non-empty strings without a leading slash get one prepended.
+    this.baseEndpoint =
+      baseEndpoint === ""
+        ? ""
+        : baseEndpoint.startsWith("/")
+          ? baseEndpoint
+          : `/${baseEndpoint}`;
     this.serviceName = serviceName;
   }
 
   /**
-   * Build full endpoint URL
+   * Build full endpoint URL.
+   *
+   * Guards against producing a protocol-relative double-slash (`//path`)
+   * which Axios would interpret as `http://<path-segment-as-host>/...`.
    */
   protected buildEndpoint(path: string = ""): string {
     const cleanPath = path.startsWith("/") ? path : `/${path}`;
-    return `${this.baseEndpoint}${cleanPath}`;
+    const combined = `${this.baseEndpoint}${cleanPath}`;
+    // Collapse any accidental leading `//` into a single `/`
+    return combined.startsWith("//") ? combined.slice(1) : combined;
   }
 
   /**
