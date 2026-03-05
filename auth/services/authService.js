@@ -141,8 +141,8 @@ class AuthService {
     if (!response.ok) {
       throw new Error(
         data.message ||
-          data.error ||
-          `Request failed with status ${response.status}`,
+        data.error ||
+        `Request failed with status ${response.status}`,
       );
     }
 
@@ -356,6 +356,37 @@ class AuthService {
       };
     }
     throw new Error(responseData.message || "Signup failed");
+  }
+
+  /**
+   * Check if an email address is available for registration
+   * @param {string} email
+   * @param {object} options - Optional: { signal } for AbortController
+   * @returns {Promise<{ available: boolean }>}
+   */
+  async checkEmailAvailability(email, options = {}) {
+    try {
+      // Use a dedicated check-email endpoint if configured, otherwise
+      // fall back gracefully — never block form submission on this check.
+      const checkUrl = this.config.endpoints?.checkEmail;
+      if (!checkUrl) {
+        // Endpoint not configured — assume available to avoid blocking the form
+        return { available: true };
+      }
+
+      const response = await this._makeRequest("checkEmail", {
+        method: "POST",
+        body: JSON.stringify({ email }),
+        signal: options.signal,
+      });
+
+      const data = await this._handleResponse(response);
+      return { available: !!data.available };
+    } catch (err) {
+      if (err?.name === "AbortError") throw err;
+      // Network or endpoint errors → assume available (non-blocking)
+      return { available: true };
+    }
   }
 
   /**

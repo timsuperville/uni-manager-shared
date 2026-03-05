@@ -41,7 +41,9 @@ export const validatePassword = (password, options = {}) => {
     requireSpecialChars = true,
   } = options;
 
-  if (!password) return "Password is required";
+  if (!password) {
+    return { isValid: false, error: "Password is required" };
+  }
 
   const errors = [];
 
@@ -67,12 +69,18 @@ export const validatePassword = (password, options = {}) => {
 
   if (errors.length > 1) {
     const lastError = errors.pop();
-    return `Password must contain at least one ${errors.join(", ")} and ${lastError}`;
+    return {
+      isValid: false,
+      error: `Password must contain at least one ${errors.join(", ")} and ${lastError}`,
+    };
   } else if (errors.length === 1) {
-    return `Password must contain at least one ${errors[0]}`;
+    return {
+      isValid: false,
+      error: `Password must contain at least one ${errors[0]}`,
+    };
   }
 
-  return null; // No error
+  return { isValid: true, error: null };
 };
 
 /**
@@ -166,7 +174,7 @@ export const validateSignupData = ({
 
   const passwordValidation = validatePassword(password);
   if (!passwordValidation.isValid) {
-    errors.push(...passwordValidation.errors);
+    errors.push(passwordValidation.error);
   }
 
   if (password !== confirmPassword) {
@@ -192,7 +200,7 @@ export const validateResetPassword = ({ password, confirmPassword, token }) => {
 
   const passwordValidation = validatePassword(password);
   if (!passwordValidation.isValid) {
-    errors.push(...passwordValidation.errors);
+    errors.push(passwordValidation.error);
   }
 
   if (password !== confirmPassword) {
@@ -202,7 +210,6 @@ export const validateResetPassword = ({ password, confirmPassword, token }) => {
   return {
     isValid: errors.length === 0,
     errors,
-    passwordStrength: passwordValidation.strength,
   };
 };
 
@@ -225,23 +232,34 @@ export const validateAuthData = (authData) => {
  * Validate name field
  */
 export const validateName = (name, fieldName = "Name") => {
-  if (!name) return `${fieldName} is required`;
+  if (!name) {
+    return { isValid: false, error: `${fieldName} is required` };
+  }
 
   const trimmedName = name.trim();
   if (trimmedName.length < 2) {
-    return `${fieldName} must be at least 2 characters`;
+    return {
+      isValid: false,
+      error: `${fieldName} must be at least 2 characters`,
+    };
   }
 
   if (trimmedName.length > 50) {
-    return `${fieldName} must be less than 50 characters`;
+    return {
+      isValid: false,
+      error: `${fieldName} must be less than 50 characters`,
+    };
   }
 
   // Check for valid characters (letters, spaces, hyphens, apostrophes)
   if (!/^[a-zA-Z\s\-']+$/.test(trimmedName)) {
-    return `${fieldName} can only contain letters, spaces, hyphens, and apostrophes`;
+    return {
+      isValid: false,
+      error: `${fieldName} can only contain letters, spaces, hyphens, and apostrophes`,
+    };
   }
 
-  return null; // No error
+  return { isValid: true, error: null };
 };
 
 /**
@@ -249,7 +267,11 @@ export const validateName = (name, fieldName = "Name") => {
  */
 export const getPasswordStrength = (password) => {
   const strength = calculatePasswordStrength(password);
-  return getPasswordStrengthLabel(strength);
+  const label = getPasswordStrengthLabel(strength);
+  // score: 0-4 (maps to 4-bar UI used in SignupForm)
+  const score =
+    strength < 30 ? 1 : strength < 50 ? 2 : strength < 75 ? 3 : 4;
+  return { score, label: label.label, color: label.color };
 };
 
 /**
