@@ -46,6 +46,10 @@ export { useDeviceTrust } from "./useDeviceTrust.js";
 // Permissions (existing hook - updated)
 export { usePermissions } from "./usePermissions.js";
 
+// Church CAHA Role — CH-036
+// Resolves the calling user's role within their current church (visitor → admin tier)
+export { useChurchRole } from "./useChurchRole.js";
+
 // Rate Limiting
 export { useRateLimit } from "./useRateLimit.js";
 

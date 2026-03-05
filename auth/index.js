@@ -74,6 +74,17 @@ export { usePermissions } from "./hooks/usePermissions.js";
 export { useRateLimit } from "./hooks/useRateLimit.js";
 
 /**
+ * Church CAHA Role Hook — CH-036
+ * Resolves the calling user's role within their current church context.
+ * Use for all church-contextual access control in Church app components and routes.
+ *
+ * @example
+ * const { hasMinRole, isAdmin, churchRole } = useChurchRole();
+ * if (hasMinRole('volunteer')) { ... }
+ */
+export { useChurchRole } from "./hooks/useChurchRole.js";
+
+/**
  * Feature Gate Hooks — check if a platform feature is enabled for this user
  * useFeatureGate(featureKey) → boolean  — single key
  * useFeatureGates([...keys])  → Record<key, boolean> — batch
