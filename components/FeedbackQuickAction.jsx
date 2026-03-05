@@ -3,11 +3,173 @@
 //   "sidebar-item" — pinned nav row for sidebar footer (preferred for sidebar apps)
 //   "button"       — inline button for header placement
 //   "floating"     — FAB, only for apps without a persistent sidebar (e.g. playback)
+//   "quick-react"  — 3-emoji inline strip
 //
 // Uses inline styles throughout to avoid Tailwind JIT scanning gaps in shared/.
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useFrustrationDetector } from "../hooks/useFrustrationDetector";
+
+// ─── Context Collector ────────────────────────────────────────────────────────
+// Gathers extensive system/session context to enrich every feedback submission.
+function collectSystemContext(appName) {
+  const sessionStart = window.__feedbackSessionStart;
+  const sessionDurationMs = sessionStart ? Date.now() - sessionStart : null;
+
+  // Performance memory (Chrome-only)
+  let memoryMb = null;
+  try {
+    const mem = performance?.memory;
+    if (mem?.usedJSHeapSize) {
+      memoryMb = Math.round(mem.usedJSHeapSize / 1024 / 1024);
+    }
+  } catch { }
+
+  // Navigation timing — time to first interactive
+  let loadTimingMs = null;
+  try {
+    const nav = performance?.getEntriesByType?.("navigation")?.[0];
+    if (nav?.domInteractive) loadTimingMs = Math.round(nav.domInteractive);
+  } catch { }
+
+  // Connection info
+  let connection = null;
+  try {
+    const conn = navigator?.connection || navigator?.mozConnection || navigator?.webkitConnection;
+    if (conn) {
+      connection = {
+        effectiveType: conn.effectiveType || null,
+        downlinkMbps: conn.downlink || null,
+        rtt: conn.rtt || null,
+        saveData: conn.saveData || false,
+      };
+    }
+  } catch { }
+
+  // Local/session storage key count (approximate data volume proxy)
+  let storageKeys = null;
+  try {
+    storageKeys = {
+      localStorage: localStorage.length,
+      sessionStorage: sessionStorage.length,
+    };
+  } catch { }
+
+  // Recent navigation history (last 5 pages in this tab)
+  let navigationHistory = null;
+  try {
+    navigationHistory = window.__feedbackNavHistory || [];
+  } catch { }
+
+  // Page visibility / engagement
+  let pageVisibilityState = null;
+  try {
+    pageVisibilityState = document.visibilityState || null;
+  } catch { }
+
+  const env =
+    typeof import.meta !== "undefined" && import.meta?.env?.MODE === "production"
+      ? "production"
+      : "development";
+
+  const appVersion =
+    typeof import.meta !== "undefined"
+      ? import.meta?.env?.VITE_APP_VERSION || "unknown"
+      : "unknown";
+
+  const fullPathname = typeof window !== "undefined" ? window.location.pathname : "/";
+  const base = (typeof import.meta !== "undefined" && import.meta?.env?.BASE_URL) || "/";
+  const inAppPath = fullPathname.startsWith(base)
+    ? "/" + fullPathname.slice(base.length)
+    : fullPathname;
+
+  return {
+    page: {
+      url: typeof window !== "undefined" ? window.location.href : "unknown",
+      path: inAppPath,
+      hash: typeof window !== "undefined" ? window.location.hash : "",
+      queryString: typeof window !== "undefined" ? window.location.search : "",
+      referrer: typeof document !== "undefined" ? document.referrer : "",
+      title: typeof document !== "undefined" ? document.title : "",
+      timestamp: new Date().toISOString(),
+    },
+    browser: {
+      userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "unknown",
+      viewport: {
+        width: typeof window !== "undefined" ? window.innerWidth : 0,
+        height: typeof window !== "undefined" ? window.innerHeight : 0,
+      },
+      screen: {
+        width: typeof screen !== "undefined" ? screen.width : 0,
+        height: typeof screen !== "undefined" ? screen.height : 0,
+        pixelRatio: typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1,
+        colorDepth: typeof screen !== "undefined" ? screen.colorDepth : null,
+      },
+      language: typeof navigator !== "undefined" ? navigator.language : "",
+      languages:
+        typeof navigator !== "undefined" && Array.isArray(navigator.languages)
+          ? navigator.languages.slice(0, 3)
+          : [],
+      timezone: Intl?.DateTimeFormat?.()?.resolvedOptions?.()?.timeZone || "",
+      cookiesEnabled: typeof navigator !== "undefined" ? navigator.cookieEnabled : null,
+      doNotTrack: typeof navigator !== "undefined" ? navigator.doNotTrack : null,
+      onLine: typeof navigator !== "undefined" ? navigator.onLine : null,
+      connection,
+      loadTimingMs,
+    },
+    application: {
+      name: appName,
+      version: appVersion,
+      environment: env,
+      baseUrl: base,
+    },
+    session: {
+      durationMs: sessionDurationMs,
+      durationFormatted: sessionDurationMs
+        ? `${Math.floor(sessionDurationMs / 60000)}m ${Math.floor((sessionDurationMs % 60000) / 1000)}s`
+        : null,
+      storageKeys,
+      navigationHistoryCount: navigationHistory ? navigationHistory.length : 0,
+      recentNavigation: navigationHistory ? navigationHistory.slice(-5) : [],
+      pageVisibilityState,
+    },
+    performance: {
+      memoryUsedMb: memoryMb,
+      jsHeapLimitMb:
+        (() => {
+          try {
+            const lim = performance?.memory?.jsHeapSizeLimit;
+            return lim ? Math.round(lim / 1024 / 1024) : null;
+          } catch {
+            return null;
+          }
+        })(),
+    },
+  };
+}
+
+// Track session start time globally so duration accumulates correctly
+if (typeof window !== "undefined" && !window.__feedbackSessionStart) {
+  window.__feedbackSessionStart = Date.now();
+}
+
+// Track navigation history for context
+if (typeof window !== "undefined" && !window.__feedbackNavHistory) {
+  window.__feedbackNavHistory = [];
+  // Intercept history pushes (SPA navigation)
+  const origPush = history.pushState.bind(history);
+  const origReplace = history.replaceState.bind(history);
+  const trackPage = (url) => {
+    const path = typeof url === "string" ? url : window.location.pathname;
+    const history = window.__feedbackNavHistory;
+    if (history[history.length - 1] !== path) {
+      history.push(path);
+      if (history.length > 20) history.shift();
+    }
+  };
+  history.pushState = (...args) => { origPush(...args); trackPage(args[2]); };
+  history.replaceState = (...args) => { origReplace(...args); trackPage(args[2]); };
+}
 
 // ─── Silent auto-submit utility (used by ErrorBoundary, no UI) ─────────────────
 // Fire-and-forget — never throws, never alerts the user.
@@ -48,29 +210,7 @@ export async function submitFeedbackSilently({
         category: "bug",
         severity,
         userInput: { title, description, allowContact: false },
-        systemContext: {
-          page: {
-            url: window.location.href,
-            path: window.location.pathname,
-            referrer: document.referrer || "",
-            timestamp: new Date().toISOString(),
-          },
-          browser: {
-            userAgent: navigator.userAgent,
-            viewport: { width: window.innerWidth, height: window.innerHeight },
-            language: navigator.language,
-            timezone:
-              Intl?.DateTimeFormat?.()?.resolvedOptions?.()?.timeZone || "",
-          },
-          application: {
-            name: appType,
-            environment:
-              typeof import.meta !== "undefined" &&
-              import.meta?.env?.MODE === "production"
-                ? "production"
-                : "development",
-          },
-        },
+        systemContext: collectSystemContext(appType),
       }),
     });
   } catch {
@@ -94,6 +234,7 @@ function FeedbackModal({
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [showContext, setShowContext] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -107,6 +248,8 @@ function FeedbackModal({
         feature_request: "user-feedback",
         improvement: "user-feedback",
         question: "user-feedback",
+        performance: "performance-issue",
+        broken_link: "broken-link",
       };
 
       // Map frontend type → FeedbackReport.category enum
@@ -117,6 +260,8 @@ function FeedbackModal({
         feature_request: "feature",
         improvement: "improvement",
         question: "other",
+        performance: "bug",
+        broken_link: "bug",
       };
 
       // Map frontend priority string → FeedbackReport.severity enum
@@ -132,14 +277,8 @@ function FeedbackModal({
         appType ||
         (typeof window !== "undefined" && import.meta?.env?.VITE_APP_TYPE) ||
         "unknown";
-      const env =
-        typeof window !== "undefined" && import.meta?.env?.MODE === "production"
-          ? "production"
-          : "development";
 
       // ── Token — probe sessionStorage then localStorage with app namespace ──
-      // TokenStorage stores tokens as {namespace}_auth_access_token.
-      // Try the current app first, then all known apps as fallback.
       const getStoredToken = () => {
         if (typeof window === "undefined") return null;
         const namespaces = [
@@ -162,15 +301,6 @@ function FeedbackModal({
       };
       const authToken = getStoredToken();
 
-      // ── Path — strip Vite BASE_URL so we record the in-app route ──────────
-      // e.g. full pathname '/admin/dashboard' with base '/admin/' → '/dashboard'
-      const fullPathname =
-        typeof window !== "undefined" ? window.location.pathname : "/";
-      const base = import.meta?.env?.BASE_URL || "/";
-      const inAppPath = fullPathname.startsWith(base)
-        ? "/" + fullPathname.slice(base.length)
-        : fullPathname;
-
       // Build the structured FeedbackReport payload the backend expects
       const payload = {
         type: typeMap[feedback.type] || "user-feedback",
@@ -181,33 +311,8 @@ function FeedbackModal({
           description: feedback.description,
           allowContact: false,
         },
-        systemContext: {
-          page: {
-            url:
-              typeof window !== "undefined" ? window.location.href : "unknown",
-            path: inAppPath,
-            referrer: typeof document !== "undefined" ? document.referrer : "",
-            timestamp: new Date().toISOString(),
-          },
-          browser: {
-            userAgent:
-              typeof navigator !== "undefined"
-                ? navigator.userAgent
-                : "unknown",
-            viewport: {
-              width: typeof window !== "undefined" ? window.innerWidth : 0,
-              height: typeof window !== "undefined" ? window.innerHeight : 0,
-            },
-            language:
-              typeof navigator !== "undefined" ? navigator.language : "",
-            timezone:
-              Intl?.DateTimeFormat?.()?.resolvedOptions?.()?.timeZone || "",
-          },
-          application: {
-            name: appName,
-            environment: env,
-          },
-        },
+        // Extensive system context
+        systemContext: collectSystemContext(appName),
       };
 
       const reqHeaders = { "Content-Type": "application/json" };
@@ -224,7 +329,7 @@ function FeedbackModal({
         setTimeout(() => {
           onClose();
           setSubmitted(false);
-        }, 2000);
+        }, 2200);
       } else {
         const errBody = await response.json().catch(() => ({}));
         throw new Error(errBody.message || `Server error ${response.status}`);
@@ -250,6 +355,8 @@ function FeedbackModal({
     fontFamily: "inherit",
   };
 
+  const ctx = collectSystemContext(appType || "unknown");
+
   return (
     // Scrim
     <div
@@ -270,7 +377,7 @@ function FeedbackModal({
       <div
         style={{
           width: "100%",
-          maxWidth: "440px",
+          maxWidth: "460px",
           maxHeight: "90vh",
           overflowY: "auto",
           borderRadius: "14px",
@@ -309,6 +416,20 @@ function FeedbackModal({
             </svg>
             <span style={{ fontSize: "15px", fontWeight: "600" }}>
               Share Feedback
+            </span>
+            <span
+              style={{
+                fontSize: "10px",
+                padding: "2px 6px",
+                borderRadius: "4px",
+                background: "rgba(34,211,238,0.12)",
+                color: "var(--primary-resonance, #22d3ee)",
+                fontWeight: "600",
+                letterSpacing: "0.05em",
+                textTransform: "uppercase",
+              }}
+            >
+              {appType || "app"}
             </span>
           </div>
           <button
@@ -409,6 +530,8 @@ function FeedbackModal({
                   <option value="bug_report">Bug Report</option>
                   <option value="feature_request">Feature Request</option>
                   <option value="improvement">Improvement</option>
+                  <option value="performance">Performance</option>
+                  <option value="broken_link">Broken Link</option>
                   <option value="question">Question</option>
                 </select>
               </div>
@@ -488,11 +611,67 @@ function FeedbackModal({
                 onChange={(e) =>
                   setFeedback({ ...feedback, description: e.target.value })
                 }
-                placeholder="Describe your feedback in detail..."
+                placeholder="Describe your feedback in detail — steps to reproduce, expected vs actual behavior, etc."
                 rows={4}
                 required
-                style={{ ...inputStyle, resize: "none" }}
+                style={{ ...inputStyle, resize: "vertical", minHeight: "90px" }}
               />
+            </div>
+
+            {/* Context preview toggle */}
+            <div>
+              <button
+                type="button"
+                onClick={() => setShowContext((v) => !v)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  fontSize: "11px",
+                  color: "var(--text-muted, #64748b)",
+                  padding: "0",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "4px",
+                  fontFamily: "inherit",
+                }}
+              >
+                <svg
+                  width="10"
+                  height="10"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  style={{
+                    transform: showContext ? "rotate(90deg)" : "none",
+                    transition: "transform 150ms ease",
+                  }}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+                {showContext ? "Hide" : "View"} system context included with this report
+              </button>
+              {showContext && (
+                <div
+                  style={{
+                    marginTop: "8px",
+                    padding: "10px",
+                    borderRadius: "8px",
+                    background: "rgba(0,0,0,0.25)",
+                    border: "1px solid rgba(128,128,128,0.15)",
+                    fontSize: "11px",
+                    fontFamily: "var(--font-mono, monospace)",
+                    color: "var(--text-muted, #94a3b8)",
+                    maxHeight: "160px",
+                    overflowY: "auto",
+                    whiteSpace: "pre-wrap",
+                    wordBreak: "break-all",
+                  }}
+                >
+                  {JSON.stringify(ctx, null, 2)}
+                </div>
+              )}
             </div>
 
             {/* Actions */}
@@ -658,7 +837,58 @@ export const FeedbackQuickAction = ({
           <span>Share Feedback</span>
         </button>
         {isOpen && (
-          <FeedbackModal onClose={() => setIsOpen(false)} appType={appType} />
+          <FeedbackModal
+            onClose={() => setIsOpen(false)}
+            appType={appType}
+            initialTitle={prefill.title}
+            initialDescription={prefill.description}
+          />
+        )}
+      </>
+    );
+  }
+
+  // ── VARIANT: sidebar-icon (collapsed icon-only mode) ──────────────────────
+  if (variant === "sidebar-icon") {
+    const accent = accentColor || "var(--primary-resonance, #22d3ee)";
+    return (
+      <>
+        <button
+          id="feedback-sidebar-icon-trigger"
+          onClick={() => setIsOpen(true)}
+          title="Share Feedback"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: "100%",
+            padding: "10px",
+            borderRadius: "8px",
+            border: "none",
+            background: "transparent",
+            color: "var(--text-muted, #64748b)",
+            cursor: "pointer",
+            transition: "all 150ms ease",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background =
+              "var(--nav-hover, rgba(255,255,255,0.06))";
+            e.currentTarget.style.color = accent;
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "transparent";
+            e.currentTarget.style.color = "var(--text-muted, #64748b)";
+          }}
+        >
+          {iconSvg}
+        </button>
+        {isOpen && (
+          <FeedbackModal
+            onClose={() => setIsOpen(false)}
+            appType={appType}
+            initialTitle={prefill.title}
+            initialDescription={prefill.description}
+          />
         )}
       </>
     );
@@ -697,6 +927,72 @@ export const FeedbackQuickAction = ({
         >
           {iconSvg}
           <span>Feedback</span>
+        </button>
+        {isOpen && (
+          <FeedbackModal
+            onClose={() => setIsOpen(false)}
+            appType={appType}
+            initialTitle={prefill.title}
+            initialDescription={prefill.description}
+          />
+        )}
+      </>
+    );
+  }
+
+  // ── VARIANT: bottom-nav-item (icon + label for mobile bottom nav "More" sheet) ──
+  if (variant === "bottom-nav-item") {
+    const accent = accentColor || "var(--primary-resonance, #22d3ee)";
+    return (
+      <>
+        <button
+          id="feedback-bottom-nav-trigger"
+          onClick={() => setIsOpen(true)}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "12px",
+            width: "100%",
+            padding: "12px 16px",
+            borderRadius: "12px",
+            border: "none",
+            background: "transparent",
+            color: "var(--text-secondary, #94a3b8)",
+            fontSize: "14px",
+            fontWeight: "500",
+            cursor: "pointer",
+            textAlign: "left",
+            fontFamily: "var(--font-body, inherit)",
+            transition: "background 150ms ease",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "rgba(255,255,255,0.06)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "transparent";
+          }}
+        >
+          <span
+            style={{
+              width: "36px",
+              height: "36px",
+              borderRadius: "10px",
+              background: `rgba(34,211,238,0.12)`,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: accent,
+              flexShrink: 0,
+            }}
+          >
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
+          </span>
+          <div>
+            <div style={{ color: "var(--text-primary, #f1f5f9)", fontSize: "14px", fontWeight: "500" }}>Share Feedback</div>
+            <div style={{ color: "var(--text-muted, #64748b)", fontSize: "12px" }}>Report a bug or suggest a feature</div>
+          </div>
         </button>
         {isOpen && (
           <FeedbackModal
