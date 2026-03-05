@@ -152,31 +152,31 @@ export class ErrorBoundary extends React.Component {
           : null,
         domContentLoaded: navigation
           ? navigation.domContentLoadedEventEnd -
-            navigation.domContentLoadedEventStart
+          navigation.domContentLoadedEventStart
           : null,
         memoryUsage: performance.memory
           ? {
-              usedJSHeapSize: performance.memory.usedJSHeapSize,
-              totalJSHeapSize: performance.memory.totalJSHeapSize,
-              jsHeapSizeLimit: performance.memory.jsHeapSizeLimit,
-            }
+            usedJSHeapSize: performance.memory.usedJSHeapSize,
+            totalJSHeapSize: performance.memory.totalJSHeapSize,
+            jsHeapSizeLimit: performance.memory.jsHeapSizeLimit,
+          }
           : null,
         connectionType:
           typeof navigator !== "undefined" && navigator.connection
             ? typeof navigator !== "undefined" &&
-              navigator.connection.effectiveType
+            navigator.connection.effectiveType
             : null,
         timing: performance.timing
           ? {
-              pageLoadTime:
-                performance.timing.loadEventEnd -
-                performance.timing.navigationStart,
-              domReadyTime:
-                performance.timing.domContentLoadedEventEnd -
-                performance.timing.navigationStart,
-              connectTime:
-                performance.timing.connectEnd - performance.timing.connectStart,
-            }
+            pageLoadTime:
+              performance.timing.loadEventEnd -
+              performance.timing.navigationStart,
+            domReadyTime:
+              performance.timing.domContentLoadedEventEnd -
+              performance.timing.navigationStart,
+            connectTime:
+              performance.timing.connectEnd - performance.timing.connectStart,
+          }
           : null,
       };
     } catch (_e) {
@@ -214,7 +214,7 @@ export class ErrorBoundary extends React.Component {
       if (rawUser) {
         try {
           userInfo = JSON.parse(rawUser);
-        } catch (_) {}
+        } catch (_) { }
       }
 
       // Pattern 2: CrossAppService stores under "uni_manager_auth"
@@ -226,7 +226,7 @@ export class ErrorBoundary extends React.Component {
           try {
             const parsed = JSON.parse(crossApp);
             userInfo = parsed.user || parsed;
-          } catch (_) {}
+          } catch (_) { }
         }
       }
 
@@ -251,7 +251,7 @@ export class ErrorBoundary extends React.Component {
                 role: payload.role,
               };
               if (userInfo.id) break;
-            } catch (_) {}
+            } catch (_) { }
           }
         }
       }
@@ -285,7 +285,7 @@ export class ErrorBoundary extends React.Component {
       return JSON.parse(
         (typeof localStorage !== "undefined" &&
           localStorage.getItem("featureFlags")) ||
-          "{}",
+        "{}",
       );
     } catch (_e) {
       return {};
@@ -326,8 +326,8 @@ export class ErrorBoundary extends React.Component {
     if (
       error.message.includes("SecurityError") ||
       error.message.includes("Permission denied") ||
-      errorInfo.componentStack.includes("App") ||
-      errorInfo.componentStack.includes("Router")
+      (errorInfo?.componentStack?.includes("App") ?? false) ||
+      (errorInfo?.componentStack?.includes("Router") ?? false)
     ) {
       severity = "critical";
     }
@@ -487,16 +487,14 @@ ${errorReport.autoFeedback.reproductionSteps}
 - Device Pixel Ratio: ${errorReport.viewportInfo.devicePixelRatio}
 
 **Performance Context:**
-${
-  errorReport.performanceInfo.memoryUsage
-    ? `- Memory Usage: ${Math.round(errorReport.performanceInfo.memoryUsage.usedJSHeapSize / 1024 / 1024)}MB`
-    : ""
-}
-${
-  errorReport.performanceInfo.connectionType
-    ? `- Connection: ${errorReport.performanceInfo.connectionType}`
-    : ""
-}
+${errorReport.performanceInfo.memoryUsage
+        ? `- Memory Usage: ${Math.round(errorReport.performanceInfo.memoryUsage.usedJSHeapSize / 1024 / 1024)}MB`
+        : ""
+      }
+${errorReport.performanceInfo.connectionType
+        ? `- Connection: ${errorReport.performanceInfo.connectionType}`
+        : ""
+      }
 
 **Technical Details:**
 \`\`\`
@@ -526,7 +524,7 @@ ${errorReport.componentStack}
       const stored = JSON.parse(
         (typeof localStorage !== "undefined" &&
           localStorage.getItem("pendingErrorReports")) ||
-          "[]",
+        "[]",
       );
       stored.push({
         ...errorReport,
@@ -683,7 +681,7 @@ ${errorReport.componentStack}
                     <div>
                       <strong>Component Stack:</strong>
                       <pre className="mt-1 whitespace-pre-wrap text-xs">
-                        {this.state.errorInfo.componentStack}
+                        {this.state.errorInfo?.componentStack ?? "Component stack unavailable"}
                       </pre>
                     </div>
                     <div>
@@ -803,32 +801,32 @@ const collectAdvancedErrorContext = (baseError) => {
     performanceInfo: {
       memory: performance.memory
         ? {
-            usedJSHeapSize: performance.memory.usedJSHeapSize,
-            totalJSHeapSize: performance.memory.totalJSHeapSize,
-            jsHeapSizeLimit: performance.memory.jsHeapSizeLimit,
-          }
+          usedJSHeapSize: performance.memory.usedJSHeapSize,
+          totalJSHeapSize: performance.memory.totalJSHeapSize,
+          jsHeapSizeLimit: performance.memory.jsHeapSizeLimit,
+        }
         : null,
       timing: performance.timing
         ? {
-            loadTime:
-              performance.timing.loadEventEnd -
-              performance.timing.navigationStart,
-            domReady:
-              performance.timing.domContentLoadedEventEnd -
-              performance.timing.navigationStart,
-          }
+          loadTime:
+            performance.timing.loadEventEnd -
+            performance.timing.navigationStart,
+          domReady:
+            performance.timing.domContentLoadedEventEnd -
+            performance.timing.navigationStart,
+        }
         : null,
       connection:
         typeof navigator !== "undefined" && navigator.connection
           ? {
-              effectiveType:
-                typeof navigator !== "undefined" &&
-                navigator.connection.effectiveType,
-              downlink:
-                typeof navigator !== "undefined" &&
-                navigator.connection.downlink,
-              rtt: typeof navigator !== "undefined" && navigator.connection.rtt,
-            }
+            effectiveType:
+              typeof navigator !== "undefined" &&
+              navigator.connection.effectiveType,
+            downlink:
+              typeof navigator !== "undefined" &&
+              navigator.connection.downlink,
+            rtt: typeof navigator !== "undefined" && navigator.connection.rtt,
+          }
           : null,
     },
 
@@ -904,16 +902,14 @@ const sendToFeedbackSystem = async (errorData) => {
 - Online: ${errorData.environment?.onLine}
 
 **Performance Context:**
-${
-  errorData.performanceInfo?.memory
-    ? `- Memory Usage: ${Math.round(errorData.performanceInfo.memory.usedJSHeapSize / 1024 / 1024)}MB`
-    : ""
-}
-${
-  errorData.performanceInfo?.connection
-    ? `- Connection: ${errorData.performanceInfo.connection.effectiveType}`
-    : ""
-}
+${errorData.performanceInfo?.memory
+        ? `- Memory Usage: ${Math.round(errorData.performanceInfo.memory.usedJSHeapSize / 1024 / 1024)}MB`
+        : ""
+      }
+${errorData.performanceInfo?.connection
+        ? `- Connection: ${errorData.performanceInfo.connection.effectiveType}`
+        : ""
+      }
 
 **Recent User Activity:**
 ${errorData.recentActivity?.map((activity, i) => `${i + 1}. ${activity}`).join("\n") || "No recent activity recorded"}
