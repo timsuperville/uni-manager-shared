@@ -241,6 +241,14 @@ export class AuthInterceptor {
   }
 
   private getValidToken(): string | null {
+    // If in-memory tokens are missing, re-read from storage.
+    // This bridges the gap between the AuthService (which writes to storage
+    // via TokenStorage after login/session restore) and the AuthInterceptor
+    // (which only loaded from storage once in the constructor).
+    if (!this.tokens?.accessToken) {
+      this.loadTokensFromStorage();
+    }
+
     if (!this.tokens?.accessToken) {
       return null;
     }
@@ -356,9 +364,9 @@ export class AuthInterceptor {
       // SSR or Node.js environment
       return {
         getItem: () => null,
-        setItem: () => {},
-        removeItem: () => {},
-        clear: () => {},
+        setItem: () => { },
+        removeItem: () => { },
+        clear: () => { },
         length: 0,
         key: () => null,
       };
