@@ -83,6 +83,7 @@ export function LoginForm({
   const [trustDevice, setTrustDevice] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [deviceFingerprint, setDeviceFingerprint] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Pull ui branding from the single source of truth — appConfigs.js
   const appConfig = getCurrentAppConfig(appType);
@@ -133,6 +134,7 @@ export function LoginForm({
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     clearError();
+    setIsSubmitting(true);
     try {
       const result = await login({
         email: formData.email,
@@ -145,9 +147,13 @@ export function LoginForm({
       if (result?.success && !isMFAPending) {
         if (onSuccess) onSuccess(result);
         else navigate(finalRedirect);
+      } else {
+        // Only stop submitting if we are showing MFA or failed
+        setIsSubmitting(false);
       }
       // MFA step changes handled via the useEffect above
     } catch (err) {
+      setIsSubmitting(false);
       if (process.env.NODE_ENV === "development") {
         console.error("[LoginForm] Login error:", err);
       }
@@ -189,6 +195,8 @@ export function LoginForm({
     formData.email &&
     validateEmail(formData.email).isValid &&
     formData.password;
+
+  const isFormLoading = isLoading || isSubmitting;
 
   // ─── MFA Verification step ───────────────────────────────────────────────────
   if (currentStep === "mfa-verification" && enableMFA) {
@@ -367,11 +375,11 @@ export function LoginForm({
           <div className="pt-1">
             <AuthButton
               type="submit"
-              disabled={!isFormValid || isLoading}
-              loading={isLoading}
+              disabled={!isFormValid || isFormLoading}
+              loading={isFormLoading}
               variant="primary"
             >
-              {isLoading ? "Signing in…" : "Sign in"}
+              {isFormLoading ? "Signing in…" : "Sign in"}
             </AuthButton>
           </div>
 
