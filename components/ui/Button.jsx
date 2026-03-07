@@ -9,6 +9,7 @@ export function Button({
   disabled = false,
   loading = false,
   fullWidth = false,
+  icon,
   onClick,
   type = "button",
   ...props
@@ -38,12 +39,15 @@ export function Button({
       "[background:var(--danger,#ef4444)] text-white hover:[background:var(--danger-dark,#dc2626)] focus:ring-(--danger,#ef4444)/50",
     success:
       "[background:var(--accent-emerald,#22c55e)] text-white hover:[background:var(--accent-emerald-dark,#16a34a)] focus:ring-(--accent-emerald,#22c55e)/50",
+    warning:
+      "[background:hsla(38,92%,50%,0.15)] text-(--warning,#f59e0b) border border-(--warning,#f59e0b)/30 hover:[background:hsla(38,92%,50%,0.25)] focus:ring-(--warning,#f59e0b)/40",
   };
 
   const sizeStyles = {
     // Shared Sizes
     default: "h-9 px-4 py-2 text-sm",
     sm: "h-8 px-3 text-xs",
+    xs: "h-6 px-2 text-[10px]",
     lg: "h-10 px-8 text-base",
     icon: "h-9 w-9",
 
@@ -86,6 +90,9 @@ export function Button({
           />
         </svg>
       )}
+      {icon && !loading && (
+        <span className="mr-1.5 inline-flex shrink-0">{icon}</span>
+      )}
       {children}
     </button>
   );
@@ -103,12 +110,14 @@ Button.propTypes = {
     "secondary",
     "danger",
     "success",
+    "warning",
   ]),
-  size: PropTypes.oneOf(["default", "sm", "lg", "icon", "md"]),
+  size: PropTypes.oneOf(["default", "sm", "xs", "lg", "icon", "md"]),
   className: PropTypes.string,
   disabled: PropTypes.bool,
   loading: PropTypes.bool,
   fullWidth: PropTypes.bool,
+  icon: PropTypes.node,
   onClick: PropTypes.func,
   type: PropTypes.oneOf(["button", "submit", "reset"]),
 };
