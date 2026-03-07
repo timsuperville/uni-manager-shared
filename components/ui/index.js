@@ -34,3 +34,8 @@ export { FormField } from "./FormField";
 export { WizardStepper } from "./WizardStepper";
 export { RankMedal } from "./RankMedal";
 export { Alert, AlertTitle, AlertDescription } from "./Alert";
+
+// Liquid Glass form primitives (inline-style, CSS token—based)
+export { GlassInput, GlassSelect } from "./GlassInput";
+export { StatusBadge, STATUS_VARIANTS } from "./StatusBadge";
+export { Sparkline } from "./Sparkline";
