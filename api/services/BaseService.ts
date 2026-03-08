@@ -7,6 +7,7 @@
 
 import { ApiClient, ApiResponse, RequestOptions } from "../core/ApiClient";
 import { ApiError } from "../core/ErrorHandler";
+import { reportApiError } from "@shared/utils";
 
 export interface ValidationSchema {
   [key: string]: {
@@ -220,7 +221,8 @@ export abstract class BaseService {
   }
 
   /**
-   * Log service errors
+   * Log service errors with proactive backend telemetry.
+   * Always reports to ErrorLog in production; console.error is dev-only.
    */
   protected logError(error: ApiError, context?: string): void {
     if (import.meta.env.DEV) {
@@ -233,6 +235,20 @@ export abstract class BaseService {
         context,
       });
     }
+
+    // Proactive telemetry — surfaces in Admin Error Resonance dashboard.
+    // ErrorHandler.logError covers the axios-interceptor path (has endpoint/method).
+    // This covers service-level errors that bypass the interceptor.
+    reportApiError({
+      statusCode: error.statusCode ?? 0,
+      message: error.message,
+      service: this.serviceName,
+      context: {
+        operation: context,
+        errorType: error.type,
+        timestamp: error.timestamp,
+      },
+    });
   }
 
   /**

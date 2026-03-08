@@ -7,3 +7,4 @@ export * from "./intelligentCache";
 export * from "./responsiveUtils.jsx";
 export * from "./csvExport";
 export * from "./userUtils";
+export * from "./reportApiError";

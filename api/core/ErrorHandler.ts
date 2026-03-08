@@ -6,6 +6,7 @@
  */
 
 import { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios";
+import { reportApiError } from "@shared/utils";
 
 export enum ApiErrorType {
   NETWORK_ERROR = "NETWORK_ERROR",
@@ -254,7 +255,6 @@ export class ErrorHandler {
       attemptNumber: (config as any)?._retryCount || 1,
     };
 
-    // In a real application, this would send to logging service
     if (import.meta.env.DEV) {
       console.error("[API Error]", {
         type: error.type,
@@ -266,7 +266,22 @@ export class ErrorHandler {
       });
     }
 
-    // Send to external error tracking service (e.g., Sentry)
+    // ── Proactive telemetry: report to ErrorLog so Admin can see failures
+    // without waiting for user-submitted feedback. Fire-and-forget.
+    reportApiError({
+      statusCode: error.statusCode ?? 0,
+      message: error.message,
+      endpoint: config?.url,
+      method: config?.method?.toUpperCase(),
+      service: "ApiClient",
+      context: {
+        errorType: error.type,
+        requestId: error.requestId,
+        retryCount: (config as any)?._retryCount ?? 0,
+      },
+    });
+
+    // Forward to window-level tracker if configured (e.g. Sentry)
     if (typeof window !== "undefined" && (window as any).errorTracker) {
       (window as any).errorTracker.captureException(error, { extra: context });
     }
