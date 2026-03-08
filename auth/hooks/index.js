@@ -50,6 +50,9 @@ export { usePermissions } from "./usePermissions.js";
 // Resolves the calling user's role within their current church (visitor → admin tier)
 export { useChurchRole } from "./useChurchRole.js";
 
+// Church ID resolver — normalises string | populated-object into a plain ID string
+export { useChurchId } from "./useChurchId.js";
+
 // Rate Limiting
 export { useRateLimit } from "./useRateLimit.js";
 

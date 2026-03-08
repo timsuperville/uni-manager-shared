@@ -85,6 +85,17 @@ export { useRateLimit } from "./hooks/useRateLimit.js";
 export { useChurchRole } from "./hooks/useChurchRole.js";
 
 /**
+ * useChurchId — resolves the active church ID from user.currentChurch (string | object)
+ * into a plain string. Use instead of the repeated ternary in every hook/component.
+ *
+ * @example
+ * const churchId = useChurchId();
+ * const { data } = useApiQuery(["foo", churchId], () => api.get(churchId), { enabled: !!churchId });
+ */
+export { useChurchId } from "./hooks/useChurchId.js";
+
+
+/**
  * Feature Gate Hooks — check if a platform feature is enabled for this user
  * useFeatureGate(featureKey) → boolean  — single key
  * useFeatureGates([...keys])  → Record<key, boolean> — batch
