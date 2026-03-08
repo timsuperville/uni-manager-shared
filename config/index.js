@@ -14,3 +14,5 @@ export {
 
 // Bundle optimization helpers (Vite build-time only — not imported at runtime)
 // Export if needed:  export { createOptimizedConfig, BundleAnalyzer } from "./bundleOptimization.js";
+
+export { PLATFORM_CONFIG } from "./platformConfig.js";
