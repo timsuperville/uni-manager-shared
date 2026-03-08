@@ -169,7 +169,7 @@ export const LocationService = {
     if (cached) return cached;
 
     try {
-      const raw = await request(`${API_BASE}/countries/${countryCode}/address-format`);
+      const raw = await request(`${API_BASE}/address-formats/${countryCode}`);
       const data = (raw?.data ?? raw) || null;
       if (data) cache.set(cacheKey, data, 3600000);
       return data;
