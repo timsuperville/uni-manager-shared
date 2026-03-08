@@ -84,14 +84,15 @@ const Select = ({
     [multiple, value, onChange, onSearchChange],
   );
 
+  const selectedOption = multiple ? null : options.find((o) => o.value === value);
   const selectedLabel = multiple
     ? Array.isArray(value) && value.length > 0
       ? `${value.length} selected`
       : placeholder
     : value
-      ? options.find((o) => o.value === value)?.label ?? value
+      ? selectedOption?.label ?? value
       : placeholder;
-
+  const selectedIcon = selectedOption?.icon ?? null;
   const hasValue = multiple ? Array.isArray(value) && value.length > 0 : !!value;
 
   const padY = size === "small" ? "6px" : size === "large" ? "12px" : "9px";
@@ -173,14 +174,21 @@ const Select = ({
               : "1px solid var(--glass-outline, rgba(255,255,255,0.1))";
         }}
       >
-        <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+        <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: 6 }}>
           {loading ? (
             <span style={{ color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 6 }}>
               <Loader2 style={{ width: 13, height: 13, animation: "spin 1s linear infinite" }} />
               Loading…
             </span>
           ) : (
-            selectedLabel
+            <>
+              {selectedIcon && (
+                typeof selectedIcon === "string"
+                  ? <img src={selectedIcon} alt="" style={{ width: 20, height: 14, objectFit: "cover", borderRadius: 2, flexShrink: 0 }} />
+                  : selectedIcon
+              )}
+              {selectedLabel}
+            </>
           )}
         </span>
         <span
@@ -289,7 +297,12 @@ const Select = ({
                     }
                   }}
                 >
-                  <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: 6 }}>
+                    {option.icon && (
+                      typeof option.icon === "string"
+                        ? <img src={option.icon} alt="" style={{ width: 20, height: 14, objectFit: "cover", borderRadius: 2, flexShrink: 0 }} />
+                        : option.icon
+                    )}
                     {option.label}
                   </span>
                   {isSelected && (
@@ -337,6 +350,8 @@ Select.propTypes = {
     PropTypes.shape({
       value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
       label: PropTypes.string.isRequired,
+      // Optional icon: string URL or React element rendered before the label
+      icon: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
     }),
   ).isRequired,
   value: PropTypes.oneOfType([
