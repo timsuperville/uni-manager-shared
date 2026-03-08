@@ -39,3 +39,5 @@ export { Alert, AlertTitle, AlertDescription } from "./Alert";
 export { GlassInput, GlassSelect } from "./GlassInput";
 export { StatusBadge, STATUS_VARIANTS } from "./StatusBadge";
 export { Sparkline } from "./Sparkline";
+export { SearchInput } from "./SearchInput";
+
