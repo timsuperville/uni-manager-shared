@@ -1,49 +1,17 @@
-// Unified Select component for all Uni-Manager applications
-import React, { useState, useRef, useEffect } from "react";
+// Unified Select component — Liquid Glass Design System
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
-
-const ChevronDownIcon = () => (
-  <svg
-    className="w-5 h-5"
-    fill="none"
-    stroke="currentColor"
-    viewBox="0 0 24 24"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M19 9l-7 7-7-7"
-    />
-  </svg>
-);
-
-const CheckIcon = () => (
-  <svg
-    className="w-4 h-4"
-    fill="none"
-    stroke="currentColor"
-    viewBox="0 0 24 24"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M5 13l4 4L19 7"
-    />
-  </svg>
-);
+import { ChevronDown, Check, Loader2 } from "lucide-react";
 
 const Select = ({
   options = [],
   value,
   onChange,
-  placeholder = "Select an option...",
+  placeholder = "Select…",
   disabled = false,
   searchable = false,
   multiple = false,
   size = "medium",
-  variant = "default",
   error = false,
   helperText = "",
   className = "",
@@ -53,6 +21,8 @@ const Select = ({
   clearable = false,
   loading = false,
   onSearchChange,
+  // variant is accepted but we render one Liquid Glass style
+  variant: _variant,
   ...props
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -60,137 +30,270 @@ const Select = ({
   const selectRef = useRef(null);
   const searchRef = useRef(null);
 
+  // Close on outside click
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (selectRef.current && !selectRef.current.contains(event.target)) {
+    const handleOutside = (e) => {
+      if (selectRef.current && !selectRef.current.contains(e.target)) {
         setIsOpen(false);
         setSearchTerm("");
+        onSearchChange?.("");
       }
     };
+    document.addEventListener("mousedown", handleOutside);
+    return () => document.removeEventListener("mousedown", handleOutside);
+  }, [onSearchChange]);
 
-    typeof document !== "undefined" &&
-      document.addEventListener("mousedown", handleClickOutside);
-    return () =>
-      typeof document !== "undefined" &&
-      document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
+  // Auto-focus search
   useEffect(() => {
     if (isOpen && searchable && searchRef.current) {
       searchRef.current.focus();
     }
   }, [isOpen, searchable]);
 
-  // Handle search changes
-  const handleSearchChange = (e) => {
-    const term = e.target.value;
-    setSearchTerm(term);
-    onSearchChange?.(term);
-  };
+  const handleSearchChange = useCallback(
+    (e) => {
+      const term = e.target.value;
+      setSearchTerm(term);
+      onSearchChange?.(term);
+    },
+    [onSearchChange],
+  );
 
   const filteredOptions =
     searchable && !onSearchChange
-      ? options.filter((option) =>
-          option.label.toLowerCase().includes(searchTerm.toLowerCase()),
-        )
+      ? options.filter((o) =>
+        o.label.toLowerCase().includes(searchTerm.toLowerCase()),
+      )
       : options;
 
-  const handleOptionClick = (option) => {
-    if (multiple) {
-      const newValue = value?.includes(option.value)
-        ? value.filter((v) => v !== option.value)
-        : [...(value || []), option.value];
-      onChange(newValue);
-    } else {
-      onChange(option.value);
-      setIsOpen(false);
-    }
+  const handleOptionClick = useCallback(
+    (option) => {
+      if (multiple) {
+        const current = Array.isArray(value) ? value : [];
+        const next = current.includes(option.value)
+          ? current.filter((v) => v !== option.value)
+          : [...current, option.value];
+        onChange(next);
+      } else {
+        onChange(option.value);
+        setIsOpen(false);
+        setSearchTerm("");
+        onSearchChange?.("");
+      }
+    },
+    [multiple, value, onChange, onSearchChange],
+  );
+
+  const selectedLabel = multiple
+    ? Array.isArray(value) && value.length > 0
+      ? `${value.length} selected`
+      : placeholder
+    : value
+      ? options.find((o) => o.value === value)?.label ?? value
+      : placeholder;
+
+  const hasValue = multiple ? Array.isArray(value) && value.length > 0 : !!value;
+
+  const padY = size === "small" ? "6px" : size === "large" ? "12px" : "9px";
+  const fontSize = size === "small" ? "12px" : size === "large" ? "15px" : "13px";
+
+  // ── Shared inline styles ─────────────────────────────────────────────────────
+  const triggerStyle = {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    width: "100%",
+    padding: `${padY} 36px ${padY} 12px`,
+    fontSize,
+    fontFamily: "var(--font-body)",
+    borderRadius: "var(--radius-md, 0.5rem)",
+    border: error
+      ? "1px solid var(--accent-rose, #f87171)"
+      : isOpen
+        ? "1px solid var(--primary-resonance, #7c3aed)"
+        : "1px solid var(--glass-outline, rgba(255,255,255,0.1))",
+    background: disabled
+      ? "var(--glass-input-disabled, rgba(255,255,255,0.02))"
+      : "var(--glass-input, rgba(255,255,255,0.06))",
+    color: hasValue ? "var(--text-primary)" : "var(--text-muted)",
+    cursor: disabled ? "not-allowed" : "pointer",
+    opacity: disabled ? 0.5 : 1,
+    backdropFilter: "blur(8px)",
+    boxShadow: isOpen
+      ? "0 0 0 2px var(--primary-glow, hsla(272,65%,62%,0.25))"
+      : "none",
+    transition: "border-color 0.15s, box-shadow 0.15s",
+    textAlign: "left",
+    position: "relative",
   };
 
-  const dropdownClasses = `
-    absolute z-10 mt-1 w-full bg-white dark:bg-gray-700 shadow-lg rounded-md border
-    border-gray-300 dark:border-gray-600 max-h-60 overflow-auto focus:outline-none
-    ${isOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-1 pointer-events-none"}
-    transition-all duration-200 ease-in-out
-  `.trim();
+  const dropdownStyle = {
+    position: "absolute",
+    zIndex: 100,
+    top: "calc(100% + 4px)",
+    left: 0,
+    right: 0,
+    background: "var(--glass-surface, rgba(15,15,35,0.92))",
+    border: "1px solid var(--glass-outline, rgba(255,255,255,0.12))",
+    borderRadius: "var(--radius-md, 0.5rem)",
+    backdropFilter: "blur(20px) saturate(150%)",
+    boxShadow: "0 16px 40px rgba(0,0,0,0.4)",
+    maxHeight: 240,
+    overflowY: "auto",
+    overflowX: "hidden",
+    opacity: isOpen ? 1 : 0,
+    transform: isOpen ? "translateY(0)" : "translateY(-6px)",
+    pointerEvents: isOpen ? "auto" : "none",
+    transition: "opacity 0.15s, transform 0.15s",
+  };
 
   return (
-    <div ref={selectRef} className="relative">
+    <div
+      ref={selectRef}
+      className={`relative ${className}`}
+      {...props}
+    >
+      {/* ── Trigger ── */}
       <button
         type="button"
-        className={`
-          relative w-full bg-white dark:bg-gray-700 border rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 sm:text-sm
-          ${error ? "border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500" : "border-gray-300 dark:border-gray-600 dark:text-gray-100"}
-          ${disabled ? "bg-gray-100 text-gray-500 cursor-not-allowed dark:bg-gray-800 dark:text-gray-500" : ""}
-          ${className}
-        `}
-        onClick={() => !disabled && setIsOpen(!isOpen)}
+        id={id}
+        disabled={disabled}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
-        aria-labelledby="listbox-label"
-        disabled={disabled}
+        style={triggerStyle}
+        onClick={() => !disabled && setIsOpen((o) => !o)}
+        onMouseEnter={(e) => {
+          if (!disabled && !isOpen)
+            e.currentTarget.style.border = "1px solid var(--border-glow, var(--primary-resonance))";
+        }}
+        onMouseLeave={(e) => {
+          if (!isOpen)
+            e.currentTarget.style.border = error
+              ? "1px solid var(--accent-rose)"
+              : "1px solid var(--glass-outline, rgba(255,255,255,0.1))";
+        }}
       >
-        <span className="block truncate">
-          {multiple
-            ? value && value.length > 0
-              ? `${value.length} selected`
-              : placeholder
-            : value
-              ? options.find((o) => o.value === value)?.label || value
-              : placeholder}
+        <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          {loading ? (
+            <span style={{ color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 6 }}>
+              <Loader2 style={{ width: 13, height: 13, animation: "spin 1s linear infinite" }} />
+              Loading…
+            </span>
+          ) : (
+            selectedLabel
+          )}
         </span>
-        <span className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-          <ChevronDownIcon />
+        <span
+          style={{
+            position: "absolute",
+            right: 10,
+            top: "50%",
+            transform: `translateY(-50%) rotate(${isOpen ? 180 : 0}deg)`,
+            transition: "transform 0.2s",
+            color: "var(--text-muted)",
+            display: "flex",
+          }}
+        >
+          <ChevronDown style={{ width: 15, height: 15 }} />
         </span>
       </button>
 
-      {/* Dropdown */}
-      <div className={dropdownClasses}>
+      {/* ── Dropdown ── */}
+      <div style={dropdownStyle} role="listbox" aria-multiselectable={multiple}>
+        {/* Search */}
         {searchable && (
-          <div className="p-2 border-b border-gray-200 dark:border-gray-600">
+          <div
+            style={{
+              padding: "8px",
+              borderBottom: "1px solid var(--glass-outline)",
+            }}
+          >
             <input
               ref={searchRef}
               type="text"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-              placeholder="Search options..."
               value={searchTerm}
               onChange={handleSearchChange}
+              placeholder="Search…"
+              style={{
+                width: "100%",
+                padding: "6px 10px",
+                fontSize: "12px",
+                fontFamily: "var(--font-body)",
+                background: "var(--glass-input, rgba(255,255,255,0.06))",
+                border: "1px solid var(--glass-outline)",
+                borderRadius: "var(--radius-sm, 0.375rem)",
+                color: "var(--text-primary)",
+                outline: "none",
+              }}
             />
           </div>
         )}
 
-        <ul className="py-1">
+        {/* Options */}
+        <ul style={{ listStyle: "none", margin: 0, padding: "4px 0" }}>
+          {/* Clear option */}
+          {clearable && hasValue && (
+            <li
+              role="option"
+              aria-selected={false}
+              onClick={() => { onChange(multiple ? [] : ""); setIsOpen(false); }}
+              style={{
+                padding: "8px 12px",
+                fontSize: "12px",
+                color: "var(--accent-rose)",
+                cursor: "pointer",
+                borderBottom: "1px solid var(--glass-outline)",
+              }}
+            >
+              Clear selection
+            </li>
+          )}
+
           {filteredOptions.length === 0 ? (
-            <li className="px-3 py-2 text-gray-500 dark:text-gray-400 text-sm">
-              {searchTerm ? "No options found" : "No options available"}
+            <li style={{ padding: "10px 12px", fontSize: "12px", color: "var(--text-muted)", textAlign: "center" }}>
+              {searchTerm ? "No results" : "No options available"}
             </li>
           ) : (
             filteredOptions.map((option) => {
               const isSelected = multiple
-                ? value?.includes(option.value)
+                ? Array.isArray(value) && value.includes(option.value)
                 : value === option.value;
-
               return (
                 <li
                   key={option.value}
-                  className={`
-                    relative cursor-pointer select-none py-2 pl-3 pr-9 hover:bg-gray-100 dark:hover:bg-gray-600
-                    ${isSelected ? "bg-blue-100 dark:bg-blue-900/50 text-blue-900 dark:text-blue-100" : "text-gray-900 dark:text-gray-100"}
-                  `}
-                  onClick={() => handleOptionClick(option)}
                   role="option"
                   aria-selected={isSelected}
+                  onClick={() => handleOptionClick(option)}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: "8px 12px",
+                    fontSize: "13px",
+                    fontFamily: "var(--font-body)",
+                    cursor: "pointer",
+                    color: isSelected ? "var(--primary-resonance, #7c3aed)" : "var(--text-secondary)",
+                    background: isSelected ? "var(--primary-glow, hsla(272,65%,62%,0.15))" : "transparent",
+                    transition: "background 0.12s, color 0.12s",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isSelected) {
+                      e.currentTarget.style.background = "var(--glass-input, rgba(255,255,255,0.06))";
+                      e.currentTarget.style.color = "var(--text-primary)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isSelected) {
+                      e.currentTarget.style.background = "transparent";
+                      e.currentTarget.style.color = "var(--text-secondary)";
+                    }
+                  }}
                 >
-                  <span
-                    className={`block truncate ${isSelected ? "font-medium" : "font-normal"}`}
-                  >
+                  <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {option.label}
                   </span>
-
                   {isSelected && (
-                    <span className="absolute inset-y-0 right-0 flex items-center pr-4 text-blue-600 dark:text-blue-400">
-                      <CheckIcon />
-                    </span>
+                    <Check style={{ width: 13, height: 13, flexShrink: 0, marginLeft: 8 }} />
                   )}
                 </li>
               );
@@ -199,32 +302,31 @@ const Select = ({
         </ul>
       </div>
 
-      {/* Helper Text / Error */}
+      {/* Helper / Error text */}
       {helperText && (
         <p
-          className={`mt-1 text-sm ${error ? "text-red-600 dark:text-red-400" : "text-gray-500 dark:text-gray-400"}`}
+          style={{
+            marginTop: 4,
+            fontSize: "11px",
+            color: error ? "var(--accent-rose)" : "var(--text-muted)",
+          }}
         >
           {helperText}
         </p>
       )}
 
-      {/* Hidden select for form submission */}
+      {/* Hidden native select for form semantics */}
       <select
         name={name}
-        id={id}
         value={multiple ? "" : value || ""}
-        onChange={() => {}} // Controlled by our custom logic
+        onChange={() => { }}
         required={required}
         multiple={multiple}
         className="sr-only"
         tabIndex={-1}
         aria-hidden="true"
       >
-        {multiple ? (
-          value?.map((val) => <option key={val} value={val} selected />)
-        ) : (
-          <option value={value || ""}>{placeholder}</option>
-        )}
+        <option value={value || ""}>{placeholder}</option>
       </select>
     </div>
   );
@@ -233,17 +335,14 @@ const Select = ({
 Select.propTypes = {
   options: PropTypes.arrayOf(
     PropTypes.shape({
-      value: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
-        .isRequired,
+      value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
       label: PropTypes.string.isRequired,
     }),
   ).isRequired,
   value: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.number,
-    PropTypes.arrayOf(
-      PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    ),
+    PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number])),
   ]),
   onChange: PropTypes.func,
   onSearchChange: PropTypes.func,
