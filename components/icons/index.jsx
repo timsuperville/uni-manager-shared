@@ -125,6 +125,46 @@ export const ShieldSolidIcon = svg(
   1.5,
 );
 
+/** Shield with tick — MFA enabled / protected state */
+export const ShieldCheckIcon = svg(
+  <>
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+    <path d="m9 12 2 2 4-4" />
+  </>,
+  2,
+);
+
+/** Shield with diagonal slash — MFA disabled / unprotected state */
+export const ShieldOffIcon = svg(
+  <>
+    <path d="M19.69 14a6.9 6.9 0 0 0 .31-2V5l-8-3-3.16 1.18" />
+    <path d="M4.73 4.73 4 5v7c0 6 8 10 8 10a20.29 20.29 0 0 0 5.62-4.38" />
+    <line x1="2" y1="2" x2="22" y2="22" />
+  </>,
+  2,
+);
+
+/** QR / scan frame icon */
+export const ScanIcon = svg(
+  <>
+    <path d="M3 7V5a2 2 0 0 1 2-2h2" />
+    <path d="M17 3h2a2 2 0 0 1 2 2v2" />
+    <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
+    <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
+    <line x1="7" y1="12" x2="17" y2="12" />
+  </>,
+  2,
+);
+
+/** Copy to clipboard */
+export const CopyIcon = svg(
+  <>
+    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+  </>,
+  2,
+);
+
 export const LockIcon = svg(
   <>
     <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
