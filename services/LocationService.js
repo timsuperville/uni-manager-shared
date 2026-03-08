@@ -115,15 +115,56 @@ export const LocationService = {
 
   /**
    * Get subdivisions (states/provinces/regions) for a country.
-   * Alias used by CreateChurch.jsx and useChurchFilters.js.
-   * Returns { subdivisions: [{code, name}], subdivisionType: 'states'|'provinces'|'areas' }
+   * Calls the /subdivisions endpoint which returns the subdivision label,
+   * flag emoji, and country name straight from @countrystatecity/countries.
+   *
+   * Returns { subdivisions, label, flag, country, countryCode }
    */
   async getSubdivisions(countryCode) {
-    const states = await this.getStates(countryCode);
-    // Infer type from country code for common cases
-    const typeMap = { CA: "provinces", AU: "states", GB: "areas" };
-    const subdivisionType = typeMap[countryCode] ?? "states";
-    return { subdivisions: states, subdivisionType };
+    if (!countryCode) return { subdivisions: [], label: 'Province / State', flag: null };
+    const cacheKey = `subdivisions-${countryCode}`;
+    const cached = cache.get(cacheKey);
+    if (cached) return cached;
+    try {
+      const raw = await request(`${API_BASE}/subdivisions?country=${encodeURIComponent(countryCode)}`);
+      const result = {
+        subdivisions: raw?.subdivisions ?? [],
+        label: raw?.label ?? 'Province / State',
+        flag: raw?.flag ?? null,
+        country: raw?.country ?? null,
+        countryCode: raw?.countryCode ?? countryCode,
+      };
+      cache.set(cacheKey, result);
+      return result;
+    } catch (error) {
+      if (import.meta.env.DEV) {
+        console.error(`[LocationService] Failed to fetch subdivisions for ${countryCode}:`, error);
+      }
+      throw error;
+    }
+  },
+
+  /**
+   * Get a single enriched country record (includes flag emoji, phone code, etc).
+   * @param {string} code - ISO-2 country code
+   * @returns {Promise<object|null>}
+   */
+  async getCountry(code) {
+    if (!code) return null;
+    const cacheKey = `country-${code.toUpperCase()}`;
+    const cached = cache.get(cacheKey);
+    if (cached) return cached;
+    try {
+      const raw = await request(`${API_BASE}/countries/${encodeURIComponent(code)}`);
+      const data = raw?.data ?? null;
+      if (data) cache.set(cacheKey, data, 3600000); // 1 hour
+      return data;
+    } catch (error) {
+      if (import.meta.env.DEV) {
+        console.error(`[LocationService] Failed to fetch country ${code}:`, error);
+      }
+      return null;
+    }
   },
 
   /**
