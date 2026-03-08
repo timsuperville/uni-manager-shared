@@ -344,7 +344,8 @@ export function LoginForm({
           <div className="-mt-3 flex justify-end">
             <button
               type="button"
-              className="text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline focus:outline-none"
+              className="text-xs font-medium hover:underline focus:outline-none"
+              style={{ color: "var(--text-accent, hsl(272,65%,76%))" }}
               onClick={() => navigate("/auth/forgot-password")}
             >
               Forgot password?
@@ -360,11 +361,16 @@ export function LoginForm({
                 type="checkbox"
                 checked={formData.rememberMe}
                 onChange={handleChange}
-                className="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 focus:ring-offset-0 bg-white dark:bg-gray-700 cursor-pointer"
+                className="h-4 w-4 rounded cursor-pointer"
+                style={{
+                  accentColor: "var(--primary-resonance, hsl(272,65%,62%))",
+                  borderColor: "var(--glass-outline)",
+                }}
               />
               <label
                 htmlFor="login-rememberMe"
-                className="text-sm text-gray-600 dark:text-gray-400 cursor-pointer select-none"
+                className="text-sm cursor-pointer select-none"
+                style={{ color: "var(--text-secondary)" }}
               >
                 Remember me
               </label>
@@ -385,11 +391,15 @@ export function LoginForm({
 
           {/* Registration link */}
           {showRegistration && (
-            <p className="text-center text-sm text-gray-500 dark:text-gray-400">
+            <p
+              className="text-center text-sm"
+              style={{ color: "var(--text-muted)" }}
+            >
               {"Don't have an account? "}
               <button
                 type="button"
-                className="font-semibold text-blue-600 dark:text-blue-400 hover:underline focus:outline-none"
+                className="font-semibold hover:underline focus:outline-none"
+                style={{ color: "var(--text-accent, hsl(272,65%,76%))" }}
                 onClick={() => navigate(ui.registerPath)}
               >
                 Create account

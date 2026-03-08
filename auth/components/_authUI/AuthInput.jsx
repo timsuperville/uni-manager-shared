@@ -4,6 +4,9 @@ import PropTypes from "prop-types";
 /**
  * Auth Input — Labelled text input with optional icon, right element, and
  * inline error message for use within auth forms.
+ *
+ * Focus colours use CSS custom properties (`--primary-resonance`) so each
+ * app's design token drives focus highlight automatically.
  */
 export const AuthInput = ({
   id,
@@ -26,15 +29,20 @@ export const AuthInput = ({
     {label && (
       <label
         htmlFor={id}
-        className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 transition-colors group-focus-within:text-blue-600 dark:group-focus-within:text-blue-400"
+        className="block text-sm font-medium mb-1.5 transition-colors"
+        style={{ color: "var(--text-secondary, rgba(120,120,140,0.9))" }}
       >
+        {/* Use inline style for the focus-within colour shift via a wrapper data attribute */}
         {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
+        {required && <span className="text-red-400 ml-1">*</span>}
       </label>
     )}
     <div className="relative">
       {icon && (
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 dark:text-gray-500 group-focus-within:text-blue-500 transition-colors">
+        <div
+          className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none transition-colors"
+          style={{ color: "var(--text-muted)" }}
+        >
           {icon}
         </div>
       )}
@@ -50,11 +58,31 @@ export const AuthInput = ({
         autoComplete={autoComplete}
         autoFocus={autoFocus}
         disabled={disabled}
-        className={`block w-full ${icon ? "pl-10" : "pl-4"} ${rightElement ? "pr-10" : "pr-4"} py-3 sm:py-3.5 text-sm sm:text-base border rounded-xl shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-4 transition-all duration-200 ${
-          error
-            ? "border-red-300 dark:border-red-800 focus:border-red-500 focus:ring-red-500/20 bg-red-50/50 dark:bg-red-900/10"
-            : "border-gray-200 dark:border-gray-700 focus:border-blue-500 focus:ring-blue-500/20 bg-white/50 dark:bg-gray-800/50 hover:bg-white dark:hover:bg-gray-800"
-        } text-gray-900 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed backdrop-blur-sm`}
+        className={`block w-full ${icon ? "pl-10" : "pl-4"} ${rightElement ? "pr-10" : "pr-4"} py-3 sm:py-3.5 text-sm sm:text-base rounded-xl shadow-sm focus:outline-none transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed focus:border-primary-ecclesia focus:ring-0`}
+        style={{
+          background: error ? "hsla(0,72%,50%,0.08)" : "hsla(0,0%,100%,0.04)",
+          border: error
+            ? "1px solid hsla(0,72%,55%,0.5)"
+            : "1px solid var(--glass-outline, hsla(0,0%,100%,0.1))",
+          color: "var(--text-primary, #f8f8fc)",
+          boxShadow: "none",
+        }}
+        onFocus={(e) => {
+          if (!error) {
+            e.target.style.borderColor =
+              "var(--glass-outline-active, hsla(272,65%,62%,0.5))";
+            e.target.style.boxShadow =
+              "0 0 0 3px var(--primary-glow, hsla(272,65%,62%,0.14))";
+          }
+        }}
+        onBlurCapture={(e) => {
+          if (!error) {
+            e.target.style.borderColor =
+              "var(--glass-outline, hsla(0,0%,100%,0.1))";
+            e.target.style.boxShadow = "none";
+          }
+          onBlur?.(e);
+        }}
       />
       {rightElement && (
         <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
@@ -63,7 +91,7 @@ export const AuthInput = ({
       )}
     </div>
     {error && (
-      <div className="mt-1.5 flex items-center text-xs sm:text-sm text-red-600 dark:text-red-400 font-medium animate-fadeIn">
+      <div className="mt-1.5 flex items-center text-xs sm:text-sm text-red-400 font-medium">
         <svg
           className="w-4 h-4 mr-1"
           fill="none"
