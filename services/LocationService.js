@@ -290,22 +290,56 @@ export const LocationService = {
   },
 
   /**
-   * Detect country from browser settings
+   * Detect country from browser's IANA timezone.
+   *
+   * IMPORTANT: Canadian timezones share the "America/" prefix with the US.
+   * The explicit CA allowlist MUST be checked before the broad America/ catch.
+   * Covers all Canadian IANA zones including Pacific, Mountain, Central,
+   * Eastern, Atlantic, Newfoundland, and the territorial zones.
    */
   detectCountry() {
     try {
       const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       if (!timeZone) return "";
 
-      // Very basic mapping for common timezones
+      // ── Canada — must come before the broad America/ catch ────────────────
+      const CANADA_TZ = new Set([
+        "America/Toronto",       // ON, QC (most of Eastern Canada)
+        "America/Vancouver",     // BC
+        "America/Edmonton",      // AB
+        "America/Calgary",       // AB
+        "America/Winnipeg",      // MB, SK (observing DST)
+        "America/Regina",        // SK (no DST)
+        "America/Swift_Current", // SK
+        "America/Halifax",       // NS, PE, NB
+        "America/Moncton",       // NB
+        "America/Glace_Bay",     // NS
+        "America/St_Johns",      // NL
+        "America/Whitehorse",    // YT
+        "America/Dawson",        // YT
+        "America/Yellowknife",   // NT
+        "America/Inuvik",        // NT
+        "America/Iqaluit",       // NU
+        "America/Rankin_Inlet",  // NU
+        "America/Resolute",      // NU
+        "America/Creston",       // BC (no DST)
+        "America/Dawson_Creek",  // BC/AB border
+        "America/Fort_Nelson",   // BC
+      ]);
+      if (CANADA_TZ.has(timeZone)) return "CA";
+
+      // ── Other America/ zones → United States ───────────────────────────────
       if (timeZone.startsWith("America/")) return "US";
-      if (timeZone.startsWith("Europe/London")) return "GB";
-      if (timeZone.startsWith("Europe/")) return "DE"; // Fallback for Europe
-      if (timeZone.startsWith("Asia/Tokyo")) return "JP";
-      if (timeZone.startsWith("Australia/")) return "AU";
+
+      // ── Other regions ───────────────────────────────────────────────────────
+      if (timeZone === "Europe/London") return "GB";
+      if (timeZone.startsWith("Europe/")) return "EU";
+      if (timeZone === "Asia/Tokyo") return "JP";
+      if (timeZone === "Asia/Kolkata") return "IN";
+      if (timeZone.startsWith("Australia/") || timeZone === "Pacific/Auckland") return "AU";
 
       return "";
-    } catch (e) {
+    } catch {
       return "";
     }
   },
