@@ -23,7 +23,7 @@ export const syncEngine = {
     const queue = (await get(SYNC_STORE_NAME)) || [];
     queue.push(entry);
     await set(SYNC_STORE_NAME, queue);
-    console.log(`[SyncEngine] Queued mutation: ${id}`);
+    if (import.meta.env.DEV) console.log(`[SyncEngine] Queued mutation: ${id}`);
     return id;
   },
 
@@ -51,7 +51,7 @@ export const syncEngine = {
     const queue = await this.getQueue();
     if (queue.length === 0) return;
 
-    console.log(`[SyncEngine] Processing ${queue.length} queued mutations...`);
+    if (import.meta.env.DEV) console.log(`[SyncEngine] Processing ${queue.length} queued mutations...`);
 
     for (const entry of queue) {
       try {
@@ -61,7 +61,7 @@ export const syncEngine = {
         if (service && typeof service[fnName] === "function") {
           await service[fnName](...entry.variables);
           await this.dequeueMutation(entry.id);
-          console.log(`[SyncEngine] Successfully synced: ${entry.id}`);
+          if (import.meta.env.DEV) console.log(`[SyncEngine] Successfully synced: ${entry.id}`);
         } else {
           if (import.meta.env.DEV) {
             console.warn(
