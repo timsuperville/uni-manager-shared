@@ -142,7 +142,7 @@ export function SearchInput({
             <input
                 ref={ref}
                 id={id}
-                type="search"
+                type="text"
                 autoComplete="off"
                 spellCheck={false}
                 value={value}
@@ -167,9 +167,6 @@ export function SearchInput({
                     transition: "border-color 0.15s, box-shadow 0.15s",
                     opacity: disabled ? 0.55 : 1,
                     cursor: disabled ? "not-allowed" : "text",
-                    /* reset browser's default search-input chrome */
-                    WebkitAppearance: "none",
-                    appearance: "none",
                 }}
                 onFocus={(e) => {
                     e.target.style.borderColor = "var(--border-glow, var(--primary-resonance))";
