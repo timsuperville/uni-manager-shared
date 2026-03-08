@@ -186,17 +186,37 @@ export const LocationService = {
   },
 
   /**
-   * Reverse geocode coordinates to a location object.
-   * Returns { city, countryCode, ... }
+   * Reverse geocode coordinates to a human-readable location.
+   * Uses the Nominatim OpenStreetMap API directly — no backend endpoint needed.
+   * Returns { city, countryCode, state } or null on failure.
    */
   async reverseGeocode(latitude, longitude) {
+    if (!latitude || !longitude) return null;
     try {
-      const raw = await this.getLocationByCoords(latitude, longitude);
-      const data = raw?.data ?? raw;
+      // Nominatim requires a descriptive User-Agent per their usage policy
+      const resp = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&addressdetails=1`,
+        {
+          headers: {
+            "Accept-Language": navigator?.language || "en",
+            "User-Agent": "Uni-Manager/1.0 (church-discovery)",
+          },
+        },
+      );
+      if (!resp.ok) return null;
+      const data = await resp.json();
+      const addr = data?.address ?? {};
       return {
-        city: data?.city ?? data?.locality ?? null,
-        countryCode: data?.countryCode ?? data?.country_code ?? null,
-        state: data?.state ?? data?.region ?? null,
+        // Nominatim uses different keys for settlement names by country
+        city:
+          addr.city ??
+          addr.town ??
+          addr.village ??
+          addr.municipality ??
+          addr.county ??
+          null,
+        countryCode: addr.country_code?.toUpperCase() ?? null,
+        state: addr.state ?? addr.province ?? addr.region ?? null,
       };
     } catch {
       return null;
@@ -232,29 +252,12 @@ export const LocationService = {
   },
 
   /**
-   * Get location details by coordinates
-   * @param {number} latitude
-   * @param {number} longitude
+   * Get location details by coordinates.
+   * @deprecated — use reverseGeocode() directly; the backend /geocode endpoint
+   * was never implemented. Kept for any existing call sites.
    */
   async getLocationByCoords(latitude, longitude) {
-    if (!latitude || !longitude) {
-      throw new Error("Latitude and longitude are required");
-    }
-
-    try {
-      const data = await request(
-        `${API_BASE}/geocode?lat=${latitude}&lng=${longitude}`,
-      );
-      return data;
-    } catch (error) {
-      if (import.meta.env.DEV) {
-        console.error(
-          `[LocationService] Failed to geocode coordinates:`,
-          error,
-        );
-      }
-      throw error;
-    }
+    return this.reverseGeocode(latitude, longitude);
   },
 
   /**
