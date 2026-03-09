@@ -27,34 +27,6 @@ import { getApiBaseUrl } from "../../api/config/apiConfig.js";
 import { RateLimitService } from "./RateLimitService.js";
 import { TokenManagementService } from "./TokenManagementService.js";
 
-// ── DEV-ONLY: Phone debug logger ───────────────────────────────────────────
-// Fires a fire-and-forget POST to the backend's /api/v1/debug/log endpoint
-// so we can see what phones are doing without access to their browser consoles.
-// Uses the LAN IP:5000 path directly to avoid SW interception.
-const _debugLog = (() => {
-  if (typeof import.meta === 'undefined' || !import.meta.env?.DEV) return () => { };
-  return (payload) => {
-    try {
-      // Hit the backend directly on port 5000 (bypasses Vite proxy + SW)
-      const backendOrigin = `${window.location.protocol}//${window.location.hostname}:5000`;
-      fetch(`${backendOrigin}/api/v1/debug/log`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...payload,
-          _pageHref: window.location.href,
-          _swActive: !!navigator?.serviceWorker?.controller,
-          _swState: navigator?.serviceWorker?.controller?.state ?? 'none',
-        }),
-        // Must NOT set credentials:include here — the debug endpoint uses
-        // Access-Control-Allow-Origin:* which is incompatible with credentials
-        credentials: 'omit',
-      }).catch(() => { /* silent – diagnostics must never break auth */ });
-    } catch (_) { /* silent */ }
-  };
-})();
-// ───────────────────────────────────────────────────────────────────────────
-
 class AuthService {
   constructor(config = {}) {
     // Transform apiEndpoints to endpoints for compatibility
@@ -256,14 +228,8 @@ class AuthService {
 
     // Check rate limiting
     if (this.isRateLimited(email)) {
-      _debugLog({ event: 'login:rateLimited', email, appType: this.config.appType });
       throw new Error("Too many attempts. Please try again later.");
     }
-
-    _debugLog({
-      event: 'login:start', email, appType: this.config.appType,
-      loginEndpoint: this.config.endpoints?.login
-    });
 
     try {
       // Validate credentials client-side
@@ -280,12 +246,6 @@ class AuthService {
           deviceFingerprint: this.deviceFingerprint,
           deviceInfo: getDeviceInfo(),
         }),
-      });
-
-      // log response
-      _debugLog({
-        event: 'login:gotResponse', status: response?.status, ok: response?.ok,
-        appType: this.config.appType
       });
 
       // Use safe response handling
@@ -329,10 +289,6 @@ class AuthService {
       this.recordLoginAttempt(email);
       throw new Error(responseData.message || "Login failed");
     } catch (_error) {
-      _debugLog({
-        event: 'login:error', errorName: _error?.name,
-        errorMsg: _error?.message, appType: this.config.appType
-      });
       this.recordLoginAttempt(email);
       throw _error;
     }
@@ -1067,16 +1023,6 @@ class AuthService {
     const url = endpointPath.startsWith("http")
       ? endpointPath
       : `${this.config.apiBaseUrl}${endpointPath}`;
-
-    // DEV: log every request so we can diagnose phone issues via the log file
-    _debugLog({
-      event: '_makeRequest',
-      appType: this.config.appType,
-      endpoint,
-      url,
-      method: options.method || 'GET',
-      apiBaseUrl: this.config.apiBaseUrl,
-    });
 
     const defaultHeaders = {
       "Content-Type": "application/json",
