@@ -38,8 +38,13 @@ const ROLE_TIER = {
  *   churchRoleTier: number,       // Numeric tier (0–5)
  *   ministryRoles: Array,         // Array of { ministryId, role } objects
  *   membership: object|null,      // Raw church membership record from user.churches[]
- *   hasMinRole: (minRole: string) => boolean,  // Returns true if user tier >= minRole
- *   hasExactRole: (role: string) => boolean,   // Exact role match
+ *   resolvedTools: Array<{ toolId: string, canView: boolean, canEdit: boolean }>,
+ *                                 // Union of grantedTools[] across all user ministries.
+ *                                 // Use hasGrantedTool() / canEditTool() — not this array directly.
+ *   hasGrantedTool: (toolId: string) => boolean, // canView for any granted tool
+ *   canEditTool: (toolId: string) => boolean,    // canEdit for any granted tool
+ *   hasMinRole: (minRole: string) => boolean,    // Returns true if user tier >= minRole
+ *   hasExactRole: (role: string) => boolean,     // Exact role match
  *   isAdmin: boolean,             // Shorthand: churchRole === 'admin' or platform admin
  *   isVolunteer: boolean,         // Shorthand: tier >= volunteer
  *   isMember: boolean,            // Shorthand: tier >= member
@@ -109,6 +114,28 @@ function buildResult(
     const tier = ROLE_TIER[churchRole] ?? 0;
     const ministryRoles = membership?.ministryRoles || [];
 
+    // ── NAV-001 Phase 1B: Resolve granted tools ────────────────────────────────
+    // Collect grantedTools[] from every ministry the user belongs to, then
+    // union them: same toolId → most-permissive (canView OR canView, canEdit OR canEdit).
+    // The shape here mirrors the Ministry.grantedTools[] Mongoose schema.
+    const toolMap = new Map(); // toolId → { canView, canEdit }
+    for (const mr of ministryRoles) {
+        const granted = mr.ministry?.grantedTools ?? mr.grantedTools ?? [];
+        for (const t of granted) {
+            if (!t?.toolId) continue;
+            const existing = toolMap.get(t.toolId);
+            if (existing) {
+                // More-permissive wins
+                existing.canView = existing.canView || !!t.canView;
+                existing.canEdit = existing.canEdit || !!t.canEdit;
+            } else {
+                toolMap.set(t.toolId, { toolId: t.toolId, canView: !!t.canView, canEdit: !!t.canEdit });
+            }
+        }
+    }
+    const resolvedTools = Array.from(toolMap.values());
+    // ───────────────────────────────────────────────────────────────────
+
     return {
         churchRole,
         churchRoleTier: tier,
@@ -118,6 +145,28 @@ function buildResult(
         isPlatformAdmin:
             isPlatformAdmin ||
             !!(user?.roles?.includes("admin") || user?.roles?.includes("org_admin")),
+
+        // ── NAV-001 Phase 1B: Tool helpers ─────────────────────────────────
+        resolvedTools,
+
+        /**
+         * Returns true if the user can VIEW the given tool (granted via any ministry).
+         * Admins always pass (they bypass tool gates).
+         */
+        hasGrantedTool: (toolId) => {
+            if (isPlatformAdmin || tier >= ROLE_TIER.admin) return true;
+            return toolMap.has(toolId) && toolMap.get(toolId).canView;
+        },
+
+        /**
+         * Returns true if the user can EDIT the given tool (granted via any ministry).
+         * Admins always pass.
+         */
+        canEditTool: (toolId) => {
+            if (isPlatformAdmin || tier >= ROLE_TIER.admin) return true;
+            return toolMap.has(toolId) && toolMap.get(toolId).canEdit;
+        },
+        // ──────────────────────────────────────────────────────────────────────────
 
         /**
          * Returns true if the user's effective church tier is >= minRole.
