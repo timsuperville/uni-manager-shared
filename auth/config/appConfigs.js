@@ -345,21 +345,32 @@ export function getAppConfig(appName) {
  * @returns {string} Current app name
  */
 export function getCurrentAppName() {
-  // Check for environment variable first
+  // ── Priority 1: Vite compile-time define ──────────────────────────────────
+  // Every app's vite.config injects VITE_APP_TYPE at build time via `define`.
+  // This is the most reliable signal and works on ALL network interfaces
+  // (localhost, LAN IP, staging domain) without any hostname sniffing.
+  if (import.meta.env.VITE_APP_TYPE) {
+    return import.meta.env.VITE_APP_TYPE.toLowerCase();
+  }
+
+  // ── Priority 2: Explicit env var override ─────────────────────────────────
   if (import.meta.env.VITE_APP_NAME) {
     return import.meta.env.VITE_APP_NAME.toLowerCase();
   }
 
-  // Parse from hostname in development
+  // ── Priority 3: Port-based lookup (localhost only) ────────────────────────
+  // Fallback for apps that haven't set VITE_APP_TYPE yet.
+  // NOTE: This ONLY fires on localhost — on a LAN IP the hostname check fails,
+  // so we intentionally skip this block to avoid wrong-app resolution.
   if (import.meta.env.DEV && typeof window !== "undefined") {
-    const hostname = typeof window !== "undefined" && window.location.hostname;
-    if (hostname.includes("localhost") || hostname.includes("127.0.0.1")) {
-      const port = typeof window !== "undefined" && window.location.port;
+    const hostname = window.location.hostname;
+    if (hostname === "localhost" || hostname === "127.0.0.1") {
+      const port = parseInt(window.location.port, 10);
       const portMap = {
         5173: "church",
         5174: "admin",
-        5175: "business",
-        5176: "home",
+        5175: "home",     // Home app (was incorrectly mapped to "business")
+        5176: "business", // Business app
         5177: "personal",
         5178: "playback",
       };
@@ -367,10 +378,9 @@ export function getCurrentAppName() {
     }
   }
 
-  // Parse from subdomain in production
+  // ── Priority 4: Subdomain-based lookup (production) ───────────────────────
   if (typeof window !== "undefined") {
-    const subdomain =
-      typeof window !== "undefined" && window.location.hostname.split(".")[0];
+    const subdomain = window.location.hostname.split(".")[0];
     if (Object.keys(APP_CONFIGS).includes(subdomain)) {
       return subdomain;
     }
