@@ -49,6 +49,7 @@ const NotificationPreferences = ({
   const [hasChanges, setHasChanges] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [saveStatus, setSaveStatus] = useState(null);
+  const [confirmReset, setConfirmReset] = useState(false);
 
   // Custom hook for preference management
   const {
@@ -183,26 +184,24 @@ const NotificationPreferences = ({
   }, [localPreferences, updatePreferences]);
 
   // Reset preferences
-  const handleReset = useCallback(async () => {
-    if (
-      typeof window !== "undefined" &&
-      window.confirm(
-        "Are you sure you want to reset all preferences to default?",
-      )
-    ) {
-      setIsLoading(true);
-      try {
-        await resetPreferences();
-        await refreshPreferences();
-        setSaveStatus("reset");
-        setTimeout(() => setSaveStatus(null), 3000);
-      } catch (_error) {
-        // console.error('Failed to reset preferences:', error);
-        setSaveStatus("error");
-        setTimeout(() => setSaveStatus(null), 5000);
-      } finally {
-        setIsLoading(false);
-      }
+  const handleReset = useCallback(() => {
+    setConfirmReset(true);
+  }, []);
+
+  const handleResetConfirmed = useCallback(async () => {
+    setConfirmReset(false);
+    setIsLoading(true);
+    try {
+      await resetPreferences();
+      await refreshPreferences();
+      setSaveStatus("reset");
+      setTimeout(() => setSaveStatus(null), 3000);
+    } catch (_error) {
+      // console.error('Failed to reset preferences:', error);
+      setSaveStatus("error");
+      setTimeout(() => setSaveStatus(null), 5000);
+    } finally {
+      setIsLoading(false);
     }
   }, [resetPreferences, refreshPreferences]);
 
@@ -860,23 +859,24 @@ const NotificationPreferences = ({
   if (!isOpen) return null;
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      title="Notification Preferences"
-      size="lg"
-    >
-      <div className="flex h-96">
-        {/* Sidebar */}
-        <div className="w-48 border-r border-gray-200 pr-4">
-          <nav className="space-y-1">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`
+    <>
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        title="Notification Preferences"
+        size="lg"
+      >
+        <div className="flex h-96">
+          {/* Sidebar */}
+          <div className="w-48 border-r border-gray-200 pr-4">
+            <nav className="space-y-1">
+              {tabs.map((tab) => {
+                const Icon = tab.icon;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`
                     w-full flex items-center px-3 py-2 text-sm font-medium rounded-md
                     ${
                       activeTab === tab.id
@@ -884,98 +884,126 @@ const NotificationPreferences = ({
                         : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
                     }
                   `}
-                >
-                  <Icon className="w-4 h-4 mr-3" />
-                  {tab.label}
-                </button>
-              );
-            })}
-          </nav>
-        </div>
+                  >
+                    <Icon className="w-4 h-4 mr-3" />
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
 
-        {/* Content */}
-        <div className="flex-1 pl-6">
-          <div className="h-full overflow-y-auto">
-            {preferencesLoading ? (
-              <div className="flex items-center justify-center h-32">
-                <LoadingSpinner size="md" />
-              </div>
-            ) : error ? (
-              <div className="text-center py-8">
-                <p className="text-red-600 mb-4">Failed to load preferences</p>
-                <Button onClick={refreshPreferences} variant="outline">
-                  <FiRefreshCw className="w-4 h-4 mr-2" />
-                  Retry
-                </Button>
-              </div>
-            ) : (
-              <>
-                {activeTab === "channels" && renderChannelPreferences()}
-                {activeTab === "types" && renderTypePreferences()}
-                {activeTab === "schedule" && renderQuietHoursPreferences()}
-                {activeTab === "delivery" && renderDeliveryPreferences()}
-                {activeTab === "interface" && renderInterfacePreferences()}
-                {activeTab === "advanced" && renderAdvancedPreferences()}
-              </>
-            )}
+          {/* Content */}
+          <div className="flex-1 pl-6">
+            <div className="h-full overflow-y-auto">
+              {preferencesLoading ? (
+                <div className="flex items-center justify-center h-32">
+                  <LoadingSpinner size="md" />
+                </div>
+              ) : error ? (
+                <div className="text-center py-8">
+                  <p className="text-red-600 mb-4">
+                    Failed to load preferences
+                  </p>
+                  <Button onClick={refreshPreferences} variant="outline">
+                    <FiRefreshCw className="w-4 h-4 mr-2" />
+                    Retry
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  {activeTab === "channels" && renderChannelPreferences()}
+                  {activeTab === "types" && renderTypePreferences()}
+                  {activeTab === "schedule" && renderQuietHoursPreferences()}
+                  {activeTab === "delivery" && renderDeliveryPreferences()}
+                  {activeTab === "interface" && renderInterfacePreferences()}
+                  {activeTab === "advanced" && renderAdvancedPreferences()}
+                </>
+              )}
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Footer */}
-      <div className="mt-6 flex items-center justify-between border-t border-gray-200 pt-4">
-        <div className="flex items-center space-x-2">
-          <Button onClick={handleExport} variant="outline" size="sm">
-            Export
-          </Button>
+        {/* Footer */}
+        <div className="mt-6 flex items-center justify-between border-t border-gray-200 pt-4">
+          <div className="flex items-center space-x-2">
+            <Button onClick={handleExport} variant="outline" size="sm">
+              Export
+            </Button>
 
-          <Button
-            onClick={handleReset}
-            variant="outline"
-            size="sm"
-            className="text-red-600 hover:text-red-700"
-          >
-            Reset
-          </Button>
-        </div>
-
-        <div className="flex items-center space-x-2">
-          {saveStatus && (
-            <span
-              className={`text-sm ${
-                saveStatus === "success" ||
-                saveStatus === "reset" ||
-                saveStatus === "exported"
-                  ? "text-green-600"
-                  : "text-red-600"
-              }`}
+            <Button
+              onClick={handleReset}
+              variant="outline"
+              size="sm"
+              className="text-red-600 hover:text-red-700"
             >
-              {saveStatus === "success" && "Preferences saved"}
-              {saveStatus === "reset" && "Preferences reset"}
-              {saveStatus === "exported" && "Preferences exported"}
-              {saveStatus === "error" && "Failed to save"}
-            </span>
-          )}
+              Reset
+            </Button>
+          </div>
 
-          <Button onClick={onClose} variant="outline">
+          <div className="flex items-center space-x-2">
+            {saveStatus && (
+              <span
+                className={`text-sm ${
+                  saveStatus === "success" ||
+                  saveStatus === "reset" ||
+                  saveStatus === "exported"
+                    ? "text-green-600"
+                    : "text-red-600"
+                }`}
+              >
+                {saveStatus === "success" && "Preferences saved"}
+                {saveStatus === "reset" && "Preferences reset"}
+                {saveStatus === "exported" && "Preferences exported"}
+                {saveStatus === "error" && "Failed to save"}
+              </span>
+            )}
+
+            <Button onClick={onClose} variant="outline">
+              Cancel
+            </Button>
+
+            <Button
+              onClick={handleSave}
+              disabled={!hasChanges || isLoading}
+              className="flex items-center"
+            >
+              {isLoading ? (
+                <LoadingSpinner size="sm" className="mr-2" />
+              ) : (
+                <FiSave className="w-4 h-4 mr-2" />
+              )}
+              Save Changes
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* ── Reset confirmation modal (replaces window.confirm) ── */}
+      <Modal
+        isOpen={confirmReset}
+        onClose={() => setConfirmReset(false)}
+        title="Reset Preferences"
+        size="sm"
+      >
+        <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+          Are you sure you want to reset all preferences to default? This cannot
+          be undone.
+        </p>
+        <div className="mt-6 flex justify-end gap-3">
+          <Button variant="outline" onClick={() => setConfirmReset(false)}>
             Cancel
           </Button>
-
           <Button
-            onClick={handleSave}
-            disabled={!hasChanges || isLoading}
-            className="flex items-center"
+            variant="danger"
+            onClick={handleResetConfirmed}
+            disabled={isLoading}
           >
-            {isLoading ? (
-              <LoadingSpinner size="sm" className="mr-2" />
-            ) : (
-              <FiSave className="w-4 h-4 mr-2" />
-            )}
-            Save Changes
+            Reset to Default
           </Button>
         </div>
-      </div>
-    </Modal>
+      </Modal>
+    </>
   );
 };
 

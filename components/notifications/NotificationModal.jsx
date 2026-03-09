@@ -56,6 +56,7 @@ const NotificationModal = ({
   const [selectedAttachment, setSelectedAttachment] = useState(null);
   const [showDeliveryDetails, setShowDeliveryDetails] = useState(false);
   const [actionStatus, setActionStatus] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   // Handle action with loading state
   const handleAction = useCallback(
@@ -99,12 +100,12 @@ const NotificationModal = ({
 
   // Handle delete
   const handleDelete = useCallback(() => {
-    if (
-      typeof window !== "undefined" &&
-      window.confirm("Are you sure you want to delete this notification?")
-    ) {
-      handleAction("delete", onDelete, "Deleted successfully");
-    }
+    setConfirmDelete(true);
+  }, []);
+
+  const handleDeleteConfirmed = useCallback(() => {
+    setConfirmDelete(false);
+    handleAction("delete", onDelete, "Deleted successfully");
   }, [handleAction, onDelete]);
 
   // Handle reply
@@ -573,6 +574,31 @@ const NotificationModal = ({
           </div>
         </Modal>
       )}
+
+      {/* ── Delete confirmation modal (replaces window.confirm) ── */}
+      <Modal
+        isOpen={confirmDelete}
+        onClose={() => setConfirmDelete(false)}
+        title="Delete Notification"
+        size="sm"
+      >
+        <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+          Are you sure you want to delete this notification? This action cannot
+          be undone.
+        </p>
+        <div className="mt-6 flex justify-end gap-3">
+          <Button variant="outline" onClick={() => setConfirmDelete(false)}>
+            Cancel
+          </Button>
+          <Button
+            variant="danger"
+            onClick={handleDeleteConfirmed}
+            disabled={isLoading}
+          >
+            Delete
+          </Button>
+        </div>
+      </Modal>
     </>
   );
 };
