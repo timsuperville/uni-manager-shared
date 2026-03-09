@@ -7,7 +7,7 @@
 //
 // Uses inline styles throughout to avoid Tailwind JIT scanning gaps in shared/.
 
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { useFrustrationDetector } from "../hooks/useFrustrationDetector";
 import { AuthContext } from "../auth/context/AuthContext.jsx";
 
@@ -310,19 +310,29 @@ function FeedbackModal({
   initialDescription = "",
 }) {
   const [feedback, setFeedback] = useState({
-    type: "general",
-    priority: "medium",
-    category: "feedback",
+    type: "bug_report", // pre-select Bug — most testing feedback is bugs
     title: initialTitle,
     description: initialDescription,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [showContext, setShowContext] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Detect mobile for bottom-sheet layout; re-checks on resize
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== "undefined" && window.innerWidth < 600,
+  );
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 600);
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setError(null);
     try {
       // Map frontend type values → FeedbackReport.type enum
       // Allowed: 'user-feedback' | 'error-report' | 'broken-link' | 'performance-issue'
@@ -330,10 +340,6 @@ function FeedbackModal({
         general: "user-feedback",
         bug_report: "error-report",
         feature_request: "user-feedback",
-        improvement: "user-feedback",
-        question: "user-feedback",
-        performance: "performance-issue",
-        broken_link: "broken-link",
       };
 
       // Map frontend type → FeedbackReport.category enum
@@ -342,19 +348,14 @@ function FeedbackModal({
         general: "other",
         bug_report: "bug",
         feature_request: "feature",
-        improvement: "improvement",
-        question: "other",
-        performance: "bug",
-        broken_link: "bug",
       };
 
-      // Map frontend priority string → FeedbackReport.severity enum
-      // Allowed: 'low' | 'medium' | 'high' | 'critical'
-      const severityMap = {
-        low: "low",
-        medium: "medium",
-        high: "high",
-        urgent: "critical",
+      // Severity is auto-derived from type — not exposed to the user.
+      // Bug reports are high-priority by default; feature requests medium; general low.
+      const severityFromType = {
+        bug_report: "high",
+        feature_request: "medium",
+        general: "low",
       };
 
       const appName =
@@ -389,7 +390,7 @@ function FeedbackModal({
       const payload = {
         type: typeMap[feedback.type] || "user-feedback",
         category: categoryFromType[feedback.type] || "other",
-        severity: severityMap[feedback.priority] || "medium",
+        severity: severityFromType[feedback.type] || "medium",
         userInput: {
           title: feedback.title,
           description: feedback.description,
@@ -416,10 +417,10 @@ function FeedbackModal({
         }, 2200);
       } else {
         const errBody = await response.json().catch(() => ({}));
-        throw new Error(errBody.message || `Server error ${response.status}`);
+        setError(errBody.message || `Server error ${response.status}`);
       }
     } catch (_err) {
-      alert(`Failed to submit feedback: ${_err.message}`);
+      setError(_err.message || "Failed to submit. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -452,26 +453,31 @@ function FeedbackModal({
         background: "rgba(0,0,0,0.55)",
         backdropFilter: "blur(4px)",
         display: "flex",
-        alignItems: "center",
+        // Mobile: anchor to bottom edge as a sheet; desktop: center
+        alignItems: isMobile ? "flex-end" : "center",
         justifyContent: "center",
-        padding: "16px",
+        padding: isMobile ? "0" : "16px",
       }}
     >
-      {/* Panel */}
+      {/* Panel — bottom sheet on mobile, centered dialog on desktop */}
       <div
         style={{
           width: "100%",
-          maxWidth: "460px",
-          maxHeight: "90vh",
+          maxWidth: isMobile ? "100%" : "460px",
+          maxHeight: isMobile ? "92dvh" : "90vh",
           overflowY: "auto",
-          borderRadius: "14px",
+          borderRadius: isMobile ? "20px 20px 0 0" : "14px",
           background: "var(--bg-surface-3, #1e293b)",
           border: "1px solid rgba(255,255,255,0.1)",
-          boxShadow: "0 24px 60px rgba(0,0,0,0.5)",
-          padding: "20px",
+          boxShadow: isMobile
+            ? "0 -8px 40px rgba(0,0,0,0.6)"
+            : "0 24px 60px rgba(0,0,0,0.5)",
+          padding: isMobile ? "16px 20px 36px" : "20px",
           color: "var(--text-primary, #f1f5f9)",
           fontFamily: "var(--font-body, system-ui, sans-serif)",
-          animation: "feedback-slide-in 0.2s ease both",
+          animation: isMobile
+            ? "feedback-sheet-up 0.28s cubic-bezier(0.32,0.72,0,1) both"
+            : "feedback-slide-in 0.2s ease both",
         }}
       >
         {/* Header */}
@@ -581,70 +587,63 @@ function FeedbackModal({
             onSubmit={handleSubmit}
             style={{ display: "flex", flexDirection: "column", gap: "12px" }}
           >
-            {/* Type + Priority row */}
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: "10px",
-              }}
-            >
-              <div>
-                <label
-                  style={{
-                    display: "block",
-                    fontSize: "11px",
-                    fontWeight: "600",
-                    color: "var(--text-muted, #94a3b8)",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.05em",
-                    marginBottom: "5px",
-                  }}
-                >
-                  Type
-                </label>
-                <select
-                  value={feedback.type}
-                  onChange={(e) =>
-                    setFeedback({ ...feedback, type: e.target.value })
-                  }
-                  style={inputStyle}
-                >
-                  <option value="general">General</option>
-                  <option value="bug_report">Bug Report</option>
-                  <option value="feature_request">Feature Request</option>
-                  <option value="improvement">Improvement</option>
-                  <option value="performance">Performance</option>
-                  <option value="broken_link">Broken Link</option>
-                  <option value="question">Question</option>
-                </select>
-              </div>
-              <div>
-                <label
-                  style={{
-                    display: "block",
-                    fontSize: "11px",
-                    fontWeight: "600",
-                    color: "var(--text-muted, #94a3b8)",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.05em",
-                    marginBottom: "5px",
-                  }}
-                >
-                  Priority
-                </label>
-                <select
-                  value={feedback.priority}
-                  onChange={(e) =>
-                    setFeedback({ ...feedback, priority: e.target.value })
-                  }
-                  style={inputStyle}
-                >
-                  <option value="low">Low</option>
-                  <option value="medium">Medium</option>
-                  <option value="high">High</option>
-                  <option value="urgent">Urgent</option>
-                </select>
+            {/* Feedback type — 3 tap-target cards (replaces 7-option dropdown) */}
+            <div>
+              <label
+                style={{
+                  display: "block",
+                  fontSize: "11px",
+                  fontWeight: "600",
+                  color: "var(--text-muted, #94a3b8)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.05em",
+                  marginBottom: "8px",
+                }}
+              >
+                What kind of feedback?
+              </label>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "8px" }}>
+                {[
+                  { value: "bug_report", emoji: "🐛", label: "Bug" },
+                  { value: "feature_request", emoji: "💡", label: "Feature" },
+                  { value: "general", emoji: "💬", label: "Other" },
+                ].map(({ value, emoji, label }) => {
+                  const active = feedback.type === value;
+                  return (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() => setFeedback({ ...feedback, type: value })}
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        gap: "4px",
+                        padding: "12px 8px",
+                        borderRadius: "10px",
+                        border: `1px solid ${active
+                            ? "var(--primary-resonance, #22d3ee)"
+                            : "rgba(128,128,128,0.2)"
+                          }`,
+                        background: active
+                          ? "rgba(34,211,238,0.1)"
+                          : "rgba(128,128,128,0.05)",
+                        color: active
+                          ? "var(--primary-resonance, #22d3ee)"
+                          : "var(--text-secondary, #94a3b8)",
+                        cursor: "pointer",
+                        fontSize: "12px",
+                        fontWeight: active ? "600" : "400",
+                        fontFamily: "inherit",
+                        transition: "all 120ms ease",
+                        lineHeight: 1,
+                      }}
+                    >
+                      <span style={{ fontSize: "20px", lineHeight: 1 }}>{emoji}</span>
+                      <span style={{ marginTop: "4px" }}>{label}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -675,34 +674,57 @@ function FeedbackModal({
               />
             </div>
 
-            {/* Description */}
+            {/* Description + char counter */}
             <div>
-              <label
+              <div
                 style={{
-                  display: "block",
-                  fontSize: "11px",
-                  fontWeight: "600",
-                  color: "var(--text-muted, #94a3b8)",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.05em",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "baseline",
                   marginBottom: "5px",
                 }}
               >
-                Description
-              </label>
+                <label
+                  style={{
+                    fontSize: "11px",
+                    fontWeight: "600",
+                    color: "var(--text-muted, #94a3b8)",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em",
+                  }}
+                >
+                  Description
+                </label>
+                <span
+                  style={{
+                    fontSize: "10px",
+                    color:
+                      feedback.description.length > 900
+                        ? "hsl(38,92%,65%)"
+                        : "var(--text-ghost, #475569)",
+                    fontVariantNumeric: "tabular-nums",
+                  }}
+                >
+                  {feedback.description.length} / 1000
+                </span>
+              </div>
               <textarea
                 value={feedback.description}
                 onChange={(e) =>
-                  setFeedback({ ...feedback, description: e.target.value })
+                  setFeedback({
+                    ...feedback,
+                    description: e.target.value.slice(0, 1000),
+                  })
                 }
-                placeholder="Describe your feedback in detail — steps to reproduce, expected vs actual behavior, etc."
+                placeholder="Describe your feedback — steps to reproduce, expected vs actual behavior, etc."
                 rows={4}
                 required
+                maxLength={1000}
                 style={{ ...inputStyle, resize: "vertical", minHeight: "90px" }}
               />
             </div>
 
-            {/* Context preview toggle */}
+            {/* Context disclosure — user-friendly framing */}
             <div>
               <button
                 type="button"
@@ -734,7 +756,7 @@ function FeedbackModal({
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                 </svg>
-                {showContext ? "Hide" : "View"} system context included with this report
+                {showContext ? "Hide" : "Show"} what’s included automatically
               </button>
               {showContext && (
                 <div
@@ -758,11 +780,31 @@ function FeedbackModal({
               )}
             </div>
 
-            {/* Actions */}
+            {/* Inline error — replaces the old alert() call */}
+            {error && (
+              <div
+                role="alert"
+                style={{
+                  padding: "10px 12px",
+                  borderRadius: "8px",
+                  background: "rgba(239,68,68,0.1)",
+                  border: "1px solid rgba(239,68,68,0.3)",
+                  color: "hsl(0,84%,70%)",
+                  fontSize: "12px",
+                  lineHeight: "1.5",
+                }}
+              >
+                {error}
+              </div>
+            )}
+
+            {/* Actions — Cancel demoted to text link, Submit is the clear primary CTA */}
             <div
               style={{
                 display: "flex",
-                justifyContent: "flex-end",
+                alignItems: "center",
+                // On mobile stretch Submit full-width; desktop right-align
+                justifyContent: isMobile ? "space-between" : "flex-end",
                 gap: "8px",
                 paddingTop: "4px",
               }}
@@ -772,14 +814,16 @@ function FeedbackModal({
                 onClick={onClose}
                 disabled={isSubmitting}
                 style={{
-                  padding: "8px 14px",
-                  borderRadius: "8px",
-                  border: "1px solid rgba(128,128,128,0.25)",
-                  background: "transparent",
-                  color: "var(--text-secondary, #94a3b8)",
-                  fontSize: "13px",
+                  background: "none",
+                  border: "none",
                   cursor: "pointer",
+                  color: "var(--text-muted, #64748b)",
+                  fontSize: "13px",
+                  padding: "8px 10px",
                   fontFamily: "inherit",
+                  textDecoration: "underline",
+                  textUnderlineOffset: "2px",
+                  flexShrink: 0,
                 }}
               >
                 Cancel
@@ -790,19 +834,20 @@ function FeedbackModal({
                   isSubmitting || !feedback.title || !feedback.description
                 }
                 style={{
-                  padding: "8px 18px",
+                  padding: "10px 24px",
                   borderRadius: "8px",
                   border: "none",
                   background: "var(--primary-resonance, #22d3ee)",
                   color: "#000",
                   fontSize: "13px",
-                  fontWeight: "600",
+                  fontWeight: "700",
                   cursor: isSubmitting ? "not-allowed" : "pointer",
                   opacity:
                     isSubmitting || !feedback.title || !feedback.description
                       ? 0.5
                       : 1,
                   fontFamily: "inherit",
+                  flex: isMobile ? "1" : "0 0 auto",
                 }}
               >
                 {isSubmitting ? "Sending…" : "Send Feedback"}
@@ -812,11 +857,15 @@ function FeedbackModal({
         )}
       </div>
 
-      {/* Keyframe injected once */}
+      {/* Keyframes — slide-in for desktop, sheet-up for mobile */}
       <style>{`
         @keyframes feedback-slide-in {
           from { opacity: 0; transform: translateY(12px) scale(0.97); }
           to   { opacity: 1; transform: translateY(0)   scale(1);    }
+        }
+        @keyframes feedback-sheet-up {
+          from { opacity: 0; transform: translateY(100%); }
+          to   { opacity: 1; transform: translateY(0); }
         }
       `}</style>
     </div>
