@@ -11,8 +11,10 @@ const BASE_API_URL = getApiBaseUrl();
 
 export const APP_CONFIGS = {
   church: {
-    appName: "Church Manager",
-    brandColor: "blue", // Uses blue-500 as primary
+    appName: "Ecclesia — Church Manager",
+    // Ecclesiastical Violet — canonical Liquid Glass colour for the Church app.
+    // Matches var(--primary-resonance) in the Ecclesia CSS theme.
+    brandColor: "violet",
     logo: "/church-logo.png",
     favicon: "/church-favicon.ico",
     apiEndpoints: {
@@ -44,21 +46,23 @@ export const APP_CONFIGS = {
       testLogin: import.meta.env.DEV, // Only in development
     },
     permissions: {
-      roles: ["admin", "pastor", "leader", "member", "visitor"],
+      // 6-tier CAHA hierarchy (ascending privilege)
+      roles: ["visitor", "viewer", "attendee", "member", "volunteer", "admin"],
       defaultRole: "member",
     },
     branding: {
-      primaryColor: "rgb(59, 130, 246)", // blue-500
-      primaryColorHover: "rgb(37, 99, 235)", // blue-600
-      gradientFrom: "from-blue-500",
-      gradientTo: "to-blue-600",
-      focusRing: "focus:ring-blue-500",
-      accentColor: "accent-blue-500",
+      // Ecclesiastical Violet — matches var(--primary-resonance, #7c3aed)
+      primaryColor: "rgb(124, 58, 237)",   // violet-600
+      primaryColorHover: "rgb(109, 40, 217)", // violet-700
+      gradientFrom: "from-violet-600",
+      gradientTo: "to-violet-700",
+      focusRing: "focus:ring-violet-500",
+      accentColor: "accent-violet-600",
     },
     ui: {
       icon: "⛪",
-      loginTitle: "Church Management",
-      loginDescription: "Sign in to manage church services and events",
+      loginTitle: "Ecclesia",
+      loginDescription: "Sign in to your church community",
       registerPath: "/auth/register",
     },
   },
