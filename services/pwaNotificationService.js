@@ -59,7 +59,7 @@ class PWANotificationService {
         import.meta.env.VITE_VAPID_PUBLIC_KEY ||
         "BNxJLxVhXvvJV2wX1xG8K9EeEQy-Zj6QJvF2CZlHfE9QJ6vX2Z8H4G3K9EeEQy";
     } catch (_error) {
-      throw error;
+      throw _error;
     }
   }
 
@@ -127,7 +127,7 @@ class PWANotificationService {
         return false;
       }
     } catch (_error) {
-      throw error;
+      throw _error;
     }
   }
 
@@ -189,7 +189,7 @@ class PWANotificationService {
         throw new Error(response.message || "Failed to subscribe");
       }
     } catch (_error) {
-      throw error;
+      throw _error;
     }
   }
 
@@ -226,7 +226,7 @@ class PWANotificationService {
         throw new Error(response.message || "Failed to unsubscribe");
       }
     } catch (_error) {
-      throw error;
+      throw _error;
     }
   }
 
@@ -263,7 +263,7 @@ class PWANotificationService {
         throw new Error(response.message || "Failed to update preferences");
       }
     } catch (_error) {
-      throw error;
+      throw _error;
     }
   }
 
@@ -290,7 +290,7 @@ class PWANotificationService {
         throw new Error(response.message || "Failed to send test notification");
       }
     } catch (_error) {
-      throw error;
+      throw _error;
     }
   }
 
