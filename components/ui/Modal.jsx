@@ -16,24 +16,36 @@ import PropTypes from "prop-types";
  * @param {string}    className  - Extra classes for the inner panel
  */
 export function Modal({
+  // Primary API
   open,
   onClose,
   title,
   children,
   footer,
-  maxWidth = 640,
+  maxWidth,
   className = "",
+  // Aliases for backward-compat with church-local consumers
+  isOpen,
+  size,
 }) {
+  // `isOpen` is an alias for `open`
+  const isVisible = open ?? isOpen ?? false;
+
+  // `size` maps to a numeric maxWidth when the legacy string variant is used
+  const SIZE_MAP = { sm: 480, md: 640, lg: 800, xl: 1080 };
+  const resolvedMaxWidth =
+    maxWidth ?? (size ? (SIZE_MAP[size] ?? SIZE_MAP.md) : SIZE_MAP.md);
+
   useEffect(() => {
-    if (!open) return;
+    if (!isVisible) return;
     const handler = (e) => {
       if (e.key === "Escape") onClose?.();
     };
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
-  }, [open, onClose]);
+  }, [isVisible, onClose]);
 
-  if (!open) return null;
+  if (!isVisible) return null;
 
   return (
     <div
@@ -62,7 +74,7 @@ export function Modal({
           borderRadius: "var(--radius-lg, 0.75rem)",
           backdropFilter: "blur(24px) saturate(180%)",
           WebkitBackdropFilter: "blur(24px) saturate(180%)",
-          maxWidth,
+          maxWidth: resolvedMaxWidth,
           width: "100%",
           maxHeight: "85vh",
           display: "flex",
@@ -137,13 +149,17 @@ export function Modal({
 }
 
 Modal.propTypes = {
-  open: PropTypes.bool.isRequired,
+  // Primary props
+  open: PropTypes.bool,
   onClose: PropTypes.func,
   title: PropTypes.string,
   children: PropTypes.node,
   footer: PropTypes.node,
   maxWidth: PropTypes.number,
   className: PropTypes.string,
+  // Alias props (backward-compat)
+  isOpen: PropTypes.bool,
+  size: PropTypes.oneOf(["sm", "md", "lg", "xl"]),
 };
 
 export default Modal;

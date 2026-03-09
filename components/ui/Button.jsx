@@ -12,8 +12,13 @@ export function Button({
   icon,
   onClick,
   type = "button",
+  // Church-local aliases (backward-compat)
+  isLoading,
+  leftIcon,
+  rightIcon,
   ...props
 }) {
+  const effectiveLoading = loading || isLoading || false;
   const baseStyles =
     "inline-flex items-center justify-center rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none";
 
@@ -41,6 +46,9 @@ export function Button({
       "[background:var(--accent-emerald,#22c55e)] text-white hover:[background:var(--accent-emerald-dark,#16a34a)] focus:ring-(--accent-emerald,#22c55e)/50",
     warning:
       "[background:hsla(38,92%,50%,0.15)] text-(--warning,#f59e0b) border border-(--warning,#f59e0b)/30 hover:[background:hsla(38,92%,50%,0.25)] focus:ring-(--warning,#f59e0b)/40",
+    // Church app alias — amber accent
+    church:
+      "[background:var(--accent-amber,#f59e0b)] text-white hover:[background:var(--accent-amber-dark,#d97706)] focus:ring-(--accent-amber,#f59e0b)/50",
   };
 
   const sizeStyles = {
@@ -64,11 +72,11 @@ export function Button({
     <button
       type={type}
       className={`${baseStyles} ${selectedVariant} ${selectedSize} ${widthStyles} ${className}`}
-      disabled={disabled || loading}
+      disabled={disabled || effectiveLoading}
       onClick={onClick}
       {...props}
     >
-      {loading && (
+      {effectiveLoading && (
         <svg
           className="animate-spin -ml-1 mr-2 h-4 w-4"
           xmlns="http://www.w3.org/2000/svg"
@@ -90,10 +98,13 @@ export function Button({
           />
         </svg>
       )}
-      {icon && !loading && (
-        <span className="mr-1.5 inline-flex shrink-0">{icon}</span>
+      {(icon || leftIcon) && !effectiveLoading && (
+        <span className="mr-1.5 inline-flex shrink-0">{leftIcon || icon}</span>
       )}
       {children}
+      {rightIcon && !effectiveLoading && (
+        <span className="ml-1.5 inline-flex shrink-0">{rightIcon}</span>
+      )}
     </button>
   );
 }
@@ -120,6 +131,10 @@ Button.propTypes = {
   icon: PropTypes.node,
   onClick: PropTypes.func,
   type: PropTypes.oneOf(["button", "submit", "reset"]),
+  // Church-local aliases
+  isLoading: PropTypes.bool,
+  leftIcon: PropTypes.node,
+  rightIcon: PropTypes.node,
 };
 
 export default Button;
