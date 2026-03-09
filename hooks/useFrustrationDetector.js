@@ -13,18 +13,21 @@
  * Usage:
  *   useFrustrationDetector({
  *     appType: 'admin',
- *     onFrustrated: ({ signal, context }) => setFeedbackOpen(true),
+ *     onFrustrated: ({ signal, source, context }) => setFeedbackOpen(true),
  *   });
  *
  * Props:
- *   appType       {string}   VITE_APP_TYPE value for the current shell
- *   onFrustrated  {Function} Called with { signal, context } on detection
- *   enabled       {boolean}  Defaults to true; set false to pause detection
- *   rageClickThreshold {number} Clicks within window to trigger (default 3)
- *   rageClickWindowMs  {number} Time window for rage-click in ms (default 700)
- *   navThreshold       {number} Navigation changes to trigger (default 3)
- *   navWindowMs        {number} Time window for rapid-nav in ms (default 4000)
- *   cooldownMs         {number} Minimum ms between onFrustrated calls (default 30000)
+ *   appType            {string}   VITE_APP_TYPE value for the current shell
+ *   onFrustrated       {Function} Called with { signal, source, ...context } on detection
+ *   enabled            {boolean}  Defaults to true; set false to pause detection
+ *   disableInDev       {boolean}  Defaults to true; suppresses all fires in the development
+ *                                 environment to avoid polluting the DB during local testing.
+ *                                 Set to false only if you explicitly want dev-time signals.
+ *   rageClickThreshold {number}   Clicks within window to trigger (default 3)
+ *   rageClickWindowMs  {number}   Time window for rage-click in ms (default 700)
+ *   navThreshold       {number}   Navigation changes to trigger (default 3)
+ *   navWindowMs        {number}   Time window for rapid-nav in ms (default 4000)
+ *   cooldownMs         {number}   Minimum ms between onFrustrated calls (default 30000)
  */
 
 import { useEffect, useRef, useCallback } from "react";
@@ -33,6 +36,7 @@ export function useFrustrationDetector({
   appType = "unknown",
   onFrustrated,
   enabled = true,
+  disableInDev = true,
   rageClickThreshold = 3,
   rageClickWindowMs = 700,
   navThreshold = 3,
@@ -48,6 +52,15 @@ export function useFrustrationDetector({
   // Cooldown — prevent repeated triggers within cooldownMs
   const lastTriggeredAt = useRef(0);
 
+  // Resolve effective enabled state — suppress in development when disableInDev is set.
+  // Vite exposes import.meta.env; fall back to process.env for test environments.
+  const isDev =
+    typeof import.meta !== "undefined"
+      ? import.meta.env?.MODE === "development" || import.meta.env?.DEV === true
+      : process.env.NODE_ENV === "development";
+
+  const effectivelyEnabled = enabled && !(disableInDev && isDev);
+
   const fire = useCallback(
     (signal, context = {}) => {
       if (!onFrustrated) return;
@@ -57,6 +70,9 @@ export function useFrustrationDetector({
 
       const fullContext = {
         signal,
+        // Tag every auto-fire with its origin so consumers can filter these
+        // from the agent issue scan and the Admin Sentiment Feed.
+        source: "frustration-detector",
         path: typeof window !== "undefined" ? window.location.pathname : "/",
         url: typeof window !== "undefined" ? window.location.href : "",
         appType,
@@ -75,7 +91,7 @@ export function useFrustrationDetector({
 
   // ── Rage-click detector ────────────────────────────────────────────────────
   useEffect(() => {
-    if (!enabled || typeof window === "undefined") return;
+    if (!effectivelyEnabled || typeof window === "undefined") return;
 
     const handleClick = (e) => {
       const now = Date.now();
@@ -102,11 +118,11 @@ export function useFrustrationDetector({
     window.addEventListener("click", handleClick, { capture: true });
     return () =>
       window.removeEventListener("click", handleClick, { capture: true });
-  }, [enabled, rageClickThreshold, rageClickWindowMs, fire]);
+  }, [effectivelyEnabled, rageClickThreshold, rageClickWindowMs, fire]);
 
   // ── Rapid-navigation detector ──────────────────────────────────────────────
   useEffect(() => {
-    if (!enabled || typeof window === "undefined") return;
+    if (!effectivelyEnabled || typeof window === "undefined") return;
 
     const recordNav = () => {
       const now = Date.now();
@@ -145,7 +161,7 @@ export function useFrustrationDetector({
       history.pushState = originalPush;
       history.replaceState = originalReplace;
     };
-  }, [enabled, navThreshold, navWindowMs, fire]);
+  }, [effectivelyEnabled, navThreshold, navWindowMs, fire]);
 
   // No public API needed — the hook is purely side-effectful
   return null;

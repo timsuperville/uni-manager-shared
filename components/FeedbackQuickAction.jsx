@@ -254,6 +254,7 @@ export async function submitFeedbackSilently({
   appType = "unknown",
   severity = "high",
   user = null,
+  source = null, // optional origin tag (e.g. 'frustration-detector', 'error-boundary')
 } = {}) {
   try {
     // Probe token from sessionStorage / localStorage across all known namespaces
@@ -278,6 +279,11 @@ export async function submitFeedbackSilently({
     const headers = { "Content-Type": "application/json" };
     if (authToken) headers["Authorization"] = `Bearer ${authToken}`;
 
+    const systemCtx = collectSystemContext(appType, user);
+    // Attach source tag so the Admin Sentiment Feed and agent scan can
+    // identify and filter auto-generated reports from real user submissions.
+    if (source) systemCtx.source = source;
+
     await fetch("/api/v1/feedback/submit", {
       method: "POST",
       headers,
@@ -287,7 +293,7 @@ export async function submitFeedbackSilently({
         severity,
         userInput: { title, description, allowContact: false },
         // Pass user identity so backend can enrich systemContext.user
-        systemContext: collectSystemContext(appType, user),
+        systemContext: systemCtx,
       }),
     });
   } catch {
@@ -834,7 +840,8 @@ export const FeedbackQuickAction = ({
   // for the next manual modal open so context is already populated.
   useFrustrationDetector({
     appType,
-    onFrustrated: async ({ signal, path }) => {
+    disableInDev: true, // never auto-file reports during local development
+    onFrustrated: async ({ signal, source, path }) => {
       const title =
         signal === "rage-click"
           ? `Repeated click detected on ${path}`
@@ -847,13 +854,14 @@ export const FeedbackQuickAction = ({
       // 1. Pre-fill so the next manual open already has context
       setPrefill({ title, description });
 
-      // 2. Silently auto-report the frustration signal (include user identity)
+      // 2. Silently auto-report the frustration signal (include user identity + source tag)
       await submitFeedbackSilently({
         title,
         description,
         appType,
         severity: "medium",
         user,
+        source, // 'frustration-detector' — allows agent scan to identify auto-reports
       });
     },
   });
