@@ -11,6 +11,39 @@ import React, { useState, useContext, useEffect } from "react";
 import { useFrustrationDetector } from "../hooks/useFrustrationDetector";
 import { AuthContext } from "../auth/context/AuthContext.jsx";
 
+// M2 — Set session start timestamp at module load so collectSystemContext can
+// calculate sessionDurationMs. Written only once per page load.
+if (typeof window !== "undefined" && !window.__feedbackSessionStart) {
+  window.__feedbackSessionStart = Date.now();
+}
+
+// M1 — Canonical source enum. Use these constants everywhere; never raw strings.
+export const FEEDBACK_SOURCES = /** @type {const} */ ({
+  FRUSTRATION_DETECTOR: "frustration-detector",
+  ERROR_BOUNDARY: "error-boundary",
+  MANUAL: "manual",
+});
+
+/** Valid systemContext.source values as accepted by FeedbackReport Mongoose schema. */
+const VALID_SOURCES = new Set(Object.values(FEEDBACK_SOURCES));
+
+/**
+ * Validates and normalises a source string before submission.
+ * Returns null (not undefined) so Mongoose keeps the field but stores null
+ * rather than silently dropping a typo'd value that would break the enum.
+ */
+function resolveSource(source) {
+  if (!source) return null;
+  if (VALID_SOURCES.has(source)) return source;
+  if (process.env.NODE_ENV !== "production") {
+    console.warn(
+      `[FeedbackQuickAction] Unknown source "${source}". ` +
+      `Valid values: ${[...VALID_SOURCES].join(", ")}. Defaulting to null.`
+    );
+  }
+  return null;
+}
+
 // ─── Safe Auth Access ─────────────────────────────────────────────────────────
 // FeedbackQuickAction is used in both authenticated apps (church, home, admin…)
 // and the public marketing site (main), which has no AuthProvider. useAuth()
@@ -254,7 +287,7 @@ export async function submitFeedbackSilently({
   appType = "unknown",
   severity = "high",
   user = null,
-  source = null, // optional origin tag (e.g. 'frustration-detector', 'error-boundary')
+  source = null, // optional origin tag — validated against FEEDBACK_SOURCES enum
 } = {}) {
   try {
     // Probe token from sessionStorage / localStorage across all known namespaces
@@ -280,9 +313,9 @@ export async function submitFeedbackSilently({
     if (authToken) headers["Authorization"] = `Bearer ${authToken}`;
 
     const systemCtx = collectSystemContext(appType, user);
-    // Attach source tag so the Admin Sentiment Feed and agent scan can
-    // identify and filter auto-generated reports from real user submissions.
-    if (source) systemCtx.source = source;
+    // M1 — validate source against canonical enum before sending;
+    // a typo would otherwise be silently rejected by Mongoose strict mode.
+    systemCtx.source = resolveSource(source);
 
     await fetch("/api/v1/feedback/submit", {
       method: "POST",
@@ -622,8 +655,8 @@ function FeedbackModal({
                         padding: "12px 8px",
                         borderRadius: "10px",
                         border: `1px solid ${active
-                            ? "var(--primary-resonance, #22d3ee)"
-                            : "rgba(128,128,128,0.2)"
+                          ? "var(--primary-resonance, #22d3ee)"
+                          : "rgba(128,128,128,0.2)"
                           }`,
                         background: active
                           ? "rgba(34,211,238,0.1)"
@@ -884,6 +917,9 @@ export const FeedbackQuickAction = ({
   const [isOpen, setIsOpen] = useState(false);
   // Pre-fill context provided by passive frustration detection
   const [prefill, setPrefill] = useState({ title: "", description: "" });
+  // R4 — 'reacted' used by quick-react variant; declared here so hooks are never
+  // called inside a conditional branch (Rules of Hooks).
+  const [reacted, setReacted] = useState(false);
 
   // Passive frustration detection — auto-reports silently and caches prefill
   // for the next manual modal open so context is already populated.
@@ -1148,12 +1184,10 @@ export const FeedbackQuickAction = ({
     );
   }
 
-  // ── VARIANT: quick-react (3-emoji inline strip) ──────────────────────────────
-  // Positive (😊) → silent positive signal + done. Neutral/negative → opens full modal.
+  // R4 — quick-react variant: previously declared its own useState hooks inside
+  // a conditional block which violates Rules of Hooks. Now uses the hoisted
+  // `reacted` and the outer `isOpen` state from the component top.
   if (variant === "quick-react") {
-    const [reacted, setReacted] = useState(false);
-    const [isOpen, setIsOpen] = useState(false);
-
     const handleReact = async (emoji, sentiment) => {
       if (reacted) return;
       if (sentiment === "positive") {
@@ -1163,6 +1197,7 @@ export const FeedbackQuickAction = ({
           description: `User gave a positive quick reaction on ${window.location.pathname}`,
           appType,
           severity: "low",
+          source: FEEDBACK_SOURCES.MANUAL,
         });
       } else {
         // Neutral / negative → open full modal for detail

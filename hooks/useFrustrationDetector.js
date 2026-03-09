@@ -32,6 +32,33 @@
 
 import { useEffect, useRef, useCallback } from "react";
 
+// ─── History patch ref-count ───────────────────────────────────────────────────
+// P4: history.pushState/replaceState can only be patched once safely.
+// We track how many hook instances are mounted and maintain a single patch,
+// broadcasting to all subscribers via a module-level Set of listener functions.
+const _navListeners = new Set();
+let _historyPatched = false;
+
+function _ensureHistoryPatched() {
+  if (_historyPatched || typeof history === "undefined") return;
+  _historyPatched = true;
+
+  const _origPush = history.pushState.bind(history);
+  const _origReplace = history.replaceState.bind(history);
+
+  history.pushState = (...args) => {
+    _origPush(...args);
+    _navListeners.forEach((fn) => fn());
+  };
+  history.replaceState = (...args) => {
+    _origReplace(...args);
+    _navListeners.forEach((fn) => fn());
+  };
+  // Note: we intentionally never restore the originals — the patch is
+  // additive (it calls the original) and the listener set empties naturally
+  // as instances unmount, so it becomes a no-op with zero listeners.
+}
+
 export function useFrustrationDetector({
   appType = "unknown",
   onFrustrated,
@@ -139,27 +166,16 @@ export function useFrustrationDetector({
       }
     };
 
-    // React Router / Next.js SPA navigation via popstate
+    // P4 — Register as a subscriber to the shared module-level history patch
+    // instead of patching history.pushState directly, which was unsafe when
+    // multiple instances of this hook mounted concurrently.
+    _ensureHistoryPatched();
+    _navListeners.add(recordNav);
     window.addEventListener("popstate", recordNav);
-
-    // Intercept pushState / replaceState (History API mutations don't fire popstate)
-    const originalPush = history.pushState.bind(history);
-    const originalReplace = history.replaceState.bind(history);
-
-    history.pushState = (...args) => {
-      originalPush(...args);
-      recordNav();
-    };
-
-    history.replaceState = (...args) => {
-      originalReplace(...args);
-      recordNav();
-    };
 
     return () => {
       window.removeEventListener("popstate", recordNav);
-      history.pushState = originalPush;
-      history.replaceState = originalReplace;
+      _navListeners.delete(recordNav);
     };
   }, [effectivelyEnabled, navThreshold, navWindowMs, fire]);
 
