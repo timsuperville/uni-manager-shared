@@ -1,6 +1,5 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import {
-  FiX,
   FiCheck,
   FiArchive,
   FiTrash2,
@@ -13,8 +12,6 @@ import {
   FiEye,
   FiExternalLink,
   FiDownload,
-  FiShare2,
-  FiFlag,
   FiReply,
   FiForward,
 } from "react-icons/fi";
@@ -23,7 +20,6 @@ import { Button } from "../ui/Button";
 import { Badge } from "../ui/Badge";
 import { Card } from "../ui/Card";
 import { Avatar } from "../ui/Avatar";
-import { Tooltip } from "../ui/Tooltip";
 import { LoadingSpinner } from "../ui/LoadingSpinner";
 import { Modal } from "../ui/Modal";
 
