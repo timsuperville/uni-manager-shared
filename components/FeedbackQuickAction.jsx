@@ -7,12 +7,68 @@
 //
 // Uses inline styles throughout to avoid Tailwind JIT scanning gaps in shared/.
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useContext } from "react";
 import { useFrustrationDetector } from "../hooks/useFrustrationDetector";
+import { AuthContext } from "../auth/context/AuthContext.jsx";
+
+// ─── Safe Auth Access ─────────────────────────────────────────────────────────
+// FeedbackQuickAction is used in both authenticated apps (church, home, admin…)
+// and the public marketing site (main), which has no AuthProvider. useAuth()
+// throws when called outside a provider, so we read the context directly with
+// useContext — which returns null instead of throwing when there's no provider.
+function useOptionalUser() {
+  const ctx = useContext(AuthContext);
+  if (!ctx?.user) return null;
+  const u = ctx.user;
+  return {
+    id: u._id || u.id || null,
+    email: u.email || null,
+    name: u.name || u.displayName || [u.firstName, u.lastName].filter(Boolean).join(' ') || null,
+    role: u.role || u.roles?.[0] || u.rbac?.role || null,
+    appRole: u.rbac?.role || null,
+  };
+}
 
 // ─── Context Collector ────────────────────────────────────────────────────────
 // Gathers extensive system/session context to enrich every feedback submission.
-function collectSystemContext(appName) {
+// ─── Device & OS Detection ───────────────────────────────────────────────────
+function detectDevice() {
+  const ua = typeof navigator !== 'undefined' ? navigator.userAgent : '';
+  const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+  const isTablet = /Tablet|iPad/i.test(ua) || (isMobile && Math.min(screen.width, screen.height) >= 600);
+  const deviceType = isTablet ? 'tablet' : isMobile ? 'mobile' : 'desktop';
+
+  // OS detection — ordered most-specific first
+  let os = 'unknown';
+  if (/Windows NT/i.test(ua)) os = 'Windows';
+  else if (/Mac OS X/i.test(ua)) os = /iPhone|iPad/i.test(ua) ? 'iOS' : 'macOS';
+  else if (/Android/i.test(ua)) os = 'Android';
+  else if (/Linux/i.test(ua)) os = 'Linux';
+  else if (/CrOS/i.test(ua)) os = 'ChromeOS';
+
+  // Extract OS version where possible
+  const winMatch = ua.match(/Windows NT (\d+\.\d+)/);
+  const macMatch = ua.match(/Mac OS X ([\d_]+)/);
+  const androidMatch = ua.match(/Android ([\d.]+)/);
+  const iosMatch = ua.match(/OS ([\d_]+) like Mac/);
+  const osVersion =
+    (winMatch && winMatch[1]) ||
+    (macMatch && macMatch[1].replace(/_/g, '.')) ||
+    (androidMatch && androidMatch[1]) ||
+    (iosMatch && iosMatch[1].replace(/_/g, '.')) ||
+    null;
+
+  const orientation =
+    typeof screen !== 'undefined' && screen.orientation
+      ? screen.orientation.type
+      : typeof window !== 'undefined'
+        ? window.innerWidth > window.innerHeight ? 'landscape-primary' : 'portrait-primary'
+        : null;
+
+  return { deviceType, os, osVersion, orientation };
+}
+
+function collectSystemContext(appName, user = null) {
   const sessionStart = window.__feedbackSessionStart;
   const sessionDurationMs = sessionStart ? Date.now() - sessionStart : null;
 
@@ -83,7 +139,20 @@ function collectSystemContext(appName) {
     ? "/" + fullPathname.slice(base.length)
     : fullPathname;
 
+  const device = detectDevice();
+
   return {
+    // ── Authenticated user identity (auto-populated, never manually entered) ──
+    user: user
+      ? {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        appRole: user.appRole,
+      }
+      : null,
+
     page: {
       url: typeof window !== "undefined" ? window.location.href : "unknown",
       path: inAppPath,
@@ -92,6 +161,12 @@ function collectSystemContext(appName) {
       referrer: typeof document !== "undefined" ? document.referrer : "",
       title: typeof document !== "undefined" ? document.title : "",
       timestamp: new Date().toISOString(),
+    },
+    device: {
+      type: device.deviceType,
+      os: device.os,
+      osVersion: device.osVersion,
+      orientation: device.orientation,
     },
     browser: {
       userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "unknown",
@@ -178,6 +253,7 @@ export async function submitFeedbackSilently({
   description,
   appType = "unknown",
   severity = "high",
+  user = null,
 } = {}) {
   try {
     // Probe token from sessionStorage / localStorage across all known namespaces
@@ -210,7 +286,8 @@ export async function submitFeedbackSilently({
         category: "bug",
         severity,
         userInput: { title, description, allowContact: false },
-        systemContext: collectSystemContext(appType),
+        // Pass user identity so backend can enrich systemContext.user
+        systemContext: collectSystemContext(appType, user),
       }),
     });
   } catch {
@@ -222,6 +299,7 @@ export async function submitFeedbackSilently({
 function FeedbackModal({
   onClose,
   appType,
+  user = null,
   initialTitle = "",
   initialDescription = "",
 }) {
@@ -311,8 +389,8 @@ function FeedbackModal({
           description: feedback.description,
           allowContact: false,
         },
-        // Extensive system context
-        systemContext: collectSystemContext(appName),
+        // Full system context including auto-collected user identity & device info
+        systemContext: collectSystemContext(appName, user),
       };
 
       const reqHeaders = { "Content-Type": "application/json" };
@@ -355,7 +433,7 @@ function FeedbackModal({
     fontFamily: "inherit",
   };
 
-  const ctx = collectSystemContext(appType || "unknown");
+  const ctx = collectSystemContext(appType || "unknown", user);
 
   return (
     // Scrim
@@ -746,6 +824,8 @@ export const FeedbackQuickAction = ({
   appType,
   accentColor,
 }) => {
+  // Automatically pick up the signed-in user's identity (null for anonymous/public pages)
+  const user = useOptionalUser();
   const [isOpen, setIsOpen] = useState(false);
   // Pre-fill context provided by passive frustration detection
   const [prefill, setPrefill] = useState({ title: "", description: "" });
@@ -767,12 +847,13 @@ export const FeedbackQuickAction = ({
       // 1. Pre-fill so the next manual open already has context
       setPrefill({ title, description });
 
-      // 2. Silently auto-report the frustration signal
+      // 2. Silently auto-report the frustration signal (include user identity)
       await submitFeedbackSilently({
         title,
         description,
         appType,
         severity: "medium",
+        user,
       });
     },
   });
@@ -840,6 +921,7 @@ export const FeedbackQuickAction = ({
           <FeedbackModal
             onClose={() => setIsOpen(false)}
             appType={appType}
+            user={user}
             initialTitle={prefill.title}
             initialDescription={prefill.description}
           />
@@ -886,6 +968,7 @@ export const FeedbackQuickAction = ({
           <FeedbackModal
             onClose={() => setIsOpen(false)}
             appType={appType}
+            user={user}
             initialTitle={prefill.title}
             initialDescription={prefill.description}
           />
@@ -932,6 +1015,7 @@ export const FeedbackQuickAction = ({
           <FeedbackModal
             onClose={() => setIsOpen(false)}
             appType={appType}
+            user={user}
             initialTitle={prefill.title}
             initialDescription={prefill.description}
           />
@@ -998,6 +1082,7 @@ export const FeedbackQuickAction = ({
           <FeedbackModal
             onClose={() => setIsOpen(false)}
             appType={appType}
+            user={user}
             initialTitle={prefill.title}
             initialDescription={prefill.description}
           />
@@ -1085,7 +1170,7 @@ export const FeedbackQuickAction = ({
           </div>
         )}
         {isOpen && (
-          <FeedbackModal onClose={() => setIsOpen(false)} appType={appType} />
+          <FeedbackModal onClose={() => setIsOpen(false)} appType={appType} user={user} />
         )}
       </>
     );
@@ -1149,6 +1234,7 @@ export const FeedbackQuickAction = ({
         <FeedbackModal
           onClose={() => setIsOpen(false)}
           appType={appType}
+          user={user}
           initialTitle={prefill.title}
           initialDescription={prefill.description}
         />
