@@ -285,29 +285,16 @@ export class AuthInterceptor {
 
   private loadTokensFromStorage(): void {
     try {
-      let storage = this.getStorage();
+      const storage = this.getStorage();
 
-      let accessToken = storage.getItem(this.config.tokenKey);
-      let refreshToken = storage.getItem(this.config.refreshTokenKey);
-      let expiresAt = storage.getItem(`${this.config.tokenKey}_expires`);
+      const accessToken = storage.getItem(this.config.tokenKey);
+      const refreshToken = storage.getItem(this.config.refreshTokenKey);
+      const expiresAt = storage.getItem(`${this.config.tokenKey}_expires`);
 
-      // Fallback to alternative storage if token not found
-      if (!accessToken && typeof window !== "undefined") {
-        const fallbackStorage =
-          this.config.tokenStorage === "localStorage"
-            ? window.sessionStorage
-            : window.localStorage;
-
-        const fallbackToken = fallbackStorage.getItem(this.config.tokenKey);
-        if (fallbackToken) {
-          accessToken = fallbackToken;
-          refreshToken = fallbackStorage.getItem(this.config.refreshTokenKey);
-          expiresAt = fallbackStorage.getItem(
-            `${this.config.tokenKey}_expires`,
-          );
-        }
-      }
-
+      // Only load tokens from the configured storage bucket.
+      // Cross-storage fallback is intentionally absent: reading from the
+      // wrong bucket can surface expired tokens from a different session,
+      // causing silent 401s that are very hard to trace.
       if (accessToken) {
         this.tokens = {
           accessToken,
@@ -315,9 +302,11 @@ export class AuthInterceptor {
           expiresAt: expiresAt ? parseInt(expiresAt, 10) : undefined,
         };
       }
-    } catch (_error) {
-      // Storage might not be available (SSR, private browsing, etc.)
-      // console.warn('Failed to load tokens from storage:', error);
+    } catch (error) {
+      // Storage may be unavailable in SSR or restricted private-browsing contexts.
+      if (import.meta.env?.DEV) {
+        console.warn("[AuthInterceptor] loadTokensFromStorage failed:", (error as Error).message);
+      }
     }
   }
 
@@ -342,8 +331,10 @@ export class AuthInterceptor {
           );
         }
       }
-    } catch (_error) {
-      // console.warn('Failed to save tokens to storage:', error);
+    } catch (error) {
+      if (import.meta.env?.DEV) {
+        console.warn("[AuthInterceptor] saveTokensToStorage failed:", (error as Error).message);
+      }
     }
   }
 
@@ -354,8 +345,10 @@ export class AuthInterceptor {
       storage.removeItem(this.config.tokenKey);
       storage.removeItem(this.config.refreshTokenKey);
       storage.removeItem(`${this.config.tokenKey}_expires`);
-    } catch (_error) {
-      // console.warn('Failed to remove tokens from storage:', error);
+    } catch (error) {
+      if (import.meta.env?.DEV) {
+        console.warn("[AuthInterceptor] removeTokensFromStorage failed:", (error as Error).message);
+      }
     }
   }
 
