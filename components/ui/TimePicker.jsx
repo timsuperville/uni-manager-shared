@@ -269,7 +269,9 @@ export function TimePicker({
     };
 
     const triggerFocusStyle = (focused) => ({
-        borderColor: focused ? "var(--border-glow, var(--primary-resonance))" : "var(--glass-outline)",
+        border: focused
+            ? "1px solid var(--border-glow, var(--primary-resonance))"
+            : "1px solid var(--glass-outline, rgba(255,255,255,0.12))",
         boxShadow: focused ? "0 0 0 3px var(--primary-glow, rgba(99,102,241,0.2))" : "none",
     });
 
@@ -290,7 +292,7 @@ export function TimePicker({
                     ...S.trigger,
                     opacity: disabled ? 0.55 : 1,
                     cursor: disabled ? "not-allowed" : "pointer",
-                    ...(open ? triggerFocusStyle(true) : {}),
+                    ...(open ? triggerFocusStyle(true) : triggerFocusStyle(false)),
                 }}
                 onFocus={(e) => Object.assign(e.currentTarget.style, triggerFocusStyle(true))}
                 onBlur={(e) => { if (!wrapRef.current?.contains(e.relatedTarget)) Object.assign(e.currentTarget.style, triggerFocusStyle(false)); }}
@@ -400,9 +402,9 @@ export function TimePicker({
                                                 ? "var(--primary-resonance)"
                                                 : "var(--bg-surface-2, rgba(255,255,255,0.05))",
                                             color: active ? "#fff" : "var(--text-muted)",
-                                            borderColor: active
-                                                ? "transparent"
-                                                : "var(--glass-outline)",
+                                            border: active
+                                                ? "1px solid transparent"
+                                                : "1px solid var(--glass-outline)",
                                         }}
                                     >
                                         {ap}
@@ -425,7 +427,7 @@ export function TimePicker({
                                         ...S.quickBtn,
                                         background: active ? "var(--primary-subtle, hsla(272,65%,62%,0.12))" : "transparent",
                                         color: active ? "var(--text-accent, var(--primary-resonance))" : "var(--text-muted)",
-                                        borderColor: active ? "var(--primary-resonance, rgba(99,102,241,0.4))" : "var(--glass-outline)",
+                                        border: active ? "1px solid var(--primary-resonance, rgba(99,102,241,0.4))" : "1px solid var(--glass-outline)",
                                     }}
                                     onMouseEnter={(e) => {
                                         if (!active) {
