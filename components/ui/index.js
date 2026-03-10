@@ -37,6 +37,7 @@ export { Alert, AlertTitle, AlertDescription } from "./Alert";
 
 // Liquid Glass form primitives (inline-style, CSS token—based)
 export { GlassInput } from "./GlassInput";
+export { GlassSelect } from "./GlassSelect";
 export { FormSelect } from "./FormSelect";
 export { Chip, CHIP_VARIANTS } from "./Chip";
 export { StatusBadge, STATUS_VARIANTS } from "./StatusBadge";
