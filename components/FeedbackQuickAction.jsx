@@ -873,14 +873,13 @@ function FeedbackModal({
               </div>
             )}
 
-            {/* Actions — Cancel demoted to text link, Submit is the clear primary CTA */}
+            {/* Actions — Cancel anchored left, Submit anchored right at all viewport sizes */}
             <div
               style={{
                 display: "flex",
                 alignItems: "center",
-                // On mobile stretch Submit full-width; desktop right-align
-                justifyContent: isMobile ? "space-between" : "flex-end",
-                gap: "8px",
+                justifyContent: "space-between",
+                gap: "12px",
                 paddingTop: "4px",
               }}
             >
@@ -891,7 +890,7 @@ function FeedbackModal({
                 style={{
                   background: "none",
                   border: "none",
-                  cursor: "pointer",
+                  cursor: isSubmitting ? "not-allowed" : "pointer",
                   color: "var(--text-muted, #64748b)",
                   fontSize: "13px",
                   padding: "8px 10px",
@@ -899,6 +898,7 @@ function FeedbackModal({
                   textDecoration: "underline",
                   textUnderlineOffset: "2px",
                   flexShrink: 0,
+                  opacity: isSubmitting ? 0.5 : 1,
                 }}
               >
                 Cancel
@@ -930,7 +930,7 @@ function FeedbackModal({
                       : "0 4px 16px var(--primary-glow, rgba(99,102,241,0.35))",
                   transition: "all 160ms ease",
                   fontFamily: "inherit",
-                  flex: isMobile ? "1" : "0 0 auto",
+                  flexShrink: 0,
                 }}
               >
                 {isSubmitting ? "Sending…" : "Send Feedback"}
