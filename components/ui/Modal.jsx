@@ -154,10 +154,10 @@ Modal.propTypes = {
   // Primary props
   open: PropTypes.bool,
   onClose: PropTypes.func,
-  title: PropTypes.string,
+  title: PropTypes.node,
   children: PropTypes.node,
   footer: PropTypes.node,
-  maxWidth: PropTypes.number,
+  maxWidth: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   className: PropTypes.string,
   // Alias props (backward-compat)
   isOpen: PropTypes.bool,
