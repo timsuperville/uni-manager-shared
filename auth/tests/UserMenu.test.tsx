@@ -1,14 +1,13 @@
+import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { BrowserRouter } from "react-router-dom";
-import UserMenu from "./UserMenu";
+import UserMenu from "../components/UserMenu";
 import * as AuthContext from "../context/AuthContext";
+import type { AuthContextType } from "../types/auth.types.ts";
 
-// Mock helper to wrap consistent providers
-const renderWithProviders = (ui) => {
-  return render(<BrowserRouter>{ui}</BrowserRouter>);
-};
+// ── Mock Lucide icons ─────────────────────────────────────────────────────────
 
 vi.mock("lucide-react", () => ({
   User: () => <span data-testid="icon-user" />,
@@ -18,27 +17,37 @@ vi.mock("lucide-react", () => ({
   Loader2: () => <span data-testid="icon-loader" />,
 }));
 
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+const renderWithProviders = (ui: React.ReactNode) =>
+  render(<BrowserRouter>{ui}</BrowserRouter>);
+
+// ── Fixtures ──────────────────────────────────────────────────────────────────
+
+const mockUser = {
+  id: "user-1",
+  firstName: "Test",
+  lastName: "User",
+  email: "test@example.com",
+  role: "user",
+};
+
+const mockLogout = vi.fn();
+
+// Minimal valid AuthContextType shape for tests
+const baseAuthMock = {
+  user: mockUser,
+  logout: mockLogout,
+  isLoading: false,
+} as unknown as AuthContextType;
+
+// ── Suite ─────────────────────────────────────────────────────────────────────
+
 describe("UserMenu Component", () => {
-  // Setup default mocks
-  const mockUser = {
-    firstName: "Test",
-    lastName: "User",
-    email: "test@example.com",
-    role: "user",
-  };
-
-  const mockLogout = vi.fn();
-  const mockIsLoading = false;
-
-  // Mock useAuth
   const spyUseAuth = vi.spyOn(AuthContext, "useAuth");
 
   beforeEach(() => {
-    spyUseAuth.mockReturnValue({
-      user: mockUser,
-      logout: mockLogout,
-      isLoading: mockIsLoading,
-    });
+    spyUseAuth.mockReturnValue(baseAuthMock);
   });
 
   afterEach(() => {
@@ -47,14 +56,13 @@ describe("UserMenu Component", () => {
 
   it("renders user initials when no avatar is present", () => {
     renderWithProviders(<UserMenu />);
-    // "Test User" -> "TU"
+    // "Test User" → "TU"
     expect(screen.getByText("TU")).toBeInTheDocument();
   });
 
   it("renders user full name and role", () => {
     renderWithProviders(<UserMenu />);
     expect(screen.getByText("Test User")).toBeInTheDocument();
-    // Open menu to verify user details are shown in the dropdown header
     const button = screen.getByLabelText("User menu");
     fireEvent.click(button);
     expect(screen.getByText("test@example.com")).toBeInTheDocument();
@@ -62,12 +70,10 @@ describe("UserMenu Component", () => {
 
   it("formats 'super_admin' role correctly", () => {
     spyUseAuth.mockReturnValue({
+      ...baseAuthMock,
       user: { ...mockUser, role: "super_admin" },
-      logout: mockLogout,
-      isLoading: false,
-    });
+    } as unknown as AuthContextType);
     renderWithProviders(<UserMenu />);
-    // Open menu and verify email is shown (role formatting not directly rendered)
     const button = screen.getByLabelText("User menu");
     fireEvent.click(button);
     expect(screen.getByText("test@example.com")).toBeInTheDocument();
@@ -75,33 +81,27 @@ describe("UserMenu Component", () => {
 
   it("prioritizes churchRole over generic role", () => {
     spyUseAuth.mockReturnValue({
+      ...baseAuthMock,
       user: { ...mockUser, role: "user", churchRole: "Worship Leader" },
-      logout: mockLogout,
-      isLoading: false,
-    });
+    } as unknown as AuthContextType);
     renderWithProviders(<UserMenu />);
     expect(screen.getByText("Worship Leader")).toBeInTheDocument();
   });
 
   it("shows skeleton loader when loading", () => {
     spyUseAuth.mockReturnValue({
+      ...baseAuthMock,
       user: null,
-      logout: mockLogout,
       isLoading: true,
-    });
+    } as unknown as AuthContextType);
     const { container } = renderWithProviders(<UserMenu />);
-    // Check for animate-pulse class
-    expect(
-      container.getElementsByClassName("animate-pulse").length,
-    ).toBeGreaterThan(0);
+    expect(container.getElementsByClassName("animate-pulse").length).toBeGreaterThan(0);
   });
 
   it("opens menu on click", () => {
     renderWithProviders(<UserMenu />);
     const button = screen.getByLabelText("User menu");
     fireEvent.click(button);
-
-    // Expect menu items to appear
     expect(screen.getByText("View Profile")).toBeInTheDocument();
     expect(screen.getByText("Preferences")).toBeInTheDocument();
     expect(screen.getByText("Sign out")).toBeInTheDocument();
@@ -111,10 +111,8 @@ describe("UserMenu Component", () => {
     renderWithProviders(<UserMenu />);
     const button = screen.getByLabelText("User menu");
     fireEvent.click(button);
-
     const signOutBtn = screen.getByText("Sign out");
     fireEvent.click(signOutBtn);
-
     expect(mockLogout).toHaveBeenCalled();
   });
 
@@ -122,7 +120,6 @@ describe("UserMenu Component", () => {
     renderWithProviders(<UserMenu showPreferencesLink={false} />);
     const button = screen.getByLabelText("User menu");
     fireEvent.click(button);
-
     expect(screen.queryByText("Preferences")).not.toBeInTheDocument();
   });
 
@@ -132,7 +129,6 @@ describe("UserMenu Component", () => {
     );
     const button = screen.getByLabelText("User menu");
     fireEvent.click(button);
-
     expect(screen.getByTestId("custom-header")).toBeInTheDocument();
   });
 });
