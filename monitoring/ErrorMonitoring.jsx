@@ -15,4 +15,4 @@ export {
   setupPerformanceMonitoring,
   setupHealthCheck,
   initializeMonitoring,
-} from "../components/ErrorMonitoring.jsx";
+} from "../features/monitoring/ErrorMonitoring.jsx";

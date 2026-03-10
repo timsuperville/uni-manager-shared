@@ -22,15 +22,15 @@ export {
   submitFeedbackSilently,
   FEEDBACK_SOURCES,
 } from "../features/feedback";
-export { NpsSurvey } from "./NpsSurvey";
+export { NpsSurvey } from "../features/nps";
 
 // ── Feature components ────────────────────────────────────────────────────────
-export { default as ActivityFeed } from "./ActivityFeed";
-export { default as AdvancedSearch } from "./AdvancedSearch";
-export { default as DataExport } from "./DataExport";
+export { default as ActivityFeed } from "../features/activity-feed";
+export { default as AdvancedSearch } from "../features/advanced-search";
+export { default as DataExport } from "../features/data-export";
 export { default as LazyWidget } from "./LazyWidget";
 export { default as ErrorBoundary } from "./ErrorBoundary";
-export { default as RealTimeNotifications } from "./RealTimeNotifications";
+export { default as RealTimeNotifications } from "../features/real-time-notifications";
 export { default as ThemeToggle } from "./ThemeToggle";
 
 // ── Mobile-optimized shared components ───────────────────────────────────────
@@ -53,7 +53,7 @@ export {
   setupPerformanceMonitoring,
   setupHealthCheck,
   initializeMonitoring,
-} from "./ErrorMonitoring";
+} from "../features/monitoring";
 export {
   PresenceProvider,
   usePresence,
