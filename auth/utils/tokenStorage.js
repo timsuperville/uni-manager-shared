@@ -2,16 +2,27 @@
  * Secure Token Storage Utility
  *
  * Provides secure storage for authentication tokens across all apps.
- * Uses sessionStorage for security and localStorage for persistence options.
+ * Uses sessionStorage by default for security; localStorage is used only
+ * when the user opts into persistent login.
+ *
+ * Each app MUST instantiate TokenStorage with its own namespace so tokens
+ * never bleed between apps running on the same origin:
+ *   - church app  → new TokenStorage("church")  → church_auth_access_token
+ *   - admin app   → new TokenStorage("admin")   → admin_auth_access_token
+ *   - home app    → new TokenStorage("home")    → home_auth_access_token
+ *
+ * AuthService creates the namespaced instance internally.
+ * The default singleton (namespace "uni") exists only for backward
+ * compatibility with legacy callers — new code must NOT use it.
  */
 
 /* global window */
 
-class TokenStorage {
+export class TokenStorage {
   /**
    * @param {string} [namespace="uni"] - App-specific prefix for storage keys.
    *   Each app MUST use its own namespace so sessions never bleed between apps
-   *   running on the same origin (e.g. admin vs home on localhost).
+   *   running on the same origin (e.g. admin vs church on localhost).
    */
   constructor(namespace = "uni") {
     const ns = namespace;
@@ -30,6 +41,13 @@ class TokenStorage {
 
   /**
    * Set authentication tokens
+   * @param {Object} params
+   * @param {string} [params.accessToken]
+   * @param {string} [params.refreshToken]
+   * @param {Object} [params.user]
+   * @param {string} [params.sessionId]
+   * @param {boolean} [params.persistent=false] - Write to localStorage instead of sessionStorage
+   * @returns {Promise<boolean>}
    */
   async setTokens({
     accessToken,
@@ -42,52 +60,38 @@ class TokenStorage {
       const storage = persistent ? this.persistentStorage : this.storage;
       if (!storage) return false;
 
-      if (accessToken) {
-        storage.setItem(this.storageKeys.accessToken, accessToken);
-      }
-
-      if (refreshToken) {
-        storage.setItem(this.storageKeys.refreshToken, refreshToken);
-      }
-
-      if (user) {
-        storage.setItem(this.storageKeys.user, JSON.stringify(user));
-      }
-
-      if (sessionId) {
-        storage.setItem(this.storageKeys.sessionId, sessionId);
-      }
+      if (accessToken) storage.setItem(this.storageKeys.accessToken, accessToken);
+      if (refreshToken) storage.setItem(this.storageKeys.refreshToken, refreshToken);
+      if (user) storage.setItem(this.storageKeys.user, JSON.stringify(user));
+      if (sessionId) storage.setItem(this.storageKeys.sessionId, sessionId);
 
       return true;
-    } catch (_error) {
-      if (typeof console !== "undefined") {
-        // console.error('Error setting tokens:', error);
-      }
+    } catch (error) {
+      if (import.meta.env?.DEV) console.warn("[TokenStorage] setTokens failed:", error.message);
       return false;
     }
   }
 
   /**
-   * Get access token
+   * Get access token — checks sessionStorage first, then localStorage
+   * @returns {Promise<string|null>}
    */
   async getAccessToken() {
     try {
-      // Check sessionStorage first, then localStorage
       return (
         this.storage?.getItem(this.storageKeys.accessToken) ||
         this.persistentStorage?.getItem(this.storageKeys.accessToken) ||
         null
       );
-    } catch (_error) {
-      if (typeof console !== "undefined") {
-        // console.error('Error getting access token:', error);
-      }
+    } catch (error) {
+      if (import.meta.env?.DEV) console.warn("[TokenStorage] getAccessToken failed:", error.message);
       return null;
     }
   }
 
   /**
-   * Get refresh token
+   * Get refresh token — checks sessionStorage first, then localStorage
+   * @returns {Promise<string|null>}
    */
   async getRefreshToken() {
     try {
@@ -96,16 +100,15 @@ class TokenStorage {
         this.persistentStorage?.getItem(this.storageKeys.refreshToken) ||
         null
       );
-    } catch (_error) {
-      if (typeof console !== "undefined") {
-        // console.error('Error getting refresh token:', error);
-      }
+    } catch (error) {
+      if (import.meta.env?.DEV) console.warn("[TokenStorage] getRefreshToken failed:", error.message);
       return null;
     }
   }
 
   /**
-   * Get user data
+   * Get stored user data
+   * @returns {Promise<Object|null>}
    */
   async getUser() {
     try {
@@ -114,16 +117,15 @@ class TokenStorage {
         this.persistentStorage?.getItem(this.storageKeys.user);
 
       return userData ? JSON.parse(userData) : null;
-    } catch (_error) {
-      if (typeof console !== "undefined") {
-        // console.error('Error getting user data:', error);
-      }
+    } catch (error) {
+      if (import.meta.env?.DEV) console.warn("[TokenStorage] getUser failed:", error.message);
       return null;
     }
   }
 
   /**
    * Get session ID
+   * @returns {Promise<string|null>}
    */
   async getSessionId() {
     try {
@@ -132,49 +134,48 @@ class TokenStorage {
         this.persistentStorage?.getItem(this.storageKeys.sessionId) ||
         null
       );
-    } catch (_error) {
-      if (typeof console !== "undefined") {
-        // console.error('Error getting session ID:', error);
-      }
+    } catch (error) {
+      if (import.meta.env?.DEV) console.warn("[TokenStorage] getSessionId failed:", error.message);
       return null;
     }
   }
 
   /**
-   * Clear all authentication data
+   * Clear all authentication data from both sessionStorage and localStorage
+   * @returns {Promise<boolean>}
    */
   async clearTokens() {
     try {
-      // Clear from both storages
       Object.values(this.storageKeys).forEach((key) => {
         this.storage?.removeItem(key);
         this.persistentStorage?.removeItem(key);
       });
-
       return true;
-    } catch (_error) {
-      if (typeof console !== "undefined") {
-        // console.error('Error clearing tokens:', error);
-      }
+    } catch (error) {
+      if (import.meta.env?.DEV) console.warn("[TokenStorage] clearTokens failed:", error.message);
       return false;
     }
   }
 
   /**
-   * Check if tokens exist
+   * Returns true if both an access token and user record exist in storage
+   * @returns {Promise<boolean>}
    */
   async hasTokens() {
     try {
-      const accessToken = await this.getAccessToken();
-      const user = await this.getUser();
+      const [accessToken, user] = await Promise.all([
+        this.getAccessToken(),
+        this.getUser(),
+      ]);
       return !!(accessToken && user);
-    } catch (_error) {
+    } catch {
       return false;
     }
   }
 
   /**
-   * Get all authentication data
+   * Get all authentication data in one call
+   * @returns {Promise<{accessToken, refreshToken, user, sessionId, isAuthenticated}>}
    */
   async getAuthData() {
     try {
@@ -192,10 +193,8 @@ class TokenStorage {
         sessionId,
         isAuthenticated: !!(accessToken && user),
       };
-    } catch (_error) {
-      if (typeof console !== "undefined") {
-        // console.error('Error getting auth data:', error);
-      }
+    } catch (error) {
+      if (import.meta.env?.DEV) console.warn("[TokenStorage] getAuthData failed:", error.message);
       return {
         accessToken: null,
         refreshToken: null,
@@ -207,7 +206,9 @@ class TokenStorage {
   }
 
   /**
-   * Update user data without affecting tokens
+   * Merge new fields into the stored user object without affecting tokens
+   * @param {Object} userData - Partial user fields to merge
+   * @returns {Promise<boolean>}
    */
   async updateUser(userData) {
     try {
@@ -216,81 +217,25 @@ class TokenStorage {
 
       const updatedUser = { ...currentUser, ...userData };
 
-      // Update in the same storage where it currently exists
+      // Write back to whichever storage currently holds the user record
       const storage = this.storage?.getItem(this.storageKeys.user)
         ? this.storage
         : this.persistentStorage;
       storage?.setItem(this.storageKeys.user, JSON.stringify(updatedUser));
 
       return true;
-    } catch (_error) {
-      if (typeof console !== "undefined") {
-        // console.error('Error updating user data:', error);
-      }
+    } catch (error) {
+      if (import.meta.env?.DEV) console.warn("[TokenStorage] updateUser failed:", error.message);
       return false;
     }
   }
 }
 
-// ==================== HELPER FUNCTIONS ====================
-
-/**
- * Store token in storage
- */
-export const storeToken = (token, refreshToken = null) => {
-  tokenStorage.setToken(token);
-  if (refreshToken) {
-    tokenStorage.setRefreshToken(refreshToken);
-  }
-};
-
-/**
- * Get token from storage
- */
-export const getToken = () => {
-  return tokenStorage.getToken();
-};
-
-/**
- * Get refresh token from storage
- */
-export const getRefreshToken = () => {
-  return tokenStorage.getRefreshToken();
-};
-
-/**
- * Clear tokens from storage
- */
-export const clearTokens = () => {
-  tokenStorage.clearTokens();
-};
-
-/**
- * Check if token is expired
- */
-export const isTokenExpired = (token = null) => {
-  const tokenToCheck = token || tokenStorage.getToken();
-  return tokenStorage.isTokenExpired(tokenToCheck);
-};
-
-/**
- * Get token expiry time
- */
-export const getTokenExpiryTime = (token = null) => {
-  const tokenToCheck = token || tokenStorage.getToken();
-  if (!tokenToCheck) return null;
-  try {
-    // eslint-disable-next-line no-undef
-    const decoded = JSON.parse(atob(tokenToCheck.split(".")[1]));
-    return decoded.exp ? new Date(decoded.exp * 1000) : null;
-  } catch {
-    return null;
-  }
-};
-
-// Export the class so AuthService can create per-app scoped instances
-export { TokenStorage };
-
-// Export singleton instance (default namespace "uni" — backward compatible)
+// ---------------------------------------------------------------------------
+// Singleton instance — default namespace "uni" for backward compatibility.
+// DO NOT use this singleton for app-specific token reads/writes.
+// Use AuthService (which constructs a namespaced TokenStorage internally) or
+// create your own: new TokenStorage("church"), new TokenStorage("admin"), etc.
+// ---------------------------------------------------------------------------
 export const tokenStorage = new TokenStorage();
 export default tokenStorage;

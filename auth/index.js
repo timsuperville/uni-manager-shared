@@ -319,18 +319,15 @@ export {
 } from "./utils/authValidation.js";
 
 /**
- * Token Storage Utilities
- * Handles secure token persistence
+ * Token Storage
+ *
+ * TokenStorage — class. Instantiate with an app namespace to read/write
+ *   that app's namespaced keys: new TokenStorage("church") reads church_auth_access_token.
+ *
+ * tokenStorage — default export, namespace "uni". For backward compatibility only.
+ *   New code should use AuthService or a namespaced TokenStorage instance.
  */
-export {
-  tokenStorage,
-  storeToken,
-  getToken,
-  getRefreshToken,
-  clearTokens,
-  isTokenExpired,
-  getTokenExpiryTime,
-} from "./utils/tokenStorage.js";
+export { TokenStorage, tokenStorage } from "./utils/tokenStorage.js";
 
 // ============================================================================
 // RBAC - Role-Based Access Control
