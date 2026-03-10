@@ -2,10 +2,10 @@
  * Multi-Factor Authentication (MFA) Service
  *
  * Network calls for all MFA flows (TOTP, SMS, Email, WebAuthn, backup codes).
- * Utility helpers (display names, validation, phone formatting) live in mfaUtils.ts.
+ * Utility helpers (display names, validation, phone formatting) live in utils/mfaUtils.ts.
  */
 
-import type { MFAMethod } from "./mfaUtils.ts";
+import type { MFAMethod } from "../utils/mfaUtils.ts";
 
 // -- Types --------------------------------------------------------------------
 
@@ -258,4 +258,4 @@ export {
   validateSMSCode,
   formatPhoneNumber,
   type MFAMethod,
-} from "./mfaUtils.ts";
+} from "../utils/mfaUtils.ts";

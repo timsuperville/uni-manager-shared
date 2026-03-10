@@ -31,7 +31,7 @@ export {
   validateSMSCode,
   formatPhoneNumber,
   type MFAMethod,
-} from "./mfaUtils.ts";
+} from "../utils/mfaUtils.ts";
 
 /** OAuth 2.0 PKCE flows */
 export { OAuthAuthService } from "./OAuthAuthService.ts";
