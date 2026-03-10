@@ -640,4 +640,29 @@ ErrorBoundary.propTypes = {
   showHomeButton: PropTypes.bool,
 };
 
+// ── withErrorBoundary HOC ─────────────────────────────────────────────────────
+// Higher-order component wrapper for class components and third-party
+// components that can't accept ErrorBoundary as a direct ancestor via JSX.
+//
+// Usage:
+//   export default withErrorBoundary(MyComponent, { variant: "inline", appType: "church" });
+//   // Or for a class component that can't use hooks:
+//   const SafeWidget = withErrorBoundary(ThirdPartyWidget, { title: "Widget unavailable" });
+//
+// The displayName is set so the wrapper is legible in React DevTools.
+export function withErrorBoundary(Component, boundaryProps = {}) {
+  const displayName = Component.displayName || Component.name || "Component";
+
+  function WithBoundary(props) {
+    return (
+      <ErrorBoundary {...boundaryProps}>
+        <Component {...props} />
+      </ErrorBoundary>
+    );
+  }
+
+  WithBoundary.displayName = `WithErrorBoundary(${displayName})`;
+  return WithBoundary;
+}
+
 export default ErrorBoundary;
