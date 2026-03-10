@@ -361,6 +361,7 @@ export async function submitFeedbackSilently({
 // ─── Feedback Modal ────────────────────────────────────────────────────────────
 function FeedbackModal({
   onClose,
+  onSubmitSuccess,
   appType,
   user = null,
   initialTitle = "",
@@ -469,6 +470,7 @@ function FeedbackModal({
       if (response.ok) {
         setSubmitted(true);
         setTimeout(() => {
+          onSubmitSuccess?.();
           onClose();
           setSubmitted(false);
         }, 2200);
@@ -948,7 +950,7 @@ export const FeedbackQuickAction = ({
   position = "bottom-right",
   appType,
   accentColor,
-  onOpen, // optional — called when the trigger is clicked (e.g. close mobile nav)
+  onSubmitSuccess, // optional — called after successful submission & modal auto-closes
 }) => {
   // Automatically pick up the signed-in user's identity (null for anonymous/public pages)
   const user = useOptionalUser();
@@ -1015,7 +1017,6 @@ export const FeedbackQuickAction = ({
         <button
           id="feedback-sidebar-trigger"
           onClick={() => {
-            onOpen?.();
             setIsOpen(true);
           }}
           style={{
@@ -1054,6 +1055,7 @@ export const FeedbackQuickAction = ({
         {isOpen && (
           <FeedbackModal
             onClose={() => setIsOpen(false)}
+            onSubmitSuccess={onSubmitSuccess}
             appType={appType}
             user={user}
             initialTitle={prefill.title}
