@@ -82,11 +82,15 @@ GlassInput.propTypes = {
 };
 
 /**
- * GlassSelect — Liquid Glass Design System
+ * FormSelect — Liquid Glass Design System
  *
- * A styled native <select> using global CSS tokens.
+ * A styled native <select> for form fields. Full-width block layout;
+ * use this inside FormField wrappers, filter panels, and settings pages.
+ *
+ * For inline compact filter chips, use: <Select size="chip" />
+ * For full custom dropdowns with search/multi, use: <Select />
  */
-export function GlassSelect({
+export function FormSelect({
   id,
   value,
   onChange,
@@ -129,7 +133,7 @@ export function GlassSelect({
   );
 }
 
-GlassSelect.propTypes = {
+FormSelect.propTypes = {
   id: PropTypes.string,
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   onChange: PropTypes.func.isRequired,
@@ -137,3 +141,9 @@ GlassSelect.propTypes = {
   disabled: PropTypes.bool,
   style: PropTypes.object,
 };
+
+/**
+ * @deprecated Use FormSelect instead.
+ * GlassSelect kept as an alias for backward compatibility.
+ */
+export const GlassSelect = FormSelect;
