@@ -63,10 +63,4 @@ FormSelect.propTypes = {
     style: PropTypes.object,
 };
 
-/**
- * @deprecated Use FormSelect instead.
- * GlassSelect kept as an alias for backward compatibility.
- */
-export const GlassSelect = FormSelect;
-
 export default FormSelect;
