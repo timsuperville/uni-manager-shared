@@ -10,8 +10,8 @@
  * callback, which invokes a network request).
  */
 
-import { TokenStorage } from "../utils/TokenStorage.js";
-import type { User } from "../types/auth.types.js";
+import { TokenStorage } from "../utils/TokenStorage.ts";
+import type { User } from "../types/auth.types.ts";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -123,7 +123,8 @@ export class TokenManagementService {
           .join(""),
       );
       return JSON.parse(jsonPayload) as TokenPayload;
-    } catch {
+    } catch (error) {
+      if (import.meta.env.DEV) console.warn("[TokenManagementService] decodeToken failed:", (error as Error).message);
       return null;
     }
   }

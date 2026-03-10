@@ -331,7 +331,8 @@ class SessionService {
     try {
       const devices = JSON.parse(trustedDevices) as string[];
       return devices.includes(deviceFingerprint);
-    } catch {
+    } catch (error) {
+      if (import.meta.env?.DEV) console.warn("[SessionService] isDeviceTrusted JSON parse failed:", (error as Error).message);
       return false;
     }
   }
@@ -551,7 +552,9 @@ class SessionService {
       storage.setItem("test", "test");
       storage.removeItem("test");
       return storage;
-    } catch {
+    } catch (error) {
+      // Intentionally silent — storage may be unavailable (SSR, private mode, quota)
+      if (import.meta.env?.DEV) console.warn("[SessionService] getStorage failed:", (error as Error).message);
       return null;
     }
   }

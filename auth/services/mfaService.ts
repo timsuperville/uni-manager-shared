@@ -1,27 +1,13 @@
 /**
  * Multi-Factor Authentication (MFA) Service
+ *
+ * Network calls for all MFA flows (TOTP, SMS, Email, WebAuthn, backup codes).
+ * Utility helpers (display names, validation, phone formatting) live in mfaUtils.ts.
  */
 
-// ── Constants ─────────────────────────────────────────────────────────────────
+import type { MFAMethod } from "./mfaUtils.ts";
 
-export const MFA_METHODS = {
-  TOTP: "totp",
-  SMS: "sms",
-  EMAIL: "email",
-  BACKUP_CODES: "backup",
-  WEBAUTHN: "webauthn",
-} as const;
-
-export const MFA_STATUS = {
-  ENABLED: "enabled",
-  DISABLED: "disabled",
-  PENDING: "pending",
-  REQUIRED: "required",
-} as const;
-
-export type MFAMethod = (typeof MFA_METHODS)[keyof typeof MFA_METHODS];
-
-// ── Types ─────────────────────────────────────────────────────────────────────
+// -- Types --------------------------------------------------------------------
 
 interface MFARequestOptions {
   method?: string;
@@ -34,7 +20,7 @@ interface DeviceInfoPayload {
   [key: string]: unknown;
 }
 
-// ── MFAService ────────────────────────────────────────────────────────────────
+// -- MFAService ---------------------------------------------------------------
 
 export class MFAService {
   private authToken: string | null;
@@ -260,51 +246,16 @@ export class MFAService {
   }
 }
 
-// ── Utility functions ─────────────────────────────────────────────────────────
-
-export function formatPhoneNumber(phone: string): string {
-  if (!phone) return "";
-  const cleaned = phone.replace(/\D/g, "");
-  if (cleaned.length === 10) {
-    return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
-  }
-  if (cleaned.length === 11) {
-    return `+${cleaned[0]} ${cleaned.slice(1, 4)} ${cleaned.slice(4, 7)}-${cleaned.slice(7)}`;
-  }
-  return phone;
-}
-
-export function validateTOTPCode(code: string): boolean {
-  if (!code) return false;
-  return /^\d{6}$/.test(code.toString().trim());
-}
-
-export function validateSMSCode(code: string): boolean {
-  if (!code) return false;
-  return /^\d{4,6}$/.test(code.toString().trim());
-}
-
-export function getMFAMethodDisplayName(method: MFAMethod): string {
-  const displayNames: Record<MFAMethod, string> = {
-    [MFA_METHODS.TOTP]: "Authenticator App",
-    [MFA_METHODS.SMS]: "SMS Text Message",
-    [MFA_METHODS.EMAIL]: "Email Code",
-    [MFA_METHODS.BACKUP_CODES]: "Backup Codes",
-    [MFA_METHODS.WEBAUTHN]: "Security Key",
-  };
-  return displayNames[method] ?? method;
-}
-
-export function getMFAMethodIcon(method: MFAMethod): string {
-  const icons: Record<MFAMethod, string> = {
-    [MFA_METHODS.TOTP]: "shield",
-    [MFA_METHODS.SMS]: "smartphone",
-    [MFA_METHODS.EMAIL]: "mail",
-    [MFA_METHODS.BACKUP_CODES]: "key",
-    [MFA_METHODS.WEBAUTHN]: "fingerprint",
-  };
-  return icons[method] ?? "shield";
-}
-
 export const mfaService = new MFAService();
 export default MFAService;
+
+// Re-export utilities so callers who import from mfaService can access helpers
+// without a second import statement.
+export {
+  getMFAMethodDisplayName,
+  getMFAMethodIcon,
+  validateTOTPCode,
+  validateSMSCode,
+  formatPhoneNumber,
+  type MFAMethod,
+} from "./mfaUtils.ts";

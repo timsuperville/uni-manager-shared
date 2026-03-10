@@ -139,7 +139,8 @@ class SecurityService {
         attemptsRemaining: maxAttempts - limitData.attempts,
         windowEnd: limitData.windowStart + windowMs,
       };
-    } catch {
+    } catch (error) {
+      if (import.meta.env?.DEV) console.warn("[SecurityService] checkRateLimit failed — failing open:", (error as Error).message);
       return { allowed: true, attemptsRemaining: 1 };
     }
   }
@@ -287,7 +288,8 @@ class SecurityService {
       let events = [...this.securityEvents];
       if (eventType) events = events.filter((e) => e.type === eventType);
       return events.sort((a, b) => b.timestamp - a.timestamp).slice(0, limit);
-    } catch {
+    } catch (error) {
+      if (import.meta.env?.DEV) console.warn("[SecurityService] getSecurityEvents failed:", (error as Error).message);
       return [];
     }
   }

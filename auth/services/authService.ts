@@ -172,7 +172,8 @@ class AuthService {
       await this.checkExistingSession();
       this.startActivityTracking();
       return true;
-    } catch {
+    } catch (error) {
+      if (import.meta.env.DEV) console.warn("[AuthService] initialize failed:", (error as Error).message);
       return false;
     }
   }
@@ -189,7 +190,8 @@ class AuthService {
     let data: Record<string, unknown>;
     try {
       data = await response.json() as Record<string, unknown>;
-    } catch {
+    } catch (error) {
+      if (import.meta.env.DEV) console.warn("[AuthService] _handleResponse JSON parse failed:", (error as Error).message);
       throw new Error("Invalid JSON response from server");
     }
 
@@ -278,7 +280,8 @@ class AuthService {
       }
 
       return responseData["user"];
-    } catch {
+    } catch (error) {
+      if (import.meta.env.DEV) console.warn("[AuthService] validateToken fallback to stored user:", (error as Error).message);
       const storedUser = this.tokenStorage.getUser();
       if (storedUser) {
         this.currentUser = storedUser;
@@ -361,7 +364,8 @@ class AuthService {
       this.sessionToken = null;
       this.stopActivityTracking();
       return { success: true };
-    } catch {
+    } catch (error) {
+      if (import.meta.env.DEV) console.warn("[AuthService] logout backend call failed — clearing local session:", (error as Error).message);
       this.clearStoredAuth();
       this.currentUser = null;
       this.sessionToken = null;
@@ -686,7 +690,8 @@ class AuthService {
   getStoredToken(): string | null {
     try {
       return this.tokenStorage.getAccessToken();
-    } catch {
+    } catch (error) {
+      if (import.meta.env.DEV) console.warn("[AuthService] getStoredToken failed:", (error as Error).message);
       return null;
     }
   }
@@ -843,7 +848,8 @@ class AuthService {
         deviceFingerprint: this.deviceFingerprint,
       });
     } catch {
-      // Intentionally silent — activity tracking is best-effort
+      // Intentionally silent — activity tracking is best-effort and must not
+      // disrupt the auth flow if the tracker itself throws.
     }
   }
 

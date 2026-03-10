@@ -23,6 +23,16 @@ export { TokenManagementService } from "./TokenManagementService.ts";
 /** Traditional email/password flows (login, signup, forgot/reset password) */
 export { EmailPasswordAuthService } from "./EmailPasswordAuthService.ts";
 
+/** MFA utility helpers — phone formatting, code validation, display names */
+export {
+  getMFAMethodDisplayName,
+  getMFAMethodIcon,
+  validateTOTPCode,
+  validateSMSCode,
+  formatPhoneNumber,
+  type MFAMethod,
+} from "./mfaUtils.ts";
+
 /** OAuth 2.0 PKCE flows */
 export { OAuthAuthService } from "./OAuthAuthService.ts";
 

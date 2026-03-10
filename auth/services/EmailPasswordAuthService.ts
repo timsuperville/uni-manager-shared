@@ -5,9 +5,9 @@
  * login, signup, password reset, and profile updates.
  */
 
-import { validateCredentials } from "../utils/authValidation.js";
-import { getDeviceInfo } from "../utils/socialAuth.js";
-import type { User, SignupData, LoginResult, Session } from "../types/auth.types.js";
+import { validateCredentials } from "../utils/authValidation.ts";
+import { getDeviceInfo } from "../utils/socialAuth.ts";
+import type { User, SignupData, LoginResult, Session } from "../types/auth.types.ts";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -187,7 +187,8 @@ export class EmailPasswordAuthService {
 
       const data = await this._handleResponse(response);
       return data.user ?? null;
-    } catch {
+    } catch (error) {
+      if (import.meta.env?.DEV) console.warn("[EmailPasswordAuthService] verifyToken failed:", (error as Error).message);
       return null;
     }
   }
@@ -202,8 +203,9 @@ export class EmailPasswordAuthService {
         });
       }
       return { success: true };
-    } catch {
-      // Still return success — client-side cleanup continues regardless
+    } catch (error) {
+      // Intentionally returns success — client-side cleanup continues regardless of backend failure.
+      if (import.meta.env?.DEV) console.warn("[EmailPasswordAuthService] logout backend call failed:", (error as Error).message);
       return { success: true };
     }
   }
