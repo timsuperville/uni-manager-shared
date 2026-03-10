@@ -1,6 +1,6 @@
 /**
  * RBAC Components Re-exports
- * Re-exports RBAC components for backward compatibility
+ * Re-exports RBAC components for backward compatibility.
  */
 
 export {
