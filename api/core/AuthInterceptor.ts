@@ -73,9 +73,10 @@ export class AuthInterceptor {
     const token = this.getValidToken();
 
     if (token) {
-      config.headers = (config.headers || {}) as any;
-      config.headers[this.config.headerName] =
-        `${this.config.tokenPrefix} ${token}`;
+      // Use AxiosHeaders.set() — the canonical Axios v1 API.
+      // Direct bracket assignment on a plain-object cast can silently fail
+      // when Axios merges headers during request dispatch.
+      config.headers.set(this.config.headerName, `${this.config.tokenPrefix} ${token}`);
     }
 
     return config;
@@ -223,7 +224,7 @@ export class AuthInterceptor {
 
   private async performTokenRefresh(): Promise<string> {
     try {
-      const response = await axios.post("/api/auth/refresh", {
+      const response = await axios.post("/api/v1/auth/refresh", {
         refreshToken: this.tokens?.refreshToken,
       });
 
@@ -237,8 +238,9 @@ export class AuthInterceptor {
       });
 
       return accessToken;
-    } catch (_error) {
+    } catch (error) {
       this.clearTokens();
+      if (import.meta.env?.DEV) console.warn("[AuthInterceptor] Token refresh failed:", (error as Error).message);
       throw new Error("Token refresh failed");
     }
   }
@@ -290,19 +292,60 @@ export class AuthInterceptor {
     try {
       const storage = this.getStorage();
 
-      const accessToken = storage.getItem(this.config.tokenKey);
-      const refreshToken = storage.getItem(this.config.refreshTokenKey);
-      const expiresAt = storage.getItem(`${this.config.tokenKey}_expires`);
+      let accessToken = storage.getItem(this.config.tokenKey);
+      let refreshToken = storage.getItem(this.config.refreshTokenKey);
+      let expiresAt = storage.getItem(`${this.config.tokenKey}_expires`);
 
-      // Only load tokens from the configured storage bucket.
-      // Cross-storage fallback is intentionally absent: reading from the
-      // wrong bucket can surface expired tokens from a different session,
-      // causing silent 401s that are very hard to trace.
+      // Fallback: if the primary configured storage is empty, check the alternate.
+      // TokenStorage.getAccessToken() checks sessionStorage THEN localStorage;
+      // if the login flow wrote to the other bucket (e.g. persistent=true routes
+      // the token to localStorage while we are configured for sessionStorage),
+      // the interceptor must still find it so requests are authorised.
+      if (!accessToken && typeof window !== "undefined") {
+        const altStorage =
+          this.config.tokenStorage === "sessionStorage"
+            ? window.localStorage
+            : window.sessionStorage;
+        const altToken = altStorage.getItem(this.config.tokenKey);
+        if (altToken) {
+          accessToken = altToken;
+          refreshToken = altStorage.getItem(this.config.refreshTokenKey);
+          expiresAt = altStorage.getItem(`${this.config.tokenKey}_expires`);
+          if (import.meta.env?.DEV) {
+            const altName = this.config.tokenStorage === "sessionStorage" ? "localStorage" : "sessionStorage";
+            console.warn(
+              `[AuthInterceptor] token found in alternate storage (${altName}) — primary ${this.config.tokenStorage} was empty. Align AuthService storageNamespace with AuthInterceptor tokenStorage config.`,
+            );
+          }
+        }
+      }
+
       if (accessToken) {
+        // Derive expiresAt from the stored value, or decode it directly from
+        // the JWT `exp` claim so isTokenExpired() works without a separate key.
+        let resolvedExpiresAt: number | undefined = expiresAt
+          ? parseInt(expiresAt, 10)
+          : undefined;
+
+        if (!resolvedExpiresAt) {
+          try {
+            const payloadB64 = accessToken.split(".")[1];
+            if (payloadB64) {
+              const payload = JSON.parse(atob(payloadB64)) as { exp?: number };
+              if (payload.exp) {
+                resolvedExpiresAt = payload.exp * 1000; // Convert seconds → ms
+              }
+            }
+          } catch {
+            // Intentionally silent — decoding is best-effort; refresh will still
+            // fire on 401 via the onError interceptor.
+          }
+        }
+
         this.tokens = {
           accessToken,
           refreshToken: refreshToken || undefined,
-          expiresAt: expiresAt ? parseInt(expiresAt, 10) : undefined,
+          expiresAt: resolvedExpiresAt,
         };
       }
     } catch (error) {
@@ -314,6 +357,7 @@ export class AuthInterceptor {
   }
 
   private saveTokensToStorage(): void {
+
     try {
       const storage = this.getStorage();
 
