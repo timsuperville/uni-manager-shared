@@ -19,4 +19,4 @@ export {
   PermissionButton,
   PermissionMenuItem,
   FeatureGuard,
-} from "../rbac/RBACComponents.jsx";
+} from "./RBACComponents.jsx";

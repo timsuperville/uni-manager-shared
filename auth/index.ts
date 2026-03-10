@@ -85,27 +85,28 @@ export { default as AuthLayout } from "./components/AuthLayout.jsx";
 export { default as UserMenu } from "./components/UserMenu.jsx";
 
 // RBAC — context (backward compat: wraps useAuth)
-export { RBACProvider, useRBAC } from "./rbac/RBACComponents.jsx";
+export { RBACProvider, useRBAC } from "./components/RBACComponents.jsx";
 
 // RBAC — guards (lazy-loaded, avoid bloating the initial bundle)
 export const PermissionGuard = React.lazy(() =>
-  import("./rbac/RBACComponents.jsx").then((m) => ({ default: m.PermissionGuard })),
+  import("./components/RBACComponents.jsx").then((m) => ({ default: m.PermissionGuard })),
 );
 export const RoleGuard = React.lazy(() =>
-  import("./rbac/RBACComponents.jsx").then((m) => ({ default: m.RoleGuard })),
+  import("./components/RBACComponents.jsx").then((m) => ({ default: m.RoleGuard })),
 );
 export const ApplicationGuard = React.lazy(() =>
-  import("./rbac/RBACComponents.jsx").then((m) => ({ default: m.ApplicationGuard })),
+  import("./components/RBACComponents.jsx").then((m) => ({ default: m.ApplicationGuard })),
 );
 export const RouteGuard = React.lazy(() =>
-  import("./rbac/RBACComponents.jsx").then((m) => ({ default: m.RouteGuard })),
+  import("./components/RBACComponents.jsx").then((m) => ({ default: m.RouteGuard })),
 );
 export const AdminGuard = React.lazy(() =>
-  import("./rbac/RBACComponents.jsx").then((m) => ({ default: m.AdminGuard })),
+  import("./components/RBACComponents.jsx").then((m) => ({ default: m.AdminGuard })),
 );
 export const FeatureGuard = React.lazy(() =>
-  import("./rbac/RBACComponents.jsx").then((m) => ({ default: m.FeatureGuard })),
+  import("./components/RBACComponents.jsx").then((m) => ({ default: m.FeatureGuard })),
 );
+
 
 // ── Services ──────────────────────────────────────────────────────────────────
 
@@ -183,16 +184,21 @@ export { TokenStorage, tokenStorage } from "./utils/TokenStorage.ts";
 
 // ── RBAC ──────────────────────────────────────────────────────────────────────
 
-export { RBACUtils, PermissionUtils, RouteUtils } from "./rbac/RBACUtils.ts";
+export { RBACUtils, PermissionUtils, RouteUtils } from "./utils/RBACUtils.ts";
 export {
   PERMISSIONS,
   ROLES,
   APPLICATION_ROLES,
   PROTECTED_ROUTES,
+  type Permission,
+  type RoleDefinition,
+} from "./types/rbacRoles.ts";
+export {
   checkPermission,
   hasRole,
   checkAccess,
-} from "./rbac/roles.ts";
+} from "./types/rbacRoles.ts";
+
 
 // ── Debug ─────────────────────────────────────────────────────────────────────
 

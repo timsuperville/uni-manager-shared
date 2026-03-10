@@ -7,7 +7,7 @@ import React, { createContext, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth.ts";
 import { useFeatureGate } from "../hooks/useFeatureGate.ts";
-import { RBACUtils } from "./RBACUtils.ts";
+import { RBACUtils } from "../utils/RBACUtils.ts";
 
 // ── RBACContext (backward-compat: wraps useAuth) ──────────────────────────────
 

@@ -1,6 +1,13 @@
 /**
- * RBAC Utilities
- * Core functions for role-based access control and permission checking.
+ * RBACUtils — Full RBAC evaluation class.
+ *
+ * Provides role-based permission checking, route access control, and
+ * menu item filtering for all Uni-Manager applications.
+ *
+ * Pure class — no network I/O, no React, no state outside the instance.
+ * Data (constants, types) lives in types/rbacRoles.ts.
+ * Simple functional helpers (checkPermission, hasRole, checkAccess) also
+ * live in types/rbacRoles.ts (co-located with the data they operate on).
  */
 
 import {
@@ -10,9 +17,9 @@ import {
   PROTECTED_ROUTES,
   type Permission,
   type RoleDefinition,
-} from "./roles.ts";
+} from "../types/rbacRoles.ts";
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+// ── Module-level types ────────────────────────────────────────────────────────
 
 interface UserLike {
   id?: string;
@@ -281,5 +288,5 @@ export const RouteUtils = {
   },
 };
 
-// Re-export commonly used constants
-export { PERMISSIONS, ROLES } from "./roles.ts";
+// Re-export for consumers that imported data directly from this module.
+export { PERMISSIONS, ROLES } from "../types/rbacRoles.ts";
