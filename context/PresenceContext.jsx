@@ -6,7 +6,8 @@ import React, {
   useRef,
   useCallback,
 } from "react";
-import { useAuth } from "../auth/context/AuthContext";
+import { useAuth } from "@shared/auth";
+import { getWebSocketUrl } from "../config/environment";
 
 export const PresenceContext = createContext(null);
 
@@ -41,10 +42,8 @@ export const PresenceProvider = ({ children }) => {
   const connect = useCallback(() => {
     if (!user || wsRef.current?.readyState === WebSocket.OPEN) return;
 
-    // URL construction
-    const baseUrl = import.meta.env?.VITE_API_URL || "http://localhost:5000";
-    // Convert http(s) to ws(s)
-    const wsUrl = baseUrl.replace(/^http/, "ws");
+    // URL construction — use the canonical WS URL utility
+    const wsUrl = getWebSocketUrl();
     const token = localStorage.getItem("token");
 
     const urlWithAuth = `${wsUrl}?token=${token}`;
@@ -76,7 +75,7 @@ export const PresenceProvider = ({ children }) => {
       ws.onclose = (event) => {
         if (!isMountedRef.current) return;
         if (import.meta.env.DEV) {
-          console.log("WebSocket disconnected:", event.code, event.reason);
+          import.meta.env.DEV && console.debug("WebSocket disconnected:", event.code, event.reason);
         }
         setIsConnected(false);
         setSocket(null);
@@ -90,7 +89,7 @@ export const PresenceProvider = ({ children }) => {
             30000,
           );
           if (import.meta.env.DEV) {
-            console.log(
+            import.meta.env.DEV && console.debug(
               `Reconnecting in ${delay}ms... (Attempt ${reconnectAttemptsRef.current + 1})`,
             );
           }

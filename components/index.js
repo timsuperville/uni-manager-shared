@@ -1,17 +1,15 @@
 // @shared/components — Ecosystem Kernel barrel
 // Usage: import { Button, Modal, ... } from "@shared/components"
 //        import { Button, Modal, ... } from "@shared/components/ui"  (ui-only)
-//
-// ── Primitives resolved to ui/ (Liquid Glass, CSS vars) ───────────────────────
-// Modal, Select, Input, etc. come from ./ui via the wildcard below.
-// DO NOT re-export them here again — that causes name collisions.
-//
-// ── Layout utilities ──────────────────────────────────────────────────────────
+
+// ── Layout / infrastructure ───────────────────────────────────────────────────
 export { default as LoadingSpinner } from "./LoadingSpinner";
 export { default as RoleGuard } from "./RoleGuard";
 export { ThemeProvider, useTheme, tokens } from "./ThemeProvider";
+export { default as ThemeToggle } from "./ThemeToggle";
+export { default as ErrorBoundary } from "./ErrorBoundary";
 export { default as GlobalErrorBoundary } from "./GlobalErrorBoundary";
-export { default as EnvironmentDebugBanner } from "./EnvironmentDebugBanner";
+export { ApiProvider, useApi } from "./ApiProvider";
 
 // ── Feedback / Notifications ──────────────────────────────────────────────────
 export { default as Toast } from "./Toast";
@@ -24,27 +22,10 @@ export {
 } from "../features/feedback";
 export { NpsSurvey } from "../features/nps";
 
-// ── Feature components ────────────────────────────────────────────────────────
+// ── Features (canonical: import directly from @shared/features/<name>) ────────
 export { default as AdvancedSearch } from "../features/advanced-search";
 export { default as DataExport } from "../features/data-export";
-export { default as LazyWidget } from "./LazyWidget";
-export { default as ErrorBoundary } from "./ErrorBoundary";
 export { default as RealTimeNotifications } from "../features/real-time-notifications";
-export { default as ThemeToggle } from "./ThemeToggle";
-
-// ── Mobile-optimized shared components ───────────────────────────────────────
-export { default as MobileOptimizedLayout } from "./MobileOptimizedLayout";
-export { default as MobileFormComponents } from "./MobileFormComponents";
-export { default as MobileInvitationCard } from "./MobileInvitationCard";
-export { default as MobileMemberCard } from "./MobileMemberCard";
-export { default as MobilePagination } from "./MobilePagination";
-
-// ── SelectDropdown — rich custom picker (different from native <select> in ui/Input) ──
-// Import as: import { SelectDropdown } from "@shared/components"
-export { default as SelectDropdown } from "./Select";
-
-// ── Consolidated from monitoring/, context/, performance/, services/ ──────────
-// Canonical home: these components now live here; old paths have shims.
 export {
   ErrorBoundary as ErrorMonitoringBoundary,
   setupGlobalErrorHandling,
@@ -53,13 +34,13 @@ export {
   setupHealthCheck,
   initializeMonitoring,
 } from "../features/monitoring";
+
+// ── Context (canonical: import from @shared/context) ─────────────────────────
 export {
   PresenceProvider,
   usePresence,
   PresenceContext,
-} from "./PresenceContext";
-export { PerformanceDashboard } from "./PerformanceDashboard";
-export { ApiProvider, useApi } from "./ApiProvider";
+} from "../context";
 
 // ── Liquid Glass UI primitives ────────────────────────────────────────────────
 // Source of truth for: Modal, Button, Card, Badge, Input, Select, ProgressBar,
