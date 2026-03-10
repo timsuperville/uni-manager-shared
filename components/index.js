@@ -25,7 +25,6 @@ export {
 export { NpsSurvey } from "../features/nps";
 
 // ── Feature components ────────────────────────────────────────────────────────
-export { default as ActivityFeed } from "../features/activity-feed";
 export { default as AdvancedSearch } from "../features/advanced-search";
 export { default as DataExport } from "../features/data-export";
 export { default as LazyWidget } from "./LazyWidget";
