@@ -8,6 +8,7 @@
 // Uses inline styles throughout to avoid Tailwind JIT scanning gaps in shared/.
 
 import React, { useState, useContext, useEffect } from "react";
+import ReactDOM from "react-dom";
 import { useFrustrationDetector } from "../hooks/useFrustrationDetector";
 import { AuthContext } from "../auth/context/AuthContext.jsx";
 
@@ -955,6 +956,17 @@ function FeedbackModal({
   );
 }
 
+// Portal wrapper — breaks FeedbackModal out of any CSS-transform stacking
+// context (e.g. sidebar translate-x-* animations) so that position:fixed
+// resolves to the true viewport and inset:0 covers the full screen.
+function FeedbackModalPortal(props) {
+  if (typeof document === "undefined") return null;
+  return ReactDOM.createPortal(
+    <FeedbackModalPortal {...props} />,
+    document.body,
+  );
+}
+
 // ─── Public Component ──────────────────────────────────────────────────────────
 export const FeedbackQuickAction = ({
   variant = "sidebar-item",
@@ -1064,7 +1076,7 @@ export const FeedbackQuickAction = ({
           <span>Share Feedback</span>
         </button>
         {isOpen && (
-          <FeedbackModal
+          <FeedbackModalPortal
             onClose={() => setIsOpen(false)}
             onSubmitSuccess={onSubmitSuccess}
             appType={appType}
@@ -1112,7 +1124,7 @@ export const FeedbackQuickAction = ({
           {iconSvg}
         </button>
         {isOpen && (
-          <FeedbackModal
+          <FeedbackModalPortal
             onClose={() => setIsOpen(false)}
             appType={appType}
             user={user}
@@ -1159,7 +1171,7 @@ export const FeedbackQuickAction = ({
           <span>Feedback</span>
         </button>
         {isOpen && (
-          <FeedbackModal
+          <FeedbackModalPortal
             onClose={() => setIsOpen(false)}
             appType={appType}
             user={user}
@@ -1249,7 +1261,7 @@ export const FeedbackQuickAction = ({
           </div>
         </button>
         {isOpen && (
-          <FeedbackModal
+          <FeedbackModalPortal
             onClose={() => setIsOpen(false)}
             appType={appType}
             user={user}
@@ -1339,7 +1351,7 @@ export const FeedbackQuickAction = ({
           </div>
         )}
         {isOpen && (
-          <FeedbackModal
+          <FeedbackModalPortal
             onClose={() => setIsOpen(false)}
             appType={appType}
             user={user}
@@ -1405,7 +1417,7 @@ export const FeedbackQuickAction = ({
         </button>
       </div>
       {isOpen && (
-        <FeedbackModal
+        <FeedbackModalPortal
           onClose={() => setIsOpen(false)}
           appType={appType}
           user={user}
