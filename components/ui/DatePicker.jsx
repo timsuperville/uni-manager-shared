@@ -288,7 +288,9 @@ export function DatePicker({
     };
 
     const triggerFocusStyle = (focused) => ({
-        borderColor: focused ? "var(--border-glow, var(--primary-resonance))" : "var(--glass-outline)",
+        border: focused
+            ? "1px solid var(--border-glow, var(--primary-resonance))"
+            : "1px solid var(--glass-outline, rgba(255,255,255,0.12))",
         boxShadow: focused ? "0 0 0 3px var(--primary-glow, rgba(99,102,241,0.2))" : "none",
     });
 
@@ -310,7 +312,7 @@ export function DatePicker({
                     ...S.trigger,
                     opacity: disabled ? 0.55 : 1,
                     cursor: disabled ? "not-allowed" : "pointer",
-                    ...(open ? triggerFocusStyle(true) : {}),
+                    ...(open ? triggerFocusStyle(true) : triggerFocusStyle(false)),
                 }}
                 onFocus={(e) => Object.assign(e.currentTarget.style, triggerFocusStyle(true))}
                 onBlur={(e) => { if (!wrapRef.current?.contains(e.relatedTarget)) Object.assign(e.currentTarget.style, triggerFocusStyle(false)); }}
