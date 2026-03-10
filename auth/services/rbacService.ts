@@ -11,11 +11,13 @@
  * lazy-loader: import { getRBACService } from '@shared/auth/services'.
  */
 
+import type { Permission, Role } from "../types/auth.types.js";
+
 export const rbacService = {
-  checkPermission: () => true,
-  checkRole: () => true,
-  getUserPermissions: () => [],
-  getUserRoles: () => [],
+  checkPermission: (_userId: string, _permission: string): boolean => true,
+  checkRole: (_userId: string, _role: string): boolean => true,
+  getUserPermissions: (_userId: string): Permission[] => [],
+  getUserRoles: (_userId: string): Role[] => [],
 };
 
 export default rbacService;

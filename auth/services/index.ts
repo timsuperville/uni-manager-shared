@@ -30,17 +30,14 @@ export { OAuthAuthService } from "./OAuthAuthService.js";
 // Lazy-loaded exports — load on demand to keep the auth bundle lean
 // ---------------------------------------------------------------------------
 
-/** @returns {Promise<import('./SessionService.js').default>} */
 export function getSessionService() {
   return import("./SessionService.js").then((m) => m.default);
 }
 
-/** @returns {Promise<import('./authService.js').AuthService>} */
 export function getAuthService() {
   return import("./authService.js").then((m) => m.default);
 }
 
-/** @returns {Promise<import('./mfaService.js').default>} */
 export function getMFAService() {
   return import("./mfaService.js").then((m) => m.default);
 }
@@ -49,28 +46,23 @@ export function getMFAService() {
  * RBAC service — returns the full implementation when available.
  * Currently backed by a dev-only mock; a production RBAC engine is
  * tracked in BL-xxx.
- * @returns {Promise<import('./rbacService.js').default>}
  */
 export function getRBACService() {
   return import("./rbacService.js").then((m) => m.default);
 }
 
-/** @returns {Promise<import('./securityService.js').default>} */
 export function getSecurityService() {
   return import("./securityService.js").then((m) => m.default);
 }
 
-/** @returns {Promise<import('./DeviceService.js').default>} */
 export function getDeviceService() {
   return import("./DeviceService.js").then((m) => m.default);
 }
 
-/** @returns {Promise<import('./sharedDataCache.js').default>} */
 export function getCacheService() {
   return import("./sharedDataCache.js").then((m) => m.default);
 }
 
-/** @returns {Promise<import('./CrossAppService.js').default>} */
 export function getCrossAppService() {
   return import("./CrossAppService.js").then((m) => m.default);
 }
