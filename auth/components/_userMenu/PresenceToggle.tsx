@@ -1,6 +1,14 @@
 import React, { memo } from "react";
-import PropTypes from "prop-types";
 import { WifiOff } from "lucide-react";
+
+type PresenceStatus = "available" | "unavailable";
+
+interface PresenceToggleProps {
+  status: PresenceStatus;
+  isConnected: boolean;
+  onToggle: () => void;
+  dotColor: string;
+}
 
 /**
  * PresenceToggle — inline status pill shown inside the UserMenu identity header.
@@ -19,7 +27,7 @@ const PresenceToggle = memo(function PresenceToggle({
   isConnected,
   onToggle,
   dotColor,
-}) {
+}: PresenceToggleProps) {
   return (
     <button
       onClick={isConnected ? onToggle : undefined}
@@ -53,10 +61,7 @@ const PresenceToggle = memo(function PresenceToggle({
           }}
         />
       ) : (
-        <WifiOff
-          size={10}
-          style={{ color: "var(--color-warning, hsl(38,95%,54%))" }}
-        />
+        <WifiOff size={10} style={{ color: "var(--color-warning, hsl(38,95%,54%))" }} />
       )}
       {!isConnected
         ? "Offline"
@@ -66,12 +71,5 @@ const PresenceToggle = memo(function PresenceToggle({
     </button>
   );
 });
-
-PresenceToggle.propTypes = {
-  status: PropTypes.string.isRequired,
-  isConnected: PropTypes.bool.isRequired,
-  onToggle: PropTypes.func.isRequired,
-  dotColor: PropTypes.string.isRequired,
-};
 
 export default PresenceToggle;

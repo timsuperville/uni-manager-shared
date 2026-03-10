@@ -5,74 +5,48 @@
 
 import { OAUTH_PROVIDERS } from "../utils/socialAuth.ts";
 
-/**
- * Test OAuth provider configurations for all apps
- */
-export const testOAuthConfigurations = () => {
-  const results = {
-    totalProviders: Object.keys(OAUTH_PROVIDERS).length,
-    supportedProviders: Object.keys(OAUTH_PROVIDERS),
-    appConfigurations: {},
-    issues: [],
-    summary: {
-      appsWithOAuth: 0,
-      totalEnabledProviders: 0,
-      uniqueProviders: new Set(),
-    },
+// ── Types ─────────────────────────────────────────────────────────────────────
+
+interface SocialLoginConfig {
+  enabled: boolean;
+  providers: string[];
+  [key: string]: unknown; // clientId fields are dynamic (e.g. googleClientId)
+}
+
+interface MockAppConfig {
+  features?: {
+    socialLogin?: SocialLoginConfig;
   };
+  apiEndpoints?: {
+    login?: string;
+  };
+}
 
-  // Define app configurations to test
-  const appTypes = [
-    "church",
-    "admin",
-    "business",
-    "home",
-    "personal",
-    "playback",
-  ];
+interface ProviderResult {
+  id: string;
+  clientId?: unknown;
+  [key: string]: unknown;
+}
 
-  appTypes.forEach((appType) => {
-    try {
-      // Mock app config for testing
-      const mockAppConfig = getMockAppConfig(appType);
-      const enabledProviders = getEnabledProvidersForApp(mockAppConfig);
+interface AppConfigResult {
+  hasOAuth: boolean;
+  enabledProviders: string[];
+  providerCount: number;
+  providers: ProviderResult[];
+}
 
-      results.appConfigurations[appType] = {
-        hasOAuth: mockAppConfig.features?.socialLogin?.enabled || false,
-        enabledProviders: enabledProviders.map((p) => p.id),
-        providerCount: enabledProviders.length,
-        providers: enabledProviders,
-      };
+interface ConfigIssue {
+  app: string;
+  error: string;
+  type: string;
+}
 
-      if (enabledProviders.length > 0) {
-        results.summary.appsWithOAuth++;
-        results.summary.totalEnabledProviders += enabledProviders.length;
-        enabledProviders.forEach((p) =>
-          results.summary.uniqueProviders.add(p.id),
-        );
-      }
-    } catch (_error) {
-      results.issues.push({
-        app: appType,
-        error: error.message,
-        type: "configuration_error",
-      });
-    }
-  });
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
-  // Convert Set to Array for final result
-  results.summary.uniqueProviders = Array.from(results.summary.uniqueProviders);
-
-  return results;
-};
-
-/**
- * Get mock app configuration for testing
- */
-const getMockAppConfig = (appType) => {
+const getMockAppConfig = (appType: string): MockAppConfig => {
   const baseApiUrl = "http://localhost:5000";
 
-  const configs = {
+  const configs: Record<string, MockAppConfig> = {
     church: {
       features: {
         socialLogin: {
@@ -81,9 +55,7 @@ const getMockAppConfig = (appType) => {
           googleClientId: "mock-google-client-id",
         },
       },
-      apiEndpoints: {
-        login: `${baseApiUrl}/church/auth/login`,
-      },
+      apiEndpoints: { login: `${baseApiUrl}/church/auth/login` },
     },
     admin: {
       features: {
@@ -94,9 +66,7 @@ const getMockAppConfig = (appType) => {
           microsoftClientId: "mock-microsoft-client-id",
         },
       },
-      apiEndpoints: {
-        login: `${baseApiUrl}/admin/auth/login`,
-      },
+      apiEndpoints: { login: `${baseApiUrl}/admin/auth/login` },
     },
     business: {
       features: {
@@ -107,20 +77,11 @@ const getMockAppConfig = (appType) => {
           linkedinClientId: "mock-linkedin-client-id",
         },
       },
-      apiEndpoints: {
-        login: `${baseApiUrl}/business/auth/login`,
-      },
+      apiEndpoints: { login: `${baseApiUrl}/business/auth/login` },
     },
     home: {
-      features: {
-        socialLogin: {
-          enabled: false,
-          providers: [],
-        },
-      },
-      apiEndpoints: {
-        login: `${baseApiUrl}/home/auth/login`,
-      },
+      features: { socialLogin: { enabled: false, providers: [] } },
+      apiEndpoints: { login: `${baseApiUrl}/home/auth/login` },
     },
     personal: {
       features: {
@@ -131,9 +92,7 @@ const getMockAppConfig = (appType) => {
           githubClientId: "mock-github-client-id",
         },
       },
-      apiEndpoints: {
-        login: `${baseApiUrl}/personal/auth/login`,
-      },
+      apiEndpoints: { login: `${baseApiUrl}/personal/auth/login` },
     },
     playback: {
       features: {
@@ -145,41 +104,81 @@ const getMockAppConfig = (appType) => {
           appleClientId: "mock-apple-client-id",
         },
       },
-      apiEndpoints: {
-        login: `${baseApiUrl}/playback/auth/login`,
-      },
+      apiEndpoints: { login: `${baseApiUrl}/playback/auth/login` },
     },
   };
 
-  return (
-    configs[appType] || {
-      features: { socialLogin: { enabled: false, providers: [] } },
-    }
-  );
+  return configs[appType] ?? { features: { socialLogin: { enabled: false, providers: [] } } };
 };
 
-/**
- * Get enabled providers for a specific app configuration
- */
-const getEnabledProvidersForApp = (appConfig) => {
-  if (!appConfig.features?.socialLogin?.enabled) {
-    return [];
-  }
+const getEnabledProvidersForApp = (appConfig: MockAppConfig): ProviderResult[] => {
+  const socialLogin = appConfig.features?.socialLogin;
+  if (!socialLogin?.enabled) return [];
 
-  return appConfig.features.socialLogin.providers
+  const oauthProviders = OAUTH_PROVIDERS as unknown as Record<string, Record<string, unknown>>;
+
+  return socialLogin.providers
     .map((providerId) => ({
       id: providerId,
-      ...OAUTH_PROVIDERS[providerId],
-      clientId: appConfig.features.socialLogin[`${providerId}ClientId`],
+      ...(oauthProviders[providerId] ?? {}),
+      clientId: socialLogin[`${providerId}ClientId`],
     }))
     .filter((provider) => provider.clientId);
 };
 
-/**
- * Validate OAuth provider configuration
- */
-export const validateOAuthProvider = (providerId) => {
-  const provider = OAUTH_PROVIDERS[providerId];
+// ── Exports ───────────────────────────────────────────────────────────────────
+
+export const testOAuthConfigurations = () => {
+  const appConfigurations: Record<string, AppConfigResult> = {};
+  const issues: ConfigIssue[] = [];
+  const uniqueProviderIds = new Set<string>();
+  let appsWithOAuth = 0;
+  let totalEnabledProviders = 0;
+
+  const appTypes = ["church", "admin", "business", "home", "personal", "playback"];
+
+  for (const appType of appTypes) {
+    try {
+      const mockAppConfig = getMockAppConfig(appType);
+      const enabledProviders = getEnabledProvidersForApp(mockAppConfig);
+
+      appConfigurations[appType] = {
+        hasOAuth: mockAppConfig.features?.socialLogin?.enabled ?? false,
+        enabledProviders: enabledProviders.map((p) => p.id),
+        providerCount: enabledProviders.length,
+        providers: enabledProviders,
+      };
+
+      if (enabledProviders.length > 0) {
+        appsWithOAuth++;
+        totalEnabledProviders += enabledProviders.length;
+        for (const p of enabledProviders) uniqueProviderIds.add(p.id);
+      }
+    } catch (err) {
+      issues.push({
+        app: appType,
+        error: err instanceof Error ? err.message : String(err),
+        type: "configuration_error",
+      });
+    }
+  }
+
+  return {
+    totalProviders: Object.keys(OAUTH_PROVIDERS).length,
+    supportedProviders: Object.keys(OAUTH_PROVIDERS),
+    appConfigurations,
+    issues,
+    summary: {
+      appsWithOAuth,
+      totalEnabledProviders,
+      uniqueProviders: Array.from(uniqueProviderIds),
+    },
+  };
+};
+
+export const validateOAuthProvider = (providerId: string) => {
+  const oauthProviders = OAUTH_PROVIDERS as unknown as Record<string, Record<string, unknown> | undefined>;
+  const provider = oauthProviders[providerId];
 
   if (!provider) {
     return {
@@ -198,48 +197,34 @@ export const validateOAuthProvider = (providerId) => {
     };
   }
 
-  return {
-    valid: true,
-    provider: provider,
-  };
+  return { valid: true, provider };
 };
 
-/**
- * Generate OAuth configuration report
- */
 export const generateOAuthReport = () => {
   const testResults = testOAuthConfigurations();
+  const recommendations: string[] = [];
 
-  const report = {
-    timestamp: new Date().toISOString(),
-    ...testResults,
-    recommendations: [],
-  };
-
-  // Add recommendations based on test results
-  if (report.summary.appsWithOAuth === 0) {
-    report.recommendations.push(
+  if (testResults.summary.appsWithOAuth === 0) {
+    recommendations.push(
       "Consider enabling OAuth for at least one application to improve user experience",
     );
   }
 
-  if (report.issues.length > 0) {
-    report.recommendations.push(
-      "Fix configuration errors before deploying OAuth functionality",
-    );
+  if (testResults.issues.length > 0) {
+    recommendations.push("Fix configuration errors before deploying OAuth functionality");
   }
 
-  if (report.summary.uniqueProviders.length < 3) {
-    report.recommendations.push(
+  if (testResults.summary.uniqueProviders.length < 3) {
+    recommendations.push(
       "Consider adding more OAuth providers to give users more login options",
     );
   }
 
-  return report;
+  return {
+    timestamp: new Date().toISOString(),
+    ...testResults,
+    recommendations,
+  };
 };
 
-export default {
-  testOAuthConfigurations,
-  validateOAuthProvider,
-  generateOAuthReport,
-};
+export default { testOAuthConfigurations, validateOAuthProvider, generateOAuthReport };

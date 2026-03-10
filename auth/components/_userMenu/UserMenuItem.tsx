@@ -1,6 +1,20 @@
 import React, { useState, memo } from "react";
-import PropTypes from "prop-types";
 import { motion } from "framer-motion";
+
+type MenuItemVariant = "default" | "danger";
+
+/** Any renderable icon component (Lucide, custom, etc.) */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type IconComponent = React.ComponentType<any>;
+
+interface UserMenuItemProps {
+  icon: IconComponent;
+  label: string;
+  onClick?: () => void;
+  variant?: MenuItemVariant;
+  active?: boolean;
+  disabled?: boolean;
+}
 
 /**
  * UserMenuItem — accessible ARIA menuitem button.
@@ -14,21 +28,10 @@ import { motion } from "framer-motion";
  *              Pass the spinner icon as `icon` when using this.
  */
 const UserMenuItem = memo(
-  React.forwardRef(
-    (
-      {
-        icon: Icon,
-        label,
-        onClick,
-        variant = "default",
-        active = false,
-        disabled = false,
-      },
-      ref,
-    ) => {
+  React.forwardRef<HTMLButtonElement, UserMenuItemProps>(
+    ({ icon: Icon, label, onClick, variant = "default", active = false, disabled = false }, ref) => {
       const [hovered, setHovered] = useState(false);
       const isDanger = variant === "danger";
-      const isInactive = disabled || (active === false && !hovered);
 
       const bg = active
         ? "var(--primary-subtle, hsla(187,84%,44%,0.12))"
@@ -93,22 +96,14 @@ const UserMenuItem = memo(
                 width: "2px",
                 borderRadius: "0 2px 2px 0",
                 background: "var(--primary-resonance)",
-                boxShadow:
-                  "0 0 6px var(--primary-glow, var(--primary-resonance))",
+                boxShadow: "0 0 6px var(--primary-glow, var(--primary-resonance))",
               }}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
             />
           )}
-          <Icon
-            size={15}
-            style={{
-              color: iconColor,
-              flexShrink: 0,
-              transition: "color 150ms ease",
-            }}
-          />
+          <Icon size={15} style={{ color: iconColor, flexShrink: 0, transition: "color 150ms ease" }} />
           {label}
         </button>
       );
@@ -117,14 +112,5 @@ const UserMenuItem = memo(
 );
 
 UserMenuItem.displayName = "UserMenuItem";
-
-UserMenuItem.propTypes = {
-  icon: PropTypes.elementType.isRequired,
-  label: PropTypes.string.isRequired,
-  onClick: PropTypes.func,
-  variant: PropTypes.oneOf(["default", "danger"]),
-  active: PropTypes.bool,
-  disabled: PropTypes.bool,
-};
 
 export default UserMenuItem;

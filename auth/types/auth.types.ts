@@ -28,6 +28,8 @@ export interface User {
   createdAt?: Date | string;
   updatedAt?: Date | string;
   lastLoginAt?: Date | string;
+  /** Allow app-specific fields (churchRole, title, position, etc.) at runtime */
+  [key: string]: unknown;
 }
 
 export interface UserPreferences {
@@ -116,6 +118,24 @@ export interface AuthContextType {
     deviceFingerprint?: string | null,
     trustDevice?: boolean,
   ) => Promise<any>;
+
+  // OAuth
+  /** handleOAuthCallback — forwarded from authService via AuthProvider */
+  handleOAuthCallback?: (params: URLSearchParams) => Promise<unknown>;
+  /** loading — alias for isLoading retained for backward compatibility */
+  loading?: boolean;
+
+  // RBAC helpers — derived via buildRBACMethods and spread into context by AuthProvider
+  hasPermission?: (permission: string) => boolean;
+  hasAnyPermission?: (permissions: string[]) => boolean;
+  hasAllPermissions?: (permissions: string[]) => boolean;
+  hasRole?: (role: string) => boolean;
+  hasAnyRole?: (roles: string[]) => boolean;
+  hasMinimumRoleLevel?: (level: number) => boolean;
+  isApplicationAdmin?: (app: string) => boolean;
+  isAnyAdmin?: () => boolean;
+  getApplicationRoles?: (app: string) => string[];
+  getPermissionSummary?: () => Record<string, unknown>;
 }
 
 // ==================== LOGIN & SIGNUP ====================

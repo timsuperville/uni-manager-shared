@@ -28,47 +28,50 @@ import {
   EyeOff,
 } from "lucide-react";
 
-const MFASetup = ({ onSetupComplete, onCancel, className = "" }) => {
+interface SetupData {
+  qrCode: string;
+  manualEntryKey: string;
+  backupCodes?: string[];
+}
+
+interface StepConfig {
+  id: number;
+  title: string;
+  description: string;
+}
+
+interface MFASetupProps {
+  onSetupComplete?: () => void;
+  onCancel?: () => void;
+  className?: string;
+}
+
+const MFASetup = ({ onSetupComplete, onCancel, className = "" }: MFASetupProps) => {
   const [currentStep, setCurrentStep] = useState(1);
-  const [setupData, setSetupData] = useState(null);
+  const [setupData, setSetupData] = useState<SetupData | null>(null);
   const [verificationToken, setVerificationToken] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [showBackupCodes, setShowBackupCodes] = useState(false);
-  const [copiedStates, setCopiedStates] = useState({});
+  const [copiedStates, setCopiedStates] = useState<Record<string, boolean>>({});
   const [isVerifying, setIsVerifying] = useState(false);
 
-  // Steps configuration
-  const steps = [
-    {
-      id: 1,
-      title: "Setup Authenticator",
-      description: "Scan QR code or enter manual key",
-    },
-    {
-      id: 2,
-      title: "Verify Setup",
-      description: "Enter code from your authenticator app",
-    },
-    {
-      id: 3,
-      title: "Backup Codes",
-      description: "Save your backup recovery codes",
-    },
+  const steps: StepConfig[] = [
+    { id: 1, title: "Setup Authenticator", description: "Scan QR code or enter manual key" },
+    { id: 2, title: "Verify Setup", description: "Enter code from your authenticator app" },
+    { id: 3, title: "Backup Codes", description: "Save your backup recovery codes" },
     { id: 4, title: "Complete", description: "MFA is now enabled" },
   ];
 
   useEffect(() => {
-    // Auto-start setup when component mounts
     if (currentStep === 1 && !setupData) {
       initializeMFASetup();
     }
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const initializeMFASetup = async () => {
     setIsLoading(true);
     setError("");
-
     try {
       const response = await fetch("/api/auth/mfa/setup", {
         method: "POST",
@@ -77,17 +80,15 @@ const MFASetup = ({ onSetupComplete, onCancel, className = "" }) => {
           Authorization: `Bearer ${typeof localStorage !== "undefined" && localStorage.getItem("token")}`,
         },
       });
-
       const data = await response.json();
-
       if (data.success) {
-        setSetupData(data.data);
-        setCurrentStep(2); // Move to verification step
+        setSetupData(data.data as SetupData);
+        setCurrentStep(2);
       } else {
         throw new Error(data.message || "Failed to initialize MFA setup");
       }
-    } catch (_err) {
-      setError(err.message || "Failed to setup MFA. Please try again.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to setup MFA. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -98,10 +99,8 @@ const MFASetup = ({ onSetupComplete, onCancel, className = "" }) => {
       setError("Please enter a valid 6-digit code");
       return;
     }
-
     setIsVerifying(true);
     setError("");
-
     try {
       const response = await fetch("/api/auth/mfa/verify-setup", {
         method: "POST",
@@ -111,70 +110,63 @@ const MFASetup = ({ onSetupComplete, onCancel, className = "" }) => {
         },
         body: JSON.stringify({ token: verificationToken }),
       });
-
       const data = await response.json();
-
       if (data.success) {
-        setCurrentStep(3); // Move to backup codes step
+        setCurrentStep(3);
       } else {
         throw new Error(data.message || "Invalid verification code");
       }
-    } catch (_err) {
-      setError(err.message || "Verification failed. Please try again.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Verification failed. Please try again.");
     } finally {
       setIsVerifying(false);
     }
   };
 
-  const handleCopyToClipboard = async (text, key) => {
+  const handleCopyToClipboard = async (text: string, key: string) => {
     try {
-      (await typeof navigator) !== "undefined" &&
-        navigator.clipboard.writeText(text);
-      setCopiedStates({ ...copiedStates, [key]: true });
-      setTimeout(() => {
-        setCopiedStates({ ...copiedStates, [key]: false });
-      }, 2000);
-    } catch (_err) {
+      if (typeof navigator !== "undefined") {
+        await navigator.clipboard.writeText(text);
+      }
+      setCopiedStates((prev) => ({ ...prev, [key]: true }));
+      setTimeout(() => setCopiedStates((prev) => ({ ...prev, [key]: false })), 2000);
+    } catch {
       // Fallback for browsers without clipboard API
-      const textArea =
-        typeof document !== "undefined" && document.createElement("textarea");
-      textArea.value = text;
-      typeof document !== "undefined" && document.body.appendChild(textArea);
-      textArea.select();
-      typeof document !== "undefined" && document.execCommand("copy");
-      typeof document !== "undefined" && document.body.removeChild(textArea);
-      setCopiedStates({ ...copiedStates, [key]: true });
-      setTimeout(() => {
-        setCopiedStates({ ...copiedStates, [key]: false });
-      }, 2000);
+      if (typeof document !== "undefined") {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textArea);
+      }
+      setCopiedStates((prev) => ({ ...prev, [key]: true }));
+      setTimeout(() => setCopiedStates((prev) => ({ ...prev, [key]: false })), 2000);
     }
   };
 
   const downloadBackupCodes = () => {
     if (!setupData?.backupCodes) return;
-
     const codesText = setupData.backupCodes.join("\n");
     const blob = new Blob(
-      [
-        `Uni-Manager MFA Backup Codes\n\nSave these codes in a secure location.\nEach code can only be used once.\n\n${codesText}\n\nGenerated: ${new Date().toISOString()}`,
-      ],
+      [`Uni-Manager MFA Backup Codes\n\nSave these codes in a secure location.\nEach code can only be used once.\n\n${codesText}\n\nGenerated: ${new Date().toISOString()}`],
       { type: "text/plain" },
     );
     const url = URL.createObjectURL(blob);
-    const a = typeof document !== "undefined" && document.createElement("a");
-    a.href = url;
-    a.download = `uni-manager-backup-codes-${new Date().toISOString().split("T")[0]}.txt`;
-    typeof document !== "undefined" && document.body.appendChild(a);
-    a.click();
-    typeof document !== "undefined" && document.body.removeChild(a);
+    if (typeof document !== "undefined") {
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `uni-manager-backup-codes-${new Date().toISOString().split("T")[0]}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
     URL.revokeObjectURL(url);
   };
 
   const completeSetup = () => {
     setCurrentStep(4);
-    setTimeout(() => {
-      onSetupComplete && onSetupComplete();
-    }, 2000);
+    setTimeout(() => onSetupComplete?.(), 2000);
   };
 
   const renderStepIndicator = () => (
@@ -196,9 +188,7 @@ const MFASetup = ({ onSetupComplete, onCancel, className = "" }) => {
           </div>
           {index < steps.length - 1 && (
             <div
-              className={`w-16 h-1 mx-2 ${
-                currentStep > step.id ? "bg-blue-600" : "bg-gray-300"
-              }`}
+              className={`w-16 h-1 mx-2 ${currentStep > step.id ? "bg-blue-600" : "bg-gray-300"}`}
             />
           )}
         </div>
@@ -210,14 +200,12 @@ const MFASetup = ({ onSetupComplete, onCancel, className = "" }) => {
     <div className="text-center space-y-6">
       <div className="flex items-center justify-center space-x-3 mb-6">
         <Shield className="text-blue-600" size={32} />
-        <h2 className="text-2xl font-bold text-gray-900">
-          Setup Authenticator App
-        </h2>
+        <h2 className="text-2xl font-bold text-gray-900">Setup Authenticator App</h2>
       </div>
 
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
           <span className="ml-3 text-gray-600">Initializing MFA setup...</span>
         </div>
       ) : (
@@ -226,12 +214,9 @@ const MFASetup = ({ onSetupComplete, onCancel, className = "" }) => {
             <div className="flex items-start space-x-3">
               <Smartphone className="text-blue-600 mt-1" size={20} />
               <div className="text-left">
-                <h3 className="font-medium text-blue-900">
-                  Download an Authenticator App
-                </h3>
+                <h3 className="font-medium text-blue-900">Download an Authenticator App</h3>
                 <p className="text-sm text-blue-700 mt-1">
-                  Install Google Authenticator, Authy, or any compatible TOTP
-                  app on your phone.
+                  Install Google Authenticator, Authy, or any compatible TOTP app on your phone.
                 </p>
               </div>
             </div>
@@ -240,36 +225,21 @@ const MFASetup = ({ onSetupComplete, onCancel, className = "" }) => {
           {setupData && (
             <>
               <div className="space-y-4">
-                <h3 className="text-lg font-medium text-gray-900">
-                  Scan QR Code
-                </h3>
+                <h3 className="text-lg font-medium text-gray-900">Scan QR Code</h3>
                 <div className="flex justify-center">
                   <div className="bg-white p-6 rounded-lg border-2 border-gray-200">
-                    <img
-                      src={setupData.qrCode}
-                      alt="MFA QR Code"
-                      className="w-48 h-48"
-                    />
+                    <img src={setupData.qrCode} alt="MFA QR Code" className="w-48 h-48" />
                   </div>
                 </div>
               </div>
 
               <div className="space-y-4">
-                <h3 className="text-lg font-medium text-gray-900">
-                  Or Enter Manual Key
-                </h3>
+                <h3 className="text-lg font-medium text-gray-900">Or Enter Manual Key</h3>
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                   <div className="flex items-center justify-between">
-                    <code className="text-sm font-mono break-all">
-                      {setupData.manualEntryKey}
-                    </code>
+                    <code className="text-sm font-mono break-all">{setupData.manualEntryKey}</code>
                     <button
-                      onClick={() =>
-                        handleCopyToClipboard(
-                          setupData.manualEntryKey,
-                          "manual-key",
-                        )
-                      }
+                      onClick={() => handleCopyToClipboard(setupData.manualEntryKey, "manual-key")}
                       className="ml-2 p-2 text-gray-500 hover:text-gray-700 transition-colors"
                       title="Copy to clipboard"
                     >
@@ -298,8 +268,7 @@ const MFASetup = ({ onSetupComplete, onCancel, className = "" }) => {
 
       <div className="space-y-6">
         <p className="text-gray-600">
-          Enter the 6-digit code from your authenticator app to verify the
-          setup.
+          Enter the 6-digit code from your authenticator app to verify the setup.
         </p>
 
         <div className="space-y-4">
@@ -343,7 +312,7 @@ const MFASetup = ({ onSetupComplete, onCancel, className = "" }) => {
             >
               {isVerifying ? (
                 <div className="flex items-center space-x-2">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
                   <span>Verifying...</span>
                 </div>
               ) : (
@@ -368,13 +337,10 @@ const MFASetup = ({ onSetupComplete, onCancel, className = "" }) => {
           <div className="flex items-start space-x-3">
             <AlertCircle className="text-yellow-600 mt-1" size={20} />
             <div className="text-left">
-              <h3 className="font-medium text-yellow-900">
-                Important: Save These Codes
-              </h3>
+              <h3 className="font-medium text-yellow-900">Important: Save These Codes</h3>
               <p className="text-sm text-yellow-700 mt-1">
-                These backup codes can be used to access your account if you
-                lose your authenticator app. Each code can only be used once.
-                Store them in a secure location.
+                These backup codes can be used to access your account if you lose your authenticator
+                app. Each code can only be used once. Store them in a secure location.
               </p>
             </div>
           </div>
@@ -383,9 +349,7 @@ const MFASetup = ({ onSetupComplete, onCancel, className = "" }) => {
         {setupData?.backupCodes && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-medium text-gray-900">
-                Backup Recovery Codes
-              </h3>
+              <h3 className="text-lg font-medium text-gray-900">Backup Recovery Codes</h3>
               <button
                 onClick={() => setShowBackupCodes(!showBackupCodes)}
                 className="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-800"
@@ -405,9 +369,7 @@ const MFASetup = ({ onSetupComplete, onCancel, className = "" }) => {
                     >
                       <code className="font-mono text-sm">{code}</code>
                       <button
-                        onClick={() =>
-                          handleCopyToClipboard(code, `code-${index}`)
-                        }
+                        onClick={() => handleCopyToClipboard(code, `code-${index}`)}
                         className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
                         title="Copy code"
                       >
@@ -423,19 +385,10 @@ const MFASetup = ({ onSetupComplete, onCancel, className = "" }) => {
 
                 <div className="flex justify-center space-x-4 mt-6">
                   <button
-                    onClick={() =>
-                      handleCopyToClipboard(
-                        setupData.backupCodes.join("\n"),
-                        "all-codes",
-                      )
-                    }
+                    onClick={() => handleCopyToClipboard(setupData.backupCodes!.join("\n"), "all-codes")}
                     className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
                   >
-                    {copiedStates["all-codes"] ? (
-                      <Check size={16} />
-                    ) : (
-                      <Copy size={16} />
-                    )}
+                    {copiedStates["all-codes"] ? <Check size={16} /> : <Copy size={16} />}
                     <span>Copy All</span>
                   </button>
                   <button
@@ -456,7 +409,7 @@ const MFASetup = ({ onSetupComplete, onCancel, className = "" }) => {
             onClick={completeSetup}
             className="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
           >
-            I've Saved My Backup Codes
+            I&apos;ve Saved My Backup Codes
           </button>
         </div>
       </div>
@@ -472,12 +425,10 @@ const MFASetup = ({ onSetupComplete, onCancel, className = "" }) => {
       </div>
 
       <div className="space-y-4">
-        <h2 className="text-2xl font-bold text-gray-900">
-          MFA Successfully Enabled!
-        </h2>
+        <h2 className="text-2xl font-bold text-gray-900">MFA Successfully Enabled!</h2>
         <p className="text-gray-600">
-          Your account is now protected with two-factor authentication. You'll
-          need to enter a code from your authenticator app when signing in.
+          Your account is now protected with two-factor authentication. You&apos;ll need to enter a
+          code from your authenticator app when signing in.
         </p>
       </div>
 
@@ -485,12 +436,10 @@ const MFASetup = ({ onSetupComplete, onCancel, className = "" }) => {
         <div className="flex items-start space-x-3">
           <Shield className="text-green-600 mt-1" size={20} />
           <div className="text-left">
-            <h3 className="font-medium text-green-900">
-              Your Account is More Secure
-            </h3>
+            <h3 className="font-medium text-green-900">Your Account is More Secure</h3>
             <p className="text-sm text-green-700 mt-1">
-              Even if someone discovers your password, they won't be able to
-              access your account without your authenticator app.
+              Even if someone discovers your password, they won&apos;t be able to access your
+              account without your authenticator app.
             </p>
           </div>
         </div>
@@ -499,9 +448,7 @@ const MFASetup = ({ onSetupComplete, onCancel, className = "" }) => {
   );
 
   return (
-    <div
-      className={`max-w-2xl mx-auto bg-white rounded-lg shadow-lg ${className}`}
-    >
+    <div className={`max-w-2xl mx-auto bg-white rounded-lg shadow-lg ${className}`}>
       <div className="p-8">
         {renderStepIndicator()}
 

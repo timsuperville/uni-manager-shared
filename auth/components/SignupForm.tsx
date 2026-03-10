@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import PropTypes from "prop-types";
 import {
   validateEmail,
   validatePassword,
@@ -21,6 +20,39 @@ import {
   PasswordToggleButton,
 } from "./_authUI";
 
+interface SignupFormProps {
+  onLogin?: () => void;
+  isLoading?: boolean;
+  error?: string | null;
+  /** Optional auth service override — for tests and Storybook */
+  authService?: Record<string, unknown> | null;
+  appType?: string;
+  loginPath?: string;
+}
+
+interface SignupFormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  agreeToTerms: boolean;
+}
+
+interface SignupFormErrors {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  password?: string;
+  confirmPassword?: string;
+  agreeToTerms?: string;
+  general?: string;
+  [key: string]: string | undefined;
+}
+
+type SignupPasswordStrength = ReturnType<typeof getPasswordStrength>;
+type AnyAuthService = typeof defaultAuthService | Record<string, unknown>;
+
 const SignupForm = ({
   onLogin,
   isLoading = false,
@@ -28,11 +60,11 @@ const SignupForm = ({
   authService: providedAuthService = null,
   appType = "default",
   loginPath = "/auth/login",
-}) => {
+}: SignupFormProps) => {
   const navigate = useNavigate();
   const appConfig = getCurrentAppConfig(appType);
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<SignupFormData>({
     firstName: "",
     lastName: "",
     email: "",
@@ -41,19 +73,19 @@ const SignupForm = ({
     agreeToTerms: false,
   });
 
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState<SignupFormErrors>({});
   const [emailChecking, setEmailChecking] = useState(false);
-  const [passwordStrength, setPasswordStrength] = useState(null);
+  const [passwordStrength, setPasswordStrength] = useState<SignupPasswordStrength | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [authService, setAuthService] = useState(
+  const [authService, setAuthService] = useState<AnyAuthService>(
     () => providedAuthService ?? defaultAuthService,
   );
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Ref for debouncing + cancelling stale email availability checks
-  const emailCheckTimerRef = useRef(null);
-  const emailCheckAbortRef = useRef(null);
+  const emailCheckTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const emailCheckAbortRef = useRef<AbortController | null>(null);
 
   // Swap service if a new one is provided via props (test/story injection)
   useEffect(() => {
@@ -70,14 +102,14 @@ const SignupForm = ({
     }
   }, [formData.password]);
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
 
-    if (errors[name]) {
+    if (errors[name as keyof typeof errors]) {
       setErrors((prev) => ({
         ...prev,
         [name]: "",
@@ -87,14 +119,16 @@ const SignupForm = ({
 
   const handleEmailBlur = () => {
     // Cancel any pending debounce + in-flight request from a previous blur
-    clearTimeout(emailCheckTimerRef.current);
+    if (emailCheckTimerRef.current !== null) {
+      clearTimeout(emailCheckTimerRef.current);
+    }
     emailCheckAbortRef.current?.abort();
 
     if (!formData.email || !authService) return;
 
     const emailValidation = validateEmail(formData.email);
     if (!emailValidation.isValid) {
-      setErrors((prev) => ({ ...prev, email: emailValidation.error }));
+      setErrors((prev) => ({ ...prev, email: emailValidation.errors?.email ?? "Invalid email" }));
       return;
     }
     setErrors((prev) => ({ ...prev, email: "" }));
@@ -105,7 +139,8 @@ const SignupForm = ({
       emailCheckAbortRef.current = controller;
       setEmailChecking(true);
       try {
-        const result = await authService.checkEmailAvailability(
+        const svc = authService as typeof defaultAuthService;
+        const result = await (svc.checkEmailAvailability as (email: string, opts: { signal: AbortSignal }) => Promise<{ available: boolean }>)(
           formData.email,
           { signal: controller.signal },
         );
@@ -118,8 +153,8 @@ const SignupForm = ({
       } catch (err) {
         // Ignore AbortError (user moved on); surface other errors in dev
         if (
-          err?.name !== "AbortError" &&
-          process.env.NODE_ENV === "development"
+          (err as { name?: string })?.name !== "AbortError" &&
+          import.meta.env?.DEV
         ) {
           console.warn("[SignupForm] Email availability check failed:", err);
         }
@@ -135,7 +170,7 @@ const SignupForm = ({
       if (!passwordValidation.isValid) {
         setErrors((prev) => ({
           ...prev,
-          password: passwordValidation.error,
+          password: passwordValidation.error ?? "Invalid password",
         }));
       }
     }
@@ -160,7 +195,9 @@ const SignupForm = ({
   const handleGoogleSignup = async () => {
     if (!authService) return;
     try {
-      const result = await authService.googleSignup();
+      const svc = authService as Record<string, ((...args: unknown[]) => Promise<{ success: boolean; requiresVerification?: boolean }>) | undefined>;
+      if (!svc.googleSignup) return;
+      const result = await svc.googleSignup();
       if (result.success) {
         if (result.requiresVerification) {
           navigate("/auth/verify-email");
@@ -176,29 +213,29 @@ const SignupForm = ({
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const newErrors = {};
+    const newErrors: Record<string, string> = {};
 
     // Validate first name
     const firstNameValidation = validateName(formData.firstName);
     if (!firstNameValidation.isValid)
-      newErrors.firstName = firstNameValidation.error;
+      newErrors.firstName = firstNameValidation.error ?? "Invalid first name";
 
     // Validate last name
     const lastNameValidation = validateName(formData.lastName);
     if (!lastNameValidation.isValid)
-      newErrors.lastName = lastNameValidation.error;
+      newErrors.lastName = lastNameValidation.error ?? "Invalid last name";
 
     // Validate email
     const emailValidation = validateEmail(formData.email);
-    if (!emailValidation.isValid) newErrors.email = emailValidation.error;
+    if (!emailValidation.isValid) newErrors.email = emailValidation.errors?.email ?? "Invalid email";
 
     // Validate password
     const passwordValidation = validatePassword(formData.password);
     if (!passwordValidation.isValid)
-      newErrors.password = passwordValidation.error;
+      newErrors.password = passwordValidation.error ?? "Invalid password";
 
     // Confirm password match
     if (formData.password !== formData.confirmPassword) {
@@ -225,7 +262,11 @@ const SignupForm = ({
 
     setIsSubmitting(true);
     try {
-      const result = await authService.signup({
+      type SignupFn = (data: { firstName: string; lastName: string; email: string; password: string; acceptTerms: boolean }) => Promise<{ success: boolean; requiresVerification?: boolean }>;
+      const svcAny = authService as unknown as Record<string, SignupFn | undefined>;
+      const signupFn = svcAny.signup;
+      if (!signupFn) throw new Error("signup method not available");
+      const result = await signupFn({
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
@@ -242,10 +283,11 @@ const SignupForm = ({
           navigate("/onboarding");
         }
       }
-    } catch (_error) {
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Registration failed";
       setErrors((prev) => ({
         ...prev,
-        general: _error?.message || "Registration failed",
+        general: msg,
       }));
     } finally {
       setIsSubmitting(false);
@@ -282,7 +324,7 @@ const SignupForm = ({
         {(error || errors.general) && (
           <Alert
             type="error"
-            message={error || errors.general}
+            message={error ?? errors.general ?? ""}
             className="mb-6"
           />
         )}
@@ -525,15 +567,6 @@ const SignupForm = ({
       </AuthCardContent>
     </AuthContainer>
   );
-};
-
-SignupForm.propTypes = {
-  onLogin: PropTypes.func,
-  isLoading: PropTypes.bool,
-  error: PropTypes.string,
-  authService: PropTypes.object,
-  appType: PropTypes.string,
-  loginPath: PropTypes.string,
 };
 
 export default SignupForm;

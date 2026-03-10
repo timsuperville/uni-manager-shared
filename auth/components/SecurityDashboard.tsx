@@ -10,19 +10,46 @@
  */
 
 import React, { useState, useEffect, useCallback } from "react";
-import PropTypes from "prop-types";
 import securityService from "../services/securityService";
 
+interface SecurityAlertPayload {
+  type: string;
+  count: number;
+  events: unknown[];
+}
+
+interface SecurityDashboardProps {
+  refreshInterval?: number;
+  className?: string;
+  onSecurityAlert?: ((alert: SecurityAlertPayload) => void) | null;
+}
+
+interface SecurityStats {
+  securityScore: number;
+  totalEvents: number;
+  highRiskEvents: number;
+  activeRateLimits: number;
+  eventsByType: Record<string, number>;
+}
+
+interface SecurityEvent {
+  id: string;
+  timestamp: string | number | Date;
+  type: string;
+  severity: "high" | "medium" | "low" | string;
+  data?: Record<string, unknown>;
+}
+
 const SecurityDashboard = ({
-  refreshInterval = 30000, // 30 seconds
+  refreshInterval = 30000,
   className = "",
   onSecurityAlert = null,
-}) => {
-  const [securityStats, setSecurityStats] = useState(null);
-  const [securityEvents, setSecurityEvents] = useState([]);
+}: SecurityDashboardProps) => {
+  const [securityStats, setSecurityStats] = useState<SecurityStats | null>(null);
+  const [securityEvents, setSecurityEvents] = useState<SecurityEvent[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [timeframe, setTimeframe] = useState(24 * 60 * 60 * 1000); // 24 hours
+  const [error, setError] = useState<string | null>(null);
+  const [timeframe, setTimeframe] = useState(24 * 60 * 60 * 1000);
   const [autoRefresh, setAutoRefresh] = useState(true);
 
   /**
@@ -52,7 +79,8 @@ const SecurityDashboard = ({
         });
       }
     } catch (err) {
-      setError(err?.message ?? "Failed to load security data");
+      const msg = err instanceof Error ? err.message : "Failed to load security data";
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -64,7 +92,7 @@ const SecurityDashboard = ({
   useEffect(() => {
     loadSecurityData();
 
-    let intervalId;
+    let intervalId: ReturnType<typeof setInterval> | undefined;
     if (autoRefresh) {
       intervalId = setInterval(loadSecurityData, refreshInterval);
     }
@@ -77,23 +105,17 @@ const SecurityDashboard = ({
   /**
    * Handle timeframe change
    */
-  const handleTimeframeChange = (newTimeframe) => {
+  const handleTimeframeChange = (newTimeframe: number) => {
     setTimeframe(newTimeframe);
   };
 
-  /**
-   * Get security score color
-   */
-  const getSecurityScoreColor = (score) => {
+  const getSecurityScoreColor = (score: number): string => {
     if (score >= 80) return "text-green-600";
     if (score >= 60) return "text-yellow-600";
     return "text-red-600";
   };
 
-  /**
-   * Get event severity badge
-   */
-  const getEventSeverityBadge = (severity) => {
+  const getEventSeverityBadge = (severity: string): string => {
     const baseClasses = "px-2 py-1 rounded text-xs font-medium";
     switch (severity) {
       case "high":
@@ -107,10 +129,7 @@ const SecurityDashboard = ({
     }
   };
 
-  /**
-   * Format timestamp
-   */
-  const formatTimestamp = (timestamp) => {
+  const formatTimestamp = (timestamp: string | number | Date): string => {
     return new Date(timestamp).toLocaleString();
   };
 
@@ -396,12 +415,6 @@ const SecurityDashboard = ({
       </div>
     </div>
   );
-};
-
-SecurityDashboard.propTypes = {
-  refreshInterval: PropTypes.number,
-  className: PropTypes.string,
-  onSecurityAlert: PropTypes.func,
 };
 
 export default SecurityDashboard;

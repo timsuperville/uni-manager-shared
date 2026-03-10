@@ -34,7 +34,6 @@ import React, {
   useId,
 } from "react";
 import { createPortal } from "react-dom";
-import PropTypes from "prop-types";
 import { useLocation } from "react-router-dom";
 
 import { useAuth } from "../context/AuthContext.tsx";
@@ -49,6 +48,22 @@ import UserMenuPanel from "./_userMenu/UserMenuPanel";
 
 // ─── UserMenu ─────────────────────────────────────────────────────────────────
 
+type MenuPosition = "bottom-right" | "bottom-left" | "top-right" | "top-left";
+
+interface UserMenuProps {
+  className?: string;
+  onProfileClick?: () => void;
+  onPreferencesClick?: () => void;
+  showProfileLink?: boolean;
+  showPreferencesLink?: boolean;
+  children?: React.ReactNode;
+  customHeader?: React.ReactNode;
+  /** Preferred anchor hint — auto-flipped near viewport edges */
+  position?: MenuPosition;
+  /** Optional override — bypasses role auto-detection */
+  roleLabel?: string;
+}
+
 const UserMenu = ({
   className = "",
   onProfileClick,
@@ -58,8 +73,8 @@ const UserMenu = ({
   children,
   customHeader = null,
   position = "bottom-right",
-  roleLabel: roleLabelProp, // optional override — bypasses auto-detection
-}) => {
+  roleLabel: roleLabelProp,
+}: UserMenuProps) => {
   const { user, logout, isLoading } = useAuth();
 
   // Safe presence consumption — undefined (not null) when provider is absent
@@ -82,8 +97,8 @@ const UserMenu = ({
     opensUpward: false,
   });
 
-  const buttonRef = useRef(null);
-  const panelRef = useRef(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   // ── Close on route change ──────────────────────────────────────────────────
   useEffect(() => {
@@ -104,9 +119,9 @@ const UserMenu = ({
   // ── Close on click outside (panel is in portal, so two-ref check) ─────────
   useEffect(() => {
     if (!isOpen) return;
-    const handler = (e) => {
-      const inTrigger = buttonRef.current?.contains(e.target);
-      const inPanel = panelRef.current?.contains(e.target);
+    const handler = (e: MouseEvent) => {
+      const inTrigger = buttonRef.current?.contains(e.target as Node);
+      const inPanel = panelRef.current?.contains(e.target as Node);
       if (!inTrigger && !inPanel) setIsOpen(false);
     };
     document.addEventListener("mousedown", handler);
@@ -147,12 +162,12 @@ const UserMenu = ({
 
   // ── Keyboard navigation (DOM-based — works regardless of visible items) ────
   const handleKeyDown = useCallback(
-    (e) => {
+    (e: KeyboardEvent) => {
       if (!isOpen || !panelRef.current) return;
       const items = Array.from(
         panelRef.current.querySelectorAll('[role="menuitem"]'),
-      );
-      const currentIdx = items.indexOf(document.activeElement);
+      ) as HTMLElement[];
+      const currentIdx = items.indexOf(document.activeElement as HTMLElement);
       switch (e.key) {
         case "ArrowDown":
           e.preventDefault();
@@ -188,7 +203,8 @@ const UserMenu = ({
     if (!isOpen) return;
     window.addEventListener("keydown", handleKeyDown);
     requestAnimationFrame(() => {
-      panelRef.current?.querySelector('[role="menuitem"]')?.focus();
+      const firstItem = panelRef.current?.querySelector('[role="menuitem"]') as HTMLElement | null;
+      firstItem?.focus();
     });
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, handleKeyDown]);
@@ -210,8 +226,7 @@ const UserMenu = ({
     }
   }, [logout]);
   const handleToggleStatus = useCallback(
-    (e) => {
-      e.stopPropagation();
+    () => {
       setStatus?.(status === "available" ? "unavailable" : "available");
     },
     [status, setStatus],
@@ -236,12 +251,13 @@ const UserMenu = ({
   //      config. This prevents the global system role (e.g. super_admin →
   //      "Super Admin") from leaking into unrelated app contexts.
   const appRoles = appConfig.permissions?.roles ?? [];
-  const roleLabel =
+  const extUser = user as typeof user & { churchRole?: string; title?: string; position?: string };
+  const roleLabel: string | undefined =
     roleLabelProp ??
-    user?.churchRole ??
-    user?.title ??
-    user?.position ??
-    (user?.role && appRoles.includes(user.role) ? formatRole(user.role) : null);
+    extUser?.churchRole ??
+    extUser?.title ??
+    extUser?.position ??
+    (user?.role && appRoles.includes(user.role) ? formatRole(user.role) : undefined);
 
   const triggerId = `user-menu-trigger-${uid}`;
   const panelId = `user-menu-panel-${uid}`;
@@ -314,23 +330,6 @@ const UserMenu = ({
         )}
     </div>
   );
-};
-
-UserMenu.propTypes = {
-  className: PropTypes.string,
-  onProfileClick: PropTypes.func,
-  onPreferencesClick: PropTypes.func,
-  showProfileLink: PropTypes.bool,
-  showPreferencesLink: PropTypes.bool,
-  children: PropTypes.node,
-  customHeader: PropTypes.node,
-  roleLabel: PropTypes.string, // override auto-detected role label
-  position: PropTypes.oneOf([
-    "bottom-right",
-    "bottom-left",
-    "top-right",
-    "top-left",
-  ]),
 };
 
 export { UserMenu };

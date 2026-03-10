@@ -1,14 +1,42 @@
 import React from "react";
-import PropTypes from "prop-types";
 import { AnimatePresence, motion } from "framer-motion";
-import { User, LogOut, SlidersHorizontal, Loader2 } from "lucide-react";
+import { User as UserIcon, LogOut, SlidersHorizontal, Loader2 } from "lucide-react";
 
 import { UserAvatar } from "../../../components/ui";
 import UserMenuItem from "./UserMenuItem";
 import PresenceToggle from "./PresenceToggle";
 import MenuDivider from "./MenuDivider";
 import { DROPDOWN_W } from "./positionUtils";
+import type { DropdownCoords } from "./positionUtils";
 import { getUserDisplayName } from "../../../utils";
+import type { User } from "../../types/auth.types.ts";
+import type { AppConfig } from "../../config/appConfigs.ts";
+
+interface UserMenuPanelProps {
+  panelRef: React.RefObject<HTMLDivElement>;
+  panelId: string;
+  isOpen: boolean;
+  dropdownCoords: DropdownCoords;
+  user: User;
+  appConfig: AppConfig;
+  roleLabel?: string;
+  hasPresence: boolean;
+  status: string;
+  isConnected: boolean;
+  statusDotColor: string;
+  onToggleStatus: () => void;
+  customHeader?: React.ReactNode;
+  children?: React.ReactNode;
+  showProfile: boolean;
+  showPreferencesLink: boolean;
+  isProfileActive: boolean;
+  prefsActive: boolean;
+  onProfileClick?: () => void;
+  onPreferencesClick?: () => void;
+  onClose: () => void;
+  onLogout: () => void;
+  isLoggingOut: boolean;
+}
 
 /**
  * UserMenuPanel — the portal-rendered Glass dropdown.
@@ -42,13 +70,13 @@ function UserMenuPanel({
   onClose,
   onLogout,
   isLoggingOut,
-}) {
+}: UserMenuPanelProps) {
   const { opensUpward } = dropdownCoords;
 
   const animVariant = {
     initial: { opacity: 0, y: opensUpward ? -8 : 8, scale: 0.96 },
     animate: { opacity: 1, y: 0, scale: 1 },
-    exit: { opacity: 0, y: opensUpward ? -8 : 8, scale: 0.96 },
+    exit:    { opacity: 0, y: opensUpward ? -8 : 8, scale: 0.96 },
   };
 
   return (
@@ -74,8 +102,7 @@ function UserMenuPanel({
             background: "var(--bg-sidebar)",
             backdropFilter: "blur(24px) saturate(180%)",
             WebkitBackdropFilter: "blur(24px) saturate(180%)",
-            boxShadow:
-              "0 16px 48px hsla(222,47%,4%,0.55), 0 0 0 1px var(--glass-outline)",
+            boxShadow: "0 16px 48px hsla(222,47%,4%,0.55), 0 0 0 1px var(--glass-outline)",
             overflow: "hidden",
           }}
         >
@@ -91,54 +118,23 @@ function UserMenuPanel({
               <UserAvatar user={user} appConfig={appConfig} size="md" />
 
               <div style={{ minWidth: 0, flex: 1 }}>
-                <p
-                  style={{
-                    margin: 0,
-                    fontSize: "13px",
-                    fontWeight: "600",
-                    color: "var(--text-primary)",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                  }}
-                >
+                <p style={{ margin: 0, fontSize: "13px", fontWeight: "600", color: "var(--text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {getUserDisplayName(user)}
                 </p>
 
                 {roleLabel && (
-                  <p
-                    style={{
-                      margin: "1px 0 0",
-                      fontSize: "11px",
-                      fontWeight: "500",
-                      color: "var(--primary-resonance)",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                      textTransform: "capitalize",
-                      letterSpacing: "0.02em",
-                    }}
-                  >
+                  <p style={{ margin: "1px 0 0", fontSize: "11px", fontWeight: "500", color: "var(--primary-resonance)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textTransform: "capitalize", letterSpacing: "0.02em" }}>
                     {roleLabel}
                   </p>
                 )}
 
-                <p
-                  style={{
-                    margin: "2px 0 0",
-                    fontSize: "11px",
-                    color: "var(--text-muted)",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                  }}
-                >
+                <p style={{ margin: "2px 0 0", fontSize: "11px", color: "var(--text-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {user.email}
                 </p>
 
                 {hasPresence && (
                   <PresenceToggle
-                    status={status}
+                    status={status as "available" | "unavailable"}
                     isConnected={isConnected}
                     onToggle={onToggleStatus}
                     dotColor={statusDotColor}
@@ -150,12 +146,7 @@ function UserMenuPanel({
 
           {/* ── Custom header slot ── */}
           {customHeader && (
-            <div
-              style={{
-                padding: "8px 12px",
-                borderBottom: "1px solid var(--glass-outline)",
-              }}
-            >
+            <div style={{ padding: "8px 12px", borderBottom: "1px solid var(--glass-outline)" }}>
               {customHeader}
             </div>
           )}
@@ -166,13 +157,10 @@ function UserMenuPanel({
 
             {showProfile && (
               <UserMenuItem
-                icon={User}
+                icon={UserIcon}
                 label="View Profile"
                 active={isProfileActive}
-                onClick={() => {
-                  onClose();
-                  onProfileClick?.();
-                }}
+                onClick={() => { onClose(); onProfileClick?.(); }}
               />
             )}
 
@@ -181,10 +169,7 @@ function UserMenuPanel({
                 icon={SlidersHorizontal}
                 label="Preferences"
                 active={prefsActive}
-                onClick={() => {
-                  onClose();
-                  onPreferencesClick?.();
-                }}
+                onClick={() => { onClose(); onPreferencesClick?.(); }}
               />
             )}
 
@@ -204,35 +189,5 @@ function UserMenuPanel({
     </AnimatePresence>
   );
 }
-
-UserMenuPanel.propTypes = {
-  panelRef: PropTypes.object.isRequired,
-  panelId: PropTypes.string.isRequired,
-  isOpen: PropTypes.bool.isRequired,
-  dropdownCoords: PropTypes.shape({
-    top: PropTypes.number,
-    left: PropTypes.number,
-    opensUpward: PropTypes.bool,
-  }).isRequired,
-  user: PropTypes.object.isRequired,
-  appConfig: PropTypes.object.isRequired,
-  roleLabel: PropTypes.string,
-  hasPresence: PropTypes.bool.isRequired,
-  status: PropTypes.string.isRequired,
-  isConnected: PropTypes.bool.isRequired,
-  statusDotColor: PropTypes.string.isRequired,
-  onToggleStatus: PropTypes.func.isRequired,
-  customHeader: PropTypes.node,
-  children: PropTypes.node,
-  showProfile: PropTypes.bool.isRequired,
-  showPreferencesLink: PropTypes.bool.isRequired,
-  isProfileActive: PropTypes.bool.isRequired,
-  prefsActive: PropTypes.bool.isRequired,
-  onProfileClick: PropTypes.func,
-  onPreferencesClick: PropTypes.func,
-  onClose: PropTypes.func.isRequired,
-  onLogout: PropTypes.func.isRequired,
-  isLoggingOut: PropTypes.bool.isRequired,
-};
 
 export default UserMenuPanel;

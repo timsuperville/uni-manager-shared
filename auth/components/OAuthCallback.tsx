@@ -3,15 +3,23 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.tsx";
 import { getCurrentAppConfig } from "../config/appConfigs.ts";
 
+type CallbackStatus = "processing" | "success" | "error";
+
+interface OAuthCallbackProps {
+  onSuccess?: (authData: unknown) => void;
+  onError?: (error: Error) => void;
+  redirectPath?: string;
+}
+
 /**
  * OAuth Callback Handler Component
- * Handles OAuth provider callbacks and redirects users appropriately
- * Preserves Church app functionality while standardizing OAuth flow
+ * Handles OAuth provider callbacks and redirects users appropriately.
+ * Preserves Church app functionality while standardising OAuth flow.
  */
-const OAuthCallback = ({ onSuccess, onError, redirectPath = "/" }) => {
+const OAuthCallback = ({ onSuccess, onError, redirectPath = "/" }: OAuthCallbackProps) => {
   const { handleOAuthCallback, loading } = useAuth();
   const navigate = useNavigate();
-  const [status, setStatus] = useState("processing");
+  const [status, setStatus] = useState<CallbackStatus>("processing");
   const [message, setMessage] = useState("Processing authentication...");
 
   useEffect(() => {
@@ -23,63 +31,48 @@ const OAuthCallback = ({ onSuccess, onError, redirectPath = "/" }) => {
             ? new URLSearchParams(window.location.search)
             : new URLSearchParams();
 
-        // Check for OAuth error
         const error = urlParams.get("error");
         const errorDescription = urlParams.get("error_description");
 
         if (error) {
-          const errorMsg = errorDescription || `OAuth error: ${error}`;
+          const errorMsg = errorDescription ?? `OAuth error: ${error}`;
           setStatus("error");
           setMessage(errorMsg);
-
-          if (onError) {
-            onError(new Error(errorMsg));
-          }
+          onError?.(new Error(errorMsg));
           return;
         }
 
-        // Check for authorization code
         const code = urlParams.get("code");
         if (!code) {
           const errorMsg = "No authorization code received";
           setStatus("error");
           setMessage(errorMsg);
-
-          if (onError) {
-            onError(new Error(errorMsg));
-          }
+          onError?.(new Error(errorMsg));
           return;
         }
 
         setMessage("Exchanging authorization code...");
 
-        // Handle OAuth callback
-        const authData = await handleOAuthCallback(urlParams);
-
+        const authData = await handleOAuthCallback?.(urlParams);
         setStatus("success");
         setMessage("Authentication successful! Redirecting...");
 
         if (onSuccess) {
           onSuccess(authData);
         } else {
-          // Use React Router navigate — preserves SPA state, no hard reload
           setTimeout(() => navigate(redirectPath), 1500);
         }
-      } catch (error) {
-        if (import.meta.env.DEV) {
-          console.error("OAuth callback error:", error);
-        }
+      } catch (err) {
+        const error = err instanceof Error ? err : new Error(String(err));
+        if (import.meta.env?.DEV) console.error("[OAuthCallback] callback error:", error.message);
         setStatus("error");
         setMessage(error.message || "Authentication failed");
-
-        if (onError) {
-          onError(error);
-        }
+        onError?.(error);
       }
     };
 
     processCallback();
-  }, [handleOAuthCallback, onSuccess, onError, redirectPath]);
+  }, [handleOAuthCallback, onSuccess, onError, redirectPath, navigate]);
 
   const appConfig = getCurrentAppConfig();
   const brandColor = appConfig.branding.primaryColor;
@@ -96,54 +89,27 @@ const OAuthCallback = ({ onSuccess, onError, redirectPath = "/" }) => {
             {appConfig.appName.charAt(0).toUpperCase()}
           </div>
 
-          <h2 className="text-3xl font-extrabold text-gray-900 mb-2">
-            {appConfig.appName}
-          </h2>
+          <h2 className="text-3xl font-extrabold text-gray-900 mb-2">{appConfig.appName}</h2>
 
           <div className="mb-6">
             {status === "processing" && (
               <div className="flex items-center justify-center space-x-2">
-                <div
-                  className="animate-spin rounded-full h-6 w-6 border-b-2"
-                  style={{ borderColor: brandColor }}
-                ></div>
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2" style={{ borderColor: brandColor }} />
                 <span className="text-gray-600">Processing...</span>
               </div>
             )}
-
             {status === "success" && (
               <div className="flex items-center justify-center space-x-2 text-green-600">
-                <svg
-                  className="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
                 <span>Success!</span>
               </div>
             )}
-
             {status === "error" && (
               <div className="flex items-center justify-center space-x-2 text-red-600">
-                <svg
-                  className="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
                 <span>Error</span>
               </div>
@@ -157,13 +123,10 @@ const OAuthCallback = ({ onSuccess, onError, redirectPath = "/" }) => {
               <button
                 onClick={() => navigate("/auth/login")}
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2"
-                style={{
-                  backgroundColor: brandColor,
-                }}
+                style={{ backgroundColor: brandColor }}
               >
                 Back to Login
               </button>
-
               <button
                 onClick={() => navigate("/")}
                 className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2"
@@ -178,11 +141,8 @@ const OAuthCallback = ({ onSuccess, onError, redirectPath = "/" }) => {
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div
                   className="h-2 rounded-full animate-pulse"
-                  style={{
-                    backgroundColor: brandColor,
-                    width: loading ? "60%" : "100%",
-                  }}
-                ></div>
+                  style={{ backgroundColor: brandColor, width: loading ? "60%" : "100%" }}
+                />
               </div>
             </div>
           )}

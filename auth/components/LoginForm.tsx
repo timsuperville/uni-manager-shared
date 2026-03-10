@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from "react";
-import PropTypes from "prop-types";
 import { useAuth } from "../context/AuthContext.tsx";
 import { useNavigate, useLocation } from "react-router-dom";
 import MFAVerification from "./MFAVerification";
@@ -34,22 +33,31 @@ const DEFAULT_UI = {
  *    form card floats inside the right panel.
  *  - Standalone (legacy) → AuthContainer wraps in full-viewport shell.
  */
+interface LoginFormProps {
+  appType?: string;
+  appTitle?: string;
+  appDescription?: string;
+  showRememberMe?: boolean;
+  showRegistration?: boolean;
+  enableMFA?: boolean;
+  trustDeviceAvailable?: boolean;
+  onSuccess?: (result: unknown) => void;
+  onError?: (error: unknown) => void;
+  redirectPath?: string;
+}
+
 export function LoginForm({
   appType = "default",
   appTitle,
   appDescription,
-
   showRememberMe = true,
   showRegistration = true,
-
   enableMFA = true,
   trustDeviceAvailable = true,
-
   onSuccess,
   onError,
-
   redirectPath = "/dashboard",
-}) {
+}: LoginFormProps) {
   const {
     login,
     verifyMFALogin,
@@ -82,7 +90,7 @@ export function LoginForm({
   });
   const [trustDevice, setTrustDevice] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [deviceFingerprint, setDeviceFingerprint] = useState(null);
+  const [deviceFingerprint, setDeviceFingerprint] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Pull ui branding from the single source of truth — appConfigs.js
@@ -94,10 +102,11 @@ export function LoginForm({
   const finalRedirect = returnTo || redirectPath || "/dashboard";
 
   // ─── Device fingerprint ──────────────────────────────────────────────────────
-  const generateFingerprint = useCallback(() => {
+  const generateFingerprint = useCallback((): string | null => {
     if (typeof document === "undefined") return null;
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
+    if (!ctx) return null;
     ctx.textBaseline = "top";
     ctx.font = "14px Arial";
     ctx.fillText("Device fingerprint", 2, 2);
@@ -123,7 +132,7 @@ export function LoginForm({
   }, [mfaRequired, mfaSetupRequired, enableMFA]);
 
   // ─── Handlers ────────────────────────────────────────────────────────────────
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -131,20 +140,21 @@ export function LoginForm({
     }));
   };
 
-  const handleLoginSubmit = async (e) => {
+  const handleLoginSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    clearError();
+    clearError?.();
     setIsSubmitting(true);
     try {
       const result = await login({
         email: formData.email,
         password: formData.password,
         rememberMe: formData.rememberMe,
-        appType,
+        appType: appType as Parameters<typeof login>[0]["appType"],
       });
+      const loginResult = result as unknown as Record<string, unknown>;
       const isMFAPending =
-        result?.mfaRequired || result?.requiresMFA || result?.mfaSetupRequired;
-      if (result?.success && !isMFAPending) {
+        loginResult?.mfaRequired || loginResult?.requiresMFA || loginResult?.mfaSetupRequired;
+      if (loginResult?.success && !isMFAPending) {
         if (onSuccess) onSuccess(result);
         else navigate(finalRedirect);
       } else {
@@ -154,22 +164,21 @@ export function LoginForm({
       // MFA step changes handled via the useEffect above
     } catch (err) {
       setIsSubmitting(false);
-      if (process.env.NODE_ENV === "development") {
-        console.error("[LoginForm] Login error:", err);
-      }
+      if (import.meta.env?.DEV) console.error("[LoginForm] Login error:", err);
       onError?.(err);
     }
   };
 
-  const handleMFAVerification = async (token) => {
-    clearError();
+  const handleMFAVerification = async (token: string) => {
+    clearError?.();
     try {
-      const result = await verifyMFALogin(
+      const result = await verifyMFALogin?.(
         token,
         deviceFingerprint,
         trustDevice,
       );
-      if (result.success) {
+      const r = result as Record<string, unknown> | undefined;
+      if (r?.success) {
         setCurrentStep("login");
         if (onSuccess) onSuccess(result);
         else navigate(finalRedirect);
@@ -187,7 +196,7 @@ export function LoginForm({
 
   const handleBackToLogin = () => {
     setCurrentStep("login");
-    clearError();
+    clearError?.();
   };
 
   // Validate both presence and email format for accurate button state
@@ -227,17 +236,10 @@ export function LoginForm({
             </p>
           </div>
           <MFAVerification
-            onVerify={handleMFAVerification}
-            onBack={handleBackToLogin}
-            deviceTrust={{
-              available: trustDeviceAvailable,
-              checked: trustDevice,
-              onChange: setTrustDevice,
-            }}
-            theme={{ text: "text-gray-900 dark:text-white", input: "lg-input" }}
-            config={appConfig}
-            isLoading={isLoading}
-            error={error}
+            onVerificationSuccess={(result) => handleMFAVerification(result?.verified ? "verified" : "")}
+            onCancel={handleBackToLogin}
+            deviceFingerprint={deviceFingerprint}
+            className=""
           />
         </AuthCardContent>
       </AuthContainer>
@@ -259,9 +261,7 @@ export function LoginForm({
           </div>
           <MFASetup
             onSetupComplete={handleMFASetupComplete}
-            onSkip={handleMFASetupComplete}
-            theme={{ text: "text-gray-900 dark:text-white", input: "lg-input" }}
-            config={appConfig}
+            onCancel={handleMFASetupComplete}
           />
         </AuthCardContent>
       </AuthContainer>
@@ -411,18 +411,5 @@ export function LoginForm({
     </AuthContainer>
   );
 }
-
-LoginForm.propTypes = {
-  appType: PropTypes.string,
-  appTitle: PropTypes.string,
-  appDescription: PropTypes.string,
-  onSuccess: PropTypes.func,
-  onError: PropTypes.func,
-  redirectPath: PropTypes.string,
-  showRememberMe: PropTypes.bool,
-  showRegistration: PropTypes.bool,
-  enableMFA: PropTypes.bool,
-  trustDeviceAvailable: PropTypes.bool,
-};
 
 export default LoginForm;

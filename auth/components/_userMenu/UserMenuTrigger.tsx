@@ -1,9 +1,29 @@
 import React from "react";
-import PropTypes from "prop-types";
 import { ChevronDown, WifiOff } from "lucide-react";
 
 import { UserAvatar } from "../../../components/ui";
 import { getUserDisplayName } from "../../../utils";
+import type { User } from "../../types/auth.types.ts";
+import type { AppConfig } from "../../config/appConfigs.ts";
+
+interface UserMenuTriggerProps {
+  buttonRef: React.RefObject<HTMLButtonElement>;
+  triggerId: string;
+  panelId: string;
+  isOpen: boolean;
+  user: User;
+  appConfig: AppConfig;
+  roleLabel?: string;
+  hasPresence: boolean;
+  isConnected: boolean;
+  status: string;
+  statusDotColor: string;
+  onToggle: () => void;
+  onMouseEnter: React.MouseEventHandler<HTMLButtonElement>;
+  onMouseLeave: React.MouseEventHandler<HTMLButtonElement>;
+  triggerBorder: string;
+  triggerBg: string;
+}
 
 /**
  * UserMenuTrigger — the pill button that opens/closes the UserMenu dropdown.
@@ -26,7 +46,7 @@ function UserMenuTrigger({
   onMouseLeave,
   triggerBorder,
   triggerBg,
-}) {
+}: UserMenuTriggerProps) {
   return (
     <button
       ref={buttonRef}
@@ -63,20 +83,11 @@ function UserMenuTrigger({
               width: "9px",
               height: "9px",
               borderRadius: "50%",
-              background: isConnected
-                ? statusDotColor
-                : "var(--color-warning, hsl(38,95%,54%))",
-              border:
-                "2px solid var(--bg-sidebar, var(--bg-obsidian, #0a0e1a))",
+              background: isConnected ? statusDotColor : "var(--color-warning, hsl(38,95%,54%))",
+              border: "2px solid var(--bg-sidebar, var(--bg-obsidian, #0a0e1a))",
               transition: "background 300ms ease",
             }}
-            title={
-              !isConnected
-                ? "Offline"
-                : status === "available"
-                  ? "Available"
-                  : "Unavailable"
-            }
+            title={!isConnected ? "Offline" : status === "available" ? "Available" : "Unavailable"}
             aria-hidden="true"
           />
         )}
@@ -122,10 +133,7 @@ function UserMenuTrigger({
       {hasPresence && !isConnected && (
         <WifiOff
           size={12}
-          style={{
-            color: "var(--color-warning, hsl(38,95%,54%))",
-            flexShrink: 0,
-          }}
+          style={{ color: "var(--color-warning, hsl(38,95%,54%))", flexShrink: 0 }}
           aria-label="Offline"
         />
       )}
@@ -143,24 +151,5 @@ function UserMenuTrigger({
     </button>
   );
 }
-
-UserMenuTrigger.propTypes = {
-  buttonRef: PropTypes.object.isRequired,
-  triggerId: PropTypes.string.isRequired,
-  panelId: PropTypes.string.isRequired,
-  isOpen: PropTypes.bool.isRequired,
-  user: PropTypes.object.isRequired,
-  appConfig: PropTypes.object.isRequired,
-  roleLabel: PropTypes.string,
-  hasPresence: PropTypes.bool.isRequired,
-  isConnected: PropTypes.bool.isRequired,
-  status: PropTypes.string.isRequired,
-  statusDotColor: PropTypes.string.isRequired,
-  onToggle: PropTypes.func.isRequired,
-  onMouseEnter: PropTypes.func.isRequired,
-  onMouseLeave: PropTypes.func.isRequired,
-  triggerBorder: PropTypes.string.isRequired,
-  triggerBg: PropTypes.string.isRequired,
-};
 
 export default UserMenuTrigger;

@@ -3,7 +3,6 @@
  * Works both standalone (legacy) and nested inside AuthLayout.
  */
 import React, { useState, useEffect } from "react";
-import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 import { validateEmail } from "../utils/authValidation.ts";
 import {
@@ -17,17 +16,25 @@ import {
 // Seconds to wait before auto-redirecting to login after a successful submission
 const SUCCESS_REDIRECT_DELAY = 5;
 
+interface ForgotPasswordFormProps {
+  onSubmit?: (payload: { email: string }) => void;
+  onBackToLogin?: () => void;
+  isLoading?: boolean;
+  error?: string | null;
+  success?: string | null;
+}
+
 const ForgotPasswordForm = ({
   onSubmit,
   onBackToLogin,
   isLoading = false,
   error = null,
   success = null,
-}) => {
+}: ForgotPasswordFormProps) => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [localError, setLocalError] = useState("");
-  const [countdown, setCountdown] = useState(null);
+  const [countdown, setCountdown] = useState<number | null>(null);
 
   // After success, start a countdown and auto-redirect to login
   useEffect(() => {
@@ -35,7 +42,7 @@ const ForgotPasswordForm = ({
     setCountdown(SUCCESS_REDIRECT_DELAY);
     const interval = setInterval(() => {
       setCountdown((prev) => {
-        if (prev <= 1) {
+        if (prev === null || prev <= 1) {
           clearInterval(interval);
           navigate("/auth/login");
           return 0;
@@ -55,20 +62,18 @@ const ForgotPasswordForm = ({
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLocalError("");
 
-    const { isValid, error: validationError } = validateEmail(email);
+    const { isValid, errors: validationErrors } = validateEmail(email);
     if (!isValid) {
-      setLocalError(validationError);
+      setLocalError(validationErrors?.[0] ?? "Invalid email address");
       return;
     }
 
     if (!onSubmit) {
-      // Guard: form should never be rendered without a submit handler.
-      // In dev, surface the misconfiguration clearly instead of silently no-op.
-      if (process.env.NODE_ENV === "development") {
+      if (import.meta.env?.DEV) {
         console.error(
           "[ForgotPasswordForm] No onSubmit handler provided. " +
             "Use the app-specific wrapper (e.g. ForgotPasswordWrapper) " +
@@ -199,14 +204,6 @@ const ForgotPasswordForm = ({
       </AuthCardContent>
     </AuthContainer>
   );
-};
-
-ForgotPasswordForm.propTypes = {
-  onSubmit: PropTypes.func,
-  onBackToLogin: PropTypes.func,
-  isLoading: PropTypes.bool,
-  error: PropTypes.string,
-  success: PropTypes.string,
 };
 
 export default ForgotPasswordForm;

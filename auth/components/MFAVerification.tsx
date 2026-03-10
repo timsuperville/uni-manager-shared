@@ -84,23 +84,38 @@ const AlertCircleIcon = () => (
   </svg>
 );
 
+interface MFAVerificationProps {
+  userId?: string;
+  onVerificationSuccess: (result: {
+    verified: boolean;
+    deviceTrusted: boolean;
+    usedBackupCode: boolean;
+    bypassedDueToTrust: boolean;
+  }) => void;
+  onCancel: () => void;
+  className?: string;
+  deviceFingerprint?: string | null;
+  /** AUTH-03: injected service replaces raw fetch */
+  apiService?: { verifyMFA?: (payload: unknown) => Promise<unknown> } | null;
+}
+
 const MFAVerification = ({
   userId,
   onVerificationSuccess,
   onCancel,
   className = "",
   deviceFingerprint = null,
-  apiService = null, // AUTH-03: injected service replaces raw fetch
-}) => {
+  apiService = null,
+}: MFAVerificationProps) => {
   const [verificationMode, setVerificationMode] = useState("totp"); // 'totp' or 'backup'
   const [token, setToken] = useState("");
   const [trustDevice, setTrustDevice] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [error, setError] = useState("");
-  const [remainingAttempts, setRemainingAttempts] = useState(null);
+  const [remainingAttempts, setRemainingAttempts] = useState<number | null>(null);
   const [showTrustOption, setShowTrustOption] = useState(!!deviceFingerprint);
 
-  const inputRef = useRef(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     // Focus input on mount
@@ -109,7 +124,7 @@ const MFAVerification = ({
     }
   }, [verificationMode]);
 
-  const handleTokenChange = (value) => {
+  const handleTokenChange = (value: string) => {
     setError("");
 
     if (verificationMode === "totp") {
@@ -126,7 +141,7 @@ const MFAVerification = ({
     }
   };
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
       if (canSubmit()) handleVerification();
@@ -157,7 +172,7 @@ const MFAVerification = ({
         });
       } else {
         // Fallback: direct fetch — only if no service injected
-        if (process.env.NODE_ENV === "development") {
+        if (import.meta.env?.DEV) {
           console.warn(
             "[MFAVerification] No apiService provided — falling back to raw fetch. " +
               "Pass apiService prop for proper API layer separation.",
