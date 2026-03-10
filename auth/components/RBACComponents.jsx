@@ -6,7 +6,7 @@
 import React, { createContext, useContext } from "react";
 import PropTypes from "prop-types";
 import { Navigate } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth.js";
+import { useAuth } from "../hooks/useAuth.ts";
 import { RBACUtils, PermissionUtils } from "../rbac/utils";
 
 // Create RBAC Context

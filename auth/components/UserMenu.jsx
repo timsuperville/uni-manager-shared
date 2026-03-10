@@ -37,7 +37,7 @@ import { createPortal } from "react-dom";
 import PropTypes from "prop-types";
 import { useLocation } from "react-router-dom";
 
-import { useAuth } from "../context/AuthContext.jsx";
+import { useAuth } from "../context/AuthContext.tsx";
 import { PresenceContext } from "../../context/PresenceContext";
 import { getCurrentAppConfig } from "../config/appConfigs.js";
 import { formatRole } from "../../utils";

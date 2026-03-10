@@ -5,8 +5,8 @@
 
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth.js";
-import { useFeatureGate } from "../hooks/useFeatureGate.js";
+import { useAuth } from "../hooks/useAuth.ts";
+import { useFeatureGate } from "../hooks/useFeatureGate.ts";
 
 /**
  * Permission Guard Component

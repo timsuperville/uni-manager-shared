@@ -1,4 +1,4 @@
-import { useAuth as useAuthFromProvider } from "../context/AuthContext.jsx";
+import { useAuth as useAuthFromProvider } from "../context/AuthContext.tsx";
 import type { AuthContextType } from "../types/auth.types.ts";
 
 /**

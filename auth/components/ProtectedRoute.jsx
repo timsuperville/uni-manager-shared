@@ -4,7 +4,7 @@
  */
 import React, { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth.js";
+import { useAuth } from "../hooks/useAuth.ts";
 import { getCurrentAppConfig } from "../config/appConfigs.js";
 
 const ProtectedRoute = ({
