@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useMemo, useRef } from "react";
-import { AuthService } from "../services/authService.js";
+import { AuthService } from "../services/authService.ts";
 import { useAuthState } from "../hooks/useAuthState.ts";
 import { useAuthActions } from "../hooks/useAuthActions.ts";
 import { useAuthCallbacks } from "../hooks/useAuthCallbacks.ts";
@@ -95,19 +95,22 @@ class SessionRBAC extends (RBACUtils as new (user: SyntheticUser | null) => RBAC
 
   constructor(user: SyntheticUser) {
     super(user);
-    this._resolved = user._resolvedPermissions;
+    this._resolved = user._resolvedPermissions ?? [];
   }
 
   hasPermission(permission: string): boolean {
-    if (this._resolved.length > 0) return this._resolved.includes(permission);
+    // Guard: _resolved may not be assigned yet if super() triggers this method
+    if (this._resolved && this._resolved.length > 0) return this._resolved.includes(permission);
     return super.hasPermission(permission);
   }
 
   resolveUserPermissions(): string[] {
-    if (this._resolved.length > 0) return this._resolved;
+    // Guard: _resolved may not be assigned yet during super() constructor call
+    if (this._resolved && this._resolved.length > 0) return this._resolved;
     return super.resolveUserPermissions();
   }
 }
+
 
 // ── RBAC methods builder ──────────────────────────────────────────────────────
 

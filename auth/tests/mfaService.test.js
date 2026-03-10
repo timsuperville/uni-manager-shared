@@ -1,4 +1,4 @@
-import { MFAService } from "../services/mfaService.js";
+import { MFAService } from "../services/mfaService";
 
 // Mock fetch globally
 global.fetch = vi.fn();
