@@ -1,9 +1,10 @@
 /**
  * Role-Based Access Control (RBAC) System
- * Defines roles, permissions, and access control logic for all applications
+ * Defines roles, permissions, and access control logic for all applications.
  */
 
-// Core permission definitions
+// ── Permission constants ───────────────────────────────────────────────────────
+
 export const PERMISSIONS = {
   // User Management
   USER_CREATE: "user:create",
@@ -19,7 +20,7 @@ export const PERMISSIONS = {
   ROLE_DELETE: "role:delete",
   ROLE_ASSIGN: "role:assign",
 
-  // Church App Permissions
+  // Church App
   CHURCH_VIEW: "church:view",
   CHURCH_MANAGE: "church:manage",
   CHURCH_ADMIN: "church:admin",
@@ -31,14 +32,14 @@ export const PERMISSIONS = {
   DONATION_VIEW: "donation:view",
   DONATION_MANAGE: "donation:manage",
 
-  // Admin App Permissions
+  // Admin App
   ADMIN_VIEW: "admin:view",
   ADMIN_MANAGE: "admin:manage",
   SYSTEM_CONFIG: "system:config",
   AUDIT_VIEW: "audit:view",
   ANALYTICS_VIEW: "analytics:view",
 
-  // Business App Permissions
+  // Business App
   BUSINESS_VIEW: "business:view",
   BUSINESS_MANAGE: "business:manage",
   FINANCE_VIEW: "finance:view",
@@ -46,7 +47,7 @@ export const PERMISSIONS = {
   INVENTORY_VIEW: "inventory:view",
   INVENTORY_MANAGE: "inventory:manage",
 
-  // Home App Permissions
+  // Home App
   HOME_VIEW: "home:view",
   HOME_MANAGE: "home:manage",
   TASK_CREATE: "task:create",
@@ -54,7 +55,7 @@ export const PERMISSIONS = {
   SCHEDULE_VIEW: "schedule:view",
   SCHEDULE_MANAGE: "schedule:manage",
 
-  // Personal App Permissions
+  // Personal App
   PERSONAL_VIEW: "personal:view",
   PERSONAL_MANAGE: "personal:manage",
   GOAL_CREATE: "goal:create",
@@ -62,16 +63,19 @@ export const PERMISSIONS = {
   NOTE_CREATE: "note:create",
   NOTE_EDIT: "note:edit",
 
-  // Playback App Permissions
+  // Playback App
   PLAYBACK_VIEW: "playback:view",
   PLAYBACK_MANAGE: "playback:manage",
   MEDIA_UPLOAD: "media:upload",
   MEDIA_DELETE: "media:delete",
   PLAYLIST_CREATE: "playlist:create",
   PLAYLIST_MANAGE: "playlist:manage",
-};
+} as const;
 
-// Permission groups for easier management
+export type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
+
+// ── Permission groups ─────────────────────────────────────────────────────────
+
 export const PERMISSION_GROUPS = {
   USER_MANAGEMENT: [
     PERMISSIONS.USER_CREATE,
@@ -80,7 +84,6 @@ export const PERMISSION_GROUPS = {
     PERMISSIONS.USER_DELETE,
     PERMISSIONS.USER_LIST,
   ],
-
   ROLE_MANAGEMENT: [
     PERMISSIONS.ROLE_CREATE,
     PERMISSIONS.ROLE_READ,
@@ -88,7 +91,6 @@ export const PERMISSION_GROUPS = {
     PERMISSIONS.ROLE_DELETE,
     PERMISSIONS.ROLE_ASSIGN,
   ],
-
   CHURCH_MANAGEMENT: [
     PERMISSIONS.CHURCH_VIEW,
     PERMISSIONS.CHURCH_MANAGE,
@@ -97,7 +99,6 @@ export const PERMISSION_GROUPS = {
     PERMISSIONS.MEMBER_VIEW,
     PERMISSIONS.MEMBER_MANAGE,
   ],
-
   ADMIN_MANAGEMENT: [
     PERMISSIONS.ADMIN_VIEW,
     PERMISSIONS.ADMIN_MANAGE,
@@ -105,7 +106,6 @@ export const PERMISSION_GROUPS = {
     PERMISSIONS.AUDIT_VIEW,
     PERMISSIONS.ANALYTICS_VIEW,
   ],
-
   BUSINESS_MANAGEMENT: [
     PERMISSIONS.BUSINESS_VIEW,
     PERMISSIONS.BUSINESS_MANAGE,
@@ -114,21 +114,31 @@ export const PERMISSION_GROUPS = {
     PERMISSIONS.INVENTORY_VIEW,
     PERMISSIONS.INVENTORY_MANAGE,
   ],
-};
+} as const;
 
-// Role definitions with hierarchical structure
-export const ROLES = {
-  // System-wide roles
+// ── Role definitions ──────────────────────────────────────────────────────────
+
+export interface RoleDefinition {
+  id: string;
+  name: string;
+  description: string;
+  level: number;
+  permissions: readonly Permission[];
+  inherits: string[];
+  isSystemRole?: boolean;
+  applicationScope?: string[];
+}
+
+export const ROLES: Record<string, RoleDefinition> = {
   SUPER_ADMIN: {
     id: "super_admin",
     name: "Super Administrator",
     description: "Full system access across all applications",
     level: 100,
-    permissions: Object.values(PERMISSIONS),
+    permissions: Object.values(PERMISSIONS) as Permission[],
     inherits: [],
     isSystemRole: true,
   },
-
   SYSTEM_ADMIN: {
     id: "system_admin",
     name: "System Administrator",
@@ -144,45 +154,32 @@ export const ROLES = {
     inherits: [],
     isSystemRole: true,
   },
-
-  // Church App roles
   CHURCH_ADMIN: {
     id: "church_admin",
     name: "Church Administrator",
     description: "Full administrative access to church application",
     level: 80,
     permissions: [
-      PERMISSIONS.CHURCH_ADMIN,
-      PERMISSIONS.CHURCH_MANAGE,
-      PERMISSIONS.SERVICE_CREATE,
-      PERMISSIONS.SERVICE_EDIT,
-      PERMISSIONS.SERVICE_DELETE,
-      PERMISSIONS.MEMBER_VIEW,
-      PERMISSIONS.MEMBER_MANAGE,
-      PERMISSIONS.DONATION_VIEW,
-      PERMISSIONS.DONATION_MANAGE,
+      PERMISSIONS.CHURCH_ADMIN, PERMISSIONS.CHURCH_MANAGE,
+      PERMISSIONS.SERVICE_CREATE, PERMISSIONS.SERVICE_EDIT, PERMISSIONS.SERVICE_DELETE,
+      PERMISSIONS.MEMBER_VIEW, PERMISSIONS.MEMBER_MANAGE,
+      PERMISSIONS.DONATION_VIEW, PERMISSIONS.DONATION_MANAGE,
     ],
     inherits: ["church_manager"],
     applicationScope: ["church"],
   },
-
   CHURCH_MANAGER: {
     id: "church_manager",
     name: "Church Manager",
     description: "Management access to church services and members",
     level: 70,
     permissions: [
-      PERMISSIONS.CHURCH_MANAGE,
-      PERMISSIONS.SERVICE_CREATE,
-      PERMISSIONS.SERVICE_EDIT,
-      PERMISSIONS.MEMBER_VIEW,
-      PERMISSIONS.MEMBER_MANAGE,
-      PERMISSIONS.DONATION_VIEW,
+      PERMISSIONS.CHURCH_MANAGE, PERMISSIONS.SERVICE_CREATE, PERMISSIONS.SERVICE_EDIT,
+      PERMISSIONS.MEMBER_VIEW, PERMISSIONS.MEMBER_MANAGE, PERMISSIONS.DONATION_VIEW,
     ],
     inherits: ["church_user"],
     applicationScope: ["church"],
   },
-
   CHURCH_USER: {
     id: "church_user",
     name: "Church User",
@@ -192,39 +189,30 @@ export const ROLES = {
     inherits: [],
     applicationScope: ["church"],
   },
-
-  // Business App roles
   BUSINESS_ADMIN: {
     id: "business_admin",
     name: "Business Administrator",
     description: "Full administrative access to business application",
     level: 80,
     permissions: [
-      PERMISSIONS.BUSINESS_MANAGE,
-      PERMISSIONS.FINANCE_VIEW,
-      PERMISSIONS.FINANCE_MANAGE,
-      PERMISSIONS.INVENTORY_VIEW,
-      PERMISSIONS.INVENTORY_MANAGE,
+      PERMISSIONS.BUSINESS_MANAGE, PERMISSIONS.FINANCE_VIEW, PERMISSIONS.FINANCE_MANAGE,
+      PERMISSIONS.INVENTORY_VIEW, PERMISSIONS.INVENTORY_MANAGE,
     ],
     inherits: ["business_manager"],
     applicationScope: ["business"],
   },
-
   BUSINESS_MANAGER: {
     id: "business_manager",
     name: "Business Manager",
     description: "Management access to business operations",
     level: 70,
     permissions: [
-      PERMISSIONS.BUSINESS_MANAGE,
-      PERMISSIONS.FINANCE_VIEW,
-      PERMISSIONS.INVENTORY_VIEW,
-      PERMISSIONS.INVENTORY_MANAGE,
+      PERMISSIONS.BUSINESS_MANAGE, PERMISSIONS.FINANCE_VIEW,
+      PERMISSIONS.INVENTORY_VIEW, PERMISSIONS.INVENTORY_MANAGE,
     ],
     inherits: ["business_user"],
     applicationScope: ["business"],
   },
-
   BUSINESS_USER: {
     id: "business_user",
     name: "Business User",
@@ -234,73 +222,52 @@ export const ROLES = {
     inherits: [],
     applicationScope: ["business"],
   },
-
-  // Personal App roles
   PERSONAL_USER: {
     id: "personal_user",
     name: "Personal User",
     description: "Full access to personal application",
     level: 50,
     permissions: [
-      PERMISSIONS.PERSONAL_VIEW,
-      PERMISSIONS.PERSONAL_MANAGE,
-      PERMISSIONS.GOAL_CREATE,
-      PERMISSIONS.GOAL_EDIT,
-      PERMISSIONS.NOTE_CREATE,
-      PERMISSIONS.NOTE_EDIT,
+      PERMISSIONS.PERSONAL_VIEW, PERMISSIONS.PERSONAL_MANAGE,
+      PERMISSIONS.GOAL_CREATE, PERMISSIONS.GOAL_EDIT,
+      PERMISSIONS.NOTE_CREATE, PERMISSIONS.NOTE_EDIT,
     ],
     inherits: [],
     applicationScope: ["personal"],
   },
-
-  // Home App roles
   HOME_ADMIN: {
     id: "home_admin",
     name: "Home Administrator",
     description: "Full administrative access to home application",
     level: 80,
     permissions: [
-      PERMISSIONS.HOME_MANAGE,
-      PERMISSIONS.TASK_CREATE,
-      PERMISSIONS.TASK_ASSIGN,
-      PERMISSIONS.SCHEDULE_VIEW,
-      PERMISSIONS.SCHEDULE_MANAGE,
+      PERMISSIONS.HOME_MANAGE, PERMISSIONS.TASK_CREATE, PERMISSIONS.TASK_ASSIGN,
+      PERMISSIONS.SCHEDULE_VIEW, PERMISSIONS.SCHEDULE_MANAGE,
     ],
     inherits: ["home_user"],
     applicationScope: ["home"],
   },
-
   HOME_USER: {
     id: "home_user",
     name: "Home User",
     description: "Basic access to home application",
     level: 50,
-    permissions: [
-      PERMISSIONS.HOME_VIEW,
-      PERMISSIONS.TASK_CREATE,
-      PERMISSIONS.SCHEDULE_VIEW,
-    ],
+    permissions: [PERMISSIONS.HOME_VIEW, PERMISSIONS.TASK_CREATE, PERMISSIONS.SCHEDULE_VIEW],
     inherits: [],
     applicationScope: ["home"],
   },
-
-  // Playback App roles
   PLAYBACK_ADMIN: {
     id: "playback_admin",
     name: "Playback Administrator",
     description: "Full administrative access to playback application",
     level: 80,
     permissions: [
-      PERMISSIONS.PLAYBACK_MANAGE,
-      PERMISSIONS.MEDIA_UPLOAD,
-      PERMISSIONS.MEDIA_DELETE,
-      PERMISSIONS.PLAYLIST_CREATE,
-      PERMISSIONS.PLAYLIST_MANAGE,
+      PERMISSIONS.PLAYBACK_MANAGE, PERMISSIONS.MEDIA_UPLOAD, PERMISSIONS.MEDIA_DELETE,
+      PERMISSIONS.PLAYLIST_CREATE, PERMISSIONS.PLAYLIST_MANAGE,
     ],
     inherits: ["playback_user"],
     applicationScope: ["playback"],
   },
-
   PLAYBACK_USER: {
     id: "playback_user",
     name: "Playback User",
@@ -310,8 +277,6 @@ export const ROLES = {
     inherits: [],
     applicationScope: ["playback"],
   },
-
-  // Cross-app roles
   GUEST: {
     id: "guest",
     name: "Guest",
@@ -323,8 +288,9 @@ export const ROLES = {
   },
 };
 
-// Application role mappings
-export const APPLICATION_ROLES = {
+// ── Application mappings ──────────────────────────────────────────────────────
+
+export const APPLICATION_ROLES: Record<string, string[]> = {
   church: ["church_admin", "church_manager", "church_user"],
   admin: ["super_admin", "system_admin"],
   business: ["business_admin", "business_manager", "business_user"],
@@ -333,8 +299,7 @@ export const APPLICATION_ROLES = {
   playback: ["playback_admin", "playback_user"],
 };
 
-// Default roles for new users by application
-export const DEFAULT_ROLES = {
+export const DEFAULT_ROLES: Record<string, string> = {
   church: "church_user",
   business: "business_user",
   home: "home_user",
@@ -342,8 +307,7 @@ export const DEFAULT_ROLES = {
   playback: "playback_user",
 };
 
-// Role hierarchy for inheritance resolution
-export const ROLE_HIERARCHY = {
+export const ROLE_HIERARCHY: Record<string, string[]> = {
   super_admin: [],
   system_admin: [],
   church_admin: ["church_manager"],
@@ -360,8 +324,7 @@ export const ROLE_HIERARCHY = {
   guest: [],
 };
 
-// Protected routes by application
-export const PROTECTED_ROUTES = {
+export const PROTECTED_ROUTES: Record<string, Record<string, Permission[]>> = {
   church: {
     "/admin": [PERMISSIONS.CHURCH_ADMIN],
     "/services/create": [PERMISSIONS.SERVICE_CREATE],
@@ -372,7 +335,6 @@ export const PROTECTED_ROUTES = {
     "/donations": [PERMISSIONS.DONATION_VIEW],
     "/donations/manage": [PERMISSIONS.DONATION_MANAGE],
   },
-
   admin: {
     "/users": [PERMISSIONS.USER_LIST],
     "/users/create": [PERMISSIONS.USER_CREATE],
@@ -382,7 +344,6 @@ export const PROTECTED_ROUTES = {
     "/audit": [PERMISSIONS.AUDIT_VIEW],
     "/analytics": [PERMISSIONS.ANALYTICS_VIEW],
   },
-
   business: {
     "/admin": [PERMISSIONS.BUSINESS_MANAGE],
     "/finance": [PERMISSIONS.FINANCE_VIEW],
@@ -390,7 +351,6 @@ export const PROTECTED_ROUTES = {
     "/inventory": [PERMISSIONS.INVENTORY_VIEW],
     "/inventory/manage": [PERMISSIONS.INVENTORY_MANAGE],
   },
-
   home: {
     "/admin": [PERMISSIONS.HOME_MANAGE],
     "/tasks/create": [PERMISSIONS.TASK_CREATE],
@@ -398,13 +358,11 @@ export const PROTECTED_ROUTES = {
     "/schedule": [PERMISSIONS.SCHEDULE_VIEW],
     "/schedule/manage": [PERMISSIONS.SCHEDULE_MANAGE],
   },
-
   personal: {
     "/": [PERMISSIONS.PERSONAL_VIEW],
     "/goals": [PERMISSIONS.GOAL_CREATE],
     "/notes": [PERMISSIONS.NOTE_CREATE],
   },
-
   playback: {
     "/admin": [PERMISSIONS.PLAYBACK_MANAGE],
     "/upload": [PERMISSIONS.MEDIA_UPLOAD],
@@ -413,39 +371,23 @@ export const PROTECTED_ROUTES = {
   },
 };
 
-// ==================== UTILITY FUNCTIONS ====================
+// ── Utility functions ─────────────────────────────────────────────────────────
 
-/**
- * Check if user has specific permission
- */
-export const checkPermission = (userPermissions = [], requiredPermission) => {
+export function checkPermission(userPermissions: Permission[] = [], requiredPermission: Permission): boolean {
   if (!Array.isArray(userPermissions)) return false;
   return userPermissions.includes(requiredPermission);
-};
+}
 
-/**
- * Check if user has specific role
- */
-export const hasRole = (userRole, requiredRole) => {
+export function hasRole(userRole: string, requiredRole: string): boolean {
   if (!userRole || !requiredRole) return false;
-  return (
-    userRole === requiredRole ||
-    ROLE_HIERARCHY[userRole]?.includes(requiredRole)
-  );
-};
+  return userRole === requiredRole || (ROLE_HIERARCHY[userRole]?.includes(requiredRole) ?? false);
+}
 
-/**
- * Check if user has access to a route
- */
-export const checkAccess = (
-  userRole,
-  userPermissions = [],
-  requiredPermissions = [],
-) => {
-  if (!Array.isArray(requiredPermissions) || requiredPermissions.length === 0) {
-    return true;
-  }
-  return requiredPermissions.some((permission) =>
-    checkPermission(userPermissions, permission),
-  );
-};
+export function checkAccess(
+  _userRole: string,
+  userPermissions: Permission[] = [],
+  requiredPermissions: Permission[] = [],
+): boolean {
+  if (!Array.isArray(requiredPermissions) || requiredPermissions.length === 0) return true;
+  return requiredPermissions.some((p) => checkPermission(userPermissions, p));
+}

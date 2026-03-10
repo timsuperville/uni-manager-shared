@@ -10,8 +10,8 @@ import {
   generatePKCE,
   generateNonce,
   generateState,
-} from "../config/oauthProviders.js";
-import { getCurrentAppConfig } from "../config/appConfigs.js";
+} from "../config/oauthProviders.ts";
+import { getCurrentAppConfig } from "../config/appConfigs.ts";
 import { trackUserActivity } from "../utils/socialAuth.ts";
 
 // ── Types ─────────────────────────────────────────────────────────────────────

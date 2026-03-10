@@ -3,7 +3,7 @@ import { AuthService } from "../services/authService.js";
 import { useAuthState } from "../hooks/useAuthState.ts";
 import { useAuthActions } from "../hooks/useAuthActions.ts";
 import { useAuthCallbacks } from "../hooks/useAuthCallbacks.ts";
-import { RBACUtils } from "../rbac/utils.js";
+import { RBACUtils } from "../rbac/utils.ts";
 import type { AuthContextType, User } from "../types/auth.types.ts";
 
 // ── Types ─────────────────────────────────────────────────────────────────────

@@ -153,12 +153,12 @@ export {
   getAppConfig,
   getCurrentAppName,
   getCurrentAppConfig,
-} from "./config/appConfigs.js";
+} from "./config/appConfigs.ts";
 
 export {
   getSupportedProvidersForApp,
   getOAuthConfig,
-} from "./config/oauthProviders.js";
+} from "./config/oauthProviders.ts";
 
 // ── Utilities ─────────────────────────────────────────────────────────────────
 
@@ -176,7 +176,7 @@ export { TokenStorage, tokenStorage } from "./utils/TokenStorage.js";
 
 // ── RBAC ──────────────────────────────────────────────────────────────────────
 
-export { RBACUtils, PermissionUtils, RouteUtils } from "./rbac/utils.js";
+export { RBACUtils, PermissionUtils, RouteUtils } from "./rbac/utils.ts";
 export {
   PERMISSIONS,
   ROLES,
@@ -185,7 +185,7 @@ export {
   checkPermission,
   hasRole,
   checkAccess,
-} from "./rbac/roles.js";
+} from "./rbac/roles.ts";
 
 // ── Debug ─────────────────────────────────────────────────────────────────────
 
