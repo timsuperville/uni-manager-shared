@@ -52,3 +52,5 @@ export { LoadingSpinner } from "./LoadingSpinner";
 export { Dropdown } from "./Dropdown";
 export { default as DropdownSelect } from "./Select";
 export { Pagination } from "./Pagination";
+export { StatsStrip } from "./StatsStrip";
+
