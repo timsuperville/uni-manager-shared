@@ -35,7 +35,7 @@ export function getSessionService() {
 }
 
 export function getAuthService() {
-  return import("./authService.js").then((m) => m.default);
+  return import("./authService.ts").then((m) => m.default);
 }
 
 export function getMFAService() {
@@ -52,7 +52,7 @@ export function getRBACService() {
 }
 
 export function getSecurityService() {
-  return import("./securityService.js").then((m) => m.default);
+  return import("./securityService.ts").then((m) => m.default);
 }
 
 export function getDeviceService() {
