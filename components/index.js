@@ -8,7 +8,7 @@ export { default as RoleGuard } from "./RoleGuard";
 export { ThemeProvider, useTheme, tokens } from "./ThemeProvider";
 export { default as ThemeToggle } from "./ThemeToggle";
 export { default as ErrorBoundary } from "./ErrorBoundary";
-export { default as GlobalErrorBoundary } from "./GlobalErrorBoundary";
+// GlobalErrorBoundary merged into ErrorBoundary (variant="full-screen" is now default)
 export { ApiProvider, useApi } from "./ApiProvider";
 
 // ── Feedback / Notifications ──────────────────────────────────────────────────
@@ -23,9 +23,9 @@ export {
 export { NpsSurvey } from "../features/nps";
 
 // ── Features (canonical: import directly from @shared/features/<name>) ────────
-export { default as AdvancedSearch } from "../features/advanced-search";
-export { default as DataExport } from "../features/data-export";
-export { default as RealTimeNotifications } from "../features/real-time-notifications";
+// AdvancedSearch removed — MUI dependency, zero consumers in any app
+// DataExport removed — MUI dependency, zero consumers in any app
+// RealTimeNotifications removed — MUI dependency, zero consumers in any app
 export {
   ErrorBoundary as ErrorMonitoringBoundary,
   setupGlobalErrorHandling,
