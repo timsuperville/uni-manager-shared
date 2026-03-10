@@ -183,7 +183,7 @@ export { TokenStorage, tokenStorage } from "./utils/TokenStorage.ts";
 
 // ── RBAC ──────────────────────────────────────────────────────────────────────
 
-export { RBACUtils, PermissionUtils, RouteUtils } from "./rbac/utils.ts";
+export { RBACUtils, PermissionUtils, RouteUtils } from "./rbac/RBACUtils.ts";
 export {
   PERMISSIONS,
   ROLES,

@@ -396,3 +396,35 @@ export interface AuthServiceConfig extends AuthConfig {
 export type { User as UserType };
 export type { LoginCredentials as Credentials };
 export type { LoginResult as AuthResult };
+
+// ==================== SERVICE INTERFACE TYPES ====================
+
+/**
+ * Structural interface for the auth service — allows AuthContext to depend on
+ * an abstraction rather than the concrete AuthService class, enabling testing
+ * and alternative implementations without coupling to the class file.
+ */
+export interface AuthServiceLike {
+  initialize(): Promise<void>;
+  getCurrentUser(): Promise<User | null>;
+  isAuthenticated(): Promise<boolean>;
+  login(credentials: LoginCredentials): Promise<Record<string, unknown>>;
+  logout(): Promise<void>;
+  signup(data: SignupData): Promise<unknown>;
+  resetPassword(email: string): Promise<unknown>;
+  verifyMFA(code: string): Promise<Record<string, unknown>>;
+  setupMFA(method: string): Promise<unknown>;
+  refreshToken(): Promise<boolean>;
+  updateUser(userData: Partial<User>): Promise<boolean>;
+  switchChurch(churchId: string): Promise<Record<string, unknown>>;
+}
+
+/**
+ * Minimal auth state shape used by auth callbacks and lifecycle hooks.
+ * Intentionally loose (index signature) so partial state slices are accepted.
+ */
+export interface AuthStateShape {
+  isAuthenticated: boolean;
+  sessionExpiry: number | null;
+  [key: string]: unknown;
+}

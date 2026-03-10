@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, beforeEach } from "vitest";
-import { RBACUtils, PermissionUtils, RouteUtils } from "../rbac/utils";
+import { RBACUtils, PermissionUtils, RouteUtils } from "../rbac/RBACUtils";
 import { PERMISSIONS, ROLES } from "../rbac/roles";
 
 describe("RBACUtils", () => {

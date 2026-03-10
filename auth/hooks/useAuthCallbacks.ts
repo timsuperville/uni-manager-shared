@@ -1,14 +1,8 @@
 import { useEffect, useRef } from "react";
+import type { AuthStateShape } from "../types/auth.types.ts";
 
-// ── Types ─────────────────────────────────────────────────────────────────────
-
-export interface AuthStateShape {
-  isAuthenticated: boolean;
-  sessionExpiry: number | null;
-  [key: string]: unknown;
-}
-/** @deprecated Use AuthStateShape */
-type AuthState = AuthStateShape;
+// Re-export so existing callers who import AuthStateShape from this module keep working.
+export type { AuthStateShape } from "../types/auth.types.ts";
 
 interface AuthActions {
   initializeAuth?: () => Promise<void>;
@@ -37,7 +31,7 @@ interface AuthConfig {
  * Internal hook used exclusively by AuthProvider.
  */
 export function useAuthCallbacks(
-  state: AuthState,
+  state: AuthStateShape,
   actions: AuthActions,
   onAuthStateChange: ((state: Record<string, unknown>) => void) | undefined,
   onError: ((error: unknown) => void) | undefined,

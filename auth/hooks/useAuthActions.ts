@@ -1,6 +1,6 @@
 import { useCallback } from "react";
-import { clearCachedDeviceFingerprint } from "../utils/deviceFingerprintCache.js";
-import type { User, LoginCredentials, SignupData } from "../types/auth.types.ts";
+import { clearCachedDeviceFingerprint } from "../utils/deviceFingerprintCache.ts";
+import type { User, LoginCredentials, SignupData, AuthServiceLike } from "../types/auth.types.ts";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -13,21 +13,8 @@ interface CallbackRefs {
   onErrorRef: CallbackRef<(error: unknown) => void>;
 }
 
-// Generic auth service shape — the concrete class is in authService.js (not yet migrated)
-export interface AuthServiceLike {
-  initialize(): Promise<void>;
-  getCurrentUser(): Promise<User | null>;
-  isAuthenticated(): Promise<boolean>;
-  login(credentials: LoginCredentials): Promise<Record<string, unknown>>;
-  logout(): Promise<void>;
-  signup(data: SignupData): Promise<unknown>;
-  resetPassword(email: string): Promise<unknown>;
-  verifyMFA(code: string): Promise<Record<string, unknown>>;
-  setupMFA(method: string): Promise<unknown>;
-  refreshToken(): Promise<boolean>;
-  updateUser(userData: Partial<User>): Promise<boolean>;
-  switchChurch(churchId: string): Promise<Record<string, unknown>>;
-}
+// Generic auth service shape — see types/auth.types.ts for the canonical definition.
+export type { AuthServiceLike } from "../types/auth.types.ts";
 
 type StateUpdater = (updates: Record<string, unknown>) => void;
 type ErrorSetter = (error: unknown) => void;
