@@ -53,4 +53,5 @@ export { Dropdown } from "./Dropdown";
 export { default as DropdownSelect } from "./Select";
 export { Pagination } from "./Pagination";
 export { StatsStrip } from "./StatsStrip";
+export { PageHeader } from "./PageHeader";
 
