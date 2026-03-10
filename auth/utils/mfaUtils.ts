@@ -8,12 +8,12 @@
  * directly without loading the full service.
  */
 
-import { MFA_METHOD } from "../types/mfaConstants.ts";
+import { MFA_METHOD, type MFAMethod } from "../types/mfaConstants.ts";
 
-/** Union type of all canonical MFA method strings. */
-export type MFAMethod = (typeof MFA_METHOD)[keyof typeof MFA_METHOD];
+// Re-export so callers who import from mfaUtils don't need a second import.
+export type { MFAMethod };
 
-// ── Display helpers ───────────────────────────────────────────────────────────
+// -- Display helpers ----------------------------------------------------------
 
 /** Map each MFA method to its user-readable display name. */
 export function getMFAMethodDisplayName(method: MFAMethod): string {

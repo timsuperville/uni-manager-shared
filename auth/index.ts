@@ -148,10 +148,12 @@ export {
   AUTH_ENDPOINTS,
   HTTP_STATUS,
   AUTH_EVENTS,
-  listAvailableConstants,
 } from "./types/index.ts";
 
-// ── Configuration ─────────────────────────────────────────────────────────────
+// MFA derived types (canonical source: types/mfaConstants.ts)
+export type { MFAMethod, MFAStatus } from "./types/index.ts";
+
+// -- Configuration -----------------------------------------------------------
 
 export {
   APP_CONFIGS,
