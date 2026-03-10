@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, forwardRef } from "react";
 import PropTypes from "prop-types";
-import { Clock, ChevronUp, ChevronDown } from "lucide-react";
+import { Clock, Check } from "lucide-react";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -21,13 +21,11 @@ function toDisplay(h, m) {
     return `${h12}:${String(m).padStart(2, "0")} ${ampm}`;
 }
 
-function clamp(val, min, max, wrap) {
-    if (val < min) return wrap ? max : min;
-    if (val > max) return wrap ? min : max;
-    return val;
+function clamp(val, min, max) {
+    return Math.max(min, Math.min(max, val));
 }
 
-// ── Shared styles ─────────────────────────────────────────────────────────────
+// ── Style tokens ──────────────────────────────────────────────────────────────
 
 const S = {
     trigger: {
@@ -47,9 +45,6 @@ const S = {
         textAlign: "left",
         userSelect: "none",
     },
-    triggerPlaceholder: {
-        color: "var(--text-muted, rgba(255,255,255,0.35))",
-    },
     panel: {
         position: "absolute",
         top: "calc(100% + 6px)",
@@ -62,183 +57,99 @@ const S = {
         border: "1px solid var(--glass-outline, rgba(255,255,255,0.1))",
         borderRadius: "var(--radius-lg, 12px)",
         boxShadow: "0 16px 48px rgba(0,0,0,0.5)",
-        padding: "16px",
-        minWidth: "220px",
+        padding: "12px",
+        minWidth: "240px",
         width: "100%",
         boxSizing: "border-box",
         animation: "lgFadeIn 0.15s ease",
     },
-    panelInner: {
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: "8px",
-    },
-    column: {
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        gap: "4px",
-    },
-    spinBtn: {
-        background: "transparent",
-        border: "none",
-        color: "var(--text-muted)",
-        cursor: "pointer",
-        padding: "6px",
-        borderRadius: "6px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        transition: "background 0.1s, color 0.1s",
-        minWidth: "32px",
-        minHeight: "32px",
-    },
     digitInput: {
-        width: "56px",
-        height: "46px",
+        width: "48px",
+        height: "40px",
         textAlign: "center",
         background: "var(--bg-surface-2, rgba(255,255,255,0.06))",
         border: "1px solid var(--glass-outline)",
         borderRadius: "8px",
-        fontSize: "22px",
+        fontSize: "20px",
         fontFamily: "var(--font-mono, JetBrains Mono, monospace)",
         fontWeight: 700,
         color: "var(--text-primary)",
-        letterSpacing: "0.02em",
         outline: "none",
         transition: "border-color 0.15s, box-shadow 0.15s",
         caretColor: "transparent",
         cursor: "text",
         padding: 0,
         boxSizing: "border-box",
-        MozAppearance: "textfield",
-    },
-    separator: {
-        fontSize: "20px",
-        fontWeight: 700,
-        color: "var(--text-muted)",
-        lineHeight: 1,
-        marginTop: "-8px",
-        userSelect: "none",
-    },
-    ampmBlock: {
-        display: "flex",
-        flexDirection: "column",
-        gap: "4px",
-        marginLeft: "4px",
-        alignSelf: "center",
-    },
-    ampmBtn: {
-        padding: "5px 10px",
-        fontSize: "11px",
-        fontWeight: 700,
-        letterSpacing: "0.06em",
-        borderRadius: "6px",
-        border: "1px solid transparent",
-        cursor: "pointer",
-        transition: "all 0.1s",
-        minHeight: "28px",
-    },
-    quickRow: {
-        display: "flex",
-        flexWrap: "wrap",
-        gap: "4px",
-        marginTop: "12px",
-        paddingTop: "12px",
-        borderTop: "1px solid var(--glass-outline, rgba(255,255,255,0.08))",
-    },
-    quickBtn: {
-        padding: "3px 10px",
-        fontSize: "11px",
-        fontWeight: 600,
-        borderRadius: "20px",
-        border: "1px solid var(--glass-outline)",
-        background: "transparent",
-        color: "var(--text-muted)",
-        cursor: "pointer",
-        transition: "all 0.1s",
     },
 };
 
-// ── Quick presets ─────────────────────────────────────────────────────────────
+// ── Quick preset grid ─────────────────────────────────────────────────────────
 
-const QUICK_TIMES = [
-    { label: "8 AM", h: 8, m: 0 },
-    { label: "9 AM", h: 9, m: 0 },
-    { label: "10 AM", h: 10, m: 0 },
-    { label: "11 AM", h: 11, m: 0 },
-    { label: "Noon", h: 12, m: 0 },
-    { label: "5 PM", h: 17, m: 0 },
-    { label: "6 PM", h: 18, m: 0 },
-    { label: "7 PM", h: 19, m: 0 },
+const PRESET_ROWS = [
+    [
+        { label: "6 AM", h: 6, m: 0 },
+        { label: "7 AM", h: 7, m: 0 },
+        { label: "8 AM", h: 8, m: 0 },
+        { label: "9 AM", h: 9, m: 0 },
+    ],
+    [
+        { label: "10 AM", h: 10, m: 0 },
+        { label: "11 AM", h: 11, m: 0 },
+        { label: "Noon", h: 12, m: 0 },
+        { label: "1 PM", h: 13, m: 0 },
+    ],
+    [
+        { label: "5 PM", h: 17, m: 0 },
+        { label: "6 PM", h: 18, m: 0 },
+        { label: "7 PM", h: 19, m: 0 },
+        { label: "8 PM", h: 20, m: 0 },
+    ],
 ];
 
 // ── DigitInput ────────────────────────────────────────────────────────────────
 
 /**
- * A single numeric segment (hours or minutes) rendered as a typed input.
- *
- * Behaviour:
- *  - Digit keys: accumulate a 1–2 digit buffer; commit + auto-advance on the
- *    second digit, or on first digit if it can't be a valid tens digit.
- *  - ArrowUp / ArrowDown: spin the value (clears buffer).
- *  - 'a' / 'A'  →  toggle AM  (hour segment only)
- *  - 'p' / 'P'  →  toggle PM  (hour segment only)
- *  - Tab:        propagate normally (browser moves focus to next element).
- *  - All other keys: suppressed.
+ * Editable digit segment with type-ahead, auto-advance, and arrow-spin.
+ * Wrapped in forwardRef so the hour segment can advance focus to the minute one.
  */
 const DigitInput = forwardRef(function DigitInput(
     { value, min, max, onCommit, onStep, nextRef, isHour, onAMPM },
     ref
 ) {
     const [buffer, setBuffer] = useState("");
+    const [focused, setFocused] = useState(false);
 
-    // Clear buffer whenever the committed value changes externally
     useEffect(() => { setBuffer(""); }, [value]);
 
-    const handleBlur = () => setBuffer("");
-    const handleFocus = () => setBuffer("");
-
     const handleKeyDown = (e) => {
-        // Spin
         if (e.key === "ArrowUp") { e.preventDefault(); setBuffer(""); onStep(1); return; }
         if (e.key === "ArrowDown") { e.preventDefault(); setBuffer(""); onStep(-1); return; }
-
-        // Let Tab pass through
         if (e.key === "Tab") { setBuffer(""); return; }
 
-        // AM / PM shortcuts on the hour segment
         if (isHour) {
             if (e.key === "a" || e.key === "A") { e.preventDefault(); onAMPM?.("AM"); return; }
             if (e.key === "p" || e.key === "P") { e.preventDefault(); onAMPM?.("PM"); return; }
         }
 
-        // Digits only
         if (!/^\d$/.test(e.key)) { e.preventDefault(); return; }
         e.preventDefault();
 
         const next = buffer + e.key;
+        const digit = parseInt(e.key, 10);
 
         if (next.length === 1) {
-            const digit = parseInt(next, 10);
-            // If the first digit can never be the tens digit of a valid value,
-            // commit immediately and advance focus.
-            // Hours 1-12: max tens digit is 1  → digits 2-9 are instant
-            // Minutes 0-59: max tens digit is 5 → digits 6-9 are instant
             const maxTens = isHour ? 1 : 5;
             if (digit > maxTens) {
                 setBuffer("");
-                onCommit(clamp(digit, min, max, false));
+                onCommit(clamp(digit, min, max));
                 nextRef?.current?.focus();
             } else {
                 setBuffer(next);
             }
         } else {
-            // Two-digit entry: commit and move on
             const num = parseInt(next, 10);
             setBuffer("");
-            onCommit(clamp(num, min, max, false));
+            onCommit(clamp(num, min, max));
             nextRef?.current?.focus();
         }
     };
@@ -252,11 +163,17 @@ const DigitInput = forwardRef(function DigitInput(
             inputMode="numeric"
             pattern="[0-9]*"
             value={shownValue}
-            onChange={() => { }}          // fully controlled via onKeyDown
+            onChange={() => { }}
             onKeyDown={handleKeyDown}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
-            style={S.digitInput}
+            onFocus={() => { setFocused(true); setBuffer(""); }}
+            onBlur={() => { setFocused(false); setBuffer(""); }}
+            style={{
+                ...S.digitInput,
+                ...(focused ? {
+                    borderColor: "var(--primary-resonance)",
+                    boxShadow: "0 0 0 3px var(--primary-glow, rgba(99,102,241,0.2))",
+                } : {}),
+            }}
             aria-label={isHour ? "Hours" : "Minutes"}
             aria-valuenow={value}
             aria-valuemin={min}
@@ -281,18 +198,19 @@ DigitInput.propTypes = {
 /**
  * TimePicker — Liquid Glass Design System
  *
- * A custom 12-hour AM/PM time picker with:
- *  - Directly editable digit inputs (type digits, auto-advance, ArrowUp/Down)
- *  - Spinner chevrons for mouse/touch control
- *  - Keyboard shortcuts: 'a' = AM, 'p' = PM in the hour field
- *  - Quick-time presets for common service times
+ * Redesigned for speed and clarity:
+ *  - Compact inline editor (HH : MM  AM|PM) at the top of the panel
+ *  - Large quick-preset grid of common times (tap → commit + auto-close)
+ *  - AM/PM click → auto-close (final confirmation)
+ *  - ✓ Done button for explicit close after custom entry
+ *  - Editable digit inputs: type digits, arrow-spin, a/p for AM/PM
  *
  * @param {string}   id           - id for the trigger button
  * @param {string}   value        - Controlled "HH:MM" 24h string or ""
- * @param {function} onChange     - Called with "HH:MM" 24h string or ""
+ * @param {function} onChange     - Called with "HH:MM" 24h string
  * @param {string}   placeholder  - Placeholder text
  * @param {boolean}  disabled     - Disables interaction
- * @param {number}   minuteStep   - Minutes increment (default 5)
+ * @param {number}   minuteStep   - Minutes increment for arrows (default 5)
  * @param {string}   label        - Accessible aria-label (optional)
  */
 export function TimePicker({
@@ -312,7 +230,7 @@ export function TimePicker({
 
     const wrapRef = useRef(null);
     const triggerRef = useRef(null);
-    const minuteRef = useRef(null);   // auto-advance target
+    const minuteRef = useRef(null);
 
     // Sync when value changes externally
     useEffect(() => {
@@ -320,10 +238,16 @@ export function TimePicker({
         if (p) { setHours(p.hours); setMinutes(p.minutes); }
     }, [value]);
 
-    // Emit on every internal change while open
-    useEffect(() => {
-        if (open) onChange?.(to24String(hours, minutes));
-    }, [hours, minutes, open]); // eslint-disable-line react-hooks/exhaustive-deps
+    // Emit on every internal change (no auto-close here — just sync)
+    const emit = useCallback((h, m) => {
+        onChange?.(to24String(h, m));
+    }, [onChange]);
+
+    const commitAndClose = useCallback((h, m) => {
+        emit(h, m);
+        setOpen(false);
+        triggerRef.current?.focus();
+    }, [emit]);
 
     // Close on outside click
     useEffect(() => {
@@ -347,45 +271,66 @@ export function TimePicker({
     const h12 = hours % 12 === 0 ? 12 : hours % 12;
 
     const commitH12 = useCallback((h12val) => {
-        const h = clamp(h12val, 1, 12, false);
-        setHours(isAM ? (h === 12 ? 0 : h) : (h === 12 ? 12 : h + 12));
-    }, [isAM]);
+        const h = clamp(h12val, 1, 12);
+        const h24 = isAM ? (h === 12 ? 0 : h) : (h === 12 ? 12 : h + 12);
+        setHours(h24);
+        emit(h24, minutes);
+    }, [isAM, minutes, emit]);
 
     const commitMins = useCallback((mval) => {
-        setMinutes(clamp(mval, 0, 59, false));
-    }, []);
+        const m = clamp(mval, 0, 59);
+        setMinutes(m);
+        emit(hours, m);
+    }, [hours, emit]);
 
-    const setAMPM = useCallback((ampm) => {
-        if (ampm === "AM" && !isAM) setHours((h) => h - 12);
-        if (ampm === "PM" && isAM) setHours((h) => h + 12);
-    }, [isAM]);
+    const stepHours = useCallback((dir) => {
+        setHours((h) => {
+            const next = ((h + dir) % 24 + 24) % 24;
+            emit(next, minutes);
+            return next;
+        });
+    }, [minutes, emit]);
 
     const stepMins = useCallback((dir) => {
         setMinutes((m) => {
-            const next = m + dir * minuteStep;
-            if (next < 0) { setHours((h) => clamp(h - 1, 0, 23, true)); return 60 - minuteStep; }
-            if (next >= 60) { setHours((h) => clamp(h + 1, 0, 23, true)); return 0; }
+            let next = m + dir * minuteStep;
+            let h = hours;
+            if (next < 0) { next = 60 - minuteStep; h = ((hours - 1) % 24 + 24) % 24; setHours(h); }
+            if (next >= 60) { next = 0; h = (hours + 1) % 24; setHours(h); }
+            emit(h, next);
             return next;
         });
-    }, [minuteStep]);
+    }, [hours, minutes, minuteStep, emit]);
 
-    const stepHours = useCallback((dir) => {
-        setHours((h) => clamp(h + dir, 0, 23, true));
-    }, []);
-
-    const navHover = (e, enter) => {
-        e.currentTarget.style.background = enter ? "var(--glass-surface-hover, rgba(255,255,255,0.07))" : "transparent";
-        e.currentTarget.style.color = enter ? "var(--text-primary)" : "var(--text-muted)";
-    };
+    // AM/PM toggle → auto-close (final user action)
+    const setAMPM = useCallback((ampm) => {
+        let h = hours;
+        if (ampm === "AM" && !isAM) h = hours - 12;
+        if (ampm === "PM" && isAM) h = hours + 12;
+        setHours(h);
+        commitAndClose(h, minutes);
+    }, [hours, isAM, minutes, commitAndClose]);
 
     const triggerFocus = (focused) => ({
         border: focused ? "1px solid var(--border-glow, var(--primary-resonance))" : "1px solid var(--glass-outline, rgba(255,255,255,0.12))",
         boxShadow: focused ? "0 0 0 3px var(--primary-glow, rgba(99,102,241,0.2))" : "none",
     });
 
+    const navHover = (e, enter) => {
+        e.currentTarget.style.background = enter ? "var(--glass-surface-hover)" : "transparent";
+        e.currentTarget.style.color = enter ? "var(--text-primary)" : "var(--text-muted)";
+    };
+
     return (
         <div ref={wrapRef} style={{ position: "relative", width: "100%" }}>
-            <style>{`@keyframes lgFadeIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }`}</style>
+            <style>{`
+                @keyframes lgFadeIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
+                .tp-preset:hover { background: var(--primary-subtle, hsla(272,65%,62%,0.14)) !important; color: var(--text-primary) !important; border-color: var(--primary-resonance) !important; }
+                .tp-preset-active { background: var(--primary-resonance) !important; color: #fff !important; border-color: transparent !important; }
+                .tp-spin:hover { background: var(--glass-surface-hover) !important; color: var(--text-primary) !important; }
+                .tp-ampm:hover:not(.tp-ampm-active) { background: var(--glass-surface-hover) !important; color: var(--text-primary) !important; }
+                .tp-done-btn:hover { background: var(--primary-resonance) !important; color: #fff !important; }
+            `}</style>
 
             {/* ── Trigger ── */}
             <button
@@ -407,7 +352,7 @@ export function TimePicker({
                 onBlur={(e) => { if (!wrapRef.current?.contains(e.relatedTarget)) Object.assign(e.currentTarget.style, triggerFocus(false)); }}
             >
                 <Clock style={{ width: 14, height: 14, color: "var(--text-muted)", flexShrink: 0 }} />
-                <span style={parsed ? {} : S.triggerPlaceholder}>
+                <span style={parsed ? { color: "var(--text-primary)" } : { color: "var(--text-muted, rgba(255,255,255,0.35))" }}>
                     {parsed ? toDisplay(parsed.hours, parsed.minutes) : placeholder}
                 </span>
             </button>
@@ -415,97 +360,122 @@ export function TimePicker({
             {/* ── Panel ── */}
             {open && (
                 <div role="dialog" aria-label="Time picker" style={S.panel}>
-                    <div style={S.panelInner}>
 
-                        {/* Hours */}
-                        <div style={S.column}>
-                            <button type="button" style={S.spinBtn} aria-label="Increase hours"
-                                onClick={() => stepHours(1)}
-                                onMouseEnter={(e) => navHover(e, true)}
-                                onMouseLeave={(e) => navHover(e, false)}>
-                                <ChevronUp style={{ width: 16, height: 16 }} />
-                            </button>
-                            <DigitInput
-                                value={h12} min={1} max={12}
-                                isHour
-                                onCommit={commitH12}
-                                onStep={stepHours}
-                                onAMPM={setAMPM}
-                                nextRef={minuteRef}
-                            />
-                            <button type="button" style={S.spinBtn} aria-label="Decrease hours"
-                                onClick={() => stepHours(-1)}
-                                onMouseEnter={(e) => navHover(e, true)}
-                                onMouseLeave={(e) => navHover(e, false)}>
-                                <ChevronDown style={{ width: 16, height: 16 }} />
-                            </button>
-                        </div>
+                    {/* ── Inline editor row ── */}
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", marginBottom: "12px" }}>
+                        {/* Hour input */}
+                        <DigitInput
+                            value={h12} min={1} max={12}
+                            isHour
+                            onCommit={commitH12}
+                            onStep={stepHours}
+                            onAMPM={setAMPM}
+                            nextRef={minuteRef}
+                        />
 
                         {/* Separator */}
-                        <div style={S.separator} aria-hidden="true">:</div>
+                        <span style={{ fontSize: 20, fontWeight: 700, color: "var(--text-muted)", lineHeight: 1, userSelect: "none" }}>:</span>
 
-                        {/* Minutes */}
-                        <div style={S.column}>
-                            <button type="button" style={S.spinBtn} aria-label="Increase minutes"
-                                onClick={() => stepMins(1)}
-                                onMouseEnter={(e) => navHover(e, true)}
-                                onMouseLeave={(e) => navHover(e, false)}>
-                                <ChevronUp style={{ width: 16, height: 16 }} />
-                            </button>
-                            <DigitInput
-                                ref={minuteRef}
-                                value={minutes} min={0} max={59}
-                                onCommit={commitMins}
-                                onStep={stepMins}
-                                nextRef={null}
-                            />
-                            <button type="button" style={S.spinBtn} aria-label="Decrease minutes"
-                                onClick={() => stepMins(-1)}
-                                onMouseEnter={(e) => navHover(e, true)}
-                                onMouseLeave={(e) => navHover(e, false)}>
-                                <ChevronDown style={{ width: 16, height: 16 }} />
-                            </button>
-                        </div>
+                        {/* Minute input */}
+                        <DigitInput
+                            ref={minuteRef}
+                            value={minutes} min={0} max={59}
+                            onCommit={commitMins}
+                            onStep={stepMins}
+                            nextRef={null}
+                        />
 
-                        {/* AM / PM */}
-                        <div style={S.ampmBlock}>
+                        {/* AM / PM — clicking here auto-closes */}
+                        <div style={{ display: "flex", flexDirection: "column", gap: 3, marginLeft: 4 }}>
                             {["AM", "PM"].map((ap) => {
                                 const active = (ap === "AM") === isAM;
                                 return (
-                                    <button key={ap} type="button" onClick={() => setAMPM(ap)} aria-pressed={active}
+                                    <button
+                                        key={ap}
+                                        type="button"
+                                        onClick={() => setAMPM(ap)}
+                                        aria-pressed={active}
+                                        className={`tp-ampm${active ? " tp-ampm-active" : ""}`}
                                         style={{
-                                            ...S.ampmBtn,
+                                            padding: "4px 9px",
+                                            fontSize: "11px",
+                                            fontWeight: 700,
+                                            letterSpacing: "0.06em",
+                                            borderRadius: "6px",
+                                            border: active ? "1px solid transparent" : "1px solid var(--glass-outline)",
+                                            cursor: "pointer",
+                                            transition: "all 0.1s",
                                             background: active ? "var(--primary-resonance)" : "var(--bg-surface-2, rgba(255,255,255,0.05))",
                                             color: active ? "#fff" : "var(--text-muted)",
-                                            border: active ? "1px solid transparent" : "1px solid var(--glass-outline)",
-                                        }}>
+                                            minHeight: "28px",
+                                        }}
+                                    >
                                         {ap}
                                     </button>
                                 );
                             })}
                         </div>
+
+                        {/* ✓ Done — explicit close for keyboard-entered custom time */}
+                        <button
+                            type="button"
+                            className="tp-done-btn"
+                            onClick={() => commitAndClose(hours, minutes)}
+                            aria-label="Confirm time"
+                            title="Confirm time"
+                            style={{
+                                marginLeft: 2,
+                                width: 32, height: 32,
+                                borderRadius: "8px",
+                                border: "1px solid var(--glass-outline)",
+                                background: "var(--glass-surface-hover)",
+                                color: "var(--text-muted)",
+                                cursor: "pointer",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                flexShrink: 0,
+                                transition: "all 0.15s",
+                            }}
+                        >
+                            <Check style={{ width: 14, height: 14 }} />
+                        </button>
                     </div>
 
-                    {/* Quick presets */}
-                    <div style={S.quickRow}>
-                        {QUICK_TIMES.map(({ label: lbl, h, m }) => {
-                            const active = hours === h && minutes === m;
-                            return (
-                                <button key={lbl} type="button"
-                                    onClick={() => { setHours(h); setMinutes(m); }}
-                                    style={{
-                                        ...S.quickBtn,
-                                        background: active ? "var(--primary-subtle, hsla(272,65%,62%,0.12))" : "transparent",
-                                        color: active ? "var(--text-accent, var(--primary-resonance))" : "var(--text-muted)",
-                                        border: active ? "1px solid var(--primary-resonance, rgba(99,102,241,0.4))" : "1px solid var(--glass-outline)",
-                                    }}
-                                    onMouseEnter={(e) => { if (!active) { e.currentTarget.style.background = "var(--glass-surface-hover)"; e.currentTarget.style.color = "var(--text-secondary)"; } }}
-                                    onMouseLeave={(e) => { if (!active) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-muted)"; } }}
-                                >
-                                    {lbl}
-                                </button>
-                            );
-                        })}
+                    {/* ── Divider ── */}
+                    <div style={{ borderTop: "1px solid var(--glass-outline, rgba(255,255,255,0.08))", marginBottom: "10px" }} />
+
+                    {/* ── Quick presets grid ── */}
+                    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                        {PRESET_ROWS.map((row, ri) => (
+                            <div key={ri} style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 4 }}>
+                                {row.map(({ label: lbl, h, m }) => {
+                                    const active = hours === h && minutes === m;
+                                    return (
+                                        <button
+                                            key={lbl}
+                                            type="button"
+                                            className={`tp-preset${active ? " tp-preset-active" : ""}`}
+                                            onClick={() => commitAndClose(h, m)}
+                                            style={{
+                                                padding: "7px 4px",
+                                                fontSize: "12px",
+                                                fontWeight: 600,
+                                                borderRadius: "8px",
+                                                border: active ? "1px solid transparent" : "1px solid var(--glass-outline)",
+                                                background: active ? "var(--primary-resonance)" : "var(--glass-surface-hover, rgba(255,255,255,0.04))",
+                                                color: active ? "#fff" : "var(--text-muted)",
+                                                cursor: "pointer",
+                                                transition: "all 0.12s",
+                                                textAlign: "center",
+                                            }}
+                                        >
+                                            {lbl}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        ))}
                     </div>
                 </div>
             )}
