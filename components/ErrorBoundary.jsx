@@ -43,6 +43,14 @@ import React from "react";
 import PropTypes from "prop-types";
 import { AlertTriangle, RefreshCw, Home, ChevronDown } from "lucide-react";
 
+// collectAdvancedErrorContext is imported lazily (dynamic import) to avoid a
+// circular dependency: ErrorMonitoring re-exports ErrorBoundary from this file.
+// Dynamic import resolves after module graph is built — safe in componentDidCatch.
+let _collectAdvanced = null;
+import("../features/monitoring/ErrorMonitoring.jsx")
+  .then((m) => { _collectAdvanced = m.collectAdvancedErrorContext; })
+  .catch(() => { /* monitoring module unavailable — degrade gracefully */ });
+
 // ── Ingest endpoints ──────────────────────────────────────────────────────────
 // Intentionally RELATIVE paths — never construct an absolute URL here.
 // In dev:  Vite proxy routes /api/v1 → http://localhost:5000/api/v1
@@ -161,6 +169,10 @@ function reportError(telemetry, appType) {
   const headers = { "Content-Type": "application/json" };
   if (token) headers["Authorization"] = `Bearer ${token}`;
 
+  // Merge advanced context (connection, timing, capabilities, breadcrumbs) if
+  // the monitoring module has already loaded. Degrades to baseline-only if not.
+  const full = _collectAdvanced ? _collectAdvanced(telemetry) : telemetry;
+
   const feedbackPayload = {
     type: "error-report",
     priority: "urgent",
@@ -188,7 +200,7 @@ function reportError(telemetry, appType) {
 
   // Fire both — intentionally no await (fire-and-forget)
   Promise.all([
-    fetch(INGEST_ERRORS, { method: "POST", headers, body: JSON.stringify(telemetry) }),
+    fetch(INGEST_ERRORS, { method: "POST", headers, body: JSON.stringify(full) }),
     fetch(INGEST_FEEDBACK, { method: "POST", headers, body: JSON.stringify(feedbackPayload) }),
   ]).catch(() => {
     // Intentionally silent — never surface monitoring failures to the user.
