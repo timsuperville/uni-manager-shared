@@ -15,13 +15,13 @@
 // ---------------------------------------------------------------------------
 
 /** Handles login attempt tracking and exponential back-off */
-export { RateLimitService } from "./RateLimitService.js";
+export { RateLimitService } from "./RateLimitService.ts";
 
 /** Token lifecycle: storage delegation, JWT decode/expiry, auto-refresh */
-export { TokenManagementService } from "./TokenManagementService.js";
+export { TokenManagementService } from "./TokenManagementService.ts";
 
 /** Traditional email/password flows (login, signup, forgot/reset password) */
-export { EmailPasswordAuthService } from "./EmailPasswordAuthService.js";
+export { EmailPasswordAuthService } from "./EmailPasswordAuthService.ts";
 
 /** OAuth 2.0 PKCE flows */
 export { OAuthAuthService } from "./OAuthAuthService.ts";
@@ -48,7 +48,7 @@ export function getMFAService() {
  * tracked in BL-xxx.
  */
 export function getRBACService() {
-  return import("./rbacService.js").then((m) => m.default);
+  return import("./rbacService.ts").then((m) => m.default);
 }
 
 export function getSecurityService() {
@@ -56,11 +56,11 @@ export function getSecurityService() {
 }
 
 export function getDeviceService() {
-  return import("./DeviceService.js").then((m) => m.default);
+  return import("./DeviceService.ts").then((m) => m.default);
 }
 
 export function getCacheService() {
-  return import("./sharedDataCache.js").then((m) => m.default);
+  return import("./sharedDataCache.ts").then((m) => m.default);
 }
 
 export function getCrossAppService() {

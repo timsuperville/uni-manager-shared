@@ -1,6 +1,8 @@
 /**
  * RBAC Components Re-exports
- * Re-exports RBAC components for backward compatibility.
+ *
+ * Backward-compat shim — all RBAC logic lives canonically in `rbac/RBACComponents.jsx`.
+ * Import from `@shared/auth` or `@shared/auth/rbac/RBACComponents` directly in new code.
  */
 
 export {
@@ -16,4 +18,5 @@ export {
   withRoles,
   PermissionButton,
   PermissionMenuItem,
-} from "./RBACComponents.jsx";
+  FeatureGuard,
+} from "../rbac/RBACComponents.jsx";

@@ -3,10 +3,86 @@
  * React components for role-based access control
  */
 
-import React, { useEffect } from "react";
+import React, { createContext, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth.ts";
 import { useFeatureGate } from "../hooks/useFeatureGate.ts";
+import { RBACUtils } from "./utils.ts";
+
+// ── RBACContext (backward-compat: wraps useAuth) ──────────────────────────────
+
+const RBACContext = createContext(null);
+
+/**
+ * RBACProvider — thin compatibility wrapper.
+ * Prefer using useAuth directly in new components.
+ */
+export function RBACProvider({ children, application = null }) {
+  const auth = useAuth();
+  const { user, isAuthenticated } = auth || {};
+
+  const rbac = React.useMemo(
+    () => new RBACUtils(isAuthenticated && user ? user : null),
+    [user, isAuthenticated],
+  );
+
+  const value = {
+    rbac,
+    application,
+    user,
+    isAuthenticated,
+    hasPermission: (p) => rbac.hasPermission(p),
+    hasAnyPermission: (ps) => rbac.hasAnyPermission(ps),
+    hasAllPermissions: (ps) => rbac.hasAllPermissions(ps),
+    hasRole: (r) => rbac.hasRole(r),
+    hasAnyRole: (rs) => rbac.hasAnyRole(rs),
+    canAccessRoute: (route) => rbac.canAccessRoute(application, route),
+    canAccessApplication: (app) => rbac.canAccessApplication(app ?? application),
+    isApplicationAdmin: (app) => rbac.isApplicationAdmin(app ?? application),
+    isAnyAdmin: () => rbac.isAnyAdmin(),
+    getAccessibleApplications: () => rbac.getAccessibleApplications(),
+    filterMenuItems: (items) => rbac.filterMenuItems(items, application),
+  };
+
+  return <RBACContext.Provider value={value}>{children}</RBACContext.Provider>;
+}
+
+/**
+ * useRBAC — backward-compat hook.
+ * Prefer useAuth in new components.
+ */
+export function useRBAC() {
+  const ctx = useContext(RBACContext);
+  if (!ctx) throw new Error("useRBAC must be used within RBACProvider");
+  return ctx;
+}
+
+/**
+ * ApplicationGuard — ensures the user can access the given application.
+ */
+export function ApplicationGuard({
+  application,
+  fallback,
+  children,
+}) {
+  const auth = useAuth();
+  const navigate = useNavigate();
+
+  if (!auth || !auth.user) {
+    navigate("/login");
+    return null;
+  }
+
+  const canAccess = auth.isApplicationAdmin
+    ? auth.isApplicationAdmin(application) || auth.isAnyAdmin?.()
+    : auth.hasRole?.(`${application}_admin`) || auth.hasRole?.("super_admin");
+
+  if (!canAccess) {
+    return fallback ?? null;
+  }
+
+  return children;
+}
 
 /**
  * Permission Guard Component
@@ -518,8 +594,11 @@ export function FeatureGuard({ featureKey, children, fallback = null }) {
 
 // Export all components
 export default {
+  RBACProvider,
+  useRBAC,
   PermissionGuard,
   RoleGuard,
+  ApplicationGuard,
   RouteGuard,
   AdminGuard,
   ConditionalRender,

@@ -25,9 +25,6 @@ export {
 
 // ── Hooks ─────────────────────────────────────────────────────────────────────
 
-// Primary hook
-export { useAuth as useAuthHook } from "./hooks/useAuth.ts";
-
 // Core context hooks (internal)
 export { useAuthState } from "./hooks/useAuthState.ts";
 export { useAuthActions } from "./hooks/useAuthActions.ts";
@@ -87,12 +84,24 @@ export { default as SecurityDashboard } from "./components/SecurityDashboard.jsx
 export { default as AuthLayout } from "./components/AuthLayout.jsx";
 export { default as UserMenu } from "./components/UserMenu.jsx";
 
-// RBAC Components (lazy)
+// RBAC — context (backward compat: wraps useAuth)
+export { RBACProvider, useRBAC } from "./rbac/RBACComponents.jsx";
+
+// RBAC — guards (lazy-loaded, avoid bloating the initial bundle)
 export const PermissionGuard = React.lazy(() =>
   import("./rbac/RBACComponents.jsx").then((m) => ({ default: m.PermissionGuard })),
 );
 export const RoleGuard = React.lazy(() =>
   import("./rbac/RBACComponents.jsx").then((m) => ({ default: m.RoleGuard })),
+);
+export const ApplicationGuard = React.lazy(() =>
+  import("./rbac/RBACComponents.jsx").then((m) => ({ default: m.ApplicationGuard })),
+);
+export const RouteGuard = React.lazy(() =>
+  import("./rbac/RBACComponents.jsx").then((m) => ({ default: m.RouteGuard })),
+);
+export const AdminGuard = React.lazy(() =>
+  import("./rbac/RBACComponents.jsx").then((m) => ({ default: m.AdminGuard })),
 );
 export const FeatureGuard = React.lazy(() =>
   import("./rbac/RBACComponents.jsx").then((m) => ({ default: m.FeatureGuard })),
@@ -130,6 +139,8 @@ export {
   USER_ROLES,
   ROLE_HIERARCHY,
   PERMISSION_CATEGORIES,
+  PERMISSION_ACTIONS,
+  DEVICE_CONFIG,
   PASSWORD_POLICY,
   RATE_LIMIT,
   OAUTH_PROVIDERS,
@@ -137,9 +148,8 @@ export {
   AUTH_ENDPOINTS,
   HTTP_STATUS,
   AUTH_EVENTS,
-} from "./types/constants.js";
-
-export { listAvailableConstants } from "./types/index.js";
+  listAvailableConstants,
+} from "./types/index.ts";
 
 // ── Configuration ─────────────────────────────────────────────────────────────
 
@@ -165,9 +175,9 @@ export {
   validateMFACode,
   validatePhoneNumber,
   sanitizeInput,
-} from "./utils/authValidation.js";
+} from "./utils/authValidation.ts";
 
-export { TokenStorage, tokenStorage } from "./utils/TokenStorage.js";
+export { TokenStorage, tokenStorage } from "./utils/TokenStorage.ts";
 
 // ── RBAC ──────────────────────────────────────────────────────────────────────
 

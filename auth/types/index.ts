@@ -53,7 +53,7 @@ export {
 
   // Events
   AUTH_EVENTS,
-} from "./constants.js";
+} from "./constants.ts";
 
 // ==================== EXPORT UTILITIES ====================
 
