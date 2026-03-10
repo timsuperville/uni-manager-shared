@@ -24,7 +24,7 @@ export { TokenManagementService } from "./TokenManagementService.js";
 export { EmailPasswordAuthService } from "./EmailPasswordAuthService.js";
 
 /** OAuth 2.0 PKCE flows */
-export { OAuthAuthService } from "./OAuthAuthService.js";
+export { OAuthAuthService } from "./OAuthAuthService.ts";
 
 // ---------------------------------------------------------------------------
 // Lazy-loaded exports — load on demand to keep the auth bundle lean
@@ -39,7 +39,7 @@ export function getAuthService() {
 }
 
 export function getMFAService() {
-  return import("./mfaService.js").then((m) => m.default);
+  return import("./mfaService.ts").then((m) => m.default);
 }
 
 /**

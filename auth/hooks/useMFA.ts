@@ -1,6 +1,6 @@
 import { useCallback, useState, useMemo } from "react";
 import { useAuth } from "./useAuth.ts";
-import { MFAService } from "../services/mfaService.js";
+import { MFAService } from "../services/mfaService.ts";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
