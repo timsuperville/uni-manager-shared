@@ -30,12 +30,12 @@ interface ForgotPasswordFormData {
   email: string;
 }
 
-type FormData = LoginFormData | SignupFormData | ForgotPasswordFormData;
+type AuthFormData = LoginFormData | SignupFormData | ForgotPasswordFormData;
 
 type FieldErrors = Record<string, string>;
 
 interface UseAuthFormReturn {
-  formData: FormData;
+  formData: AuthFormData;
   errors: FieldErrors;
   error: string | null;
   success: string | null;
@@ -54,7 +54,7 @@ interface UseAuthFormReturn {
  * Unified hook for authentication forms (login, signup, forgot password).
  */
 export const useAuthForm = (formType: FormType = "login"): UseAuthFormReturn => {
-  const { login, signup, resetPassword } = useAuth() as {
+  const { login, signup, resetPassword } = useAuth() as unknown as {
     login: (email: string, password: string, rememberMe?: boolean) => Promise<unknown>;
     signup: (data: SignupData) => Promise<unknown>;
     resetPassword: (email: string) => Promise<unknown>;
@@ -71,7 +71,7 @@ export const useAuthForm = (formType: FormType = "login"): UseAuthFormReturn => 
     };
   }, []);
 
-  const getInitialFormData = (): FormData => {
+  const getInitialFormData = (): AuthFormData => {
     switch (formType) {
       case "signup":
         return {
@@ -90,7 +90,7 @@ export const useAuthForm = (formType: FormType = "login"): UseAuthFormReturn => 
     }
   };
 
-  const [formData, setFormData] = useState<FormData>(getInitialFormData);
+  const [formData, setFormData] = useState<AuthFormData>(getInitialFormData);
   const [errors, setErrors] = useState<FieldErrors>({});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -106,19 +106,19 @@ export const useAuthForm = (formType: FormType = "login"): UseAuthFormReturn => 
   };
 
   const validateForm = (): FieldErrors => {
-    const data = formData as Record<string, unknown>;
+    const data = formData as unknown as Record<string, unknown>;
     const newErrors: FieldErrors = {};
 
     switch (formType) {
       case "signup": {
-        const firstNameError = validateName(data["firstName"] as string, "First name");
-        if (firstNameError) newErrors["firstName"] = firstNameError;
-        const lastNameError = validateName(data["lastName"] as string, "Last name");
-        if (lastNameError) newErrors["lastName"] = lastNameError;
+        const firstNameResult = validateName(data["firstName"] as string, "First name");
+        if (!firstNameResult.isValid) newErrors["firstName"] = firstNameResult.error ?? "Invalid first name";
+        const lastNameResult = validateName(data["lastName"] as string, "Last name");
+        if (!lastNameResult.isValid) newErrors["lastName"] = lastNameResult.error ?? "Invalid last name";
         const emailValidation = validateEmail(data["email"] as string);
-        if (!emailValidation.isValid) newErrors["email"] = emailValidation.error;
-        const passwordError = validatePassword(data["password"] as string);
-        if (passwordError) newErrors["password"] = passwordError;
+        if (!emailValidation.isValid) newErrors["email"] = emailValidation.errors["email"] ?? "Invalid email";
+        const passwordValidation = validatePassword(data["password"] as string);
+        if (!passwordValidation.isValid) newErrors["password"] = passwordValidation.error ?? "Invalid password";
         if (data["password"] !== data["confirmPassword"]) {
           newErrors["confirmPassword"] = "Passwords do not match";
         }
@@ -129,15 +129,15 @@ export const useAuthForm = (formType: FormType = "login"): UseAuthFormReturn => 
       }
       case "forgotPassword": {
         const emailValidation = validateEmail(data["email"] as string);
-        if (!emailValidation.isValid) newErrors["email"] = emailValidation.error;
+        if (!emailValidation.isValid) newErrors["email"] = emailValidation.errors["email"] ?? "Invalid email";
         break;
       }
       case "login":
       default: {
         const emailValidation = validateEmail(data["email"] as string);
-        if (!emailValidation.isValid) newErrors["email"] = emailValidation.error;
-        const passwordError = validatePassword(data["password"] as string);
-        if (passwordError) newErrors["password"] = passwordError;
+        if (!emailValidation.isValid) newErrors["email"] = emailValidation.errors["email"] ?? "Invalid email";
+        const passwordValidation = validatePassword(data["password"] as string);
+        if (!passwordValidation.isValid) newErrors["password"] = passwordValidation.error ?? "Invalid password";
         break;
       }
     }
@@ -158,10 +158,9 @@ export const useAuthForm = (formType: FormType = "login"): UseAuthFormReturn => 
     setError(null);
     setSuccess(null);
 
-    const data = formData as Record<string, unknown>;
-
+    let result: unknown;
+    const data = formData as unknown as Record<string, unknown>;
     try {
-      let result: unknown;
 
       switch (formType) {
         case "signup": {
@@ -196,6 +195,7 @@ export const useAuthForm = (formType: FormType = "login"): UseAuthFormReturn => 
           err instanceof Error ? err.message : "An error occurred. Please try again.",
         );
       }
+      return undefined;
     } finally {
       setIsLoading(false);
     }

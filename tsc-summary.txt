@@ -1,0 +1,108 @@
+auth/components/_authUI/index.ts(13,28): error TS7016: Could not find a declaration file for module './AuthButton.jsx'. 'C:/Users/Shawn/Documents/GitHub/Uni-Manager/frontend/shared/auth/components/_authUI/AuthButton.jsx' implicitly has an 'any' type.
+auth/components/_authUI/index.ts(14,29): error TS7016: Could not find a declaration file for module './OAuthButton.jsx'. 'C:/Users/Shawn/Documents/GitHub/Uni-Manager/frontend/shared/auth/components/_authUI/OAuthButton.jsx' implicitly has an 'any' type.
+auth/components/_authUI/index.ts(15,27): error TS7016: Could not find a declaration file for module './AuthInput.jsx'. 'C:/Users/Shawn/Documents/GitHub/Uni-Manager/frontend/shared/auth/components/_authUI/AuthInput.jsx' implicitly has an 'any' type.
+auth/components/_authUI/index.ts(16,49): error TS7016: Could not find a declaration file for module './AuthContainer.jsx'. 'C:/Users/Shawn/Documents/GitHub/Uni-Manager/frontend/shared/auth/components/_authUI/AuthContainer.jsx' implicitly has an 'any' type.
+auth/components/_authUI/index.ts(17,33): error TS7016: Could not find a declaration file for module './AuthCardContent.jsx'. 'C:/Users/Shawn/Documents/GitHub/Uni-Manager/frontend/shared/auth/components/_authUI/AuthCardContent.jsx' implicitly has an 'any' type.
+auth/components/_authUI/index.ts(18,29): error TS7016: Could not find a declaration file for module './AuthDivider.jsx'. 'C:/Users/Shawn/Documents/GitHub/Uni-Manager/frontend/shared/auth/components/_authUI/AuthDivider.jsx' implicitly has an 'any' type.
+auth/components/_authUI/index.ts(19,23): error TS7016: Could not find a declaration file for module './Alert.jsx'. 'C:/Users/Shawn/Documents/GitHub/Uni-Manager/frontend/shared/auth/components/_authUI/Alert.jsx' implicitly has an 'any' type.
+auth/components/_authUI/index.ts(20,28): error TS7016: Could not find a declaration file for module './GoogleIcon.jsx'. 'C:/Users/Shawn/Documents/GitHub/Uni-Manager/frontend/shared/auth/components/_authUI/GoogleIcon.jsx' implicitly has an 'any' type.
+auth/components/_authUI/index.ts(25,8): error TS7016: Could not find a declaration file for module './PasswordToggle.jsx'. 'C:/Users/Shawn/Documents/GitHub/Uni-Manager/frontend/shared/auth/components/_authUI/PasswordToggle.jsx' implicitly has an 'any' type.
+auth/components/index.ts(15,38): error TS7016: Could not find a declaration file for module './LoginForm.jsx'. 'C:/Users/Shawn/Documents/GitHub/Uni-Manager/frontend/shared/auth/components/LoginForm.jsx' implicitly has an 'any' type.
+auth/components/index.ts(16,39): error TS7016: Could not find a declaration file for module './SignupForm.jsx'. 'C:/Users/Shawn/Documents/GitHub/Uni-Manager/frontend/shared/auth/components/SignupForm.jsx' implicitly has an 'any' type.
+auth/components/index.ts(17,47): error TS7016: Could not find a declaration file for module './ForgotPasswordForm.jsx'. 'C:/Users/Shawn/Documents/GitHub/Uni-Manager/frontend/shared/auth/components/ForgotPasswordForm.jsx' implicitly has an 'any' type.
+auth/components/index.ts(21,44): error TS7016: Could not find a declaration file for module './MFAVerification.jsx'. 'C:/Users/Shawn/Documents/GitHub/Uni-Manager/frontend/shared/auth/components/MFAVerification.jsx' implicitly has an 'any' type.
+auth/components/index.ts(22,37): error TS7016: Could not find a declaration file for module './MFASetup.jsx'. 'C:/Users/Shawn/Documents/GitHub/Uni-Manager/frontend/shared/auth/components/MFASetup.jsx' implicitly has an 'any' type.
+auth/components/index.ts(26,52): error TS7016: Could not find a declaration file for module './OAuthProviderComponents.jsx'. 'C:/Users/Shawn/Documents/GitHub/Uni-Manager/frontend/shared/auth/components/OAuthProviderComponents.jsx' implicitly has an 'any' type.
+auth/components/index.ts(27,42): error TS7016: Could not find a declaration file for module './OAuthCallback.jsx'. 'C:/Users/Shawn/Documents/GitHub/Uni-Manager/frontend/shared/auth/components/OAuthCallback.jsx' implicitly has an 'any' type.
+auth/components/index.ts(31,43): error TS7016: Could not find a declaration file for module './ProtectedRoute.jsx'. 'C:/Users/Shawn/Documents/GitHub/Uni-Manager/frontend/shared/auth/components/ProtectedRoute.jsx' implicitly has an 'any' type.
+auth/components/index.ts(35,46): error TS7016: Could not find a declaration file for module './SecurityDashboard.jsx'. 'C:/Users/Shawn/Documents/GitHub/Uni-Manager/frontend/shared/auth/components/SecurityDashboard.jsx' implicitly has an 'any' type.
+auth/components/index.ts(39,39): error TS7016: Could not find a declaration file for module './AuthLayout.jsx'. 'C:/Users/Shawn/Documents/GitHub/Uni-Manager/frontend/shared/auth/components/AuthLayout.jsx' implicitly has an 'any' type.
+auth/components/index.ts(43,37): error TS7016: Could not find a declaration file for module './UserMenu.jsx'. 'C:/Users/Shawn/Documents/GitHub/Uni-Manager/frontend/shared/auth/components/UserMenu.jsx' implicitly has an 'any' type.
+auth/components/index.ts(46,25): error TS7016: Could not find a declaration file for module './LoginForm.jsx'. 'C:/Users/Shawn/Documents/GitHub/Uni-Manager/frontend/shared/auth/components/LoginForm.jsx' implicitly has an 'any' type.
+auth/components/rbac.ts(19,8): error TS7016: Could not find a declaration file for module './RBACComponents.jsx'. 'C:/Users/Shawn/Documents/GitHub/Uni-Manager/frontend/shared/auth/components/RBACComponents.jsx' implicitly has an 'any' type.
+auth/context/AuthContext.tsx(104,32): error TS2345: Argument of type 'string' is not assignable to parameter of type 'Permission'.
+auth/context/AuthContext.tsx(107,3): error TS2416: Property 'resolveUserPermissions' in type 'SessionRBAC' is not assignable to the same property in base type 'RBACUtils'.
+auth/context/AuthContext.tsx(165,56): error TS2345: Argument of type 'string[]' is not assignable to parameter of type 'Permission | Permission[]'.
+auth/context/AuthContext.tsx(166,58): error TS2345: Argument of type 'string[]' is not assignable to parameter of type 'Permission | Permission[]'.
+auth/context/AuthContext.tsx(173,33): error TS2352: Conversion of type 'PermissionSummary' to type 'Record<string, unknown>' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+auth/context/AuthContext.tsx(185,53): error TS2559: Type 'AuthConfig' has no properties in common with type 'AuthServiceConfig'.
+auth/context/AuthContext.tsx(205,5): error TS2345: Argument of type 'AuthService' is not assignable to parameter of type 'AuthServiceLike'.
+auth/context/AuthContext.tsx(214,5): error TS2345: Argument of type 'AuthStateShape' is not assignable to parameter of type 'AuthState'.
+auth/context/RealTimeSecurityContext.tsx(170,13): error TS2352: Conversion of type '() => RealTimeSecurityMonitoringService' to type '() => SecurityServiceInstance' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+auth/hooks/useAuthForm.ts(109,18): error TS2352: Conversion of type 'FormData' to type 'Record<string, unknown>' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+auth/hooks/useAuthForm.ts(115,29): error TS2322: Type '{ isValid: boolean; error: string; } | { isValid: boolean; error: null; }' is not assignable to type 'string'.
+auth/hooks/useAuthForm.ts(117,28): error TS2322: Type '{ isValid: boolean; error: string; } | { isValid: boolean; error: null; }' is not assignable to type 'string'.
+auth/hooks/useAuthForm.ts(119,76): error TS2551: Property 'error' does not exist on type 'ValidationResult'. Did you mean 'errors'?
+auth/hooks/useAuthForm.ts(121,28): error TS2322: Type 'PasswordValidationResult' is not assignable to type 'string'.
+auth/hooks/useAuthForm.ts(132,76): error TS2551: Property 'error' does not exist on type 'ValidationResult'. Did you mean 'errors'?
+auth/hooks/useAuthForm.ts(138,76): error TS2551: Property 'error' does not exist on type 'ValidationResult'. Did you mean 'errors'?
+auth/hooks/useAuthForm.ts(140,28): error TS2322: Type 'PasswordValidationResult' is not assignable to type 'string'.
+auth/hooks/useAuthForm.ts(148,69): error TS7030: Not all code paths return a value.
+auth/hooks/useAuthForm.ts(161,18): error TS2352: Conversion of type 'FormData' to type 'Record<string, unknown>' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+auth/hooks/useAuthForm.ts(57,44): error TS2352: Conversion of type 'AuthContextType' to type '{ login: (email: string, password: string, rememberMe?: boolean | undefined) => Promise<unknown>; signup: (data: SignupData) => Promise<unknown>; resetPassword: (email: string) => Promise<...>; }' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+auth/hooks/useChurchRole.ts(112,18): error TS2339: Property 'church' does not exist on type 'string'.
+auth/hooks/useChurchRole.ts(112,43): error TS2339: Property 'church' does not exist on type 'string'.
+auth/hooks/useChurchRole.ts(113,15): error TS2339: Property 'church' does not exist on type 'string'.
+auth/hooks/useChurchRole.ts(114,22): error TS2339: Property 'church' does not exist on type 'string'.
+auth/hooks/useChurchRole.ts(115,17): error TS2339: Property 'church' does not exist on type 'string'.
+auth/hooks/useChurchRole.ts(125,18): error TS2339: Property 'status' does not exist on type 'string'.
+auth/hooks/useChurchRole.ts(125,61): error TS2339: Property 'role' does not exist on type 'string'.
+auth/hooks/useChurchRole.ts(127,39): error TS2559: Type 'string' has no properties in common with type 'Membership'.
+auth/hooks/useChurchRole.ts(179,45): error TS18048: 'ROLE_TIER.admin' is possibly 'undefined'.
+auth/hooks/useChurchRole.ts(184,45): error TS18048: 'ROLE_TIER.admin' is possibly 'undefined'.
+auth/hooks/useChurchRole.ts(218,48): error TS18048: 'ROLE_TIER.admin' is possibly 'undefined'.
+auth/hooks/useChurchRole.ts(219,52): error TS18048: 'ROLE_TIER.volunteer' is possibly 'undefined'.
+auth/hooks/useChurchRole.ts(220,49): error TS18048: 'ROLE_TIER.member' is possibly 'undefined'.
+auth/hooks/useRateLimit.ts(154,8): error TS2352: Conversion of type 'SecurityService' to type '{ rateLimits: Map<string, unknown>; }' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+auth/hooks/useSession.ts(21,59): error TS2352: Conversion of type 'AuthContextType' to type '{ session: Session | null | undefined; sessionExpiry: number | undefined; refreshAuth: (() => Promise<boolean>) | undefined; logout: () => Promise<void | { success: boolean; }>; }' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+auth/hooks/useSessionManagement.ts(21,31): error TS2352: Conversion of type 'AuthContextType' to type '{ session: Session | null | undefined; logout: () => Promise<void | { success: boolean; }>; }' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+auth/index.ts(109,3): error TS2305: Module '"./services/index.ts"' has no exported member 'getTokenService'.
+auth/index.ts(110,3): error TS2724: '"./services/index.ts"' has no exported member named 'getOAuthService'. Did you mean 'getAuthService'?
+auth/index.ts(116,3): error TS2305: Module '"./services/index.ts"' has no exported member 'getLoadedServices'.
+auth/index.ts(117,3): error TS2305: Module '"./services/index.ts"' has no exported member 'isServiceAvailable'.
+auth/index.ts(118,3): error TS2724: '"./services/index.ts"' has no exported member named 'cacheService'. Did you mean 'getCacheService'?
+auth/index.ts(74,38): error TS7016: Could not find a declaration file for module './components/LoginForm.jsx'. 'C:/Users/Shawn/Documents/GitHub/Uni-Manager/frontend/shared/auth/components/LoginForm.jsx' implicitly has an 'any' type.
+auth/index.ts(75,39): error TS7016: Could not find a declaration file for module './components/SignupForm.jsx'. 'C:/Users/Shawn/Documents/GitHub/Uni-Manager/frontend/shared/auth/components/SignupForm.jsx' implicitly has an 'any' type.
+auth/index.ts(76,47): error TS7016: Could not find a declaration file for module './components/ForgotPasswordForm.jsx'. 'C:/Users/Shawn/Documents/GitHub/Uni-Manager/frontend/shared/auth/components/ForgotPasswordForm.jsx' implicitly has an 'any' type.
+auth/index.ts(79,16): error TS7016: Could not find a declaration file for module './components/MFAVerification.jsx'. 'C:/Users/Shawn/Documents/GitHub/Uni-Manager/frontend/shared/auth/components/MFAVerification.jsx' implicitly has an 'any' type.
+auth/index.ts(81,49): error TS7016: Could not find a declaration file for module './components/MFASetup.jsx'. 'C:/Users/Shawn/Documents/GitHub/Uni-Manager/frontend/shared/auth/components/MFASetup.jsx' implicitly has an 'any' type.
+auth/index.ts(83,52): error TS7016: Could not find a declaration file for module './components/OAuthProviderComponents.jsx'. 'C:/Users/Shawn/Documents/GitHub/Uni-Manager/frontend/shared/auth/components/OAuthProviderComponents.jsx' implicitly has an 'any' type.
+auth/index.ts(84,42): error TS7016: Could not find a declaration file for module './components/OAuthCallback.jsx'. 'C:/Users/Shawn/Documents/GitHub/Uni-Manager/frontend/shared/auth/components/OAuthCallback.jsx' implicitly has an 'any' type.
+auth/index.ts(85,43): error TS7016: Could not find a declaration file for module './components/ProtectedRoute.jsx'. 'C:/Users/Shawn/Documents/GitHub/Uni-Manager/frontend/shared/auth/components/ProtectedRoute.jsx' implicitly has an 'any' type.
+auth/index.ts(86,46): error TS7016: Could not find a declaration file for module './components/SecurityDashboard.jsx'. 'C:/Users/Shawn/Documents/GitHub/Uni-Manager/frontend/shared/auth/components/SecurityDashboard.jsx' implicitly has an 'any' type.
+auth/index.ts(87,39): error TS7016: Could not find a declaration file for module './components/AuthLayout.jsx'. 'C:/Users/Shawn/Documents/GitHub/Uni-Manager/frontend/shared/auth/components/AuthLayout.jsx' implicitly has an 'any' type.
+auth/index.ts(88,37): error TS7016: Could not find a declaration file for module './components/UserMenu.jsx'. 'C:/Users/Shawn/Documents/GitHub/Uni-Manager/frontend/shared/auth/components/UserMenu.jsx' implicitly has an 'any' type.
+auth/index.ts(92,10): error TS7016: Could not find a declaration file for module './rbac/RBACComponents.jsx'. 'C:/Users/Shawn/Documents/GitHub/Uni-Manager/frontend/shared/auth/rbac/RBACComponents.jsx' implicitly has an 'any' type.
+auth/index.ts(95,10): error TS7016: Could not find a declaration file for module './rbac/RBACComponents.jsx'. 'C:/Users/Shawn/Documents/GitHub/Uni-Manager/frontend/shared/auth/rbac/RBACComponents.jsx' implicitly has an 'any' type.
+auth/index.ts(98,10): error TS7016: Could not find a declaration file for module './rbac/RBACComponents.jsx'. 'C:/Users/Shawn/Documents/GitHub/Uni-Manager/frontend/shared/auth/rbac/RBACComponents.jsx' implicitly has an 'any' type.
+auth/services/authService.ts(160,48): error TS2341: Property 'loginAttempts' is private and only accessible within class 'RateLimitService'.
+auth/services/authService.ts(161,51): error TS2341: Property 'maxAttempts' is private and only accessible within class 'RateLimitService'.
+auth/services/authService.ts(162,50): error TS2341: Property 'lockoutDuration' is private and only accessible within class 'RateLimitService'.
+auth/services/authService.ts(275,60): error TS2339: Property 'catch' does not exist on type 'boolean'.
+auth/services/authService.ts(321,11): error TS2322: Type 'unknown' is not assignable to type 'Record<string, unknown> | User | undefined'.
+auth/services/authService.ts(551,13): error TS2339: Property 'codeVerifier' does not exist on type 'Promise<{ codeVerifier: string; codeChallenge: string; }>'.
+auth/services/authService.ts(551,27): error TS2339: Property 'codeChallenge' does not exist on type 'Promise<{ codeVerifier: string; codeChallenge: string; }>'.
+auth/services/authService.ts(564,33): error TS2339: Property 'clientId' does not exist on type 'ResolvedProviderConfig'.
+auth/services/authService.ts(565,36): error TS2339: Property 'redirectUri' does not exist on type 'ResolvedProviderConfig'.
+auth/services/authService.ts(566,29): error TS2551: Property 'scopes' does not exist on type 'ResolvedProviderConfig'. Did you mean 'scope'?
+auth/services/authService.ts(574,39): error TS2339: Property 'authorizationEndpoint' does not exist on type 'ResolvedProviderConfig'.
+auth/services/authService.ts(605,7): error TS2322: Type 'unknown' is not assignable to type 'Record<string, unknown> | User | undefined'.
+auth/services/authService.ts(630,33): error TS2339: Property 'clientId' does not exist on type 'ResolvedProviderConfig'.
+auth/services/authService.ts(632,36): error TS2339: Property 'redirectUri' does not exist on type 'ResolvedProviderConfig'.
+auth/services/authService.ts(636,49): error TS2339: Property 'tokenEndpoint' does not exist on type 'ResolvedProviderConfig'.
+auth/services/authService.ts(673,49): error TS2339: Property 'userInfoEndpoint' does not exist on type 'ResolvedProviderConfig'.
+auth/services/authService.ts(718,11): error TS2322: Type 'unknown' is not assignable to type 'Record<string, unknown> | User | undefined'.
+auth/services/authService.ts(776,36): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Partial<User>'.
+auth/services/OAuthAuthService.ts(105,13): error TS2339: Property 'codeVerifier' does not exist on type 'Promise<{ codeVerifier: string; codeChallenge: string; }>'.
+auth/services/OAuthAuthService.ts(105,27): error TS2339: Property 'codeChallenge' does not exist on type 'Promise<{ codeVerifier: string; codeChallenge: string; }>'.
+auth/services/OAuthAuthService.ts(118,33): error TS2339: Property 'clientId' does not exist on type 'ResolvedProviderConfig'.
+auth/services/OAuthAuthService.ts(119,36): error TS2339: Property 'redirectUri' does not exist on type 'ResolvedProviderConfig'.
+auth/services/OAuthAuthService.ts(120,29): error TS2551: Property 'scopes' does not exist on type 'ResolvedProviderConfig'. Did you mean 'scope'?
+auth/services/OAuthAuthService.ts(128,39): error TS2339: Property 'authorizationEndpoint' does not exist on type 'ResolvedProviderConfig'.
+auth/services/OAuthAuthService.ts(189,37): error TS2339: Property 'redirectUri' does not exist on type 'ResolvedProviderConfig'.
+auth/services/SessionService.ts(197,27): error TS2551: Property 'SESSION_UPDATED' does not exist on type '{ LOGIN_ATTEMPT: string; LOGIN_SUCCESS: string; LOGIN_FAILURE: string; LOGOUT: string; SIGNUP: string; PASSWORD_RESET: string; MFA_ENABLED: string; MFA_DISABLED: string; MFA_VERIFICATION: string; ... 5 more ...; DEVICE_TRUSTED: string; }'. Did you mean 'SESSION_STARTED'?
+auth/services/SessionService.ts(278,29): error TS2551: Property 'SESSION_UPDATED' does not exist on type '{ LOGIN_ATTEMPT: string; LOGIN_SUCCESS: string; LOGIN_FAILURE: string; LOGOUT: string; SIGNUP: string; PASSWORD_RESET: string; MFA_ENABLED: string; MFA_DISABLED: string; MFA_VERIFICATION: string; ... 5 more ...; DEVICE_TRUSTED: string; }'. Did you mean 'SESSION_STARTED'?
+auth/services/SessionService.ts(459,31): error TS2551: Property 'SESSION_UPDATED' does not exist on type '{ LOGIN_ATTEMPT: string; LOGIN_SUCCESS: string; LOGIN_FAILURE: string; LOGOUT: string; SIGNUP: string; PASSWORD_RESET: string; MFA_ENABLED: string; MFA_DISABLED: string; MFA_VERIFICATION: string; ... 5 more ...; DEVICE_TRUSTED: string; }'. Did you mean 'SESSION_STARTED'?
+auth/utils/socialAuth.ts(175,21): error TS2352: Conversion of type 'AppConfig & { name: AppName; }' to type 'AppConfigEndpoints' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+auth/utils/socialAuth.ts(193,21): error TS2352: Conversion of type 'AppConfig & { name: AppName; }' to type 'AppConfigEndpoints' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+auth/utils/socialAuth.ts(220,21): error TS2352: Conversion of type 'AppConfig & { name: AppName; }' to type 'AppConfigEndpoints' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.

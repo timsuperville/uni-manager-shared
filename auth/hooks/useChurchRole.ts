@@ -107,7 +107,10 @@ export function useChurchRole(): UseChurchRoleReturn {
       return buildResult("visitor", null, null, u);
     }
 
-    const membership = (u.churches ?? []).find((c) => {
+    // u.churches is string[] in the canonical User type but holds Membership objects at runtime;
+    // cast to the richer shape that the API returns.
+    const memberships = (u.churches ?? []) as unknown as Membership[];
+    const membership = memberships.find((c) => {
       const churchId =
         typeof c.church === "object" && c.church !== null
           ? c.church._id?.toString()
@@ -176,12 +179,12 @@ function buildResult(
     resolvedTools,
 
     hasGrantedTool: (toolId: string) => {
-      if (effectivePlatformAdmin || tier >= ROLE_TIER.admin) return true;
+      if (effectivePlatformAdmin || tier >= (ROLE_TIER["admin"] ?? 0)) return true;
       return (toolMap.get(toolId)?.canView ?? false);
     },
 
     canEditTool: (toolId: string) => {
-      if (effectivePlatformAdmin || tier >= ROLE_TIER.admin) return true;
+      if (effectivePlatformAdmin || tier >= (ROLE_TIER["admin"] ?? 0)) return true;
       return (toolMap.get(toolId)?.canEdit ?? false);
     },
 
@@ -215,9 +218,9 @@ function buildResult(
       return entryTier >= minTier;
     },
 
-    isAdmin: effectivePlatformAdmin || tier >= ROLE_TIER.admin,
-    isVolunteer: effectivePlatformAdmin || tier >= ROLE_TIER.volunteer,
-    isMember: effectivePlatformAdmin || tier >= ROLE_TIER.member,
+    isAdmin: effectivePlatformAdmin || tier >= (ROLE_TIER["admin"] ?? 0),
+    isVolunteer: effectivePlatformAdmin || tier >= (ROLE_TIER["volunteer"] ?? 0),
+    isMember: effectivePlatformAdmin || tier >= (ROLE_TIER["member"] ?? 0),
   };
 }
 

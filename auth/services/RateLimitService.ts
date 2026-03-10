@@ -26,9 +26,9 @@ interface AttemptRecord {
 // ---------------------------------------------------------------------------
 
 export class RateLimitService {
-  private readonly loginAttempts: Map<string, AttemptRecord>;
-  private readonly maxAttempts: number;
-  private readonly lockoutDuration: number;
+  readonly loginAttempts: Map<string, AttemptRecord>;
+  readonly maxAttempts: number;
+  readonly lockoutDuration: number;
 
   constructor(config: RateLimitConfig = {}) {
     this.loginAttempts = new Map();

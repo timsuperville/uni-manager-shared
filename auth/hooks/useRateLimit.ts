@@ -108,7 +108,7 @@ export const useRateLimit = (options: RateLimitOptions = {}): UseRateLimitReturn
     async (success = false): Promise<boolean> => {
       try {
         const targetIdentifier = identifier ?? (await detectClientIP());
-        (securityService as {
+        (securityService as unknown as {
           recordAttempt(id: string, action: string, success: boolean): void;
         }).recordAttempt(targetIdentifier, action, success);
         await checkRateLimit();
@@ -151,7 +151,7 @@ export const useRateLimit = (options: RateLimitOptions = {}): UseRateLimitReturn
   const resetRateLimit = useCallback(async (): Promise<boolean> => {
     try {
       const targetIdentifier = identifier ?? (await detectClientIP());
-      (securityService as {
+      (securityService as unknown as {
         rateLimits: Map<string, unknown>;
       }).rateLimits.delete(`${targetIdentifier}:${action}`);
       await checkRateLimit();

@@ -106,16 +106,11 @@ export {
   getSessionService,
   getAuthService,
   getMFAService,
-  getTokenService,
-  getOAuthService,
   getRBACService,
   getSecurityService,
   getDeviceService,
   getCacheService,
   getCrossAppService,
-  getLoadedServices,
-  isServiceAvailable,
-  cacheService,
 } from "./services/index.ts";
 
 // ── Types ─────────────────────────────────────────────────────────────────────

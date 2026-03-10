@@ -36,6 +36,18 @@ export interface OAuthProvider {
 
 export interface ResolvedProviderConfig extends OAuthProvider {
   additionalParams: Record<string, string | undefined>;
+  /** OAuth client ID — injected at resolution time from environment config. */
+  clientId: string;
+  /** OAuth redirect URI — injected at resolution time from environment config. */
+  redirectUri: string;
+  /** Convenience alias: scope split into an array (callers may use `.scopes.join(' ')`). */
+  scopes: string[];
+  /** Full authorization endpoint URL (e.g. `authUrl` field). */
+  authorizationEndpoint: string;
+  /** Token exchange endpoint URL. */
+  tokenEndpoint: string;
+  /** User-info endpoint URL. */
+  userInfoEndpoint: string;
 }
 
 // ── Provider Definitions ──────────────────────────────────────────────────────
@@ -214,11 +226,31 @@ export function getProviderConfig(
   if (!provider) throw new Error(`Unsupported OAuth provider: ${providerId}`);
 
   const appConfig = provider.configs[appName as AppName] ?? {};
+  const resolvedScope = appConfig.scope ?? provider.scope;
+
+  // Read env vars — these may be undefined in environments that don't configure
+  // all providers. Callers that reach OAuth flows should always have them set.
+  const clientId =
+    (import.meta.env[`VITE_${providerId.toUpperCase()}_CLIENT_ID`] as string | undefined) ?? "";
+  const redirectUri =
+    (import.meta.env[`VITE_${providerId.toUpperCase()}_REDIRECT_URI`] as string | undefined) ?? "";
+  const tokenEndpoint =
+    (import.meta.env[`VITE_${providerId.toUpperCase()}_TOKEN_ENDPOINT`] as string | undefined) ??
+    `https://${providerId}.auth.default/token`;
+  const userInfoEndpoint =
+    (import.meta.env[`VITE_${providerId.toUpperCase()}_USERINFO_ENDPOINT`] as string | undefined) ??
+    `https://${providerId}.auth.default/userinfo`;
 
   return {
     ...provider,
-    scope: appConfig.scope ?? provider.scope,
+    scope: resolvedScope,
+    scopes: resolvedScope.split(" ").filter(Boolean),
     additionalParams: appConfig.additionalParams ?? {},
+    clientId,
+    redirectUri,
+    authorizationEndpoint: provider.authUrl,
+    tokenEndpoint,
+    userInfoEndpoint,
   };
 }
 

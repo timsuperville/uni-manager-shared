@@ -1,9 +1,10 @@
 import React, { createContext, useContext, useMemo, useRef } from "react";
 import { AuthService } from "../services/authService.ts";
 import { useAuthState } from "../hooks/useAuthState.ts";
-import { useAuthActions } from "../hooks/useAuthActions.ts";
-import { useAuthCallbacks } from "../hooks/useAuthCallbacks.ts";
+import { useAuthActions, type AuthServiceLike } from "../hooks/useAuthActions.ts";
+import { useAuthCallbacks, type AuthStateShape } from "../hooks/useAuthCallbacks.ts";
 import { RBACUtils } from "../rbac/utils.ts";
+import type { Permission } from "../rbac/roles.ts";
 import type { AuthContextType, User } from "../types/auth.types.ts";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -88,23 +89,25 @@ export const useAuth = (): AuthContextType => {
 
 // ── SessionRBAC (inline subclass) ─────────────────────────────────────────────
 
-type SyntheticUser = User & { _resolvedPermissions: string[]; roles: string[] };
+type SyntheticUser = User & { _resolvedPermissions: Permission[]; roles: string[] };
 
 class SessionRBAC extends (RBACUtils as new (user: SyntheticUser | null) => RBACUtils) {
-  private readonly _resolved: string[];
+  private readonly _resolved: Permission[];
 
   constructor(user: SyntheticUser) {
     super(user);
+    // Note: _resolved may be undefined during super() if super() calls resolveUserPermissions();
+    // the guard below handles that.
     this._resolved = user._resolvedPermissions ?? [];
   }
 
-  hasPermission(permission: string): boolean {
+  hasPermission(permission: Permission): boolean {
     // Guard: _resolved may not be assigned yet if super() triggers this method
     if (this._resolved && this._resolved.length > 0) return this._resolved.includes(permission);
     return super.hasPermission(permission);
   }
 
-  resolveUserPermissions(): string[] {
+  resolveUserPermissions(): Permission[] {
     // Guard: _resolved may not be assigned yet during super() constructor call
     if (this._resolved && this._resolved.length > 0) return this._resolved;
     return super.resolveUserPermissions();
@@ -155,22 +158,23 @@ function buildRBACMethods(user: User | null): RBACMethods {
   const syntheticUser: SyntheticUser = {
     ...user,
     roles: allRoles,
-    _resolvedPermissions: Array.isArray(extUser.rbac?.global) ? extUser.rbac!.global! : [],
+    // rbac.global contains string permission IDs that are valid Permission literals at runtime
+    _resolvedPermissions: (Array.isArray(extUser.rbac?.global) ? extUser.rbac!.global! : []) as Permission[],
   };
 
   const rbac = new SessionRBAC(syntheticUser);
 
   return {
-    hasPermission: (perm) => rbac.hasPermission(perm),
-    hasAnyPermission: (perms) => rbac.hasAnyPermission(perms),
-    hasAllPermissions: (perms) => rbac.hasAllPermissions(perms),
+    hasPermission: (perm) => rbac.hasPermission(perm as Permission),
+    hasAnyPermission: (perms) => rbac.hasAnyPermission(perms as Permission[]),
+    hasAllPermissions: (perms) => rbac.hasAllPermissions(perms as Permission[]),
     hasRole: (role) => rbac.hasRole(role),
     hasAnyRole: (roles) => rbac.hasAnyRole(roles),
     hasMinimumRoleLevel: (level) => rbac.hasMinimumRoleLevel(level),
     isApplicationAdmin: (app) => rbac.isApplicationAdmin(app),
     isAnyAdmin: () => rbac.isAnyAdmin(),
     getApplicationRoles: (app) => rbac.getApplicationRoles(app),
-    getPermissionSummary: () => rbac.getPermissionSummary() as Record<string, unknown>,
+    getPermissionSummary: () => rbac.getPermissionSummary() as unknown as Record<string, unknown>,
   };
 }
 
@@ -182,7 +186,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   onAuthStateChange,
   onError,
 }) => {
-  const authService = useMemo(() => new AuthService(config), [config]);
+  // config is AuthConfig (a loose superset of AuthServiceConfig) — safe to widen via unknown
+  const authService = useMemo(
+    () => new AuthService(config as unknown as ConstructorParameters<typeof AuthService>[0]),
+    [config],
+  );
 
   const {
     state,
@@ -202,21 +210,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
 
   // Step 2: Create actions with the callback refs
   const actions = useAuthActions(
-    authService,
+    authService as unknown as AuthServiceLike,
     updateState,
     setError,
     resetState,
-    callbackRefsRef.current,
+    callbackRefsRef.current as unknown as Parameters<typeof useAuthActions>[4],
   );
 
   // Step 3: Set up callbacks with actions available
   useAuthCallbacks(
-    state,
+    state as unknown as AuthStateShape,
     actions,
-    onAuthStateChange,
-    onError,
+    onAuthStateChange as ((state: Record<string, unknown>) => void) | undefined,
+    onError as ((error: unknown) => void) | undefined,
     config,
-    callbackRefsRef.current,
+    callbackRefsRef.current as unknown as Parameters<typeof useAuthCallbacks>[5],
   );
 
   // Derive RBAC methods from resolved user.rbac (injected by verify-token)

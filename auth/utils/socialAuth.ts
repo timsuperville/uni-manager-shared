@@ -172,7 +172,7 @@ export const OAUTH_PROVIDERS: Record<string, OAuthProviderConfig> = {
 
 /** Returns only the OAuth providers that are enabled and configured for the current app. */
 export const getEnabledOAuthProviders = (): OAuthProviderEntry[] => {
-  const appConfig = getCurrentAppConfig() as AppConfigEndpoints;
+  const appConfig = getCurrentAppConfig() as unknown as AppConfigEndpoints;
   const socialLogin = appConfig.features.socialLogin;
   if (!socialLogin?.enabled) return [];
 
@@ -190,7 +190,7 @@ export const initiateOAuthLogin = (
   providerId: string,
   options: InitiateOAuthOptions = {},
 ): string => {
-  const appConfig = getCurrentAppConfig() as AppConfigEndpoints;
+  const appConfig = getCurrentAppConfig() as unknown as AppConfigEndpoints;
   const provider = OAUTH_PROVIDERS[providerId];
 
   if (!provider) throw new Error(`Unknown OAuth provider: ${providerId}`);
@@ -217,7 +217,7 @@ export const handleOAuthCallback = async (
   state: string,
   provider: string,
 ): Promise<unknown> => {
-  const appConfig = getCurrentAppConfig() as AppConfigEndpoints;
+  const appConfig = getCurrentAppConfig() as unknown as AppConfigEndpoints;
 
   try {
     const response = await fetch(

@@ -18,7 +18,7 @@ interface UseSessionManagementReturn {
 }
 
 export function useSessionManagement(): UseSessionManagementReturn {
-  const { session, logout } = useAuth() as {
+  const { session, logout } = useAuth() as unknown as {
     session: Session | null | undefined;
     logout: () => Promise<void | { success: boolean }>;
   };

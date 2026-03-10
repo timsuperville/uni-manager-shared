@@ -14,7 +14,7 @@ interface CallbackRefs {
 }
 
 // Generic auth service shape — the concrete class is in authService.js (not yet migrated)
-interface AuthServiceLike {
+export interface AuthServiceLike {
   initialize(): Promise<void>;
   getCurrentUser(): Promise<User | null>;
   isAuthenticated(): Promise<boolean>;

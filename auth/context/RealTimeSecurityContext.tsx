@@ -167,7 +167,7 @@ export function RealTimeSecurityProvider({ children }: RealTimeSecurityProviderP
 
         if (!securityServiceRef.current) {
           securityServiceRef.current = (
-            realTimeSecurityMonitoringService as () => SecurityServiceInstance
+            realTimeSecurityMonitoringService as unknown as () => SecurityServiceInstance
           )();
         }
 

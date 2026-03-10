@@ -18,7 +18,7 @@ interface UseSessionReturn {
  * Session hook — provides session state and lifecycle methods.
  */
 export function useSession(): UseSessionReturn {
-  const { session, sessionExpiry, refreshAuth, logout } = useAuth() as {
+  const { session, sessionExpiry, refreshAuth, logout } = useAuth() as unknown as {
     session: Session | null | undefined;
     sessionExpiry: number | undefined;
     refreshAuth: (() => Promise<boolean>) | undefined;

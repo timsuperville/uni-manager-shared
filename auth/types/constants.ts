@@ -184,6 +184,7 @@ export const AUTH_EVENTS = {
   MFA_VERIFICATION: "mfa_verification",
   OAUTH_LOGIN: "oauth_login",
   SESSION_STARTED: "session_started",
+  SESSION_UPDATED: "session_updated",
   SESSION_EXPIRED: "session_expired",
   SUSPICIOUS_ACTIVITY: "suspicious_activity",
   DEVICE_REGISTERED: "device_registered",

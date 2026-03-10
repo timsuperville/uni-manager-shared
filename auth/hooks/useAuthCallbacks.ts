@@ -2,11 +2,13 @@ import { useEffect, useRef } from "react";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-interface AuthState {
+export interface AuthStateShape {
   isAuthenticated: boolean;
   sessionExpiry: number | null;
   [key: string]: unknown;
 }
+/** @deprecated Use AuthStateShape */
+type AuthState = AuthStateShape;
 
 interface AuthActions {
   initializeAuth?: () => Promise<void>;

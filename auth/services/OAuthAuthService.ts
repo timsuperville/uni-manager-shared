@@ -102,7 +102,7 @@ export class OAuthAuthService {
       throw new Error(`OAuth provider ${providerId} not supported for ${appConfig.name}`);
     }
 
-    const { codeVerifier, codeChallenge } = generatePKCE();
+    const { codeVerifier, codeChallenge } = await generatePKCE();
     const state = generateState();
     const nonce = generateNonce();
 

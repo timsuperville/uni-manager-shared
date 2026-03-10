@@ -22,6 +22,8 @@ import { validateCredentials } from "../utils/authValidation.ts";
 import { getApiBaseUrl } from "../../api/config/apiConfig.js";
 import { RateLimitService } from "./RateLimitService.ts";
 import { TokenManagementService } from "./TokenManagementService.ts";
+import type { User } from "../types/auth.types.ts";
+
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -104,7 +106,7 @@ class AuthService {
   private readonly rateLimitService: RateLimitService;
   private readonly tokenService: TokenManagementService;
 
-  // Backward compat proxies onto rateLimitService
+  // Backward compat proxies onto rateLimitService (fields are public readonly on RateLimitService)
   readonly loginAttempts: Map<string, { count: number; lastAttempt: number }>;
   readonly maxLoginAttempts: number;
   readonly lockoutDuration: number;
@@ -272,7 +274,7 @@ class AuthService {
       this.sessionToken = token;
 
       if (responseData["user"]) {
-        this.tokenStorage.updateUser(responseData["user"]).catch(() => undefined);
+        this.tokenStorage.updateUser(responseData["user"] as Partial<User>);
       }
 
       return responseData["user"];
@@ -318,9 +320,9 @@ class AuthService {
         this.tokenStorage.setTokens({
           accessToken: responseData["accessToken"] as string,
           refreshToken: responseData["refreshToken"] as string | undefined,
-          user: responseData["user"],
+          user: responseData["user"] as User | undefined,
         });
-        this.currentUser = responseData["user"];
+        this.currentUser = responseData["user"] as User | undefined;
         this.sessionToken = responseData["accessToken"] as string;
         this.resetLoginAttempts(email);
 
@@ -548,7 +550,7 @@ class AuthService {
       throw new Error(`OAuth provider ${providerId} not supported for ${appConfig.name}`);
     }
 
-    const { codeVerifier, codeChallenge } = generatePKCE();
+    const { codeVerifier, codeChallenge } = await generatePKCE();
     const state = generateState();
     const nonce = generateNonce();
 
@@ -602,9 +604,9 @@ class AuthService {
     this.tokenStorage.setTokens({
       accessToken: tokenResponse.accessToken,
       refreshToken: tokenResponse.refreshToken,
-      user: tokenResponse.user,
+      user: tokenResponse.user as User | undefined,
     });
-    this.currentUser = tokenResponse.user;
+    this.currentUser = tokenResponse.user as User | undefined;
     this.sessionToken = tokenResponse.accessToken;
 
     if (typeof sessionStorage !== "undefined") {
@@ -715,10 +717,10 @@ class AuthService {
         this.tokenStorage.setTokens({
           accessToken: responseData.accessToken!,
           refreshToken: responseData.refreshToken,
-          user: responseData.user,
+          user: responseData.user as User | undefined,
         });
         this.sessionToken = responseData.accessToken!;
-        this.currentUser = responseData.user;
+        this.currentUser = responseData.user as User | undefined;
 
         return { success: true, accessToken: responseData.accessToken! };
       }
@@ -773,7 +775,7 @@ class AuthService {
 
     if (responseData["success"]) {
       const updatedUser = responseData["data"] ?? responseData["user"];
-      this.tokenStorage.updateUser(updatedUser);
+      this.tokenStorage.updateUser(updatedUser as Partial<Record<string, unknown>>);
       this.currentUser = updatedUser;
 
       return { success: true, user: updatedUser };
