@@ -87,7 +87,7 @@ describe("LoginForm", () => {
 
     it("renders church app configuration", () => {
       renderLoginForm({ appType: "church" });
-      expect(screen.getByText(/church management/i)).toBeInTheDocument();
+      expect(screen.getByText(/ecclesia/i)).toBeInTheDocument();
     });
 
     it("renders business app configuration", () => {

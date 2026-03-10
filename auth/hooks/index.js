@@ -46,36 +46,23 @@ export { useDeviceTrust } from "./useDeviceTrust.js";
 // Permissions (existing hook - updated)
 export { usePermissions } from "./usePermissions.js";
 
-// Church CAHA Role — CH-036
+
+// ---------------------------------------------------------------------------
+// Church CAHA extension hooks
+// ---------------------------------------------------------------------------
+
 // Resolves the calling user's role within their current church (visitor → admin tier)
 export { useChurchRole } from "./useChurchRole.js";
 
-// Church ID resolver — normalises string | populated-object into a plain ID string
+// Normalises string | populated-object churchId into a plain string
 export { useChurchId } from "./useChurchId.js";
 
 // Rate Limiting
 export { useRateLimit } from "./useRateLimit.js";
 
-// ==================== LEGACY HOOKS (FOR MIGRATION) ====================
+// ---------------------------------------------------------------------------
+// Legacy hooks (marked for migration)
+// ---------------------------------------------------------------------------
 
 // Deprecated: Use useAuth + useLogin instead
 export { useAuthForm } from "./useAuthForm.js";
-
-// ==================== HOOK UTILITIES ====================
-
-/**
- * List all available hooks
- */
-export function listAvailableHooks() {
-  return [
-    "useAuth", // Primary hook - all auth state and methods
-    "useLogin", // Login-specific functionality
-    "useLogout", // Logout-specific functionality
-    "useMFA", // Multi-factor authentication
-    "useSession", // Session management
-    "useOAuth", // OAuth provider integration
-    "useDeviceTrust", // Device trust and fingerprinting
-    "usePermissions", // Role-based permissions checking
-    "useRateLimit", // Rate limiting for auth operations
-  ];
-}

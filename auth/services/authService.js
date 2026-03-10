@@ -184,9 +184,9 @@ class AuthService {
           throw new Error(`Server returned ${response.status}`);
         }
       } catch (e) {
-        // Fallback to offline session restoration
-        // console.warn('Session verification failed, restoring from storage (Offline Mode)', e);
-        const storedUser = await this.tokenStorage.getUser();
+        // Offline or server error — restore session from storage
+        if (import.meta.env?.DEV) console.warn("[AuthService] Session verification failed, restoring from storage (offline mode):", e.message);
+        const storedUser = this.tokenStorage.getUser();
         if (storedUser) {
           this.currentUser = storedUser;
           this.sessionToken = token;
@@ -208,7 +208,7 @@ class AuthService {
       return responseData.user;
     } catch (_error) {
       // Network error (fetch failed) -> Restore from storage (Offline Mode)
-      const storedUser = await this.tokenStorage.getUser();
+      const storedUser = this.tokenStorage.getUser();
       if (storedUser) {
         this.currentUser = storedUser;
         this.sessionToken = token;
@@ -255,7 +255,7 @@ class AuthService {
 
       if (responseData.success && responseData.accessToken) {
         // Store authentication data
-        await this.tokenStorage.setTokens({
+        this.tokenStorage.setTokens({
           accessToken: responseData.accessToken,
           refreshToken: responseData.refreshToken,
           user: responseData.user,
@@ -290,9 +290,9 @@ class AuthService {
       // Record failed login attempt (should ideally be caught by error handler above)
       this.recordLoginAttempt(email);
       throw new Error(responseData.message || "Login failed");
-    } catch (_error) {
+    } catch (err) {
       this.recordLoginAttempt(email);
-      throw _error;
+      throw err;
     }
   }
 
@@ -322,10 +322,9 @@ class AuthService {
       this.stopActivityTracking();
 
       return { success: true };
-    } catch (_error) {
-      // console.error(`[Auth-${this.config.appType}] Logout error:`, error);
+    } catch (err) {
       // Still clear local storage even if backend call fails
-      await this.clearStoredAuth();
+      this.clearStoredAuth();
       this.currentUser = null;
       this.sessionToken = null;
       return { success: true };
@@ -657,7 +656,7 @@ class AuthService {
     );
 
     // Store authentication data
-    await this.tokenStorage.setTokens({
+    this.tokenStorage.setTokens({
       accessToken: tokenResponse.accessToken,
       refreshToken: tokenResponse.refreshToken,
       user: tokenResponse.user,
@@ -772,11 +771,10 @@ class AuthService {
   /**
    * Get stored authentication token
    */
-  async getStoredToken() {
+  getStoredToken() {
     try {
-      return await this.tokenStorage.getAccessToken();
-    } catch (_error) {
-      // console.error('Failed to get stored token:', error);
+      return this.tokenStorage.getAccessToken();
+    } catch {
       return null;
     }
   }
@@ -786,7 +784,7 @@ class AuthService {
    */
   async refreshToken() {
     try {
-      const refreshToken = await this.tokenStorage.getRefreshToken();
+      const refreshToken = this.tokenStorage.getRefreshToken();
       if (!refreshToken) {
         throw new Error("No refresh token available");
       }
@@ -803,7 +801,7 @@ class AuthService {
       const responseData = await response.json();
 
       if (response.ok && responseData.success) {
-        await this.tokenStorage.setTokens({
+        this.tokenStorage.setTokens({
           accessToken: responseData.accessToken,
           refreshToken: responseData.refreshToken,
           user: responseData.user,
@@ -820,8 +818,7 @@ class AuthService {
 
       throw new Error(responseData.message || "Token refresh failed");
     } catch (_error) {
-      // console.error('Token refresh failed:', _error);
-      await this.clearStoredAuth();
+      this.clearStoredAuth();
       throw _error;
     }
   }
@@ -831,7 +828,7 @@ class AuthService {
    */
   async isTokenValid() {
     try {
-      const token = await this.getStoredToken();
+      const token = this.getStoredToken();
       if (!token) return false;
 
       const response = await this._makeRequest("validateToken", {
@@ -843,8 +840,7 @@ class AuthService {
 
       const responseData = await response.json();
       return response.ok && responseData.valid;
-    } catch (_error) {
-      // console.error('Token validation failed:', error);
+    } catch {
       return false;
     }
   }
@@ -881,7 +877,7 @@ class AuthService {
       const updatedUser = responseData.data || responseData.user;
 
       // Update stored tokens/user
-      await this.tokenStorage.updateUser(updatedUser);
+      this.tokenStorage.updateUser(updatedUser);
       this.currentUser = updatedUser;
 
       return {
@@ -893,13 +889,13 @@ class AuthService {
   }
 
   /**
-   * Clear stored authentication data
+   * Clear stored authentication data.
    */
-  async clearStoredAuth() {
+  clearStoredAuth() {
     try {
-      await this.tokenStorage.clearTokens();
-    } catch (_error) {
-      // console.error('Failed to clear stored auth:', error);
+      this.tokenStorage.clearTokens();
+    } catch (error) {
+      if (import.meta.env?.DEV) console.warn("[AuthService] clearStoredAuth failed:", error.message);
     }
   }
 

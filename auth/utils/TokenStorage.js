@@ -14,6 +14,10 @@
  * AuthService creates the namespaced instance internally.
  * The default singleton (namespace "uni") exists only for backward
  * compatibility with legacy callers — new code must NOT use it.
+ *
+ * NOTE: All methods are synchronous. sessionStorage and localStorage are
+ * synchronous Web APIs. Do not mark callers async solely because of storage
+ * reads — only add async if the caller itself does real I/O (fetch, etc.).
  */
 
 /* global window */
@@ -40,22 +44,16 @@ export class TokenStorage {
   }
 
   /**
-   * Set authentication tokens
+   * Set authentication tokens.
    * @param {Object} params
    * @param {string} [params.accessToken]
    * @param {string} [params.refreshToken]
    * @param {Object} [params.user]
    * @param {string} [params.sessionId]
    * @param {boolean} [params.persistent=false] - Write to localStorage instead of sessionStorage
-   * @returns {Promise<boolean>}
+   * @returns {boolean}
    */
-  async setTokens({
-    accessToken,
-    refreshToken,
-    user,
-    sessionId,
-    persistent = false,
-  }) {
+  setTokens({ accessToken, refreshToken, user, sessionId, persistent = false }) {
     try {
       const storage = persistent ? this.persistentStorage : this.storage;
       if (!storage) return false;
@@ -73,10 +71,10 @@ export class TokenStorage {
   }
 
   /**
-   * Get access token — checks sessionStorage first, then localStorage
-   * @returns {Promise<string|null>}
+   * Get access token — checks sessionStorage first, then localStorage.
+   * @returns {string|null}
    */
-  async getAccessToken() {
+  getAccessToken() {
     try {
       return (
         this.storage?.getItem(this.storageKeys.accessToken) ||
@@ -90,10 +88,10 @@ export class TokenStorage {
   }
 
   /**
-   * Get refresh token — checks sessionStorage first, then localStorage
-   * @returns {Promise<string|null>}
+   * Get refresh token — checks sessionStorage first, then localStorage.
+   * @returns {string|null}
    */
-  async getRefreshToken() {
+  getRefreshToken() {
     try {
       return (
         this.storage?.getItem(this.storageKeys.refreshToken) ||
@@ -107,10 +105,10 @@ export class TokenStorage {
   }
 
   /**
-   * Get stored user data
-   * @returns {Promise<Object|null>}
+   * Get stored user data.
+   * @returns {Object|null}
    */
-  async getUser() {
+  getUser() {
     try {
       const userData =
         this.storage?.getItem(this.storageKeys.user) ||
@@ -124,10 +122,10 @@ export class TokenStorage {
   }
 
   /**
-   * Get session ID
-   * @returns {Promise<string|null>}
+   * Get session ID.
+   * @returns {string|null}
    */
-  async getSessionId() {
+  getSessionId() {
     try {
       return (
         this.storage?.getItem(this.storageKeys.sessionId) ||
@@ -141,10 +139,10 @@ export class TokenStorage {
   }
 
   /**
-   * Clear all authentication data from both sessionStorage and localStorage
-   * @returns {Promise<boolean>}
+   * Clear all authentication data from both sessionStorage and localStorage.
+   * @returns {boolean}
    */
-  async clearTokens() {
+  clearTokens() {
     try {
       Object.values(this.storageKeys).forEach((key) => {
         this.storage?.removeItem(key);
@@ -158,33 +156,27 @@ export class TokenStorage {
   }
 
   /**
-   * Returns true if both an access token and user record exist in storage
-   * @returns {Promise<boolean>}
+   * Returns true if both an access token and user record exist in storage.
+   * @returns {boolean}
    */
-  async hasTokens() {
+  hasTokens() {
     try {
-      const [accessToken, user] = await Promise.all([
-        this.getAccessToken(),
-        this.getUser(),
-      ]);
-      return !!(accessToken && user);
+      return !!(this.getAccessToken() && this.getUser());
     } catch {
       return false;
     }
   }
 
   /**
-   * Get all authentication data in one call
-   * @returns {Promise<{accessToken, refreshToken, user, sessionId, isAuthenticated}>}
+   * Get all authentication data in one call.
+   * @returns {{ accessToken: string|null, refreshToken: string|null, user: Object|null, sessionId: string|null, isAuthenticated: boolean }}
    */
-  async getAuthData() {
+  getAuthData() {
     try {
-      const [accessToken, refreshToken, user, sessionId] = await Promise.all([
-        this.getAccessToken(),
-        this.getRefreshToken(),
-        this.getUser(),
-        this.getSessionId(),
-      ]);
+      const accessToken = this.getAccessToken();
+      const refreshToken = this.getRefreshToken();
+      const user = this.getUser();
+      const sessionId = this.getSessionId();
 
       return {
         accessToken,
@@ -206,13 +198,13 @@ export class TokenStorage {
   }
 
   /**
-   * Merge new fields into the stored user object without affecting tokens
+   * Merge new fields into the stored user object without affecting tokens.
    * @param {Object} userData - Partial user fields to merge
-   * @returns {Promise<boolean>}
+   * @returns {boolean}
    */
-  async updateUser(userData) {
+  updateUser(userData) {
     try {
-      const currentUser = await this.getUser();
+      const currentUser = this.getUser();
       if (!currentUser) return false;
 
       const updatedUser = { ...currentUser, ...userData };

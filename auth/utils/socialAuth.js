@@ -370,11 +370,8 @@ export const trackUserActivity = async (event, data = {}) => {
     }
 
     sessionStorage.setItem("userActivities", JSON.stringify(activities));
-
-    // Could send to analytics endpoint here
-    // console.log('User activity tracked:', activityData);
-  } catch (_error) {
-    // console.warn('Failed to track user activity:', _error);
+  } catch {
+    // Intentionally silent — activity tracking is non-critical; loss is acceptable
   }
 };
 

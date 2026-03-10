@@ -1,154 +1,76 @@
 /**
- * Authentication Services Export Hub
+ * Authentication Services — Export Hub
  *
- * Central export point for all authentication services.
- * Each service handles a specific domain of authentication functionality.
- *
- * Services are imported on-demand to avoid circular dependencies.
+ * Services are grouped by import pattern:
+ *  - Direct (sync-safe) exports: classes used by callers directly
+ *  - Lazy-loaded: heavy services loaded on demand to reduce initial bundle
  *
  * @example
- * import { sessionService, authService, mfaService } from '@shared/auth/services';
+ * import { authService } from '@shared/auth';
+ * import { RateLimitService, TokenManagementService } from '@shared/auth/services';
  */
 
-// ==================== DIRECT EXPORTS (New Refactored Services) ====================
+// ---------------------------------------------------------------------------
+// Direct exports — lightweight classes, safe to import on every page
+// ---------------------------------------------------------------------------
 
-/**
- * Rate Limiting Service
- * Handles login attempt tracking and rate limiting
- */
+/** Handles login attempt tracking and exponential back-off */
 export { RateLimitService } from "./RateLimitService.js";
 
-/**
- * Token Management Service
- * Handles token storage, validation, and auto-refresh
- */
+/** Token lifecycle: storage delegation, JWT decode/expiry, auto-refresh */
 export { TokenManagementService } from "./TokenManagementService.js";
 
-/**
- * Email/Password Authentication Service
- * Handles traditional email/password authentication flows
- */
+/** Traditional email/password flows (login, signup, forgot/reset password) */
 export { EmailPasswordAuthService } from "./EmailPasswordAuthService.js";
 
-/**
- * OAuth Authentication Service
- * Handles OAuth 2.0 provider integration and authentication
- */
+/** OAuth 2.0 PKCE flows */
 export { OAuthAuthService } from "./OAuthAuthService.js";
 
-// ==================== LAZY-LOADED SERVICES ====================
+// ---------------------------------------------------------------------------
+// Lazy-loaded exports — load on demand to keep the auth bundle lean
+// ---------------------------------------------------------------------------
 
-/**
- * Get session service (consolidated from 4 files)
- * Handles session management, token storage, device fingerprinting, cross-tab sync
- */
+/** @returns {Promise<import('./SessionService.js').default>} */
 export function getSessionService() {
   return import("./SessionService.js").then((m) => m.default);
 }
 
-/**
- * Get authentication service
- * Handles login, signup, password reset, verification
- */
+/** @returns {Promise<import('./authService.js').AuthService>} */
 export function getAuthService() {
   return import("./authService.js").then((m) => m.default);
 }
 
-/**
- * Get MFA service
- * Handles multi-factor authentication setup and verification
- */
+/** @returns {Promise<import('./mfaService.js').default>} */
 export function getMFAService() {
   return import("./mfaService.js").then((m) => m.default);
 }
 
 /**
- * Get RBAC service
- * Handles role-based access control and permissions
+ * RBAC service — returns the full implementation when available.
+ * Currently backed by a dev-only mock; a production RBAC engine is
+ * tracked in BL-xxx.
+ * @returns {Promise<import('./rbacService.js').default>}
  */
 export function getRBACService() {
   return import("./rbacService.js").then((m) => m.default);
 }
 
-/**
- * Get security service
- * Handles security monitoring and fraud detection
- */
+/** @returns {Promise<import('./securityService.js').default>} */
 export function getSecurityService() {
   return import("./securityService.js").then((m) => m.default);
 }
 
-/**
- * Get device service
- * Handles device fingerprinting and trust management
- */
+/** @returns {Promise<import('./DeviceService.js').default>} */
 export function getDeviceService() {
   return import("./DeviceService.js").then((m) => m.default);
 }
 
-/**
- * Get cache service
- * Handles shared data caching
- */
+/** @returns {Promise<import('./sharedDataCache.js').default>} */
 export function getCacheService() {
   return import("./sharedDataCache.js").then((m) => m.default);
 }
 
-/**
- * Get cross-app service
- * Handles cross-application integration
- */
+/** @returns {Promise<import('./CrossAppService.js').default>} */
 export function getCrossAppService() {
   return import("./CrossAppService.js").then((m) => m.default);
-}
-
-/**
- * Get token service (backward compatibility)
- * Returns TokenManagementService instance
- */
-export function getTokenService() {
-  // Return the TokenManagementService class for backward compatibility
-  return Promise.resolve(TokenManagementService);
-}
-
-/**
- * Get OAuth service (backward compatibility)
- * Returns OAuthAuthService instance
- */
-export function getOAuthService() {
-  // Return the OAuthAuthService class for backward compatibility
-  return Promise.resolve(OAuthAuthService);
-}
-
-// ==================== SYNCHRONOUS EXPORTS (for already-loaded services) ====================
-
-/**
- * Lazy-loaded services registry
- * Build this up as services are imported
- * @type {Map<string, any>}
- */
-const loadedServices = new Map();
-
-/**
- * Get all loaded services
- */
-export function getLoadedServices() {
-  return Object.fromEntries(loadedServices);
-}
-
-/**
- * Cache loaded service
- * @private
- */
-export function cacheService(name, instance) {
-  loadedServices.set(name, instance);
-}
-
-/**
- * Check if a service is available in the loaded services registry
- * @param {string} serviceName - The name of the service to check
- * @returns {boolean}
- */
-export function isServiceAvailable(serviceName) {
-  return loadedServices.has(serviceName);
 }

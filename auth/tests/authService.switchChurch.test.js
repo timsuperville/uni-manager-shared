@@ -1,16 +1,17 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { AuthService } from "../services/authService";
-// Mock TokenStorage — intercept the class so every 'new TokenStorage(...)' in
-// authService gets a mock instance with controlled methods.
-const mockTokenStorageInstance = {
+
+// vi.mock() is hoisted to the top of the file at compile-time, so any
+// variables used inside the factory MUST also be hoisted via vi.hoisted().
+const mockTokenStorageInstance = vi.hoisted(() => ({
   updateUser: vi.fn(),
   getAccessToken: vi.fn(),
   setTokens: vi.fn(),
   clearTokens: vi.fn(),
   getUser: vi.fn(),
   hasTokens: vi.fn(),
-  getAuthData: vi.fn().mockResolvedValue({}),
-};
+  getAuthData: vi.fn().mockReturnValue({}), // sync — TokenStorage is no longer async
+}));
 
 vi.mock("../utils/TokenStorage", () => {
   class MockTokenStorage {
@@ -27,6 +28,7 @@ vi.mock("../utils/TokenStorage", () => {
 
 // Mock fetch
 global.fetch = vi.fn();
+
 
 describe("AuthService - switchChurch", () => {
   let authService;

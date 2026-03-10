@@ -1,9 +1,13 @@
 /**
  * Token Management Service
  *
- * Handles token storage, retrieval, validation, and refresh operations.
- * Requires a TokenStorage instance to be injected via config so it always
- * reads from the correct app-namespaced keys.
+ * Orchestrates token lifecycle: storage, validation, and auto-refresh.
+ * Requires a TokenStorage instance injected via config so it always reads
+ * from the correct app-namespaced keys.
+ *
+ * NOTE: Storage reads/writes are synchronous (TokenStorage uses Web Storage).
+ * Methods here are sync unless they do real async I/O (e.g. the auto-refresh
+ * callback, which invokes a network request).
  */
 
 import { TokenStorage } from "../utils/TokenStorage.js";
@@ -14,6 +18,8 @@ export class TokenManagementService {
    * @param {TokenStorage} [config.tokenStorage] - Namespaced storage instance.
    *   Pass new TokenStorage("church") etc. Defaults to new TokenStorage() ("uni"
    *   namespace) — only acceptable for legacy/test contexts.
+   * @param {Function} [config.onTokenRefreshed]
+   * @param {Function} [config.onTokenExpired]
    */
   constructor(config = {}) {
     this.config = config;
@@ -23,82 +29,71 @@ export class TokenManagementService {
     this.onTokenExpired = config.onTokenExpired || null;
   }
 
+  // ---------------------------------------------------------------------------
+  // Storage delegation — all sync (TokenStorage uses sessionStorage/localStorage)
+  // ---------------------------------------------------------------------------
+
   /**
-   * Store authentication tokens
-   * @param {Object} tokens - Token object containing accessToken, refreshToken, and user
+   * Store authentication tokens.
+   * @param {Object} tokens - { accessToken, refreshToken, user }
    */
-  async setTokens(tokens) {
+  setTokens(tokens) {
     if (!tokens || !tokens.accessToken) {
       throw new Error("Access token is required");
     }
-
-    await this.storage.setTokens({
+    this.storage.setTokens({
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
       user: tokens.user,
     });
   }
 
-  /**
-   * Get stored access token
-   * @returns {Promise<string|null>} Access token or null if not found
-   */
-  async getAccessToken() {
+  /** @returns {string|null} */
+  getAccessToken() {
     return this.storage.getAccessToken();
   }
 
-  /**
-   * Get stored refresh token
-   * @returns {Promise<string|null>} Refresh token or null if not found
-   */
-  async getRefreshToken() {
+  /** @returns {string|null} */
+  getRefreshToken() {
     return this.storage.getRefreshToken();
   }
 
-  /**
-   * Get stored user data
-   * @returns {Promise<Object|null>} User object or null if not found
-   */
-  async getUser() {
+  /** @returns {Object|null} */
+  getUser() {
     return this.storage.getUser();
   }
 
   /**
-   * Update stored user data
-   * @param {Object} user - Updated user object
+   * @param {Object} user - Updated user fields (merged into existing record)
+   * @returns {boolean}
    */
-  async updateUser(user) {
-    if (!user) {
-      throw new Error("User data is required");
-    }
+  updateUser(user) {
+    if (!user) throw new Error("User data is required");
     return this.storage.updateUser(user);
   }
 
-  /**
-   * Clear all stored tokens and user data
-   */
-  async clearTokens() {
-    await this.storage.clearTokens();
+  /** Clear all stored tokens and stop auto-refresh. */
+  clearTokens() {
+    this.storage.clearTokens();
     this.stopAutoRefresh();
   }
 
-  /**
-   * Check if token exists
-   * @returns {Promise<boolean>} True if token exists
-   */
-  async hasToken() {
-    const token = await this.getAccessToken();
-    return !!token;
+  /** @returns {boolean} */
+  hasToken() {
+    return !!this.getAccessToken();
   }
 
+  // ---------------------------------------------------------------------------
+  // JWT utilities — pure sync, no I/O
+  // ---------------------------------------------------------------------------
+
   /**
-   * Decode JWT token (client-side, for metadata only - NOT for validation)
-   * @param {string} token - JWT token
-   * @returns {Object|null} Decoded token payload or null if invalid
+   * Decode JWT token payload (client-side metadata only — NOT for validation).
+   * @param {string} token
+   * @returns {Object|null}
    */
   decodeToken(token) {
     if (!token) return null;
-
     try {
       const base64Url = token.split(".")[1];
       const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
@@ -109,15 +104,14 @@ export class TokenManagementService {
           .join(""),
       );
       return JSON.parse(jsonPayload);
-    } catch (error) {
+    } catch {
       return null;
     }
   }
 
   /**
-   * Get token expiration time
-   * @param {string} token - JWT token
-   * @returns {Date|null} Expiration date or null if invalid
+   * @param {string} token
+   * @returns {Date|null}
    */
   getTokenExpiration(token) {
     const decoded = this.decodeToken(token);
@@ -126,9 +120,9 @@ export class TokenManagementService {
   }
 
   /**
-   * Check if token is expired (client-side check only)
-   * @param {string} token - JWT token
-   * @returns {boolean} True if token is expired
+   * Client-side expiry check only — backend is the authority.
+   * @param {string} token
+   * @returns {boolean}
    */
   isTokenExpired(token) {
     const expiration = this.getTokenExpiration(token);
@@ -137,57 +131,47 @@ export class TokenManagementService {
   }
 
   /**
-   * Get time until token expires
-   * @param {string} token - JWT token
-   * @returns {number} Milliseconds until expiration, or 0 if expired/invalid
+   * @param {string} token
+   * @returns {number} Milliseconds until expiration (0 if expired/invalid)
    */
   getTimeUntilExpiration(token) {
     const expiration = this.getTokenExpiration(token);
     if (!expiration) return 0;
-    const timeRemaining = expiration.getTime() - Date.now();
-    return Math.max(0, timeRemaining);
+    return Math.max(0, expiration.getTime() - Date.now());
   }
 
+  // ---------------------------------------------------------------------------
+  // Auto-refresh — async because the refresh callback hits the network
+  // ---------------------------------------------------------------------------
+
   /**
-   * Start automatic token refresh
-   * @param {Function} refreshCallback - Function to call to refresh the token
-   * @param {number} interval - Refresh interval in milliseconds (default: 10 minutes)
+   * Start automatic token refresh.
+   * @param {Function} refreshCallback - Async function that refreshes the token via network
+   * @param {number} interval - Refresh interval in ms (default: 10 minutes)
    */
   startAutoRefresh(refreshCallback, interval = 10 * 60 * 1000) {
-    if (this.refreshInterval) {
-      this.stopAutoRefresh();
-    }
+    if (this.refreshInterval) this.stopAutoRefresh();
 
     this.refreshInterval = setInterval(async () => {
       try {
-        const token = await this.getAccessToken();
+        const token = this.getAccessToken();
         if (!token) {
           this.stopAutoRefresh();
           return;
         }
 
         // Refresh if token expires in less than 5 minutes
-        const timeUntilExpiration = this.getTimeUntilExpiration(token);
-        if (timeUntilExpiration < 5 * 60 * 1000) {
-          await refreshCallback();
-          if (this.onTokenRefreshed) {
-            this.onTokenRefreshed();
-          }
+        if (this.getTimeUntilExpiration(token) < 5 * 60 * 1000) {
+          await refreshCallback(); // network I/O — correctly async
+          this.onTokenRefreshed?.();
         }
       } catch (error) {
-        if (import.meta.env.DEV) {
-          console.error("Auto-refresh failed:", error);
-        }
-        if (this.onTokenExpired) {
-          this.onTokenExpired(error);
-        }
+        if (import.meta.env?.DEV) console.warn("[TokenManagementService] Auto-refresh failed:", error.message);
+        this.onTokenExpired?.(error);
       }
     }, interval);
   }
 
-  /**
-   * Stop automatic token refresh
-   */
   stopAutoRefresh() {
     if (this.refreshInterval) {
       clearInterval(this.refreshInterval);
@@ -195,9 +179,6 @@ export class TokenManagementService {
     }
   }
 
-  /**
-   * Cleanup - call when service is no longer needed
-   */
   cleanup() {
     this.stopAutoRefresh();
   }
