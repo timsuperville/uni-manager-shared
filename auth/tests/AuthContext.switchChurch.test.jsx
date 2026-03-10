@@ -24,7 +24,7 @@ vi.mock("../services/authService", () => ({
 }));
 
 // Mock tokenStorage
-vi.mock("../utils/tokenStorage", () => ({
+vi.mock("../utils/TokenStorage", () => ({
   tokenStorage: {
     updateUser: vi.fn(),
     getAccessToken: vi.fn(),

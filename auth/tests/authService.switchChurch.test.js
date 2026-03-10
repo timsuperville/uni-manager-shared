@@ -1,34 +1,32 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { AuthService } from "../services/authService";
-import { tokenStorage } from "../utils/tokenStorage";
+// Mock TokenStorage — intercept the class so every 'new TokenStorage(...)' in
+// authService gets a mock instance with controlled methods.
+const mockTokenStorageInstance = {
+  updateUser: vi.fn(),
+  getAccessToken: vi.fn(),
+  setTokens: vi.fn(),
+  clearTokens: vi.fn(),
+  getUser: vi.fn(),
+  hasTokens: vi.fn(),
+  getAuthData: vi.fn().mockResolvedValue({}),
+};
 
-// Mock fetch
-global.fetch = vi.fn();
-
-// Mock tokenStorage
-vi.mock("../utils/tokenStorage", () => {
-  const mockTokenStorageInstance = {
-    updateUser: vi.fn(),
-    getAccessToken: vi.fn(),
-    setTokens: vi.fn(),
-    clearTokens: vi.fn(),
-    getUser: vi.fn(),
-    hasTokens: vi.fn(),
-    getAuthData: vi.fn().mockResolvedValue({}),
-  };
-
+vi.mock("../utils/TokenStorage", () => {
   class MockTokenStorage {
     constructor() {
       Object.assign(this, mockTokenStorageInstance);
     }
   }
-
   return {
     TokenStorage: MockTokenStorage,
     tokenStorage: mockTokenStorageInstance,
     default: mockTokenStorageInstance,
   };
 });
+
+// Mock fetch
+global.fetch = vi.fn();
 
 describe("AuthService - switchChurch", () => {
   let authService;
@@ -86,7 +84,7 @@ describe("AuthService - switchChurch", () => {
       }),
     );
 
-    expect(tokenStorage.updateUser).toHaveBeenCalledWith(updatedUser);
+    expect(authService.tokenStorage.updateUser).toHaveBeenCalledWith(updatedUser);
     expect(authService.currentUser).toEqual(updatedUser);
     expect(result).toEqual({
       success: true,
@@ -130,7 +128,7 @@ describe("AuthService - switchChurch", () => {
       "Not a member of this church",
     );
 
-    expect(tokenStorage.updateUser).not.toHaveBeenCalled();
+    expect(authService.tokenStorage.updateUser).not.toHaveBeenCalled();
   });
 
   it("should handle non-JSON error responses", async () => {
@@ -145,7 +143,7 @@ describe("AuthService - switchChurch", () => {
       "Server Error (500): Please try again later",
     );
 
-    expect(tokenStorage.updateUser).not.toHaveBeenCalled();
+    expect(authService.tokenStorage.updateUser).not.toHaveBeenCalled();
   });
 
   it("should handle network errors", async () => {
@@ -155,7 +153,7 @@ describe("AuthService - switchChurch", () => {
       "Network error",
     );
 
-    expect(tokenStorage.updateUser).not.toHaveBeenCalled();
+    expect(authService.tokenStorage.updateUser).not.toHaveBeenCalled();
   });
 
   it("should handle response with data field instead of user field", async () => {
@@ -175,7 +173,7 @@ describe("AuthService - switchChurch", () => {
 
     const result = await authService.switchChurch(mockChurchId);
 
-    expect(tokenStorage.updateUser).toHaveBeenCalledWith(updatedUser);
+    expect(authService.tokenStorage.updateUser).toHaveBeenCalledWith(updatedUser);
     expect(result.user).toEqual(updatedUser);
   });
 

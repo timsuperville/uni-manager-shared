@@ -2,13 +2,22 @@
  * Token Management Service
  *
  * Handles token storage, retrieval, validation, and refresh operations.
+ * Requires a TokenStorage instance to be injected via config so it always
+ * reads from the correct app-namespaced keys.
  */
 
-import { tokenStorage } from "../utils/tokenStorage.js";
+import { TokenStorage } from "../utils/TokenStorage.js";
 
 export class TokenManagementService {
+  /**
+   * @param {Object} config
+   * @param {TokenStorage} [config.tokenStorage] - Namespaced storage instance.
+   *   Pass new TokenStorage("church") etc. Defaults to new TokenStorage() ("uni"
+   *   namespace) — only acceptable for legacy/test contexts.
+   */
   constructor(config = {}) {
     this.config = config;
+    this.storage = config.tokenStorage ?? new TokenStorage();
     this.refreshInterval = null;
     this.onTokenRefreshed = config.onTokenRefreshed || null;
     this.onTokenExpired = config.onTokenExpired || null;
@@ -23,7 +32,7 @@ export class TokenManagementService {
       throw new Error("Access token is required");
     }
 
-    await tokenStorage.setTokens({
+    await this.storage.setTokens({
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
       user: tokens.user,
@@ -35,7 +44,7 @@ export class TokenManagementService {
    * @returns {Promise<string|null>} Access token or null if not found
    */
   async getAccessToken() {
-    return tokenStorage.getToken();
+    return this.storage.getAccessToken();
   }
 
   /**
@@ -43,7 +52,7 @@ export class TokenManagementService {
    * @returns {Promise<string|null>} Refresh token or null if not found
    */
   async getRefreshToken() {
-    return tokenStorage.getRefreshToken();
+    return this.storage.getRefreshToken();
   }
 
   /**
@@ -51,7 +60,7 @@ export class TokenManagementService {
    * @returns {Promise<Object|null>} User object or null if not found
    */
   async getUser() {
-    return tokenStorage.getUser();
+    return this.storage.getUser();
   }
 
   /**
@@ -62,14 +71,14 @@ export class TokenManagementService {
     if (!user) {
       throw new Error("User data is required");
     }
-    return tokenStorage.updateUser(user);
+    return this.storage.updateUser(user);
   }
 
   /**
    * Clear all stored tokens and user data
    */
   async clearTokens() {
-    await tokenStorage.clear();
+    await this.storage.clearTokens();
     this.stopAutoRefresh();
   }
 

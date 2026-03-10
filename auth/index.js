@@ -327,7 +327,7 @@ export {
  * tokenStorage — default export, namespace "uni". For backward compatibility only.
  *   New code should use AuthService or a namespaced TokenStorage instance.
  */
-export { TokenStorage, tokenStorage } from "./utils/tokenStorage.js";
+export { TokenStorage, tokenStorage } from "./utils/TokenStorage.js";
 
 // ============================================================================
 // RBAC - Role-Based Access Control

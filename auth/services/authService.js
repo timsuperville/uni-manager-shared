@@ -20,7 +20,7 @@ import {
   generateState,
 } from "../config/oauthProviders.js";
 import { getCurrentAppConfig } from "../config/appConfigs.js";
-import { TokenStorage } from "../utils/tokenStorage.js";
+import { TokenStorage } from "../utils/TokenStorage.js";
 
 import { validateCredentials } from "../utils/authValidation.js";
 import { getApiBaseUrl } from "../../api/config/apiConfig.js";
@@ -73,20 +73,22 @@ class AuthService {
     this.deviceFingerprint = null;
     this.activityTracker = null;
 
-    // Initialize service dependencies
+    // Per-app scoped token storage — prevents session bleed across apps on the same origin
+    // e.g. admin uses 'admin_auth_*', home uses 'home_auth_*', church uses 'church_auth_*'
+    const storageNamespace = config.storageNamespace || config.appType || "uni";
+    this.tokenStorage = new TokenStorage(storageNamespace);
+
+    // Initialize service dependencies — pass the namespaced storage so tokenService
+    // reads from the same app-scoped keys as authService itself.
     this.rateLimitService = new RateLimitService({
       maxLoginAttempts: this.config.maxLoginAttempts || 5,
       lockoutDuration: this.config.lockoutDuration || 15 * 60 * 1000,
     });
     this.tokenService = new TokenManagementService({
+      tokenStorage: this.tokenStorage,
       onTokenRefreshed: this.config.onTokenRefreshed,
       onTokenExpired: this.config.onTokenExpired,
     });
-
-    // Per-app scoped token storage — prevents session bleed across apps on the same origin
-    // e.g. admin uses 'admin_auth_*', home uses 'home_auth_*', church uses 'church_auth_*'
-    const storageNamespace = config.storageNamespace || config.appType || "uni";
-    this.tokenStorage = new TokenStorage(storageNamespace);
 
     // Backward compatibility — keep old properties
     this.loginAttempts = this.rateLimitService.loginAttempts;
