@@ -69,6 +69,7 @@ export {
   useApiMutation,
   useFileUpload,
 } from "./hooks";
+export type { ApiQueryOptions } from "./hooks";
 
 export { ApiProvider } from "./components/ApiProvider";
 

@@ -21,6 +21,18 @@ interface ApiContextValue {
   error: string | null;
 }
 
+/**
+ * Options accepted by `useApiQuery` and passthrough hooks built on top of it.
+ * Mirrors the shape of the options parameter in `useApiQuery`.
+ */
+export interface ApiQueryOptions {
+  enabled?: boolean;
+  refetchOnMount?: boolean;
+  /** @deprecated Use staleTime instead */
+  cacheTime?: number;
+  staleTime?: number;
+}
+
 // ==================== FUNCTIONS ====================
 
 /**
