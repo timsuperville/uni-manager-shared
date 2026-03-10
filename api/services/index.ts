@@ -2,6 +2,17 @@ import { ApiClient, ApiClientConfig } from "../core/ApiClient";
 import { AuthService } from "./AuthService";
 import { FileService } from "./FileService";
 import { NotificationService } from "./NotificationService";
+
+/** DEV-only: expose API utilities on window for console debugging. */
+declare global {
+  interface Window {
+    apiServices?: ApiServices;
+    clearApiCache?: () => void;
+    apiCacheStats?: () => Record<string, unknown>;
+    apiHealthCheck?: () => Promise<Record<string, unknown>>;
+  }
+}
+
 // Import types for easier access
 export * from "../types";
 export { ApiClient } from "../core/ApiClient";
@@ -169,11 +180,11 @@ export class ApiServices {
    */
   private setupDebugLogging(): void {
     if (typeof window !== "undefined") {
-      // Add global debug helpers
-      (window as any).apiServices = this;
-      (window as any).clearApiCache = () => this.clearAllCaches();
-      (window as any).apiCacheStats = () => this.getCacheStats();
-      (window as any).apiHealthCheck = () => this.healthCheck();
+      // Add global debug helpers (DEV only — removed in destroy())
+      window.apiServices = this;
+      window.clearApiCache = () => this.clearAllCaches();
+      window.apiCacheStats = () => this.getCacheStats() as Record<string, unknown>;
+      window.apiHealthCheck = () => this.healthCheck() as Promise<Record<string, unknown>>;
     }
   }
 
@@ -186,10 +197,10 @@ export class ApiServices {
 
     // Remove debug helpers
     if (typeof window !== "undefined") {
-      delete (window as any).apiServices;
-      delete (window as any).clearApiCache;
-      delete (window as any).apiCacheStats;
-      delete (window as any).apiHealthCheck;
+      delete window.apiServices;
+      delete window.clearApiCache;
+      delete window.apiCacheStats;
+      delete window.apiHealthCheck;
     }
   }
 }

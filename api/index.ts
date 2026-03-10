@@ -76,22 +76,6 @@ export { ApiProvider } from "./components/ApiProvider";
 // ==================== CONVENIENCE EXPORTS ====================
 
 /**
- * Quick setup for development environment
- */
-export const setupDevApi = (baseURL?: string) => {
-  const { createDevApiServices } = require("./services");
-  return createDevApiServices(baseURL || "http://localhost:5000/api");
-};
-
-/**
- * Quick setup for production environment
- */
-export const setupProdApi = (baseURL: string) => {
-  const { createProdApiServices } = require("./services");
-  return createProdApiServices(baseURL);
-};
-
-/**
  * Version information
  */
 export const VERSION = "1.0.0";
@@ -100,6 +84,4 @@ export const API_VERSION = "v1";
 export default {
   VERSION,
   API_VERSION,
-  setupDevApi,
-  setupProdApi,
 };

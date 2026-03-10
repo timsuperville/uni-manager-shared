@@ -10,6 +10,7 @@ import axios, {
   AxiosRequestConfig,
   AxiosResponse,
   AxiosError,
+  RawAxiosRequestHeaders,
 } from "axios";
 import { ErrorHandler } from "./ErrorHandler";
 import { CacheManager } from "./CacheManager";
@@ -143,7 +144,7 @@ export class ApiClient {
       url: endpoint,
       data,
       timeout: options.timeout || this.config.timeout,
-      headers: options.headers as any,
+      headers: options.headers as RawAxiosRequestHeaders,
       params: options.params,
       onUploadProgress: options.onUploadProgress,
       onDownloadProgress: options.onDownloadProgress,

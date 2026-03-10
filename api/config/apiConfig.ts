@@ -37,9 +37,9 @@ export const getApiBaseUrl = (): string => {
   // Explicit origin override (e.g. cross-origin staging / production API)
   if (
     typeof import.meta !== "undefined" &&
-    (import.meta as any).env?.VITE_API_URL
+    import.meta.env?.VITE_API_URL
   ) {
-    return (import.meta as any).env.VITE_API_URL;
+    return import.meta.env.VITE_API_URL;
   }
   if (typeof process !== "undefined" && process.env?.VITE_API_URL) {
     return process.env.VITE_API_URL;

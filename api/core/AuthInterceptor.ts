@@ -5,12 +5,19 @@
  * and authentication-related request/response processing.
  */
 
-import {
+import axios, {
   InternalAxiosRequestConfig,
   AxiosResponse,
   AxiosError,
   AxiosRequestConfig,
 } from "axios";
+
+/** Augment the global Window to allow opt-in auth failure callbacks. */
+declare global {
+  interface Window {
+    onAuthFailure?: () => void;
+  }
+}
 
 export interface AuthTokens {
   accessToken: string;
@@ -113,8 +120,7 @@ export class AuthInterceptor {
             originalRequest.headers[this.config.headerName] =
               `${this.config.tokenPrefix} ${newToken}`;
 
-            // Retry the original request with new token
-            const axios = require("axios");
+            // Retry the original request with the refreshed token.
             return axios.request(originalRequest);
           }
         } catch (refreshError) {
@@ -217,9 +223,6 @@ export class AuthInterceptor {
 
   private async performTokenRefresh(): Promise<string> {
     try {
-      // Import axios dynamically to avoid circular dependency
-      const axios = require("axios");
-
       const response = await axios.post("/api/auth/refresh", {
         refreshToken: this.tokens?.refreshToken,
       });
@@ -406,8 +409,8 @@ export class AuthInterceptor {
     }
 
     // Call global auth failure handler if available
-    if (typeof window !== "undefined" && (window as any).onAuthFailure) {
-      (window as any).onAuthFailure();
+    if (typeof window !== "undefined" && window.onAuthFailure) {
+      window.onAuthFailure();
     }
   }
 }

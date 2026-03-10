@@ -81,16 +81,16 @@ export abstract class BaseService {
   /**
    * Validate request data against schema
    */
-  protected validateRequest<T>(data: T, schema: ValidationSchema): T {
+  protected validateRequest<T extends Record<string, unknown>>(data: T, schema: ValidationSchema): T {
     if (!data || typeof data !== "object") {
       throw this.createValidationError("Request data must be an object");
     }
 
     const errors: string[] = [];
-    const validatedData = { ...data } as any;
+    const validatedData = { ...data };
 
     for (const [field, rules] of Object.entries(schema)) {
-      const value = (data as any)[field];
+      const value = data[field];
 
       // Check required fields
       if (
@@ -213,7 +213,7 @@ export abstract class BaseService {
   protected createValidationError(message: string): ApiError {
     const error = new Error(message) as ApiError;
     error.name = "ValidationError";
-    error.type = "VALIDATION_ERROR" as any;
+    error.type = "CLIENT_ERROR"; // Validation errors are client-side (4xx range)
     error.retryable = false;
     error.timestamp = new Date().toISOString();
 
