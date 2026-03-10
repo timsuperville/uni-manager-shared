@@ -961,10 +961,7 @@ function FeedbackModal({
 // resolves to the true viewport and inset:0 covers the full screen.
 function FeedbackModalPortal(props) {
   if (typeof document === "undefined") return null;
-  return ReactDOM.createPortal(
-    <FeedbackModalPortal {...props} />,
-    document.body,
-  );
+  return ReactDOM.createPortal(<FeedbackModal {...props} />, document.body);
 }
 
 // ─── Public Component ──────────────────────────────────────────────────────────
@@ -1073,7 +1070,7 @@ export const FeedbackQuickAction = ({
           <span style={{ color: "var(--text-muted, #64748b)", flexShrink: 0 }}>
             {iconSvg}
           </span>
-          <span>Share Feedback</span>
+          <span>Send Feedback</span>
         </button>
         {isOpen && (
           <FeedbackModalPortal
