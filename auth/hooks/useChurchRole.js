@@ -67,7 +67,11 @@ export function useChurchRole() {
             userRoles.includes("admin") || userRoles.includes("org_admin");
 
         if (isPlatformAdmin) {
-            return buildResult("admin", null, user.currentChurch, user, true);
+            // Extract string ID — currentChurch may be a populated object or a raw string/ObjectId.
+            const adminChurchId =
+                user.currentChurch?._id?.toString() ||
+                (typeof user.currentChurch === "string" ? user.currentChurch : null);
+            return buildResult("admin", null, adminChurchId, user, true);
         }
 
         // Resolve current church ID
