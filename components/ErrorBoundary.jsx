@@ -41,10 +41,13 @@ import PropTypes from "prop-types";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 
 // ── Ingest endpoints ──────────────────────────────────────────────────────────
-// Raw, absolute-safe fetch — same reasoning as ErrorMonitoring.jsx.
-const API_BASE = (typeof import.meta !== "undefined" && import.meta?.env?.VITE_API_URL) || "";
-const INGEST_ERRORS = `${API_BASE}/api/v1/errors/log`;
-const INGEST_FEEDBACK = `${API_BASE}/api/v1/feedback/submit`;
+// Intentionally RELATIVE paths — never construct an absolute URL here.
+// In dev:  Vite proxy routes /api/v1 → http://localhost:5000/api/v1
+// In prod: nginx routes /api/v1     → backend
+// VITE_API_URL is for cross-origin staging only and belongs in ApiClient config,
+// not in fire-and-forget monitoring fetches. See frontend/vite-proxy.js.
+const INGEST_ERRORS = "/api/v1/errors/log";
+const INGEST_FEEDBACK = "/api/v1/feedback/submit";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function getAuthToken(appType) {
