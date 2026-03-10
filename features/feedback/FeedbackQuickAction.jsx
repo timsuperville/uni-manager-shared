@@ -16,6 +16,16 @@ import { useOptionalUser } from "./hooks/useOptionalUser.js";
 import { collectSystemContext } from "./utils/collectSystemContext.js";
 import { useFrustrationDetector } from "../../hooks/useFrustrationDetector.js";
 
+// ─── Schema field limits (must match FeedbackReport Mongoose schema) ─────────
+// Enforced here at the network boundary so no caller can overflow regardless
+// of what string they pass in.
+const TITLE_MAX = 200;
+const DESC_MAX = 1000;
+const trunc = (str, max) => {
+    if (!str || str.length <= max) return str ?? "";
+    return str.slice(0, max - 1) + "\u2026";
+};
+
 // ─── Silent auto-submit (used by ErrorBoundary, no UI) ────────────────────────
 // Fire-and-forget — never throws, never alerts the user.
 export async function submitFeedbackSilently({
@@ -52,7 +62,11 @@ export async function submitFeedbackSilently({
                 type: "error-report",
                 category: "bug",
                 severity,
-                userInput: { title, description, allowContact: false },
+                userInput: {
+                    title: trunc(title, TITLE_MAX),
+                    description: trunc(description, DESC_MAX),
+                    allowContact: false,
+                },
                 systemContext: systemCtx,
             }),
         });
