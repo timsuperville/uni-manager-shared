@@ -18,7 +18,7 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { submitFeedbackSilently } from "../components/FeedbackQuickAction";
+import { submitFeedbackSilently } from "../features/feedback";
 
 const STORAGE_KEY_SUFFIX = "_nps_last_shown";
 

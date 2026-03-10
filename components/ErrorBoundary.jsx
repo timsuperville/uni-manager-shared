@@ -1,5 +1,5 @@
 import React from "react";
-import { submitFeedbackSilently } from "./FeedbackQuickAction";
+import { submitFeedbackSilently } from "../features/feedback";
 
 class ErrorBoundary extends React.Component {
   constructor(props) {

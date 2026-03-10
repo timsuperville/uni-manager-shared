@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { submitFeedbackSilently } from "./FeedbackQuickAction";
+import { submitFeedbackSilently } from "../features/feedback";
 
 // ─── Silent Error Logger ────────────────────────────────────────────────────
 // Posts directly to the ErrorLog /errors/log endpoint so crashes surface

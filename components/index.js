@@ -20,7 +20,8 @@ export { default as ConfirmDialog } from "./ConfirmDialog";
 export {
   FeedbackQuickAction,
   submitFeedbackSilently,
-} from "./FeedbackQuickAction";
+  FEEDBACK_SOURCES,
+} from "../features/feedback";
 export { NpsSurvey } from "./NpsSurvey";
 
 // ── Feature components ────────────────────────────────────────────────────────
