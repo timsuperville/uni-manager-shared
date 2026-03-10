@@ -489,14 +489,15 @@ function FeedbackModal({
   const inputStyle = {
     width: "100%",
     boxSizing: "border-box",
-    padding: "8px 10px",
-    borderRadius: "8px",
-    border: "1px solid rgba(128,128,128,0.25)",
-    background: "rgba(128,128,128,0.08)",
-    color: "inherit",
+    padding: "9px 12px",
+    borderRadius: "10px",
+    border: "1px solid var(--glass-outline)",
+    background: "rgba(255,255,255,0.04)",
+    color: "var(--text-primary, #f1f5f9)",
     fontSize: "13px",
     outline: "none",
     fontFamily: "inherit",
+    transition: "border-color 160ms ease, background 160ms ease",
   };
 
   const ctx = collectSystemContext(appType || "unknown", user);
@@ -526,11 +527,13 @@ function FeedbackModal({
           maxHeight: isMobile ? "92dvh" : "90vh",
           overflowY: "auto",
           borderRadius: isMobile ? "20px 20px 0 0" : "14px",
-          background: "var(--bg-surface-3, #1e293b)",
-          border: "1px solid rgba(255,255,255,0.1)",
+          background: "var(--glass-surface, hsla(265,28%,14%,0.96))",
+          backdropFilter: "blur(32px) saturate(200%)",
+          WebkitBackdropFilter: "blur(32px) saturate(200%)",
+          border: "1px solid var(--glass-outline)",
           boxShadow: isMobile
-            ? "0 -8px 40px rgba(0,0,0,0.6)"
-            : "0 24px 60px rgba(0,0,0,0.5)",
+            ? "0 -12px 48px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.06)"
+            : "0 32px 72px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06)",
           padding: isMobile ? "16px 20px 36px" : "20px",
           color: "var(--text-primary, #f1f5f9)",
           fontFamily: "var(--font-body, system-ui, sans-serif)",
@@ -571,8 +574,8 @@ function FeedbackModal({
                 fontSize: "10px",
                 padding: "2px 6px",
                 borderRadius: "4px",
-                background: "rgba(34,211,238,0.12)",
-                color: "var(--primary-resonance, #22d3ee)",
+                background: "var(--primary-subtle, rgba(99,102,241,0.09))",
+                color: "var(--primary-resonance)",
                 fontWeight: "600",
                 letterSpacing: "0.05em",
                 textTransform: "uppercase",
@@ -688,15 +691,15 @@ function FeedbackModal({
                         borderRadius: "10px",
                         border: `1px solid ${
                           active
-                            ? "var(--primary-resonance, #22d3ee)"
-                            : "rgba(128,128,128,0.2)"
+                            ? "var(--glass-outline-active)"
+                            : "var(--glass-outline)"
                         }`,
                         background: active
-                          ? "rgba(34,211,238,0.1)"
-                          : "rgba(128,128,128,0.05)",
+                          ? "var(--primary-subtle)"
+                          : "rgba(255,255,255,0.03)",
                         color: active
-                          ? "var(--primary-resonance, #22d3ee)"
-                          : "var(--text-secondary, #94a3b8)",
+                          ? "var(--text-accent)"
+                          : "var(--text-secondary)",
                         cursor: "pointer",
                         fontSize: "12px",
                         fontWeight: active ? "600" : "400",
@@ -836,8 +839,8 @@ function FeedbackModal({
                     marginTop: "8px",
                     padding: "10px",
                     borderRadius: "8px",
-                    background: "rgba(0,0,0,0.25)",
-                    border: "1px solid rgba(128,128,128,0.15)",
+                    background: "rgba(0,0,0,0.35)",
+                    border: "1px solid var(--glass-outline)",
                     fontSize: "11px",
                     fontFamily: "var(--font-mono, monospace)",
                     color: "var(--text-muted, #94a3b8)",
@@ -909,15 +912,23 @@ function FeedbackModal({
                   padding: "10px 24px",
                   borderRadius: "8px",
                   border: "none",
-                  background: "var(--primary-resonance, #22d3ee)",
-                  color: "#000",
-                  fontSize: "13px",
-                  fontWeight: "700",
-                  cursor: isSubmitting ? "not-allowed" : "pointer",
-                  opacity:
+                  background:
                     isSubmitting || !feedback.title || !feedback.description
-                      ? 0.5
-                      : 1,
+                      ? "rgba(255,255,255,0.1)"
+                      : "linear-gradient(135deg, var(--primary-resonance), var(--primary-hover, var(--primary-resonance)))",
+                  color:
+                    isSubmitting || !feedback.title || !feedback.description
+                      ? "var(--text-muted)"
+                      : "#fff",
+                  fontSize: "13px",
+                  fontWeight: "600",
+                  cursor: isSubmitting ? "not-allowed" : "pointer",
+                  opacity: isSubmitting ? 0.7 : 1,
+                  boxShadow:
+                    isSubmitting || !feedback.title || !feedback.description
+                      ? "none"
+                      : "0 4px 16px var(--primary-glow, rgba(99,102,241,0.35))",
+                  transition: "all 160ms ease",
                   fontFamily: "inherit",
                   flex: isMobile ? "1" : "0 0 auto",
                 }}
@@ -1357,14 +1368,15 @@ export const FeedbackQuickAction = ({
             width: "48px",
             height: "48px",
             borderRadius: "50%",
-            background: "var(--primary-resonance, #22d3ee)",
+            background:
+              "linear-gradient(135deg, var(--primary-resonance), var(--primary-hover, var(--primary-resonance)))",
             border: "none",
-            color: "#000",
+            color: "#fff",
             cursor: "pointer",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
+            boxShadow: "0 4px 20px var(--primary-glow, rgba(0,0,0,0.3))",
             transition: "transform 150ms ease, box-shadow 150ms ease",
           }}
           onMouseEnter={(e) => {
