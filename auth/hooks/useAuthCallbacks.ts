@@ -1,0 +1,166 @@
+import { useEffect, useRef } from "react";
+
+// ── Types ─────────────────────────────────────────────────────────────────────
+
+interface AuthState {
+  isAuthenticated: boolean;
+  sessionExpiry: number | null;
+  [key: string]: unknown;
+}
+
+interface AuthActions {
+  initializeAuth?: () => Promise<void>;
+  refreshAuth?: () => Promise<boolean>;
+  logout?: () => Promise<{ success: boolean }>;
+}
+
+interface CallbackRef<T> {
+  current: T | null | undefined;
+}
+
+interface ExternalCallbackRefs {
+  onAuthStateChangeRef?: CallbackRef<((state: Record<string, unknown>) => void) | null | undefined>;
+  onErrorRef?: CallbackRef<((error: unknown) => void) | null | undefined>;
+}
+
+interface AuthConfig {
+  tokenRefreshInterval?: number;
+}
+
+// ── Hook ──────────────────────────────────────────────────────────────────────
+
+/**
+ * Manages auth side effects: token refresh intervals, session expiry monitoring,
+ * cross-tab synchronization, and auth state change/error callback wiring.
+ * Internal hook used exclusively by AuthProvider.
+ */
+export function useAuthCallbacks(
+  state: AuthState,
+  actions: AuthActions,
+  onAuthStateChange: ((state: Record<string, unknown>) => void) | undefined,
+  onError: ((error: unknown) => void) | undefined,
+  config: AuthConfig = {},
+  externalCallbackRefs: ExternalCallbackRefs | null = null,
+): void {
+  const onAuthStateChangeRef = useRef(onAuthStateChange);
+  const onErrorRef = useRef(onError);
+  const isInitializedRef = useRef(false);
+
+  // Populate external refs for useAuthActions
+  if (externalCallbackRefs) {
+    externalCallbackRefs.onAuthStateChangeRef = onAuthStateChangeRef;
+    externalCallbackRefs.onErrorRef = onErrorRef;
+  }
+
+  useEffect(() => {
+    onAuthStateChangeRef.current = onAuthStateChange;
+  }, [onAuthStateChange]);
+
+  useEffect(() => {
+    onErrorRef.current = onError;
+  }, [onError]);
+
+  // Initialize auth on mount
+  useEffect(() => {
+    if (!isInitializedRef.current && actions?.initializeAuth) {
+      isInitializedRef.current = true;
+      actions.initializeAuth();
+    }
+  }, [actions]);
+
+  // Auto-refresh token before expiration
+  useEffect(() => {
+    if (!state.isAuthenticated || !actions?.refreshAuth) return;
+
+    const refreshInterval = config.tokenRefreshInterval ?? 15 * 60 * 1000;
+    const interval = setInterval(async () => {
+      try {
+        await actions.refreshAuth?.();
+      } catch (error) {
+        if (import.meta.env.DEV) {
+          console.warn("[useAuthCallbacks] Auto-refresh failed:", error);
+        }
+      }
+    }, refreshInterval);
+
+    return () => clearInterval(interval);
+  }, [state.isAuthenticated, actions, config.tokenRefreshInterval]);
+
+  // Handle auth failure events (cross-tab)
+  useEffect(() => {
+    const handleAuthFailure = () => {
+      actions?.logout?.();
+    };
+
+    if (typeof window !== "undefined") {
+      window.addEventListener("auth:failure", handleAuthFailure);
+    }
+    return () => {
+      if (typeof window !== "undefined") {
+        window.removeEventListener("auth:failure", handleAuthFailure);
+      }
+    };
+  }, [actions]);
+
+  // Activity tracking
+  useEffect(() => {
+    if (!state.isAuthenticated) return;
+
+    const handleActivity = () => {
+      // Throttled naturally by browser event loop
+    };
+
+    const events = ["mousedown", "mousemove", "keypress", "scroll", "touchstart"] as const;
+
+    events.forEach((event) => {
+      if (typeof document !== "undefined") {
+        document.addEventListener(event, handleActivity, true);
+      }
+    });
+
+    return () => {
+      events.forEach((event) => {
+        if (typeof document !== "undefined") {
+          document.removeEventListener(event, handleActivity, true);
+        }
+      });
+    };
+  }, [state.isAuthenticated]);
+
+  // Cross-tab synchronization via storage events
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "accessToken" || e.key === "auth_token") {
+        if (e.newValue === null && state.isAuthenticated) {
+          actions?.logout?.();
+        } else if (e.newValue && !state.isAuthenticated) {
+          actions?.initializeAuth?.();
+        }
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, [state.isAuthenticated, actions]);
+
+  // Session expiry monitoring
+  useEffect(() => {
+    if (!state.isAuthenticated || !state.sessionExpiry) return;
+
+    const checkExpiry = () => {
+      const now = Date.now();
+      if (state.sessionExpiry && now >= state.sessionExpiry) {
+        if (import.meta.env.DEV) {
+          console.warn("[useAuthCallbacks] Session expired");
+        }
+        actions?.logout?.();
+      }
+    };
+
+    checkExpiry();
+    const interval = setInterval(checkExpiry, 60 * 1000);
+    return () => clearInterval(interval);
+  }, [state.isAuthenticated, state.sessionExpiry, actions]);
+}
