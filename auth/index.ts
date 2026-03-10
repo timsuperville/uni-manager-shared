@@ -137,10 +137,6 @@ export {
   MFA_CONFIG,
   AUTH_ACTIONS,
   AUTH_ERROR_CODES,
-  USER_ROLES,
-  ROLE_HIERARCHY,
-  PERMISSION_CATEGORIES,
-  PERMISSION_ACTIONS,
   DEVICE_CONFIG,
   PASSWORD_POLICY,
   RATE_LIMIT,
@@ -150,6 +146,7 @@ export {
   HTTP_STATUS,
   AUTH_EVENTS,
 } from "./types/index.ts";
+
 
 // MFA derived types (canonical source: types/mfaConstants.ts)
 export type { MFAMethod, MFAStatus } from "./types/index.ts";
@@ -184,16 +181,17 @@ export { TokenStorage, tokenStorage } from "./utils/TokenStorage.ts";
 
 // ── RBAC ──────────────────────────────────────────────────────────────────────
 
-export { RBACUtils, PermissionUtils, RouteUtils } from "./utils/RBACUtils.ts";
+export { RBACUtils, PermissionUtils, RouteUtils, createRBAC } from "./utils/RBACUtils.ts";
 export {
   PERMISSIONS,
   ROLES,
+  ROLE_HIERARCHY,
   APPLICATION_ROLES,
+  DEFAULT_ROLES,
   PROTECTED_ROUTES,
+  PERMISSION_GROUPS,
   type Permission,
   type RoleDefinition,
-} from "./types/rbacRoles.ts";
-export {
   checkPermission,
   hasRole,
   checkAccess,

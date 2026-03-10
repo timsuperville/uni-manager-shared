@@ -25,15 +25,21 @@ export {
   MFA_ACTIONS,
 } from "./mfaConstants.ts";
 
-// RBAC constants
+// RBAC constants and types (canonical source: rbacRoles.ts)
 export {
-  USER_ROLES,
-  ROLE_HIERARCHY,
   PERMISSIONS,
-  PERMISSION_CATEGORIES,
-  PERMISSION_ACTIONS,
-  RBAC_ACTIONS,
-} from "./rbacConstants.ts";
+  ROLES,
+  ROLE_HIERARCHY,
+  APPLICATION_ROLES,
+  DEFAULT_ROLES,
+  PROTECTED_ROUTES,
+  PERMISSION_GROUPS,
+  type Permission,
+  type RoleDefinition,
+  checkPermission,
+  hasRole,
+  checkAccess,
+} from "./rbacRoles.ts";
 
 // Error constants
 export {

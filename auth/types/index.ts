@@ -5,7 +5,7 @@
  * the authentication system. Import from this file to access all auth types.
  *
  * @example
- * import { SESSION_CONFIG, AUTH_ACTIONS, SESSION_STATUS } from '@shared/auth/types';
+ * import { SESSION_CONFIG, AUTH_ACTIONS, PERMISSIONS } from '@shared/auth/types';
  */
 
 // ==================== CONSTANTS ====================
@@ -24,13 +24,14 @@ export {
   AUTH_ACTIONS,
   AUTH_ERROR_CODES,
 
-  // User Roles
-  USER_ROLES,
+  // RBAC — canonical source: rbacRoles.ts
+  PERMISSIONS,
+  ROLES,
   ROLE_HIERARCHY,
-
-  // Permissions
-  PERMISSION_CATEGORIES,
-  PERMISSION_ACTIONS,
+  APPLICATION_ROLES,
+  DEFAULT_ROLES,
+  PROTECTED_ROUTES,
+  PERMISSION_GROUPS,
 
   // Device
   DEVICE_CONFIG,
@@ -58,3 +59,4 @@ export {
 // ==================== TYPES ====================
 
 export type { MFAMethod, MFAStatus } from "./mfaConstants.ts";
+export type { Permission, RoleDefinition } from "./rbacRoles.ts";
