@@ -100,7 +100,7 @@ export const FeatureGuard = React.lazy(() =>
 
 // ── Services ──────────────────────────────────────────────────────────────────
 
-export { default as SessionService } from "./services/SessionService.js";
+export { default as SessionService } from "./services/SessionService.ts";
 export { default as authService } from "./services/authService.ts";
 export {
   getSessionService,
@@ -116,7 +116,7 @@ export {
   getLoadedServices,
   isServiceAvailable,
   cacheService,
-} from "./services/index.js";
+} from "./services/index.ts";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 

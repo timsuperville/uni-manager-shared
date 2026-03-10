@@ -31,7 +31,7 @@ export { OAuthAuthService } from "./OAuthAuthService.ts";
 // ---------------------------------------------------------------------------
 
 export function getSessionService() {
-  return import("./SessionService.js").then((m) => m.default);
+  return import("./SessionService.ts").then((m) => m.default);
 }
 
 export function getAuthService() {
@@ -64,5 +64,5 @@ export function getCacheService() {
 }
 
 export function getCrossAppService() {
-  return import("./CrossAppService.js").then((m) => m.default);
+  return import("./CrossAppService.ts").then((m) => m.default);
 }
