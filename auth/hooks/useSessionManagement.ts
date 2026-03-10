@@ -1,7 +1,7 @@
 import { useCallback, useState, useEffect } from "react";
 import { useAuth } from "./useAuth.ts";
-import { authService } from "../services/authService.js";
-import { getApiBaseUrl } from "../../api/config/apiConfig.js";
+import { authService } from "../services/authService.ts";
+import { getApiBaseUrl } from "../../api/config/apiConfig.ts";
 import type { Session, SecurityAlert } from "../types/auth.types.ts";
 
 const API_URL = getApiBaseUrl() as string;

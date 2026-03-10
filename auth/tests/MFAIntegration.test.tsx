@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { MFAService } from "../services/mfaService.js";
-import { AuthService } from "../services/authService.js";
+import { MFAService } from "../services/mfaService.ts";
+import { AuthService } from "../services/authService.ts";
 
 // Mock localStorage
 const localStorageMock = (() => {

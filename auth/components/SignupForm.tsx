@@ -6,9 +6,9 @@ import {
   validatePassword,
   validateName,
   getPasswordStrength,
-} from "../utils/authValidation.js";
-import { getCurrentAppConfig } from "../config/appConfigs.js";
-import defaultAuthService from "../services/authService.js";
+} from "../utils/authValidation.ts";
+import { getCurrentAppConfig } from "../config/appConfigs.ts";
+import defaultAuthService from "../services/authService.ts";
 import {
   AuthContainer,
   AuthCardContent,

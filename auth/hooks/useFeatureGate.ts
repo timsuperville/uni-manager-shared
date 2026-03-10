@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "./useAuth.ts";
-import { getApiBaseUrl } from "../../api/config/apiConfig.js";
+import { getApiBaseUrl } from "../../api/config/apiConfig.ts";
 
 // ── Module-level gate cache ───────────────────────────────────────────────────
 // Keyed by `${appType}:${userId}`, value is Map<featureKey, boolean>.

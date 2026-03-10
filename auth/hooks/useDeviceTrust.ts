@@ -4,7 +4,7 @@ import { MFAService } from "../services/mfaService.ts";
 import {
   generateDeviceFingerprint,
   getDeviceInfo,
-} from "../utils/socialAuth.js";
+} from "../utils/socialAuth.ts";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 

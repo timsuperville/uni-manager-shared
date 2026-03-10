@@ -6,12 +6,12 @@
  */
 
 import { describe, it, expect, beforeEach } from "vitest";
-import { generateDeviceFingerprint } from "../../utils/socialAuth.js";
+import { generateDeviceFingerprint } from "../../utils/socialAuth.ts";
 import {
   clearCachedDeviceFingerprint,
   getCachedDeviceFingerprint,
   hasCachedFingerprint,
-} from "../../utils/deviceFingerprintCache.js";
+} from "../../utils/deviceFingerprintCache.ts";
 
 describe("Auth Performance Benchmarks", () => {
   beforeEach(() => {

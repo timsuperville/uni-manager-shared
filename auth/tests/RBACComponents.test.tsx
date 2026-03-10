@@ -12,7 +12,7 @@ import {
   withPermissions,
   withRoles,
   RBACProvider,
-} from "../components/RBACComponents.jsx";
+} from "../components/RBACComponents.tsx";
 
 const mockNavigate = vi.fn();
 vi.mock("react-router-dom", async () => {

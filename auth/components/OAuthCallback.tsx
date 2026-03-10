@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.tsx";
-import { getCurrentAppConfig } from "../config/appConfigs.js";
+import { getCurrentAppConfig } from "../config/appConfigs.ts";
 
 /**
  * OAuth Callback Handler Component

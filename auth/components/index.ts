@@ -12,35 +12,35 @@
 
 // ── Core Authentication Forms ────────────────────────────────────────────────
 
-export { default as LoginForm } from "./LoginForm.jsx";
-export { default as SignupForm } from "./SignupForm.jsx";
-export { default as ForgotPasswordForm } from "./ForgotPasswordForm.jsx";
+export { default as LoginForm } from "./LoginForm.tsx";
+export { default as SignupForm } from "./SignupForm.tsx";
+export { default as ForgotPasswordForm } from "./ForgotPasswordForm.tsx";
 
 // ── MFA Components ────────────────────────────────────────────────────────────
 
-export { default as MFAVerification } from "./MFAVerification.jsx";
-export { default as MFASetup } from "./MFASetup.jsx";
+export { default as MFAVerification } from "./MFAVerification.tsx";
+export { default as MFASetup } from "./MFASetup.tsx";
 
 // ── OAuth Components ──────────────────────────────────────────────────────────
 
-export { default as OAuthProviderComponents } from "./OAuthProviderComponents.jsx";
-export { default as OAuthCallback } from "./OAuthCallback.jsx";
+export { default as OAuthProviderComponents } from "./OAuthProviderComponents.tsx";
+export { default as OAuthCallback } from "./OAuthCallback.tsx";
 
 // ── Authorization & Access Control ────────────────────────────────────────────
 
-export { default as ProtectedRoute } from "./ProtectedRoute.jsx";
+export { default as ProtectedRoute } from "./ProtectedRoute.tsx";
 
 // ── Security Components ───────────────────────────────────────────────────────
 
-export { default as SecurityDashboard } from "./SecurityDashboard.jsx";
+export { default as SecurityDashboard } from "./SecurityDashboard.tsx";
 
 // ── Layout Components ─────────────────────────────────────────────────────────
 
-export { default as AuthLayout } from "./AuthLayout.jsx";
+export { default as AuthLayout } from "./AuthLayout.tsx";
 
 // ── User Management ───────────────────────────────────────────────────────────
 
-export { default as UserMenu } from "./UserMenu.jsx";
+export { default as UserMenu } from "./UserMenu.tsx";
 
 // Re-export default for convenience
-export { default } from "./LoginForm.jsx";
+export { default } from "./LoginForm.tsx";

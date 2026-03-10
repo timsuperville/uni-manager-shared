@@ -20,7 +20,7 @@
  * reads — only add async if the caller itself does real I/O (fetch, etc.).
  */
 
-import type { User } from "../types/auth.types.js";
+import type { User } from "../types/auth.types.ts";
 
 // ---------------------------------------------------------------------------
 // Types

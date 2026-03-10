@@ -1,5 +1,5 @@
 import { useCallback, useState, useEffect, useRef } from "react";
-import { getApiBaseUrl } from "../../api/config/apiConfig.js";
+import { getApiBaseUrl } from "../../api/config/apiConfig.ts";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 

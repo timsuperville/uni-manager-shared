@@ -10,7 +10,7 @@
  * auth service contract is finalised.
  */
 
-import type { User } from "../types/auth.types.js";
+import type { User } from "../types/auth.types.ts";
 
 // ---------------------------------------------------------------------------
 // Types

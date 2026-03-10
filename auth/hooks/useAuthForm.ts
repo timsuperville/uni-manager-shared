@@ -4,7 +4,7 @@ import {
   validateEmail,
   validatePassword,
   validateName,
-} from "../utils/authValidation.js";
+} from "../utils/authValidation.ts";
 import type { SignupData } from "../types/auth.types.ts";
 
 // ── Types ─────────────────────────────────────────────────────────────────────

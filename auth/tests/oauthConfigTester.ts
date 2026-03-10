@@ -3,7 +3,7 @@
  * Tests OAuth provider configurations across all applications
  */
 
-import { OAUTH_PROVIDERS } from "../utils/socialAuth.js";
+import { OAUTH_PROVIDERS } from "../utils/socialAuth.ts";
 
 /**
  * Test OAuth provider configurations for all apps

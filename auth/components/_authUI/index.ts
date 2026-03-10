@@ -10,16 +10,16 @@
  * public surface for the _authUI layer.
  */
 
-export { AuthButton } from "./AuthButton.jsx";
-export { OAuthButton } from "./OAuthButton.jsx";
-export { AuthInput } from "./AuthInput.jsx";
-export { AuthContainer, AuthShellContext } from "./AuthContainer.jsx";
-export { AuthCardContent } from "./AuthCardContent.jsx";
-export { AuthDivider } from "./AuthDivider.jsx";
-export { Alert } from "./Alert.jsx";
-export { GoogleIcon } from "./GoogleIcon.jsx";
+export { AuthButton } from "./AuthButton.tsx";
+export { OAuthButton } from "./OAuthButton.tsx";
+export { AuthInput } from "./AuthInput.tsx";
+export { AuthContainer, AuthShellContext } from "./AuthContainer.tsx";
+export { AuthCardContent } from "./AuthCardContent.tsx";
+export { AuthDivider } from "./AuthDivider.tsx";
+export { Alert } from "./Alert.tsx";
+export { GoogleIcon } from "./GoogleIcon.tsx";
 export {
   EyeIcon,
   EyeOffIcon,
   PasswordToggleButton,
-} from "./PasswordToggle.jsx";
+} from "./PasswordToggle.tsx";

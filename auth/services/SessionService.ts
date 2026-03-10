@@ -17,7 +17,7 @@ import {
   SESSION_STATUS,
   STORAGE_KEYS,
   AUTH_EVENTS,
-} from "../types/constants.js";
+} from "../types/constants.ts";
 import securityService from "./securityService.ts";
 
 // ── Types ─────────────────────────────────────────────────────────────────────

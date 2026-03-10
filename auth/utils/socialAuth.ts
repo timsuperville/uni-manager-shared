@@ -9,7 +9,7 @@ import { getCurrentAppConfig } from "../config/appConfigs.ts";
 import {
   getCachedDeviceFingerprint,
   setCachedDeviceFingerprint,
-} from "./deviceFingerprintCache.js";
+} from "./deviceFingerprintCache.ts";
 
 // ---------------------------------------------------------------------------
 // Types

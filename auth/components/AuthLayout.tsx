@@ -12,12 +12,12 @@
  *
  * @see docs/developer/LIQUID_GLASS_SPEC.md
  * @see docs/product/06-ux-design.md
- * @see frontend/shared/auth/config/appConfigs.js
+ * @see frontend/shared/au../config/appConfigs.ts
  */
 import React from "react";
 import PropTypes from "prop-types";
-import { getCurrentAppConfig } from "../config/appConfigs.js";
-import { AuthShellContext } from "./_authUI/AuthContainer.jsx";
+import { getCurrentAppConfig } from "../config/appConfigs.ts";
+import { AuthShellContext } from "./_authUI/AuthContainer.tsx";
 
 import { ThemeToggle } from "../../components/ThemeToggle";
 

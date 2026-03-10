@@ -68,43 +68,43 @@ export {
 
 // ── Components ────────────────────────────────────────────────────────────────
 
-export { default as LoginForm } from "./components/LoginForm.jsx";
-export { default as SignupForm } from "./components/SignupForm.jsx";
-export { default as ForgotPasswordForm } from "./components/ForgotPasswordForm.jsx";
+export { default as LoginForm } from "./components/LoginForm.tsx";
+export { default as SignupForm } from "./components/SignupForm.tsx";
+export { default as ForgotPasswordForm } from "./components/ForgotPasswordForm.tsx";
 
 export const MFAVerification = React.lazy(
-  () => import("./components/MFAVerification.jsx"),
+  () => import("./components/MFAVerification.tsx"),
 );
-export const MFASetup = React.lazy(() => import("./components/MFASetup.jsx"));
+export const MFASetup = React.lazy(() => import("./components/MFASetup.tsx"));
 
-export { default as OAuthProviderComponents } from "./components/OAuthProviderComponents.jsx";
-export { default as OAuthCallback } from "./components/OAuthCallback.jsx";
-export { default as ProtectedRoute } from "./components/ProtectedRoute.jsx";
-export { default as SecurityDashboard } from "./components/SecurityDashboard.jsx";
-export { default as AuthLayout } from "./components/AuthLayout.jsx";
-export { default as UserMenu } from "./components/UserMenu.jsx";
+export { default as OAuthProviderComponents } from "./components/OAuthProviderComponents.tsx";
+export { default as OAuthCallback } from "./components/OAuthCallback.tsx";
+export { default as ProtectedRoute } from "./components/ProtectedRoute.tsx";
+export { default as SecurityDashboard } from "./components/SecurityDashboard.tsx";
+export { default as AuthLayout } from "./components/AuthLayout.tsx";
+export { default as UserMenu } from "./components/UserMenu.tsx";
 
 // RBAC — context (backward compat: wraps useAuth)
-export { RBACProvider, useRBAC } from "./components/RBACComponents.jsx";
+export { RBACProvider, useRBAC } from "./components/RBACComponents.tsx";
 
 // RBAC — guards (lazy-loaded, avoid bloating the initial bundle)
 export const PermissionGuard = React.lazy(() =>
-  import("./components/RBACComponents.jsx").then((m) => ({ default: m.PermissionGuard })),
+  import("./components/RBACComponents.tsx").then((m) => ({ default: m.PermissionGuard })),
 );
 export const RoleGuard = React.lazy(() =>
-  import("./components/RBACComponents.jsx").then((m) => ({ default: m.RoleGuard })),
+  import("./components/RBACComponents.tsx").then((m) => ({ default: m.RoleGuard })),
 );
 export const ApplicationGuard = React.lazy(() =>
-  import("./components/RBACComponents.jsx").then((m) => ({ default: m.ApplicationGuard })),
+  import("./components/RBACComponents.tsx").then((m) => ({ default: m.ApplicationGuard })),
 );
 export const RouteGuard = React.lazy(() =>
-  import("./components/RBACComponents.jsx").then((m) => ({ default: m.RouteGuard })),
+  import("./components/RBACComponents.tsx").then((m) => ({ default: m.RouteGuard })),
 );
 export const AdminGuard = React.lazy(() =>
-  import("./components/RBACComponents.jsx").then((m) => ({ default: m.AdminGuard })),
+  import("./components/RBACComponents.tsx").then((m) => ({ default: m.AdminGuard })),
 );
 export const FeatureGuard = React.lazy(() =>
-  import("./components/RBACComponents.jsx").then((m) => ({ default: m.FeatureGuard })),
+  import("./components/RBACComponents.tsx").then((m) => ({ default: m.FeatureGuard })),
 );
 
 

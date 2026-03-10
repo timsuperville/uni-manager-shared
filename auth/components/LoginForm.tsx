@@ -4,8 +4,8 @@ import { useAuth } from "../context/AuthContext.tsx";
 import { useNavigate, useLocation } from "react-router-dom";
 import MFAVerification from "./MFAVerification";
 import MFASetup from "./MFASetup";
-import { getCurrentAppConfig } from "../config/appConfigs.js";
-import { validateEmail } from "../utils/authValidation.js";
+import { getCurrentAppConfig } from "../config/appConfigs.ts";
+import { validateEmail } from "../utils/authValidation.ts";
 import {
   AuthContainer,
   AuthCardContent,

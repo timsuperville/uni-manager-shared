@@ -19,7 +19,7 @@ import {
 import { getCurrentAppConfig } from "../config/appConfigs.ts";
 import { TokenStorage } from "../utils/TokenStorage.ts";
 import { validateCredentials } from "../utils/authValidation.ts";
-import { getApiBaseUrl } from "../../api/config/apiConfig.js";
+import { getApiBaseUrl } from "../../api/config/apiConfig.ts";
 import { RateLimitService } from "./RateLimitService.ts";
 import { TokenManagementService } from "./TokenManagementService.ts";
 import type { User } from "../types/auth.types.ts";

@@ -5,7 +5,7 @@
  * All functions are pure — no side effects, no I/O.
  */
 
-import type { ValidationResult } from "../types/auth.types.js";
+import type { ValidationResult } from "../types/auth.types.ts";
 
 // ---------------------------------------------------------------------------
 // Internal result shapes

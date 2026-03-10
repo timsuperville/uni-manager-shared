@@ -5,7 +5,7 @@
 import React, { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth.ts";
-import { getCurrentAppConfig } from "../config/appConfigs.js";
+import { getCurrentAppConfig } from "../config/appConfigs.ts";
 
 const ProtectedRoute = ({
   children,

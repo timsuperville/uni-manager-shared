@@ -1,5 +1,4 @@
 import React, { createContext, useContext } from "react";
-import PropTypes from "prop-types";
 
 /**
  * AuthShellContext — set to `true` by AuthLayout so nested AuthContainer
@@ -8,6 +7,13 @@ import PropTypes from "prop-types";
  */
 export const AuthShellContext = createContext(false);
 export const useAuthShell = () => useContext(AuthShellContext);
+
+type MaxWidth = "sm" | "md" | "lg" | "xl";
+
+interface AuthContainerProps {
+  children: React.ReactNode;
+  maxWidth?: MaxWidth;
+}
 
 /**
  * AuthContainer — Glass card wrapper for auth forms.
@@ -21,10 +27,10 @@ export const useAuthShell = () => useContext(AuthShellContext);
  *   Strips the shell entirely (no min-h-screen, no background, no blobs).
  *   Renders only the glass card so AuthLayout's split panel is visible.
  */
-export const AuthContainer = ({ children, maxWidth = "md" }) => {
+export const AuthContainer = ({ children, maxWidth = "md" }: AuthContainerProps) => {
   const isNested = useAuthShell();
 
-  const maxWidths = {
+  const maxWidths: Record<MaxWidth, string> = {
     sm: "sm:max-w-sm",
     md: "sm:max-w-md",
     lg: "sm:max-w-lg",
@@ -32,16 +38,13 @@ export const AuthContainer = ({ children, maxWidth = "md" }) => {
   };
 
   const card = (
-    <div
-      className={`w-full ${maxWidths[maxWidth]} relative z-10 animate-slideUpFade`}
-    >
+    <div className={`w-full ${maxWidths[maxWidth]} relative z-10 animate-slideUpFade`}>
       <div
         className="backdrop-blur-xl shadow-2xl rounded-3xl overflow-hidden mx-auto"
         style={{
           background: "var(--glass-surface, hsla(265,28%,14%,0.76))",
           border: "1px solid var(--glass-outline, hsla(0,0%,100%,0.07))",
-          boxShadow:
-            "0 8px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04)",
+          boxShadow: "0 8px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04)",
         }}
       >
         {children}
@@ -65,18 +68,11 @@ export const AuthContainer = ({ children, maxWidth = "md" }) => {
       />
       <div
         className="absolute bottom-[-10%] left-[-5%] w-96 h-96 rounded-full blur-3xl"
-        style={{
-          background: "var(--accent-amber-glow, hsla(38,90%,58%,0.08))",
-        }}
+        style={{ background: "var(--accent-amber-glow, hsla(38,90%,58%,0.08))" }}
       />
       {card}
     </div>
   );
-};
-
-AuthContainer.propTypes = {
-  children: PropTypes.node.isRequired,
-  maxWidth: PropTypes.oneOf(["sm", "md", "lg", "xl"]),
 };
 
 export default AuthContainer;

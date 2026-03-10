@@ -1,5 +1,12 @@
 import React from "react";
-import PropTypes from "prop-types";
+
+interface OAuthButtonProps {
+  provider: string;
+  onClick: React.MouseEventHandler<HTMLButtonElement>;
+  disabled?: boolean;
+  children?: React.ReactNode;
+  icon?: React.ReactNode;
+}
 
 /**
  * OAuth Button — Social login button (Google, GitHub, Microsoft, etc.)
@@ -13,7 +20,7 @@ export const OAuthButton = ({
   disabled = false,
   children,
   icon,
-}) => (
+}: OAuthButtonProps) => (
   <button
     type="button"
     onClick={onClick}
@@ -27,33 +34,22 @@ export const OAuthButton = ({
     }}
     onMouseEnter={(e) => {
       e.currentTarget.style.background = "hsla(0,0%,100%,0.1)";
-      e.currentTarget.style.borderColor =
-        "var(--glass-outline-active, hsla(272,65%,62%,0.35))";
+      e.currentTarget.style.borderColor = "var(--glass-outline-active, hsla(272,65%,62%,0.35))";
     }}
     onMouseLeave={(e) => {
       e.currentTarget.style.background = "hsla(0,0%,100%,0.06)";
-      e.currentTarget.style.borderColor =
-        "var(--glass-outline, hsla(0,0%,100%,0.1))";
+      e.currentTarget.style.borderColor = "var(--glass-outline, hsla(0,0%,100%,0.1))";
     }}
     onFocus={(e) => {
-      e.currentTarget.style.boxShadow =
-        "0 0 0 3px var(--primary-glow, hsla(272,65%,62%,0.2))";
+      e.currentTarget.style.boxShadow = "0 0 0 3px var(--primary-glow, hsla(272,65%,62%,0.2))";
     }}
     onBlur={(e) => {
       e.currentTarget.style.boxShadow = "none";
     }}
   >
     {icon && <span className="shrink-0">{icon}</span>}
-    <span>{children || `Continue with ${provider}`}</span>
+    <span>{children ?? `Continue with ${provider}`}</span>
   </button>
 );
-
-OAuthButton.propTypes = {
-  provider: PropTypes.string.isRequired,
-  onClick: PropTypes.func.isRequired,
-  disabled: PropTypes.bool,
-  children: PropTypes.node,
-  icon: PropTypes.node,
-};
 
 export default OAuthButton;

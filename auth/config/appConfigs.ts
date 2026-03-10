@@ -4,7 +4,7 @@
  * Each app has its own branding and API endpoints while maintaining consistent UX.
  */
 
-import { getApiBaseUrl } from "../../api/config/apiConfig.js";
+import { getApiBaseUrl } from "../../api/config/apiConfig.ts";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
