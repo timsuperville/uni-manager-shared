@@ -38,7 +38,7 @@ function resolveSource(source) {
   if (process.env.NODE_ENV !== "production") {
     console.warn(
       `[FeedbackQuickAction] Unknown source "${source}". ` +
-      `Valid values: ${[...VALID_SOURCES].join(", ")}. Defaulting to null.`
+        `Valid values: ${[...VALID_SOURCES].join(", ")}. Defaulting to null.`,
     );
   }
   return null;
@@ -56,7 +56,11 @@ function useOptionalUser() {
   return {
     id: u._id || u.id || null,
     email: u.email || null,
-    name: u.name || u.displayName || [u.firstName, u.lastName].filter(Boolean).join(' ') || null,
+    name:
+      u.name ||
+      u.displayName ||
+      [u.firstName, u.lastName].filter(Boolean).join(" ") ||
+      null,
     role: u.role || u.roles?.[0] || u.rbac?.role || null,
     appRole: u.rbac?.role || null,
   };
@@ -66,18 +70,21 @@ function useOptionalUser() {
 // Gathers extensive system/session context to enrich every feedback submission.
 // ─── Device & OS Detection ───────────────────────────────────────────────────
 function detectDevice() {
-  const ua = typeof navigator !== 'undefined' ? navigator.userAgent : '';
-  const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
-  const isTablet = /Tablet|iPad/i.test(ua) || (isMobile && Math.min(screen.width, screen.height) >= 600);
-  const deviceType = isTablet ? 'tablet' : isMobile ? 'mobile' : 'desktop';
+  const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
+  const isMobile =
+    /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+  const isTablet =
+    /Tablet|iPad/i.test(ua) ||
+    (isMobile && Math.min(screen.width, screen.height) >= 600);
+  const deviceType = isTablet ? "tablet" : isMobile ? "mobile" : "desktop";
 
   // OS detection — ordered most-specific first
-  let os = 'unknown';
-  if (/Windows NT/i.test(ua)) os = 'Windows';
-  else if (/Mac OS X/i.test(ua)) os = /iPhone|iPad/i.test(ua) ? 'iOS' : 'macOS';
-  else if (/Android/i.test(ua)) os = 'Android';
-  else if (/Linux/i.test(ua)) os = 'Linux';
-  else if (/CrOS/i.test(ua)) os = 'ChromeOS';
+  let os = "unknown";
+  if (/Windows NT/i.test(ua)) os = "Windows";
+  else if (/Mac OS X/i.test(ua)) os = /iPhone|iPad/i.test(ua) ? "iOS" : "macOS";
+  else if (/Android/i.test(ua)) os = "Android";
+  else if (/Linux/i.test(ua)) os = "Linux";
+  else if (/CrOS/i.test(ua)) os = "ChromeOS";
 
   // Extract OS version where possible
   const winMatch = ua.match(/Windows NT (\d+\.\d+)/);
@@ -86,16 +93,18 @@ function detectDevice() {
   const iosMatch = ua.match(/OS ([\d_]+) like Mac/);
   const osVersion =
     (winMatch && winMatch[1]) ||
-    (macMatch && macMatch[1].replace(/_/g, '.')) ||
+    (macMatch && macMatch[1].replace(/_/g, ".")) ||
     (androidMatch && androidMatch[1]) ||
-    (iosMatch && iosMatch[1].replace(/_/g, '.')) ||
+    (iosMatch && iosMatch[1].replace(/_/g, ".")) ||
     null;
 
   const orientation =
-    typeof screen !== 'undefined' && screen.orientation
+    typeof screen !== "undefined" && screen.orientation
       ? screen.orientation.type
-      : typeof window !== 'undefined'
-        ? window.innerWidth > window.innerHeight ? 'landscape-primary' : 'portrait-primary'
+      : typeof window !== "undefined"
+        ? window.innerWidth > window.innerHeight
+          ? "landscape-primary"
+          : "portrait-primary"
         : null;
 
   return { deviceType, os, osVersion, orientation };
@@ -112,19 +121,22 @@ function collectSystemContext(appName, user = null) {
     if (mem?.usedJSHeapSize) {
       memoryMb = Math.round(mem.usedJSHeapSize / 1024 / 1024);
     }
-  } catch { }
+  } catch {}
 
   // Navigation timing — time to first interactive
   let loadTimingMs = null;
   try {
     const nav = performance?.getEntriesByType?.("navigation")?.[0];
     if (nav?.domInteractive) loadTimingMs = Math.round(nav.domInteractive);
-  } catch { }
+  } catch {}
 
   // Connection info
   let connection = null;
   try {
-    const conn = navigator?.connection || navigator?.mozConnection || navigator?.webkitConnection;
+    const conn =
+      navigator?.connection ||
+      navigator?.mozConnection ||
+      navigator?.webkitConnection;
     if (conn) {
       connection = {
         effectiveType: conn.effectiveType || null,
@@ -133,7 +145,7 @@ function collectSystemContext(appName, user = null) {
         saveData: conn.saveData || false,
       };
     }
-  } catch { }
+  } catch {}
 
   // Local/session storage key count (approximate data volume proxy)
   let storageKeys = null;
@@ -142,22 +154,23 @@ function collectSystemContext(appName, user = null) {
       localStorage: localStorage.length,
       sessionStorage: sessionStorage.length,
     };
-  } catch { }
+  } catch {}
 
   // Recent navigation history (last 5 pages in this tab)
   let navigationHistory = null;
   try {
     navigationHistory = window.__feedbackNavHistory || [];
-  } catch { }
+  } catch {}
 
   // Page visibility / engagement
   let pageVisibilityState = null;
   try {
     pageVisibilityState = document.visibilityState || null;
-  } catch { }
+  } catch {}
 
   const env =
-    typeof import.meta !== "undefined" && import.meta?.env?.MODE === "production"
+    typeof import.meta !== "undefined" &&
+    import.meta?.env?.MODE === "production"
       ? "production"
       : "development";
 
@@ -166,8 +179,10 @@ function collectSystemContext(appName, user = null) {
       ? import.meta?.env?.VITE_APP_VERSION || "unknown"
       : "unknown";
 
-  const fullPathname = typeof window !== "undefined" ? window.location.pathname : "/";
-  const base = (typeof import.meta !== "undefined" && import.meta?.env?.BASE_URL) || "/";
+  const fullPathname =
+    typeof window !== "undefined" ? window.location.pathname : "/";
+  const base =
+    (typeof import.meta !== "undefined" && import.meta?.env?.BASE_URL) || "/";
   const inAppPath = fullPathname.startsWith(base)
     ? "/" + fullPathname.slice(base.length)
     : fullPathname;
@@ -178,12 +193,12 @@ function collectSystemContext(appName, user = null) {
     // ── Authenticated user identity (auto-populated, never manually entered) ──
     user: user
       ? {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-        appRole: user.appRole,
-      }
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          appRole: user.appRole,
+        }
       : null,
 
     page: {
@@ -202,7 +217,8 @@ function collectSystemContext(appName, user = null) {
       orientation: device.orientation,
     },
     browser: {
-      userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "unknown",
+      userAgent:
+        typeof navigator !== "undefined" ? navigator.userAgent : "unknown",
       viewport: {
         width: typeof window !== "undefined" ? window.innerWidth : 0,
         height: typeof window !== "undefined" ? window.innerHeight : 0,
@@ -210,7 +226,8 @@ function collectSystemContext(appName, user = null) {
       screen: {
         width: typeof screen !== "undefined" ? screen.width : 0,
         height: typeof screen !== "undefined" ? screen.height : 0,
-        pixelRatio: typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1,
+        pixelRatio:
+          typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1,
         colorDepth: typeof screen !== "undefined" ? screen.colorDepth : null,
       },
       language: typeof navigator !== "undefined" ? navigator.language : "",
@@ -219,8 +236,10 @@ function collectSystemContext(appName, user = null) {
           ? navigator.languages.slice(0, 3)
           : [],
       timezone: Intl?.DateTimeFormat?.()?.resolvedOptions?.()?.timeZone || "",
-      cookiesEnabled: typeof navigator !== "undefined" ? navigator.cookieEnabled : null,
-      doNotTrack: typeof navigator !== "undefined" ? navigator.doNotTrack : null,
+      cookiesEnabled:
+        typeof navigator !== "undefined" ? navigator.cookieEnabled : null,
+      doNotTrack:
+        typeof navigator !== "undefined" ? navigator.doNotTrack : null,
       onLine: typeof navigator !== "undefined" ? navigator.onLine : null,
       connection,
       loadTimingMs,
@@ -243,15 +262,14 @@ function collectSystemContext(appName, user = null) {
     },
     performance: {
       memoryUsedMb: memoryMb,
-      jsHeapLimitMb:
-        (() => {
-          try {
-            const lim = performance?.memory?.jsHeapSizeLimit;
-            return lim ? Math.round(lim / 1024 / 1024) : null;
-          } catch {
-            return null;
-          }
-        })(),
+      jsHeapLimitMb: (() => {
+        try {
+          const lim = performance?.memory?.jsHeapSizeLimit;
+          return lim ? Math.round(lim / 1024 / 1024) : null;
+        } catch {
+          return null;
+        }
+      })(),
     },
   };
 }
@@ -275,8 +293,14 @@ if (typeof window !== "undefined" && !window.__feedbackNavHistory) {
       if (history.length > 20) history.shift();
     }
   };
-  history.pushState = (...args) => { origPush(...args); trackPage(args[2]); };
-  history.replaceState = (...args) => { origReplace(...args); trackPage(args[2]); };
+  history.pushState = (...args) => {
+    origPush(...args);
+    trackPage(args[2]);
+  };
+  history.replaceState = (...args) => {
+    origReplace(...args);
+    trackPage(args[2]);
+  };
 }
 
 // ─── Silent auto-submit utility (used by ErrorBoundary, no UI) ─────────────────
@@ -635,7 +659,13 @@ function FeedbackModal({
               >
                 What kind of feedback?
               </label>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "8px" }}>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(3, 1fr)",
+                  gap: "8px",
+                }}
+              >
                 {[
                   { value: "bug_report", emoji: "🐛", label: "Bug" },
                   { value: "feature_request", emoji: "💡", label: "Feature" },
@@ -654,10 +684,11 @@ function FeedbackModal({
                         gap: "4px",
                         padding: "12px 8px",
                         borderRadius: "10px",
-                        border: `1px solid ${active
-                          ? "var(--primary-resonance, #22d3ee)"
-                          : "rgba(128,128,128,0.2)"
-                          }`,
+                        border: `1px solid ${
+                          active
+                            ? "var(--primary-resonance, #22d3ee)"
+                            : "rgba(128,128,128,0.2)"
+                        }`,
                         background: active
                           ? "rgba(34,211,238,0.1)"
                           : "rgba(128,128,128,0.05)",
@@ -672,7 +703,9 @@ function FeedbackModal({
                         lineHeight: 1,
                       }}
                     >
-                      <span style={{ fontSize: "20px", lineHeight: 1 }}>{emoji}</span>
+                      <span style={{ fontSize: "20px", lineHeight: 1 }}>
+                        {emoji}
+                      </span>
                       <span style={{ marginTop: "4px" }}>{label}</span>
                     </button>
                   );
@@ -787,7 +820,11 @@ function FeedbackModal({
                     transition: "transform 150ms ease",
                   }}
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M9 5l7 7-7 7"
+                  />
                 </svg>
                 {showContext ? "Hide" : "Show"} what’s included automatically
               </button>
@@ -911,6 +948,7 @@ export const FeedbackQuickAction = ({
   position = "bottom-right",
   appType,
   accentColor,
+  onOpen, // optional — called when the trigger is clicked (e.g. close mobile nav)
 }) => {
   // Automatically pick up the signed-in user's identity (null for anonymous/public pages)
   const user = useOptionalUser();
@@ -976,7 +1014,10 @@ export const FeedbackQuickAction = ({
       <>
         <button
           id="feedback-sidebar-trigger"
-          onClick={() => setIsOpen(true)}
+          onClick={() => {
+            onOpen?.();
+            setIsOpen(true);
+          }}
           style={{
             display: "flex",
             alignItems: "center",
@@ -1162,13 +1203,36 @@ export const FeedbackQuickAction = ({
               flexShrink: 0,
             }}
           >
-            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            <svg
+              width="18"
+              height="18"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth="1.8"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+              />
             </svg>
           </span>
           <div>
-            <div style={{ color: "var(--text-primary, #f1f5f9)", fontSize: "14px", fontWeight: "500" }}>Share Feedback</div>
-            <div style={{ color: "var(--text-muted, #64748b)", fontSize: "12px" }}>Report a bug or suggest a feature</div>
+            <div
+              style={{
+                color: "var(--text-primary, #f1f5f9)",
+                fontSize: "14px",
+                fontWeight: "500",
+              }}
+            >
+              Share Feedback
+            </div>
+            <div
+              style={{ color: "var(--text-muted, #64748b)", fontSize: "12px" }}
+            >
+              Report a bug or suggest a feature
+            </div>
           </div>
         </button>
         {isOpen && (
@@ -1262,7 +1326,11 @@ export const FeedbackQuickAction = ({
           </div>
         )}
         {isOpen && (
-          <FeedbackModal onClose={() => setIsOpen(false)} appType={appType} user={user} />
+          <FeedbackModal
+            onClose={() => setIsOpen(false)}
+            appType={appType}
+            user={user}
+          />
         )}
       </>
     );
