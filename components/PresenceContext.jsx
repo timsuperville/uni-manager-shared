@@ -6,7 +6,7 @@ import React, {
   useRef,
   useCallback,
 } from "react";
-import { useAuth } from "../auth/context/AuthContext";
+import { useAuth } from "@shared/auth";
 import { getWebSocketUrl } from "../config/environment";
 
 export const PresenceContext = createContext(null);
