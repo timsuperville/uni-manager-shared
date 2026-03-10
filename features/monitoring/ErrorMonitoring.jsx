@@ -221,6 +221,8 @@ export const setupGlobalErrorHandling = () => {
   window.addEventListener("unhandledrejection", (event) => {
     const base = {
       type: "unhandledrejection",
+      // Generate a short unique ID so admin can cross-reference FeedbackReport↔↔ErrorLog
+      errorId: `ERR-${Date.now().toString(36).toUpperCase().slice(-8)}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`,
       message: event.reason?.message || String(event.reason) || "Unhandled promise rejection",
       name: event.reason?.name || "UnhandledRejection",
       stack: event.reason?.stack,
@@ -249,6 +251,8 @@ export const setupGlobalErrorHandling = () => {
 
     const base = {
       type: "uncaught",
+      // Generate a short unique ID so admin can cross-reference FeedbackReport↔↔ErrorLog
+      errorId: `ERR-${Date.now().toString(36).toUpperCase().slice(-8)}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`,
       message: event.message || "Unknown error",
       name: event.error?.name || "Error",
       filename: event.filename,
