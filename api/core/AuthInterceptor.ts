@@ -70,7 +70,21 @@ export class AuthInterceptor {
    * Request interceptor - adds authentication token
    */
   onRequest(config: InternalAxiosRequestConfig): InternalAxiosRequestConfig {
+    if (import.meta.env?.DEV) {
+      const rawStorageToken = this.getStorage().getItem(this.config.tokenKey);
+      console.group(`[AuthInterceptor] onRequest → ${config.method?.toUpperCase()} ${config.url}`);
+      console.log('  storageType:', this.config.tokenStorage);
+      console.log('  tokenKey:', this.config.tokenKey);
+      console.log('  in-memory token BEFORE getValidToken():', this.tokens?.accessToken ? `${this.tokens.accessToken.slice(0, 20)}…` : null);
+      console.log('  raw storage value:', rawStorageToken ? `${rawStorageToken.slice(0, 20)}…` : null);
+      console.groupEnd();
+    }
+
     const token = this.getValidToken();
+
+    if (import.meta.env?.DEV) {
+      console.log(`[AuthInterceptor] getValidToken() returned:`, token ? `${token.slice(0, 20)}…` : null, `→ header ${token ? 'WILL' : 'will NOT'} be set`);
+    }
 
     if (token) {
       // Use AxiosHeaders.set() — the canonical Axios v1 API.
@@ -108,11 +122,14 @@ export class AuthInterceptor {
       _retry?: boolean;
     };
 
-    // Handle 401 unauthorized errors
+    // Handle 401 unauthorized errors — but only attempt refresh once per request
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
-      // Try to refresh token if available
+      // Only attempt refresh if we have a refresh token. A 401 can mean
+      // "insufficient role/permissions" (not "bad token"), so do NOT wipe
+      // tokens unconditionally — only clear them when we confirm the token
+      // itself is unrecoverable (refresh fails or no refresh token exists).
       if (this.config.autoRefresh && this.tokens?.refreshToken) {
         try {
           const newToken = await this.refreshToken();
@@ -125,15 +142,14 @@ export class AuthInterceptor {
             return axios.request(originalRequest);
           }
         } catch (refreshError) {
-          // Refresh failed, clear tokens and let error propagate
+          // Refresh definitively failed — the token is unrecoverable.
           this.clearTokens();
           this.notifyAuthFailure();
         }
-      } else {
-        // No refresh token available, clear tokens
-        this.clearTokens();
-        this.notifyAuthFailure();
       }
+      // No refresh token, or autoRefresh disabled: do NOT clear tokens here.
+      // The token may still be valid for other endpoints — a 401 on this
+      // specific request may simply mean the user lacks the required role.
     }
 
     return Promise.reject(error);
