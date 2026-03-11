@@ -79,7 +79,9 @@ export class TokenStorage {
       const storage = persistent ? this.persistentStorage : this.storage;
       if (!storage) return false;
 
-      if (accessToken) storage.setItem(this.storageKeys.accessToken, accessToken);
+      if (accessToken) {
+        storage.setItem(this.storageKeys.accessToken, accessToken);
+      }
       if (refreshToken) storage.setItem(this.storageKeys.refreshToken, refreshToken);
       if (user) storage.setItem(this.storageKeys.user, JSON.stringify(user));
       if (sessionId) storage.setItem(this.storageKeys.sessionId, sessionId);
