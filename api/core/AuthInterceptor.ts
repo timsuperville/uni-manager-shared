@@ -70,21 +70,7 @@ export class AuthInterceptor {
    * Request interceptor - adds authentication token
    */
   onRequest(config: InternalAxiosRequestConfig): InternalAxiosRequestConfig {
-    if (import.meta.env?.DEV) {
-      const rawStorageToken = this.getStorage().getItem(this.config.tokenKey);
-      console.group(`[AuthInterceptor] onRequest → ${config.method?.toUpperCase()} ${config.url}`);
-      console.log('  storageType:', this.config.tokenStorage);
-      console.log('  tokenKey:', this.config.tokenKey);
-      console.log('  in-memory token BEFORE getValidToken():', this.tokens?.accessToken ? `${this.tokens.accessToken.slice(0, 20)}…` : null);
-      console.log('  raw storage value:', rawStorageToken ? `${rawStorageToken.slice(0, 20)}…` : null);
-      console.groupEnd();
-    }
-
     const token = this.getValidToken();
-
-    if (import.meta.env?.DEV) {
-      console.log(`[AuthInterceptor] getValidToken() returned:`, token ? `${token.slice(0, 20)}…` : null, `→ header ${token ? 'WILL' : 'will NOT'} be set`);
-    }
 
     if (token) {
       // Use AxiosHeaders.set() — the canonical Axios v1 API.
