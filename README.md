@@ -19,7 +19,6 @@ shared/
 ├── components/       ← All reusable React components (canonical home for UI)
 │   ├── ui/           ← Liquid Glass primitives (Modal, Button, Card, Badge, Input…)
 │   ├── ErrorMonitoring.jsx   ← ErrorBoundary + initializeMonitoring + global handler
-│   ├── PresenceContext.jsx   ← WebSocket presence provider + usePresence hook
 │   ├── ApiProvider.jsx       ← Lightweight React context wrapper for API config
 │   ├── PerformanceDashboard.jsx ← Debug overlay (dev-mode perf display)
 │   ├── FeedbackQuickAction.jsx  ← Floating feedback widget + silent submit
@@ -34,8 +33,8 @@ shared/
 │   ├── environment.ts    ← getSharedEnvironmentConfig, getApiBaseUrl, getWebSocketUrl
 │   └── index.js          ← @shared/config barrel
 │
-├── context/          ← SHIM ONLY — re-exports from components/PresenceContext
-│   └── index.js      ← import { PresenceProvider } from "@shared/context" still works
+├── context/          ← PresenceContext.tsx / usePresence / PresenceProvider
+│   └── index.ts      ← @shared/context barrel (canonical TypeScript)
 │
 ├── data/             ← Static shared datasets
 │   ├── integrations.js   ← INTEGRATION_DATABASE, INTEGRATION_CATEGORIES, helpers
@@ -104,7 +103,7 @@ import { getApiBaseUrl } from "@shared/api";
 import { INTEGRATION_DATABASE } from "@shared/data";
 import { flex, textPrimary } from "@shared/styles/styleUtils";
 import { ErrorBoundary, initializeMonitoring } from "@shared/monitoring/ErrorMonitoring"; // shim ✅
-import { PresenceProvider } from "@shared/context"; // shim ✅
+import { PresenceProvider } from "@shared/context"; // ✅ PresenceContext.tsx
 
 // ❌ Wrong — relative cross-package imports
 import { Button } from "../../shared/components/ui/Button";
@@ -133,7 +132,7 @@ The following paths still work but point to their new canonical location in `com
 | Old import path                            | Canonical location   |
 | ------------------------------------------ | -------------------- |
 | `@shared/monitoring/ErrorMonitoring`       | `@shared/components` |
-| `@shared/context` (PresenceProvider)       | `@shared/components` |
+| `@shared/context` (PresenceProvider)       | `@shared/context` (PresenceContext.tsx) |
 | `@shared/performance/PerformanceDashboard` | `@shared/components` |
 | `@shared/services/ApiProvider`             | `@shared/components` |
 
