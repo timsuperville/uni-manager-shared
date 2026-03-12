@@ -3,7 +3,7 @@
  * Provides standardized access to user data fields
  */
 
-import { getAbsoluteUploadUrl } from "../api/utils";
+import { getAbsoluteUrl as getAbsoluteUploadUrl } from "../api/config/apiConfig";
 
 /**
  * Get user's avatar URL with fallback

@@ -73,6 +73,10 @@ export type { ApiQueryOptions } from "./hooks";
 
 export { ApiProvider } from "./components/ApiProvider";
 
+// Offline sync queue (IndexedDB-backed — used by church App.jsx on network recovery)
+export { syncEngine } from "./syncEngine";
+export type { SyncEntry, ServiceMap } from "./syncEngine";
+
 // ==================== CONVENIENCE EXPORTS ====================
 
 /**
