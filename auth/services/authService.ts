@@ -255,6 +255,10 @@ class AuthService {
       });
 
       if (response.status === 401 || response.status === 403) {
+        if (import.meta.env?.DEV) {
+          console.warn(`[AuthService] checkExistingSession: verify-token returned ${response.status} — clearing stored auth`);
+          response.clone().text().then(t => console.warn('[AuthService] verify-token response body:', t)).catch(() => {});
+        }
         this.clearStoredAuth();
         return null;
       }
@@ -359,6 +363,18 @@ class AuthService {
       const sessionId =
         (envelope["sessionId"] as string | undefined) ??
         (responseData["sessionId"] as string | undefined);
+
+      if (import.meta.env?.DEV) {
+        console.log('[AuthService.login] raw responseData:', JSON.stringify(responseData));
+        console.log('[AuthService.login] envelope:', JSON.stringify(envelope));
+        console.log('[AuthService.login] accessToken extracted:', accessToken?.slice(0, 20), '...');
+        if (accessToken) {
+          try {
+            const payload = JSON.parse(atob(accessToken.split('.')[1]!));
+            console.log('[AuthService.login] JWT payload:', payload);
+          } catch { /* ignore */ }
+        }
+      }
 
       if (responseData["success"] && accessToken) {
         this.tokenStorage.setTokens({
@@ -855,6 +871,7 @@ class AuthService {
 
   clearStoredAuth(): void {
     try {
+      if (import.meta.env?.DEV) console.trace('[AuthService] clearStoredAuth called — token about to be wiped');
       this.tokenStorage.clearTokens();
     } catch (error) {
       if (import.meta.env?.DEV) console.warn("[AuthService] clearStoredAuth failed:", (error as Error).message);
