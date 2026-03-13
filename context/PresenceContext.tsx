@@ -6,7 +6,7 @@ import React, {
   useRef,
   useCallback,
 } from "react";
-import { AuthContext } from "@shared/auth/context/AuthContext.jsx";
+import { AuthContext } from "../auth/context/AuthContext";
 import { getWebSocketUrl } from "../config/environment";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -63,11 +63,29 @@ export const PresenceProvider = ({ children }: { children: React.ReactNode }) =>
   const connect = useCallback(() => {
     if (!user || wsRef.current?.readyState === WebSocket.OPEN) return;
 
+    // Resolve the access token — try authService.getStoredToken() first, then fall
+    // back to known namespaced storage keys (admin, church, etc.) so presence isn't
+    // blocked by authService chain fragility at mount time.
+    const token =
+      auth?.authService?.getStoredToken?.() ??
+      sessionStorage.getItem('admin_auth_access_token') ??
+      sessionStorage.getItem('church_auth_access_token') ??
+      localStorage.getItem('admin_auth_access_token') ??
+      localStorage.getItem('church_auth_access_token') ??
+      null;
+
+    // Never connect without a token — the server will reject it with 1008
+    if (!token) {
+      if (import.meta.env.DEV) {
+        console.debug('[PresenceContext] No token available — skipping WS connection');
+      }
+      return;
+    }
+
     // Build the presence WebSocket URL — append /presence path to the API base.
     // PresenceServer is mounted at ws://host/presence?token=<JWT>
     const wsBase = getWebSocketUrl();
     const presenceBase = wsBase.endsWith('/presence') ? wsBase : wsBase.replace(/\/+$/, '') + '/presence';
-    const token = auth?.authService?.getStoredToken?.() ?? null;
     const urlWithAuth = `${presenceBase}?token=${token}`;
 
     try {
