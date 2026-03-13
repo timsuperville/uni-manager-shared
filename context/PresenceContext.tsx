@@ -63,9 +63,12 @@ export const PresenceProvider = ({ children }: { children: React.ReactNode }) =>
   const connect = useCallback(() => {
     if (!user || wsRef.current?.readyState === WebSocket.OPEN) return;
 
-    const wsUrl = getWebSocketUrl();
+    // Build the presence WebSocket URL — append /presence path to the API base.
+    // PresenceServer is mounted at ws://host/presence?token=<JWT>
+    const wsBase = getWebSocketUrl();
+    const presenceBase = wsBase.endsWith('/presence') ? wsBase : wsBase.replace(/\/+$/, '') + '/presence';
     const token = auth?.authService?.getStoredToken?.() ?? null;
-    const urlWithAuth = `${wsUrl}?token=${token}`;
+    const urlWithAuth = `${presenceBase}?token=${token}`;
 
     try {
       const ws = new WebSocket(urlWithAuth);
@@ -97,20 +100,30 @@ export const PresenceProvider = ({ children }: { children: React.ReactNode }) =>
         setSocket(null);
         wsRef.current = null;
 
-        if (event.code !== 1000 && event.code !== 1001 && user) {
+        // Cap reconnect attempts — if the WS server is unavailable (no backend WS
+        // handler yet), stop retrying after 5 attempts to avoid console noise.
+        const MAX_RECONNECT_ATTEMPTS = 5;
+        if (
+          event.code !== 1000 &&
+          event.code !== 1001 &&
+          user &&
+          reconnectAttemptsRef.current < MAX_RECONNECT_ATTEMPTS
+        ) {
           const delay = Math.min(
             1000 * Math.pow(2, reconnectAttemptsRef.current),
             30000,
           );
           if (import.meta.env.DEV) {
             console.debug(
-              `Reconnecting in ${delay}ms... (Attempt ${reconnectAttemptsRef.current + 1})`,
+              `Reconnecting in ${delay}ms... (Attempt ${reconnectAttemptsRef.current + 1}/${MAX_RECONNECT_ATTEMPTS})`,
             );
           }
           reconnectTimeoutRef.current = setTimeout(() => {
             reconnectAttemptsRef.current += 1;
             connect();
           }, delay);
+        } else if (reconnectAttemptsRef.current >= MAX_RECONNECT_ATTEMPTS && import.meta.env.DEV) {
+          console.debug("[PresenceContext] WS server unavailable — presence feature inactive until server is running.");
         }
       };
 
@@ -122,13 +135,26 @@ export const PresenceProvider = ({ children }: { children: React.ReactNode }) =>
 
       ws.onmessage = (event) => {
         try {
-          const message = JSON.parse(event.data as string) as { type: string; action: string };
-          if (message.type === "system" && message.action === "pong") {
-            // Heartbeat response — no action needed
+          const message = JSON.parse(event.data as string) as {
+            type: string;
+            action?: string;
+            data?: Record<string, unknown>;
+          };
+
+          // Heartbeat reply — no action needed
+          if (message.type === 'pong') return;
+
+          // Presence events (join, leave, update, roster snapshot) — handled by consumers
+          // via the socket ref; context-level state can be extended here if needed
+          if (message.type === 'presence') {
+            if (import.meta.env.DEV) {
+              console.debug('[PresenceContext] Presence event:', message.action, message.data);
+            }
+            return;
           }
         } catch (e) {
           if (import.meta.env.DEV) {
-            console.error("Error parsing WebSocket message:", e);
+            console.error('[PresenceContext] Error parsing WebSocket message:', e);
           }
         }
       };
@@ -154,6 +180,8 @@ export const PresenceProvider = ({ children }: { children: React.ReactNode }) =>
 
   useEffect(() => {
     if (user?.id) {
+      // Reset reconnect counter for each new authenticated session
+      reconnectAttemptsRef.current = 0;
       connect();
     } else {
       disconnect();
