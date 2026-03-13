@@ -204,7 +204,7 @@ class UnifiedTestManager {
       try {
         const testFiles = await glob(pattern);
         if (testFiles.length > 0) return true;
-      } catch {
+      } catch (_err) {
         // Intentionally silent — pattern may not match any path; try next pattern
       }
     }
@@ -218,7 +218,7 @@ class UnifiedTestManager {
     try {
       const testFiles = await glob('**/*.test.{js,jsx}', { cwd: testDir });
       return testFiles.length > 0;
-    } catch {
+    } catch (_err) {
       // Intentionally silent — directory exists but is not readable; treat as no tests
       return false;
     }
@@ -327,7 +327,7 @@ EXAMPLES:
 
     try {
       execSync(command, { stdio: 'inherit', cwd: process.cwd() });
-    } catch {
+    } catch (_err) {
       // Intentionally silent — vitest already prints failure output to stdio
       process.exit(1);
     }
@@ -342,7 +342,7 @@ EXAMPLES:
 
     try {
       execSync(command, { stdio: 'inherit', cwd: process.cwd() });
-    } catch {
+    } catch (_err) {
       // Intentionally silent — vitest already prints failure output to stdio
       process.exit(1);
     }

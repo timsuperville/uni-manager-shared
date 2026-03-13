@@ -44,7 +44,7 @@ async function fetchActiveGates(
 
     _cache.set(cacheKey, gateMap);
     return gateMap;
-  } catch {
+  } catch (_err) {
     // Network failure → fail open
     _cache.set(cacheKey, new Map());
     return new Map();

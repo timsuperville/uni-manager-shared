@@ -15,7 +15,7 @@ class ApiService {
     if (!this._base) {
       try {
         this._base = getApiBaseUrl();
-      } catch {
+      } catch (_err) {
         this._base = import.meta.env?.VITE_API_URL ?? "http://localhost:5000";
       }
     }

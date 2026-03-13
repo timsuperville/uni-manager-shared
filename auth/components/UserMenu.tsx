@@ -221,7 +221,7 @@ const UserMenu = ({
     try {
       await logout();
       setIsOpen(false);
-    } catch {
+    } catch (_err) {
       setIsLoggingOut(false);
     }
   }, [logout]);

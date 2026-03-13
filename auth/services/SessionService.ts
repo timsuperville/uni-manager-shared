@@ -346,7 +346,7 @@ class SessionService {
     if (existing) {
       try {
         trustedDevices = JSON.parse(existing) as string[];
-      } catch {
+      } catch (_err) {
         trustedDevices = [];
       }
     }

@@ -70,7 +70,7 @@ export async function submitFeedbackSilently({
                 systemContext: systemCtx,
             }),
         });
-    } catch {
+    } catch (_err) {
         // Intentionally silent — never surface auto-report errors to users
     }
 }

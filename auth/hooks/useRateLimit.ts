@@ -73,7 +73,7 @@ export const useRateLimit = (options: RateLimitOptions = {}): UseRateLimitReturn
       const detected = data.ip ?? "127.0.0.1";
       setClientIP(detected);
       return detected;
-    } catch {
+    } catch (_err) {
       const fallback = "127.0.0.1";
       setClientIP(fallback);
       return fallback;
@@ -113,7 +113,7 @@ export const useRateLimit = (options: RateLimitOptions = {}): UseRateLimitReturn
         }).recordAttempt(targetIdentifier, action, success);
         await checkRateLimit();
         return true;
-      } catch {
+      } catch (_err) {
         return false;
       }
     },
@@ -156,7 +156,7 @@ export const useRateLimit = (options: RateLimitOptions = {}): UseRateLimitReturn
       }).rateLimits.delete(`${targetIdentifier}:${action}`);
       await checkRateLimit();
       return true;
-    } catch {
+    } catch (_err) {
       return false;
     }
   }, [identifier, action, checkRateLimit, detectClientIP]);

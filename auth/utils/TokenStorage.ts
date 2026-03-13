@@ -166,7 +166,7 @@ export class TokenStorage {
   hasTokens(): boolean {
     try {
       return !!(this.getAccessToken() && this.getUser());
-    } catch {
+    } catch (_err) {
       return false;
     }
   }

@@ -34,7 +34,7 @@ export function useFocusModeListener() {
     const [isFocusModeActive, setIsFocusModeActive] = useState(() => {
         try {
             return localStorage.getItem(STORAGE_KEY) === "true";
-        } catch {
+        } catch (_err) {
             return false;
         }
     });

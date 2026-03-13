@@ -43,7 +43,7 @@ export function useNpsPulse({
       const daysSince =
         (Date.now() - parseInt(last, 10)) / (1000 * 60 * 60 * 24);
       return daysSince >= intervalDays;
-    } catch {
+    } catch (_err) {
       return false;
     }
   }, [storageKey, intervalDays]);
@@ -51,7 +51,7 @@ export function useNpsPulse({
   const markShown = useCallback(() => {
     try {
       localStorage.setItem(storageKey, String(Date.now()));
-    } catch {
+    } catch (_err) {
       // localStorage not available — ignore
     }
   }, [storageKey]);

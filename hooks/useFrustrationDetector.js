@@ -109,7 +109,7 @@ export function useFrustrationDetector({
 
       try {
         onFrustrated(fullContext);
-      } catch {
+      } catch (_err) {
         // Absorb any error in the caller so detection never crashes the UI
       }
     },

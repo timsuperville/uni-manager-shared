@@ -311,7 +311,7 @@ export class SharedDataCache {
         if (subscription.regex.test(key)) {
           try {
             subscription.callback({ key, value, operation, timestamp: Date.now(), appName });
-          } catch {
+          } catch (_err) {
             // Intentionally silent — one bad subscriber must not break others
           }
         }
@@ -366,7 +366,7 @@ export class SharedDataCache {
         const meta = this.metadata.get(key);
         this.set(key, newValue, { ttl: meta?.ttl });
       }
-    } catch {
+    } catch (_err) {
       // Intentionally silent — stale data remains until next cleanup tick
     } finally {
       this.pendingOperations.delete(key);
@@ -382,7 +382,7 @@ export class SharedDataCache {
       if (typeof localStorage === "undefined") return;
       const data: PersistedEntry = { value, metadata: { ...meta, persistedAt: Date.now() } };
       localStorage.setItem(`uni_cache_${key}`, JSON.stringify(data));
-    } catch {
+    } catch (_err) {
       // Intentionally silent — persistence is best-effort
     }
   }
@@ -390,7 +390,7 @@ export class SharedDataCache {
   private removePersistedEntry(key: string): void {
     try {
       if (typeof localStorage !== "undefined") localStorage.removeItem(`uni_cache_${key}`);
-    } catch {
+    } catch (_err) {
       // Intentionally silent
     }
   }
@@ -412,11 +412,11 @@ export class SharedDataCache {
           } else {
             localStorage.removeItem(persistKey);
           }
-        } catch {
+        } catch (_err) {
           localStorage.removeItem(persistKey);
         }
       }
-    } catch {
+    } catch (_err) {
       // localStorage may be entirely unavailable (SSR, private browsing)
     }
   }
@@ -433,7 +433,7 @@ export class SharedDataCache {
         const data = JSON.parse(event.newValue) as PersistedEntry;
         this.cache.set(key, data.value);
         this.metadata.set(key, data.metadata);
-      } catch {
+      } catch (_err) {
         // Intentionally silent — corrupted entry; skip
       }
     }

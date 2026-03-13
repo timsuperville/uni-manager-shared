@@ -120,7 +120,7 @@ class AuthService {
       if (url && url.startsWith("http")) {
         try {
           transformedEndpoints[key] = new URL(url).pathname;
-        } catch {
+        } catch (_err) {
           transformedEndpoints[key] = url;
         }
       } else {
@@ -749,7 +749,7 @@ class AuthService {
 
       const responseData = await response.json() as { valid?: boolean };
       return response.ok && !!responseData.valid;
-    } catch {
+    } catch (_err) {
       return false;
     }
   }
@@ -847,7 +847,7 @@ class AuthService {
         app: this.config.appType,
         deviceFingerprint: this.deviceFingerprint,
       });
-    } catch {
+    } catch (_err) {
       // Intentionally silent — activity tracking is best-effort and must not
       // disrupt the auth flow if the tracker itself throws.
     }

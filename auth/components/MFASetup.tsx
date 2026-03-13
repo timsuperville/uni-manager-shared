@@ -130,7 +130,7 @@ const MFASetup = ({ onSetupComplete, onCancel, className = "" }: MFASetupProps) 
       }
       setCopiedStates((prev) => ({ ...prev, [key]: true }));
       setTimeout(() => setCopiedStates((prev) => ({ ...prev, [key]: false })), 2000);
-    } catch {
+    } catch (_err) {
       // Fallback for browsers without clipboard API
       if (typeof document !== "undefined") {
         const textArea = document.createElement("textarea");

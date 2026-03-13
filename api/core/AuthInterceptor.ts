@@ -338,7 +338,7 @@ export class AuthInterceptor {
                 resolvedExpiresAt = payload.exp * 1000; // Convert seconds → ms
               }
             }
-          } catch {
+          } catch (_err) {
             // Intentionally silent — decoding is best-effort; refresh will still
             // fire on 401 via the onError interceptor.
           }

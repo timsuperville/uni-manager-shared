@@ -260,7 +260,7 @@ async function handleApiRequest(request) {
     }
 
     return networkResponse;
-  } catch {
+  } catch (_err) {
     // Intentionally silent — network unavailable; serve from cache or return offline response
     dbg("Network request failed, trying cache:", request.url);
 
@@ -309,7 +309,7 @@ async function handleDocumentRequest(request) {
     }
 
     return networkResponse;
-  } catch {
+  } catch (_err) {
     // Intentionally silent — serve offline page when both cache and network unavailable
     dbg("Document request failed, serving offline page");
     const offlineResponse = await caches.match("/offline.html");
@@ -337,7 +337,7 @@ async function handleStaticRequest(request) {
     }
 
     return networkResponse;
-  } catch {
+  } catch (_err) {
     // Intentionally silent — return offline placeholder when static asset unavailable
     dbg("Static request failed:", request.url);
     return new Response("Resource unavailable offline", { status: 503 });
@@ -351,7 +351,7 @@ async function handleMutationRequest(request) {
   try {
     // Try network first for mutations
     return await fetch(request);
-  } catch {
+  } catch (_err) {
     // Intentionally silent — queue for background sync when network unavailable
     dbg("Mutation request failed, adding to sync queue:", request.url);
 

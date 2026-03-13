@@ -345,7 +345,7 @@ export const trackUserActivity = async (
     if (activities.length > 100) activities.splice(0, activities.length - 100);
 
     sessionStorage.setItem("userActivities", JSON.stringify(activities));
-  } catch {
+  } catch (_err) {
     // Intentionally silent — activity tracking is non-critical; loss is acceptable
   }
 };

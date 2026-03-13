@@ -77,7 +77,7 @@ export function LoginForm({
     try {
       const param = new URLSearchParams(location.search).get("returnTo");
       return param && param.startsWith("/") ? param : null;
-    } catch {
+    } catch (_err) {
       return null;
     }
   })();

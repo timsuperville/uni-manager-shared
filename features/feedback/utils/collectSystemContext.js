@@ -71,13 +71,13 @@ export function collectSystemContext(appName, user = null) {
     try {
         const mem = performance?.memory;
         if (mem?.usedJSHeapSize) memoryMb = Math.round(mem.usedJSHeapSize / 1024 / 1024);
-    } catch { }
+    } catch (_err) { }
 
     let loadTimingMs = null;
     try {
         const nav = performance?.getEntriesByType?.("navigation")?.[0];
         if (nav?.domInteractive) loadTimingMs = Math.round(nav.domInteractive);
-    } catch { }
+    } catch (_err) { }
 
     let connection = null;
     try {
@@ -93,7 +93,7 @@ export function collectSystemContext(appName, user = null) {
                 saveData: conn.saveData || false,
             };
         }
-    } catch { }
+    } catch (_err) { }
 
     let storageKeys = null;
     try {
@@ -101,13 +101,13 @@ export function collectSystemContext(appName, user = null) {
             localStorage: localStorage.length,
             sessionStorage: sessionStorage.length,
         };
-    } catch { }
+    } catch (_err) { }
 
     let navigationHistory = null;
-    try { navigationHistory = window.__feedbackNavHistory || []; } catch { }
+    try { navigationHistory = window.__feedbackNavHistory || []; } catch (_err) { }
 
     let pageVisibilityState = null;
-    try { pageVisibilityState = document.visibilityState || null; } catch { }
+    try { pageVisibilityState = document.visibilityState || null; } catch (_err) { }
 
     const env =
         typeof import.meta !== "undefined" && import.meta?.env?.MODE === "production"
@@ -200,7 +200,7 @@ export function collectSystemContext(appName, user = null) {
                 try {
                     const lim = performance?.memory?.jsHeapSizeLimit;
                     return lim ? Math.round(lim / 1024 / 1024) : null;
-                } catch { return null; }
+                } catch (_err) { return null; }
             })(),
         },
     };

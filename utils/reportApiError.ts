@@ -130,7 +130,7 @@ export async function reportApiError(report: ApiErrorReport): Promise<void> {
         ...(report.context ?? {}),
       }),
     });
-  } catch {
+  } catch (_err) {
     // Intentionally silent — this reporter must never surface errors itself.
   }
 }

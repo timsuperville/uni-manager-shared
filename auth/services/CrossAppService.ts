@@ -228,7 +228,7 @@ class SharedAuthService extends SimpleEventEmitter {
       } else {
         this.clearAuthState();
       }
-    } catch {
+    } catch (_err) {
       this.clearAuthState();
     }
   }
@@ -259,7 +259,7 @@ class SharedAuthService extends SimpleEventEmitter {
       }
 
       return this.isAuthenticated();
-    } catch {
+    } catch (_err) {
       this.clearAuthState();
       return false;
     }

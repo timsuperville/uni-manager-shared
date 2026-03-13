@@ -174,7 +174,7 @@ class UnifiedTestManager {
         cwd: featureTestDir,
       });
       return testFiles.length > 0;
-    } catch {
+    } catch (_err) {
       return false;
     }
   }
@@ -186,7 +186,7 @@ class UnifiedTestManager {
     try {
       const testFiles = await glob("**/*.test.{js,jsx}", { cwd: testDir });
       return testFiles.length > 0;
-    } catch {
+    } catch (_err) {
       return false;
     }
   }
@@ -297,7 +297,7 @@ class UnifiedTestManager {
 
     try {
       execSync(command, { stdio: "inherit", cwd: process.cwd() });
-    } catch {
+    } catch (_err) {
       // console.error(`[ERROR] Tests failed for ${ featureName }`);
       process.exit(1);
     }
@@ -319,7 +319,7 @@ class UnifiedTestManager {
 
     try {
       execSync(command, { stdio: "inherit", cwd: process.cwd() });
-    } catch {
+    } catch (_err) {
       // console.error(`[ERROR] Tests failed for ${ mode } mode`);
       process.exit(1);
     }
@@ -334,7 +334,7 @@ class UnifiedTestManager {
 
     try {
       execSync(command, { stdio: "inherit", cwd: process.cwd() });
-    } catch {
+    } catch (_err) {
       // console.error('[ERROR] Some tests failed');
       process.exit(1);
     }

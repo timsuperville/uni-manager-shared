@@ -214,7 +214,7 @@ export const LocationService = {
       const data = (raw?.data ?? raw) || null;
       if (data) cache.set(cacheKey, data, 3600000);
       return data;
-    } catch {
+    } catch (_err) {
       // Non-fatal — return reasonable defaults
       const defaults = {
         postalCodeLabel: countryCode === "CA" ? "Postal Code" : "ZIP Code",
@@ -259,7 +259,7 @@ export const LocationService = {
         countryCode: addr.country_code?.toUpperCase() ?? null,
         state: addr.state ?? addr.province ?? addr.region ?? null,
       };
-    } catch {
+    } catch (_err) {
       return null;
     }
   },
@@ -383,7 +383,7 @@ export const LocationService = {
       if (timeZone.startsWith("Australia/") || timeZone === "Pacific/Auckland") return "AU";
 
       return "";
-    } catch {
+    } catch (_err) {
       return "";
     }
   },
