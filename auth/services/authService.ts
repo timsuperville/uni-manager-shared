@@ -278,14 +278,26 @@ class AuthService {
         return null;
       }
 
-      this.currentUser = responseData["user"];
+      // The canonical API response shape is { success, data: { valid, user } }.
+      // Unwrap the data envelope; fall back to top-level user for legacy compatibility.
+      const envelope = responseData["data"] as Record<string, unknown> | undefined;
+      const user = (envelope?.["user"] ?? responseData["user"]) as User | undefined;
+
+      this.currentUser = user ?? null;
       this.sessionToken = token;
 
-      if (responseData["user"]) {
-        this.tokenStorage.updateUser(responseData["user"] as Partial<User>);
+      if (user) {
+        this.tokenStorage.updateUser(user as Partial<User>);
+      } else {
+        // verify-token succeeded but returned no user — restore from storage
+        const storedUser = this.tokenStorage.getUser();
+        if (storedUser) {
+          this.currentUser = storedUser;
+          return storedUser;
+        }
       }
 
-      return responseData["user"];
+      return this.currentUser;
     } catch (error) {
       if (import.meta.env.DEV) console.warn("[AuthService] validateToken fallback to stored user:", (error as Error).message);
       const storedUser = this.tokenStorage.getUser();
