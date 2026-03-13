@@ -365,16 +365,14 @@ class AuthService {
           accessToken,
           refreshToken,
           user: user as User | undefined,
+          sessionId: sessionId ?? undefined,
         });
         this.currentUser = user;
         this.sessionToken = accessToken;
 
-        // Persist sessionId so logout can send it to the backend.
+        // Keep in-memory sessionId for this service instance (used by logout).
         if (sessionId) {
           this.sessionId = sessionId;
-          try {
-            sessionStorage.setItem(`${this.tokenStorage['namespace']}_session_id`, sessionId);
-          } catch { /* storage unavailable */ }
         }
 
         this.resetLoginAttempts(email);
