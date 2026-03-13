@@ -136,6 +136,16 @@ export interface AuthContextType {
   isAnyAdmin?: () => boolean;
   getApplicationRoles?: (app: string) => string[];
   getPermissionSummary?: () => Record<string, unknown>;
+
+  /**
+   * The underlying auth service instance — provides access to token storage
+   * and other auth operations that are not exposed as individual context fields.
+   * Use sparingly; prefer dedicated context fields where they exist.
+   */
+  authService?: {
+    getStoredToken: () => string | null;
+    [key: string]: unknown;
+  };
 }
 
 // ==================== LOGIN & SIGNUP ====================

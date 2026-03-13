@@ -64,7 +64,7 @@ export const PresenceProvider = ({ children }: { children: React.ReactNode }) =>
     if (!user || wsRef.current?.readyState === WebSocket.OPEN) return;
 
     const wsUrl = getWebSocketUrl();
-    const token = localStorage.getItem("token");
+    const token = auth?.authService?.getStoredToken?.() ?? null;
     const urlWithAuth = `${wsUrl}?token=${token}`;
 
     try {
