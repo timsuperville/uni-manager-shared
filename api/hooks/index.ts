@@ -225,18 +225,18 @@ export function useApiMutation<TData, TVariables>(
 /**
  * Hook for file uploads with progress tracking
  */
-export const useFileUpload = (
-  uploadFn: (file: File) => Promise<any>,
+export const useFileUpload = <TResult = unknown>(
+  uploadFn: (file: File) => Promise<TResult>,
   options?: {
     onProgress?: (progress: number) => void;
-    onSuccess?: (result: any) => void;
+    onSuccess?: (result: TResult) => void;
     onError?: (error: Error) => void;
   },
 ) => {
   const [isUploading, setIsUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState(null);
+  const [result, setResult] = useState<TResult | null>(null);
 
   const { onProgress, onSuccess, onError } = options || {};
 
@@ -247,11 +247,12 @@ export const useFileUpload = (
         setError(null);
         setProgress(0);
 
-        // Listen for progress events
-        const progressHandler = (event: any) => {
-          const progress = event.detail?.progress || 0;
-          setProgress(progress);
-          onProgress?.(progress);
+        // Listen for progress CustomEvents dispatched by upload services.
+        const progressHandler = (event: Event) => {
+          const customEvent = event as CustomEvent<{ progress: number }>;
+          const pct = customEvent.detail?.progress ?? 0;
+          setProgress(pct);
+          onProgress?.(pct);
         };
 
         typeof window !== "undefined" &&

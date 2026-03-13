@@ -425,7 +425,7 @@ export interface ErrorResponse {
   message: string;
   statusCode: number;
   timestamp: string;
-  details?: any;
+  details?: unknown;
 }
 
 // ==================== UTILITY TYPES ====================
@@ -633,7 +633,7 @@ export interface Notification extends BaseEntity {
   readAt?: string;
   archivedAt?: string;
   templateId?: string;
-  data?: Record<string, any>;
+  data?: Record<string, unknown>;
   channels: Array<"email" | "push" | "sms" | "in-app">;
   deliveryStatus: {
     email?: "sent" | "delivered" | "failed" | "bounced";
@@ -651,7 +651,7 @@ export interface CreateNotificationRequest {
   priority?: "low" | "normal" | "high" | "urgent";
   scheduledFor?: string;
   templateId?: string;
-  data?: Record<string, any>;
+  data?: Record<string, unknown>;
   channels?: Array<"email" | "push" | "sms" | "in-app">;
 }
 
