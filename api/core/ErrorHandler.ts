@@ -8,6 +8,20 @@
 import { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios";
 import { reportApiError } from "@shared/utils";
 
+/** Ambient type for optional window-level error tracker (e.g. Sentry, LogRocket). */
+interface ErrorTracker {
+  captureException(
+    error: unknown,
+    context?: { extra?: Record<string, unknown> },
+  ): void;
+}
+
+declare global {
+  interface Window {
+    errorTracker?: ErrorTracker;
+  }
+}
+
 export enum ApiErrorType {
   NETWORK_ERROR = "NETWORK_ERROR",
   VALIDATION_ERROR = "VALIDATION_ERROR",
@@ -25,7 +39,7 @@ export interface ApiError extends Error {
   statusCode?: number;
   originalError?: Error;
   retryable: boolean;
-  details?: any;
+  details?: unknown;
   timestamp: string;
   requestId?: string;
 }
@@ -52,7 +66,7 @@ export class ErrorHandler {
   async handleError(
     error: AxiosError,
     axiosInstance: AxiosInstance,
-  ): Promise<any> {
+  ): Promise<unknown> {
     const apiError = this.transformError(error);
     const config = error.config as AxiosRequestConfig & {
       _retryCount?: number;
@@ -123,7 +137,7 @@ export class ErrorHandler {
     statusCode?: number;
     originalError?: Error;
     retryable: boolean;
-    details?: any;
+    details?: unknown;
     timestamp: string;
     requestId?: string;
   }): ApiError {
@@ -161,7 +175,7 @@ export class ErrorHandler {
     }
   }
 
-  private extractErrorMessage(responseData: any): string {
+  private extractErrorMessage(responseData: unknown): string {
     if (typeof responseData === "string") {
       return responseData;
     }
@@ -247,12 +261,15 @@ export class ErrorHandler {
     return axiosInstance.request(config);
   }
 
-  private logError(error: ApiError, config?: AxiosRequestConfig): void {
+  private logError(
+    error: ApiError,
+    config?: AxiosRequestConfig & { _retryCount?: number },
+  ): void {
     const context: ErrorContext = {
       endpoint: config?.url,
       method: config?.method?.toUpperCase(),
       requestId: error.requestId,
-      attemptNumber: (config as any)?._retryCount || 1,
+      attemptNumber: config?._retryCount ?? 1,
     };
 
     if (import.meta.env.DEV) {
@@ -277,13 +294,13 @@ export class ErrorHandler {
       context: {
         errorType: error.type,
         requestId: error.requestId,
-        retryCount: (config as any)?._retryCount ?? 0,
+        retryCount: config?._retryCount ?? 0,
       },
     });
 
-    // Forward to window-level tracker if configured (e.g. Sentry)
-    if (typeof window !== "undefined" && (window as any).errorTracker) {
-      (window as any).errorTracker.captureException(error, { extra: context });
+    // Forward to window-level tracker if configured (e.g. Sentry, LogRocket)
+    if (typeof window !== "undefined" && window.errorTracker) {
+      window.errorTracker.captureException(error, { extra: context });
     }
   }
 
