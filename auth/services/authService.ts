@@ -100,6 +100,7 @@ class AuthService {
   private readonly apiEndpoint: string;
   private currentUser: unknown = null;
   private sessionToken: string | null = null;
+  private sessionId: string | null = null;
   private deviceFingerprint: string | null = null;
   private activityTracker: ReturnType<typeof setInterval> | null = null;
   private readonly tokenStorage: TokenStorage;
@@ -337,26 +338,56 @@ class AuthService {
 
       const responseData = await this._handleResponse(response);
 
-      if (responseData["success"] && responseData["accessToken"]) {
-        this.tokenStorage.setTokens({
-          accessToken: responseData["accessToken"] as string,
-          refreshToken: responseData["refreshToken"] as string | undefined,
-          user: responseData["user"] as User | undefined,
-        });
-        this.currentUser = responseData["user"] as User | undefined;
-        this.sessionToken = responseData["accessToken"] as string;
-        this.resetLoginAttempts(email);
+      // The admin login endpoint wraps its payload in a `data` envelope:
+      // { success, data: { admin, tokens: { accessToken, refreshToken }, sessionId } }
+      // Fall back to a flat shape for other auth endpoints.
+      const envelope = (responseData["data"] as Record<string, unknown> | undefined) ?? responseData;
+      const tokens = (envelope["tokens"] as Record<string, string> | undefined);
+      const accessToken =
+        (tokens?.["accessToken"]) ??
+        (responseData["accessToken"] as string | undefined) ??
+        (envelope["accessToken"] as string | undefined);
+      const refreshToken =
+        (tokens?.["refreshToken"]) ??
+        (responseData["refreshToken"] as string | undefined) ??
+        (envelope["refreshToken"] as string | undefined);
+      // admin endpoint returns `admin` key; other endpoints return `user`
+      const user =
+        (envelope["admin"] as Record<string, unknown> | undefined) ??
+        (envelope["user"] as Record<string, unknown> | undefined) ??
+        (responseData["user"] as Record<string, unknown> | undefined);
+      const sessionId =
+        (envelope["sessionId"] as string | undefined) ??
+        (responseData["sessionId"] as string | undefined);
 
-        return { success: true, user: responseData["user"], session: responseData["session"] };
+      if (responseData["success"] && accessToken) {
+        this.tokenStorage.setTokens({
+          accessToken,
+          refreshToken,
+          user: user as User | undefined,
+        });
+        this.currentUser = user;
+        this.sessionToken = accessToken;
+
+        // Persist sessionId so logout can send it to the backend.
+        if (sessionId) {
+          this.sessionId = sessionId;
+          try {
+            sessionStorage.setItem(`${this.tokenStorage['namespace']}_session_id`, sessionId);
+          } catch { /* storage unavailable */ }
+        }
+
+        this.resetLoginAttempts(email);
+        return { success: true, user, session: envelope["session"] ?? responseData["session"] };
       }
 
-      if (responseData["success"] && responseData["requiresMFA"]) {
+      if (responseData["success"] && (responseData["requiresMFA"] || envelope["requiresMFA"])) {
         this.resetLoginAttempts(email);
         return {
           success: true,
           requiresMFA: true,
-          userId: responseData["userId"] as string | undefined,
-          tempToken: responseData["tempToken"] as string | undefined,
+          userId: (responseData["userId"] ?? envelope["userId"]) as string | undefined,
+          tempToken: (responseData["tempToken"] ?? envelope["tempToken"]) as string | undefined,
         };
       }
 
@@ -371,12 +402,27 @@ class AuthService {
   async logout(): Promise<{ success: true }> {
     try {
       const token = this.getStoredToken();
+      // Retrieve persisted sessionId — required by the admin logout endpoint.
+      const storedSessionId =
+        this.sessionId ??
+        (() => {
+          try {
+            return sessionStorage.getItem(`${this.tokenStorage['namespace']}_session_id`);
+          } catch { return null; }
+        })();
+
       if (token) {
         await this._makeRequest("logout", {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` },
+          // Always send body — admin logout requires sessionId in the body.
+          // Non-admin endpoints ignore the field gracefully.
+          body: JSON.stringify({ sessionId: storedSessionId ?? undefined }),
         });
       }
+      // Clean up persisted sessionId
+      try { sessionStorage.removeItem(`${this.tokenStorage['namespace']}_session_id`); } catch { /* storage unavailable */ }
+      this.sessionId = null;
       this.clearStoredAuth();
       this.currentUser = null;
       this.sessionToken = null;
@@ -384,6 +430,8 @@ class AuthService {
       return { success: true };
     } catch (error) {
       if (import.meta.env.DEV) console.warn("[AuthService] logout backend call failed — clearing local session:", (error as Error).message);
+      try { sessionStorage.removeItem(`${this.tokenStorage['namespace']}_session_id`); } catch { /* storage unavailable */ }
+      this.sessionId = null;
       this.clearStoredAuth();
       this.currentUser = null;
       this.sessionToken = null;
