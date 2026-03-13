@@ -7,13 +7,7 @@
  * Creates consistent test infrastructure across all applications.
  */
 
-import {
-  existsSync,
-  readFileSync,
-  writeFileSync,
-  mkdirSync,
-  copyFileSync,
-} from "fs";
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import { execSync } from "child_process";
@@ -31,19 +25,19 @@ class TestInfrastructureGenerator {
     );
     this.appsDir = join(this.sharedDir, "..", "apps");
 
-    // Apps that need unified test infrastructure
-    this.targetApps = ["admin", "home", "business", "personal", "playback"];
+    // Apps that need unified test infrastructure (business → work, Cycle #440)
+    this.targetApps = ["admin", "home", "work", "personal", "playback"];
   }
 
   async generateTestManager(appName) {
-    // console.log(`🔧 Generating test manager for ${appName} app...`);
+    console.log(`🔧 Generating test manager for ${appName} app...`);
 
     const appDir = join(this.appsDir, appName);
     const srcDir = join(appDir, "src");
     const testManagerPath = join(srcDir, "test-manager.js");
 
     if (!existsSync(appDir)) {
-      // console.error(`❌ App directory not found: ${appDir}`);
+      console.error(`❌ App directory not found: ${appDir}`);
       return false;
     }
 
@@ -55,7 +49,7 @@ class TestInfrastructureGenerator {
     const testManagerContent = this.createAppTestManager(appName);
     writeFileSync(testManagerPath, testManagerContent, "utf8");
 
-    // console.log(`✅ Created test manager for ${appName}: ${testManagerPath}`);
+    console.log(`✅ Created test manager for ${appName}: ${testManagerPath}`);
     return true;
   }
 
@@ -139,7 +133,9 @@ class UnifiedTestManager {
       return this.discoveredSuites;
     }
 
-    // console.log(\`🔍 Discovering test suites for \${this.appName}...\`);
+    if (this.options.verbose) {
+      console.log(\`🔍 Discovering test suites for \${this.appName}...\`);
+    }
 
     try {
       // Discover feature-based tests
@@ -179,20 +175,20 @@ class UnifiedTestManager {
         if (testFiles.length > 0) {
           this.discoveredSuites.set('general', {
             name: 'general',
-            type: 'general-tests', 
+            type: 'general-tests',
             testFiles: testFiles.length,
           });
         }
       }
 
       if (this.options.verbose) {
-        // console.log(\`📋 Found \${this.discoveredSuites.size} test suites:\`);
+        console.log(\`📋 Found \${this.discoveredSuites.size} test suites:\`);
         for (const [name, suite] of this.discoveredSuites) {
-          // console.log(\`   • \${name} (\${suite.type})\`);
+          console.log(\`   • \${name} (\${suite.type})\`);
         }
       }
-    } catch (_error) {
-      // console.error('❌ Error discovering test suites:', error.message);
+    } catch (discoverError) {
+      console.error('❌ Error discovering test suites:', discoverError instanceof Error ? discoverError.message : String(discoverError));
     }
 
     return this.discoveredSuites;
@@ -203,12 +199,14 @@ class UnifiedTestManager {
       join(this.featuresDir, feature, '**', '*.test.{js,jsx}'),
       join(this.featuresDir, feature, 'tests', '**', '*.test.{js,jsx}')
     ];
-    
+
     for (const pattern of testPatterns) {
       try {
         const testFiles = await glob(pattern);
         if (testFiles.length > 0) return true;
-      } catch {}
+      } catch {
+        // Intentionally silent — pattern may not match any path; try next pattern
+      }
     }
     return false;
   }
@@ -221,12 +219,13 @@ class UnifiedTestManager {
       const testFiles = await glob('**/*.test.{js,jsx}', { cwd: testDir });
       return testFiles.length > 0;
     } catch {
+      // Intentionally silent — directory exists but is not readable; treat as no tests
       return false;
     }
   }
 
   showHelp() {
-    // console.log(\`
+    console.log(\`
 🧪 UNIFIED TEST MANAGEMENT SYSTEM - \${this.appName.toUpperCase()}
 
 USAGE:
@@ -238,7 +237,7 @@ FEATURE TESTING:
   npm test [feature] --unit       # Feature unit tests only
   npm test [feature] --integration # Feature integration tests
   npm test components             # Component tests
-  npm test general               # General/shared tests
+  npm test general                # General/shared tests
 
 SCOPE OPTIONS:
   --all, -a                      # Run all available tests
@@ -251,7 +250,7 @@ TEST TYPE OPTIONS:
 
 EXECUTION OPTIONS:
   --watch, -w                    # Watch mode
-  --ui                          # Open test UI
+  --ui                           # Open test UI
   --coverage, -c                 # Generate coverage report
   --verbose, -v                  # Verbose output
   --help, -h                     # Show this help
@@ -297,18 +296,18 @@ EXAMPLES:
   async runFeatureTests(featureName) {
     const suite = this.discoveredSuites.get(featureName);
     if (!suite) {
-      // console.error(\`❌ Feature "\${featureName}" not found.\`);
-      // console.log("\\n📋 Available test suites:");
+      console.error(\`❌ Feature "\${featureName}" not found.\`);
+      console.log('\\n📋 Available test suites:');
       for (const [name, info] of this.discoveredSuites) {
-        // console.log(\`   • \${name} (\${info.type})\`);
+        console.log(\`   • \${name} (\${info.type})\`);
       }
       return;
     }
 
-    // console.log(\`🧪 Running \${featureName} tests...\`);
+    console.log(\`🧪 Running \${featureName} tests...\`);
 
     let command = 'npx vitest run';
-    
+
     if (suite.type === 'feature') {
       if (this.options.type === 'unit') {
         command += \` "src/features/\${featureName}/tests/unit/**/*.test.{js,jsx}"\`;
@@ -318,9 +317,9 @@ EXAMPLES:
         command += \` "src/features/\${featureName}/**/*.test.{js,jsx}"\`;
       }
     } else if (suite.type === 'component-tests') {
-      command += ' 'src/components/**/*.test.{js,jsx}'';
+      command += ' "src/components/**/*.test.{js,jsx}"';
     } else if (suite.type === 'general-tests') {
-      command += ' 'src/tests/**/*.test.{js,jsx}'';
+      command += ' "src/tests/**/*.test.{js,jsx}"';
     }
 
     if (this.options.coverage) command += ' --coverage';
@@ -329,13 +328,13 @@ EXAMPLES:
     try {
       execSync(command, { stdio: 'inherit', cwd: process.cwd() });
     } catch {
-      // console.error(\`❌ Tests failed for \${featureName}\`);
+      // Intentionally silent — vitest already prints failure output to stdio
       process.exit(1);
     }
   }
 
   async runAllTests() {
-    // console.log(\`🚀 Running all available tests for \${this.appName}...\`);
+    console.log(\`🚀 Running all available tests for \${this.appName}...\`);
 
     let command = 'npx vitest run';
     if (this.options.coverage) command += ' --coverage';
@@ -344,31 +343,31 @@ EXAMPLES:
     try {
       execSync(command, { stdio: 'inherit', cwd: process.cwd() });
     } catch {
-      // console.error('❌ Some tests failed');
+      // Intentionally silent — vitest already prints failure output to stdio
       process.exit(1);
     }
   }
 
   runUIMode() {
-    // console.log(\`🖥️  Opening test UI for \${this.appName}...\`);
+    console.log(\`🖥️  Opening test UI for \${this.appName}...\`);
     execSync('npx vitest --ui', { stdio: 'inherit', cwd: process.cwd() });
   }
 
   runWatchMode() {
-    // console.log(\`👀 Starting watch mode for \${this.appName}...\`);
+    console.log(\`👀 Starting watch mode for \${this.appName}...\`);
     execSync('npx vitest --watch', { stdio: 'inherit', cwd: process.cwd() });
   }
 
   runChangedTests() {
-    // console.log(\`📊 Running tests for changed files in \${this.appName}...\`);
+    console.log(\`📊 Running tests for changed files in \${this.appName}...\`);
     execSync('npx vitest --changed', { stdio: 'inherit', cwd: process.cwd() });
   }
 
   runDefaultTests() {
     let command = 'npx vitest run';
     if (this.options.coverage) command += ' --coverage';
-    
-    // console.log(\`🧪 Running default tests for \${this.appName}: \${command}\`);
+
+    console.log(\`🧪 Running default tests for \${this.appName}: \${command}\`);
     execSync(command, { stdio: 'inherit', cwd: process.cwd() });
   }
 }
@@ -380,8 +379,8 @@ if (
     import.meta.url.includes(process.argv[1]))
 ) {
   const manager = new UnifiedTestManager();
-  manager.run().catch((_error) => {
-    // console.error('💥 Test manager failed:', error.message);
+  manager.run().catch((runError) => {
+    console.error('💥 Test manager failed:', runError instanceof Error ? runError.message : String(runError));
     process.exit(1);
   });
 }
@@ -390,21 +389,18 @@ export { UnifiedTestManager };`;
   }
 
   async updatePackageJson(appName) {
-    // console.log(`📦 Updating package.json for ${appName} app...`);
+    console.log(`📦 Updating package.json for ${appName} app...`);
 
     const appDir = join(this.appsDir, appName);
     const packageJsonPath = join(appDir, "package.json");
 
     if (!existsSync(packageJsonPath)) {
-      // console.error(`❌ package.json not found: ${packageJsonPath}`);
+      console.error(`❌ package.json not found: ${packageJsonPath}`);
       return false;
     }
 
     try {
       const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8"));
-
-      // Replace test scripts with unified system
-      const oldScripts = { ...packageJson.scripts };
 
       // Remove old test scripts
       delete packageJson.scripts["test:run"];
@@ -422,50 +418,52 @@ export { UnifiedTestManager };`;
         "utf8",
       );
 
-      // console.log(`✅ Updated package.json for ${appName}`);
-      //   `   Old scripts: ${Object.keys(oldScripts).filter((k) => k.startsWith('test')).length}`,
-      // );
-      // console.log(`   New scripts: 4 unified commands`);
-
+      console.log(
+        `✅ Updated package.json for ${appName} (4 unified test commands)`,
+      );
       return true;
-    } catch (_error) {
-      // console.error(
-      (`❌ Failed to update package.json for ${appName}:`, error.message);
+    } catch (pkgError) {
+      console.error(
+        `❌ Failed to update package.json for ${appName}:`,
+        pkgError instanceof Error ? pkgError.message : String(pkgError),
+      );
       return false;
     }
   }
 
   async run() {
-    // console.log('🚀 UNIFIED TEST INFRASTRUCTURE GENERATOR');
-    // console.log(`📂 Target apps: ${this.targetApps.join(', ')}`);
+    console.log("🚀 UNIFIED TEST INFRASTRUCTURE GENERATOR");
+    console.log(`📂 Target apps: ${this.targetApps.join(", ")}`);
 
     let successCount = 0;
     let failureCount = 0;
 
     for (const appName of this.targetApps) {
-      // console.log(`\\n🔄 Processing ${appName} app...`);
+      console.log(`\n🔄 Processing ${appName} app...`);
 
       const testManagerSuccess = await this.generateTestManager(appName);
       const packageJsonSuccess = await this.updatePackageJson(appName);
 
       if (testManagerSuccess && packageJsonSuccess) {
-        // console.log(`✅ Successfully upgraded ${appName} app`);
+        console.log(`✅ Successfully upgraded ${appName} app`);
         successCount++;
       } else {
-        // console.log(`❌ Failed to upgrade ${appName} app`);
+        console.log(`❌ Failed to upgrade ${appName} app`);
         failureCount++;
       }
     }
 
-    // console.log(`\\n📊 SUMMARY:`);
-    // console.log(`✅ Successfully upgraded: ${successCount} apps`);
-    // console.log(`❌ Failed to upgrade: ${failureCount} apps`);
+    console.log(`\n📊 SUMMARY:`);
+    console.log(`✅ Successfully upgraded: ${successCount} apps`);
+    if (failureCount > 0) {
+      console.log(`❌ Failed to upgrade: ${failureCount} apps`);
+    }
 
     if (successCount > 0) {
-      // console.log(`\\n🎯 NEXT STEPS:`);
-      // console.log('1. Test the new infrastructure: npm test --help');
-      // console.log('2. Run tests in each app to verify functionality');
-      // console.log('3. Update root package.json with orchestrator');
+      console.log(`\n🎯 NEXT STEPS:`);
+      console.log("1. Test the new infrastructure: npm test --help");
+      console.log("2. Run tests in each app to verify functionality");
+      console.log("3. Update root package.json with orchestrator");
     }
   }
 }
@@ -473,8 +471,13 @@ export { UnifiedTestManager };`;
 // CLI execution
 if (import.meta.url === `file://${process.argv[1]}`) {
   const generator = new TestInfrastructureGenerator();
-  generator.run().catch((_error) => {
-    // console.error('💥 Generator failed:', error.message);
+  generator.run().catch((generatorError) => {
+    console.error(
+      "💥 Generator failed:",
+      generatorError instanceof Error
+        ? generatorError.message
+        : String(generatorError),
+    );
     process.exit(1);
   });
 }
