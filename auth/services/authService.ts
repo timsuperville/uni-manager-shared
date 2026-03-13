@@ -240,6 +240,12 @@ class AuthService {
     try {
       const response = await this._makeRequest("verify", {
         method: "POST",
+        headers: {
+          // The backend protect middleware reads ONLY the Authorization header.
+          // Without this, the server returns 401 "token missing" which previously
+          // caused clearStoredAuth() to wipe the token on every page load after setup.
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({
           token,
           deviceFingerprint: this.deviceFingerprint,
