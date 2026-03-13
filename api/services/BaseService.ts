@@ -16,7 +16,10 @@ export interface ValidationSchema {
     minLength?: number;
     maxLength?: number;
     pattern?: RegExp;
-    validator?: (value: any, data?: any) => boolean | string;
+    validator?: (
+      value: unknown,
+      data?: Record<string, unknown>,
+    ) => boolean | string;
   };
 }
 
@@ -81,7 +84,10 @@ export abstract class BaseService {
   /**
    * Validate request data against schema
    */
-  protected validateRequest<T extends Record<string, unknown>>(data: T, schema: ValidationSchema): T {
+  protected validateRequest<T extends Record<string, unknown>>(
+    data: T,
+    schema: ValidationSchema,
+  ): T {
     if (!data || typeof data !== "object") {
       throw this.createValidationError("Request data must be an object");
     }

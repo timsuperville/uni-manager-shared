@@ -110,7 +110,12 @@ export class AuthService extends BaseService {
           return true;
         },
       },
-      firstName: { type: "string", required: true, minLength: 1, maxLength: 50 },
+      firstName: {
+        type: "string",
+        required: true,
+        minLength: 1,
+        maxLength: 50,
+      },
       lastName: { type: "string", required: true, minLength: 1, maxLength: 50 },
       acceptTerms: {
         type: "boolean",
@@ -166,10 +171,24 @@ export class AuthService extends BaseService {
    */
   async updateProfile(updates: UpdateRequest<UserProfile>): Promise<User> {
     const schema: ValidationSchema = {
-      firstName: { type: "string", required: false, minLength: 1, maxLength: 50 },
-      lastName: { type: "string", required: false, minLength: 1, maxLength: 50 },
+      firstName: {
+        type: "string",
+        required: false,
+        minLength: 1,
+        maxLength: 50,
+      },
+      lastName: {
+        type: "string",
+        required: false,
+        minLength: 1,
+        maxLength: 50,
+      },
       displayName: { type: "string", required: false, maxLength: 100 },
-      phoneNumber: { type: "string", required: false, pattern: /^[\+]?[1-9][\d]{0,15}$/ },
+      phoneNumber: {
+        type: "string",
+        required: false,
+        pattern: /^[\+]?[1-9][\d]{0,15}$/,
+      },
       bio: { type: "string", required: false, maxLength: 500 },
       location: { type: "string", required: false, maxLength: 100 },
       timezone: { type: "string", required: false },
@@ -204,7 +223,7 @@ export class AuthService extends BaseService {
         type: "string",
         required: true,
         validator: (value, data) => {
-          if (value !== (data as any).newPassword) return "Passwords do not match";
+          if (value !== data?.["newPassword"]) return "Passwords do not match";
           return true;
         },
       },
@@ -219,7 +238,11 @@ export class AuthService extends BaseService {
    */
   async forgotPassword(data: ForgotPasswordRequest): Promise<void> {
     const schema: ValidationSchema = {
-      email: { type: "string", required: true, pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/ },
+      email: {
+        type: "string",
+        required: true,
+        pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+      },
     };
     const validatedData = this.validateRequest(data, schema);
     await this.post<void>("/forgot-password", validatedData, { cache: false });
@@ -250,7 +273,7 @@ export class AuthService extends BaseService {
         type: "string",
         required: true,
         validator: (value, data) => {
-          if (value !== (data as any).newPassword) return "Passwords do not match";
+          if (value !== data?.["newPassword"]) return "Passwords do not match";
           return true;
         },
       },
@@ -275,10 +298,16 @@ export class AuthService extends BaseService {
    */
   async resendVerification(data: ResendVerificationRequest): Promise<void> {
     const schema: ValidationSchema = {
-      email: { type: "string", required: true, pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/ },
+      email: {
+        type: "string",
+        required: true,
+        pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+      },
     };
     const validatedData = this.validateRequest(data, schema);
-    await this.post<void>("/resend-verification", validatedData, { cache: false });
+    await this.post<void>("/resend-verification", validatedData, {
+      cache: false,
+    });
   }
 
   /**
@@ -311,7 +340,9 @@ export class AuthService extends BaseService {
       );
     }
     if (file.size > maxSize) {
-      throw this.createValidationError("File size too large. Maximum size is 5MB.");
+      throw this.createValidationError(
+        "File size too large. Maximum size is 5MB.",
+      );
     }
 
     return this.upload<User>("/avatar", file, {

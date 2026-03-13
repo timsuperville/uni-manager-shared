@@ -77,13 +77,7 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({
   }, [config, existingServices, onError]);
 
   const contextValue = useMemo(() => {
-    if (!apiServices) {
-      return {
-        apiServices: null as any,
-        isInitialized: false,
-        error,
-      };
-    }
+    if (!apiServices) return null;
     return {
       apiServices,
       isInitialized,

@@ -5,11 +5,12 @@
  * with React applications across the Uni-Manager ecosystem.
  */
 
-import { useCallback, useContext, useEffect, useState, useRef } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { ApiServices } from "../services";
-import type { User } from "../types";
+import type { User, LoginRequest, SignupRequest } from "../types";
+
 import { ApiContext } from "../components/ApiProvider";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { syncEngine } from "../syncEngine";
 import { useOnlineStatus } from "../../hooks/useOnlineStatus";
 
@@ -85,7 +86,7 @@ export const useAuth = () => {
   }, [api]);
 
   const login = useCallback(
-    async (credentials: any) => {
+    async (credentials: LoginRequest) => {
       try {
         setIsLoading(true);
         setError(null);
@@ -108,8 +109,7 @@ export const useAuth = () => {
       setIsLoading(true);
       await api.auth.logout();
     } catch (_err) {
-      // Log error but don't throw - logout should always succeed locally
-      // console.error('Logout error:', err);
+      // Intentionally silent — logout should always succeed locally even if network fails.
     } finally {
       setUser(null);
       setIsAuthenticated(false);
@@ -119,7 +119,7 @@ export const useAuth = () => {
   }, [api]);
 
   const signup = useCallback(
-    async (userData: any) => {
+    async (userData: SignupRequest) => {
       try {
         setIsLoading(true);
         setError(null);
@@ -202,7 +202,9 @@ export function useApiMutation<TData, TVariables>(
           [variables],
           options.mutationName,
         );
-        return { offline: true } as any;
+        // Offline path: queue mutation for sync when connection is restored.
+        // Returns a sentinel value conforming to TData so callers can check `data.offline`.
+        return { offline: true } as unknown as TData;
       }
       return mutationFn(variables);
     },
