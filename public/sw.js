@@ -3,7 +3,15 @@
 /**
  * Uni-Manager Service Worker
  * Handles caching, offline functionality, background sync, and push notifications
+ *
+ * Debug logging: set DEBUG = true locally when diagnosing SW issues.
+ * Never commit with DEBUG = true — use browser DevTools > Application > Service Workers instead.
  */
+
+const DEBUG = false;
+const dbg = (...args) => {
+  if (DEBUG) console.log(...args);
+};
 
 const CACHE_NAME = "uni-manager-v1";
 const DYNAMIC_CACHE_NAME = "uni-manager-dynamic-v1";
@@ -33,22 +41,23 @@ let syncQueue = [];
  * Service Worker Installation
  */
 self.addEventListener("install", (event) => {
-  // console.log('Service Worker installing...');
+  dbg("Service Worker installing...");
 
   event.waitUntil(
     caches
       .open(CACHE_NAME)
       .then((cache) => {
-        // console.log('Caching static assets...');
+        dbg("Caching static assets...");
         return cache.addAll(STATIC_ASSETS);
       })
       .then(() => {
-        // console.log('Service Worker installed successfully');
+        dbg("Service Worker installed successfully");
         // Skip waiting to activate immediately
         return self.skipWaiting();
       })
-      .catch((_error) => {
-        // console.error('Service Worker installation failed:', error);
+      .catch((installError) => {
+        if (DEBUG)
+          console.error("Service Worker installation failed:", installError);
       }),
   );
 });
@@ -57,7 +66,7 @@ self.addEventListener("install", (event) => {
  * Service Worker Activation
  */
 self.addEventListener("activate", (event) => {
-  // console.log('Service Worker activating...');
+  dbg("Service Worker activating...");
 
   event.waitUntil(
     Promise.all([
@@ -66,7 +75,7 @@ self.addEventListener("activate", (event) => {
         return Promise.all(
           cacheNames.map((cacheName) => {
             if (cacheName !== CACHE_NAME && cacheName !== DYNAMIC_CACHE_NAME) {
-              // console.log('Deleting old cache:', cacheName);
+              dbg("Deleting old cache:", cacheName);
               return caches.delete(cacheName);
             }
           }),
@@ -75,7 +84,7 @@ self.addEventListener("activate", (event) => {
       // Take control of all pages
       self.clients.claim(),
     ]).then(() => {
-      // console.log('Service Worker activated successfully');
+      dbg("Service Worker activated successfully");
     }),
   );
 });
@@ -109,7 +118,7 @@ self.addEventListener("fetch", (event) => {
  * Background Sync Event Handler
  */
 self.addEventListener("sync", (event) => {
-  // console.log('Background sync triggered:', event.tag);
+  dbg("Background sync triggered:", event.tag);
 
   if (event.tag === BACKGROUND_SYNC_TAG) {
     event.waitUntil(processSyncQueue());
@@ -120,7 +129,7 @@ self.addEventListener("sync", (event) => {
  * Push Message Event Handler
  */
 self.addEventListener("push", (event) => {
-  // console.log('Push message received:', event);
+  dbg("Push message received:", event);
 
   const options = {
     body: "You have a new notification",
@@ -151,8 +160,8 @@ self.addEventListener("push", (event) => {
           self.registration.showNotification(payload.title, options),
         );
       }
-    } catch (_error) {
-      // console.error('Failed to parse push payload:', error);
+    } catch (pushParseError) {
+      if (DEBUG) console.error("Failed to parse push payload:", pushParseError);
       event.waitUntil(
         self.registration.showNotification("Uni-Manager", options),
       );
@@ -166,7 +175,7 @@ self.addEventListener("push", (event) => {
  * Notification Click Event Handler
  */
 self.addEventListener("notificationclick", (event) => {
-  // console.log('Notification clicked:', event);
+  dbg("Notification clicked:", event);
 
   event.notification.close();
 
@@ -191,10 +200,8 @@ self.addEventListener("notificationclick", (event) => {
         }
       }),
     );
-  } else if (action === "dismiss") {
-    // Just close the notification (already done above)
-    // console.log('Notification dismissed');
   }
+  // dismiss action: notification already closed above — no further action needed.
 
   // Send action to main app
   self.clients.matchAll().then((clients) => {
@@ -212,7 +219,7 @@ self.addEventListener("notificationclick", (event) => {
  * Message Event Handler
  */
 self.addEventListener("message", (event) => {
-  // console.log('Service Worker received message:', event.data);
+  dbg("Service Worker received message:", event.data);
 
   const { type, payload } = event.data || {};
 
@@ -234,7 +241,7 @@ self.addEventListener("message", (event) => {
       break;
 
     default:
-    // console.log('Unknown message type:', type);
+      dbg("Unknown message type:", type);
   }
 });
 
@@ -253,8 +260,9 @@ async function handleApiRequest(request) {
     }
 
     return networkResponse;
-  } catch (_error) {
-    // console.log('Network request failed, trying cache:', request.url);
+  } catch {
+    // Intentionally silent — network unavailable; serve from cache or return offline response
+    dbg("Network request failed, trying cache:", request.url);
 
     // Fall back to cache
     const cachedResponse = await caches.match(request);
@@ -301,10 +309,9 @@ async function handleDocumentRequest(request) {
     }
 
     return networkResponse;
-  } catch (_error) {
-    // console.log('Document request failed, serving offline page');
-
-    // Serve offline page
+  } catch {
+    // Intentionally silent — serve offline page when both cache and network unavailable
+    dbg("Document request failed, serving offline page");
     const offlineResponse = await caches.match("/offline.html");
     return offlineResponse || new Response("Offline", { status: 503 });
   }
@@ -330,10 +337,9 @@ async function handleStaticRequest(request) {
     }
 
     return networkResponse;
-  } catch (_error) {
-    // console.log('Static request failed:', request.url);
-
-    // Return a generic offline response for failed static requests
+  } catch {
+    // Intentionally silent — return offline placeholder when static asset unavailable
+    dbg("Static request failed:", request.url);
     return new Response("Resource unavailable offline", { status: 503 });
   }
 }
@@ -345,8 +351,9 @@ async function handleMutationRequest(request) {
   try {
     // Try network first for mutations
     return await fetch(request);
-  } catch (_error) {
-    // console.log('Mutation request failed, adding to sync queue:', request.url);
+  } catch {
+    // Intentionally silent — queue for background sync when network unavailable
+    dbg("Mutation request failed, adding to sync queue:", request.url);
 
     // Add to sync queue for later processing
     const requestData = {
@@ -400,9 +407,9 @@ async function addToSyncQueue(requestData) {
     // Store in IndexedDB for persistence
     await storeInIndexedDB("syncQueue", syncQueue);
 
-    // console.log('Added to sync queue:', requestData.url);
-  } catch (_error) {
-    // console.error('Failed to add to sync queue:', error);
+    dbg("Added to sync queue:", requestData.url);
+  } catch (queueError) {
+    if (DEBUG) console.error("Failed to add to sync queue:", queueError);
   }
 }
 
@@ -411,13 +418,13 @@ async function addToSyncQueue(requestData) {
  */
 async function processSyncQueue() {
   try {
-    // console.log('Processing sync queue...');
+    dbg("Processing sync queue...");
 
     // Load queue from IndexedDB
     syncQueue = (await loadFromIndexedDB("syncQueue")) || [];
 
     if (syncQueue.length === 0) {
-      // console.log('Sync queue is empty');
+      dbg("Sync queue is empty");
       return;
     }
 
@@ -426,7 +433,7 @@ async function processSyncQueue() {
 
     for (const item of syncQueue) {
       try {
-        // console.log('Processing sync item:', item.url);
+        dbg("Processing sync item:", item.url);
 
         const response = await fetch(item.url, {
           method: item.method,
@@ -436,19 +443,26 @@ async function processSyncQueue() {
 
         if (response.ok) {
           results.push({ item, success: true });
-          // console.log('Sync item processed successfully:', item.url);
+          dbg("Sync item processed successfully:", item.url);
         } else {
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
-      } catch (_error) {
-        // console.error('Failed to process sync item:', error);
+      } catch (syncItemError) {
+        if (DEBUG) console.error("Failed to process sync item:", syncItemError);
 
         // Retry logic - keep items that are less than 24 hours old
         if (Date.now() - item.timestamp < 24 * 60 * 60 * 1000) {
           failedItems.push(item);
         }
 
-        results.push({ item, success: false, error: error.message });
+        results.push({
+          item,
+          success: false,
+          error:
+            syncItemError instanceof Error
+              ? syncItemError.message
+              : String(syncItemError),
+        });
       }
     }
 
@@ -456,7 +470,9 @@ async function processSyncQueue() {
     syncQueue = failedItems;
     await storeInIndexedDB("syncQueue", syncQueue);
 
-    // console.log(`Sync complete: ${results.length} processed, ${failedItems.length} remain`);
+    dbg(
+      `Sync complete: ${results.length} processed, ${failedItems.length} remain`,
+    );
 
     // Notify main app
     const clients = await self.clients.matchAll();
@@ -470,8 +486,8 @@ async function processSyncQueue() {
         },
       });
     });
-  } catch (_error) {
-    // console.error('Failed to process sync queue:', error);
+  } catch (syncQueueError) {
+    if (DEBUG) console.error("Failed to process sync queue:", syncQueueError);
   }
 }
 
@@ -482,9 +498,9 @@ async function cacheResource(url, cacheName = DYNAMIC_CACHE_NAME) {
   try {
     const cache = await caches.open(cacheName);
     await cache.add(url);
-    // console.log('Cached resource:', url);
-  } catch (_error) {
-    // console.error('Failed to cache resource:', error);
+    dbg("Cached resource:", url);
+  } catch (cacheError) {
+    if (DEBUG) console.error("Failed to cache resource:", cacheError);
   }
 }
 
@@ -495,15 +511,15 @@ async function clearCache(cacheName) {
   try {
     if (cacheName) {
       await caches.delete(cacheName);
-      // console.log('Cache cleared:', cacheName);
+      dbg("Cache cleared:", cacheName);
     } else {
       // Clear all caches
       const cacheNames = await caches.keys();
       await Promise.all(cacheNames.map((name) => caches.delete(name)));
-      // console.log('All caches cleared');
+      dbg("All caches cleared");
     }
-  } catch (_error) {
-    // console.error('Failed to clear cache:', error);
+  } catch (clearError) {
+    if (DEBUG) console.error("Failed to clear cache:", clearError);
   }
 }
 
