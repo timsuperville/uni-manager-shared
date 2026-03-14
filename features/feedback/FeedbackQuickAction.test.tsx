@@ -15,8 +15,8 @@ import React from "react";
 import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 import { vi, describe, it, expect, beforeEach, afterEach } from "vitest";
 import { MemoryRouter } from "react-router-dom";
-import { FeedbackQuickAction, submitFeedbackSilently } from "./FeedbackQuickAction.jsx";
-import { AuthContext } from "../auth/context/AuthContext.jsx";
+import { FeedbackQuickAction, submitFeedbackSilently } from "./FeedbackQuickAction.tsx";
+import { AuthContext } from "../auth/context/AuthContext.tsx";
 
 // ─── Mocks ────────────────────────────────────────────────────────────────────
 
