@@ -35,6 +35,10 @@ function trunc(str: string | null | undefined, max: number): string {
 
 type FabPosition = "bottom-right" | "bottom-left" | "top-right" | "top-left";
 type Variant     = "sidebar-item" | "sidebar-icon" | "button" | "bottom-nav-item" | "quick-react" | "floating";
+type Sentiment   = "positive" | "neutral" | "negative";
+
+/** Shape of the context object passed to useFrustrationDetector onFrustrated. */
+type FrustrationContext = { signal: string; source: string; path: string };
 
 interface SilentSubmitOptions {
   title?:       string;
@@ -80,7 +84,7 @@ export async function submitFeedbackSilently({
     if (authToken) headers["Authorization"] = `Bearer ${authToken}`;
 
     const systemCtx = collectSystemContext(appType, user ?? null);
-    (systemCtx as Record<string, unknown>).source = resolveSource(source);
+    systemCtx.source = resolveSource(source);
 
     await fetch("/api/v1/feedback/submit", {
       method: "POST",
@@ -136,7 +140,7 @@ export const FeedbackQuickAction: React.FC<FeedbackQuickActionProps> = ({
   useFrustrationDetector({
     appType,
     disableInDev: true,
-    onFrustrated: ({ signal, source, path }: { signal: string; source: string; path: string }) => {
+    onFrustrated: ({ signal, source, path }: FrustrationContext) => {
       const title =
         signal === "rage-click"
           ? `Repeated click detected on ${path}`
@@ -253,7 +257,6 @@ export const FeedbackQuickAction: React.FC<FeedbackQuickActionProps> = ({
 
   // ── VARIANT: quick-react ────────────────────────────────────────────────────
   if (variant === "quick-react") {
-    type Sentiment = "positive" | "neutral" | "negative";
     const handleReact = (emoji: string, sentiment: Sentiment) => {
       if (reacted) return;
       if (sentiment === "positive") {

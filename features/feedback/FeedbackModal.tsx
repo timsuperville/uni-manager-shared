@@ -7,7 +7,7 @@
  * Uses inline styles throughout to avoid Tailwind JIT scanning gaps in shared/.
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import ReactDOM from "react-dom";
 import { collectSystemContext } from "./utils/collectSystemContext.ts";
 import type { FeedbackUser, SystemContext } from "./utils/collectSystemContext.ts";
@@ -31,7 +31,7 @@ interface FeedbackModalProps {
   initialDescription?: string;
 }
 
-export interface FeedbackModalPortalProps extends FeedbackModalProps {}
+export type FeedbackModalPortalProps = FeedbackModalProps;
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -100,16 +100,22 @@ function FeedbackModal({
     return () => window.removeEventListener("resize", check);
   }, []);
 
+  // Clear the success-auto-close timer if the component unmounts before it fires.
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => { if (closeTimerRef.current) clearTimeout(closeTimerRef.current); }, []);
+
+  // Stable appName — derived once from props, not inside handleSubmit, to keep the
+  // systemContext consistent between the preview (ctx below) and the submission payload.
+  const appName =
+    appType ??
+    (typeof window !== "undefined" ? (import.meta?.env?.VITE_APP_TYPE as string | undefined) : undefined) ??
+    "unknown";
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
     try {
-      const appName =
-        appType ??
-        (typeof window !== "undefined" && import.meta?.env?.VITE_APP_TYPE as string | undefined) ??
-        "unknown";
-
       const authToken = getStoredToken(appName);
 
       const payload = {
@@ -121,7 +127,7 @@ function FeedbackModal({
           description:  feedback.description,
           allowContact: false,
         },
-        systemContext: collectSystemContext(appName, user),
+        systemContext: collectSystemContext(appName, user ?? null),
       };
 
       const reqHeaders: Record<string, string> = { "Content-Type": "application/json" };
@@ -135,7 +141,7 @@ function FeedbackModal({
 
       if (response.ok) {
         setSubmitted(true);
-        setTimeout(() => {
+        closeTimerRef.current = setTimeout(() => {
           onSubmitSuccess?.();
           onClose();
           setSubmitted(false);
@@ -165,7 +171,12 @@ function FeedbackModal({
     transition:      "border-color 160ms ease, background 160ms ease",
   };
 
-  const ctx: SystemContext = collectSystemContext(appType ?? "unknown", user);
+  // Memoize the context preview so collectSystemContext isn't called on every keystroke.
+  const ctx: SystemContext = useMemo(
+    () => collectSystemContext(appName, user ?? null),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [appName],
+  );
   const isDisabled = isSubmitting || !feedback.title || !feedback.description;
 
   return (

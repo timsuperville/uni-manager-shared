@@ -24,7 +24,8 @@ if (typeof window !== "undefined" && !window.__feedbackNavHistory) {
   const trackPage   = (url: string | URL | null | undefined) => {
     const path = typeof url === "string" ? url : window.location.pathname;
     const hist = window.__feedbackNavHistory!;
-    if (hist[hist.length - 1] !== path) {
+    const last = hist[hist.length - 1];
+    if (last === undefined || last !== path) {
       hist.push(path);
       if (hist.length > 20) hist.shift();
     }
@@ -135,11 +136,11 @@ function detectDevice(): DeviceInfo {
   const macMatch     = ua.match(/Mac OS X ([\d_]+)/);
   const androidMatch = ua.match(/Android ([\d.]+)/);
   const iosMatch     = ua.match(/OS ([\d_]+) like Mac/);
-  const osVersion =
-    (winMatch     && winMatch[1])                          ||
-    (macMatch     && macMatch[1].replace(/_/g, "."))       ||
-    (androidMatch && androidMatch[1])                      ||
-    (iosMatch     && iosMatch[1].replace(/_/g, "."))       ||
+  const osVersion: string | null =
+    winMatch?.[1]                          ??
+    macMatch?.[1]?.replace(/_/g, ".")      ??
+    androidMatch?.[1]                      ??
+    iosMatch?.[1]?.replace(/_/g, ".")      ??
     null;
 
   const orientation: DeviceInfo["orientation"] =
@@ -160,21 +161,18 @@ export function collectSystemContext(
   appName: string,
   user:    FeedbackUser | null = null,
 ): SystemContext {
-  const sessionStart    = window.__feedbackSessionStart;
+  const sessionStart      = typeof window !== "undefined" ? window.__feedbackSessionStart : undefined;
   const sessionDurationMs = sessionStart ? Date.now() - sessionStart : null;
 
-  let memoryMb: number | null = null;
+  // performance.memory is a non-standard Chrome extension — read both values in one try.
+  type PerfMemory = { usedJSHeapSize?: number; jsHeapSizeLimit?: number };
+  let memoryMb:       number | null = null;
+  let jsHeapLimitMb:  number | null = null;
   try {
-    // performance.memory is a non-standard Chrome extension
-    const mem = (performance as Performance & { memory?: { usedJSHeapSize?: number; jsHeapSizeLimit?: number } }).memory;
-    if (mem?.usedJSHeapSize) memoryMb = Math.round(mem.usedJSHeapSize / 1024 / 1024);
+    const mem = (performance as Performance & { memory?: PerfMemory }).memory;
+    if (mem?.usedJSHeapSize)   memoryMb      = Math.round(mem.usedJSHeapSize   / 1024 / 1024);
+    if (mem?.jsHeapSizeLimit)  jsHeapLimitMb = Math.round(mem.jsHeapSizeLimit  / 1024 / 1024);
   } catch { /* intentionally silent — memory API unavailable */ }
-
-  let jsHeapLimitMb: number | null = null;
-  try {
-    const mem = (performance as Performance & { memory?: { jsHeapSizeLimit?: number } }).memory;
-    if (mem?.jsHeapSizeLimit) jsHeapLimitMb = Math.round(mem.jsHeapSizeLimit / 1024 / 1024);
-  } catch { /* intentionally silent */ }
 
   let loadTimingMs: number | null = null;
   try {
@@ -208,7 +206,7 @@ export function collectSystemContext(
     };
   } catch { /* intentionally silent — storage may be blocked in private mode */ }
 
-  let navigationHistory: string[] | null = null;
+  let navigationHistory: string[] = [];
   try { navigationHistory = window.__feedbackNavHistory ?? []; } catch { /* silent */ }
 
   let pageVisibilityState: DocumentVisibilityState | null = null;
@@ -288,8 +286,8 @@ export function collectSystemContext(
         ? `${Math.floor(sessionDurationMs / 60000)}m ${Math.floor((sessionDurationMs % 60000) / 1000)}s`
         : null,
       storageKeys,
-      navigationHistoryCount: navigationHistory ? navigationHistory.length : 0,
-      recentNavigation:       navigationHistory ? navigationHistory.slice(-5) : [],
+      navigationHistoryCount: navigationHistory.length,
+      recentNavigation:       navigationHistory.slice(-5),
       pageVisibilityState,
     },
     performance: {
