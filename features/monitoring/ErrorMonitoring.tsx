@@ -12,8 +12,8 @@
 //   initializeMonitoring
 //   createMonitoredQueryClient    (wraps QueryClient with onError→INGEST_ERRORS)
 
-import { getAuthToken } from "../../utils/authToken.js";
-import { flushPendingErrorReports } from "../../components/ErrorBoundary.jsx";
+import { getAuthToken } from "../../utils/authToken";
+import { flushPendingErrorReports } from "../../components/ErrorBoundary";
 
 // Environment-specific configuration
 const isProd = (import.meta.env?.MODE || "development") === "production";
@@ -27,7 +27,7 @@ const INGEST_FEEDBACK = "/api/v1/integrations/feedback";
 
 // ErrorBoundary — canonical unified component. Re-exported here so any code
 // that still imports from this module continues to work.
-export { ErrorBoundary } from "../../components/ErrorBoundary.jsx";
+export { ErrorBoundary } from "../../components/ErrorBoundary";
 
 // ── Recent user activity ──────────────────────────────────────────────────────
 const getRecentUserActivity = () => {
