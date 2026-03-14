@@ -1,3 +1,5 @@
+import type React from "react";
+
 /**
  * @shared/styles/styleUtils
  *
@@ -24,13 +26,13 @@
 // ── Text colour tokens ─────────────────────────────────────────────────────────
 
 /** var(--text-primary) — high-contrast body text */
-export const textPrimary = { color: "var(--text-primary, #f1f5f9)" };
+export const textPrimary: React.CSSProperties = { color: "var(--text-primary, #f1f5f9)" };
 
 /** var(--text-muted) — de-emphasised / secondary labels */
-export const textMuted = { color: "var(--text-muted, #94a3b8)" };
+export const textMuted: React.CSSProperties = { color: "var(--text-muted, #94a3b8)" };
 
 /** var(--text-secondary) — mid-emphasis text */
-export const textSecondary = {
+export const textSecondary: React.CSSProperties = {
   color: "var(--text-secondary, rgba(255,255,255,0.7))",
 };
 
@@ -39,19 +41,18 @@ export const textSecondary = {
 /**
  * CSS calc helper based on the 4 px base unit.
  * sp(4)  →  "calc(var(--space-1, 0.25rem) * 4)"  →  1rem in most themes
- * @param {number} n  Multiplier (same scale as Tailwind's space-{n})
+ * @param n  Multiplier (same scale as Tailwind's space-{n})
  */
-export const sp = (n) => `calc(var(--space-1, 0.25rem) * ${n})`;
+export const sp = (n: number): string => `calc(var(--space-1, 0.25rem) * ${n})`;
 
 // ── Flex factory ──────────────────────────────────────────────────────────────
 
 /**
  * Returns an inline flex-row style object.
- * @param {object} [extra={}]  Additional style properties to merge in.
  * @example
  *   style={flex({ gap: sp(2), justifyContent: "space-between" })}
  */
-export const flex = (extra = {}) => ({
+export const flex = (extra: React.CSSProperties = {}): React.CSSProperties => ({
   display: "flex",
   alignItems: "center",
   ...extra,
@@ -63,7 +64,7 @@ export const flex = (extra = {}) => ({
  * Standard Liquid Glass card / panel surface — blur(24px) saturate(180%).
  * Use for any raised container that needs the frosted-glass treatment.
  */
-export const glassPanel = {
+export const glassPanel: React.CSSProperties = {
   background: "var(--glass-surface, rgba(15,15,35,0.85))",
   border: "1px solid var(--glass-outline, rgba(255,255,255,0.12))",
   backdropFilter: "blur(24px) saturate(180%)",
@@ -75,7 +76,7 @@ export const glassPanel = {
  * Lighter glass card surface — blur(16px) saturate(160%).
  * Use for secondary cards, list items, and nested surfaces.
  */
-export const glassCard = {
+export const glassCard: React.CSSProperties = {
   background: "var(--glass-surface, rgba(15,15,35,0.85))",
   border: "1px solid var(--glass-outline, rgba(255,255,255,0.12))",
   backdropFilter: "blur(16px) saturate(160%)",
@@ -87,7 +88,7 @@ export const glassCard = {
  * Deep modal glass surface — blur(32px) saturate(200%).
  * Use for modal dialogs and high-prominence overlays.
  */
-export const glassModal = {
+export const glassModal: React.CSSProperties = {
   background: "var(--glass-surface, rgba(15,15,35,0.95))",
   border: "1px solid var(--glass-outline, rgba(255,255,255,0.12))",
   backdropFilter: "blur(32px) saturate(200%)",
@@ -99,7 +100,7 @@ export const glassModal = {
  * Lightweight glass overlay — backdrop only, no border-radius.
  * Use for modal backdrops, dropdowns, and popovers.
  */
-export const glassOverlay = {
+export const glassOverlay: React.CSSProperties = {
   background: "rgba(0,0,0,0.65)",
   backdropFilter: "blur(8px)",
   WebkitBackdropFilter: "blur(8px)",
@@ -112,7 +113,7 @@ export const glassOverlay = {
  * Provides glass surface styling consistent with the Liquid Glass design system.
  * For full form field wrappers (label + hint + error), use <FormField> from @shared/components/ui.
  */
-export const inputBase = {
+export const inputBase: React.CSSProperties = {
   width: "100%",
   background: "var(--glass-bg, rgba(15,15,35,0.7))",
   border: "1px solid var(--glass-border, rgba(255,255,255,0.12))",
@@ -127,7 +128,7 @@ export const inputBase = {
  * Select / dropdown variant of inputBase — identical appearance.
  * Alias maintained for semantic clarity at call sites.
  */
-export const selectBase = inputBase;
+export const selectBase: React.CSSProperties = inputBase;
 
 // ── Overlay / scrim ───────────────────────────────────────────────────────────
 
@@ -136,7 +137,7 @@ export const selectBase = inputBase;
  * Use behind modals and drawers as a click-capture overlay.
  * For glass-blurred backdrops, use `glassOverlay` instead.
  */
-export const overlayScrim = {
+export const overlayScrim: React.CSSProperties = {
   position: "fixed",
   inset: 0,
   background: "var(--overlay-scrim, rgba(0,0,0,0.6))",
@@ -148,14 +149,14 @@ export const overlayScrim = {
  * Container style for inline error messages, banners, and destructive states.
  * Provides a subtle red-tinted surface with a coloured border.
  */
-export const errorSurface = {
+export const errorSurface: React.CSSProperties = {
   background: "var(--color-error-surface, rgba(220,38,38,0.08))",
   border: "1px solid var(--color-error-border, rgba(220,38,38,0.3))",
   borderRadius: "var(--radius-sm, 0.375rem)",
 };
 
 /** Error text colour — for headings and copy on error surfaces. */
-export const errorText = { color: "var(--color-error, hsl(0,70%,60%))" };
+export const errorText: React.CSSProperties = { color: "var(--color-error, hsl(0,70%,60%))" };
 
 // ── Semantic success surface ──────────────────────────────────────────────────
 
@@ -163,14 +164,14 @@ export const errorText = { color: "var(--color-error, hsl(0,70%,60%))" };
  * Container style for inline success messages, confirmations, and positive states.
  * Provides a subtle green-tinted surface with a coloured border.
  */
-export const successSurface = {
+export const successSurface: React.CSSProperties = {
   background: "var(--color-success-surface, rgba(16,185,129,0.08))",
   border: "1px solid var(--color-success-border, rgba(16,185,129,0.3))",
   borderRadius: "var(--radius-sm, 0.375rem)",
 };
 
 /** Success text colour — for copy on success surfaces. */
-export const successText = { color: "var(--color-success, hsl(160,70%,50%))" };
+export const successText: React.CSSProperties = { color: "var(--color-success, hsl(160,70%,50%))" };
 
 // ── Skeleton / loading shimmer ────────────────────────────────────────────────
 
@@ -178,7 +179,7 @@ export const successText = { color: "var(--color-success, hsl(160,70%,50%))" };
  * Base style for skeleton loading placeholder elements.
  * Apply `animate-pulse` className alongside this style.
  */
-export const skeletonBase = {
+export const skeletonBase: React.CSSProperties = {
   background: "var(--glass-outline, rgba(255,255,255,0.12))",
   borderRadius: "var(--radius-sm, 0.375rem)",
 };
