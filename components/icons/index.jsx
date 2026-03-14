@@ -38,6 +38,8 @@ const svg = (children, defaultSw = 2) =>
 
 export const ChevronDownIcon = svg(<path d="M6 9l6 6 6-6" />);
 
+export const ChevronUpIcon = svg(<path d="M6 15l6-6 6 6" />);
+
 export const ChevronRightIcon = svg(<path d="M9 5l7 7-7 7" />);
 
 export const XIcon = svg(<path d="M6 18L18 6M6 6l12 12" />);

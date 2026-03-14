@@ -11,6 +11,7 @@ export interface IconProps extends SVGProps<SVGSVGElement> {
 }
 
 declare const ChevronDownIcon: React.FC<IconProps>;
+declare const ChevronUpIcon: React.FC<IconProps>;
 declare const ChevronRightIcon: React.FC<IconProps>;
 declare const XIcon: React.FC<IconProps>;
 declare const PlusIcon: React.FC<IconProps>;
@@ -42,7 +43,7 @@ declare const ServerIcon: React.FC<IconProps>;
 declare const BarChartIcon: React.FC<IconProps>;
 
 export {
-  ChevronDownIcon, ChevronRightIcon, XIcon, PlusIcon,
+  ChevronDownIcon, ChevronUpIcon, ChevronRightIcon, XIcon, PlusIcon,
   SearchIcon, DownloadIcon, ExportIcon, RefreshIcon, UploadIcon,
   AlertIcon, AlertCircleIcon, CheckIcon, BanIcon,
   TrendUpIcon, TrendDownIcon,
