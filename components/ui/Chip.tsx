@@ -1,4 +1,8 @@
 import React from "react";
+import { CHIP_VARIANTS, CHIP_FALLBACK, CHIP_SIZE_MAP } from "./chipVariants";
+import type { ChipVariant, ChipSize } from "./chipVariants";
+
+export { CHIP_VARIANTS } from "./chipVariants";
 
 /**
  * Chip — Liquid Glass Design System
@@ -35,183 +39,6 @@ import React from "react";
  *   - `dotGlow`  – adds a box-shadow glow on the dot (use for active/live states)
  */
 
-// ─── Preset variant map ───────────────────────────────────────────────────────
-// Single source of truth for all semantic colour sets across the ecosystem.
-// Covers: user status, feedback status, severity levels, and report categories.
-export const CHIP_VARIANTS = {
-    // ── User / system status ────────────────────────────────────────────────────
-    active: {
-        bg: "hsla(160,84%,39%,0.12)",
-        color: "hsl(160,84%,50%)",
-        border: "hsla(160,84%,39%,0.3)",
-        dot: "hsl(160,84%,50%)",
-    },
-    inactive: {
-        bg: "hsla(351,89%,60%,0.1)",
-        color: "hsl(351,89%,65%)",
-        border: "hsla(351,89%,60%,0.25)",
-        dot: "hsl(351,89%,60%)",
-    },
-    suspended: {
-        bg: "hsla(38,92%,50%,0.12)",
-        color: "hsl(38,92%,65%)",
-        border: "hsla(38,92%,50%,0.3)",
-        dot: "hsl(38,92%,60%)",
-    },
-    locked: {
-        bg: "hsla(351,89%,60%,0.12)",
-        color: "hsl(351,89%,65%)",
-        border: "hsla(351,89%,60%,0.3)",
-        dot: "hsl(351,89%,60%)",
-    },
-    warning: {
-        bg: "hsla(38,92%,50%,0.12)",
-        color: "hsl(38,92%,65%)",
-        border: "hsla(38,92%,50%,0.3)",
-        dot: "hsl(38,92%,60%)",
-    },
-
-    // ── Feedback / report statuses ──────────────────────────────────────────────
-    pending: {
-        bg: "hsla(45,100%,60%,0.12)",
-        color: "hsl(45,100%,65%)",
-        border: "hsla(45,100%,60%,0.3)",
-        dot: "hsl(45,100%,60%)",
-    },
-    investigating: {
-        bg: "hsla(210,90%,65%,0.12)",
-        color: "hsl(210,90%,72%)",
-        border: "hsla(210,90%,65%,0.3)",
-        dot: "hsl(210,90%,65%)",
-    },
-    "in-progress": {
-        bg: "hsla(187,84%,55%,0.12)",
-        color: "hsl(187,84%,60%)",
-        border: "hsla(187,84%,55%,0.3)",
-        dot: "hsl(187,84%,55%)",
-    },
-    resolved: {
-        bg: "hsla(160,84%,50%,0.1)",
-        color: "hsl(160,84%,55%)",
-        border: "hsla(160,84%,50%,0.3)",
-        dot: "hsl(160,84%,50%)",
-    },
-    ignored: {
-        bg: "transparent",
-        color: "var(--text-muted)",
-        border: "var(--glass-outline)",
-        dot: "var(--text-muted)",
-    },
-    duplicate: {
-        bg: "hsla(280,60%,65%,0.1)",
-        color: "hsl(280,60%,70%)",
-        border: "hsla(280,60%,65%,0.3)",
-        dot: "hsl(280,60%,65%)",
-    },
-    open: {
-        bg: "hsla(38,92%,50%,0.12)",
-        color: "hsl(38,92%,65%)",
-        border: "hsla(38,92%,50%,0.3)",
-        dot: "hsl(38,92%,65%)",
-    },
-
-    // ── Severity ────────────────────────────────────────────────────────────────
-    critical: {
-        bg: "hsla(351,89%,60%,0.12)",
-        color: "hsl(351,89%,65%)",
-        border: "hsla(351,89%,60%,0.3)",
-        dot: "hsl(351,89%,62%)",
-    },
-    high: {
-        bg: "hsla(28,100%,60%,0.12)",
-        color: "hsl(28,100%,66%)",
-        border: "hsla(28,100%,60%,0.3)",
-        dot: "hsl(28,100%,60%)",
-    },
-    medium: {
-        bg: "hsla(45,100%,60%,0.1)",
-        color: "hsl(45,100%,60%)",
-        border: "hsla(45,100%,60%,0.28)",
-        dot: "hsl(45,100%,60%)",
-    },
-    low: {
-        bg: "hsla(210,90%,60%,0.08)",
-        color: "hsl(210,90%,70%)",
-        border: "hsla(210,90%,60%,0.2)",
-        dot: "hsl(210,90%,70%)",
-    },
-
-    // ── Report categories ───────────────────────────────────────────────────────
-    bug: {
-        bg: "hsla(351,89%,60%,0.12)",
-        color: "hsl(351,89%,65%)",
-        border: "hsla(351,89%,60%,0.3)",
-        dot: null,
-    },
-    feature: {
-        bg: "hsla(160,70%,50%,0.12)",
-        color: "hsl(160,70%,60%)",
-        border: "hsla(160,70%,50%,0.3)",
-        dot: null,
-    },
-    improvement: {
-        bg: "hsla(210,100%,56%,0.12)",
-        color: "hsl(210,100%,70%)",
-        border: "hsla(210,100%,56%,0.3)",
-        dot: null,
-    },
-    other: {
-        bg: "hsla(215,20%,65%,0.08)",
-        color: "var(--text-muted)",
-        border: "var(--glass-outline)",
-        dot: null,
-    },
-
-    // ── Generic semantic ────────────────────────────────────────────────────────
-    info: {
-        bg: "hsla(210,100%,56%,0.1)",
-        color: "hsl(210,100%,70%)",
-        border: "hsla(210,100%,56%,0.25)",
-        dot: "hsl(210,100%,65%)",
-    },
-    success: {
-        bg: "hsla(160,70%,50%,0.12)",
-        color: "hsl(160,70%,55%)",
-        border: "hsla(160,70%,50%,0.3)",
-        dot: "hsl(160,70%,50%)",
-    },
-    danger: {
-        bg: "hsla(351,89%,60%,0.12)",
-        color: "hsl(351,89%,65%)",
-        border: "hsla(351,89%,60%,0.3)",
-        dot: "hsl(351,89%,62%)",
-    },
-    muted: {
-        bg: "transparent",
-        color: "var(--text-muted)",
-        border: "var(--glass-outline)",
-        dot: null,
-    },
-};
-
-// ─── Size tokens ──────────────────────────────────────────────────────────────
-const SIZE_MAP = {
-    xs: { fontSize: "10px", fontWeight: "700", padding: "2px 7px", dotSize: "5px" },
-    sm: { fontSize: "11px", fontWeight: "700", padding: "2px 9px", dotSize: "6px" },
-    md: { fontSize: "12px", fontWeight: "700", padding: "3px 11px", dotSize: "7px" },
-};
-
-// ─── Fallback (no variant match, no custom colours) ───────────────────────────
-const FALLBACK = {
-    bg: "hsla(215,20%,65%,0.08)",
-    color: "var(--text-secondary, rgba(255,255,255,0.6))",
-    border: "var(--glass-outline, rgba(255,255,255,0.12))",
-    dot: null,
-};
-
-type ChipVariant = keyof typeof CHIP_VARIANTS;
-type ChipSize = "xs" | "sm" | "md";
-
 interface ChipProps extends React.HTMLAttributes<HTMLSpanElement> {
   variant?: ChipVariant;
   bg?: string;
@@ -228,77 +55,74 @@ interface ChipProps extends React.HTMLAttributes<HTMLSpanElement> {
   style?: React.CSSProperties;
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
 export function Chip({
-    variant, bg: bgProp, color: colorProp, border: borderProp,
-    label, children, dot, dotColor, dotGlow = false,
-    onClick, title, size = "sm", className = "", style: styleProp,
-    ...props
+  variant, bg: bgProp, color: colorProp, border: borderProp,
+  label, children, dot, dotColor, dotGlow = false,
+  onClick, title, size = "sm", className = "", style: styleProp,
+  ...props
 }: ChipProps) {
-    const preset = variant ? (CHIP_VARIANTS[variant] ?? FALLBACK) : FALLBACK;
+  const preset = variant ? (CHIP_VARIANTS[variant] ?? CHIP_FALLBACK) : CHIP_FALLBACK;
 
-    const resolvedBg = bgProp ?? preset.bg;
-    const resolvedColor = colorProp ?? preset.color;
-    const resolvedBorder = borderProp ?? preset.border;
+  const resolvedBg     = bgProp     ?? preset.bg;
+  const resolvedColor  = colorProp  ?? preset.color;
+  const resolvedBorder = borderProp ?? preset.border;
 
-    // Dot visibility: explicit boolean overrides auto-detection
-    const resolvedDotColor = dotColor ?? preset.dot;
-    const showDot = dot === undefined
-        ? !!resolvedDotColor
-        : dot && !!resolvedDotColor;
+  // Dot visibility: explicit boolean overrides auto-detection
+  const resolvedDotColor = dotColor ?? preset.dot;
+  const showDot = dot === undefined
+    ? !!resolvedDotColor
+    : dot && !!resolvedDotColor;
 
-    const sz = SIZE_MAP[size] ?? SIZE_MAP.sm;
+  const sz = CHIP_SIZE_MAP[size] ?? CHIP_SIZE_MAP.sm;
 
-    const isInteractive = typeof onClick === "function";
+  const isInteractive = typeof onClick === "function";
 
-    return (
+  return (
+    <span
+      title={title}
+      onClick={onClick}
+      role={isInteractive ? "button" : undefined}
+      tabIndex={isInteractive ? 0 : undefined}
+      onKeyDown={isInteractive ? (e) => { if (e.key === "Enter" || e.key === " ") onClick(e); } : undefined}
+      className={className}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: showDot ? "5px" : (React.Children.count(children) > 0 || label) ? "4px" : "0",
+        padding: sz.padding,
+        borderRadius: "100px",
+        fontSize: sz.fontSize,
+        fontWeight: sz.fontWeight,
+        background: resolvedBg,
+        color: resolvedColor,
+        border: `1px solid ${resolvedBorder}`,
+        flexShrink: 0,
+        whiteSpace: "nowrap",
+        cursor: isInteractive ? "pointer" : "default",
+        userSelect: "none",
+        transition: isInteractive ? "opacity 120ms ease, filter 120ms ease" : "none",
+        ...styleProp,
+      }}
+      {...props}
+    >
+      {showDot && (
         <span
-            title={title}
-            onClick={onClick}
-            role={isInteractive ? "button" : undefined}
-            tabIndex={isInteractive ? 0 : undefined}
-            onKeyDown={isInteractive ? (e) => { if (e.key === "Enter" || e.key === " ") onClick(e); } : undefined}
-            className={className}
-            style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: showDot ? "5px" : (React.Children.count(children) > 0 || label) ? "4px" : "0",
-                padding: sz.padding,
-                borderRadius: "100px",
-                fontSize: sz.fontSize,
-                fontWeight: sz.fontWeight,
-                background: resolvedBg,
-                color: resolvedColor,
-                border: `1px solid ${resolvedBorder}`,
-                flexShrink: 0,
-                whiteSpace: "nowrap",
-                cursor: isInteractive ? "pointer" : "default",
-                userSelect: "none",
-                transition: isInteractive ? "opacity 120ms ease, filter 120ms ease" : "none",
-                ...styleProp,
-            }}
-            {...props}
-        >
-            {showDot && (
-                <span
-                    aria-hidden="true"
-                    style={{
-                        width: sz.dotSize,
-                        height: sz.dotSize,
-                        borderRadius: "50%",
-                        background: resolvedDotColor,
-                        flexShrink: 0,
-                        boxShadow: dotGlow ? `0 0 6px ${resolvedDotColor}` : "none",
-                        transition: "box-shadow 150ms ease",
-                    }}
-                />
-            )}
-            {label}
-            {children}
-        </span>
-    );
+          aria-hidden="true"
+          style={{
+            width: sz.dotSize,
+            height: sz.dotSize,
+            borderRadius: "50%",
+            background: resolvedDotColor ?? undefined,
+            flexShrink: 0,
+            boxShadow: dotGlow ? `0 0 6px ${resolvedDotColor}` : "none",
+            transition: "box-shadow 150ms ease",
+          }}
+        />
+      )}
+      {label}
+      {children}
+    </span>
+  );
 }
-
-
 
 export default Chip;
