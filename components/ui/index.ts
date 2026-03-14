@@ -4,6 +4,7 @@
 
 export { default as Button } from "./Button";
 export { default as UserAvatar } from "./UserAvatar";
+export type { UserAvatarProps, UserAvatarUser } from "./UserAvatar";
 export { default as Logo } from "./Logo";
 export { default as AppLogo } from "./AppLogo";
 export { Card, CardHeader, CardContent, CardTitle, CardBody } from "./Card";

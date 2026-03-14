@@ -8,7 +8,34 @@ import { getUserInitials, getUserAvatar } from "../../utils";
  * Uses explicit inline styles for dimensions so the component is immune
  * to Tailwind CSS JIT scanning gaps (shared components scanned by multiple apps).
  */
-const SIZES = {
+
+export interface UserAvatarUser {
+  firstName?: string;
+  lastName?: string;
+  name?: string;
+  displayName?: string;
+  email?: string;
+  avatarUrl?: string;
+  profilePicture?: string;
+}
+
+export interface AppConfig {
+  branding?: {
+    primaryColor?: string;
+  };
+}
+
+type AvatarSize = "xs" | "sm" | "md" | "lg";
+
+export interface UserAvatarProps {
+  user?: UserAvatarUser;
+  appConfig?: AppConfig;
+  size?: AvatarSize;
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+const SIZES: Record<AvatarSize, { dimension: number; fontSize: number }> = {
   xs: { dimension: 24, fontSize: 10 },
   sm: { dimension: 28, fontSize: 11 },
   md: { dimension: 36, fontSize: 13 },
@@ -21,18 +48,18 @@ const UserAvatar = ({
   size = "md",
   className = "",
   style: styleProp = {},
-}) => {
+}: UserAvatarProps) => {
   const initials = getUserInitials(user);
-  const { dimension, fontSize } = SIZES[size] || SIZES.md;
+  const { dimension, fontSize } = SIZES[size] ?? SIZES.md;
 
-  const baseStyle = {
+  const baseStyle: React.CSSProperties = {
     width: dimension,
     height: dimension,
     minWidth: dimension,
     borderRadius: "50%",
     fontSize,
     fontWeight: 600,
-    objectFit: "cover",
+    objectFit: "cover" as React.CSSProperties["objectFit"],
     flexShrink: 0,
     display: "flex",
     alignItems: "center",
@@ -56,7 +83,7 @@ const UserAvatar = ({
   }
 
   // Fallback color if appConfig is missing
-  const bgColor = appConfig?.branding?.primaryColor || "#4F46E5";
+  const bgColor = appConfig?.branding?.primaryColor ?? "#4F46E5";
 
   return (
     <div
