@@ -9,8 +9,8 @@
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import ReactDOM from "react-dom";
-import { collectSystemContext } from "./utils/collectSystemContext.ts";
-import type { FeedbackUser, SystemContext } from "./utils/collectSystemContext.ts";
+import { collectSystemContext } from "./utils/collectSystemContext";
+import type { FeedbackUser, SystemContext } from "./utils/collectSystemContext";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

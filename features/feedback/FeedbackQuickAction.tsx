@@ -13,11 +13,11 @@
  */
 
 import React, { useState } from "react";
-import { FeedbackModalPortal } from "./FeedbackModal.tsx";
-import { FEEDBACK_SOURCES, resolveSource } from "./constants.ts";
-import { useOptionalUser } from "./hooks/useOptionalUser.ts";
-import { collectSystemContext } from "./utils/collectSystemContext.ts";
-import type { FeedbackUser } from "./utils/collectSystemContext.ts";
+import { FeedbackModalPortal } from "./FeedbackModal";
+import { FEEDBACK_SOURCES, resolveSource } from "./constants";
+import { useOptionalUser } from "./hooks/useOptionalUser";
+import { collectSystemContext } from "./utils/collectSystemContext";
+import type { FeedbackUser } from "./utils/collectSystemContext";
 import { useFrustrationDetector } from "../../hooks/useFrustrationDetector.js";
 
 // ─── Schema field limits (must match FeedbackReport Mongoose schema) ──────────
@@ -345,4 +345,4 @@ export const FeedbackQuickAction: React.FC<FeedbackQuickActionProps> = ({
 export default FeedbackQuickAction;
 
 // Re-export constants so consumers can import from one place
-export { FEEDBACK_SOURCES } from "./constants.ts";
+export { FEEDBACK_SOURCES } from "./constants";
