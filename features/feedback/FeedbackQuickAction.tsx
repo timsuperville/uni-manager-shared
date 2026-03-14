@@ -62,14 +62,19 @@ export interface FeedbackQuickActionProps {
 export async function submitFeedbackSilently({
   title,
   description,
-  appType   = "unknown",
+  appType,
   severity  = "high",
   user      = null,
   source    = null,
 }: SilentSubmitOptions = {}): Promise<void> {
   try {
+    const appName =
+      appType ??
+      (typeof window !== "undefined" ? (import.meta?.env?.VITE_APP_TYPE as string | undefined) : undefined) ??
+      "unknown";
+
     const namespaces = [
-      appType, "admin", "church", "personal", "home", "business", "uni",
+      appName, "admin", "church", "personal", "home", "business", "uni",
     ].filter(Boolean);
     let authToken: string | null = null;
     for (const ns of namespaces) {
@@ -83,7 +88,7 @@ export async function submitFeedbackSilently({
     const headers: Record<string, string> = { "Content-Type": "application/json" };
     if (authToken) headers["Authorization"] = `Bearer ${authToken}`;
 
-    const systemCtx = collectSystemContext(appType, user ?? null);
+    const systemCtx = collectSystemContext(appName, user ?? null);
     systemCtx.source = resolveSource(source);
 
     await fetch("/api/v1/feedback/submit", {
@@ -136,9 +141,14 @@ export const FeedbackQuickAction: React.FC<FeedbackQuickActionProps> = ({
   // R4 — 'reacted' declared here so hooks are never called inside a conditional branch
   const [reacted, setReacted] = useState(false);
 
+  const appName =
+    appType ??
+    (typeof window !== "undefined" ? (import.meta?.env?.VITE_APP_TYPE as string | undefined) : undefined) ??
+    "unknown";
+
   // Passive frustration detection
   useFrustrationDetector({
-    appType,
+    appType: appName,
     disableInDev: true,
     onFrustrated: ({ signal, source, path }: FrustrationContext) => {
       const title =
@@ -153,7 +163,7 @@ export const FeedbackQuickAction: React.FC<FeedbackQuickActionProps> = ({
       void submitFeedbackSilently({
         title,
         description,
-        appType,
+        appType: appName,
         severity: "medium",
         user,
         source,
@@ -164,7 +174,7 @@ export const FeedbackQuickAction: React.FC<FeedbackQuickActionProps> = ({
   const modalProps = {
     onClose:            () => setIsOpen(false),
     onSubmitSuccess,
-    appType,
+    appType: appName,
     user,
     initialTitle:       prefill.title,
     initialDescription: prefill.description,
@@ -184,7 +194,7 @@ export const FeedbackQuickAction: React.FC<FeedbackQuickActionProps> = ({
           title="Share feedback or report a bug"
         >
           <span style={{ color: "var(--text-muted, #64748b)", flexShrink: 0 }}><ChatBubbleIcon /></span>
-          <span>Send Feedback</span>
+          <span>Share Feedback</span>
         </button>
         {isOpen && <FeedbackModalPortal {...modalProps} />}
       </>
@@ -264,7 +274,7 @@ export const FeedbackQuickAction: React.FC<FeedbackQuickActionProps> = ({
         void submitFeedbackSilently({
           title:       `Quick reaction: ${emoji}`,
           description: `User gave a positive quick reaction on ${window.location.pathname}`,
-          appType,
+          appType: appName,
           severity:    "low",
           source:      FEEDBACK_SOURCES.MANUAL,
         });
@@ -300,7 +310,7 @@ export const FeedbackQuickAction: React.FC<FeedbackQuickActionProps> = ({
             ))}
           </div>
         )}
-        {isOpen && <FeedbackModalPortal onClose={() => setIsOpen(false)} appType={appType} user={user} />}
+        {isOpen && <FeedbackModalPortal onClose={() => setIsOpen(false)} appType={appName} user={user} />}
       </>
     );
   }

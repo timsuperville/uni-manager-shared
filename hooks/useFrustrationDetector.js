@@ -16,18 +16,16 @@
  *     onFrustrated: ({ signal, source, context }) => setFeedbackOpen(true),
  *   });
  *
- * Props:
- *   appType            {string}   VITE_APP_TYPE value for the current shell
- *   onFrustrated       {Function} Called with { signal, source, ...context } on detection
- *   enabled            {boolean}  Defaults to true; set false to pause detection
- *   disableInDev       {boolean}  Defaults to true; suppresses all fires in the development
- *                                 environment to avoid polluting the DB during local testing.
- *                                 Set to false only if you explicitly want dev-time signals.
- *   rageClickThreshold {number}   Clicks within window to trigger (default 3)
- *   rageClickWindowMs  {number}   Time window for rage-click in ms (default 700)
- *   navThreshold       {number}   Navigation changes to trigger (default 3)
- *   navWindowMs        {number}   Time window for rapid-nav in ms (default 4000)
- *   cooldownMs         {number}   Minimum ms between onFrustrated calls (default 30000)
+ * @param {Object} [options]
+ * @param {string} [options.appType="unknown"] VITE_APP_TYPE value for the current shell
+ * @param {function({ signal: string, source: string, path: string }): void} [options.onFrustrated] Called with context on detection
+ * @param {boolean} [options.enabled=true] Defaults to true; set false to pause detection
+ * @param {boolean} [options.disableInDev=true] Suppresses fires in dev environment
+ * @param {number} [options.rageClickThreshold=3] Clicks within window to trigger
+ * @param {number} [options.rageClickWindowMs=700] Time window for rage-click in ms
+ * @param {number} [options.navThreshold=3] Navigation changes to trigger
+ * @param {number} [options.navWindowMs=4000] Time window for rapid-nav in ms
+ * @param {number} [options.cooldownMs=30000] Minimum ms between onFrustrated calls
  */
 
 import { useEffect, useRef, useCallback } from "react";
@@ -59,7 +57,8 @@ function _ensureHistoryPatched() {
   // as instances unmount, so it becomes a no-op with zero listeners.
 }
 
-export function useFrustrationDetector({
+export function useFrustrationDetector(options = {}) {
+  const {
   appType = "unknown",
   onFrustrated,
   enabled = true,
@@ -69,7 +68,7 @@ export function useFrustrationDetector({
   navThreshold = 3,
   navWindowMs = 4000,
   cooldownMs = 30_000,
-} = {}) {
+  } = options;
   // Rage-click state
   const clickLog = useRef([]); // [{ target: Element, ts: number }]
 

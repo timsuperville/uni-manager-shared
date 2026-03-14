@@ -16,15 +16,14 @@ export function useOptionalUser(): FeedbackUser | null {
     rbac?: { role?: string };
   };
   return {
-    id:      (u._id ?? u.id ?? null) as string | null,
-    email:   (u.email ?? null) as string | null,
-    name: (
+    id:      u._id ?? u.id ?? null,
+    email:   u.email ?? null,
+    name:
       u.name ??
       u.displayName ??
-      [u.firstName, u.lastName].filter(Boolean).join(" ") ||
-      null
-    ) as string | null,
-    role:    (u.role ?? (u.roles as string[] | undefined)?.[0] ?? u.rbac?.role ?? null) as string | null,
-    appRole: (u.rbac?.role ?? null) as string | null,
+      ([u.firstName, u.lastName].filter(Boolean).join(" ") ||
+      null),
+    role:    u.role ?? u.roles?.[0] ?? u.rbac?.role ?? null,
+    appRole: u.rbac?.role ?? null,
   };
 }

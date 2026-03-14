@@ -54,15 +54,15 @@ const MOCK_AUTH_USER = {
 /**
  * Renders FeedbackQuickAction inside a MemoryRouter + optional AuthContext.
  */
-function renderFeedback(props = {}, authUser = null) {
+function renderFeedback(props: Partial<React.ComponentProps<typeof FeedbackQuickAction>> = {}, authUser: any = null) {
     const contextValue = authUser
         ? { user: authUser, isAuthenticated: true }
         : null; // null context = no AuthProvider = public/marketing page
 
-    const Wrapper = ({ children }) =>
+    const Wrapper = ({ children }: { children: React.ReactNode }) =>
         authUser ? (
             <MemoryRouter>
-                <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
+                <AuthContext.Provider value={contextValue as any}>{children}</AuthContext.Provider>
             </MemoryRouter>
         ) : (
             <MemoryRouter>{children}</MemoryRouter>
@@ -122,11 +122,12 @@ describe("submitFeedbackSilently — context shape and device detection", () => 
 
         expect(mockFetch).toHaveBeenCalledOnce();
 
-        const [url, opts] = mockFetch.mock.calls[0];
+        const callArgs = mockFetch.mock.calls[0] as unknown as [string, RequestInit];
+        const [url, opts] = callArgs;
         expect(url).toBe("/api/v1/feedback/submit");
         expect(opts.method).toBe("POST");
 
-        const body = JSON.parse(opts.body);
+        const body = JSON.parse(opts.body as string);
 
         // Top-level shape
         expect(body.type).toBe("error-report");
@@ -191,7 +192,8 @@ describe("submitFeedbackSilently — context shape and device detection", () => 
 
         await submitFeedbackSilently({ title: "t", description: "d", appType: "main" });
 
-        const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+        const callArgs = mockFetch.mock.calls[0] as unknown as [string, RequestInit];
+        const body = JSON.parse(callArgs[1].body as string);
         expect(body.systemContext.user).toBeNull();
     });
 });
