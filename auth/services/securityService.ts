@@ -39,9 +39,9 @@ interface SecurityEvent {
 }
 
 interface FraudAttemptData {
-  ipAddress?: string;
+  ipAddress?: string | null;
   userId?: string;
-  timestamp?: number;
+  timestamp?: number | string;
   geolocation?: { lat: number; lng: number };
   deviceFingerprint?: string;
 }
@@ -80,11 +80,12 @@ interface SecurityConfig {
 // ── SecurityService ───────────────────────────────────────────────────────────
 
 class SecurityService {
-  private readonly rateLimits = new Map<string, RateLimitEntry>();
-  private readonly userAttempts = new Map<string, unknown>();
-  private readonly suspiciousIPs = new Set<string>();
-  private readonly securityEvents: SecurityEvent[] = [];
-  private readonly config: SecurityConfig = {
+  // `protected` (not private) so test suites can access via type-cast
+  protected rateLimits = new Map<string, RateLimitEntry>();
+  protected readonly userAttempts = new Map<string, unknown>();
+  protected readonly suspiciousIPs = new Set<string>();
+  protected securityEvents: SecurityEvent[] = [];
+  protected readonly config: SecurityConfig = {
     maxLoginAttempts: 5,
     maxMFAAttempts: 3,
     maxAPICallsPerMinute: 60,
@@ -107,14 +108,23 @@ class SecurityService {
       const now = Date.now();
 
       if (!this.rateLimits.has(key)) {
-        this.rateLimits.set(key, { attempts: 0, windowStart: now, lockedUntil: null });
+        this.rateLimits.set(key, {
+          attempts: 0,
+          windowStart: now,
+          lockedUntil: null,
+        });
       }
 
       const limitData = this.rateLimits.get(key)!;
 
       if (limitData.lockedUntil !== null && now < limitData.lockedUntil) {
         const remainingTime = Math.ceil((limitData.lockedUntil - now) / 1000);
-        return { allowed: false, reason: "rate_limited", remainingTime, attemptsRemaining: 0 };
+        return {
+          allowed: false,
+          reason: "rate_limited",
+          remainingTime,
+          attemptsRemaining: 0,
+        };
       }
 
       if (now - limitData.windowStart > windowMs) {
@@ -125,7 +135,11 @@ class SecurityService {
 
       if (limitData.attempts >= maxAttempts) {
         limitData.lockedUntil = now + this.config.lockoutDuration;
-        this.logSecurityEvent("rate_limit_exceeded", { identifier, action, attempts: limitData.attempts });
+        this.logSecurityEvent("rate_limit_exceeded", {
+          identifier,
+          action,
+          attempts: limitData.attempts,
+        });
         return {
           allowed: false,
           reason: "rate_limited",
@@ -140,7 +154,11 @@ class SecurityService {
         windowEnd: limitData.windowStart + windowMs,
       };
     } catch (error) {
-      if (import.meta.env?.DEV) console.warn("[SecurityService] checkRateLimit failed — failing open:", (error as Error).message);
+      if (import.meta.env?.DEV)
+        console.warn(
+          "[SecurityService] checkRateLimit failed — failing open:",
+          (error as Error).message,
+        );
       return { allowed: true, attemptsRemaining: 1 };
     }
   }
@@ -150,7 +168,11 @@ class SecurityService {
       const key = `${identifier}:${action}`;
 
       if (!this.rateLimits.has(key)) {
-        this.rateLimits.set(key, { attempts: 0, windowStart: Date.now(), lockedUntil: null });
+        this.rateLimits.set(key, {
+          attempts: 0,
+          windowStart: Date.now(),
+          lockedUntil: null,
+        });
       }
 
       const limitData = this.rateLimits.get(key)!;
@@ -163,7 +185,10 @@ class SecurityService {
         totalAttempts: limitData.attempts,
       });
 
-      if (!success && limitData.attempts > this.config.suspiciousActivityThreshold) {
+      if (
+        !success &&
+        limitData.attempts > this.config.suspiciousActivityThreshold
+      ) {
         this.flagSuspiciousActivity(identifier, action);
       }
 
@@ -172,7 +197,11 @@ class SecurityService {
         limitData.lockedUntil = null;
       }
     } catch (error) {
-      if (import.meta.env?.DEV) console.warn("[SecurityService] recordAttempt failed:", (error as Error).message);
+      if (import.meta.env?.DEV)
+        console.warn(
+          "[SecurityService] recordAttempt failed:",
+          (error as Error).message,
+        );
     }
   }
 
@@ -206,37 +235,57 @@ class SecurityService {
 
       if (geolocation && userId) {
         const userHistory = this.getUserLocationHistory();
-        if (userHistory.length > 0 && this.isUnusualLocation(geolocation, userHistory)) {
+        if (
+          userHistory.length > 0 &&
+          this.isUnusualLocation(geolocation, userHistory)
+        ) {
           riskScore += 20;
           riskFactors.push("unusual_location");
         }
       }
 
-      if (this.isUnusualTime(timestamp)) {
+      if (
+        this.isUnusualTime(
+          typeof timestamp === "string"
+            ? Number(timestamp)
+            : (timestamp ?? Date.now()),
+        )
+      ) {
         riskScore += 15;
         riskFactors.push("unusual_time");
       }
 
       if (deviceFingerprint && userId) {
         const knownDevices = this.getUserDevices();
-        if (knownDevices.length > 0 && !knownDevices.includes(deviceFingerprint)) {
+        if (
+          knownDevices.length > 0 &&
+          !knownDevices.includes(deviceFingerprint)
+        ) {
           riskScore += 10;
           riskFactors.push("new_device");
         }
       }
 
-      const riskLevel: RiskLevel = riskScore >= 50 ? "high" : riskScore >= 25 ? "medium" : "low";
+      const riskLevel: RiskLevel =
+        riskScore >= 50 ? "high" : riskScore >= 25 ? "medium" : "low";
 
+      const resolvedTs =
+        typeof timestamp === "string"
+          ? Number(timestamp)
+          : (timestamp ?? Date.now());
       const result: FraudAnalysisResult = {
         riskScore,
         riskLevel,
         riskFactors,
         recommendedAction: this.getRecommendedAction(riskLevel),
-        timestamp,
+        timestamp: resolvedTs,
       };
 
       if (riskLevel === "high") {
-        this.logSecurityEvent("high_risk_attempt", { ...attemptData, fraudAnalysis: result });
+        this.logSecurityEvent("high_risk_attempt", {
+          ...attemptData,
+          fraudAnalysis: result,
+        });
       }
 
       return result;
@@ -255,15 +304,26 @@ class SecurityService {
   flagSuspiciousActivity(identifier: string, reason: string): void {
     try {
       this.suspiciousIPs.add(identifier);
-      this.logSecurityEvent("suspicious_activity_flagged", { identifier, reason, timestamp: Date.now() });
+      this.logSecurityEvent("suspicious_activity_flagged", {
+        identifier,
+        reason,
+        timestamp: Date.now(),
+      });
     } catch (error) {
-      if (import.meta.env?.DEV) console.warn("[SecurityService] flagSuspiciousActivity failed:", (error as Error).message);
+      if (import.meta.env?.DEV)
+        console.warn(
+          "[SecurityService] flagSuspiciousActivity failed:",
+          (error as Error).message,
+        );
     }
   }
 
   // ── Event Logging ───────────────────────────────────────────────────────────
 
-  logSecurityEvent(eventType: string, eventData: Record<string, unknown>): void {
+  logSecurityEvent(
+    eventType: string,
+    eventData: Record<string, unknown>,
+  ): void {
     try {
       const event: SecurityEvent = {
         id: this.generateEventId(),
@@ -279,17 +339,28 @@ class SecurityService {
         this.securityEvents.shift();
       }
     } catch (error) {
-      if (import.meta.env?.DEV) console.warn("[SecurityService] logSecurityEvent failed:", (error as Error).message);
+      if (import.meta.env?.DEV)
+        console.warn(
+          "[SecurityService] logSecurityEvent failed:",
+          (error as Error).message,
+        );
     }
   }
 
-  getSecurityEvents(limit = 100, eventType: string | null = null): SecurityEvent[] {
+  getSecurityEvents(
+    limit = 100,
+    eventType: string | null = null,
+  ): SecurityEvent[] {
     try {
       let events = [...this.securityEvents];
       if (eventType) events = events.filter((e) => e.type === eventType);
       return events.sort((a, b) => b.timestamp - a.timestamp).slice(0, limit);
     } catch (error) {
-      if (import.meta.env?.DEV) console.warn("[SecurityService] getSecurityEvents failed:", (error as Error).message);
+      if (import.meta.env?.DEV)
+        console.warn(
+          "[SecurityService] getSecurityEvents failed:",
+          (error as Error).message,
+        );
       return [];
     }
   }
@@ -301,10 +372,14 @@ class SecurityService {
       const now = Date.now();
       const startTime = now - timeframe;
 
-      const recentEvents = this.securityEvents.filter((e) => e.timestamp >= startTime);
+      const recentEvents = this.securityEvents.filter(
+        (e) => e.timestamp >= startTime,
+      );
       const totalEvents = recentEvents.length;
       const eventsByType = this.groupEventsByType(recentEvents);
-      const highRiskEvents = recentEvents.filter((e) => e.severity === "high").length;
+      const highRiskEvents = recentEvents.filter(
+        (e) => e.severity === "high",
+      ).length;
       const suspiciousIPs = this.suspiciousIPs.size;
       const activeRateLimits = Array.from(this.rateLimits.values()).filter(
         (limit) => limit.lockedUntil !== null && limit.lockedUntil > now,
@@ -341,7 +416,8 @@ class SecurityService {
     const now = Date.now();
     return this.securityEvents.filter(
       (event) =>
-        event.data["identifier"] === identifier && event.timestamp >= now - timeWindow,
+        event.data["identifier"] === identifier &&
+        event.timestamp >= now - timeWindow,
     );
   }
 
@@ -394,7 +470,11 @@ class SecurityService {
       "multiple_failed_logins",
       "rate_limit_exceeded",
     ];
-    const mediumSeverityEvents = ["unusual_location", "new_device", "mfa_bypass_attempt"];
+    const mediumSeverityEvents = [
+      "unusual_location",
+      "new_device",
+      "mfa_bypass_attempt",
+    ];
 
     if (highSeverityEvents.includes(eventType)) return "high";
     if (mediumSeverityEvents.includes(eventType)) return "medium";
@@ -410,8 +490,12 @@ class SecurityService {
 
   calculateSecurityScore(recentEvents: SecurityEvent[]): number {
     const baseScore = 100;
-    const highRiskEvents = recentEvents.filter((e) => e.severity === "high").length;
-    const mediumRiskEvents = recentEvents.filter((e) => e.severity === "medium").length;
+    const highRiskEvents = recentEvents.filter(
+      (e) => e.severity === "high",
+    ).length;
+    const mediumRiskEvents = recentEvents.filter(
+      (e) => e.severity === "medium",
+    ).length;
     const penalty = highRiskEvents * 10 + mediumRiskEvents * 5;
     return Math.max(0, baseScore - penalty);
   }
@@ -437,7 +521,11 @@ class SecurityService {
 
       expiredKeys.forEach((key) => this.rateLimits.delete(key));
     } catch (error) {
-      if (import.meta.env?.DEV) console.warn("[SecurityService] cleanup failed:", (error as Error).message);
+      if (import.meta.env?.DEV)
+        console.warn(
+          "[SecurityService] cleanup failed:",
+          (error as Error).message,
+        );
     }
   }
 

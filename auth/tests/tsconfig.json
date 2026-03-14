@@ -1,0 +1,14 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "types": ["vitest/globals", "@testing-library/jest-dom"],
+    "noUncheckedIndexedAccess": false,
+    "paths": {
+      "@shared/auth": [".."],
+      "@shared/auth/*": ["../*"]
+    }
+  },
+  "include": ["./**/*.ts", "./**/*.tsx", "../**/*.ts", "../**/*.tsx"],
+  "exclude": ["node_modules", "dist"]
+}

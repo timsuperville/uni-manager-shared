@@ -71,7 +71,7 @@ describe("RBACUtils", () => {
     });
 
     it("should handle user with no roles", () => {
-      const noRoleUser = { id: 1, roles: [] };
+      const noRoleUser = { id: "1", roles: [] };
       const noRoleRBAC = new RBACUtils(noRoleUser);
 
       expect(noRoleRBAC.resolveUserPermissions()).toEqual([]);
@@ -194,7 +194,7 @@ describe("RBACUtils", () => {
     });
 
     it("should identify super admin correctly", () => {
-      const superAdminUser = { id: 1, roles: ["super_admin"] };
+      const superAdminUser = { id: "1", roles: ["super_admin"] };
       const superAdminRBAC = new RBACUtils(superAdminUser);
 
       expect(superAdminRBAC.isAnyAdmin()).toBe(true);
@@ -202,7 +202,7 @@ describe("RBACUtils", () => {
     });
 
     it("should identify application admin correctly", () => {
-      const churchAdminUser = { id: 1, roles: ["church_admin"] };
+      const churchAdminUser = { id: "1", roles: ["church_admin"] };
       const churchAdminRBAC = new RBACUtils(churchAdminUser);
 
       expect(churchAdminRBAC.isAnyAdmin()).toBe(true);
@@ -261,7 +261,7 @@ describe("RBACUtils", () => {
     });
 
     it("should filter nested menu items", () => {
-      const churchAdminUser = { id: 1, roles: ["church_admin"] };
+      const churchAdminUser = { id: "1", roles: ["church_admin"] };
       const churchAdminRBAC = new RBACUtils(churchAdminUser);
 
       const filteredItems = churchAdminRBAC.filterMenuItems(
@@ -459,7 +459,7 @@ describe("Edge Cases and Error Handling", () => {
   });
 
   it("should handle invalid role references", () => {
-    const userWithInvalidRole = { id: 1, roles: ["non_existent_role"] };
+    const userWithInvalidRole = { id: "1", roles: ["non_existent_role"] };
     const rbac = new RBACUtils(userWithInvalidRole);
 
     expect(rbac.resolveUserPermissions()).toEqual([]);
@@ -474,7 +474,7 @@ describe("Edge Cases and Error Handling", () => {
   });
 
   it("should handle null values in menu filtering", () => {
-    const rbac = new RBACUtils({ id: 1, roles: ["church_user"] });
+    const rbac = new RBACUtils({ id: "1", roles: ["church_user"] });
     const menuWithNulls = [
       null,
       undefined,
