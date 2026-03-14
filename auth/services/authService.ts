@@ -406,13 +406,9 @@ class AuthService {
     try {
       const token = this.getStoredToken();
       // Retrieve persisted sessionId — required by the admin logout endpoint.
-      const storedSessionId =
-        this.sessionId ??
-        (() => {
-          try {
-            return sessionStorage.getItem(`${this.tokenStorage['namespace']}_session_id`);
-          } catch { return null; }
-        })();
+      // Use the canonical getSessionId() which reads the correctly-namespaced
+      // storage key (e.g. "admin_auth_session_id") rather than raw sessionStorage.
+      const storedSessionId = this.sessionId ?? this.tokenStorage.getSessionId();
 
       if (token) {
         await this._makeRequest("logout", {
@@ -423,10 +419,8 @@ class AuthService {
           body: JSON.stringify({ sessionId: storedSessionId ?? undefined }),
         });
       }
-      // Clean up persisted sessionId
-      try { sessionStorage.removeItem(`${this.tokenStorage['namespace']}_session_id`); } catch { /* storage unavailable */ }
       this.sessionId = null;
-      this.clearStoredAuth();
+      this.clearStoredAuth(); // clears all namespaced keys including sessionId
       this.currentUser = null;
       this.sessionToken = null;
       this.stopActivityTracking();
