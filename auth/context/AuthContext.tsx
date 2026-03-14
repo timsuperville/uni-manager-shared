@@ -16,10 +16,17 @@ interface AuthConfig {
   [key: string]: unknown;
 }
 
+/** Subset of auth state emitted by every notifyStateChange call. */
+export interface AuthStateChangePayload {
+  user?: User | null;
+  isAuthenticated?: boolean;
+  [key: string]: unknown;
+}
+
 interface AuthProviderProps {
   children: React.ReactNode;
   config?: AuthConfig;
-  onAuthStateChange?: (user: User | null, isAuthenticated: boolean) => void;
+  onAuthStateChange?: (authState: AuthStateChangePayload) => void;
   onError?: (error: Error | string) => void;
 }
 

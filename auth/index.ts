@@ -15,7 +15,7 @@ import React from "react";
 
 // ── Context ───────────────────────────────────────────────────────────────────
 
-export { AuthProvider, useAuth, AuthContext } from "./context/AuthContext.tsx";
+export { AuthProvider, useAuth, AuthContext, type AuthStateChangePayload } from "./context/AuthContext.tsx";
 export { withAuth, AuthContextProvider } from "./context/index.ts";
 export { SSOContext, SSOProvider, useSSO, withSSO } from "./context/SSOContext.tsx";
 export {
