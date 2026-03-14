@@ -42,6 +42,7 @@ export { GlassInput } from "./GlassInput";
 export { GlassSelect } from "./GlassSelect";
 export { FormSelect } from "./FormSelect";
 export { Chip, CHIP_VARIANTS } from "./Chip";
+export type { ChipProps } from "./Chip";
 export { StatusBadge, STATUS_VARIANTS } from "./StatusBadge";
 export { Sparkline } from "./Sparkline";
 export { SearchInput } from "./SearchInput";

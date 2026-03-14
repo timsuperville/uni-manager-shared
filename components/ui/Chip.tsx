@@ -39,7 +39,7 @@ export { CHIP_VARIANTS } from "./chipVariants";
  *   - `dotGlow`  – adds a box-shadow glow on the dot (use for active/live states)
  */
 
-interface ChipProps extends React.HTMLAttributes<HTMLSpanElement> {
+export interface ChipProps extends React.HTMLAttributes<HTMLSpanElement> {
   variant?: ChipVariant;
   bg?: string;
   color?: string;
