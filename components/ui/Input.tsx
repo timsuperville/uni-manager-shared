@@ -101,4 +101,6 @@ export const Textarea: React.FC<TextareaProps> = ({
   />
 );
 
+/** @deprecated Use InputSelect — Select alias kept for backward compatibility */
+export { InputSelect as Select };
 export { Input as default };
