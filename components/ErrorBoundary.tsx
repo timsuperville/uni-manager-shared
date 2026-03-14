@@ -116,8 +116,8 @@ function collectTelemetry(error: Error | null, errorInfo: React.ErrorInfo | null
     componentStack: errorInfo?.componentStack || "",
     severity: "critical",
     category: "rendering",
-    appType: appType || (import.meta as Record<string, unknown>)?.env?.VITE_APP_TYPE as string || "unknown",
-    environment: normaliseEnvironment((import.meta as Record<string, unknown>)?.env?.MODE as string),
+    appType: appType || (import.meta as any).env?.VITE_APP_TYPE || "unknown",
+    environment: normaliseEnvironment((import.meta as any).env?.MODE),
     timestamp: new Date().toISOString(),
     url: w?.location.href || "",
     path: w?.location.pathname || "",
@@ -142,7 +142,7 @@ export function flushPendingErrorReports(appType?: string): void {
     const pending = JSON.parse(localStorage.getItem("pendingErrorReports") || "[]") as TelemetryPayload[];
     if (!pending.length) return;
     localStorage.removeItem("pendingErrorReports");
-    const resolvedType = appType || (import.meta as Record<string, unknown>)?.env?.VITE_APP_TYPE as string;
+    const resolvedType = appType || (import.meta as any).env?.VITE_APP_TYPE;
     const token = getAuthToken(resolvedType);
     const headers: Record<string, string> = { "Content-Type": "application/json" };
     if (token) headers["Authorization"] = `Bearer ${token}`;
@@ -269,7 +269,7 @@ interface FallbackProps {
 function InlineFallback({ title, message, error, errorInfo, errorId, onReset }: FallbackProps) {
   injectAnimations();
   const [showDetail, setShowDetail] = React.useState(false);
-  const hasDev = (import.meta as Record<string, unknown>)?.env?.DEV && (error || errorInfo);
+  const hasDev = (import.meta as any).env?.DEV && (error || errorInfo);
 
   return (
     <div className="eb-inline" role="alert" aria-live="assertive"
@@ -321,7 +321,7 @@ function InlineFallback({ title, message, error, errorInfo, errorId, onReset }: 
 function FullScreenFallback({ title, message, error, errorInfo, errorId, onReset, showHomeButton }: FallbackProps) {
   injectAnimations();
   const [showDetail, setShowDetail] = React.useState(false);
-  const hasDev = (import.meta as Record<string, unknown>)?.env?.DEV && (error || errorInfo);
+  const hasDev = (import.meta as any).env?.DEV && (error || errorInfo);
 
   return (
     <div role="alert" aria-live="assertive"
@@ -431,11 +431,11 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
-    const appType = this.props.appType || (import.meta as Record<string, unknown>)?.env?.VITE_APP_TYPE as string || "unknown";
+    const appType = this.props.appType || (import.meta as any).env?.VITE_APP_TYPE || "unknown";
     const errorId = buildErrorId(error?.message, window?.location?.pathname, appType);
     this.setState({ error, errorInfo, errorId });
 
-    if ((import.meta as Record<string, unknown>)?.env?.DEV) {
+    if ((import.meta as any).env?.DEV) {
       // eslint-disable-next-line no-console
       console.error("[ErrorBoundary]", { errorId, error, componentStack: errorInfo?.componentStack });
     }

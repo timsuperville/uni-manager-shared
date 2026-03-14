@@ -15,9 +15,18 @@
 import { getAuthToken } from "../../utils/authToken";
 import { flushPendingErrorReports } from "../../components/ErrorBoundary";
 
+declare global {
+  interface Window {
+    __errorHandlersInstalled?: boolean;
+    __fetchInterceptorInstalled?: boolean;
+    __offlineFlushInstalled?: boolean;
+    __healthCheckInstalled?: boolean;
+  }
+}
+
 // Environment-specific configuration
-const isProd = (import.meta.env?.MODE || "development") === "production";
-const isStaging = (import.meta.env?.MODE || "development") === "staging";
+const isProd = ((import.meta as any).env?.MODE || "development") === "production";
+const isStaging = ((import.meta as any).env?.MODE || "development") === "staging";
 
 // ── Ingest endpoints ──────────────────────────────────────────────────────────
 // Intentionally RELATIVE — Vite proxy routes /api/v1 → backend in dev,
@@ -47,9 +56,9 @@ const getRecentUserActivity = () => {
 // We use `browserContext` for the browser-environment object instead.
 //
 // All property accesses are typeof-guarded for SSR/jsdom/Worker safety.
-export const collectAdvancedErrorContext = (baseError) => {
-  const p = typeof performance !== "undefined" ? performance : null;
-  const n = typeof navigator !== "undefined" ? navigator : null;
+export const collectAdvancedErrorContext = (baseError: any): any => {
+  const p = typeof performance !== "undefined" ? (performance as any) : null;
+  const n = typeof navigator !== "undefined" ? (navigator as any) : null;
   const w = typeof window !== "undefined" ? window : null;
   const s = typeof screen !== "undefined" ? screen : null;
   const d = typeof document !== "undefined" ? document : null;
@@ -112,7 +121,7 @@ export const collectAdvancedErrorContext = (baseError) => {
 // ── Environment normalisation ─────────────────────────────────────────────────
 // ErrorLog.environment enum only accepts 'development' | 'production'.
 // Staging and any other environments must map to one of those two values.
-const normaliseEnvironment = (mode) =>
+const normaliseEnvironment = (mode?: string): "development" | "production" =>
   mode === "development" ? "development" : "production";
 
 // ── Feedback payload builder ──────────────────────────────────────────────────
@@ -125,12 +134,12 @@ const normaliseEnvironment = (mode) =>
 //   userInput.actualBehavior maxlength: 1000
 
 /** Truncate a string to `max` chars, appending an ellipsis if clipped. */
-const trunc = (str, max) => {
+const trunc = (str: string, max: number): string => {
   if (!str || str.length <= max) return str || "";
   return str.slice(0, max - 1) + "\u2026"; // … (1 char)
 };
 
-const buildGlobalFeedbackPayload = (errorData) => {
+const buildGlobalFeedbackPayload = (errorData: any): any => {
   const rawTitle = `Global Error: ${errorData.message || "Unknown error"}`;
   const rawStack = errorData.stack || "No stack trace available";
 
@@ -208,11 +217,11 @@ export const setupGlobalErrorHandling = () => {
   if (window.__errorHandlersInstalled) return;
   window.__errorHandlersInstalled = true;
 
-  const appType = import.meta.env?.VITE_APP_TYPE || "unknown";
-  const env = normaliseEnvironment(import.meta.env?.MODE);
+  const appType = (import.meta as any).env?.VITE_APP_TYPE || "unknown";
+  const env = normaliseEnvironment((import.meta as any).env?.MODE);
 
   // ── Activity breadcrumb tracker ───────────────────────────────────────────
-  const trackActivity = (activity) => {
+  const trackActivity = (activity: string) => {
     try {
       const activities = JSON.parse(sessionStorage.getItem("userActivities") || "[]");
       // Trim to prevent unbounded sessionStorage growth (10 entries max, 100-char cap each)
@@ -224,19 +233,20 @@ export const setupGlobalErrorHandling = () => {
 
   trackActivity(`Navigated to ${window.location.pathname}`);
 
-  document.addEventListener("click", (event) => {
+  document.addEventListener("click", (event: MouseEvent) => {
+    const target = event.target as HTMLElement;
     const el =
-      event.target.closest("button") ||
-      event.target.closest("a") ||
-      (event.target.tagName === "BUTTON" || event.target.tagName === "A" ? event.target : null);
+      target.closest("button") ||
+      target.closest("a") ||
+      (target.tagName === "BUTTON" || target.tagName === "A" ? target : null);
     if (!el) return;
     trackActivity(`Clicked: ${(el.textContent?.trim() || el.getAttribute("aria-label") || "element").substring(0, 50)}`);
   });
 
   // Helper — build auth headers so global errors also get user attribution
-  const makeHeaders = () => {
+  const makeHeaders = (): HeadersInit => {
     const token = getAuthToken(appType);
-    const h = { "Content-Type": "application/json" };
+    const h: Record<string, string> = { "Content-Type": "application/json" };
     if (token) h["Authorization"] = `Bearer ${token}`;
     return h;
   };
@@ -268,7 +278,7 @@ export const setupGlobalErrorHandling = () => {
   });
 
   // ── Uncaught synchronous errors ───────────────────────────────────────────
-  window.addEventListener("error", (event) => {
+  window.addEventListener("error", (event: ErrorEvent) => {
     // Resource load errors (img, script) fire window.error with a null event.message
     // and a non-null event.target. Filter them — they're not JS exceptions.
     if (event.target && event.target !== window) return;
@@ -309,18 +319,19 @@ export const installFetchInterceptor = () => {
   window.__fetchInterceptorInstalled = true;
 
   const _originalFetch = window.fetch;
-  const appType = import.meta.env?.VITE_APP_TYPE || "unknown";
-  const env = normaliseEnvironment(import.meta.env?.MODE);
+  const appType = (import.meta as any).env?.VITE_APP_TYPE || "unknown";
+  const env = normaliseEnvironment((import.meta as any).env?.MODE);
 
-  window.fetch = async function interceptedFetch(...args) {
+  window.fetch = async function interceptedFetch(...args: any[]) {
     const url = typeof args[0] === "string" ? args[0] : (args[0]?.url ?? "");
     // Monitoring endpoints excluded to prevent feedback loops
     const isMonitoringCall = /\/api\/v1\/(errors|feedback)\//.test(url);
 
     let response;
     try {
-      response = await _originalFetch.apply(this, args);
-    } catch (networkError) {
+      response = await _originalFetch(args[0], args[1]);
+    } catch (err: unknown) {
+      const networkError = err as Error;
       // True network failure (DNS, CORS, offline) — report if not monitoring call
       if (!isMonitoringCall) {
         _originalFetch(INGEST_ERRORS, {
@@ -393,7 +404,7 @@ export const setupOfflineFlush = () => {
 };
 
 // ── Performance monitoring ────────────────────────────────────────────────────
-const sendToAnalytics = (metric) => {
+const sendToAnalytics = (metric: any) => {
   fetch("/analytics/web-vitals", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -414,12 +425,12 @@ export const setupPerformanceMonitoring = () => {
   if (typeof window === "undefined") return;
 
   import("web-vitals")
-    .then(({ getCLS, getFID, getFCP, getLCP, getTTFB }) => {
-      getCLS(sendToAnalytics);
-      getFID(sendToAnalytics);
-      getFCP(sendToAnalytics);
-      getLCP(sendToAnalytics);
-      getTTFB(sendToAnalytics);
+    .then(({ onCLS, onINP, onFCP, onLCP, onTTFB }) => {
+      onCLS(sendToAnalytics);
+      onINP(sendToAnalytics);
+      onFCP(sendToAnalytics);
+      onLCP(sendToAnalytics);
+      onTTFB(sendToAnalytics);
     })
     .catch(() => {
       if (import.meta.env?.DEV) {
@@ -456,7 +467,7 @@ export const setupHealthCheck = () => {
   const env = (import.meta.env?.MODE || "development") === "development"
     ? "development" : "production";
 
-  const reportHealthFailure = (reason, statusCode = null) => {
+  const reportHealthFailure = (reason: string, statusCode: number | null = null) => {
     fetch(INGEST_ERRORS, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -481,8 +492,9 @@ export const setupHealthCheck = () => {
       if (!res.ok) {
         reportHealthFailure(`HTTP ${res.status}`, res.status);
       }
-    } catch (err) {
-      reportHealthFailure(err.message || "Network error");
+    } catch (err: unknown) {
+      const error = err as Error;
+      reportHealthFailure(error.message || "Network error");
     }
   }, 30_000);
 
@@ -521,16 +533,16 @@ export const initializeMonitoring = () => {
 //     { QueryClient, QueryCache, MutationCache },
 //     { appType: "church", defaultOptions: { queries: { staleTime: 5 * 60_000 } } }
 //   );
-export const createMonitoredQueryClient = (reactQuery, options = {}) => {
+export const createMonitoredQueryClient = (reactQuery: any, options: Record<string, any> = {}) => {
   const { QueryClient, QueryCache, MutationCache } = reactQuery;
 
-  const appType = options.appType || import.meta?.env?.VITE_APP_TYPE || "unknown";
+  const appType = options.appType || (import.meta as any).env?.VITE_APP_TYPE || "unknown";
   const env = (import.meta?.env?.MODE || "development") === "development"
     ? "development" : "production";
 
-  const reportQueryError = (error, context) => {
+  const reportQueryError = (error: any, context: any) => {
     const token = getAuthToken(appType);
-    const headers = { "Content-Type": "application/json" };
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
     if (token) headers["Authorization"] = `Bearer ${token}`;
 
     fetch(INGEST_ERRORS, {
@@ -560,10 +572,10 @@ export const createMonitoredQueryClient = (reactQuery, options = {}) => {
 
   return new QueryClient({
     queryCache: new QueryCache({
-      onError: (error, query) => reportQueryError(error, { queryKey: query.queryKey }),
+      onError: (error: any, query: any) => reportQueryError(error, { queryKey: query.queryKey }),
     }),
     mutationCache: new MutationCache({
-      onError: (error, _vars, _ctx, mutation) =>
+      onError: (error: any, _vars: any, _ctx: any, mutation: any) =>
         reportQueryError(error, { mutationKey: mutation.options.mutationKey }),
     }),
     ...userOptions,
