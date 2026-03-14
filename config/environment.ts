@@ -2,6 +2,7 @@
 
 export const getSharedEnvironmentConfig = () => ({
   env: import.meta.env.VITE_ENV || "development",
+  environment: import.meta.env.VITE_ENV || "development",
   api: {
     baseUrl: import.meta.env.VITE_API_URL || "http://localhost:5000",
     timeout: parseInt(import.meta.env.VITE_API_TIMEOUT) || 10000,
@@ -35,6 +36,6 @@ export const getWebSocketUrl = (): string => {
   // Prefer an explicitly configured WS URL
   if (import.meta.env.VITE_WS_URL) return import.meta.env.VITE_WS_URL;
   // Derive from the API URL (canonical env var → no double-declaration)
-  const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-  return apiBase.replace(/^http/, 'ws');
+  const apiBase = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  return apiBase.replace(/^http/, "ws");
 };

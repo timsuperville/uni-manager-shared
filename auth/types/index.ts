@@ -58,5 +58,6 @@ export {
 
 // ==================== TYPES ====================
 
-export type { MFAMethod, MFAStatus } from "./mfaConstants.ts";
-export type { Permission, RoleDefinition } from "./rbacRoles.ts";
+export type { MFAMethod, MFAStatus } from "./mfaConstants";
+export type { Permission, RoleDefinition } from "./rbacRoles";
+export * from "./auth.types";

@@ -6,7 +6,7 @@
  */
 
 import { ApiClient, ApiResponse, RequestOptions } from "../core/ApiClient";
-import { ApiError } from "../core/ErrorHandler";
+import { ApiError, ApiErrorType } from "../core/ErrorHandler";
 import { reportApiError } from "@shared/utils";
 
 export interface ValidationSchema {
@@ -16,10 +16,7 @@ export interface ValidationSchema {
     minLength?: number;
     maxLength?: number;
     pattern?: RegExp;
-    validator?: (
-      value: unknown,
-      data?: Record<string, unknown>,
-    ) => boolean | string;
+    validator?: (value: any, data?: any) => boolean | string;
   };
 }
 
@@ -84,10 +81,7 @@ export abstract class BaseService {
   /**
    * Validate request data against schema
    */
-  protected validateRequest<T extends Record<string, unknown>>(
-    data: T,
-    schema: ValidationSchema,
-  ): T {
+  protected validateRequest<T>(data: T, schema: ValidationSchema): T {
     if (!data || typeof data !== "object") {
       throw this.createValidationError("Request data must be an object");
     }
@@ -96,7 +90,7 @@ export abstract class BaseService {
     const validatedData = { ...data };
 
     for (const [field, rules] of Object.entries(schema)) {
-      const value = data[field];
+      const value = (data as Record<string, unknown>)[field];
 
       // Check required fields
       if (
@@ -219,7 +213,7 @@ export abstract class BaseService {
   protected createValidationError(message: string): ApiError {
     const error = new Error(message) as ApiError;
     error.name = "ValidationError";
-    error.type = "CLIENT_ERROR"; // Validation errors are client-side (4xx range)
+    error.type = ApiErrorType.VALIDATION_ERROR;
     error.retryable = false;
     error.timestamp = new Date().toISOString();
 

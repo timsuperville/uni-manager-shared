@@ -45,6 +45,7 @@ export interface ApiError extends Error {
 }
 
 export interface ErrorContext {
+  [key: string]: unknown;
   endpoint?: string;
   method?: string;
   requestId?: string;
@@ -181,18 +182,21 @@ export class ErrorHandler {
     }
 
     if (responseData && typeof responseData === "object") {
+      const data = responseData as Record<string, unknown>;
       // Try common error message fields
       const possibleFields = ["message", "error", "detail", "description"];
 
       for (const field of possibleFields) {
-        if (responseData[field] && typeof responseData[field] === "string") {
-          return responseData[field];
+        if (data[field] && typeof data[field] === "string") {
+          return data[field] as string;
         }
       }
 
       // If it's a validation error with field-specific messages
-      if (responseData.errors && typeof responseData.errors === "object") {
-        const errorMessages = Object.values(responseData.errors)
+      if (data["errors"] && typeof data["errors"] === "object") {
+        const errorMessages = Object.values(
+          data["errors"] as Record<string, unknown>,
+        )
           .flat()
           .filter((msg) => typeof msg === "string");
 
@@ -292,7 +296,7 @@ export class ErrorHandler {
       method: config?.method?.toUpperCase(),
       service: "ApiClient",
       context: {
-        errorType: error.type,
+        errorType: error.type as string,
         requestId: error.requestId,
         retryCount: config?._retryCount ?? 0,
       },
