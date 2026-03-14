@@ -133,7 +133,7 @@ function FeedbackModal({
       const reqHeaders: Record<string, string> = { "Content-Type": "application/json" };
       if (authToken) reqHeaders["Authorization"] = `Bearer ${authToken}`;
 
-      const response = await fetch("/api/v1/feedback/submit", {
+      const response = await fetch("/api/v1/integrations/feedback", {
         method:  "POST",
         headers: reqHeaders,
         body:    JSON.stringify(payload),

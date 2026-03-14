@@ -4,7 +4,7 @@
  * ── Reporting architecture ────────────────────────────────────────────────────
  * On any caught error the boundary fires two parallel, fire-and-forget requests:
  *   1. POST /api/v1/errors/log      → ErrorLog collection (Error Resonance)
- *   2. POST /api/v1/feedback/submit → FeedbackReport collection (Sentiment Feed)
+ *   2. POST /api/v1/integrations/feedback → FeedbackReport collection (Sentiment Feed)
  *
  * Both use raw fetch (NOT @shared/api) because:
  *   a) The boundary may mount BEFORE ApiProvider is in the tree.
@@ -30,7 +30,7 @@ import("../features/monitoring/ErrorMonitoring.jsx")
 
 // ── Ingest endpoints ──────────────────────────────────────────────────────────
 const INGEST_ERRORS   = "/api/v1/errors/log";
-const INGEST_FEEDBACK = "/api/v1/feedback/submit";
+const INGEST_FEEDBACK = "/api/v1/integrations/feedback";
 
 // ── Environment normalisation ─────────────────────────────────────────────────
 function normaliseEnvironment(mode: string | undefined): "development" | "production" {

@@ -124,7 +124,7 @@ describe("submitFeedbackSilently — context shape and device detection", () => 
 
         const callArgs = mockFetch.mock.calls[0] as unknown as [string, RequestInit];
         const [url, opts] = callArgs;
-        expect(url).toBe("/api/v1/feedback/submit");
+        expect(url).toBe("/api/v1/integrations/feedback");
         expect(opts.method).toBe("POST");
 
         const body = JSON.parse(opts.body as string);

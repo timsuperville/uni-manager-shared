@@ -91,7 +91,7 @@ export async function submitFeedbackSilently({
     const systemCtx = collectSystemContext(appName, user ?? null);
     systemCtx.source = resolveSource(source);
 
-    await fetch("/api/v1/feedback/submit", {
+    await fetch("/api/v1/integrations/feedback", {
       method: "POST",
       headers,
       body: JSON.stringify({
