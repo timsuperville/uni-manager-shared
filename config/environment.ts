@@ -35,6 +35,6 @@ export const getWebSocketUrl = (): string => {
   // Prefer an explicitly configured WS URL
   if (import.meta.env.VITE_WS_URL) return import.meta.env.VITE_WS_URL;
   // Derive from the API URL (canonical env var → no double-declaration)
-  const apiBase = import.meta.env.VITE_API_URL || "http://localhost:5000";
-  return apiBase.replace(/^http/, "ws");
+  const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+  return apiBase.replace(/^http/, 'ws');
 };

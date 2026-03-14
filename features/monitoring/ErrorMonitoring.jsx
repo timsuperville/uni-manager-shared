@@ -22,8 +22,8 @@ const isStaging = (import.meta.env?.MODE || "development") === "staging";
 // ── Ingest endpoints ──────────────────────────────────────────────────────────
 // Intentionally RELATIVE — Vite proxy routes /api/v1 → backend in dev,
 // nginx routes in prod. See frontend/vite-proxy.js and shared/api/config/apiConfig.ts.
-const INGEST_ERRORS = "/api/v1/errors/log";
-const INGEST_FEEDBACK = "/api/v1/feedback/submit";
+const INGEST_ERRORS = "/api/v1/infra/errors/log";
+const INGEST_FEEDBACK = "/api/v1/integrations/feedback";
 
 // ErrorBoundary — canonical unified component. Re-exported here so any code
 // that still imports from this module continues to work.
