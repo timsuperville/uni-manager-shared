@@ -15,9 +15,19 @@ import React from "react";
 
 // ── Context ───────────────────────────────────────────────────────────────────
 
-export { AuthProvider, useAuth, AuthContext, type AuthStateChangePayload } from "./context/AuthContext.tsx";
+export {
+  AuthProvider,
+  useAuth,
+  AuthContext,
+  type AuthStateChangePayload,
+} from "./context/AuthContext.tsx";
 export { withAuth, AuthContextProvider } from "./context/index.ts";
-export { SSOContext, SSOProvider, useSSO, withSSO } from "./context/SSOContext.tsx";
+export {
+  SSOContext,
+  SSOProvider,
+  useSSO,
+  withSSO,
+} from "./context/SSOContext.tsx";
 export {
   RealTimeSecurityProvider,
   useRealTimeSecurity,
@@ -47,8 +57,12 @@ export {
 } from "./hooks/useRateLimit.ts";
 export { useAuthForm } from "./hooks/useAuthForm.ts";
 
-// Church CAHA hooks
-export { useChurchRole } from "./hooks/useChurchRole.ts";
+// Church CAHA hooks + types
+export {
+  useChurchRole,
+  type UseChurchRoleReturn,
+  type MinistryRole,
+} from "./hooks/useChurchRole.ts";
 export { useChurchId } from "./hooks/useChurchId.ts";
 
 // Session management
@@ -89,24 +103,35 @@ export { RBACProvider, useRBAC } from "./components/RBACComponents.tsx";
 
 // RBAC — guards (lazy-loaded, avoid bloating the initial bundle)
 export const PermissionGuard = React.lazy(() =>
-  import("./components/RBACComponents.tsx").then((m) => ({ default: m.PermissionGuard })),
+  import("./components/RBACComponents.tsx").then((m) => ({
+    default: m.PermissionGuard,
+  })),
 );
 export const RoleGuard = React.lazy(() =>
-  import("./components/RBACComponents.tsx").then((m) => ({ default: m.RoleGuard })),
+  import("./components/RBACComponents.tsx").then((m) => ({
+    default: m.RoleGuard,
+  })),
 );
 export const ApplicationGuard = React.lazy(() =>
-  import("./components/RBACComponents.tsx").then((m) => ({ default: m.ApplicationGuard })),
+  import("./components/RBACComponents.tsx").then((m) => ({
+    default: m.ApplicationGuard,
+  })),
 );
 export const RouteGuard = React.lazy(() =>
-  import("./components/RBACComponents.tsx").then((m) => ({ default: m.RouteGuard })),
+  import("./components/RBACComponents.tsx").then((m) => ({
+    default: m.RouteGuard,
+  })),
 );
 export const AdminGuard = React.lazy(() =>
-  import("./components/RBACComponents.tsx").then((m) => ({ default: m.AdminGuard })),
+  import("./components/RBACComponents.tsx").then((m) => ({
+    default: m.AdminGuard,
+  })),
 );
 export const FeatureGuard = React.lazy(() =>
-  import("./components/RBACComponents.tsx").then((m) => ({ default: m.FeatureGuard })),
+  import("./components/RBACComponents.tsx").then((m) => ({
+    default: m.FeatureGuard,
+  })),
 );
-
 
 // ── Services ──────────────────────────────────────────────────────────────────
 
@@ -147,7 +172,6 @@ export {
   AUTH_EVENTS,
 } from "./types/index.ts";
 
-
 // MFA derived types (canonical source: types/mfaConstants.ts)
 export type { MFAMethod, MFAStatus } from "./types/index.ts";
 
@@ -181,7 +205,12 @@ export { TokenStorage, tokenStorage } from "./utils/TokenStorage.ts";
 
 // ── RBAC ──────────────────────────────────────────────────────────────────────
 
-export { RBACUtils, PermissionUtils, RouteUtils, createRBAC } from "./utils/RBACUtils.ts";
+export {
+  RBACUtils,
+  PermissionUtils,
+  RouteUtils,
+  createRBAC,
+} from "./utils/RBACUtils.ts";
 export {
   PERMISSIONS,
   ROLES,
@@ -196,7 +225,6 @@ export {
   hasRole,
   checkAccess,
 } from "./types/rbacRoles.ts";
-
 
 // ── Debug ─────────────────────────────────────────────────────────────────────
 

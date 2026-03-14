@@ -1,7 +1,25 @@
 /**
+ * Formats a numeric value as a currency string.
+ * Defaults to USD with no fractional digits.
+ *
+ * @param n - Numeric value to format (null/undefined renders "—")
+ * @param currency - ISO 4217 currency code (defaults to "USD")
+ * @returns Formatted currency string or "—" for null/undefined
+ */
+export const formatCurrency = (
+  n: number | null | undefined,
+  currency = "USD",
+): string => {
+  if (n == null) return "—";
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency,
+    maximumFractionDigits: 0,
+  }).format(n);
+};
+
+/**
  * Formats a system role into a friendly display name.
- * @param role - The role string (e.g. "super_admin")
- * @returns Formatted role (e.g. "Super Admin")
  */
 export const formatRole = (role: string | undefined | null): string => {
   if (!role) return "User";
@@ -22,7 +40,9 @@ interface UserLike {
  * @param user - The user object
  * @returns "First Last" or "Email" or "User"
  */
-export const getUserDisplayName = (user: UserLike | null | undefined): string => {
+export const getUserDisplayName = (
+  user: UserLike | null | undefined,
+): string => {
   if (!user) return "User";
   if (user.firstName && user.lastName) {
     return `${user.firstName} ${user.lastName}`;

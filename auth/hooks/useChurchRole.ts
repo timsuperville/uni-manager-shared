@@ -16,18 +16,27 @@ type CahaRole = keyof typeof ROLE_TIER;
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-interface GrantedTool {
+export interface GrantedTool {
   toolId: string;
   canView: boolean;
   canEdit: boolean;
 }
 
-interface MinistryRole {
+export interface MinistryRole {
   ministry?: {
     _id?: string;
-    grantedTools?: Array<{ toolId?: string; canView?: boolean; canEdit?: boolean }>;
+    name?: string;
+    grantedTools?: Array<{
+      toolId?: string;
+      canView?: boolean;
+      canEdit?: boolean;
+    }>;
   };
-  grantedTools?: Array<{ toolId?: string; canView?: boolean; canEdit?: boolean }>;
+  grantedTools?: Array<{
+    toolId?: string;
+    canView?: boolean;
+    canEdit?: boolean;
+  }>;
   role?: string;
 }
 
@@ -38,7 +47,7 @@ interface Membership {
   church?: { _id?: string } | string;
 }
 
-interface UseChurchRoleReturn {
+export interface UseChurchRoleReturn {
   churchRole: string;
   churchRoleTier: number;
   ministryRoles: MinistryRole[];
@@ -88,20 +97,20 @@ export function useChurchRole(): UseChurchRoleReturn {
 
     if (isPlatformAdmin) {
       const adminChurchId =
-        (typeof u.currentChurch === "object" && u.currentChurch !== null
-          ? u.currentChurch._id?.toString() ?? null
+        typeof u.currentChurch === "object" && u.currentChurch !== null
+          ? (u.currentChurch._id?.toString() ?? null)
           : typeof u.currentChurch === "string"
             ? u.currentChurch
-            : null);
+            : null;
       return buildResult("admin", null, adminChurchId, u, true);
     }
 
     const currentChurchId =
-      (typeof u.currentChurch === "object" && u.currentChurch !== null
-        ? u.currentChurch._id?.toString() ?? null
+      typeof u.currentChurch === "object" && u.currentChurch !== null
+        ? (u.currentChurch._id?.toString() ?? null)
         : typeof u.currentChurch === "string"
           ? u.currentChurch
-          : null);
+          : null;
 
     if (!currentChurchId) {
       return buildResult("visitor", null, null, u);
@@ -125,7 +134,7 @@ export function useChurchRole(): UseChurchRoleReturn {
     }
 
     const effectiveRole =
-      membership.status === "left" ? "visitor" : membership.role ?? "viewer";
+      membership.status === "left" ? "visitor" : (membership.role ?? "viewer");
 
     return buildResult(effectiveRole, membership, currentChurchId, u);
   }, [user]);
@@ -167,7 +176,9 @@ function buildResult(
   const extUser = user as (typeof user & { roles?: string[] }) | null;
   const effectivePlatformAdmin =
     isPlatformAdmin ||
-    !!(extUser?.roles?.includes("admin") || extUser?.roles?.includes("org_admin"));
+    !!(
+      extUser?.roles?.includes("admin") || extUser?.roles?.includes("org_admin")
+    );
 
   return {
     churchRole,
@@ -179,13 +190,15 @@ function buildResult(
     resolvedTools,
 
     hasGrantedTool: (toolId: string) => {
-      if (effectivePlatformAdmin || tier >= (ROLE_TIER["admin"] ?? 0)) return true;
-      return (toolMap.get(toolId)?.canView ?? false);
+      if (effectivePlatformAdmin || tier >= (ROLE_TIER["admin"] ?? 0))
+        return true;
+      return toolMap.get(toolId)?.canView ?? false;
     },
 
     canEditTool: (toolId: string) => {
-      if (effectivePlatformAdmin || tier >= (ROLE_TIER["admin"] ?? 0)) return true;
-      return (toolMap.get(toolId)?.canEdit ?? false);
+      if (effectivePlatformAdmin || tier >= (ROLE_TIER["admin"] ?? 0))
+        return true;
+      return toolMap.get(toolId)?.canEdit ?? false;
     },
 
     hasMinRole: (minRole: CahaRole) => {
@@ -219,7 +232,8 @@ function buildResult(
     },
 
     isAdmin: effectivePlatformAdmin || tier >= (ROLE_TIER["admin"] ?? 0),
-    isVolunteer: effectivePlatformAdmin || tier >= (ROLE_TIER["volunteer"] ?? 0),
+    isVolunteer:
+      effectivePlatformAdmin || tier >= (ROLE_TIER["volunteer"] ?? 0),
     isMember: effectivePlatformAdmin || tier >= (ROLE_TIER["member"] ?? 0),
   };
 }
