@@ -167,26 +167,80 @@ export abstract class BaseService {
   }
 
   /**
-   * Transform response data (override in subclasses)
+   * Transform response data (override in subclasses).
+   *
+   * All backend routes return `{ success: true, data: T }`. The ApiClient sets
+   * ApiResponse.data = the raw JSON body, so response.data is the envelope.
+   * We peel it here once so every service consumer receives the inner payload.
    */
   protected transformResponse<T>(response: ApiResponse<T>): T {
+    const body = response.data as any;
+    // Peel the { success, data } envelope produced by responseHelpers.
+    if (
+      body !== null &&
+      typeof body === "object" &&
+      "success" in body &&
+      "data" in body
+    ) {
+      return body.data as T;
+    }
     return response.data;
   }
 
   /**
-   * Transform list response with pagination
+   * Transform list response with pagination.
+   *
+   * Handles three shapes the backend may return (after envelope peeling):
+   *   1. Bare array:               [...]
+   *   2. Paginated wrapper:        { data: [...], pagination: {} }
+   *   3. Named-collection object:  { services: [...], total: N }
    */
   protected transformListResponse<T>(
     response: ApiResponse<any>,
   ): PaginatedResponse<T> {
-    const { data, pagination } = response.data;
+    const body = response.data as any;
+
+    // Step 1 — peel the { success, data } envelope if present
+    const payload =
+      body !== null &&
+      typeof body === "object" &&
+      "success" in body &&
+      "data" in body
+        ? body.data
+        : body;
+
+    // Step 2 — extract the items array and pagination from the payload
+    let items: T[];
+    let pagination: any;
+
+    if (Array.isArray(payload)) {
+      // Shape 1: bare array
+      items = payload;
+      pagination = undefined;
+    } else if (payload !== null && typeof payload === "object") {
+      if (Array.isArray(payload.data)) {
+        // Shape 2: { data: [...], pagination?: {} }
+        items = payload.data;
+        pagination = payload.pagination;
+      } else {
+        // Shape 3: { services/items/records: [...], total?: N }
+        const arrayKey = Object.keys(payload).find((k) =>
+          Array.isArray(payload[k]),
+        );
+        items = arrayKey ? payload[arrayKey] : [];
+        pagination = payload.pagination;
+      }
+    } else {
+      items = [];
+      pagination = undefined;
+    }
 
     return {
-      data: data || [],
+      data: items,
       pagination: {
         page: pagination?.page || 1,
         limit: pagination?.limit || 10,
-        total: pagination?.total || 0,
+        total: pagination?.total || items.length,
         totalPages: pagination?.totalPages || 0,
         hasNextPage: pagination?.hasNextPage || false,
         hasPrevPage: pagination?.hasPrevPage || false,

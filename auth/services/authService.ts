@@ -316,17 +316,40 @@ class AuthService {
       });
 
       if (response.status === 401 || response.status === 403) {
-        if (import.meta.env?.DEV) {
-          console.warn(
-            `[AuthService] checkExistingSession: verify-token returned ${response.status} — clearing stored auth`,
-          );
-          response
-            .clone()
-            .text()
-            .then((t) =>
-              console.warn("[AuthService] verify-token response body:", t),
-            )
-            .catch(() => {});
+        // Before giving up, attempt a silent token refresh if we have a refresh token.
+        // This handles the common "Token expired" case without forcing the user to log in again.
+        const refreshToken = this.tokenStorage.getRefreshToken();
+        if (refreshToken) {
+          if (import.meta.env?.DEV) {
+            console.warn(
+              `[AuthService] checkExistingSession: verify-token returned ${response.status} — attempting silent refresh`,
+            );
+          }
+          try {
+            await this.refreshToken();
+            // Refresh succeeded — re-run verification with the new access token
+            return await this.checkExistingSession();
+          } catch (refreshError) {
+            if (import.meta.env?.DEV) {
+              console.warn(
+                "[AuthService] Silent refresh failed — clearing stored auth:",
+                (refreshError as Error).message,
+              );
+            }
+          }
+        } else {
+          if (import.meta.env?.DEV) {
+            console.warn(
+              `[AuthService] checkExistingSession: verify-token returned ${response.status} — no refresh token, clearing stored auth`,
+            );
+            response
+              .clone()
+              .text()
+              .then((t) =>
+                console.warn("[AuthService] verify-token response body:", t),
+              )
+              .catch(() => {});
+          }
         }
         this.clearStoredAuth();
         return null;
@@ -985,18 +1008,31 @@ class AuthService {
         accessToken?: string;
         refreshToken?: string;
         user?: unknown;
+        // Admin backend wraps tokens in a `data` envelope via formatSuccess()
+        data?: { accessToken?: string; refreshToken?: string; user?: unknown };
       };
 
       if (response.ok && responseData.success) {
-        this.tokenStorage.setTokens({
-          accessToken: responseData.accessToken!,
-          refreshToken: responseData.refreshToken,
-          user: responseData.user as User | undefined,
-        });
-        this.sessionToken = responseData.accessToken!;
-        this.currentUser = responseData.user as User | undefined;
+        // Unwrap the `data` envelope (admin backend) or use flat shape (other endpoints)
+        const envelope = responseData.data ?? responseData;
+        const accessToken = envelope.accessToken;
+        const refreshToken = envelope.refreshToken;
+        const user = envelope.user;
 
-        return { success: true, accessToken: responseData.accessToken! };
+        if (!accessToken)
+          throw new Error(
+            "Token refresh succeeded but no accessToken in response",
+          );
+
+        this.tokenStorage.setTokens({
+          accessToken,
+          refreshToken,
+          user: user as User | undefined,
+        });
+        this.sessionToken = accessToken;
+        this.currentUser = user as User | undefined;
+
+        return { success: true, accessToken };
       }
 
       throw new Error(responseData.message ?? "Token refresh failed");
