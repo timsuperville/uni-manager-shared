@@ -24,7 +24,6 @@ import { RateLimitService } from "./RateLimitService.ts";
 import { TokenManagementService } from "./TokenManagementService.ts";
 import type { User } from "../types/auth.types.ts";
 
-
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 interface AuthServiceEndpoints {
@@ -58,7 +57,20 @@ interface AuthServiceConfig {
 
 interface ResolvedAuthConfig {
   apiBaseUrl: string;
-  endpoints: Required<Pick<AuthServiceEndpoints, "login" | "logout" | "signup" | "forgotPassword" | "resetPassword" | "refreshToken" | "validateToken" | "verify">> & AuthServiceEndpoints;
+  endpoints: Required<
+    Pick<
+      AuthServiceEndpoints,
+      | "login"
+      | "logout"
+      | "signup"
+      | "forgotPassword"
+      | "resetPassword"
+      | "refreshToken"
+      | "validateToken"
+      | "verify"
+    >
+  > &
+    AuthServiceEndpoints;
   appType: string;
 }
 
@@ -145,7 +157,9 @@ class AuthService {
       appType: config.appType ?? "default",
     };
 
-    this.apiEndpoint = (this.config.endpoints.login ?? "/api/v1/auth/login").replace("/login", "");
+    this.apiEndpoint = (
+      this.config.endpoints.login ?? "/api/v1/auth/login"
+    ).replace("/login", "");
 
     const storageNamespace = config.storageNamespace ?? config.appType ?? "uni";
     this.tokenStorage = new TokenStorage(storageNamespace);
@@ -174,33 +188,51 @@ class AuthService {
       this.startActivityTracking();
       return true;
     } catch (error) {
-      if (import.meta.env.DEV) console.warn("[AuthService] initialize failed:", (error as Error).message);
+      if (import.meta.env.DEV)
+        console.warn(
+          "[AuthService] initialize failed:",
+          (error as Error).message,
+        );
       return false;
     }
   }
 
   // ── Private Helpers ─────────────────────────────────────────────────────────
 
-  private async _handleResponse(response: Response): Promise<Record<string, unknown>> {
+  private async _handleResponse(
+    response: Response,
+  ): Promise<Record<string, unknown>> {
     const contentType = response.headers.get("content-type");
 
     if (!contentType?.includes("application/json")) {
-      throw new Error(`Server Error (${response.status}): Please try again later.`);
+      throw new Error(
+        `Server returned HTTP ${response.status} with non-JSON body. ` +
+          `The backend may be down or returning an unexpected response.`,
+      );
     }
 
     let data: Record<string, unknown>;
     try {
-      data = await response.json() as Record<string, unknown>;
+      data = (await response.json()) as Record<string, unknown>;
     } catch (error) {
-      if (import.meta.env.DEV) console.warn("[AuthService] _handleResponse JSON parse failed:", (error as Error).message);
-      throw new Error("Invalid JSON response from server");
+      if (import.meta.env.DEV)
+        console.warn(
+          "[AuthService] _handleResponse JSON parse failed:",
+          (error as Error).message,
+        );
+      throw new Error(
+        `HTTP ${response.status}: Invalid JSON response from server`,
+      );
     }
 
     if (!response.ok) {
-      throw new Error(
+      const serverMessage =
         (data["message"] as string | undefined) ??
-        (data["error"] as string | undefined) ??
-        `Request failed with status ${response.status}`,
+        (data["error"] as string | undefined);
+      throw new Error(
+        serverMessage
+          ? `HTTP ${response.status}: ${serverMessage}`
+          : `Request failed with status ${response.status}`,
       );
     }
 
@@ -214,7 +246,10 @@ class AuthService {
     return `${this.config.apiBaseUrl}${endpoint}`;
   }
 
-  private async _makeRequest(endpoint: string, options: RequestOptions = {}): Promise<Response> {
+  private async _makeRequest(
+    endpoint: string,
+    options: RequestOptions = {},
+  ): Promise<Response> {
     const endpointPath = this.config.endpoints[endpoint] ?? endpoint;
     const url = (endpointPath ?? "").startsWith("http")
       ? endpointPath!
@@ -225,11 +260,37 @@ class AuthService {
       ...(options.headers as Record<string, string>),
     };
 
-    return fetch(url!, {
-      ...options,
-      headers: defaultHeaders,
-      credentials: "include",
-    });
+    try {
+      return await fetch(url!, {
+        ...options,
+        headers: defaultHeaders,
+        credentials: "include",
+      });
+    } catch (networkError) {
+      // Enrich opaque network errors (e.g. "Failed to fetch" from COEP blocks,
+      // connection refused, or DNS failure) with actionable context.
+      const msg = (networkError as Error)?.message ?? "";
+      const isNetworkFailure =
+        networkError instanceof TypeError ||
+        msg.toLowerCase().includes("failed to fetch") ||
+        msg.toLowerCase().includes("networkerror") ||
+        msg.toLowerCase().includes("load failed");
+
+      if (isNetworkFailure) {
+        const origin = (() => {
+          try {
+            return new URL(url!).origin;
+          } catch {
+            return url;
+          }
+        })();
+        throw new Error(
+          `Cannot reach server at ${origin}. ` +
+            `Check that the backend is running and that VITE_API_URL is correct.`,
+        );
+      }
+      throw networkError;
+    }
   }
 
   // ── Session ─────────────────────────────────────────────────────────────────
@@ -256,8 +317,16 @@ class AuthService {
 
       if (response.status === 401 || response.status === 403) {
         if (import.meta.env?.DEV) {
-          console.warn(`[AuthService] checkExistingSession: verify-token returned ${response.status} — clearing stored auth`);
-          response.clone().text().then(t => console.warn('[AuthService] verify-token response body:', t)).catch(() => {});
+          console.warn(
+            `[AuthService] checkExistingSession: verify-token returned ${response.status} — clearing stored auth`,
+          );
+          response
+            .clone()
+            .text()
+            .then((t) =>
+              console.warn("[AuthService] verify-token response body:", t),
+            )
+            .catch(() => {});
         }
         this.clearStoredAuth();
         return null;
@@ -272,7 +341,10 @@ class AuthService {
         }
       } catch (e) {
         if (import.meta.env?.DEV) {
-          console.warn("[AuthService] Session verification failed, restoring from storage:", (e as Error).message);
+          console.warn(
+            "[AuthService] Session verification failed, restoring from storage:",
+            (e as Error).message,
+          );
         }
         const storedUser = this.tokenStorage.getUser();
         if (storedUser) {
@@ -285,8 +357,12 @@ class AuthService {
 
       // The canonical API response shape is { success, data: { valid, user } }.
       // Unwrap the data envelope; fall back to top-level user for legacy compatibility.
-      const envelope = responseData["data"] as Record<string, unknown> | undefined;
-      const user = (envelope?.["user"] ?? responseData["user"]) as User | undefined;
+      const envelope = responseData["data"] as
+        | Record<string, unknown>
+        | undefined;
+      const user = (envelope?.["user"] ?? responseData["user"]) as
+        | User
+        | undefined;
 
       this.currentUser = user ?? null;
       this.sessionToken = token;
@@ -304,7 +380,11 @@ class AuthService {
 
       return this.currentUser;
     } catch (error) {
-      if (import.meta.env.DEV) console.warn("[AuthService] validateToken fallback to stored user:", (error as Error).message);
+      if (import.meta.env.DEV)
+        console.warn(
+          "[AuthService] validateToken fallback to stored user:",
+          (error as Error).message,
+        );
       const storedUser = this.tokenStorage.getUser();
       if (storedUser) {
         this.currentUser = storedUser;
@@ -345,14 +425,16 @@ class AuthService {
       // The admin login endpoint wraps its payload in a `data` envelope:
       // { success, data: { admin, tokens: { accessToken, refreshToken }, sessionId } }
       // Fall back to a flat shape for other auth endpoints.
-      const envelope = (responseData["data"] as Record<string, unknown> | undefined) ?? responseData;
-      const tokens = (envelope["tokens"] as Record<string, string> | undefined);
+      const envelope =
+        (responseData["data"] as Record<string, unknown> | undefined) ??
+        responseData;
+      const tokens = envelope["tokens"] as Record<string, string> | undefined;
       const accessToken =
-        (tokens?.["accessToken"]) ??
+        tokens?.["accessToken"] ??
         (responseData["accessToken"] as string | undefined) ??
         (envelope["accessToken"] as string | undefined);
       const refreshToken =
-        (tokens?.["refreshToken"]) ??
+        tokens?.["refreshToken"] ??
         (responseData["refreshToken"] as string | undefined) ??
         (envelope["refreshToken"] as string | undefined);
       // admin endpoint returns `admin` key; other endpoints return `user`
@@ -363,7 +445,6 @@ class AuthService {
       const sessionId =
         (envelope["sessionId"] as string | undefined) ??
         (responseData["sessionId"] as string | undefined);
-
 
       if (responseData["success"] && accessToken) {
         this.tokenStorage.setTokens({
@@ -381,21 +462,34 @@ class AuthService {
         }
 
         this.resetLoginAttempts(email);
-        return { success: true, user, session: envelope["session"] ?? responseData["session"] };
+        return {
+          success: true,
+          user,
+          session: envelope["session"] ?? responseData["session"],
+        };
       }
 
-      if (responseData["success"] && (responseData["requiresMFA"] || envelope["requiresMFA"])) {
+      if (
+        responseData["success"] &&
+        (responseData["requiresMFA"] || envelope["requiresMFA"])
+      ) {
         this.resetLoginAttempts(email);
         return {
           success: true,
           requiresMFA: true,
-          userId: (responseData["userId"] ?? envelope["userId"]) as string | undefined,
-          tempToken: (responseData["tempToken"] ?? envelope["tempToken"]) as string | undefined,
+          userId: (responseData["userId"] ?? envelope["userId"]) as
+            | string
+            | undefined,
+          tempToken: (responseData["tempToken"] ?? envelope["tempToken"]) as
+            | string
+            | undefined,
         };
       }
 
       this.recordLoginAttempt(email);
-      throw new Error((responseData["message"] as string | undefined) ?? "Login failed");
+      throw new Error(
+        (responseData["message"] as string | undefined) ?? "Login failed",
+      );
     } catch (err) {
       this.recordLoginAttempt(email);
       throw err;
@@ -408,7 +502,8 @@ class AuthService {
       // Retrieve persisted sessionId — required by the admin logout endpoint.
       // Use the canonical getSessionId() which reads the correctly-namespaced
       // storage key (e.g. "admin_auth_session_id") rather than raw sessionStorage.
-      const storedSessionId = this.sessionId ?? this.tokenStorage.getSessionId();
+      const storedSessionId =
+        this.sessionId ?? this.tokenStorage.getSessionId();
 
       if (token) {
         await this._makeRequest("logout", {
@@ -426,8 +521,18 @@ class AuthService {
       this.stopActivityTracking();
       return { success: true };
     } catch (error) {
-      if (import.meta.env.DEV) console.warn("[AuthService] logout backend call failed — clearing local session:", (error as Error).message);
-      try { sessionStorage.removeItem(`${this.tokenStorage['namespace']}_session_id`); } catch { /* storage unavailable */ }
+      if (import.meta.env.DEV)
+        console.warn(
+          "[AuthService] logout backend call failed — clearing local session:",
+          (error as Error).message,
+        );
+      try {
+        sessionStorage.removeItem(
+          `${this.tokenStorage["namespace"]}_session_id`,
+        );
+      } catch {
+        /* storage unavailable */
+      }
       this.sessionId = null;
       this.clearStoredAuth();
       this.currentUser = null;
@@ -453,11 +558,15 @@ class AuthService {
       return {
         success: true,
         message: responseData["message"] as string | undefined,
-        requiresVerification: responseData["requiresVerification"] as boolean | undefined,
+        requiresVerification: responseData["requiresVerification"] as
+          | boolean
+          | undefined,
         user: responseData["user"],
       };
     }
-    throw new Error((responseData["message"] as string | undefined) ?? "Signup failed");
+    throw new Error(
+      (responseData["message"] as string | undefined) ?? "Signup failed",
+    );
   }
 
   async checkEmailAvailability(
@@ -482,25 +591,42 @@ class AuthService {
     }
   }
 
-  async forgotPassword(email: string): Promise<{ success: boolean; message?: string }> {
+  async forgotPassword(
+    email: string,
+  ): Promise<{ success: boolean; message?: string }> {
     const response = await this._makeRequest("forgotPassword", {
       method: "POST",
       body: JSON.stringify({ email, appType: this.config.appType }),
     });
-    const responseData = await response.json() as { success: boolean; message?: string };
+    const responseData = (await response.json()) as {
+      success: boolean;
+      message?: string;
+    };
     return { success: responseData.success, message: responseData.message };
   }
 
-  async resetPassword(token: string, newPassword: string): Promise<{ success: boolean; message?: string }> {
+  async resetPassword(
+    token: string,
+    newPassword: string,
+  ): Promise<{ success: boolean; message?: string }> {
     const response = await this._makeRequest("resetPassword", {
       method: "POST",
-      body: JSON.stringify({ token, newPassword, appType: this.config.appType }),
+      body: JSON.stringify({
+        token,
+        newPassword,
+        appType: this.config.appType,
+      }),
     });
-    const responseData = await response.json() as { success: boolean; message?: string };
+    const responseData = (await response.json()) as {
+      success: boolean;
+      message?: string;
+    };
     return { success: responseData.success, message: responseData.message };
   }
 
-  async updateProfile(profileData: Record<string, unknown>): Promise<{ success: true; user: unknown; message: string }> {
+  async updateProfile(
+    profileData: Record<string, unknown>,
+  ): Promise<{ success: true; user: unknown; message: string }> {
     const response = await this._makeRequest("updateProfile", {
       method: "PUT",
       headers: { Authorization: `Bearer ${this.sessionToken}` },
@@ -511,18 +637,28 @@ class AuthService {
 
     if (responseData["success"]) {
       const updatedUser = responseData["user"] ?? responseData["data"];
-      this.currentUser = { ...(this.currentUser as Record<string, unknown>), ...(updatedUser as Record<string, unknown>) };
+      this.currentUser = {
+        ...(this.currentUser as Record<string, unknown>),
+        ...(updatedUser as Record<string, unknown>),
+      };
       return {
         success: true,
         user: this.currentUser,
-        message: (responseData["message"] as string | undefined) ?? "Profile updated successfully",
+        message:
+          (responseData["message"] as string | undefined) ??
+          "Profile updated successfully",
       };
     }
 
-    throw new Error((responseData["message"] as string | undefined) ?? "Failed to update profile");
+    throw new Error(
+      (responseData["message"] as string | undefined) ??
+        "Failed to update profile",
+    );
   }
 
-  async uploadAvatar(file: File): Promise<{ success: true; avatarUrl: string; message: string }> {
+  async uploadAvatar(
+    file: File,
+  ): Promise<{ success: true; avatarUrl: string; message: string }> {
     const formData = new FormData();
     formData.append("avatar", file);
 
@@ -540,18 +676,31 @@ class AuthService {
     const responseData = await this._handleResponse(response);
 
     if (responseData["success"]) {
-      this.currentUser = { ...(this.currentUser as Record<string, unknown>), avatarUrl: responseData["avatarUrl"] };
+      this.currentUser = {
+        ...(this.currentUser as Record<string, unknown>),
+        avatarUrl: responseData["avatarUrl"],
+      };
       return {
         success: true,
         avatarUrl: responseData["avatarUrl"] as string,
-        message: (responseData["message"] as string | undefined) ?? "Avatar uploaded successfully",
+        message:
+          (responseData["message"] as string | undefined) ??
+          "Avatar uploaded successfully",
       };
     }
 
-    throw new Error((responseData["message"] as string | undefined) ?? "Failed to upload avatar");
+    throw new Error(
+      (responseData["message"] as string | undefined) ??
+        "Failed to upload avatar",
+    );
   }
 
-  async uploadCoverImage(file: File): Promise<{ success: true; coverImageUrl: string; user?: unknown; message: string }> {
+  async uploadCoverImage(file: File): Promise<{
+    success: true;
+    coverImageUrl: string;
+    user?: unknown;
+    message: string;
+  }> {
     const formData = new FormData();
     formData.append("cover", file);
 
@@ -579,14 +728,22 @@ class AuthService {
         success: true,
         coverImageUrl,
         user: responseData["user"],
-        message: (responseData["message"] as string | undefined) ?? "Cover image uploaded successfully",
+        message:
+          (responseData["message"] as string | undefined) ??
+          "Cover image uploaded successfully",
       };
     }
 
-    throw new Error((responseData["message"] as string | undefined) ?? "Failed to upload cover image");
+    throw new Error(
+      (responseData["message"] as string | undefined) ??
+        "Failed to upload cover image",
+    );
   }
 
-  async changePassword(currentPassword: string, newPassword: string): Promise<{ success: true; message: string }> {
+  async changePassword(
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<{ success: true; message: string }> {
     const response = await this._makeRequest("changePassword", {
       method: "POST",
       body: JSON.stringify({ currentPassword, newPassword }),
@@ -597,11 +754,16 @@ class AuthService {
     if (responseData["success"]) {
       return {
         success: true,
-        message: (responseData["message"] as string | undefined) ?? "Password changed successfully",
+        message:
+          (responseData["message"] as string | undefined) ??
+          "Password changed successfully",
       };
     }
 
-    throw new Error((responseData["message"] as string | undefined) ?? "Failed to change password");
+    throw new Error(
+      (responseData["message"] as string | undefined) ??
+        "Failed to change password",
+    );
   }
 
   // ── OAuth ───────────────────────────────────────────────────────────────────
@@ -614,7 +776,9 @@ class AuthService {
     const providerConfig = getProviderConfig(providerId, appConfig.name);
 
     if (!providerConfig) {
-      throw new Error(`OAuth provider ${providerId} not supported for ${appConfig.name}`);
+      throw new Error(
+        `OAuth provider ${providerId} not supported for ${appConfig.name}`,
+      );
     }
 
     const { codeVerifier, codeChallenge } = await generatePKCE();
@@ -658,15 +822,29 @@ class AuthService {
   ): Promise<{ success: true; user: unknown; provider: string }> {
     if (error) throw new Error(`OAuth error: ${error}`);
 
-    const storedState = typeof sessionStorage !== "undefined" ? sessionStorage.getItem("oauth_state") : null;
+    const storedState =
+      typeof sessionStorage !== "undefined"
+        ? sessionStorage.getItem("oauth_state")
+        : null;
     if (state !== storedState) throw new Error("Invalid OAuth state parameter");
 
-    const providerId = typeof sessionStorage !== "undefined" ? sessionStorage.getItem("oauth_provider") : null;
-    const codeVerifier = typeof sessionStorage !== "undefined" ? sessionStorage.getItem("pkce_verifier") : null;
+    const providerId =
+      typeof sessionStorage !== "undefined"
+        ? sessionStorage.getItem("oauth_provider")
+        : null;
+    const codeVerifier =
+      typeof sessionStorage !== "undefined"
+        ? sessionStorage.getItem("pkce_verifier")
+        : null;
 
-    if (!providerId || !codeVerifier) throw new Error("Missing OAuth session data");
+    if (!providerId || !codeVerifier)
+      throw new Error("Missing OAuth session data");
 
-    const tokenResponse = await this.exchangeOAuthCode(providerId, code, codeVerifier);
+    const tokenResponse = await this.exchangeOAuthCode(
+      providerId,
+      code,
+      codeVerifier,
+    );
 
     this.tokenStorage.setTokens({
       accessToken: tokenResponse.accessToken,
@@ -704,14 +882,21 @@ class AuthService {
 
     const response = await fetch(providerConfig.tokenEndpoint, {
       method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded", Accept: "application/json" },
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Accept: "application/json",
+      },
       body: new URLSearchParams(tokenParams).toString(),
     });
 
-    if (!response.ok) throw new Error(`Token exchange failed: ${response.status}`);
+    if (!response.ok)
+      throw new Error(`Token exchange failed: ${response.status}`);
 
-    const tokenData = await response.json() as { access_token: string };
-    const userInfo = await this.getOAuthUserInfo(providerId, tokenData.access_token);
+    const tokenData = (await response.json()) as { access_token: string };
+    const userInfo = await this.getOAuthUserInfo(
+      providerId,
+      tokenData.access_token,
+    );
 
     const authResponse = await this._makeRequest("login", {
       method: "POST",
@@ -726,24 +911,41 @@ class AuthService {
       }),
     });
 
-    const authData = await authResponse.json() as { success: boolean; message?: string; accessToken: string; refreshToken?: string; user: unknown };
+    const authData = (await authResponse.json()) as {
+      success: boolean;
+      message?: string;
+      accessToken: string;
+      refreshToken?: string;
+      user: unknown;
+    };
 
     if (!authResponse.ok || !authData.success) {
       throw new Error(authData.message ?? "OAuth authentication failed");
     }
 
-    return { accessToken: authData.accessToken, refreshToken: authData.refreshToken, user: authData.user };
+    return {
+      accessToken: authData.accessToken,
+      refreshToken: authData.refreshToken,
+      user: authData.user,
+    };
   }
 
-  async getOAuthUserInfo(providerId: string, accessToken: string): Promise<unknown> {
+  async getOAuthUserInfo(
+    providerId: string,
+    accessToken: string,
+  ): Promise<unknown> {
     const appConfig = getCurrentAppConfig();
     const providerConfig = getProviderConfig(providerId, appConfig.name);
 
     const response = await fetch(providerConfig.userInfoEndpoint, {
-      headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/json" },
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: "application/json",
+      },
     });
 
-    if (!response.ok) throw new Error(`Failed to get user info: ${response.status}`);
+    if (!response.ok)
+      throw new Error(`Failed to get user info: ${response.status}`);
 
     return await response.json();
   }
@@ -754,7 +956,11 @@ class AuthService {
     try {
       return this.tokenStorage.getAccessToken();
     } catch (error) {
-      if (import.meta.env.DEV) console.warn("[AuthService] getStoredToken failed:", (error as Error).message);
+      if (import.meta.env.DEV)
+        console.warn(
+          "[AuthService] getStoredToken failed:",
+          (error as Error).message,
+        );
       return null;
     }
   }
@@ -773,7 +979,7 @@ class AuthService {
         }),
       });
 
-      const responseData = await response.json() as {
+      const responseData = (await response.json()) as {
         success: boolean;
         message?: string;
         accessToken?: string;
@@ -810,14 +1016,16 @@ class AuthService {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      const responseData = await response.json() as { valid?: boolean };
+      const responseData = (await response.json()) as { valid?: boolean };
       return response.ok && !!responseData.valid;
     } catch (_err) {
       return false;
     }
   }
 
-  async switchChurch(churchId: string): Promise<{ success: true; user: unknown; noChange?: boolean }> {
+  async switchChurch(
+    churchId: string,
+  ): Promise<{ success: true; user: unknown; noChange?: boolean }> {
     if (!this.currentUser) throw new Error("User not authenticated");
 
     const currentUser = this.currentUser as Record<string, unknown>;
@@ -843,20 +1051,29 @@ class AuthService {
 
     if (responseData["success"]) {
       const updatedUser = responseData["data"] ?? responseData["user"];
-      this.tokenStorage.updateUser(updatedUser as Partial<Record<string, unknown>>);
+      this.tokenStorage.updateUser(
+        updatedUser as Partial<Record<string, unknown>>,
+      );
       this.currentUser = updatedUser;
 
       return { success: true, user: updatedUser };
     }
 
-    throw new Error((responseData["message"] as string | undefined) ?? "Failed to switch church");
+    throw new Error(
+      (responseData["message"] as string | undefined) ??
+        "Failed to switch church",
+    );
   }
 
   clearStoredAuth(): void {
     try {
       this.tokenStorage.clearTokens();
     } catch (error) {
-      if (import.meta.env?.DEV) console.warn("[AuthService] clearStoredAuth failed:", (error as Error).message);
+      if (import.meta.env?.DEV)
+        console.warn(
+          "[AuthService] clearStoredAuth failed:",
+          (error as Error).message,
+        );
     }
   }
 
@@ -875,7 +1092,10 @@ class AuthService {
   }
 
   recordLoginAttempt(email: string): void {
-    const attempts = this.loginAttempts.get(email) ?? { count: 0, lastAttempt: 0 };
+    const attempts = this.loginAttempts.get(email) ?? {
+      count: 0,
+      lastAttempt: 0,
+    };
     attempts.count++;
     attempts.lastAttempt = Date.now();
     this.loginAttempts.set(email, attempts);
