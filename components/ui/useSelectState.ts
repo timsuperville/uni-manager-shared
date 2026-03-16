@@ -47,18 +47,22 @@ export function useSelectState({
   allowFreeText = false,
 }: UseSelectStateOptions) {
   // ── State ──────────────────────────────────────────────────────────────────
-  const [isOpen, setIsOpen]                       = useState(false);
-  const [searchTerm, setSearchTerm]               = useState("");
-  const [highlightedIndex, setHighlightedIndex]   = useState(-1);
-  const [dropdownPos, setDropdownPos]             = useState<DropdownPos>({
-    top: 0, left: 0, width: 0, maxHeight: 240, flipUp: false,
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  const [dropdownPos, setDropdownPos] = useState<DropdownPos>({
+    top: 0,
+    left: 0,
+    width: 0,
+    maxHeight: 240,
+    flipUp: false,
   });
 
   // ── Refs ───────────────────────────────────────────────────────────────────
-  const selectRef    = useRef<HTMLDivElement>(null);
-  const triggerRef   = useRef<HTMLButtonElement>(null);
-  const searchRef    = useRef<HTMLInputElement>(null);
-  const listRef      = useRef<HTMLUListElement>(null);
+  const selectRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLUListElement>(null);
 
   // Stable portal root — initialised once, never re-created across renders
   const portalRootRef = useRef<HTMLElement | null>(null);
@@ -74,31 +78,46 @@ export function useSelectState({
   const portalRoot = portalRootRef.current;
 
   // ── Derived data ───────────────────────────────────────────────────────────
+  const lowerSearch = searchTerm.toLowerCase();
   const filteredOptions =
     searchable && !onSearchChange
-      ? options.filter((o) => o.label.toLowerCase().includes(searchTerm.toLowerCase()))
+      ? // Guard: coerce label to string so a null/undefined/number label from
+        // a dynamic API-driven option list never throws "toLowerCase is not a function"
+        options.filter((o) =>
+          String(o.label ?? "")
+            .toLowerCase()
+            .includes(lowerSearch),
+        )
       : options;
 
-  const selectedOption = multiple ? null : options.find((o) => o.value === value);
-  const selectedLabel  = multiple
-    ? Array.isArray(value) && value.length > 0 ? `${value.length} selected` : undefined
-    : value ? (selectedOption?.label ?? value) : undefined;
+  const selectedOption = multiple
+    ? null
+    : options.find((o) => o.value === value);
+  const selectedLabel = multiple
+    ? Array.isArray(value) && value.length > 0
+      ? `${value.length} selected`
+      : undefined
+    : value
+      ? (selectedOption?.label ?? value)
+      : undefined;
   const selectedIcon = selectedOption?.icon ?? null;
-  const hasValue     = multiple ? Array.isArray(value) && value.length > 0 : !!value;
-  const hasClear     = clearable && hasValue;
+  const hasValue = multiple
+    ? Array.isArray(value) && value.length > 0
+    : !!value;
+  const hasClear = clearable && hasValue;
 
   // ── Helpers ────────────────────────────────────────────────────────────────
 
   /** Measure the trigger rect and decide flip-up / max-height for the portal. */
   const measureTrigger = useCallback(() => {
     if (!triggerRef.current) return;
-    const rect    = triggerRef.current.getBoundingClientRect();
-    const GUTTER  = 8;
-    const CAP     = 240;
+    const rect = triggerRef.current.getBoundingClientRect();
+    const GUTTER = 8;
+    const CAP = 240;
     const spaceBelow = window.innerHeight - rect.bottom - GUTTER;
     const spaceAbove = rect.top - GUTTER;
-    const flipUp     = spaceBelow < 180 && spaceAbove > spaceBelow;
-    const maxHeight  = Math.min(CAP, flipUp ? spaceAbove : spaceBelow);
+    const flipUp = spaceBelow < 180 && spaceAbove > spaceBelow;
+    const maxHeight = Math.min(CAP, flipUp ? spaceAbove : spaceBelow);
     setDropdownPos({
       top: flipUp
         ? rect.top + window.scrollY - maxHeight - GUTTER
@@ -120,7 +139,10 @@ export function useSelectState({
   const handleOpen = useCallback(() => {
     if (disabled) return;
     measureTrigger();
-    setIsOpen((o) => { if (!o) setHighlightedIndex(-1); return !o; });
+    setIsOpen((o) => {
+      if (!o) setHighlightedIndex(-1);
+      return !o;
+    });
   }, [disabled, measureTrigger]);
 
   // ── Effects ────────────────────────────────────────────────────────────────
@@ -129,7 +151,7 @@ export function useSelectState({
   useEffect(() => {
     if (!isOpen) return;
     const handleOutside = (e: MouseEvent) => {
-      const inPortal  = portalRoot?.contains(e.target as Node);
+      const inPortal = portalRoot?.contains(e.target as Node);
       const inTrigger = selectRef.current?.contains(e.target as Node);
       if (!inPortal && !inTrigger) close();
     };
@@ -177,7 +199,7 @@ export function useSelectState({
     (option: SelectOption) => {
       if (multiple) {
         const current = Array.isArray(value) ? value : [];
-        const next    = current.includes(option.value)
+        const next = current.includes(option.value)
           ? current.filter((v) => v !== option.value)
           : [...current, option.value];
         onChange?.(next);
@@ -208,8 +230,8 @@ export function useSelectState({
       }
 
       const hasFreeTextRow = allowFreeText && searchTerm.trim().length > 0;
-      const extraRows      = (hasClear ? 1 : 0) + (hasFreeTextRow ? 1 : 0);
-      const totalCount     = filteredOptions.length + extraRows;
+      const extraRows = (hasClear ? 1 : 0) + (hasFreeTextRow ? 1 : 0);
+      const totalCount = filteredOptions.length + extraRows;
 
       switch (e.key) {
         case "ArrowDown":
@@ -222,11 +244,21 @@ export function useSelectState({
           break;
         case "Enter": {
           e.preventDefault();
-          if (highlightedIndex < 0) { if (hasFreeTextRow) commitFreeText(); break; }
+          if (highlightedIndex < 0) {
+            if (hasFreeTextRow) commitFreeText();
+            break;
+          }
           let rowIndex = highlightedIndex;
-          if (hasClear && rowIndex === 0) { onChange?.(multiple ? [] : ""); close(); break; }
+          if (hasClear && rowIndex === 0) {
+            onChange?.(multiple ? [] : "");
+            close();
+            break;
+          }
           if (hasClear) rowIndex--;
-          if (hasFreeTextRow && rowIndex === 0) { commitFreeText(); break; }
+          if (hasFreeTextRow && rowIndex === 0) {
+            commitFreeText();
+            break;
+          }
           if (hasFreeTextRow) rowIndex--;
           const option = filteredOptions[rowIndex];
           if (option) handleOptionClick(option);
@@ -243,20 +275,46 @@ export function useSelectState({
       }
     },
     [
-      isOpen, filteredOptions, highlightedIndex, hasClear, allowFreeText,
-      searchTerm, multiple, onChange, close, handleOptionClick, measureTrigger, commitFreeText,
+      isOpen,
+      filteredOptions,
+      highlightedIndex,
+      hasClear,
+      allowFreeText,
+      searchTerm,
+      multiple,
+      onChange,
+      close,
+      handleOptionClick,
+      measureTrigger,
+      commitFreeText,
     ],
   );
 
   return {
     // State
-    isOpen, searchTerm, highlightedIndex, dropdownPos,
+    isOpen,
+    searchTerm,
+    highlightedIndex,
+    dropdownPos,
     // Refs
-    selectRef, triggerRef, searchRef, listRef, portalRoot,
+    selectRef,
+    triggerRef,
+    searchRef,
+    listRef,
+    portalRoot,
     // Derived
-    filteredOptions, selectedLabel, selectedIcon, hasValue, hasClear,
+    filteredOptions,
+    selectedLabel,
+    selectedIcon,
+    hasValue,
+    hasClear,
     // Callbacks
-    handleOpen, close, handleSearchChange, handleOptionClick, commitFreeText, handleKeyDown,
+    handleOpen,
+    close,
+    handleSearchChange,
+    handleOptionClick,
+    commitFreeText,
+    handleKeyDown,
     setHighlightedIndex,
   };
 }
