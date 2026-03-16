@@ -10,7 +10,6 @@ import {
   FiAlertCircle,
   FiSettings,
   FiEye,
-  FiExternalLink,
   FiDownload,
   FiReply,
   FiForward,
@@ -18,10 +17,59 @@ import {
 import { format } from "date-fns";
 import { Button } from "../ui/Button";
 import { Badge } from "../ui/Badge";
-import { Card } from "../ui/Card";
 import { Avatar } from "../ui/Avatar";
 import { LoadingSpinner } from "../ui/LoadingSpinner";
 import { Modal } from "../ui/Modal";
+import type { Notification, Attachment } from "./NotificationToast";
+
+// ── Types ────────────────────────────────────────────────────────────────────
+
+type ActionFn = (id: string) => Promise<void>;
+
+interface ActionStatus {
+  type: "success" | "error";
+  message: string;
+}
+
+interface NotificationModalProps {
+  notification: Notification;
+  isOpen?: boolean;
+  onClose?: () => void;
+  onMarkAsRead?: ActionFn;
+  onArchive?: ActionFn;
+  onDelete?: ActionFn;
+  onReply?: (notification: Notification) => void;
+  onForward?: (notification: Notification) => void;
+  className?: string;
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+type IconComponent = React.ComponentType<{ className?: string }>;
+
+const TYPE_ICON_MAP: Record<string, IconComponent> = {
+  user: FiUser,
+  system: FiSettings,
+  church: FiMessageSquare,
+  business: FiMail,
+  security: FiAlertCircle,
+  workflow: FiSettings,
+};
+
+const PRIORITY_BADGE: Record<string, { color: string; label: string }> = {
+  urgent: { color: "red", label: "Urgent" },
+  high: { color: "orange", label: "High" },
+  normal: { color: "blue", label: "Normal" },
+  low: { color: "gray", label: "Low" },
+};
+
+const STATUS_BADGE: Record<string, { color: string; label: string }> = {
+  unread: { color: "blue", label: "Unread" },
+  read: { color: "green", label: "Read" },
+  archived: { color: "gray", label: "Archived" },
+};
+
+// ── Component ────────────────────────────────────────────────────────────────
 
 /**
  * NotificationModal - Detailed notification display and action modal
@@ -30,48 +78,42 @@ import { Modal } from "../ui/Modal";
  * - Rich notification content display with attachments
  * - Action buttons (mark as read, archive, delete, reply, forward)
  * - Notification metadata and delivery status
- * - Related notifications and conversation history
  * - Attachment viewing and downloading
  * - Rich text content rendering
- * - Interactive elements (buttons, links)
  * - Accessibility compliant
  */
-const NotificationModal = ({
+const NotificationModal: React.FC<NotificationModalProps> = ({
   notification,
   isOpen = false,
   onClose = () => {},
-  onMarkAsRead = () => {},
-  onArchive = () => {},
-  onDelete = () => {},
-  onReply = () => {},
-  onForward = () => {},
+  onMarkAsRead = async () => {},
+  onArchive = async () => {},
+  onDelete = async () => {},
+  onReply,
+  onForward,
   className = "",
 }) => {
-  // State management
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedAttachment, setSelectedAttachment] = useState(null);
+  const [selectedAttachment, setSelectedAttachment] =
+    useState<Attachment | null>(null);
   const [showDeliveryDetails, setShowDeliveryDetails] = useState(false);
-  const [actionStatus, setActionStatus] = useState(null);
+  const [actionStatus, setActionStatus] = useState<ActionStatus | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
+
+  const notificationId = notification.id ?? notification._id ?? "";
 
   // Handle action with loading state
   const handleAction = useCallback(
-    async (action, actionFn, successMessage) => {
+    async (action: string, actionFn: ActionFn, successMessage: string) => {
       setIsLoading(true);
       setActionStatus(null);
-
       try {
-        await actionFn(notification.id || notification._id);
+        await actionFn(notificationId);
         setActionStatus({ type: "success", message: successMessage });
-
-        // Auto-close modal after successful action (except for mark as read)
         if (action !== "markRead") {
-          setTimeout(() => {
-            onClose();
-          }, 1500);
+          setTimeout(() => onClose(), 1500);
         }
-      } catch (_error) {
-        // console.error(`Failed to ${action} notification:`, error);
+      } catch {
         setActionStatus({
           type: "error",
           message: `Failed to ${action} notification`,
@@ -81,55 +123,42 @@ const NotificationModal = ({
         setTimeout(() => setActionStatus(null), 3000);
       }
     },
-    [notification, onClose],
+    [notificationId, onClose],
   );
 
-  // Handle mark as read
   const handleMarkAsRead = useCallback(() => {
     handleAction("markRead", onMarkAsRead, "Marked as read");
   }, [handleAction, onMarkAsRead]);
 
-  // Handle archive
   const handleArchive = useCallback(() => {
     handleAction("archive", onArchive, "Archived successfully");
   }, [handleAction, onArchive]);
 
-  // Handle delete
-  const handleDelete = useCallback(() => {
-    setConfirmDelete(true);
-  }, []);
+  const handleDelete = useCallback(() => setConfirmDelete(true), []);
 
   const handleDeleteConfirmed = useCallback(() => {
     setConfirmDelete(false);
     handleAction("delete", onDelete, "Deleted successfully");
   }, [handleAction, onDelete]);
 
-  // Handle reply
-  const handleReply = useCallback(() => {
-    if (onReply) {
-      onReply(notification);
-    }
-  }, [onReply, notification]);
+  const handleReply = useCallback(
+    () => onReply?.(notification),
+    [onReply, notification],
+  );
+  const handleForward = useCallback(
+    () => onForward?.(notification),
+    [onForward, notification],
+  );
 
-  // Handle forward
-  const handleForward = useCallback(() => {
-    if (onForward) {
-      onForward(notification);
-    }
-  }, [onForward, notification]);
-
-  // Handle attachment download
-  const handleDownloadAttachment = useCallback((attachment) => {
+  const handleDownloadAttachment = useCallback((attachment: Attachment) => {
     try {
-      const link =
-        typeof document !== "undefined" && document.createElement("a");
+      const link = document.createElement("a");
       link.href = attachment.url;
-      link.download = attachment.filename || "attachment";
-      typeof document !== "undefined" && document.body.appendChild(link);
+      link.download = attachment.filename ?? "attachment";
+      document.body.appendChild(link);
       link.click();
-      typeof document !== "undefined" && document.body.removeChild(link);
-    } catch (_error) {
-      // console.error('Failed to download attachment:', error);
+      document.body.removeChild(link);
+    } catch {
       setActionStatus({
         type: "error",
         message: "Failed to download attachment",
@@ -137,51 +166,29 @@ const NotificationModal = ({
     }
   }, []);
 
-  // Handle external link
-  const handleExternalLink = useCallback((url) => {
-    typeof window !== "undefined" &&
-      window.open(url, "_blank", "noopener,noreferrer");
+  const handleExternalLink = useCallback((url: string) => {
+    window.open(url, "_blank", "noopener,noreferrer");
   }, []);
 
-  // Get notification icon
+  // Icon selector
   const getNotificationIcon = useCallback(() => {
-    const iconMap = {
-      user: FiUser,
-      system: FiSettings,
-      church: FiMessageSquare,
-      business: FiMail,
-      security: FiAlertCircle,
-      workflow: FiSettings,
-    };
-
-    const IconComponent = iconMap[notification?.type] || FiMessageSquare;
-
-    return (
-      <IconComponent
-        className={`w-6 h-6 ${
-          notification?.priority === "urgent"
-            ? "text-red-500"
-            : notification?.priority === "high"
-              ? "text-orange-500"
-              : notification?.priority === "normal"
-                ? "text-blue-500"
-                : "text-gray-500"
-        }`}
-      />
-    );
+    const IconComponent =
+      TYPE_ICON_MAP[notification.type ?? ""] ?? FiMessageSquare;
+    const priorityColor =
+      notification.priority === "urgent"
+        ? "text-red-500"
+        : notification.priority === "high"
+          ? "text-orange-500"
+          : notification.priority === "normal"
+            ? "text-blue-500"
+            : "text-gray-500";
+    return <IconComponent className={`w-6 h-6 ${priorityColor}`} />;
   }, [notification]);
 
-  // Get priority badge
   const getPriorityBadge = useCallback(() => {
-    const badgeMap = {
-      urgent: { color: "red", label: "Urgent" },
-      high: { color: "orange", label: "High" },
-      normal: { color: "blue", label: "Normal" },
-      low: { color: "gray", label: "Low" },
-    };
-
-    const badge = badgeMap[notification?.priority] || badgeMap.normal;
-
+    const badge =
+      PRIORITY_BADGE[notification.priority ?? "normal"] ??
+      PRIORITY_BADGE.normal;
     return (
       <Badge color={badge.color} size="sm">
         {badge.label}
@@ -189,16 +196,9 @@ const NotificationModal = ({
     );
   }, [notification]);
 
-  // Get status badge
   const getStatusBadge = useCallback(() => {
-    const statusMap = {
-      unread: { color: "blue", label: "Unread" },
-      read: { color: "green", label: "Read" },
-      archived: { color: "gray", label: "Archived" },
-    };
-
-    const status = statusMap[notification?.status] || statusMap.unread;
-
+    const status =
+      STATUS_BADGE[notification.status ?? "unread"] ?? STATUS_BADGE.unread;
     return (
       <Badge color={status.color} size="sm">
         {status.label}
@@ -206,12 +206,9 @@ const NotificationModal = ({
     );
   }, [notification]);
 
-  // Render attachments
+  // Attachments renderer
   const renderAttachments = useCallback(() => {
-    if (!notification?.attachments || notification.attachments.length === 0) {
-      return null;
-    }
-
+    if (!notification.attachments?.length) return null;
     return (
       <div className="mt-4">
         <h4 className="text-sm font-medium text-gray-900 mb-2">Attachments</h4>
@@ -225,7 +222,7 @@ const NotificationModal = ({
                 <div className="shrink-0">
                   {attachment.type?.startsWith("image/") ? (
                     <img
-                      src={attachment.thumbnail || attachment.url}
+                      src={attachment.thumbnail ?? attachment.url}
                       alt={attachment.filename}
                       className="w-10 h-10 rounded object-cover"
                     />
@@ -237,16 +234,15 @@ const NotificationModal = ({
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-900">
-                    {attachment.filename || "Attachment"}
+                    {attachment.filename ?? "Attachment"}
                   </p>
                   <p className="text-xs text-gray-500">
-                    {attachment.size &&
+                    {attachment.size != null &&
                       `${(attachment.size / 1024).toFixed(1)} KB`}
                     {attachment.type && ` • ${attachment.type}`}
                   </p>
                 </div>
               </div>
-
               <div className="flex items-center space-x-2">
                 {attachment.type?.startsWith("image/") && (
                   <Button
@@ -270,14 +266,11 @@ const NotificationModal = ({
         </div>
       </div>
     );
-  }, [notification, handleDownloadAttachment]);
+  }, [notification.attachments, handleDownloadAttachment]);
 
-  // Render action buttons
+  // Notification actions renderer
   const renderActionButtons = useCallback(() => {
-    if (!notification?.actions || notification.actions.length === 0) {
-      return null;
-    }
-
+    if (!notification.actions?.length) return null;
     return (
       <div className="mt-4">
         <h4 className="text-sm font-medium text-gray-900 mb-2">Actions</h4>
@@ -287,26 +280,22 @@ const NotificationModal = ({
               key={index}
               variant={action.primary ? "primary" : "outline"}
               size="sm"
-              onClick={() => handleExternalLink(action.url)}
+              onClick={() => action.url && handleExternalLink(action.url)}
               disabled={isLoading}
             >
-              {action.icon && <FiExternalLink className="w-4 h-4 mr-2" />}
+              {action.icon && <FiDownload className="w-4 h-4 mr-2" />}
               {action.label}
             </Button>
           ))}
         </div>
       </div>
     );
-  }, [notification, handleExternalLink, isLoading]);
+  }, [notification.actions, handleExternalLink, isLoading]);
 
-  // Render delivery status
+  // Delivery status renderer
   const renderDeliveryStatus = useCallback(() => {
-    if (!notification?.deliveryStatus) {
-      return null;
-    }
-
+    if (!notification.deliveryStatus) return null;
     const { deliveryStatus } = notification;
-
     return (
       <div className="mt-4">
         <button
@@ -316,7 +305,6 @@ const NotificationModal = ({
           <FiMessageSquare className="w-4 h-4 mr-1" />
           Delivery Details
         </button>
-
         {showDeliveryDetails && (
           <div className="mt-2 p-3 bg-gray-50 rounded-lg">
             <div className="space-y-2">
@@ -347,13 +335,11 @@ const NotificationModal = ({
         )}
       </div>
     );
-  }, [notification, showDeliveryDetails]);
+  }, [notification.deliveryStatus, showDeliveryDetails]);
 
-  // Render content with rich formatting
+  // Rich content renderer
   const renderContent = useCallback(() => {
-    const content = notification?.content || notification?.message || "";
-
-    // Simple rich text rendering (can be enhanced with a proper rich text library)
+    const content = notification.content ?? notification.message ?? "";
     const formattedContent = content
       .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
       .replace(/\*(.*?)\*/g, "<em>$1</em>")
@@ -362,7 +348,6 @@ const NotificationModal = ({
         /(https?:\/\/[^\s]+)/g,
         '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800 underline">$1</a>',
       );
-
     return (
       <div
         className="prose prose-sm max-w-none"
@@ -378,7 +363,7 @@ const NotificationModal = ({
       <Modal
         isOpen={isOpen}
         onClose={onClose}
-        title={notification.subject || notification.title || "Notification"}
+        title={notification.subject ?? notification.title ?? "Notification"}
         size="lg"
         className={className}
       >
@@ -389,13 +374,13 @@ const NotificationModal = ({
               {getNotificationIcon()}
               <div>
                 <h3 className="text-lg font-medium text-gray-900">
-                  {notification.subject || notification.title || "Notification"}
+                  {notification.subject ?? notification.title ?? "Notification"}
                 </h3>
                 <div className="flex items-center space-x-2 mt-1">
                   {getPriorityBadge()}
                   {getStatusBadge()}
                   <Badge color="gray" size="sm">
-                    {notification.type || "General"}
+                    {notification.type ?? "General"}
                   </Badge>
                 </div>
               </div>
@@ -417,11 +402,10 @@ const NotificationModal = ({
                   />
                 )}
                 <span className="text-sm text-gray-900">
-                  {notification.sender?.name || notification.module || "System"}
+                  {notification.sender?.name ?? notification.module ?? "System"}
                 </span>
               </div>
             </div>
-
             <div>
               <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide">
                 Time
@@ -430,7 +414,11 @@ const NotificationModal = ({
                 <FiClock className="w-4 h-4 text-gray-400" />
                 <span className="text-sm text-gray-900">
                   {format(
-                    new Date(notification.createdAt || notification.timestamp),
+                    new Date(
+                      notification.createdAt ??
+                        notification.timestamp ??
+                        Date.now(),
+                    ),
                     "PPpp",
                   )}
                 </span>
@@ -446,14 +434,8 @@ const NotificationModal = ({
               </h4>
               {renderContent()}
             </div>
-
-            {/* Attachments */}
             {renderAttachments()}
-
-            {/* Action buttons */}
             {renderActionButtons()}
-
-            {/* Delivery status */}
             {renderDeliveryStatus()}
           </div>
 
@@ -485,7 +467,6 @@ const NotificationModal = ({
                 Reply
               </Button>
             )}
-
             {onForward && (
               <Button
                 variant="outline"
@@ -515,7 +496,6 @@ const NotificationModal = ({
                 Mark as Read
               </Button>
             )}
-
             <Button
               variant="outline"
               size="sm"
@@ -525,7 +505,6 @@ const NotificationModal = ({
               <FiArchive className="w-4 h-4 mr-2" />
               Archive
             </Button>
-
             <Button
               variant="outline"
               size="sm"
@@ -536,7 +515,6 @@ const NotificationModal = ({
               <FiTrash2 className="w-4 h-4 mr-2" />
               Delete
             </Button>
-
             <Button variant="primary" onClick={onClose}>
               Close
             </Button>
@@ -549,7 +527,7 @@ const NotificationModal = ({
         <Modal
           isOpen={true}
           onClose={() => setSelectedAttachment(null)}
-          title={selectedAttachment.filename || "Attachment"}
+          title={selectedAttachment.filename ?? "Attachment"}
           size="xl"
         >
           <div className="flex items-center justify-center">
@@ -559,7 +537,6 @@ const NotificationModal = ({
               className="max-w-full max-h-96 object-contain"
             />
           </div>
-
           <div className="mt-4 flex justify-center">
             <Button
               onClick={() => handleDownloadAttachment(selectedAttachment)}
@@ -571,7 +548,7 @@ const NotificationModal = ({
         </Modal>
       )}
 
-      {/* ── Delete confirmation modal (replaces window.confirm) ── */}
+      {/* Delete confirmation modal */}
       <Modal
         isOpen={confirmDelete}
         onClose={() => setConfirmDelete(false)}
@@ -599,4 +576,5 @@ const NotificationModal = ({
   );
 };
 
+export { NotificationModal };
 export default NotificationModal;
