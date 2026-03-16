@@ -426,8 +426,8 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
     this.handleReset = this.handleReset.bind(this);
   }
 
-  static getDerivedStateFromError(): Partial<ErrorBoundaryState> {
-    return { hasError: true };
+  static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
+    return { hasError: true, error };
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {

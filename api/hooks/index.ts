@@ -175,7 +175,7 @@ export function useApiQuery<T>(
   return {
     data: data ?? null,
     isLoading,
-    error: error ? error.message : null,
+    error: error ?? null,
     isFetched,
     refetch,
   };
@@ -209,6 +209,16 @@ export function useApiMutation<TData, TVariables>(
       return mutationFn(variables);
     },
     ...options,
+    onError: (err: any, variables: TVariables, context: unknown) => {
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("api-mutation-failure", {
+            detail: { error: err, mutationName: options?.mutationName },
+          })
+        );
+      }
+      options?.onError?.(err, variables);
+    },
     mutationKey: options?.mutationKey ? [options.mutationKey] : undefined,
   });
 
@@ -217,7 +227,7 @@ export function useApiMutation<TData, TVariables>(
     mutateAsync,
     data: data ?? null,
     isLoading: isPending,
-    error: error ? error.message : null,
+    error: error ?? null,
     reset,
   };
 }

@@ -8,7 +8,6 @@ export {
   getSharedEnvironmentConfig,
   getApiBaseUrl,
   getAppUrl,
-  getApiUrl,
   getWebSocketUrl,
 } from "./environment.js";
 

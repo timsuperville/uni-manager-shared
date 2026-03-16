@@ -21,7 +21,7 @@ import { useEffect, useRef, useCallback } from "react";
 // Types
 // ---------------------------------------------------------------------------
 
-export type FrustrationSignal = "rage-click" | "rapid-navigation";
+export type FrustrationSignal = "rage-click" | "rapid-navigation" | "consecutive-api-failure";
 
 export interface FrustrationContext {
   signal: FrustrationSignal;
@@ -35,8 +35,13 @@ export interface FrustrationContext {
   elementId?: string | null;
   elementText?: string | null;
   // rapid-nav extras
+  // rapid-nav extras
   navCount?: number;
   windowMs?: number;
+  // api-failure extras
+  apiFailureCount?: number;
+  errorObject?: any;
+  mutationName?: string;
 }
 
 export interface UseFrustrationDetectorOptions {
@@ -48,6 +53,8 @@ export interface UseFrustrationDetectorOptions {
   rageClickWindowMs?: number;
   navThreshold?: number;
   navWindowMs?: number;
+  apiFailureThreshold?: number;
+  apiFailureWindowMs?: number;
   cooldownMs?: number;
 }
 
@@ -101,11 +108,14 @@ export function useFrustrationDetector(
     rageClickWindowMs = 700,
     navThreshold = 3,
     navWindowMs = 4_000,
+    apiFailureThreshold = 2,
+    apiFailureWindowMs = 15_000,
     cooldownMs = 30_000,
   } = options;
 
   const clickLog = useRef<ClickLogEntry[]>([]);
   const navLog = useRef<number[]>([]);
+  const apiFailureLog = useRef<number[]>([]);
   const lastTriggeredAt = useRef<number>(0);
 
   // Resolve effective enabled state — suppress in development when disableInDev is set.
@@ -204,6 +214,31 @@ export function useFrustrationDetector(
       _navListeners.delete(recordNav);
     };
   }, [effectivelyEnabled, navThreshold, navWindowMs, fire]);
+
+  // ── Consecutive API failure detector ─────────────────────────────────────
+  useEffect(() => {
+    if (!effectivelyEnabled || typeof window === "undefined") return;
+
+    const recordApiFailure = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      const now = Date.now();
+      apiFailureLog.current = apiFailureLog.current.filter((ts) => now - ts <= apiFailureWindowMs);
+      apiFailureLog.current.push(now);
+
+      if (apiFailureLog.current.length >= apiFailureThreshold) {
+        apiFailureLog.current = [];
+        fire("consecutive-api-failure", {
+          apiFailureCount: apiFailureThreshold,
+          windowMs: apiFailureWindowMs,
+          errorObject: customEvent.detail?.error,
+          mutationName: customEvent.detail?.mutationName,
+        });
+      }
+    };
+
+    window.addEventListener("api-mutation-failure", recordApiFailure);
+    return () => window.removeEventListener("api-mutation-failure", recordApiFailure);
+  }, [effectivelyEnabled, apiFailureThreshold, apiFailureWindowMs, fire]);
 
   // Purely side-effectful hook
   return null;

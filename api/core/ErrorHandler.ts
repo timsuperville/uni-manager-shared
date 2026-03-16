@@ -42,6 +42,7 @@ export interface ApiError extends Error {
   details?: unknown;
   timestamp: string;
   requestId?: string;
+  resonanceId?: string;
 }
 
 export interface ErrorContext {
@@ -94,15 +95,17 @@ export class ErrorHandler {
 
     if (error.response) {
       // Server responded with error status
+      const responseData = error.response.data as Record<string, any>;
       apiError = this.createApiError({
         type: this.mapStatusToErrorType(error.response.status),
-        message: this.extractErrorMessage(error.response.data),
+        message: this.extractErrorMessage(responseData),
         statusCode: error.response.status,
         originalError: error,
         retryable: this.isRetryableStatus(error.response.status),
-        details: error.response.data,
+        details: responseData,
         timestamp: new Date().toISOString(),
         requestId,
+        resonanceId: responseData?.resonanceId,
       });
     } else if (error.request) {
       // Request was made but no response received
@@ -141,6 +144,7 @@ export class ErrorHandler {
     details?: unknown;
     timestamp: string;
     requestId?: string;
+    resonanceId?: string;
   }): ApiError {
     const error = new Error(params.message) as ApiError;
     error.name = "ApiError";
@@ -151,6 +155,7 @@ export class ErrorHandler {
     error.details = params.details;
     error.timestamp = params.timestamp;
     error.requestId = params.requestId;
+    error.resonanceId = params.resonanceId;
 
     return error;
   }

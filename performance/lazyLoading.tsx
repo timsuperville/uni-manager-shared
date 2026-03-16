@@ -24,7 +24,7 @@ export const createLazyComponent = <P extends object>(
     <Suspense
       fallback={fallback ?? <div className="loading-spinner">Loading…</div>}
     >
-      <LazyComponent {...props} />
+      <LazyComponent {...(props as any)} />
     </Suspense>
   );
 };
@@ -52,7 +52,7 @@ export const createLazyRoute = <P extends object>(
 
   return (props: P) => (
     <Suspense fallback={LoadingComponent ?? <PageLoadingSpinner />}>
-      <LazyRoute {...props} />
+      <LazyRoute {...(props as any)} />
     </Suspense>
   );
 };

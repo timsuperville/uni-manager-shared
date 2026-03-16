@@ -95,6 +95,7 @@ interface NotificationToastProps {
     notification: Notification | null | undefined,
   ) => void;
   className?: string;
+  resonanceId?: string;
 }
 
 interface ToastContainerProps {
@@ -124,6 +125,7 @@ const NotificationToast: React.FC<NotificationToastProps> = ({
   onArchive = () => {},
   onAction = () => {},
   className = "",
+  resonanceId = "",
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
@@ -378,6 +380,11 @@ const NotificationToast: React.FC<NotificationToastProps> = ({
         )}
         {message && (
           <p className="text-sm opacity-90 line-clamp-3">{message}</p>
+        )}
+        {resonanceId && (
+          <div className="mt-1 font-mono text-[10px] opacity-70 break-all select-all">
+            Error Ref: {resonanceId}
+          </div>
         )}
 
         {allActions.length > 0 && (

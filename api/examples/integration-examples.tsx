@@ -67,9 +67,11 @@ const AuthSection: React.FC = () => {
   const handleSignup = async () => {
     try {
       await signup({
-        name: "New User",
+        firstName: "New",
+        lastName: "User",
         email: "newuser@example.com",
         password: "password123",
+        acceptTerms: true,
       });
     } catch (_err) {
       // console.error('Signup failed:', err);
@@ -123,7 +125,7 @@ const QueryExample: React.FC = () => {
       <div className="profile-query">
         <h3>User Profile</h3>
         {profileLoading && <div>Loading profile...</div>}
-        {profileError && <div>Error: {profileError}</div>}
+        {profileError && <div>Error: {profileError.message}</div>}
         {userProfile && (
           <div>
             Profile loaded for:{" "}
@@ -175,7 +177,7 @@ const MutationExample: React.FC = () => {
         <button onClick={handleUpdateProfile} disabled={updateLoading}>
           {updateLoading ? "Updating..." : "Update Profile"}
         </button>
-        {updateError && <div>Error: {updateError}</div>}
+        {updateError && <div>Error: {updateError.message}</div>}
       </div>
     </div>
   );
