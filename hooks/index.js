@@ -1,9 +1,9 @@
 // Authentication hooks
-export { useAuth } from "./useAuth.js";
+export { useAuth } from "./useAuth.ts";
 export { useLogin } from "./useLogin.ts";
 
 // Search, personalization, and utility hooks
-export { useAdvancedSearch } from "./useAdvancedSearch.js";
+export { useAdvancedSearch } from "./useAdvancedSearch.ts";
 export * from "./useCachedPersonalization.js";
 export { useUserPreferences } from "./useUserPreferences.js";
 export { useDebounce } from "./useDebounce.ts";
