@@ -5,17 +5,14 @@ import {
   FiMessageSquare,
   FiSmartphone,
   FiSettings,
-  FiCheck,
-  FiX,
   FiClock,
   FiVolume2,
   FiVolumeX,
-  FiToggleLeft,
-  FiToggleRight,
   FiSave,
   FiRefreshCw,
 } from "react-icons/fi";
 import { useNotificationPreferences } from "../../hooks/useNotificationPreferences";
+import type { NotificationPreferences as StoredPreferences } from "../../hooks/useNotificationPreferences";
 import { Button } from "../ui/Button";
 import { Card } from "../ui/Card";
 import { Switch } from "../ui/Switch";
@@ -24,6 +21,200 @@ import { Slider } from "../ui/Slider";
 import { TimePicker } from "../ui/TimePicker";
 import { LoadingSpinner } from "../ui/LoadingSpinner";
 import { Modal } from "../ui/Modal";
+
+// ── Types ────────────────────────────────────────────────────────────────────
+
+type SaveStatus = "success" | "error" | "reset" | "exported" | null;
+type ActiveTab =
+  | "channels"
+  | "types"
+  | "schedule"
+  | "delivery"
+  | "interface"
+  | "advanced";
+
+interface ChannelSettings {
+  enabled: boolean;
+  frequency: string;
+}
+
+interface TypeSettings {
+  enabled: boolean;
+  priority: string;
+}
+
+interface QuietHoursSettings {
+  enabled: boolean;
+  startTime: string;
+  endTime: string;
+  timezone: string;
+  allowUrgent: boolean;
+}
+
+interface DeliverySettings {
+  batching: boolean;
+  batchInterval: number;
+  maxBatchSize: number;
+  smartTiming: boolean;
+  respectUserActivity: boolean;
+}
+
+interface InterfaceSettings {
+  sound: boolean;
+  vibration: boolean;
+  volume: number;
+  soundTheme: string;
+  showPreviews: boolean;
+  markReadOnClick: boolean;
+  autoArchive: boolean;
+  autoArchiveDays: number;
+}
+
+interface AdvancedSettings {
+  language: string;
+  timezone: string;
+  emailTemplate: string;
+  consolidateDigests: boolean;
+  enableAnalytics: boolean;
+  debugMode: boolean;
+}
+
+interface LocalPreferences {
+  channels: Record<string, ChannelSettings>;
+  types: Record<string, TypeSettings>;
+  quietHours: QuietHoursSettings;
+  delivery: DeliverySettings;
+  interface: InterfaceSettings;
+  advanced: AdvancedSettings;
+}
+
+interface TabConfig {
+  id: ActiveTab;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+}
+
+interface SelectOption {
+  value: string;
+  label: string;
+}
+
+interface NotificationPreferencesProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+  userId?: string | null;
+}
+
+// ── Default state ─────────────────────────────────────────────────────────────
+
+const DEFAULT_PREFERENCES: LocalPreferences = {
+  channels: {
+    email: { enabled: true, frequency: "immediate" },
+    sms: { enabled: false, frequency: "daily" },
+    push: { enabled: true, frequency: "immediate" },
+    inApp: { enabled: true, frequency: "immediate" },
+    slack: { enabled: false, frequency: "immediate" },
+    teams: { enabled: false, frequency: "immediate" },
+  },
+  types: {
+    user: { enabled: true, priority: "all" },
+    system: { enabled: true, priority: "high" },
+    church: { enabled: true, priority: "all" },
+    business: { enabled: true, priority: "normal" },
+    security: { enabled: true, priority: "all" },
+    workflow: { enabled: true, priority: "high" },
+  },
+  quietHours: {
+    enabled: false,
+    startTime: "22:00",
+    endTime: "08:00",
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    allowUrgent: true,
+  },
+  delivery: {
+    batching: false,
+    batchInterval: 60,
+    maxBatchSize: 10,
+    smartTiming: true,
+    respectUserActivity: true,
+  },
+  interface: {
+    sound: true,
+    vibration: true,
+    volume: 0.7,
+    soundTheme: "default",
+    showPreviews: true,
+    markReadOnClick: true,
+    autoArchive: false,
+    autoArchiveDays: 30,
+  },
+  advanced: {
+    language: "en",
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    emailTemplate: "default",
+    consolidateDigests: true,
+    enableAnalytics: true,
+    debugMode: false,
+  },
+};
+
+const CHANNEL_ICONS: Record<
+  string,
+  React.ComponentType<{ className?: string }>
+> = {
+  email: FiMail,
+  sms: FiMessageSquare,
+  push: FiSmartphone,
+  inApp: FiBell,
+  slack: FiMessageSquare,
+  teams: FiMessageSquare,
+};
+
+// ── Options ───────────────────────────────────────────────────────────────────
+
+const FREQUENCY_OPTIONS: SelectOption[] = [
+  { value: "immediate", label: "Immediate" },
+  { value: "hourly", label: "Hourly" },
+  { value: "daily", label: "Daily Digest" },
+  { value: "weekly", label: "Weekly Summary" },
+  { value: "never", label: "Never" },
+];
+
+const PRIORITY_OPTIONS: SelectOption[] = [
+  { value: "all", label: "All Priorities" },
+  { value: "urgent", label: "Urgent Only" },
+  { value: "high", label: "High & Urgent" },
+  { value: "normal", label: "Normal & Above" },
+  { value: "never", label: "Never" },
+];
+
+const SOUND_THEME_OPTIONS: SelectOption[] = [
+  { value: "default", label: "Default" },
+  { value: "subtle", label: "Subtle" },
+  { value: "professional", label: "Professional" },
+  { value: "cheerful", label: "Cheerful" },
+  { value: "custom", label: "Custom" },
+];
+
+const LANGUAGE_OPTIONS: SelectOption[] = [
+  { value: "en", label: "English" },
+  { value: "es", label: "Spanish" },
+  { value: "fr", label: "French" },
+  { value: "de", label: "German" },
+  { value: "it", label: "Italian" },
+  { value: "pt", label: "Portuguese" },
+];
+
+const TABS: TabConfig[] = [
+  { id: "channels", label: "Channels", icon: FiBell },
+  { id: "types", label: "Types", icon: FiSettings },
+  { id: "schedule", label: "Schedule", icon: FiClock },
+  { id: "delivery", label: "Delivery", icon: FiMessageSquare },
+  { id: "interface", label: "Interface", icon: FiVolume2 },
+  { id: "advanced", label: "Advanced", icon: FiSettings },
+];
+
+// ── Component ─────────────────────────────────────────────────────────────────
 
 /**
  * NotificationPreferences - Comprehensive notification preference management interface
@@ -39,19 +230,17 @@ import { Modal } from "../ui/Modal";
  * - Real-time preference updates
  * - Export/import preferences
  */
-const NotificationPreferences = ({
+const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
   isOpen = false,
   onClose = () => {},
   userId = null,
 }) => {
-  // State management
-  const [activeTab, setActiveTab] = useState("channels");
+  const [activeTab, setActiveTab] = useState<ActiveTab>("channels");
   const [hasChanges, setHasChanges] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [saveStatus, setSaveStatus] = useState(null);
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>(null);
   const [confirmReset, setConfirmReset] = useState(false);
 
-  // Custom hook for preference management
   const {
     preferences,
     isLoading: preferencesLoading,
@@ -59,68 +248,18 @@ const NotificationPreferences = ({
     updatePreferences,
     resetPreferences,
     exportPreferences,
-    importPreferences,
     refreshPreferences,
   } = useNotificationPreferences(userId);
 
-  // Local preference state
-  const [localPreferences, setLocalPreferences] = useState({
-    channels: {
-      email: { enabled: true, frequency: "immediate" },
-      sms: { enabled: false, frequency: "daily" },
-      push: { enabled: true, frequency: "immediate" },
-      inApp: { enabled: true, frequency: "immediate" },
-      slack: { enabled: false, frequency: "immediate" },
-      teams: { enabled: false, frequency: "immediate" },
-    },
-    types: {
-      user: { enabled: true, priority: "all" },
-      system: { enabled: true, priority: "high" },
-      church: { enabled: true, priority: "all" },
-      business: { enabled: true, priority: "normal" },
-      security: { enabled: true, priority: "all" },
-      workflow: { enabled: true, priority: "high" },
-    },
-    quietHours: {
-      enabled: false,
-      startTime: "22:00",
-      endTime: "08:00",
-      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      allowUrgent: true,
-    },
-    delivery: {
-      batching: false,
-      batchInterval: 60,
-      maxBatchSize: 10,
-      smartTiming: true,
-      respectUserActivity: true,
-    },
-    interface: {
-      sound: true,
-      vibration: true,
-      volume: 0.7,
-      soundTheme: "default",
-      showPreviews: true,
-      markReadOnClick: true,
-      autoArchive: false,
-      autoArchiveDays: 30,
-    },
-    advanced: {
-      language: "en",
-      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      emailTemplate: "default",
-      consolidateDigests: true,
-      enableAnalytics: true,
-      debugMode: false,
-    },
-  });
+  const [localPreferences, setLocalPreferences] =
+    useState<LocalPreferences>(DEFAULT_PREFERENCES);
 
-  // Sync local preferences with fetched preferences
+  // Sync from server
   useEffect(() => {
     if (preferences && Object.keys(preferences).length > 0) {
       setLocalPreferences((prev) => ({
         ...prev,
-        ...preferences,
+        ...(preferences as Partial<LocalPreferences>),
       }));
     }
   }, [preferences]);
@@ -132,50 +271,76 @@ const NotificationPreferences = ({
     );
   }, [localPreferences, preferences]);
 
-  // Handle preference update
-  const updateLocalPreference = useCallback((section, key, value) => {
-    setLocalPreferences((prev) => ({
-      ...prev,
-      [section]: {
-        ...prev[section],
-        [key]:
-          typeof value === "object"
-            ? { ...prev[section][key], ...value }
-            : value,
-      },
-    }));
-  }, []);
+  // ── Updaters ───────────────────────────────────────────────────────────────
 
-  // Handle nested preference update
-  const updateNestedPreference = useCallback(
-    (section, parentKey, childKey, value) => {
-      setLocalPreferences((prev) => ({
-        ...prev,
-        [section]: {
-          ...prev[section],
-          [parentKey]: {
-            ...prev[section][parentKey],
-            [childKey]: value,
+  const updateLocalPreference = useCallback(
+    <K extends keyof LocalPreferences>(
+      section: K,
+      key: keyof LocalPreferences[K],
+      value: unknown,
+    ) => {
+      setLocalPreferences((prev) => {
+        const sectionData = prev[section] as Record<string, unknown>;
+        const existing = sectionData[key as string];
+        return {
+          ...prev,
+          [section]: {
+            ...sectionData,
+            [key]:
+              typeof value === "object" &&
+              value !== null &&
+              typeof existing === "object" &&
+              existing !== null
+                ? {
+                    ...(existing as Record<string, unknown>),
+                    ...(value as Record<string, unknown>),
+                  }
+                : value,
           },
-        },
-      }));
+        };
+      });
     },
     [],
   );
 
-  // Save preferences
+  const updateNestedPreference = useCallback(
+    <K extends keyof LocalPreferences>(
+      section: K,
+      parentKey: string,
+      childKey: string,
+      value: unknown,
+    ) => {
+      setLocalPreferences((prev) => {
+        const sectionData = prev[section] as Record<
+          string,
+          Record<string, unknown>
+        >;
+        return {
+          ...prev,
+          [section]: {
+            ...sectionData,
+            [parentKey]: {
+              ...sectionData[parentKey],
+              [childKey]: value,
+            },
+          },
+        };
+      });
+    },
+    [],
+  );
+
+  // ── Handlers ───────────────────────────────────────────────────────────────
+
   const handleSave = useCallback(async () => {
     setIsLoading(true);
     setSaveStatus(null);
-
     try {
-      await updatePreferences(localPreferences);
+      await updatePreferences(localPreferences as StoredPreferences);
       setSaveStatus("success");
       setHasChanges(false);
-
       setTimeout(() => setSaveStatus(null), 3000);
-    } catch (_error) {
-      // console.error('Failed to save preferences:', error);
+    } catch {
       setSaveStatus("error");
       setTimeout(() => setSaveStatus(null), 5000);
     } finally {
@@ -183,10 +348,7 @@ const NotificationPreferences = ({
     }
   }, [localPreferences, updatePreferences]);
 
-  // Reset preferences
-  const handleReset = useCallback(() => {
-    setConfirmReset(true);
-  }, []);
+  const handleReset = useCallback(() => setConfirmReset(true), []);
 
   const handleResetConfirmed = useCallback(async () => {
     setConfirmReset(false);
@@ -196,8 +358,7 @@ const NotificationPreferences = ({
       await refreshPreferences();
       setSaveStatus("reset");
       setTimeout(() => setSaveStatus(null), 3000);
-    } catch (_error) {
-      // console.error('Failed to reset preferences:', error);
+    } catch {
       setSaveStatus("error");
       setTimeout(() => setSaveStatus(null), 5000);
     } finally {
@@ -205,7 +366,6 @@ const NotificationPreferences = ({
     }
   }, [resetPreferences, refreshPreferences]);
 
-  // Export preferences
   const handleExport = useCallback(async () => {
     try {
       const exported = await exportPreferences();
@@ -213,62 +373,23 @@ const NotificationPreferences = ({
         type: "application/json",
       });
       const url = URL.createObjectURL(blob);
-      const link =
-        typeof document !== "undefined" && document.createElement("a");
+      const link = document.createElement("a");
       link.href = url;
       link.download = `notification-preferences-${new Date().toISOString().split("T")[0]}.json`;
-      typeof document !== "undefined" && document.body.appendChild(link);
+      document.body.appendChild(link);
       link.click();
-      typeof document !== "undefined" && document.body.removeChild(link);
+      document.body.removeChild(link);
       URL.revokeObjectURL(url);
-
       setSaveStatus("exported");
       setTimeout(() => setSaveStatus(null), 3000);
-    } catch (_error) {
-      // console.error('Failed to export preferences:', error);
+    } catch {
       setSaveStatus("error");
       setTimeout(() => setSaveStatus(null), 5000);
     }
   }, [exportPreferences]);
 
-  // Frequency options
-  const frequencyOptions = [
-    { value: "immediate", label: "Immediate" },
-    { value: "hourly", label: "Hourly" },
-    { value: "daily", label: "Daily Digest" },
-    { value: "weekly", label: "Weekly Summary" },
-    { value: "never", label: "Never" },
-  ];
+  // ── Tab renderers ──────────────────────────────────────────────────────────
 
-  // Priority options
-  const priorityOptions = [
-    { value: "all", label: "All Priorities" },
-    { value: "urgent", label: "Urgent Only" },
-    { value: "high", label: "High & Urgent" },
-    { value: "normal", label: "Normal & Above" },
-    { value: "never", label: "Never" },
-  ];
-
-  // Sound theme options
-  const soundThemeOptions = [
-    { value: "default", label: "Default" },
-    { value: "subtle", label: "Subtle" },
-    { value: "professional", label: "Professional" },
-    { value: "cheerful", label: "Cheerful" },
-    { value: "custom", label: "Custom" },
-  ];
-
-  // Language options
-  const languageOptions = [
-    { value: "en", label: "English" },
-    { value: "es", label: "Spanish" },
-    { value: "fr", label: "French" },
-    { value: "de", label: "German" },
-    { value: "it", label: "Italian" },
-    { value: "pt", label: "Portuguese" },
-  ];
-
-  // Render channel preferences
   const renderChannelPreferences = () => (
     <div className="space-y-6">
       <div>
@@ -278,17 +399,7 @@ const NotificationPreferences = ({
         <div className="space-y-4">
           {Object.entries(localPreferences.channels).map(
             ([channel, settings]) => {
-              const channelIcons = {
-                email: FiMail,
-                sms: FiMessageSquare,
-                push: FiSmartphone,
-                inApp: FiBell,
-                slack: FiMessageSquare,
-                teams: FiMessageSquare,
-              };
-
-              const Icon = channelIcons[channel] || FiBell;
-
+              const Icon = CHANNEL_ICONS[channel] ?? FiBell;
               return (
                 <Card key={channel} className="p-4">
                   <div className="flex items-center justify-between mb-3">
@@ -300,7 +411,7 @@ const NotificationPreferences = ({
                     </div>
                     <Switch
                       checked={settings.enabled}
-                      onChange={(enabled) =>
+                      onChange={(enabled: boolean) =>
                         updateNestedPreference(
                           "channels",
                           channel,
@@ -310,7 +421,6 @@ const NotificationPreferences = ({
                       }
                     />
                   </div>
-
                   {settings.enabled && (
                     <div className="ml-8">
                       <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -318,7 +428,7 @@ const NotificationPreferences = ({
                       </label>
                       <Select
                         value={settings.frequency}
-                        onChange={(frequency) =>
+                        onChange={(frequency: string) =>
                           updateNestedPreference(
                             "channels",
                             channel,
@@ -326,7 +436,7 @@ const NotificationPreferences = ({
                             frequency,
                           )
                         }
-                        options={frequencyOptions}
+                        options={FREQUENCY_OPTIONS}
                         className="w-full"
                       />
                     </div>
@@ -340,7 +450,6 @@ const NotificationPreferences = ({
     </div>
   );
 
-  // Render type preferences
   const renderTypePreferences = () => (
     <div className="space-y-6">
       <div>
@@ -356,12 +465,11 @@ const NotificationPreferences = ({
                 </span>
                 <Switch
                   checked={settings.enabled}
-                  onChange={(enabled) =>
+                  onChange={(enabled: boolean) =>
                     updateNestedPreference("types", type, "enabled", enabled)
                   }
                 />
               </div>
-
               {settings.enabled && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -369,7 +477,7 @@ const NotificationPreferences = ({
                   </label>
                   <Select
                     value={settings.priority}
-                    onChange={(priority) =>
+                    onChange={(priority: string) =>
                       updateNestedPreference(
                         "types",
                         type,
@@ -377,7 +485,7 @@ const NotificationPreferences = ({
                         priority,
                       )
                     }
-                    options={priorityOptions}
+                    options={PRIORITY_OPTIONS}
                     className="w-full"
                   />
                 </div>
@@ -389,7 +497,6 @@ const NotificationPreferences = ({
     </div>
   );
 
-  // Render quiet hours preferences
   const renderQuietHoursPreferences = () => (
     <div className="space-y-6">
       <div>
@@ -404,12 +511,11 @@ const NotificationPreferences = ({
             </div>
             <Switch
               checked={localPreferences.quietHours.enabled}
-              onChange={(enabled) =>
+              onChange={(enabled: boolean) =>
                 updateLocalPreference("quietHours", "enabled", enabled)
               }
             />
           </div>
-
           {localPreferences.quietHours.enabled && (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
@@ -419,7 +525,7 @@ const NotificationPreferences = ({
                   </label>
                   <TimePicker
                     value={localPreferences.quietHours.startTime}
-                    onChange={(time) =>
+                    onChange={(time: string) =>
                       updateLocalPreference("quietHours", "startTime", time)
                     }
                   />
@@ -430,20 +536,19 @@ const NotificationPreferences = ({
                   </label>
                   <TimePicker
                     value={localPreferences.quietHours.endTime}
-                    onChange={(time) =>
+                    onChange={(time: string) =>
                       updateLocalPreference("quietHours", "endTime", time)
                     }
                   />
                 </div>
               </div>
-
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-700">
                   Allow urgent notifications
                 </span>
                 <Switch
                   checked={localPreferences.quietHours.allowUrgent}
-                  onChange={(allowUrgent) =>
+                  onChange={(allowUrgent: boolean) =>
                     updateLocalPreference(
                       "quietHours",
                       "allowUrgent",
@@ -459,7 +564,6 @@ const NotificationPreferences = ({
     </div>
   );
 
-  // Render delivery preferences
   const renderDeliveryPreferences = () => (
     <div className="space-y-6">
       <div>
@@ -474,12 +578,11 @@ const NotificationPreferences = ({
               </span>
               <Switch
                 checked={localPreferences.delivery.batching}
-                onChange={(batching) =>
+                onChange={(batching: boolean) =>
                   updateLocalPreference("delivery", "batching", batching)
                 }
               />
             </div>
-
             {localPreferences.delivery.batching && (
               <div className="space-y-3">
                 <div>
@@ -488,7 +591,7 @@ const NotificationPreferences = ({
                   </label>
                   <Slider
                     value={localPreferences.delivery.batchInterval}
-                    onChange={(batchInterval) =>
+                    onChange={(batchInterval: number) =>
                       updateLocalPreference(
                         "delivery",
                         "batchInterval",
@@ -504,14 +607,13 @@ const NotificationPreferences = ({
                     {localPreferences.delivery.batchInterval} minutes
                   </span>
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Max Batch Size
                   </label>
                   <Slider
                     value={localPreferences.delivery.maxBatchSize}
-                    onChange={(maxBatchSize) =>
+                    onChange={(maxBatchSize: number) =>
                       updateLocalPreference(
                         "delivery",
                         "maxBatchSize",
@@ -530,14 +632,13 @@ const NotificationPreferences = ({
               </div>
             )}
           </Card>
-
           <Card className="p-4">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="font-medium text-gray-900">Smart Timing</span>
                 <Switch
                   checked={localPreferences.delivery.smartTiming}
-                  onChange={(smartTiming) =>
+                  onChange={(smartTiming: boolean) =>
                     updateLocalPreference(
                       "delivery",
                       "smartTiming",
@@ -546,14 +647,13 @@ const NotificationPreferences = ({
                   }
                 />
               </div>
-
               <div className="flex items-center justify-between">
                 <span className="font-medium text-gray-900">
                   Respect User Activity
                 </span>
                 <Switch
                   checked={localPreferences.delivery.respectUserActivity}
-                  onChange={(respectUserActivity) =>
+                  onChange={(respectUserActivity: boolean) =>
                     updateLocalPreference(
                       "delivery",
                       "respectUserActivity",
@@ -569,7 +669,6 @@ const NotificationPreferences = ({
     </div>
   );
 
-  // Render interface preferences
   const renderInterfacePreferences = () => (
     <div className="space-y-6">
       <div>
@@ -584,12 +683,11 @@ const NotificationPreferences = ({
                 <span className="text-sm text-gray-700">Enable Sound</span>
                 <Switch
                   checked={localPreferences.interface.sound}
-                  onChange={(sound) =>
+                  onChange={(sound: boolean) =>
                     updateLocalPreference("interface", "sound", sound)
                   }
                 />
               </div>
-
               {localPreferences.interface.sound && (
                 <>
                   <div>
@@ -598,7 +696,7 @@ const NotificationPreferences = ({
                     </label>
                     <Slider
                       value={localPreferences.interface.volume}
-                      onChange={(volume) =>
+                      onChange={(volume: number) =>
                         updateLocalPreference("interface", "volume", volume)
                       }
                       min={0}
@@ -610,39 +708,36 @@ const NotificationPreferences = ({
                       {Math.round(localPreferences.interface.volume * 100)}%
                     </span>
                   </div>
-
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Sound Theme
                     </label>
                     <Select
                       value={localPreferences.interface.soundTheme}
-                      onChange={(soundTheme) =>
+                      onChange={(soundTheme: string) =>
                         updateLocalPreference(
                           "interface",
                           "soundTheme",
                           soundTheme,
                         )
                       }
-                      options={soundThemeOptions}
+                      options={SOUND_THEME_OPTIONS}
                       className="w-full"
                     />
                   </div>
                 </>
               )}
-
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-700">Enable Vibration</span>
                 <Switch
                   checked={localPreferences.interface.vibration}
-                  onChange={(vibration) =>
+                  onChange={(vibration: boolean) =>
                     updateLocalPreference("interface", "vibration", vibration)
                   }
                 />
               </div>
             </div>
           </Card>
-
           <Card className="p-4">
             <h4 className="font-medium text-gray-900 mb-3">Display Options</h4>
             <div className="space-y-3">
@@ -650,7 +745,7 @@ const NotificationPreferences = ({
                 <span className="text-sm text-gray-700">Show Previews</span>
                 <Switch
                   checked={localPreferences.interface.showPreviews}
-                  onChange={(showPreviews) =>
+                  onChange={(showPreviews: boolean) =>
                     updateLocalPreference(
                       "interface",
                       "showPreviews",
@@ -659,14 +754,13 @@ const NotificationPreferences = ({
                   }
                 />
               </div>
-
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-700">
                   Mark as Read on Click
                 </span>
                 <Switch
                   checked={localPreferences.interface.markReadOnClick}
-                  onChange={(markReadOnClick) =>
+                  onChange={(markReadOnClick: boolean) =>
                     updateLocalPreference(
                       "interface",
                       "markReadOnClick",
@@ -675,12 +769,11 @@ const NotificationPreferences = ({
                   }
                 />
               </div>
-
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-700">Auto Archive</span>
                 <Switch
                   checked={localPreferences.interface.autoArchive}
-                  onChange={(autoArchive) =>
+                  onChange={(autoArchive: boolean) =>
                     updateLocalPreference(
                       "interface",
                       "autoArchive",
@@ -689,7 +782,6 @@ const NotificationPreferences = ({
                   }
                 />
               </div>
-
               {localPreferences.interface.autoArchive && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -697,7 +789,7 @@ const NotificationPreferences = ({
                   </label>
                   <Slider
                     value={localPreferences.interface.autoArchiveDays}
-                    onChange={(autoArchiveDays) =>
+                    onChange={(autoArchiveDays: number) =>
                       updateLocalPreference(
                         "interface",
                         "autoArchiveDays",
@@ -721,7 +813,6 @@ const NotificationPreferences = ({
     </div>
   );
 
-  // Render advanced preferences
   const renderAdvancedPreferences = () => (
     <div className="space-y-6">
       <div>
@@ -738,14 +829,13 @@ const NotificationPreferences = ({
                 </label>
                 <Select
                   value={localPreferences.advanced.language}
-                  onChange={(language) =>
+                  onChange={(language: string) =>
                     updateLocalPreference("advanced", "language", language)
                   }
-                  options={languageOptions}
+                  options={LANGUAGE_OPTIONS}
                   className="w-full"
                 />
               </div>
-
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Timezone
@@ -761,16 +851,15 @@ const NotificationPreferences = ({
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  {Intl.supportedValuesOf("timeZone").map((timezone) => (
-                    <option key={timezone} value={timezone}>
-                      {timezone}
+                  {Intl.supportedValuesOf("timeZone").map((tz) => (
+                    <option key={tz} value={tz}>
+                      {tz}
                     </option>
                   ))}
                 </select>
               </div>
             </div>
           </Card>
-
           <Card className="p-4">
             <h4 className="font-medium text-gray-900 mb-3">Email Settings</h4>
             <div>
@@ -779,7 +868,7 @@ const NotificationPreferences = ({
               </label>
               <Select
                 value={localPreferences.advanced.emailTemplate}
-                onChange={(emailTemplate) =>
+                onChange={(emailTemplate: string) =>
                   updateLocalPreference(
                     "advanced",
                     "emailTemplate",
@@ -796,7 +885,6 @@ const NotificationPreferences = ({
               />
             </div>
           </Card>
-
           <Card className="p-4">
             <h4 className="font-medium text-gray-900 mb-3">System Options</h4>
             <div className="space-y-3">
@@ -806,7 +894,7 @@ const NotificationPreferences = ({
                 </span>
                 <Switch
                   checked={localPreferences.advanced.consolidateDigests}
-                  onChange={(consolidateDigests) =>
+                  onChange={(consolidateDigests: boolean) =>
                     updateLocalPreference(
                       "advanced",
                       "consolidateDigests",
@@ -815,12 +903,11 @@ const NotificationPreferences = ({
                   }
                 />
               </div>
-
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-700">Enable Analytics</span>
                 <Switch
                   checked={localPreferences.advanced.enableAnalytics}
-                  onChange={(enableAnalytics) =>
+                  onChange={(enableAnalytics: boolean) =>
                     updateLocalPreference(
                       "advanced",
                       "enableAnalytics",
@@ -829,12 +916,11 @@ const NotificationPreferences = ({
                   }
                 />
               </div>
-
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-700">Debug Mode</span>
                 <Switch
                   checked={localPreferences.advanced.debugMode}
-                  onChange={(debugMode) =>
+                  onChange={(debugMode: boolean) =>
                     updateLocalPreference("advanced", "debugMode", debugMode)
                   }
                 />
@@ -846,17 +932,16 @@ const NotificationPreferences = ({
     </div>
   );
 
-  // Tab configuration
-  const tabs = [
-    { id: "channels", label: "Channels", icon: FiBell },
-    { id: "types", label: "Types", icon: FiSettings },
-    { id: "schedule", label: "Schedule", icon: FiClock },
-    { id: "delivery", label: "Delivery", icon: FiMessageSquare },
-    { id: "interface", label: "Interface", icon: FiVolume2 },
-    { id: "advanced", label: "Advanced", icon: FiSettings },
-  ];
+  // ── Render ─────────────────────────────────────────────────────────────────
 
   if (!isOpen) return null;
+
+  const SAVE_STATUS_MESSAGES: Record<string, string> = {
+    success: "Preferences saved",
+    reset: "Preferences reset",
+    exported: "Preferences exported",
+    error: "Failed to save",
+  };
 
   return (
     <>
@@ -870,20 +955,17 @@ const NotificationPreferences = ({
           {/* Sidebar */}
           <div className="w-48 border-r border-gray-200 pr-4">
             <nav className="space-y-1">
-              {tabs.map((tab) => {
+              {TABS.map((tab) => {
                 const Icon = tab.icon;
                 return (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`
-                    w-full flex items-center px-3 py-2 text-sm font-medium rounded-md
-                    ${
+                    className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-md ${
                       activeTab === tab.id
                         ? "bg-blue-100 text-blue-700"
                         : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                    }
-                  `}
+                    }`}
                   >
                     <Icon className="w-4 h-4 mr-3" />
                     {tab.label}
@@ -930,7 +1012,6 @@ const NotificationPreferences = ({
             <Button onClick={handleExport} variant="outline" size="sm">
               Export
             </Button>
-
             <Button
               onClick={handleReset}
               variant="outline"
@@ -940,29 +1021,19 @@ const NotificationPreferences = ({
               Reset
             </Button>
           </div>
-
           <div className="flex items-center space-x-2">
             {saveStatus && (
               <span
                 className={`text-sm ${
-                  saveStatus === "success" ||
-                  saveStatus === "reset" ||
-                  saveStatus === "exported"
-                    ? "text-green-600"
-                    : "text-red-600"
+                  saveStatus === "error" ? "text-red-600" : "text-green-600"
                 }`}
               >
-                {saveStatus === "success" && "Preferences saved"}
-                {saveStatus === "reset" && "Preferences reset"}
-                {saveStatus === "exported" && "Preferences exported"}
-                {saveStatus === "error" && "Failed to save"}
+                {SAVE_STATUS_MESSAGES[saveStatus]}
               </span>
             )}
-
             <Button onClick={onClose} variant="outline">
               Cancel
             </Button>
-
             <Button
               onClick={handleSave}
               disabled={!hasChanges || isLoading}
@@ -979,7 +1050,7 @@ const NotificationPreferences = ({
         </div>
       </Modal>
 
-      {/* ── Reset confirmation modal (replaces window.confirm) ── */}
+      {/* Reset confirmation modal */}
       <Modal
         isOpen={confirmReset}
         onClose={() => setConfirmReset(false)}
@@ -1007,4 +1078,5 @@ const NotificationPreferences = ({
   );
 };
 
+export { NotificationPreferences };
 export default NotificationPreferences;
