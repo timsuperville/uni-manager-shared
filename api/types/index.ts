@@ -31,7 +31,13 @@ export interface User extends BaseEntity {
   lastLoginAt?: string;
   preferences: UserPreferences;
   profile: UserProfile;
-  currentChurch?: string | { id: string; name: string };
+  currentChurch?: string | { id?: string; _id?: string; name: string };
+  churches?: Array<{
+    church:
+      | string
+      | { _id?: string; id?: string; name?: string; logo?: string };
+    role: string;
+  }>;
 }
 
 export interface UserProfile {
