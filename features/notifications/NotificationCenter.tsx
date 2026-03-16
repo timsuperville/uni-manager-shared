@@ -7,34 +7,89 @@ import React, {
 } from "react";
 import {
   FiBell,
-  FiFilter,
-  FiSearch,
   FiSettings,
   FiCheck,
   FiTrash2,
   FiX,
   FiRefreshCw,
-  FiChevronDown,
   FiClock,
   FiUser,
   FiMail,
   FiMessageSquare,
   FiAlertCircle,
-  FiCheckCircle,
 } from "react-icons/fi";
-import { format, formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 import { useNotifications } from "../../hooks/useNotifications";
 import { useWebSocket } from "../../hooks/useWebSocket";
 import { LoadingSpinner } from "../ui/LoadingSpinner";
 import { Button } from "../ui/Button";
-import { Card } from "../ui/Card";
 import { Badge } from "../ui/Badge";
 import { Dropdown } from "../ui/Dropdown";
 import { SearchInput } from "../ui/SearchInput";
 import { Pagination } from "../ui/Pagination";
 import { NotificationModal } from "./NotificationModal";
-import { NotificationToast } from "./NotificationToast";
+import NotificationToast from "./NotificationToast";
 import { NotificationPreferences } from "./NotificationPreferences";
+import type { Notification } from "./NotificationToast";
+
+// ── Types ────────────────────────────────────────────────────────────────────
+
+type PanelPosition = "right" | "left";
+type FilterType =
+  | "all"
+  | "user"
+  | "system"
+  | "church"
+  | "business"
+  | "security";
+type FilterStatus = "all" | "unread" | "read" | "archived";
+type SortField = "date" | "priority" | "type";
+type SortOrder = "asc" | "desc";
+type BulkAction = "markRead" | "archive" | "delete";
+
+interface ToastConfig {
+  type: "success" | "error" | "info" | "warning";
+  title: string;
+  message: string;
+  duration?: number;
+}
+
+interface FilterOption {
+  value: string;
+  label: string;
+  icon?: React.ComponentType<{ className?: string }>;
+}
+
+interface NotificationCenterProps {
+  className?: string;
+  isOpen?: boolean;
+  onClose?: () => void;
+  position?: PanelPosition;
+}
+
+const PRIORITY_ORDER: Record<string, number> = {
+  urgent: 4,
+  high: 3,
+  normal: 2,
+  low: 1,
+};
+
+const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+  user: FiUser,
+  system: FiSettings,
+  church: FiMessageSquare,
+  business: FiMail,
+  security: FiAlertCircle,
+};
+
+const PRIORITY_BADGE: Record<string, { color: string; label: string }> = {
+  urgent: { color: "red", label: "Urgent" },
+  high: { color: "orange", label: "High" },
+  normal: { color: "blue", label: "Normal" },
+  low: { color: "gray", label: "Low" },
+};
+
+// ── Component ────────────────────────────────────────────────────────────────
 
 /**
  * NotificationCenter - Comprehensive real-time notification management interface
@@ -48,32 +103,33 @@ import { NotificationPreferences } from "./NotificationPreferences";
  * - Performance-optimized virtual scrolling for large lists
  * - Responsive design for all devices
  * - Accessibility compliance
- * - Integration with enhanced notification service
  */
-const NotificationCenter = ({
+const NotificationCenter: React.FC<NotificationCenterProps> = ({
   className = "",
   isOpen = false,
   onClose = () => {},
   position = "right",
 }) => {
-  // State management
-  const [selectedNotification, setSelectedNotification] = useState(null);
+  // State
+  const [selectedNotification, setSelectedNotification] =
+    useState<Notification | null>(null);
   const [showPreferences, setShowPreferences] = useState(false);
-  const [selectedNotifications, setSelectedNotifications] = useState(new Set());
+  const [selectedNotifications, setSelectedNotifications] = useState<
+    Set<string>
+  >(new Set());
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterType, setFilterType] = useState("all");
-  const [filterStatus, setFilterStatus] = useState("all");
-  const [sortBy, setSortBy] = useState("date");
-  const [sortOrder, setSortOrder] = useState("desc");
+  const [filterType, setFilterType] = useState<FilterType>("all");
+  const [filterStatus, setFilterStatus] = useState<FilterStatus>("all");
+  const [sortBy, setSortBy] = useState<SortField>("date");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-  const [toast, setToast] = useState(null);
+  const [toast, setToast] = useState<ToastConfig | null>(null);
 
   // Refs
-  const notificationListRef = useRef(null);
-  const scrollTimeoutRef = useRef(null);
+  const notificationListRef = useRef<HTMLDivElement>(null);
 
-  // Custom hooks
+  // Notification data hook
   const {
     notifications,
     unreadCount,
@@ -83,7 +139,7 @@ const NotificationCenter = ({
     loadNotifications,
     markAsRead,
     markMultipleAsRead,
-    markAllAsRead,
+    markAllAsRead: _markAllAsRead,
     deleteNotification,
     archiveNotification,
     refreshNotifications,
@@ -95,11 +151,12 @@ const NotificationCenter = ({
     search: searchQuery,
   });
 
-  const { isConnected, connectionStatus, subscribe, unsubscribe } =
+  const { isConnected, subscribe, unsubscribe } =
     useWebSocket("/notifications");
 
-  // Filter and sort options
-  const filterTypeOptions = [
+  // ── Filter/sort options ────────────────────────────────────────────────────
+
+  const filterTypeOptions: FilterOption[] = [
     { value: "all", label: "All Types", icon: FiBell },
     { value: "user", label: "User", icon: FiUser },
     { value: "system", label: "System", icon: FiSettings },
@@ -108,105 +165,90 @@ const NotificationCenter = ({
     { value: "security", label: "Security", icon: FiAlertCircle },
   ];
 
-  const filterStatusOptions = [
+  const filterStatusOptions: FilterOption[] = [
     { value: "all", label: "All Status" },
     { value: "unread", label: "Unread" },
     { value: "read", label: "Read" },
     { value: "archived", label: "Archived" },
   ];
 
-  const sortOptions = [
-    { value: "date", label: "Date" },
-    { value: "priority", label: "Priority" },
-    { value: "type", label: "Type" },
-  ];
+  // ── Memoised filtered / sorted list ───────────────────────────────────────
 
-  // Memoized filtered and sorted notifications
   const processedNotifications = useMemo(() => {
     let filtered = [...notifications];
 
-    // Apply search filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(
-        (notification) =>
-          notification.subject?.toLowerCase().includes(query) ||
-          notification.content?.toLowerCase().includes(query) ||
-          notification.type?.toLowerCase().includes(query),
+        (n) =>
+          n.subject?.toLowerCase().includes(query) ||
+          n.content?.toLowerCase().includes(query) ||
+          n.type?.toLowerCase().includes(query),
       );
     }
 
-    // Apply sorting
     filtered.sort((a, b) => {
-      let aValue, bValue;
+      let aValue: number | string;
+      let bValue: number | string;
 
       switch (sortBy) {
         case "priority":
-          const priorityOrder = { urgent: 4, high: 3, normal: 2, low: 1 };
-          aValue = priorityOrder[a.priority] || 0;
-          bValue = priorityOrder[b.priority] || 0;
+          aValue = PRIORITY_ORDER[a.priority ?? ""] ?? 0;
+          bValue = PRIORITY_ORDER[b.priority ?? ""] ?? 0;
           break;
         case "type":
-          aValue = a.type || "";
-          bValue = b.type || "";
+          aValue = a.type ?? "";
+          bValue = b.type ?? "";
           break;
         case "date":
         default:
-          aValue = new Date(a.createdAt || a.timestamp);
-          bValue = new Date(b.createdAt || b.timestamp);
+          aValue = new Date(a.createdAt ?? a.timestamp ?? 0).getTime();
+          bValue = new Date(b.createdAt ?? b.timestamp ?? 0).getTime();
           break;
       }
 
-      if (sortOrder === "asc") {
-        return aValue > bValue ? 1 : -1;
-      } else {
-        return aValue < bValue ? 1 : -1;
-      }
+      return sortOrder === "asc"
+        ? aValue > bValue
+          ? 1
+          : -1
+        : aValue < bValue
+          ? 1
+          : -1;
     });
 
     return filtered;
   }, [notifications, searchQuery, sortBy, sortOrder]);
 
-  // WebSocket event handlers
+  // ── WebSocket ──────────────────────────────────────────────────────────────
+
   const handleNotificationReceived = useCallback(
-    (data) => {
+    (data: { event: string; data: Notification }) => {
       if (data.event === "notification:created") {
-        // Show toast for new notification
         setToast({
           type: "info",
           title: "New Notification",
-          message: data.data.subject || "You have a new notification",
+          message: data.data.subject ?? "You have a new notification",
           duration: 5000,
         });
-
-        // Refresh notifications list
         refreshNotifications();
       } else if (data.event === "notification:processed") {
-        // Update notification status
         refreshNotifications();
       }
     },
     [refreshNotifications],
   );
 
-  // Initialize WebSocket connection
   useEffect(() => {
     if (isOpen && isConnected) {
       subscribe("notification-update", handleNotificationReceived);
     }
-
     return () => {
-      if (isConnected) {
-        unsubscribe("notification-update");
-      }
+      if (isConnected) unsubscribe("notification-update");
     };
   }, [isOpen, isConnected, subscribe, unsubscribe, handleNotificationReceived]);
 
-  // Load notifications when filters change
   useEffect(() => {
-    if (isOpen) {
-      loadNotifications();
-    }
+    if (isOpen) loadNotifications();
   }, [
     isOpen,
     currentPage,
@@ -216,41 +258,37 @@ const NotificationCenter = ({
     loadNotifications,
   ]);
 
-  // Handle notification selection
-  const handleNotificationSelect = useCallback((notificationId) => {
+  // ── Handlers ───────────────────────────────────────────────────────────────
+
+  const handleNotificationSelect = useCallback((notificationId: string) => {
     setSelectedNotifications((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(notificationId)) {
-        newSet.delete(notificationId);
+      const next = new Set(prev);
+      if (next.has(notificationId)) {
+        next.delete(notificationId);
       } else {
-        newSet.add(notificationId);
+        next.add(notificationId);
       }
-      return newSet;
+      return next;
     });
   }, []);
 
-  // Handle select all notifications
   const handleSelectAll = useCallback(() => {
     if (selectedNotifications.size === processedNotifications.length) {
       setSelectedNotifications(new Set());
     } else {
       setSelectedNotifications(
-        new Set(processedNotifications.map((n) => n.id || n._id)),
+        new Set(processedNotifications.map((n) => (n.id ?? n._id) as string)),
       );
     }
   }, [selectedNotifications.size, processedNotifications]);
 
-  // Handle notification click
   const handleNotificationClick = useCallback(
-    async (notification) => {
+    async (notification: Notification) => {
       setSelectedNotification(notification);
-
-      // Mark as read if unread
       if (notification.status === "unread") {
         try {
-          await markAsRead(notification.id || notification._id);
-        } catch (_error) {
-          // console.error('Failed to mark notification as read:', error);
+          await markAsRead((notification.id ?? notification._id) as string);
+        } catch {
           setToast({
             type: "error",
             title: "Error",
@@ -263,15 +301,12 @@ const NotificationCenter = ({
     [markAsRead],
   );
 
-  // Handle bulk actions
   const handleBulkAction = useCallback(
-    async (action) => {
+    async (action: BulkAction) => {
       if (selectedNotifications.size === 0) return;
-
       setIsLoading(true);
+      const notificationIds = Array.from(selectedNotifications);
       try {
-        const notificationIds = Array.from(selectedNotifications);
-
         switch (action) {
           case "markRead":
             await markMultipleAsRead(notificationIds);
@@ -283,9 +318,7 @@ const NotificationCenter = ({
             });
             break;
           case "archive":
-            for (const id of notificationIds) {
-              await archiveNotification(id);
-            }
+            for (const id of notificationIds) await archiveNotification(id);
             setToast({
               type: "success",
               title: "Success",
@@ -294,9 +327,7 @@ const NotificationCenter = ({
             });
             break;
           case "delete":
-            for (const id of notificationIds) {
-              await deleteNotification(id);
-            }
+            for (const id of notificationIds) await deleteNotification(id);
             setToast({
               type: "success",
               title: "Success",
@@ -305,11 +336,9 @@ const NotificationCenter = ({
             });
             break;
         }
-
         setSelectedNotifications(new Set());
         refreshNotifications();
-      } catch (_error) {
-        // console.error(`Failed to ${action} notifications:`, error);
+      } catch {
         setToast({
           type: "error",
           title: "Error",
@@ -329,73 +358,40 @@ const NotificationCenter = ({
     ],
   );
 
-  // Handle search
-  const handleSearch = useCallback((query) => {
+  const handleSearch = useCallback((query: string) => {
     setSearchQuery(query);
     setCurrentPage(1);
   }, []);
 
-  // Handle filter change
-  const handleFilterChange = useCallback((type, value) => {
-    if (type === "type") {
-      setFilterType(value);
-    } else if (type === "status") {
-      setFilterStatus(value);
-    }
-    setCurrentPage(1);
-  }, []);
-
-  // Handle sort change
-  const handleSortChange = useCallback(
-    (field) => {
-      if (sortBy === field) {
-        setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-      } else {
-        setSortBy(field);
-        setSortOrder("desc");
-      }
+  const handleFilterChange = useCallback(
+    (type: "type" | "status", value: string) => {
+      if (type === "type") setFilterType(value as FilterType);
+      else setFilterStatus(value as FilterStatus);
+      setCurrentPage(1);
     },
-    [sortBy, sortOrder],
+    [],
   );
 
-  // Get notification icon
-  const getNotificationIcon = useCallback((type, priority) => {
-    const iconMap = {
-      user: FiUser,
-      system: FiSettings,
-      church: FiMessageSquare,
-      business: FiMail,
-      security: FiAlertCircle,
-    };
+  // ── Sub-renderers ──────────────────────────────────────────────────────────
 
-    const IconComponent = iconMap[type] || FiBell;
+  const getNotificationIcon = useCallback(
+    (type: string | undefined, priority: string | undefined) => {
+      const Icon = ICON_MAP[type ?? ""] ?? FiBell;
+      const color =
+        priority === "urgent"
+          ? "text-red-500"
+          : priority === "high"
+            ? "text-orange-500"
+            : priority === "normal"
+              ? "text-blue-500"
+              : "text-gray-500";
+      return <Icon className={`w-5 h-5 ${color}`} />;
+    },
+    [],
+  );
 
-    return (
-      <IconComponent
-        className={`w-5 h-5 ${
-          priority === "urgent"
-            ? "text-red-500"
-            : priority === "high"
-              ? "text-orange-500"
-              : priority === "normal"
-                ? "text-blue-500"
-                : "text-gray-500"
-        }`}
-      />
-    );
-  }, []);
-
-  // Get priority badge
-  const getPriorityBadge = useCallback((priority) => {
-    const badgeMap = {
-      urgent: { color: "red", label: "Urgent" },
-      high: { color: "orange", label: "High" },
-      normal: { color: "blue", label: "Normal" },
-      low: { color: "gray", label: "Low" },
-    };
-
-    const badge = badgeMap[priority] || badgeMap.normal;
-
+  const getPriorityBadge = useCallback((priority: string | undefined) => {
+    const badge = PRIORITY_BADGE[priority ?? ""] ?? PRIORITY_BADGE.normal;
     return (
       <Badge color={badge.color} size="sm">
         {badge.label}
@@ -403,22 +399,18 @@ const NotificationCenter = ({
     );
   }, []);
 
-  // Render notification item
   const renderNotificationItem = useCallback(
-    (notification) => {
-      const isSelected = selectedNotifications.has(
-        notification.id || notification._id,
-      );
+    (notification: Notification) => {
+      const id = (notification.id ?? notification._id) as string;
+      const isSelected = selectedNotifications.has(id);
       const isUnread = notification.status === "unread";
 
       return (
         <div
-          key={notification.id || notification._id}
-          className={`
-          relative p-4 border-b border-gray-200 cursor-pointer transition-colors
-          ${isSelected ? "bg-blue-50 border-blue-200" : "hover:bg-gray-50"}
-          ${isUnread ? "bg-blue-25" : ""}
-        `}
+          key={id}
+          className={`relative p-4 border-b border-gray-200 cursor-pointer transition-colors ${
+            isSelected ? "bg-blue-50 border-blue-200" : "hover:bg-gray-50"
+          } ${isUnread ? "bg-blue-25" : ""}`}
           onClick={() => handleNotificationClick(notification)}
         >
           {/* Selection checkbox */}
@@ -428,13 +420,13 @@ const NotificationCenter = ({
               checked={isSelected}
               onChange={(e) => {
                 e.stopPropagation();
-                handleNotificationSelect(notification.id || notification._id);
+                handleNotificationSelect(id);
               }}
               className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
             />
           </div>
 
-          {/* Notification content */}
+          {/* Content */}
           <div className="ml-8">
             <div className="flex items-start justify-between">
               <div className="flex items-center space-x-2">
@@ -443,34 +435,36 @@ const NotificationCenter = ({
                   <h4
                     className={`text-sm font-medium ${isUnread ? "text-gray-900" : "text-gray-700"}`}
                   >
-                    {notification.subject || notification.title || "No subject"}
+                    {notification.subject ?? notification.title ?? "No subject"}
                   </h4>
                   <p className="text-sm text-gray-600 line-clamp-2 mt-1">
-                    {notification.content ||
-                      notification.message ||
+                    {notification.content ??
+                      notification.message ??
                       "No content"}
                   </p>
                 </div>
               </div>
 
-              {/* Priority and timestamp */}
               <div className="flex flex-col items-end space-y-1 ml-4">
                 {getPriorityBadge(notification.priority)}
                 <span className="text-xs text-gray-500 flex items-center">
                   <FiClock className="w-3 h-3 mr-1" />
                   {formatDistanceToNow(
-                    new Date(notification.createdAt || notification.timestamp),
+                    new Date(
+                      notification.createdAt ??
+                        notification.timestamp ??
+                        Date.now(),
+                    ),
                     { addSuffix: true },
                   )}
                 </span>
               </div>
             </div>
 
-            {/* Notification metadata */}
             <div className="flex items-center justify-between mt-2">
               <div className="flex items-center space-x-2">
                 <Badge color="gray" size="xs">
-                  {notification.type || "General"}
+                  {notification.type ?? "General"}
                 </Badge>
                 {notification.module && (
                   <Badge color="gray" size="xs">
@@ -478,8 +472,6 @@ const NotificationCenter = ({
                   </Badge>
                 )}
               </div>
-
-              {/* Status indicator */}
               {isUnread && <div className="w-2 h-2 bg-blue-500 rounded-full" />}
             </div>
           </div>
@@ -502,13 +494,12 @@ const NotificationCenter = ({
       {/* Overlay */}
       <div className="fixed inset-0 bg-black/25 z-40" onClick={onClose} />
 
-      {/* Notification Center Panel */}
+      {/* Panel */}
       <div
-        className={`
-        fixed top-0 ${position === "right" ? "right-0" : "left-0"} h-full w-96 bg-white shadow-xl z-50
-        transform transition-transform duration-300 ease-in-out
-        ${isOpen ? "translate-x-0" : position === "right" ? "translate-x-full" : "-translate-x-full"}
-      `}
+        className={`fixed top-0 ${position === "right" ? "right-0" : "left-0"} h-full w-96 bg-white shadow-xl z-50
+          transform transition-transform duration-300 ease-in-out
+          ${isOpen ? "translate-x-0" : position === "right" ? "translate-x-full" : "-translate-x-full"}
+          ${className}`}
       >
         <div className="flex flex-col h-full">
           {/* Header */}
@@ -524,14 +515,10 @@ const NotificationCenter = ({
                 </Badge>
               )}
             </div>
-
             <div className="flex items-center space-x-1">
-              {/* Connection status */}
               <div
                 className={`w-2 h-2 rounded-full ${isConnected ? "bg-green-500" : "bg-red-500"}`}
               />
-
-              {/* Preferences button */}
               <Button
                 variant="ghost"
                 size="sm"
@@ -540,8 +527,6 @@ const NotificationCenter = ({
               >
                 <FiSettings className="w-4 h-4" />
               </Button>
-
-              {/* Refresh button */}
               <Button
                 variant="ghost"
                 size="sm"
@@ -553,8 +538,6 @@ const NotificationCenter = ({
                   className={`w-4 h-4 ${notificationsLoading ? "animate-spin" : ""}`}
                 />
               </Button>
-
-              {/* Close button */}
               <Button
                 variant="ghost"
                 size="sm"
@@ -566,40 +549,37 @@ const NotificationCenter = ({
             </div>
           </div>
 
-          {/* Search and filters */}
+          {/* Search + filters */}
           <div className="p-4 border-b border-gray-200 space-y-3">
-            {/* Search */}
             <SearchInput
               placeholder="Search notifications..."
               value={searchQuery}
               onChange={handleSearch}
               className="w-full"
             />
-
-            {/* Filter row */}
             <div className="flex items-center space-x-2">
               <Dropdown
                 value={filterType}
-                onChange={(value) => handleFilterChange("type", value)}
+                onChange={(value: string) => handleFilterChange("type", value)}
                 options={filterTypeOptions}
                 placeholder="Type"
                 size="sm"
               />
-
               <Dropdown
                 value={filterStatus}
-                onChange={(value) => handleFilterChange("status", value)}
+                onChange={(value: string) =>
+                  handleFilterChange("status", value)
+                }
                 options={filterStatusOptions}
                 placeholder="Status"
                 size="sm"
               />
-
               <Dropdown
                 value={`${sortBy}-${sortOrder}`}
-                onChange={(value) => {
+                onChange={(value: string) => {
                   const [field, order] = value.split("-");
-                  setSortBy(field);
-                  setSortOrder(order);
+                  setSortBy(field as SortField);
+                  setSortOrder(order as SortOrder);
                 }}
                 options={[
                   { value: "date-desc", label: "Latest first" },
@@ -613,14 +593,13 @@ const NotificationCenter = ({
             </div>
           </div>
 
-          {/* Bulk actions */}
+          {/* Bulk actions bar */}
           {selectedNotifications.size > 0 && (
             <div className="p-4 bg-blue-50 border-b border-blue-200">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-blue-700">
                   {selectedNotifications.size} selected
                 </span>
-
                 <div className="flex items-center space-x-2">
                   <Button
                     variant="outline"
@@ -631,7 +610,6 @@ const NotificationCenter = ({
                     <FiCheck className="w-4 h-4 mr-1" />
                     Mark Read
                   </Button>
-
                   <Button
                     variant="outline"
                     size="sm"
@@ -640,7 +618,6 @@ const NotificationCenter = ({
                   >
                     Archive
                   </Button>
-
                   <Button
                     variant="outline"
                     size="sm"
@@ -655,7 +632,7 @@ const NotificationCenter = ({
             </div>
           )}
 
-          {/* Notifications list */}
+          {/* List */}
           <div className="flex-1 overflow-y-auto" ref={notificationListRef}>
             {notificationsLoading && notifications.length === 0 ? (
               <div className="flex items-center justify-center h-32">
@@ -705,14 +682,12 @@ const NotificationCenter = ({
                     </span>
                   </label>
                 </div>
-
-                {/* Notification items */}
                 <div>{processedNotifications.map(renderNotificationItem)}</div>
               </>
             )}
           </div>
 
-          {/* Footer with pagination */}
+          {/* Footer pagination */}
           {totalCount > 0 && (
             <div className="p-4 border-t border-gray-200">
               <Pagination
@@ -726,7 +701,7 @@ const NotificationCenter = ({
         </div>
       </div>
 
-      {/* Modals and toasts */}
+      {/* Modals / toasts */}
       {selectedNotification && (
         <NotificationModal
           notification={selectedNotification}
@@ -750,4 +725,5 @@ const NotificationCenter = ({
   );
 };
 
+export { NotificationCenter };
 export default NotificationCenter;
