@@ -10,8 +10,8 @@ import {
   FiTrash2,
   FiArchive,
 } from "react-icons/fi";
-import { Button } from "../ui/Button";
-import { Avatar } from "../ui/Avatar";
+import { Button } from "../../components/ui/Button";
+import { Avatar } from "../../components/ui/Avatar";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -394,7 +394,8 @@ const NotificationToast: React.FC<NotificationToastProps> = ({
               return (
                 <Button
                   key={index}
-                  variant={action.variant || "outline"}
+                  // @ts-ignore
+                  variant={action.variant || "primary"}
                   size="xs"
                   onClick={() => handleActionClick(action)}
                   className={

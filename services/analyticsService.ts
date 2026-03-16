@@ -542,7 +542,7 @@ class AnalyticsService {
       this.trackUserBehavior(
         userId,
         "interaction",
-        context as Record<string, unknown>,
+        context as unknown as Record<string, unknown>,
       );
     }
   }

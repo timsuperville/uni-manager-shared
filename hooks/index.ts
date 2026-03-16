@@ -16,7 +16,6 @@ export { useNpsPulse } from "./useNpsPulse";
 export { useFrustrationDetector } from "./useFrustrationDetector";
 
 // Real-time and network hooks
-export * from "./useRealTime";
 export * from "./useWebSocket";
 export * from "./useOnlineStatus";
 

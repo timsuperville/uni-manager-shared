@@ -15,10 +15,8 @@
 
 import { useCallback, useMemo } from "react";
 import { useCacheManager } from "../utils/intelligentCache.ts";
-import type {
-  IntelligentCache,
-  CacheEntryOptions,
-} from "../utils/intelligentCache.ts";
+import type { IntelligentCache } from "../utils/intelligentCache.ts";
+type CacheEntryOptions = any;
 import { useUserPreferences } from "./useUserPreferences.ts";
 import { useMinistryContext } from "./useMinistryContext.ts";
 import { useSeasonalContext } from "./useSeasonalContext.ts";
@@ -219,7 +217,8 @@ export const useCachedMinistryContext = (churchId: string) => {
     const cached = getCachedContext();
     const origUpdated =
       (originalContext.ministry?.["lastUpdated"] as number) ?? 0;
-    if (cached && (cached.lastUpdated ?? 0) >= origUpdated) return cached;
+    if (cached && (Number(cached.lastUpdated) ?? 0) >= origUpdated)
+      return cached;
     if (originalContext.ministry)
       setCachedContext(originalContext.ministry as MinistryRecord);
     return originalContext.ministry as MinistryRecord | null;
@@ -391,14 +390,14 @@ export const useCachedDashboardState = (userId: string, churchId: string) => {
       return cached;
 
     const config: DashboardConfig = {
-      layout: (preferences.layout as string) ?? "default",
+      layout: ((preferences as any).layout as string) ?? "default",
       widgets: generateWidgetConfiguration(
         preferences,
         ministryContext,
         seasonalContext,
         activityContext,
       ),
-      theme: (preferences.theme as string) ?? "light",
+      theme: ((preferences as any).theme as string) ?? "light",
       personalizations: generatePersonalizations(
         activityContext,
         seasonalContext,
