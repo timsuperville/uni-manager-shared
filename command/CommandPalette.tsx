@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
-import { useCommandContext } from "./CommandContext.jsx";
+import { useCommandContext } from "./CommandContext";
+import type { Command, CommandNamespace } from "./CommandContext";
 
 /**
  * CommandPalette — Universal Command Core Omnibox
@@ -17,9 +18,45 @@ import { useCommandContext } from "./CommandContext.jsx";
  *   - Keyboard: ArrowUp/Down navigates, Enter executes, Escape closes
  */
 
-// ─── Namespace badge colours ────────────────────────────────────────────────
+// ── Types ────────────────────────────────────────────────────────────────────
 
-const NS_PALETTE = {
+interface NsPaletteEntry {
+  bg: string;
+  border: string;
+  text: string;
+  label: string;
+}
+
+interface KbdBadgeProps {
+  keys?: string[];
+}
+
+interface NsBadgeProps {
+  namespace: CommandNamespace | string;
+}
+
+interface ResultRowProps {
+  command: Command;
+  isActive: boolean;
+  onHover: () => void;
+  onExecute: () => void;
+}
+
+interface SectionHeaderProps {
+  label: string;
+}
+
+interface EmptyStateProps {
+  query: string;
+}
+
+interface HintBarProps {
+  resultCount: number;
+}
+
+// ── Namespace badge colours ───────────────────────────────────────────────────
+
+const NS_PALETTE: Record<string, NsPaletteEntry> = {
   work: {
     bg: "hsla(210,100%,56%,0.15)",
     border: "hsla(210,100%,56%,0.3)",
@@ -64,7 +101,7 @@ const NS_PALETTE = {
   },
 };
 
-function getNamespaceStyle(ns) {
+function getNamespaceStyle(ns: string): NsPaletteEntry {
   return (
     NS_PALETTE[ns] ?? {
       bg: "hsla(220,14%,60%,0.15)",
@@ -75,18 +112,12 @@ function getNamespaceStyle(ns) {
   );
 }
 
-// ─── Kbd shortcut badge ──────────────────────────────────────────────────────
+// ── Kbd shortcut badge ────────────────────────────────────────────────────────
 
-function KbdBadge({ keys }) {
+function KbdBadge({ keys }: KbdBadgeProps) {
   if (!keys?.length) return null;
   return (
-    <span
-      style={{
-        display: "flex",
-        gap: "2px",
-        flexShrink: 0,
-      }}
-    >
+    <span style={{ display: "flex", gap: "2px", flexShrink: 0 }}>
       {keys.map((k, i) => (
         <kbd
           key={i}
@@ -113,9 +144,9 @@ function KbdBadge({ keys }) {
   );
 }
 
-// ─── Namespace pill ───────────────────────────────────────────────────────────
+// ── Namespace pill ────────────────────────────────────────────────────────────
 
-function NsBadge({ namespace }) {
+function NsBadge({ namespace }: NsBadgeProps) {
   const style = getNamespaceStyle(namespace);
   return (
     <span
@@ -140,9 +171,9 @@ function NsBadge({ namespace }) {
   );
 }
 
-// ─── Individual result row ────────────────────────────────────────────────────
+// ── Individual result row ─────────────────────────────────────────────────────
 
-function ResultRow({ command, isActive, onHover, onExecute }) {
+function ResultRow({ command, isActive, onHover, onExecute }: ResultRowProps) {
   return (
     <div
       id={`cmd-result-${command.id}`}
@@ -243,9 +274,9 @@ function ResultRow({ command, isActive, onHover, onExecute }) {
   );
 }
 
-// ─── Section header ───────────────────────────────────────────────────────────
+// ── Section header ────────────────────────────────────────────────────────────
 
-function SectionHeader({ label }) {
+function SectionHeader({ label }: SectionHeaderProps) {
   return (
     <div
       style={{
@@ -263,9 +294,9 @@ function SectionHeader({ label }) {
   );
 }
 
-// ─── Empty state ──────────────────────────────────────────────────────────────
+// ── Empty state ───────────────────────────────────────────────────────────────
 
-function EmptyState({ query }) {
+function EmptyState({ query }: EmptyStateProps) {
   return (
     <div
       style={{
@@ -328,9 +359,9 @@ function EmptyState({ query }) {
   );
 }
 
-// ─── Hint bar ─────────────────────────────────────────────────────────────────
+// ── Hint bar ──────────────────────────────────────────────────────────────────
 
-function HintBar({ resultCount }) {
+function HintBar({ resultCount }: HintBarProps) {
   return (
     <div
       style={{
@@ -362,10 +393,10 @@ function HintBar({ resultCount }) {
   );
 }
 
-// ─── Group results by section ─────────────────────────────────────────────────
+// ── Group results by section ──────────────────────────────────────────────────
 
-function groupBySection(results) {
-  const grouped = {};
+function groupBySection(results: Command[]): Record<string, Command[]> {
+  const grouped: Record<string, Command[]> = {};
   for (const cmd of results) {
     const sec = cmd.section ?? "Commands";
     if (!grouped[sec]) grouped[sec] = [];
@@ -374,15 +405,15 @@ function groupBySection(results) {
   return grouped;
 }
 
-// ─── Main CommandPalette ──────────────────────────────────────────────────────
+// ── Main CommandPalette ───────────────────────────────────────────────────────
 
 export function CommandPalette() {
   const { isOpen, close, query, setQuery, results } = useCommandContext();
-  const inputRef = useRef(null);
-  const listRef = useRef(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
   const [activeIdx, setActiveIdx] = useState(0);
 
-  // Reset active index when results change
+  // Reset active index when query changes
   useEffect(() => {
     setActiveIdx(0);
   }, [query]);
@@ -390,7 +421,6 @@ export function CommandPalette() {
   // Focus input on open
   useEffect(() => {
     if (isOpen) {
-      // Small delay to allow animation frame
       const id = setTimeout(() => inputRef.current?.focus(), 50);
       return () => clearTimeout(id);
     }
@@ -399,12 +429,14 @@ export function CommandPalette() {
   // Scroll active item into view
   useEffect(() => {
     if (!listRef.current) return;
-    const activeEl = listRef.current.querySelector(`[aria-selected="true"]`);
+    const activeEl = listRef.current.querySelector<HTMLElement>(
+      '[aria-selected="true"]',
+    );
     activeEl?.scrollIntoView({ block: "nearest" });
   }, [activeIdx]);
 
   const handleKeyDown = useCallback(
-    (e) => {
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
       switch (e.key) {
         case "ArrowDown":
           e.preventDefault();
@@ -437,7 +469,7 @@ export function CommandPalette() {
   if (!isOpen) return null;
 
   const grouped = groupBySection(results);
-  const flatResults = results; // flat reference for activeIdx tracking
+  const flatResults = results;
 
   // Build flat index map from grouped order to match activeIdx
   let flatIndex = 0;
@@ -501,7 +533,6 @@ export function CommandPalette() {
             borderBottom: "1px solid hsla(220,20%,18%,0.7)",
           }}
         >
-          {/* Search icon */}
           <svg
             width="18"
             height="18"
@@ -518,7 +549,6 @@ export function CommandPalette() {
             <path d="m21 21-4.35-4.35" />
           </svg>
 
-          {/* Input */}
           <input
             id="command-palette-input"
             ref={inputRef}
@@ -551,7 +581,6 @@ export function CommandPalette() {
             spellCheck={false}
           />
 
-          {/* Escape pill */}
           <KbdBadge keys={["Esc"]} />
         </div>
 
@@ -665,6 +694,6 @@ export function CommandPalette() {
   );
 }
 
-// Sub-component re-export for convenience
+// Sub-component re-exports for convenience
 CommandPalette.KbdBadge = KbdBadge;
 CommandPalette.NsBadge = NsBadge;
