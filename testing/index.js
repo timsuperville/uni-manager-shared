@@ -1,8 +1,8 @@
 // @shared/testing — Shared test infrastructure
 //
 // Exports:
-//   test-utils.jsx   — renderWithProviders, createMockUser, waitForLoad, etc.
-//   router-utils.jsx — renderWithRouter, MemoryRouterWrapper
+//   test-utils.tsx   — renderWithProviders, createMockUser, waitForLoad, etc.
+//   router-utils.tsx — renderWithRouter, MemoryRouterWrapper
 //   setup.js         — global vitest/jest setup (side-effects only, not re-exported)
 //   linkValidator.js — link href validation utility
 //
@@ -13,8 +13,8 @@
 // Test files (basic.test.js, mfa-api-integration.test.js) run
 // under the shared package's own vitest workspace entry.
 
-export * from "./test-utils.jsx";
-export * from "./router-utils.jsx";
+export * from "./test-utils.tsx";
+export * from "./router-utils.tsx";
 export {
   extractRoutes,
   isValidPath,
