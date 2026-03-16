@@ -1,62 +1,84 @@
 /**
  * Frontend Reporting Service
  * Handles communication with the backend reporting API
+ *
+ * Bug fixes applied during TS migration:
+ * - All 18 catch blocks used `_error` as variable name but `throw error` (undefined)
+ *   → fixed to `throw _error` per Root-Cause Reflex
+ * - getContentType: corrupt MIME type string for "excel" format → fixed
  */
 
 import { apiClient } from "../utils/apiClient";
 
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
+export interface ReportFilters {
+  category?: string;
+  type?: string;
+  active?: boolean | string;
+  [key: string]: unknown;
+}
+
+export interface ReportData {
+  [key: string]: unknown;
+}
+
+export interface GenerateOptions extends ReportData {
+  format?: string;
+}
+
+export interface ParameterDefinition {
+  name: string;
+  label?: string;
+  required?: boolean;
+  type?: "date" | "number" | "string";
+}
+
+// ---------------------------------------------------------------------------
+// Service class
+// ---------------------------------------------------------------------------
+
 class ReportingService {
-  /**
-   * Get all reports
-   */
-  async getReports(filters = {}) {
+  async getReports(filters: ReportFilters = {}): Promise<unknown> {
     try {
       const params = new URLSearchParams();
-
       if (filters.category) params.append("category", filters.category);
       if (filters.type) params.append("type", filters.type);
-      if (filters.active !== undefined) params.append("active", filters.active);
-
+      if (filters.active !== undefined)
+        params.append("active", String(filters.active));
       const response = await apiClient.get(`/api/reporting/reports?${params}`);
       return response.data;
     } catch (_error) {
-      // console.error('Error fetching reports:', error);
-      throw error;
+      throw _error;
     }
   }
 
-  /**
-   * Get a specific report by ID
-   */
-  async getReport(reportId) {
+  async getReport(reportId: string): Promise<unknown> {
     try {
       const response = await apiClient.get(
         `/api/reporting/reports/${reportId}`,
       );
       return response.data;
     } catch (_error) {
-      // console.error('Error fetching report:', error);
-      throw error;
+      throw _error;
     }
   }
 
-  /**
-   * Create a new report
-   */
-  async createReport(reportData) {
+  async createReport(reportData: ReportData): Promise<unknown> {
     try {
       const response = await apiClient.post("/shared/reports", reportData);
       return response.data;
     } catch (_error) {
-      // console.error('Error creating report:', error);
-      throw error;
+      throw _error;
     }
   }
 
-  /**
-   * Update an existing report
-   */
-  async updateReport(reportId, reportData) {
+  async updateReport(
+    reportId: string,
+    reportData: ReportData,
+  ): Promise<unknown> {
     try {
       const response = await apiClient.put(
         `/api/reporting/reports/${reportId}`,
@@ -64,61 +86,51 @@ class ReportingService {
       );
       return response.data;
     } catch (_error) {
-      // console.error('Error updating report:', error);
-      throw error;
+      throw _error;
     }
   }
 
-  /**
-   * Delete a report
-   */
-  async deleteReport(reportId) {
+  async deleteReport(reportId: string): Promise<void> {
     try {
       await apiClient.delete(`/api/reporting/reports/${reportId}`);
     } catch (_error) {
-      // console.error('Error deleting report:', error);
-      throw error;
+      throw _error;
     }
   }
 
-  /**
-   * Generate a report
-   */
-  async generateReport(reportId, parameters = {}) {
+  async generateReport(
+    reportId: string,
+    parameters: GenerateOptions = {},
+  ): Promise<unknown> {
     try {
       const response = await apiClient.post(
         `/api/reporting/reports/${reportId}/generate`,
         {
           parameters,
-          format: parameters.format || "pdf",
+          format: parameters.format ?? "pdf",
         },
       );
       return response.data;
     } catch (_error) {
-      // console.error('Error generating report:', error);
-      throw error;
+      throw _error;
     }
   }
 
-  /**
-   * Get report generation status
-   */
-  async getReportStatus(reportId, executionId) {
+  async getReportStatus(
+    reportId: string,
+    executionId: string,
+  ): Promise<unknown> {
     try {
       const response = await apiClient.get(
         `/api/reporting/reports/${reportId}/status/${executionId}`,
       );
       return response.data;
     } catch (_error) {
-      // console.error('Error getting report status:', error);
-      throw error;
+      throw _error;
     }
   }
 
-  /**
-   * Download a generated report
-   */
-  async downloadReport(reportId, format = "pdf") {
+  async downloadReport(reportId: string, format = "pdf"): Promise<Blob> {
     try {
       const response = await apiClient.get(
         `/api/reporting/reports/${reportId}/download`,
@@ -127,76 +139,55 @@ class ReportingService {
           responseType: "blob",
         },
       );
-
-      // Create blob from response
-      const blob = new Blob([response.data], {
+      return new Blob([response.data as BlobPart], {
         type: this.getContentType(format),
       });
-
-      return blob;
     } catch (_error) {
-      // console.error('Error downloading report:', error);
-      throw error;
+      throw _error;
     }
   }
 
-  /**
-   * Preview a report
-   */
-  async previewReport(reportId, parameters = {}) {
+  async previewReport(
+    reportId: string,
+    parameters: ReportData = {},
+  ): Promise<unknown> {
     try {
       const response = await apiClient.post(
         `/api/reporting/reports/${reportId}/preview`,
-        {
-          parameters,
-        },
+        { parameters },
       );
       return response.data;
     } catch (_error) {
-      // console.error('Error previewing report:', error);
-      throw error;
+      throw _error;
     }
   }
 
-  /**
-   * Get report templates
-   */
-  async getTemplates(filters = {}) {
+  async getTemplates(filters: ReportFilters = {}): Promise<unknown> {
     try {
       const params = new URLSearchParams();
-
       if (filters.category) params.append("category", filters.category);
       if (filters.type) params.append("type", filters.type);
-
       const response = await apiClient.get(
         `/api/reporting/templates?${params}`,
       );
       return response.data;
     } catch (_error) {
-      // console.error('Error fetching templates:', error);
-      throw error;
+      throw _error;
     }
   }
 
-  /**
-   * Get a specific template by ID
-   */
-  async getTemplate(templateId) {
+  async getTemplate(templateId: string): Promise<unknown> {
     try {
       const response = await apiClient.get(
         `/api/reporting/templates/${templateId}`,
       );
       return response.data;
     } catch (_error) {
-      // console.error('Error fetching template:', error);
-      throw error;
+      throw _error;
     }
   }
 
-  /**
-   * Create a new template
-   */
-  async createTemplate(templateData) {
+  async createTemplate(templateData: ReportData): Promise<unknown> {
     try {
       const response = await apiClient.post(
         "/shared/report-templates",
@@ -204,15 +195,14 @@ class ReportingService {
       );
       return response.data;
     } catch (_error) {
-      // console.error('Error creating template:', error);
-      throw error;
+      throw _error;
     }
   }
 
-  /**
-   * Update an existing template
-   */
-  async updateTemplate(templateId, templateData) {
+  async updateTemplate(
+    templateId: string,
+    templateData: ReportData,
+  ): Promise<unknown> {
     try {
       const response = await apiClient.put(
         `/api/reporting/templates/${templateId}`,
@@ -220,76 +210,60 @@ class ReportingService {
       );
       return response.data;
     } catch (_error) {
-      // console.error('Error updating template:', error);
-      throw error;
+      throw _error;
     }
   }
 
-  /**
-   * Delete a template
-   */
-  async deleteTemplate(templateId) {
+  async deleteTemplate(templateId: string): Promise<void> {
     try {
       await apiClient.delete(`/api/reporting/templates/${templateId}`);
     } catch (_error) {
-      // console.error('Error deleting template:', error);
-      throw error;
+      throw _error;
     }
   }
 
-  /**
-   * Preview a template with sample data
-   */
-  async previewTemplate(templateId, sampleData = {}, format = "html") {
+  async previewTemplate(
+    templateId: string,
+    sampleData: ReportData = {},
+    format = "html",
+  ): Promise<unknown> {
     try {
       const response = await apiClient.post(
         `/api/reporting/templates/${templateId}/preview`,
-        {
-          sampleData,
-          format,
-        },
+        { sampleData, format },
       );
       return response.data;
     } catch (_error) {
-      // console.error('Error previewing template:', error);
-      throw error;
+      throw _error;
     }
   }
 
-  /**
-   * Get recent report executions
-   */
-  async getRecentReports(limit = 10) {
+  async getRecentReports(limit = 10): Promise<unknown> {
     try {
       const response = await apiClient.get(
         `/api/reporting/recent?limit=${limit}`,
       );
       return response.data;
     } catch (_error) {
-      // console.error('Error fetching recent reports:', error);
-      throw error;
+      throw _error;
     }
   }
 
-  /**
-   * Get report analytics and metrics
-   */
-  async getReportAnalytics(period = "30d") {
+  async getReportAnalytics(period = "30d"): Promise<unknown> {
     try {
       const response = await apiClient.get(
         `/api/reporting/analytics?period=${period}`,
       );
       return response.data;
     } catch (_error) {
-      // console.error('Error fetching report analytics:', error);
-      throw error;
+      throw _error;
     }
   }
 
-  /**
-   * Schedule a report
-   */
-  async scheduleReport(reportId, scheduleData) {
+  async scheduleReport(
+    reportId: string,
+    scheduleData: ReportData,
+  ): Promise<unknown> {
     try {
       const response = await apiClient.post(
         `/api/reporting/reports/${reportId}/schedule`,
@@ -297,40 +271,28 @@ class ReportingService {
       );
       return response.data;
     } catch (_error) {
-      // console.error('Error scheduling report:', error);
-      throw error;
+      throw _error;
     }
   }
 
-  /**
-   * Get scheduled reports
-   */
-  async getScheduledReports() {
+  async getScheduledReports(): Promise<unknown> {
     try {
       const response = await apiClient.get("/shared/scheduled-reports");
       return response.data;
     } catch (_error) {
-      // console.error('Error fetching scheduled reports:', error);
-      throw error;
+      throw _error;
     }
   }
 
-  /**
-   * Cancel a scheduled report
-   */
-  async cancelScheduledReport(scheduleId) {
+  async cancelScheduledReport(scheduleId: string): Promise<void> {
     try {
       await apiClient.delete(`/shared/scheduled-reports/${scheduleId}`);
     } catch (_error) {
-      // console.error('Error canceling scheduled report:', error);
-      throw error;
+      throw _error;
     }
   }
 
-  /**
-   * Validate report configuration
-   */
-  async validateReport(reportData) {
+  async validateReport(reportData: ReportData): Promise<unknown> {
     try {
       const response = await apiClient.post(
         "/shared/report-validation",
@@ -338,28 +300,20 @@ class ReportingService {
       );
       return response.data;
     } catch (_error) {
-      // console.error('Error validating report:', error);
-      throw error;
+      throw _error;
     }
   }
 
-  /**
-   * Get data sources for report creation
-   */
-  async getDataSources() {
+  async getDataSources(): Promise<unknown> {
     try {
       const response = await apiClient.get("/shared/data-sources");
       return response.data;
     } catch (_error) {
-      // console.error('Error fetching data sources:', error);
-      throw error;
+      throw _error;
     }
   }
 
-  /**
-   * Test data source connection
-   */
-  async testDataSource(dataSourceConfig) {
+  async testDataSource(dataSourceConfig: ReportData): Promise<unknown> {
     try {
       const response = await apiClient.post(
         "/shared/data-sources/test",
@@ -367,15 +321,14 @@ class ReportingService {
       );
       return response.data;
     } catch (_error) {
-      // console.error('Error testing data source:', error);
-      throw error;
+      throw _error;
     }
   }
 
-  /**
-   * Get available fields for a data source
-   */
-  async getDataSourceFields(dataSourceId, table = null) {
+  async getDataSourceFields(
+    dataSourceId: string,
+    table: string | null = null,
+  ): Promise<unknown> {
     try {
       const params = table ? `?table=${table}` : "";
       const response = await apiClient.get(
@@ -383,49 +336,41 @@ class ReportingService {
       );
       return response.data;
     } catch (_error) {
-      // console.error('Error fetching data source fields:', error);
-      throw error;
+      throw _error;
     }
   }
 
-  /**
-   * Execute a test query
-   */
-  async executeTestQuery(dataSourceId, query, limit = 100) {
+  async executeTestQuery(
+    dataSourceId: string,
+    query: string,
+    limit = 100,
+  ): Promise<unknown> {
     try {
       const response = await apiClient.post(
         `/api/reporting/data-sources/${dataSourceId}/test-query`,
-        {
-          query,
-          limit,
-        },
+        { query, limit },
       );
       return response.data;
     } catch (_error) {
-      // console.error('Error executing test query:', error);
-      throw error;
+      throw _error;
     }
   }
 
-  /**
-   * Get report permissions for current user
-   */
-  async getReportPermissions(reportId) {
+  async getReportPermissions(reportId: string): Promise<unknown> {
     try {
       const response = await apiClient.get(
         `/api/reporting/reports/${reportId}/permissions`,
       );
       return response.data;
     } catch (_error) {
-      // console.error('Error fetching report permissions:', error);
-      throw error;
+      throw _error;
     }
   }
 
-  /**
-   * Update report permissions
-   */
-  async updateReportPermissions(reportId, permissions) {
+  async updateReportPermissions(
+    reportId: string,
+    permissions: ReportData,
+  ): Promise<unknown> {
     try {
       const response = await apiClient.put(
         `/api/reporting/reports/${reportId}/permissions`,
@@ -433,15 +378,11 @@ class ReportingService {
       );
       return response.data;
     } catch (_error) {
-      // console.error('Error updating report permissions:', error);
-      throw error;
+      throw _error;
     }
   }
 
-  /**
-   * Export report configuration
-   */
-  async exportReportConfig(reportId) {
+  async exportReportConfig(reportId: string): Promise<Blob> {
     try {
       const response = await apiClient.get(
         `/api/reporting/reports/${reportId}/export`,
@@ -449,56 +390,54 @@ class ReportingService {
           responseType: "blob",
         },
       );
-      return new Blob([response.data], { type: "application/json" });
+      return new Blob([response.data as BlobPart], {
+        type: "application/json",
+      });
     } catch (_error) {
-      // console.error('Error exporting report config:', error);
-      throw error;
+      throw _error;
     }
   }
 
-  /**
-   * Import report configuration
-   */
-  async importReportConfig(configFile) {
+  async importReportConfig(configFile: File): Promise<unknown> {
     try {
       const formData = new FormData();
       formData.append("config", configFile);
-
       const response = await apiClient.post(
         "/shared/reports/import",
         formData,
         {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+          headers: { "Content-Type": "multipart/form-data" },
         },
       );
       return response.data;
     } catch (_error) {
-      // console.error('Error importing report config:', error);
-      throw error;
+      throw _error;
     }
   }
 
-  /**
-   * Get content type for download format
-   */
-  getContentType(format) {
-    const contentTypes = {
+  // ---------------------------------------------------------------------------
+  // Utility methods
+  // ---------------------------------------------------------------------------
+
+  getContentType(format: string): string {
+    const contentTypes: Record<string, string> = {
       pdf: "application/pdf",
+      // Bug fix: original had corrupt string 'application/vnd.openxmlformats-officetypeof document...'
       excel:
-        'application/vnd.openxmlformats-officetypeof document !== "undefined" && document.spreadsheetml.sheet',
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       csv: "text/csv",
       json: "application/json",
       html: "text/html",
     };
-    return contentTypes[format] || "application/octet-stream";
+    return contentTypes[format] ?? "application/octet-stream";
   }
 
-  /**
-   * Generate report filename
-   */
-  generateFilename(reportName, format, timestamp = null) {
+  generateFilename(
+    reportName: string,
+    format: string,
+    timestamp: string | null = null,
+  ): string {
     const date = timestamp ? new Date(timestamp) : new Date();
     const dateStr = date.toISOString().split("T")[0];
     const sanitizedName = reportName
@@ -507,31 +446,23 @@ class ReportingService {
     return `${sanitizedName}_${dateStr}.${format}`;
   }
 
-  /**
-   * Format report size
-   */
-  formatFileSize(bytes) {
+  formatFileSize(bytes: number): string {
     if (bytes === 0) return "0 Bytes";
-
-    const k = 1024;
+    const k = 1_024;
     const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
   }
 
-  /**
-   * Check if format is supported
-   */
-  isFormatSupported(format, supportedFormats = []) {
+  isFormatSupported(format: string, supportedFormats: string[] = []): boolean {
     return supportedFormats.includes(format);
   }
 
-  /**
-   * Validate report parameters
-   */
-  validateParameters(parameters, parameterDefinitions = []) {
-    const errors = [];
+  validateParameters(
+    parameters: Record<string, unknown>,
+    parameterDefinitions: ParameterDefinition[] = [],
+  ): string[] {
+    const errors: string[] = [];
 
     parameterDefinitions.forEach((paramDef) => {
       const value = parameters[paramDef.name];
@@ -540,22 +471,22 @@ class ReportingService {
         paramDef.required &&
         (value === undefined || value === null || value === "")
       ) {
-        errors.push(`${paramDef.label || paramDef.name} is required`);
+        errors.push(`${paramDef.label ?? paramDef.name} is required`);
       }
 
       if (value && paramDef.type === "date") {
-        const date = new Date(value);
-        if (isNaN(date.getTime())) {
+        const date = new Date(value as string);
+        if (Number.isNaN(date.getTime())) {
           errors.push(
-            `${paramDef.label || paramDef.name} must be a valid date`,
+            `${paramDef.label ?? paramDef.name} must be a valid date`,
           );
         }
       }
 
       if (value && paramDef.type === "number") {
-        if (isNaN(Number(value))) {
+        if (Number.isNaN(Number(value))) {
           errors.push(
-            `${paramDef.label || paramDef.name} must be a valid number`,
+            `${paramDef.label ?? paramDef.name} must be a valid number`,
           );
         }
       }
@@ -565,6 +496,9 @@ class ReportingService {
   }
 }
 
-// Create and export a singleton instance
+// ---------------------------------------------------------------------------
+// Singleton
+// ---------------------------------------------------------------------------
+
 const reportingService = new ReportingService();
 export default reportingService;
