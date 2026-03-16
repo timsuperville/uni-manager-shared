@@ -10,77 +10,106 @@
  *   - Open the FeedbackQuickAction modal pre-filled with context, OR
  *   - Call submitFeedbackSilently() for a zero-UI auto-report
  *
- * Usage:
- *   useFrustrationDetector({
- *     appType: 'admin',
- *     onFrustrated: ({ signal, source, context }) => setFeedbackOpen(true),
- *   });
- *
- * @param {Object} [options]
- * @param {string} [options.appType="unknown"] VITE_APP_TYPE value for the current shell
- * @param {function({ signal: string, source: string, path: string }): void} [options.onFrustrated] Called with context on detection
- * @param {boolean} [options.enabled=true] Defaults to true; set false to pause detection
- * @param {boolean} [options.disableInDev=true] Suppresses fires in dev environment
- * @param {number} [options.rageClickThreshold=3] Clicks within window to trigger
- * @param {number} [options.rageClickWindowMs=700] Time window for rage-click in ms
- * @param {number} [options.navThreshold=3] Navigation changes to trigger
- * @param {number} [options.navWindowMs=4000] Time window for rapid-nav in ms
- * @param {number} [options.cooldownMs=30000] Minimum ms between onFrustrated calls
+ * P4 architecture: history.pushState/replaceState are patched once at
+ * module level via a shared listener Set so concurrent hook instances
+ * never apply the patch twice.
  */
 
 import { useEffect, useRef, useCallback } from "react";
 
-// ─── History patch ref-count ───────────────────────────────────────────────────
-// P4: history.pushState/replaceState can only be patched once safely.
-// We track how many hook instances are mounted and maintain a single patch,
-// broadcasting to all subscribers via a module-level Set of listener functions.
-const _navListeners = new Set();
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
+export type FrustrationSignal = "rage-click" | "rapid-navigation";
+
+export interface FrustrationContext {
+  signal: FrustrationSignal;
+  source: "frustration-detector";
+  path: string;
+  url: string;
+  appType: string;
+  timestamp: string;
+  // rage-click extras
+  element?: string | null;
+  elementId?: string | null;
+  elementText?: string | null;
+  // rapid-nav extras
+  navCount?: number;
+  windowMs?: number;
+}
+
+export interface UseFrustrationDetectorOptions {
+  appType?: string;
+  onFrustrated?: (context: FrustrationContext) => void;
+  enabled?: boolean;
+  disableInDev?: boolean;
+  rageClickThreshold?: number;
+  rageClickWindowMs?: number;
+  navThreshold?: number;
+  navWindowMs?: number;
+  cooldownMs?: number;
+}
+
+interface ClickLogEntry {
+  target: EventTarget | null;
+  ts: number;
+}
+
+// ---------------------------------------------------------------------------
+// Module-level history patch (P4 — patch once, share via listener Set)
+// ---------------------------------------------------------------------------
+
+type NavListener = () => void;
+const _navListeners = new Set<NavListener>();
 let _historyPatched = false;
 
-function _ensureHistoryPatched() {
+function _ensureHistoryPatched(): void {
   if (_historyPatched || typeof history === "undefined") return;
   _historyPatched = true;
 
-  const _origPush = history.pushState.bind(history);
-  const _origReplace = history.replaceState.bind(history);
+  const _origPush = history.pushState.bind(history) as typeof history.pushState;
+  const _origReplace = history.replaceState.bind(
+    history,
+  ) as typeof history.replaceState;
 
-  history.pushState = (...args) => {
+  history.pushState = (...args: Parameters<typeof history.pushState>) => {
     _origPush(...args);
     _navListeners.forEach((fn) => fn());
   };
-  history.replaceState = (...args) => {
+  history.replaceState = (...args: Parameters<typeof history.replaceState>) => {
     _origReplace(...args);
     _navListeners.forEach((fn) => fn());
   };
-  // Note: we intentionally never restore the originals — the patch is
-  // additive (it calls the original) and the listener set empties naturally
-  // as instances unmount, so it becomes a no-op with zero listeners.
+  // The patch is additive (calls originals); listener set empties as instances
+  // unmount, making it a no-op with zero listeners.
 }
 
-export function useFrustrationDetector(options = {}) {
+// ---------------------------------------------------------------------------
+// Hook
+// ---------------------------------------------------------------------------
+
+export function useFrustrationDetector(
+  options: UseFrustrationDetectorOptions = {},
+): null {
   const {
-  appType = "unknown",
-  onFrustrated,
-  enabled = true,
-  disableInDev = true,
-  rageClickThreshold = 3,
-  rageClickWindowMs = 700,
-  navThreshold = 3,
-  navWindowMs = 4000,
-  cooldownMs = 30_000,
+    appType = "unknown",
+    onFrustrated,
+    enabled = true,
+    disableInDev = true,
+    rageClickThreshold = 3,
+    rageClickWindowMs = 700,
+    navThreshold = 3,
+    navWindowMs = 4_000,
+    cooldownMs = 30_000,
   } = options;
-  // Rage-click state
-  const clickLog = useRef([]); // [{ target: Element, ts: number }]
 
-  // Rapid-nav state
-  const navLog = useRef([]); // [ts: number]
-
-  // Cooldown — prevent repeated triggers within cooldownMs
-  const lastTriggeredAt = useRef(0);
+  const clickLog = useRef<ClickLogEntry[]>([]);
+  const navLog = useRef<number[]>([]);
+  const lastTriggeredAt = useRef<number>(0);
 
   // Resolve effective enabled state — suppress in development when disableInDev is set.
-  // Vite exposes import.meta.env; fall back to process.env for test environments.
-  const isDev =
+  const isDev: boolean =
     typeof import.meta !== "undefined"
       ? import.meta.env?.MODE === "development" || import.meta.env?.DEV === true
       : process.env.NODE_ENV === "development";
@@ -88,16 +117,17 @@ export function useFrustrationDetector(options = {}) {
   const effectivelyEnabled = enabled && !(disableInDev && isDev);
 
   const fire = useCallback(
-    (signal, context = {}) => {
+    (
+      signal: FrustrationSignal,
+      context: Partial<FrustrationContext> = {},
+    ): void => {
       if (!onFrustrated) return;
       const now = Date.now();
       if (now - lastTriggeredAt.current < cooldownMs) return;
       lastTriggeredAt.current = now;
 
-      const fullContext = {
+      const fullContext: FrustrationContext = {
         signal,
-        // Tag every auto-fire with its origin so consumers can filter these
-        // from the agent issue scan and the Admin Sentiment Feed.
         source: "frustration-detector",
         path: typeof window !== "undefined" ? window.location.pathname : "/",
         url: typeof window !== "undefined" ? window.location.href : "",
@@ -108,7 +138,7 @@ export function useFrustrationDetector(options = {}) {
 
       try {
         onFrustrated(fullContext);
-      } catch (_err) {
+      } catch {
         // Absorb any error in the caller so detection never crashes the UI
       }
     },
@@ -119,24 +149,24 @@ export function useFrustrationDetector(options = {}) {
   useEffect(() => {
     if (!effectivelyEnabled || typeof window === "undefined") return;
 
-    const handleClick = (e) => {
+    const handleClick = (e: MouseEvent): void => {
       const now = Date.now();
       const target = e.target;
 
-      // Prune stale entries outside the window
       clickLog.current = clickLog.current.filter(
         (entry) =>
           now - entry.ts <= rageClickWindowMs && entry.target === target,
       );
-
       clickLog.current.push({ target, ts: now });
 
       if (clickLog.current.length >= rageClickThreshold) {
-        clickLog.current = []; // reset so one frustration === one signal
+        clickLog.current = [];
         fire("rage-click", {
-          element: target?.tagName?.toLowerCase(),
-          elementId: target?.id || null,
-          elementText: target?.textContent?.trim().slice(0, 80) || null,
+          element: (target as Element | null)?.tagName?.toLowerCase() ?? null,
+          elementId: (target as Element | null)?.id || null,
+          elementText:
+            (target as Element | null)?.textContent?.trim().slice(0, 80) ??
+            null,
         });
       }
     };
@@ -150,9 +180,8 @@ export function useFrustrationDetector(options = {}) {
   useEffect(() => {
     if (!effectivelyEnabled || typeof window === "undefined") return;
 
-    const recordNav = () => {
+    const recordNav: NavListener = () => {
       const now = Date.now();
-      // Prune stale entries
       navLog.current = navLog.current.filter((ts) => now - ts <= navWindowMs);
       navLog.current.push(now);
 
@@ -166,8 +195,6 @@ export function useFrustrationDetector(options = {}) {
     };
 
     // P4 — Register as a subscriber to the shared module-level history patch
-    // instead of patching history.pushState directly, which was unsafe when
-    // multiple instances of this hook mounted concurrently.
     _ensureHistoryPatched();
     _navListeners.add(recordNav);
     window.addEventListener("popstate", recordNav);
@@ -178,7 +205,7 @@ export function useFrustrationDetector(options = {}) {
     };
   }, [effectivelyEnabled, navThreshold, navWindowMs, fire]);
 
-  // No public API needed — the hook is purely side-effectful
+  // Purely side-effectful hook
   return null;
 }
 

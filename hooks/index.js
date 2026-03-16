@@ -10,7 +10,7 @@ export { useDebounce } from "./useDebounce.ts";
 
 // Engagement / feedback hooks
 export { useNpsPulse } from "./useNpsPulse.js";
-export { useFrustrationDetector } from "./useFrustrationDetector.js";
+export { useFrustrationDetector } from "./useFrustrationDetector.ts";
 
 // Real-time and network hooks
 export * from "./useRealTime.js";
@@ -24,7 +24,7 @@ export { useProjectSync } from "./sync/useProjectSync.js";
 // Cross-app resonance hooks
 export { useFocusModeListener } from "./useFocusModeListener.ts";
 export { useCapacityBridge } from "./useCapacityBridge.ts";
-export { useHospitalityBridge } from "./useHospitalityBridge.js";
+export { useHospitalityBridge } from "./useHospitalityBridge.ts";
 
 // Notification hooks
 export { default as useNotifications } from "./useNotifications.js";
