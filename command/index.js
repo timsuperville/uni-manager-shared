@@ -17,10 +17,11 @@
  */
 
 export {
+  CommandContext,
   CommandProvider,
   useCommandContext,
   NAMESPACE_LABELS,
-} from "./CommandContext.jsx";
-export { CommandPalette } from "./CommandPalette.jsx";
-export { useCommandPalette } from "./useCommandPalette.js";
-export { useRegisterCommands } from "./useRegisterCommands.js";
+} from "./CommandContext";
+export { CommandPalette } from "./CommandPalette";
+export { useCommandPalette } from "./useCommandPalette";
+export { useRegisterCommands } from "./useRegisterCommands";
