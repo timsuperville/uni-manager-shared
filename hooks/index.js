@@ -5,7 +5,8 @@ export { useLogin } from "./useLogin.ts";
 // Search, personalization, and utility hooks
 export { useAdvancedSearch } from "./useAdvancedSearch.ts";
 export * from "./useCachedPersonalization.js";
-export { useUserPreferences } from "./useUserPreferences.js";
+export { useUserPreferences } from "./useUserPreferences.ts";
+
 export { useDebounce } from "./useDebounce.ts";
 
 // Engagement / feedback hooks
