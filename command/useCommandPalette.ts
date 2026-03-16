@@ -1,23 +1,49 @@
 import { useEffect, useCallback } from "react";
-import { useCommandContext } from "./CommandContext.jsx";
+import { useCommandContext } from "./CommandContext.tsx";
+import type { Command } from "./CommandContext.tsx";
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
+export interface UseCommandPaletteOptions {
+  /** If true, registers the global Ctrl+K / ⌘K keyboard handler on document.
+   *  Set to true in the outermost Layout only — not in nested components. */
+  bindHotkey?: boolean;
+}
+
+export interface UseCommandPaletteResult {
+  isOpen: boolean;
+  open: () => void;
+  close: () => void;
+  toggle: () => void;
+  query: string;
+  setQuery: (q: string) => void;
+  results: Command[];
+  allCommands: Command[];
+  handleExecute: (command: Command) => void;
+  getNamespaceLabel: (namespace: string) => string;
+  NAMESPACE_LABELS: Record<string, string>;
+}
+
+// ---------------------------------------------------------------------------
+// Hook
+// ---------------------------------------------------------------------------
 
 /**
  * useCommandPalette
  *
  * Public hook for consuming the Command Palette from any component or Layout.
  *
- * Usage (in Layout.jsx):
+ * Usage (in Layout.tsx):
  *   const { open, close, isOpen, toggle } = useCommandPalette();
  *
  *   // Register Ctrl+K binding:
  *   useCommandPalette({ bindHotkey: true });
- *
- * @param {object}  [options]
- * @param {boolean} [options.bindHotkey=false] — If true, registers the global
- *   Ctrl+K (or ⌘K on Mac) keyboard handler on document. Set to true in the
- *   outermost Layout only — not in nested components — to avoid double-binding.
  */
-export function useCommandPalette({ bindHotkey = false } = {}) {
+export function useCommandPalette({
+  bindHotkey = false,
+}: UseCommandPaletteOptions = {}): UseCommandPaletteResult {
   const {
     isOpen,
     open,
@@ -32,11 +58,9 @@ export function useCommandPalette({ bindHotkey = false } = {}) {
   } = useCommandContext();
 
   const handleExecute = useCallback(
-    (command) => {
+    (command: Command): void => {
       close();
       if (command.type === "navigation" && command.href) {
-        // Intra-app SPA navigation — caller handles if needed
-        // We call onAction if provided (some nav commands have both)
         command.onAction?.();
       } else if (command.type === "action" && command.onAction) {
         command.onAction();
@@ -51,7 +75,7 @@ export function useCommandPalette({ bindHotkey = false } = {}) {
   useEffect(() => {
     if (!bindHotkey) return;
 
-    const handler = (e) => {
+    const handler = (e: KeyboardEvent): void => {
       const isMac = navigator.platform?.toLowerCase().includes("mac");
       const modKey = isMac ? e.metaKey : e.ctrlKey;
       if (modKey && e.key === "k") {
