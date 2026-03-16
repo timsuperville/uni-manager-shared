@@ -6,7 +6,7 @@ export { useLogin } from "./useLogin.js";
 export { useAdvancedSearch } from "./useAdvancedSearch.js";
 export * from "./useCachedPersonalization.js";
 export { useUserPreferences } from "./useUserPreferences.js";
-export { useDebounce } from "./useDebounce.js";
+export { useDebounce } from "./useDebounce.ts";
 
 // Engagement / feedback hooks
 export { useNpsPulse } from "./useNpsPulse.js";
@@ -15,16 +15,15 @@ export { useFrustrationDetector } from "./useFrustrationDetector.js";
 // Real-time and network hooks
 export * from "./useRealTime.js";
 export * from "./useWebSocket.js";
-export * from "./useOnlineStatus.js";
+export * from "./useOnlineStatus.ts";
 
 // CRDT multi-player state sync (FB-016)
-export { useSync } from './sync/useSync.js';
-export { useProjectSync } from './sync/useProjectSync.js';
-
+export { useSync } from "./sync/useSync.js";
+export { useProjectSync } from "./sync/useProjectSync.js";
 
 // Cross-app resonance hooks
-export { useFocusModeListener } from "./useFocusModeListener.js";
-export { useCapacityBridge } from "./useCapacityBridge.js";
+export { useFocusModeListener } from "./useFocusModeListener.ts";
+export { useCapacityBridge } from "./useCapacityBridge.ts";
 export { useHospitalityBridge } from "./useHospitalityBridge.js";
 
 // Notification hooks
