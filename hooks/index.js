@@ -1,6 +1,6 @@
 // Authentication hooks
 export { useAuth } from "./useAuth.js";
-export { useLogin } from "./useLogin.js";
+export { useLogin } from "./useLogin.ts";
 
 // Search, personalization, and utility hooks
 export { useAdvancedSearch } from "./useAdvancedSearch.js";
@@ -9,7 +9,7 @@ export { useUserPreferences } from "./useUserPreferences.js";
 export { useDebounce } from "./useDebounce.ts";
 
 // Engagement / feedback hooks
-export { useNpsPulse } from "./useNpsPulse.js";
+export { useNpsPulse } from "./useNpsPulse.ts";
 export { useFrustrationDetector } from "./useFrustrationDetector.ts";
 
 // Real-time and network hooks

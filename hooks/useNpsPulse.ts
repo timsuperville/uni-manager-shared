@@ -8,9 +8,9 @@
  *
  * Returns:
  *   { shouldShow, dismiss, submit }
- *   - shouldShow    {boolean}   True when the prompt should be rendered
- *   - dismiss()     {Function}  Record a dismissal (marks as shown, won't re-show for intervalDays)
- *   - submit(score, comment?) {Function}  Submit the NPS score then dismiss
+ *   - shouldShow    boolean   True when the prompt should be rendered
+ *   - dismiss()     void      Record a dismissal (marks as shown, won't re-show for intervalDays)
+ *   - submit(score, comment?) void  Submit the NPS score then dismiss
  *
  * Usage (in a Layout component or App root):
  *   const nps = useNpsPulse({ appType: 'admin' });
@@ -20,51 +20,73 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { submitFeedbackSilently } from "../features/feedback";
 
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
+export interface UseNpsPulseOptions {
+  appType?: string;
+  intervalDays?: number;
+  minActivityMs?: number;
+  enabled?: boolean;
+}
+
+export interface UseNpsPulseResult {
+  shouldShow: boolean;
+  dismiss: () => void;
+  submit: (score: number, comment?: string) => Promise<void>;
+}
+
+// ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
+
 const STORAGE_KEY_SUFFIX = "_nps_last_shown";
+
+// ---------------------------------------------------------------------------
+// Hook
+// ---------------------------------------------------------------------------
 
 export function useNpsPulse({
   appType = "unknown",
   intervalDays = 14,
   minActivityMs = 3 * 60 * 1000, // 3 minutes
   enabled = true,
-} = {}) {
+}: UseNpsPulseOptions = {}): UseNpsPulseResult {
   const [shouldShow, setShouldShow] = useState(false);
-  const activityTimer = useRef(null);
+  const activityTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const shown = useRef(false);
 
   const storageKey = `${appType}${STORAGE_KEY_SUFFIX}`;
 
-  // Check if enough time has elapsed since last shown
-  const isEligible = useCallback(() => {
+  const isEligible = useCallback((): boolean => {
     if (typeof window === "undefined") return false;
     try {
       const last = localStorage.getItem(storageKey);
       if (!last) return true; // Never shown — eligible immediately
       const daysSince =
-        (Date.now() - parseInt(last, 10)) / (1000 * 60 * 60 * 24);
+        (Date.now() - parseInt(last, 10)) / (1_000 * 60 * 60 * 24);
       return daysSince >= intervalDays;
-    } catch (_err) {
+    } catch {
       return false;
     }
   }, [storageKey, intervalDays]);
 
-  const markShown = useCallback(() => {
+  const markShown = useCallback((): void => {
     try {
       localStorage.setItem(storageKey, String(Date.now()));
-    } catch (_err) {
+    } catch {
       // localStorage not available — ignore
     }
   }, [storageKey]);
 
-  // Dismiss without submitting — record as seen so the timer resets
-  const dismiss = useCallback(() => {
+  const dismiss = useCallback((): void => {
     setShouldShow(false);
     markShown();
   }, [markShown]);
 
-  // Submit score (0–10) + optional comment, then dismiss
   const submit = useCallback(
-    async (score, comment = "") => {
+    async (score: number, comment = ""): Promise<void> => {
       setShouldShow(false);
       markShown();
       const label =
@@ -79,10 +101,8 @@ export function useNpsPulse({
     [markShown, appType],
   );
 
-  // Timer: fire after minActivityMs if eligible
   useEffect(() => {
     if (!enabled || shown.current) return;
-
     if (!isEligible()) return;
 
     activityTimer.current = setTimeout(() => {
@@ -93,7 +113,7 @@ export function useNpsPulse({
     }, minActivityMs);
 
     return () => {
-      if (activityTimer.current) clearTimeout(activityTimer.current);
+      if (activityTimer.current !== null) clearTimeout(activityTimer.current);
     };
   }, [enabled, isEligible, minActivityMs]);
 
