@@ -1,11 +1,12 @@
-// shared/data/integrations.js
+// shared/data/integrations.ts
 // Static integration database used by the Integrations Hub across shells.
+
+import type { FC, SVGProps } from "react";
 import {
   CalendarIcon,
   VideoCameraIcon,
   EnvelopeIcon,
   CreditCardIcon,
-  LinkIcon,
   Cog6ToothIcon,
   BuildingOfficeIcon,
   MegaphoneIcon,
@@ -23,11 +24,60 @@ import {
 } from "react-icons/fa";
 
 import { SiSendgrid, SiQuickbooks, SiTwilio } from "react-icons/si";
-
 import { TbBrandZoom } from "react-icons/tb";
 
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
+/** Discriminated union of all known integration category IDs. */
+export type IntegrationCategoryId =
+  | "all"
+  | "popular"
+  | "calendar"
+  | "communication"
+  | "email"
+  | "payment"
+  | "church"
+  | "accounting"
+  | "social";
+
+/** Heroicons v2 + react-icons share this svg-props component shape. */
+export type IconComponent =
+  | FC<SVGProps<SVGSVGElement>>
+  | FC<{ className?: string; size?: string | number }>;
+
+export interface IntegrationCategory {
+  id: IntegrationCategoryId;
+  name: string;
+  icon: IconComponent;
+  /** Populated at runtime by getCategoryStats(). */
+  count?: number;
+}
+
+export interface IntegrationEntry {
+  id: string;
+  name: string;
+  description: string;
+  category: Exclude<IntegrationCategoryId, "all" | "popular">;
+  icon: IconComponent;
+  color: string;
+  popular: boolean;
+  verified: boolean;
+  features: string[];
+  pricing: string;
+  setupTime: string;
+  website: string;
+  documentation: string;
+}
+
+export type IntegrationDatabase = Record<string, IntegrationEntry>;
+
+// ---------------------------------------------------------------------------
 // Integration categories
-export const INTEGRATION_CATEGORIES = [
+// ---------------------------------------------------------------------------
+
+export const INTEGRATION_CATEGORIES: IntegrationCategory[] = [
   { id: "all", name: "All Integrations", icon: Cog6ToothIcon },
   { id: "popular", name: "Popular", icon: MegaphoneIcon },
   { id: "calendar", name: "Calendar & Scheduling", icon: CalendarIcon },
@@ -39,8 +89,11 @@ export const INTEGRATION_CATEGORIES = [
   { id: "social", name: "Social & Streaming", icon: VideoCameraIcon },
 ];
 
+// ---------------------------------------------------------------------------
 // Comprehensive integration database
-export const INTEGRATION_DATABASE = {
+// ---------------------------------------------------------------------------
+
+export const INTEGRATION_DATABASE: IntegrationDatabase = {
   // Calendar & Scheduling
   googleCalendar: {
     id: "googleCalendar",
@@ -315,19 +368,21 @@ export const INTEGRATION_DATABASE = {
   },
 };
 
+// ---------------------------------------------------------------------------
 // Helper functions
-export const getIntegrationsByCategory = (category) => {
-  if (category === "all") return Object.values(INTEGRATION_DATABASE);
-  if (category === "popular")
-    return Object.values(INTEGRATION_DATABASE).filter((i) => i.popular);
-  return Object.values(INTEGRATION_DATABASE).filter(
-    (i) => i.category === category,
-  );
+// ---------------------------------------------------------------------------
+
+export const getIntegrationsByCategory = (
+  category: IntegrationCategoryId,
+): IntegrationEntry[] => {
+  const all = Object.values(INTEGRATION_DATABASE);
+  if (category === "all") return all;
+  if (category === "popular") return all.filter((i) => i.popular);
+  return all.filter((i) => i.category === category);
 };
 
-export const searchIntegrations = (searchTerm) => {
+export const searchIntegrations = (searchTerm: string): IntegrationEntry[] => {
   if (!searchTerm.trim()) return Object.values(INTEGRATION_DATABASE);
-
   const term = searchTerm.toLowerCase();
   return Object.values(INTEGRATION_DATABASE).filter(
     (integration) =>
@@ -339,13 +394,11 @@ export const searchIntegrations = (searchTerm) => {
   );
 };
 
-export const getIntegrationById = (id) => {
-  return INTEGRATION_DATABASE[id];
-};
+export const getIntegrationById = (id: string): IntegrationEntry | undefined =>
+  INTEGRATION_DATABASE[id];
 
-export const getCategoryStats = () => {
-  return INTEGRATION_CATEGORIES.map((category) => ({
+export const getCategoryStats = (): IntegrationCategory[] =>
+  INTEGRATION_CATEGORIES.map((category) => ({
     ...category,
     count: getIntegrationsByCategory(category.id).length,
   }));
-};
