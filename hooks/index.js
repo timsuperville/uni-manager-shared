@@ -15,13 +15,13 @@ export { useNpsPulse } from "./useNpsPulse.ts";
 export { useFrustrationDetector } from "./useFrustrationDetector.ts";
 
 // Real-time and network hooks
-export * from "./useRealTime.js";
-export * from "./useWebSocket.js";
+export * from "./useRealTime.ts";
+export * from "./useWebSocket.ts";
 export * from "./useOnlineStatus.ts";
 
 // CRDT multi-player state sync (FB-016)
-export { useSync } from "./sync/useSync.js";
-export { useProjectSync } from "./sync/useProjectSync.js";
+export { useSync } from "./sync/useSync.ts";
+export { useProjectSync } from "./sync/useProjectSync.ts";
 
 // Cross-app resonance hooks
 export { useFocusModeListener } from "./useFocusModeListener.ts";

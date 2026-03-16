@@ -1,7 +1,44 @@
 /* eslint-env browser */
-/* global WebSocket, setInterval, clearInterval, setTimeout, clearTimeout */
 import { useState, useEffect, useCallback, useRef } from "react";
 import { getWebSocketUrl } from "../config/environment";
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
+export type WsConnectionStatus =
+  | "disconnected"
+  | "connecting"
+  | "connected"
+  | "reconnecting"
+  | "failed"
+  | "error";
+
+type WsMessage = Record<string, unknown>;
+type WsEventCallback = (data: WsMessage) => void;
+
+export interface UseWebSocketResult {
+  isConnected: boolean;
+  connectionStatus: WsConnectionStatus;
+  error: string | null;
+  connect: () => void;
+  disconnect: () => void;
+  subscribe: (eventType: string, callback: WsEventCallback) => () => void;
+  unsubscribe: (eventType: string) => void;
+  send: (message: string | WsMessage) => boolean;
+}
+
+// ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
+
+const MAX_RECONNECT_ATTEMPTS = 10;
+const RECONNECT_INTERVAL_MS = 5_000;
+const HEARTBEAT_INTERVAL_MS = 30_000;
+
+// ---------------------------------------------------------------------------
+// Hook
+// ---------------------------------------------------------------------------
 
 /**
  * useWebSocket - Custom hook for WebSocket connection management
@@ -13,96 +50,79 @@ import { getWebSocketUrl } from "../config/environment";
  * - Error handling and retry logic
  * - Heartbeat/ping-pong support
  */
-export const useWebSocket = (endpoint = "") => {
-  // State management
+export const useWebSocket = (endpoint = ""): UseWebSocketResult => {
   const [isConnected, setIsConnected] = useState(false);
-  const [connectionStatus, setConnectionStatus] = useState("disconnected");
-  const [error, setError] = useState(null);
+  const [connectionStatus, setConnectionStatus] =
+    useState<WsConnectionStatus>("disconnected");
+  const [error, setError] = useState<string | null>(null);
 
-  // Refs
-  const wsRef = useRef(null);
-  const reconnectTimeoutRef = useRef(null);
-  const heartbeatIntervalRef = useRef(null);
-  const subscribersRef = useRef(new Map());
+  const wsRef = useRef<WebSocket | null>(null);
+  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
+  const heartbeatIntervalRef = useRef<ReturnType<typeof setInterval> | null>(
+    null,
+  );
+  const subscribersRef = useRef<Map<string, WsEventCallback>>(new Map());
   const reconnectAttemptsRef = useRef(0);
 
-  // Configuration
-  const maxReconnectAttempts = 10;
-  const reconnectInterval = 5000;
-  const heartbeatInterval = 30000;
-
-  // Build WebSocket URL
-  const buildWebSocketUrl = useCallback(() => {
+  const buildWebSocketUrl = useCallback((): string => {
     return `${getWebSocketUrl()}/ws${endpoint}`;
   }, [endpoint]);
 
-  // Handle WebSocket message
-  const handleMessage = useCallback((event) => {
+  const handleMessage = useCallback((event: MessageEvent): void => {
     try {
-      const data = JSON.parse(event.data);
+      const data = JSON.parse(event.data as string) as WsMessage;
 
-      // Handle heartbeat
-      if (data.type === "ping") {
+      if (data["type"] === "ping") {
         if (wsRef.current?.readyState === WebSocket.OPEN) {
           wsRef.current.send(JSON.stringify({ type: "pong" }));
         }
         return;
       }
 
-      // Notify subscribers
       subscribersRef.current.forEach((callback, eventType) => {
-        if (data.event === eventType || eventType === "*") {
+        if (data["event"] === eventType || eventType === "*") {
           try {
             callback(data);
-          } catch (_error) {
-            // eslint-disable-next-line no-console
-            // console.error('Error in WebSocket event handler:', error);
+          } catch {
+            // Subscriber errors must not crash the WS loop
           }
         }
       });
-    } catch (_error) {
-      // eslint-disable-next-line no-console
-      // console.error('Error parsing WebSocket message:', error);
+    } catch {
+      // Ignore malformed frames
     }
   }, []);
 
-  // Handle WebSocket connection open
-  const handleOpen = useCallback(() => {
+  const handleOpen = useCallback((): void => {
     setIsConnected(true);
     setConnectionStatus("connected");
     setError(null);
     reconnectAttemptsRef.current = 0;
 
-    // Start heartbeat
-    if (heartbeatIntervalRef.current) {
+    if (heartbeatIntervalRef.current)
       clearInterval(heartbeatIntervalRef.current);
-    }
 
     heartbeatIntervalRef.current = setInterval(() => {
       if (wsRef.current?.readyState === WebSocket.OPEN) {
         wsRef.current.send(JSON.stringify({ type: "ping" }));
       }
-    }, heartbeatInterval);
-
-    // eslint-disable-next-line no-console
-    // console.log('WebSocket connected');
+    }, HEARTBEAT_INTERVAL_MS);
   }, []);
 
-  // Handle WebSocket connection close
-  const handleClose = useCallback((event) => {
+  const handleClose = useCallback((event: CloseEvent): void => {
     setIsConnected(false);
     setConnectionStatus("disconnected");
 
-    // Clear heartbeat
     if (heartbeatIntervalRef.current) {
       clearInterval(heartbeatIntervalRef.current);
       heartbeatIntervalRef.current = null;
     }
 
-    // Attempt reconnection if not intentional close
     if (
       event.code !== 1000 &&
-      reconnectAttemptsRef.current < maxReconnectAttempts
+      reconnectAttemptsRef.current < MAX_RECONNECT_ATTEMPTS
     ) {
       setConnectionStatus("reconnecting");
       reconnectAttemptsRef.current += 1;
@@ -111,116 +131,87 @@ export const useWebSocket = (endpoint = "") => {
         () => {
           connect();
         },
-        reconnectInterval *
+        RECONNECT_INTERVAL_MS *
           Math.pow(2, Math.min(reconnectAttemptsRef.current - 1, 5)),
       );
-
-      // eslint-disable-next-line no-console
-      // console.log(
-      //   `WebSocket disconnected. Reconnecting... (${reconnectAttemptsRef.current}/${maxReconnectAttempts})`
-      // );
     } else {
       setConnectionStatus("failed");
-      // eslint-disable-next-line no-console
-      // console.log('WebSocket connection failed or manually closed');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Handle WebSocket error
-  const handleError = useCallback(() => {
+  const handleError = useCallback((): void => {
     setError("WebSocket connection error");
     setConnectionStatus("error");
-    // eslint-disable-next-line no-console
-    // console.error('WebSocket error:', event);
   }, []);
 
-  // Connect to WebSocket
-  const connect = useCallback(() => {
+  const connect = useCallback((): void => {
     try {
-      // Close existing connection
-      if (wsRef.current) {
-        wsRef.current.close();
-      }
+      if (wsRef.current) wsRef.current.close();
 
-      // Create new WebSocket connection
       const wsUrl = buildWebSocketUrl();
       wsRef.current = new WebSocket(wsUrl);
 
-      // Add event listeners
       wsRef.current.addEventListener("open", handleOpen);
       wsRef.current.addEventListener("close", handleClose);
       wsRef.current.addEventListener("error", handleError);
       wsRef.current.addEventListener("message", handleMessage);
 
       setConnectionStatus("connecting");
-    } catch (_error) {
+    } catch {
       setError("Failed to create WebSocket connection");
       setConnectionStatus("failed");
-      // eslint-disable-next-line no-console
-      // console.error('Failed to create WebSocket connection:', error);
     }
   }, [buildWebSocketUrl, handleOpen, handleClose, handleError, handleMessage]);
 
-  // Disconnect from WebSocket
-  const disconnect = useCallback(() => {
+  const disconnect = useCallback((): void => {
     if (reconnectTimeoutRef.current) {
       clearTimeout(reconnectTimeoutRef.current);
       reconnectTimeoutRef.current = null;
     }
-
     if (heartbeatIntervalRef.current) {
       clearInterval(heartbeatIntervalRef.current);
       heartbeatIntervalRef.current = null;
     }
-
     if (wsRef.current) {
       wsRef.current.close(1000, "Manual disconnect");
       wsRef.current = null;
     }
-
     setIsConnected(false);
     setConnectionStatus("disconnected");
     reconnectAttemptsRef.current = 0;
   }, []);
 
-  // Subscribe to WebSocket events
-  const subscribe = useCallback((eventType, callback) => {
-    subscribersRef.current.set(eventType, callback);
+  const subscribe = useCallback(
+    (eventType: string, callback: WsEventCallback): (() => void) => {
+      subscribersRef.current.set(eventType, callback);
+      return () => {
+        subscribersRef.current.delete(eventType);
+      };
+    },
+    [],
+  );
 
-    return () => {
-      subscribersRef.current.delete(eventType);
-    };
-  }, []);
-
-  // Unsubscribe from WebSocket events
-  const unsubscribe = useCallback((eventType) => {
+  const unsubscribe = useCallback((eventType: string): void => {
     subscribersRef.current.delete(eventType);
   }, []);
 
-  // Send message through WebSocket
-  const send = useCallback((message) => {
+  const send = useCallback((message: string | WsMessage): boolean => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       try {
         const messageString =
           typeof message === "string" ? message : JSON.stringify(message);
         wsRef.current.send(messageString);
         return true;
-      } catch (_error) {
-        // eslint-disable-next-line no-console
-        // console.error('Error sending WebSocket message:', error);
+      } catch {
         return false;
       }
-    } else {
-      // eslint-disable-next-line no-console
-      // console.warn('WebSocket is not connected');
-      return false;
     }
+    return false;
   }, []);
 
-  // Connect on mount
   useEffect(() => {
     connect();
-
     return () => {
       disconnect();
     };
