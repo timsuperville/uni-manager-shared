@@ -17,16 +17,19 @@ import {
   CommandProvider,
   useCommandContext,
   NAMESPACE_LABELS,
-} from "../command/CommandContext.jsx";
-import { useCommandPalette } from "../command/useCommandPalette.js";
-import { useRegisterCommands } from "../command/useRegisterCommands.js";
-import { CommandPalette } from "../command/CommandPalette.jsx";
+} from "../command/CommandContext";
+import { useCommandPalette } from "../command/useCommandPalette";
+import { useRegisterCommands } from "../command/useRegisterCommands";
+import { CommandPalette } from "../command/CommandPalette";
+import type { Command } from "../command/CommandContext";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-const wrapper = ({ children }) => <CommandProvider>{children}</CommandProvider>;
+const wrapper = ({ children }: { children: React.ReactNode }) => (
+  <CommandProvider>{children}</CommandProvider>
+);
 
-const MOCK_COMMANDS = [
+const MOCK_COMMANDS: Command[] = [
   {
     id: "work:dashboard",
     namespace: "work",
@@ -59,7 +62,13 @@ const MOCK_COMMANDS = [
 
 // ─── Render helper that mounts provider + palette ─────────────────────────────
 
-function PaletteHarness({ commands = MOCK_COMMANDS, initialOpen = false }) {
+function PaletteHarness({
+  commands = MOCK_COMMANDS,
+  initialOpen = false,
+}: {
+  commands?: Command[];
+  initialOpen?: boolean;
+}) {
   const { open, registerCommands } = useCommandContext();
   useEffect(() => {
     const dereg = registerCommands(commands);
@@ -77,7 +86,9 @@ function PaletteHarness({ commands = MOCK_COMMANDS, initialOpen = false }) {
   );
 }
 
-function renderPalette(props = {}) {
+function renderPalette(
+  props: { commands?: Command[]; initialOpen?: boolean } = {},
+) {
   return render(
     <CommandProvider>
       <PaletteHarness {...props} />
@@ -123,7 +134,7 @@ describe("CommandContext", () => {
 
   it("registerCommands adds commands and returns deregister", () => {
     const { result } = renderHook(() => useCommandContext(), { wrapper });
-    let dereg;
+    let dereg: () => void;
     act(() => {
       dereg = result.current.registerCommands([
         {
@@ -139,7 +150,7 @@ describe("CommandContext", () => {
     expect(result.current.allCommands[0].id).toBe("x:1");
 
     // Deregister removes it
-    act(() => dereg());
+    act(() => dereg!());
     expect(result.current.allCommands).toHaveLength(0);
   });
 
@@ -278,7 +289,7 @@ describe("useRegisterCommands", () => {
       return null;
     }
     const { result } = renderHook(() => useCommandContext(), {
-      wrapper: ({ children }) => (
+      wrapper: ({ children }: { children: React.ReactNode }) => (
         <CommandProvider>
           <Combined />
           {children}
@@ -415,13 +426,13 @@ describe("CommandPalette UI", () => {
     // Backdrop is the sibling div before dialog
     const backdrop = document.getElementById("command-palette-backdrop");
     expect(backdrop).toBeTruthy();
-    fireEvent.click(backdrop);
+    fireEvent.click(backdrop!);
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
   });
 
   it("Enter key executes the first result and closes", async () => {
     const action = vi.fn();
-    const cmds = [
+    const cmds: Command[] = [
       {
         id: "test:enter",
         namespace: "work",
@@ -440,7 +451,7 @@ describe("CommandPalette UI", () => {
 
   it("clicking a result executes it and closes", async () => {
     const action = vi.fn();
-    const cmds = [
+    const cmds: Command[] = [
       {
         id: "test:click",
         namespace: "home",
@@ -489,7 +500,7 @@ describe("CommandPalette UI", () => {
   it("ArrowDown + Enter executes second result", async () => {
     const action1 = vi.fn();
     const action2 = vi.fn();
-    const cmds = [
+    const cmds: Command[] = [
       {
         id: "t:1",
         namespace: "work",
