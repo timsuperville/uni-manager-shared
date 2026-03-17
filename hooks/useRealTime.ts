@@ -137,7 +137,7 @@ function toErrorMessage(err: unknown, fallback = "Unknown error"): string {
 // useWebSocket (connection management)
 // ---------------------------------------------------------------------------
 
-export const useWebSocket = (
+export const useWebSocketConnection = (
   token: string,
   options: UseWebSocketConnectionOptions = {},
 ): UseWebSocketConnectionResult => {
