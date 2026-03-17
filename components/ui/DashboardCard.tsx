@@ -308,7 +308,8 @@ interface ActionCardProps extends React.HTMLAttributes<HTMLDivElement> {
   title: string;
   description?: string;
   action?: string;
-  icon?: React.ElementType;
+  /** Either a Lucide component (rendered internally) or an already-rendered ReactNode. */
+  icon?: React.ElementType | React.ReactNode;
   className?: string;
 }
 
@@ -316,42 +317,52 @@ const ActionCard: React.FC<ActionCardProps> = ({
   title,
   description,
   action,
-  icon: Icon,
+  icon,
   className = "",
   ...props
-}) => (
-  <Card
-    variant="outlined"
-    interactive
-    className={`group hover:border-(--primary-resonance,#4f46e5) transition-all duration-200 ${className}`}
-    {...props}
-  >
-    <CardContent padding="lg">
-      <div className="flex items-start space-x-4">
-        {Icon && (
-          <div className="w-10 h-10 [background:var(--glass-surface,rgba(255,255,255,0.06))] rounded-lg flex items-center justify-center group-hover:[background:var(--glass-surface-hover,rgba(255,255,255,0.1))] transition-colors duration-200">
-            <Icon className="w-5 h-5 text-(--primary-resonance,#6366f1)" />
-          </div>
-        )}
-        <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-medium text-(--text-primary,inherit) mb-1">
-            {title}
-          </h3>
-          {description && (
-            <p className="text-xs text-(--text-muted,rgba(255,255,255,0.5)) mb-3">
-              {description}
-            </p>
-          )}
-          {action && (
-            <div className="text-xs text-(--primary-resonance,#6366f1) font-medium">
-              {action}
+}) => {
+  // If icon is a function/class component, render it; otherwise treat as ReactNode
+  const iconNode =
+    typeof icon === "function"
+      ? React.createElement(icon as React.ElementType, {
+          className: "w-5 h-5 text-(--primary-resonance,#6366f1)",
+        })
+      : (icon as React.ReactNode);
+
+  return (
+    <Card
+      variant="outlined"
+      interactive
+      className={`group hover:border-(--primary-resonance,#4f46e5) transition-all duration-200 ${className}`}
+      {...props}
+    >
+      <CardContent padding="lg">
+        <div className="flex items-start space-x-4">
+          {iconNode != null && (
+            <div className="w-10 h-10 [background:var(--glass-surface,rgba(255,255,255,0.06))] rounded-lg flex items-center justify-center group-hover:[background:var(--glass-surface-hover,rgba(255,255,255,0.1))] transition-colors duration-200">
+              {iconNode}
             </div>
           )}
+          <div className="flex-1 min-w-0">
+            <h3 className="text-sm font-medium text-(--text-primary,inherit) mb-1">
+              {title}
+            </h3>
+            {description && (
+              <p className="text-xs text-(--text-muted,rgba(255,255,255,0.5)) mb-3">
+                {description}
+              </p>
+            )}
+            {action && (
+              <div className="text-xs text-(--primary-resonance,#6366f1) font-medium">
+                {action}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-    </CardContent>
-  </Card>
-);
+      </CardContent>
+    </Card>
+  );
+};
 
 export { DashboardCard, StatCard, ActionCard };
 export default DashboardCard;
