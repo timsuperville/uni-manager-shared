@@ -214,7 +214,7 @@ export function useApiMutation<TData, TVariables>(
         window.dispatchEvent(
           new CustomEvent("api-mutation-failure", {
             detail: { error: err, mutationName: options?.mutationName },
-          })
+          }),
         );
       }
       options?.onError?.(err, variables);
@@ -227,6 +227,8 @@ export function useApiMutation<TData, TVariables>(
     mutateAsync,
     data: data ?? null,
     isLoading: isPending,
+    /** TanStack Query v5 canonical name — alias for isLoading */
+    isPending,
     error: error ?? null,
     reset,
   };
