@@ -20,7 +20,26 @@ export interface User {
   role?: string;
   roles?: string[];
   permissions?: string[];
-  churches?: string[];
+  /**
+   * Populated by the backend — the user's active/selected church.
+   * Can be a plain church ID string (pre-populate) or a partially-populated
+   * object after login / switchChurch.
+   */
+  currentChurch?:
+    | string
+    | { _id?: string; id?: string; name?: string; logo?: string };
+  /** Convenience scalar — mirrors currentChurch._id when populated as object */
+  churchId?: string;
+  /** Convenience scalar — mirrors currentChurch.name when populated as object */
+  churchName?: string;
+  churches?:
+    | Array<{
+        church:
+          | string
+          | { _id?: string; id?: string; name?: string; logo?: string };
+        role: string;
+      }>
+    | string[];
   organizations?: string[];
   status?: "active" | "suspended" | "pending" | "inactive";
   mfaEnabled?: boolean;
