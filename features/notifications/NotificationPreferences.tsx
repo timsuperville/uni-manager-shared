@@ -396,7 +396,7 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
   const renderChannelPreferences = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-xl font-semibold text-[var(--text-primary)] tracking-tight mb-4">
+        <h3 className="text-xl font-semibold text-() tracking-tight mb-4">
           Delivery Channels
         </h3>
         <div className="space-y-4">
@@ -406,14 +406,14 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
               return (
                 <div
                   key={channel}
-                  className="p-5 glass-card rounded-2xl border border-[var(--glass-outline)]"
+                  className="p-5 glass-card rounded-2xl border border-()"
                 >
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center space-x-3">
-                      <div className="p-2.5 rounded-xl bg-[var(--primary-subtle)] border border-[var(--primary-resonance)] border-opacity-30">
-                        <Icon className="w-5 h-5 text-[var(--primary-resonance)]" />
+                      <div className="p-2.5 rounded-xl bg-() border border-() border-opacity-30">
+                        <Icon className="w-5 h-5 text-()" />
                       </div>
-                      <span className="font-semibold text-[var(--text-primary)] capitalize">
+                      <span className="font-semibold text-() capitalize">
                         {channel === "inApp" ? "In-App" : channel}
                       </span>
                     </div>
@@ -432,7 +432,7 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                   </div>
                   {settings.enabled && (
                     <div className="ml-[3.25rem] mt-2">
-                      <label className="block text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">
+                      <label className="block text-xs font-bold text-() uppercase tracking-wider mb-2">
                         Frequency
                       </label>
                       <Select
@@ -447,7 +447,7 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                           );
                         }}
                         options={FREQUENCY_OPTIONS}
-                        className="w-full max-w-xs focus:ring-[var(--primary-glow)] border-[var(--glass-outline)] bg-[var(--glass-surface)] text-[var(--text-primary)]"
+                        className="w-full max-w-xs focus:ring-() border-() bg-() text-()"
                       />
                     </div>
                   )}
@@ -463,17 +463,17 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
   const renderTypePreferences = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-xl font-semibold text-[var(--text-primary)] tracking-tight mb-4">
+        <h3 className="text-xl font-semibold text-() tracking-tight mb-4">
           Notification Types
         </h3>
         <div className="space-y-4">
           {Object.entries(localPreferences.types).map(([type, settings]) => (
             <div
               key={type}
-              className="p-5 glass-card rounded-2xl border border-[var(--glass-outline)]"
+              className="p-5 glass-card rounded-2xl border border-()"
             >
               <div className="flex items-center justify-between mb-4">
-                <span className="font-semibold text-[var(--text-primary)] capitalize">
+                <span className="font-semibold text-() capitalize">
                   {type}
                 </span>
                 <Switch
@@ -485,8 +485,8 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                 />
               </div>
               {settings.enabled && (
-                <div className="mt-2 text-left w-full justify-start text-[var(--text-secondary)]">
-                  <label className="block text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">
+                <div className="mt-2 text-left w-full justify-start text-()">
+                  <label className="block text-xs font-bold text-() uppercase tracking-wider mb-2">
                     Priority Level
                   </label>
                   <Select
@@ -501,7 +501,7 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                       );
                     }}
                     options={PRIORITY_OPTIONS}
-                    className="w-full max-w-xs focus:ring-[var(--primary-glow)] border-[var(--glass-outline)] bg-[var(--glass-surface)] text-[var(--text-primary)]"
+                    className="w-full max-w-xs focus:ring-() border-() bg-() text-()"
                   />
                 </div>
               )}
@@ -515,16 +515,16 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
   const renderQuietHoursPreferences = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-xl font-semibold text-[var(--text-primary)] tracking-tight mb-4">
+        <h3 className="text-xl font-semibold text-() tracking-tight mb-4">
           Quiet Hours
         </h3>
-        <div className="p-5 glass-card rounded-2xl border border-[var(--glass-outline)]">
+        <div className="p-5 glass-card rounded-2xl border border-()">
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center space-x-3">
-              <div className="p-2.5 rounded-xl bg-[var(--primary-subtle)] border border-[var(--primary-resonance)] border-opacity-30">
-                <FiVolumeX className="w-5 h-5 text-[var(--primary-resonance)]" />
+              <div className="p-2.5 rounded-xl bg-() border border-() border-opacity-30">
+                <FiVolumeX className="w-5 h-5 text-()" />
               </div>
-              <span className="font-semibold text-[var(--text-primary)]">
+              <span className="font-semibold text-()">
                 Enable Quiet Hours
               </span>
             </div>
@@ -540,7 +540,7 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
             <div className="space-y-5">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">
+                  <label className="block text-xs font-bold text-() uppercase tracking-wider mb-2">
                     Start Time
                   </label>
                   <TimePicker
@@ -562,8 +562,8 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                   />
                 </div>
               </div>
-              <div className="flex items-center justify-between pt-2 border-t border-[var(--glass-outline)]">
-                <span className="text-sm font-semibold text-[var(--text-primary)]">
+              <div className="flex items-center justify-between pt-2 border-t border-()">
+                <span className="text-sm font-semibold text-()">
                   Allow urgent notifications
                 </span>
                 <Switch
@@ -588,13 +588,13 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
   const renderDeliveryPreferences = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-xl font-semibold text-[var(--text-primary)] tracking-tight mb-4">
+        <h3 className="text-xl font-semibold text-() tracking-tight mb-4">
           Delivery Options
         </h3>
         <div className="space-y-4">
-          <div className="p-5 glass-card rounded-2xl border border-[var(--glass-outline)]">
+          <div className="p-5 glass-card rounded-2xl border border-()">
             <div className="flex items-center justify-between mb-4">
-              <span className="font-semibold text-[var(--text-primary)]">
+              <span className="font-semibold text-()">
                 Batch Notifications
               </span>
               <Switch
@@ -608,7 +608,7 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
             {localPreferences.delivery.batching && (
               <div className="space-y-5">
                 <div>
-                  <label className="block text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">
+                  <label className="block text-xs font-bold text-() uppercase tracking-wider mb-2">
                     Batch Interval (minutes)
                   </label>
                   <Slider
@@ -623,14 +623,14 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                     min={5}
                     max={240}
                     step={5}
-                    className="w-full accent-[var(--accent-sky)] py-2"
+                    className="w-full accent-() py-2"
                   />
-                  <span className="text-sm font-medium text-[var(--text-secondary)] mt-1 inline-block">
+                  <span className="text-sm font-medium text-() mt-1 inline-block">
                     {localPreferences.delivery.batchInterval} minutes
                   </span>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">
+                  <label className="block text-xs font-bold text-() uppercase tracking-wider mb-2">
                     Max Batch Size
                   </label>
                   <Slider
@@ -645,19 +645,19 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                     min={1}
                     max={50}
                     step={1}
-                    className="w-full accent-[var(--accent-sky)] py-2"
+                    className="w-full accent-() py-2"
                   />
-                  <span className="text-sm font-medium text-[var(--text-secondary)] mt-1 inline-block">
+                  <span className="text-sm font-medium text-() mt-1 inline-block">
                     {localPreferences.delivery.maxBatchSize} notifications
                   </span>
                 </div>
               </div>
             )}
           </div>
-          <div className="p-5 glass-card rounded-2xl border border-[var(--glass-outline)]">
+          <div className="p-5 glass-card rounded-2xl border border-()">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="font-semibold text-[var(--text-primary)]">
+                <span className="font-semibold text-()">
                   Smart Timing
                 </span>
                 <Switch
@@ -673,7 +673,7 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                 />
               </div>
               <div className="flex items-center justify-between pt-2">
-                <span className="font-semibold text-[var(--text-primary)]">
+                <span className="font-semibold text-()">
                   Respect User Activity
                 </span>
                 <Switch
@@ -698,12 +698,12 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
   const renderInterfacePreferences = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-xl font-semibold text-[var(--text-primary)] tracking-tight mb-4">
+        <h3 className="text-xl font-semibold text-() tracking-tight mb-4">
           Interface Settings
         </h3>
         <div className="space-y-4">
-          <div className="p-5 glass-card rounded-2xl border border-[var(--glass-outline)]">
-            <h4 className="font-semibold text-[var(--text-primary)] mb-4">
+          <div className="p-5 glass-card rounded-2xl border border-()">
+            <h4 className="font-semibold text-() mb-4">
               Sound & Alerts
             </h4>
             <div className="space-y-3">
@@ -769,8 +769,8 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
               </div>
             </div>
           </div>
-          <div className="p-5 glass-card rounded-2xl border border-[var(--glass-outline)]">
-            <h4 className="font-semibold text-[var(--text-primary)] mb-4">
+          <div className="p-5 glass-card rounded-2xl border border-()">
+            <h4 className="font-semibold text-() mb-4">
               Display Options
             </h4>
             <div className="space-y-3">
@@ -852,12 +852,12 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
   const renderAdvancedPreferences = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-xl font-semibold text-[var(--text-primary)] tracking-tight mb-4">
+        <h3 className="text-xl font-semibold text-() tracking-tight mb-4">
           Advanced Settings
         </h3>
         <div className="space-y-4">
-          <div className="p-5 glass-card rounded-2xl border border-[var(--glass-outline)]">
-            <h4 className="font-semibold text-[var(--text-primary)] mb-4">
+          <div className="p-5 glass-card rounded-2xl border border-()">
+            <h4 className="font-semibold text-() mb-4">
               Localization
             </h4>
             <div className="space-y-3">
@@ -899,8 +899,8 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
               </div>
             </div>
           </div>
-          <div className="p-5 glass-card rounded-2xl border border-[var(--glass-outline)]">
-            <h4 className="font-semibold text-[var(--text-primary)] mb-4">
+          <div className="p-5 glass-card rounded-2xl border border-()">
+            <h4 className="font-semibold text-() mb-4">
               Email Settings
             </h4>
             <div>
@@ -927,8 +927,8 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
               />
             </div>
           </div>
-          <div className="p-5 glass-card rounded-2xl border border-[var(--glass-outline)]">
-            <h4 className="font-semibold text-[var(--text-primary)] mb-4">
+          <div className="p-5 glass-card rounded-2xl border border-()">
+            <h4 className="font-semibold text-() mb-4">
               System Options
             </h4>
             <div className="space-y-3">
@@ -1000,7 +1000,7 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
       >
         <div className="flex h-[32rem]">
           {/* Sidebar */}
-          <div className="w-48 border-r border-[var(--glass-outline)] pr-4 overflow-y-auto scrollbar-responsive">
+          <div className="w-48 border-r border-() pr-4 overflow-y-auto scrollbar-responsive">
             <nav className="space-y-1 mt-2">
               {TABS.map((tab) => {
                 const Icon = tab.icon;
@@ -1010,12 +1010,12 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                     onClick={() => setActiveTab(tab.id)}
                     className={`w-full flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all ${
                       activeTab === tab.id
-                        ? "bg-[var(--primary-subtle)] text-[var(--text-primary)] shadow-sm border border-[var(--primary-resonance)] border-opacity-30"
-                        : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--glass-surface-hover)] border border-transparent"
+                        ? "bg-() text-() shadow-sm border border-() border-opacity-30"
+                        : "text-() hover:text-() hover:bg-() border border-transparent"
                     }`}
                   >
                     <Icon
-                      className={`w-4 h-4 mr-3 ${activeTab === tab.id ? "text-[var(--primary-resonance)]" : "opacity-70"}`}
+                      className={`w-4 h-4 mr-3 ${activeTab === tab.id ? "text-()" : "opacity-70"}`}
                     />
                     {tab.label}
                   </button>
@@ -1060,7 +1060,7 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="mt-6 flex items-center justify-between border-t border-[var(--glass-outline)] pt-5">
+        <div className="mt-6 flex items-center justify-between border-t border-() pt-5">
           <div className="flex items-center space-x-3">
             <button
               onClick={handleExport}
@@ -1092,7 +1092,7 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
             <button
               onClick={handleSave}
               disabled={!hasChanges || isLoading}
-              className="btn-primary flex items-center focus:ring-4 focus:ring-[var(--primary-glow)] disabled:opacity-50"
+              className="btn-primary flex items-center focus:ring-4 focus:ring-() disabled:opacity-50"
             >
               {isLoading ? (
                 <LoadingSpinner size="sm" className="mr-2 border-white" />
@@ -1112,11 +1112,11 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
         title="Reset Preferences"
         size="sm"
       >
-        <p className="text-sm font-medium text-[var(--text-secondary)]">
+        <p className="text-sm font-medium text-()">
           Are you sure you want to reset all preferences to default? This cannot
           be undone.
         </p>
-        <div className="mt-8 flex items-center justify-end gap-3 pt-4 border-t border-[var(--glass-outline)]">
+        <div className="mt-8 flex items-center justify-end gap-3 pt-4 border-t border-()">
           <button className="btn-ghost" onClick={() => setConfirmReset(false)}>
             Cancel
           </button>

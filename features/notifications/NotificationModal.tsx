@@ -180,10 +180,10 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
       notification.priority === "urgent"
         ? "text-red-500 animate-pulse drop-shadow-[0_0_8px_rgba(239,68,68,0.5)]"
         : notification.priority === "high"
-          ? "text-[var(--accent-amber)] drop-shadow-[0_0_8px_var(--accent-amber-glow)]"
+          ? "text-() drop-shadow-[0_0_8px_var(--accent-amber-glow)]"
           : notification.priority === "normal"
-            ? "text-[var(--primary-resonance)]"
-            : "text-[var(--text-muted)]";
+            ? "text-()"
+            : "text-()";
     return <IconComponent className={`w-6 h-6 ${priorityColor}`} />;
   }, [notification]);
 
@@ -213,14 +213,14 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
     if (!notification.attachments?.length) return null;
     return (
       <div className="mt-4">
-        <h4 className="text-sm font-medium text-[var(--text-primary)] tracking-wide uppercase mb-2">
+        <h4 className="text-sm font-medium text-() tracking-wide uppercase mb-2">
           Attachments
         </h4>
         <div className="space-y-2">
           {notification.attachments.map((attachment, index) => (
             <div
               key={index}
-              className="flex items-center justify-between p-3 bg-[var(--glass-surface)] border border-[var(--glass-outline)] rounded-xl"
+              className="flex items-center justify-between p-3 bg-() border border-() rounded-xl"
             >
               <div className="flex items-center space-x-3">
                 <div className="shrink-0">
@@ -231,16 +231,16 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
                       className="w-10 h-10 rounded object-cover"
                     />
                   ) : (
-                    <div className="w-10 h-10 bg-[var(--primary-subtle)] border border-[var(--primary-resonance)] border-opacity-30 rounded-lg flex items-center justify-center">
-                      <FiDownload className="w-5 h-5 text-[var(--text-accent)]" />
+                    <div className="w-10 h-10 bg-() border border-() border-opacity-30 rounded-lg flex items-center justify-center">
+                      <FiDownload className="w-5 h-5 text-()" />
                     </div>
                   )}
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-[var(--text-primary)]">
+                  <p className="text-sm font-medium text-()">
                     {attachment.filename ?? "Attachment"}
                   </p>
-                  <p className="text-xs text-[var(--text-secondary)] mt-0.5">
+                  <p className="text-xs text-() mt-0.5">
                     {attachment.size != null &&
                       `${(attachment.size / 1024).toFixed(1)} KB`}
                     {attachment.type && ` • ${attachment.type}`}
@@ -276,8 +276,8 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
   const renderActionButtons = useCallback(() => {
     if (!notification.actions?.length) return null;
     return (
-      <div className="mt-4 border-t border-[var(--glass-outline)] pt-4">
-        <h4 className="text-xs font-semibold uppercase tracking-widest text-[var(--text-secondary)] mb-3">
+      <div className="mt-4 border-t border-() pt-4">
+        <h4 className="text-xs font-semibold uppercase tracking-widest text-() mb-3">
           Available Actions
         </h4>
         <div className="flex flex-wrap gap-2">
@@ -302,16 +302,16 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
     if (!notification.deliveryStatus) return null;
     const { deliveryStatus } = notification;
     return (
-      <div className="mt-4 border-t border-[var(--glass-outline)] pt-4">
+      <div className="mt-4 border-t border-() pt-4">
         <button
           onClick={() => setShowDeliveryDetails(!showDeliveryDetails)}
-          className="flex items-center text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+          className="flex items-center text-sm font-medium text-() hover:text-() transition-colors"
         >
           <FiMessageSquare className="w-4 h-4 mr-2" />
           Delivery Details
         </button>
         {showDeliveryDetails && (
-          <div className="mt-3 p-3 bg-[var(--glass-surface)] border border-[var(--glass-outline)] rounded-xl blur-backdrop">
+          <div className="mt-3 p-3 bg-() border border-() rounded-xl blur-backdrop">
             <div className="space-y-2">
               {Object.entries(deliveryStatus).map(([channel, status]) => (
                 <div
@@ -350,15 +350,15 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
       .replace(/\*(.*?)\*/g, "<em>$1</em>")
       .replace(
         /`(.*?)`/g,
-        '<code class="bg-[var(--glass-surface)] border border-[var(--glass-outline)] px-1.5 py-0.5 rounded text-[var(--primary-resonance)]">$1</code>',
+        '<code class="bg-() border border-() px-1.5 py-0.5 rounded text-()">$1</code>',
       )
       .replace(
         /(https?:\/\/[^\s]+)/g,
-        '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-[var(--accent-sky)] hover:brightness-110 underline decoration-white/20 underline-offset-2">$1</a>',
+        '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-() hover:brightness-110 underline decoration-white/20 underline-offset-2">$1</a>',
       );
     return (
       <div
-        className="text-[var(--text-secondary)] leading-relaxed text-[15px] space-y-4"
+        className="text-() leading-relaxed text-[15px] space-y-4"
         dangerouslySetInnerHTML={{ __html: formattedContent }}
       />
     );
@@ -379,17 +379,17 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
           {/* Header */}
           <div className="flex items-start justify-between">
             <div className="flex items-center space-x-3">
-              <div className="p-3 rounded-2xl bg-[var(--primary-subtle)] border border-[var(--primary-resonance)] border-opacity-20 shadow-inner inline-flex items-center justify-center">
+              <div className="p-3 rounded-2xl bg-() border border-() border-opacity-20 shadow-inner inline-flex items-center justify-center">
                 {getNotificationIcon()}
               </div>
               <div className="flex-1">
-                <h3 className="text-xl font-semibold text-[var(--text-primary)] tracking-tight">
+                <h3 className="text-xl font-semibold text-() tracking-tight">
                   {notification.subject ?? notification.title ?? "Notification"}
                 </h3>
                 <div className="flex flex-wrap gap-2 items-center mt-2">
                   {getPriorityBadge()}
                   {getStatusBadge()}
-                  <span className="text-[10px] tracking-wider uppercase font-semibold px-2 py-0.5 rounded-full bg-[var(--glass-surface)] border border-[var(--glass-outline)] text-[var(--text-secondary)]">
+                  <span className="text-[10px] tracking-wider uppercase font-semibold px-2 py-0.5 rounded-full bg-() border border-() text-()">
                     {notification.type ?? "General"}
                   </span>
                 </div>
@@ -401,7 +401,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
           <div className="grid grid-cols-2 gap-4 p-4 glass-card rounded-2xl relative overflow-hidden">
             <div className="absolute inset-0 bg-aurora opacity-30 mix-blend-screen pointer-events-none" />
             <div className="relative z-10">
-              <label className="block text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1.5">
+              <label className="block text-[10px] font-bold text-() uppercase tracking-wider mb-1.5">
                 From
               </label>
               <div className="flex items-center space-x-2">
@@ -412,18 +412,18 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
                     size="sm"
                   />
                 )}
-                <span className="text-sm font-medium text-[var(--text-primary)]">
+                <span className="text-sm font-medium text-()">
                   {notification.sender?.name ?? notification.module ?? "System"}
                 </span>
               </div>
             </div>
             <div className="relative z-10">
-              <label className="block text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1.5">
+              <label className="block text-[10px] font-bold text-() uppercase tracking-wider mb-1.5">
                 Time
               </label>
               <div className="flex items-center space-x-1.5">
-                <FiClock className="w-4 h-4 text-[var(--primary-resonance)] opacity-80" />
-                <span className="text-sm font-medium text-[var(--text-primary)]">
+                <FiClock className="w-4 h-4 text-() opacity-80" />
+                <span className="text-sm font-medium text-()">
                   {format(
                     new Date(
                       notification.createdAt ??
@@ -460,7 +460,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
         </div>
 
         {/* Footer actions */}
-        <div className="mt-6 flex items-center justify-between border-t border-[var(--glass-outline)] pt-5 pb-1 gap-2 overflow-x-auto scrollbar-responsive px-1">
+        <div className="mt-6 flex items-center justify-between border-t border-() pt-5 pb-1 gap-2 overflow-x-auto scrollbar-responsive px-1">
           <div className="flex items-center space-x-3 shrink-0">
             {onReply && (
               <button
@@ -489,7 +489,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
               <button
                 onClick={handleMarkAsRead}
                 disabled={isLoading}
-                className="btn-primary flex items-center focus:ring-4 focus:ring-[var(--primary-glow)]"
+                className="btn-primary flex items-center focus:ring-4 focus:ring-()"
               >
                 {isLoading ? (
                   <LoadingSpinner size="sm" className="mr-2" />
@@ -553,11 +553,11 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
         title="Delete Notification"
         size="sm"
       >
-        <p className="text-sm font-medium text-[var(--text-secondary)]">
+        <p className="text-sm font-medium text-()">
           Are you sure you want to delete this notification? This action cannot
           be undone.
         </p>
-        <div className="mt-8 flex items-center justify-end gap-3 pt-4 border-t border-[var(--glass-outline)]">
+        <div className="mt-8 flex items-center justify-end gap-3 pt-4 border-t border-()">
           <button className="btn-ghost" onClick={() => setConfirmDelete(false)}>
             Cancel
           </button>

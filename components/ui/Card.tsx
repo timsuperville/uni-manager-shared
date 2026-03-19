@@ -13,10 +13,10 @@ interface CardContentProps extends React.HTMLAttributes<HTMLDivElement> { paddin
 interface CardTitleProps extends React.HTMLAttributes<HTMLHeadingElement> { size?: CardTitleSize; }
 
 const variantStyles: Record<CardVariant, string> = {
-  default: "[background:var(--glass-surface,rgba(255,255,255,0.06))] border border-(--glass-outline,rgba(255,255,255,0.12)) shadow-sm",
-  elevated: "[background:var(--glass-surface,rgba(255,255,255,0.06))] border border-(--glass-outline,rgba(255,255,255,0.12)) shadow-lg",
-  outlined: "bg-transparent border border-(--glass-outline,rgba(255,255,255,0.18)) shadow-none",
-  gradient: "[background:var(--glass-surface-gradient,var(--glass-surface,rgba(255,255,255,0.06)))] border border-(--glass-outline,rgba(255,255,255,0.12)) shadow-md",
+  default: "bg-(--glass-surface) backdrop-blur-xl border border-(--glass-outline) shadow-sm",
+  elevated: "bg-(--glass-surface) backdrop-blur-xl border border-(--glass-outline) shadow-lg",
+  outlined: "bg-transparent backdrop-blur-xl border border-(--glass-outline) shadow-none",
+  gradient: "bg-(--bg-surface-gradient) backdrop-blur-xl border border-(--glass-outline) shadow-md",
   flat: "bg-transparent shadow-none border-none",
 };
 
@@ -39,7 +39,7 @@ export const Card: React.FC<CardProps> = ({ children, className = "", variant = 
 );
 
 export const CardHeader: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ children, className = "", ...props }) => (
-  <div className={`px-6 py-4 border-b border-(--glass-outline,rgba(255,255,255,0.12)) ${className}`} {...props}>
+  <div className={`px-6 py-4 border-b border-(--glass-outline) ${className}`} {...props}>
     {children}
   </div>
 );
@@ -49,15 +49,15 @@ export const CardContent: React.FC<CardContentProps> = ({ children, className = 
 );
 
 export const CardTitle: React.FC<CardTitleProps> = ({ children, className = "", size = "default", ...props }) => (
-  <h3 className={`${titleSizeStyles[size]} text-(--text-primary,inherit) ${className}`} {...props}>{children}</h3>
+  <h3 className={`${titleSizeStyles[size]} text-(--text-primary) ${className}`} {...props}>{children}</h3>
 );
 
 export const CardDescription: React.FC<React.HTMLAttributes<HTMLParagraphElement>> = ({ children, className = "", ...props }) => (
-  <p className={`text-sm text-(--text-muted,rgba(255,255,255,0.55)) mt-1 ${className}`} {...props}>{children}</p>
+  <p className={`text-sm text-(--text-muted) mt-1 ${className}`} {...props}>{children}</p>
 );
 
 export const CardFooter: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ children, className = "", ...props }) => (
-  <div className={`px-6 py-3 border-t border-(--glass-outline,rgba(255,255,255,0.12)) flex items-center justify-between gap-2 ${className}`} {...props}>
+  <div className={`px-6 py-3 border-t border-(--glass-outline) flex items-center justify-between gap-2 ${className}`} {...props}>
     {children}
   </div>
 );

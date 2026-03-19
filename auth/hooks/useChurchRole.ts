@@ -1,18 +1,32 @@
 import { useMemo } from "react";
 import { useAuth } from "@shared/auth";
 
-// ── CAHA Role Tier Map ────────────────────────────────────────────────────────
-// Mirrors backend/src/domains/apps/church/middleware/rbacMiddleware.js ROLE_TIER
-const ROLE_TIER: Record<string, number> = {
-  visitor: 0,
-  viewer: 1,
+// ── CAHA Community Journey Tier Map ───────────────────────────────────────────
+//
+// Canonical per CAHA_PROTOCOL.md §1.1 (v2.0)
+// Source of truth: backend/src/apps/church/types/church.types.ts
+//
+//   viewer(0) → visitor(1) → attendee(2) → member(3) → steward(4)
+//
+// Notes:
+//   - 'volunteer' is NOT a stored stage — it is COMPUTED from ministry memberships
+//   - 'admin' is the legacy token for 'steward' — accepted during migration (tier 4)
+//   - 'super_admin' is a platform role handled by isPlatformAdmin bypass
+//
+const COMMUNITY_TIER: Record<string, number> = {
+  viewer:   0,
+  visitor:  1,
   attendee: 2,
-  member: 3,
-  volunteer: 4,
-  admin: 5,
+  member:   3,
+  steward:  4,
+  admin:    4, // legacy alias for 'steward' — accepted during migration
 };
 
-type CahaRole = keyof typeof ROLE_TIER;
+/** The canonical community journey stage vocabulary. */
+export type CommunityStage = "viewer" | "visitor" | "attendee" | "member" | "steward";
+
+/** Ministry position tokens — per CAHA_PROTOCOL.md §2.1. */
+export type MinistryPosition = "participant" | "volunteer" | "leader";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -48,31 +62,83 @@ interface Membership {
 }
 
 export interface UseChurchRoleReturn {
-  churchRole: string;
-  churchRoleTier: number;
+  // ── Community Journey ──────────────────────────────────────────────────────
+  /** Current community stage per CAHA §1.1 */
+  journeyStage: CommunityStage;
+  /** Numeric tier for journeyStage (0–4) */
+  journeyTier: number;
+  /** true if journeyTier >= member(3) */
+  isMember: boolean;
+  /** true if journeyTier >= attendee(2) */
+  isAttendee: boolean;
+  /** true if journeyTier >= visitor(1) */
+  isVisitor: boolean;
+  /** true if in church context (tier >= viewer(0)) */
+  isViewer: boolean;
+
+  // ── Institutional ──────────────────────────────────────────────────────────
+  /** true if user holds the steward role (formerly 'admin') in this church. */
+  isSteward: boolean;
+
+  // ── Platform ───────────────────────────────────────────────────────────────
+  /** true if User.roles[] includes 'admin' or 'org_admin' (platform override). */
+  isPlatformAdmin: boolean;
+
+  // ── Ministry ───────────────────────────────────────────────────────────────
+  /** true if user is an active member of at least one ministry (computed, never stored). */
+  isVolunteer: boolean;
+  /** All the user's ministry roles in the current church. */
   ministryRoles: MinistryRole[];
+  /** The union of all granted tools from the user's ministry memberships. */
+  resolvedTools: GrantedTool[];
+
+  // ── Helpers ────────────────────────────────────────────────────────────────
+  /** Check if user meets the minimum community stage. */
+  hasMinStage: (minStage: CommunityStage | string) => boolean;
+  /** Check if user has a specific tool in their effective tool set. */
+  hasGrantedTool: (toolId: string) => boolean;
+  /** Check if user can edit a specific tool. */
+  canEditTool: (toolId: string) => boolean;
+  /** Check if user has at least minPosition in the given ministry. */
+  hasMinistryRole: (ministryId: string, minRole: MinistryPosition | string) => boolean;
+
+  // ── Raw data ───────────────────────────────────────────────────────────────
+  /** The resolved journey stage string (same as journeyStage). */
   membership: Membership | null;
   currentChurchId: string | null;
-  isPlatformAdmin: boolean;
-  resolvedTools: GrantedTool[];
-  hasGrantedTool: (toolId: string) => boolean;
-  canEditTool: (toolId: string) => boolean;
-  hasMinRole: (minRole: CahaRole) => boolean;
-  hasExactRole: (role: string) => boolean;
-  hasMinistryRole: (ministryId: string, minRole: CahaRole) => boolean;
+
+  // ── Deprecated aliases (backward compat — remove after migration) ──────────
+  /** @deprecated Use `journeyStage` */
+  churchRole: string;
+  /** @deprecated Use `journeyTier` */
+  churchRoleTier: number;
+  /** @deprecated Use `isSteward` */
   isAdmin: boolean;
-  isVolunteer: boolean;
-  isMember: boolean;
+  /** @deprecated Use `hasMinStage` */
+  hasMinRole: (minRole: string) => boolean;
+  /** Check exact role equality. */
+  hasExactRole: (role: string) => boolean;
 }
 
 // ── Hook ──────────────────────────────────────────────────────────────────────
 
 /**
- * useChurchRole — CH-036 CAHA Hook.
+ * useChurchRole — CH-036 CAHA Hook (v2.0).
  *
- * Resolves the calling user's role and ministry assignments within their
- * current church context. Uses the 6-tier CAHA vocabulary:
- * visitor → viewer → attendee → member → volunteer → admin.
+ * Per CAHA_PROTOCOL.md §6.1 — resolves the calling user's community journey
+ * stage and ministry memberships within their current church context.
+ *
+ * API:
+ *   journeyStage    — 'viewer' | 'visitor' | 'attendee' | 'member' | 'steward'
+ *   isMember        — tier >= member(3)
+ *   isAttendee      — tier >= attendee(2)
+ *   isVisitor       — tier >= visitor(1)
+ *   isViewer        — always true if in church context
+ *   isSteward       — role === 'steward' (institutional governance)
+ *   isPlatformAdmin — User.roles[] includes 'admin' or 'org_admin'
+ *   isVolunteer     — has >= 1 active ministry membership (computed, never stored)
+ *   hasMinStage     — hasMinStage('member') → true if tier >= 3
+ *   hasMinistryRole — hasMinistryRole(ministryId, 'leader')
  *
  * This is the single source of truth for church-context role checks.
  * NEVER check user.roles directly for church-context access control.
@@ -82,7 +148,7 @@ export function useChurchRole(): UseChurchRoleReturn {
 
   return useMemo(() => {
     if (!user) {
-      return buildResult("visitor", null, null, null);
+      return buildResult("viewer", null, null, null);
     }
 
     type ExtUser = typeof user & {
@@ -93,17 +159,9 @@ export function useChurchRole(): UseChurchRoleReturn {
     const u = user as ExtUser;
     const userRoles = u.roles ?? [];
     const isPlatformAdmin =
-      userRoles.includes("admin") || userRoles.includes("org_admin");
-
-    if (isPlatformAdmin) {
-      const adminChurchId =
-        typeof u.currentChurch === "object" && u.currentChurch !== null
-          ? (u.currentChurch._id?.toString() ?? null)
-          : typeof u.currentChurch === "string"
-            ? u.currentChurch
-            : null;
-      return buildResult("admin", null, adminChurchId, u, true);
-    }
+      userRoles.includes("admin") ||
+      userRoles.includes("org_admin") ||
+      (user as { role?: string }).role === "super_admin";
 
     const currentChurchId =
       typeof u.currentChurch === "object" && u.currentChurch !== null
@@ -112,13 +170,16 @@ export function useChurchRole(): UseChurchRoleReturn {
           ? u.currentChurch
           : null;
 
-    if (!currentChurchId) {
-      return buildResult("visitor", null, null, u);
+    if (isPlatformAdmin) {
+      return buildResult("steward", null, currentChurchId, u, true);
     }
 
-    // u.churches is string[] in the canonical User type but holds Membership objects at runtime;
-    // cast to the richer shape that the API returns.
-    const memberships = (u.churches ?? []) as unknown as Membership[];
+    if (!currentChurchId) {
+      return buildResult("viewer", null, null, u);
+    }
+
+    // u.churches holds Membership objects at runtime — cast to the richer shape.
+    const memberships = (u.churches ?? []) as Membership[];
     const membership = memberships.find((c) => {
       const churchId =
         typeof c.church === "object" && c.church !== null
@@ -130,11 +191,12 @@ export function useChurchRole(): UseChurchRoleReturn {
     });
 
     if (!membership) {
-      return buildResult("visitor", null, currentChurchId, u);
+      return buildResult("viewer", null, currentChurchId, u);
     }
 
-    const effectiveRole =
-      membership.status === "left" ? "visitor" : (membership.role ?? "viewer");
+    const rawRole = membership.status === "left" ? "viewer" : (membership.role ?? "viewer");
+    // Normalize legacy 'admin' token to 'steward'
+    const effectiveRole = rawRole === "admin" ? "steward" : rawRole;
 
     return buildResult(effectiveRole, membership, currentChurchId, u);
   }, [user]);
@@ -142,17 +204,28 @@ export function useChurchRole(): UseChurchRoleReturn {
 
 // ── Internal Builder ──────────────────────────────────────────────────────────
 
+/** Ministry position tier map — parallel to MINISTRY_POSITION_TIERS on the backend. */
+const MINISTRY_POSITION_TIERS: Record<string, number> = {
+  participant: 0,
+  volunteer:   1,
+  leader:      2,
+};
+
 function buildResult(
-  churchRole: string,
+  rawRole: string,
   membership: Membership | null,
   currentChurchId: string | null,
   user: (typeof useAuth extends () => infer R ? R : never)["user"] | null,
   isPlatformAdmin = false,
 ): UseChurchRoleReturn {
-  const tier = ROLE_TIER[churchRole] ?? 0;
+  const stage = (rawRole === "admin" ? "steward" : rawRole) as CommunityStage;
+  const tier = COMMUNITY_TIER[stage] ?? 0;
   const ministryRoles = membership?.ministryRoles ?? [];
 
-  // Resolve granted tools — union of grantedTools[] across all ministries
+  // isVolunteer — computed: true if user has any active ministry membership.
+  const isVolunteer = ministryRoles.length > 0;
+
+  // Resolve granted tools — union of grantedTools[] across all ministries.
   const toolMap = new Map<string, GrantedTool>();
   for (const mr of ministryRoles) {
     const granted = mr.ministry?.grantedTools ?? mr.grantedTools ?? [];
@@ -177,44 +250,63 @@ function buildResult(
   const effectivePlatformAdmin =
     isPlatformAdmin ||
     !!(
-      extUser?.roles?.includes("admin") || extUser?.roles?.includes("org_admin")
+      extUser?.roles?.includes("admin") ||
+      extUser?.roles?.includes("org_admin") ||
+      (extUser as { role?: string } | null)?.role === "super_admin"
     );
 
+  const isSteward =
+    effectivePlatformAdmin || stage === "steward";
+  const stewardTier = COMMUNITY_TIER["steward"] ?? 4;
+
+  /** Check if user meets the minimum community stage (by tier). */
+  const hasMinStage = (minStage: string): boolean => {
+    const minTier = COMMUNITY_TIER[minStage === "admin" ? "steward" : minStage];
+    if (minTier === undefined) {
+      if (process.env.NODE_ENV !== "production") {
+        console.warn(
+          `useChurchRole.hasMinStage: unknown stage "${minStage}". Valid: ${Object.keys(COMMUNITY_TIER).join(", ")}`,
+        );
+      }
+      return false;
+    }
+    return effectivePlatformAdmin || tier >= minTier;
+  };
+
   return {
-    churchRole,
-    churchRoleTier: tier,
-    ministryRoles,
-    membership: membership ?? null,
-    currentChurchId,
+    // ── Community Journey ────────────────────────────────────────────────────
+    journeyStage: stage,
+    journeyTier: tier,
+    isMember:   effectivePlatformAdmin || tier >= (COMMUNITY_TIER["member"]   ?? 3),
+    isAttendee: effectivePlatformAdmin || tier >= (COMMUNITY_TIER["attendee"] ?? 2),
+    isVisitor:  effectivePlatformAdmin || tier >= (COMMUNITY_TIER["visitor"]  ?? 1),
+    isViewer:   true, // always true if in church context
+
+    // ── Institutional ────────────────────────────────────────────────────────
+    isSteward,
+
+    // ── Platform ─────────────────────────────────────────────────────────────
     isPlatformAdmin: effectivePlatformAdmin,
+
+    // ── Ministry ─────────────────────────────────────────────────────────────
+    isVolunteer,
+    ministryRoles,
     resolvedTools,
 
+    // ── Helpers ──────────────────────────────────────────────────────────────
+    hasMinStage,
+
     hasGrantedTool: (toolId: string) => {
-      if (effectivePlatformAdmin || tier >= (ROLE_TIER["admin"] ?? 0))
-        return true;
+      if (effectivePlatformAdmin || tier >= stewardTier) return true;
       return toolMap.get(toolId)?.canView ?? false;
     },
 
     canEditTool: (toolId: string) => {
-      if (effectivePlatformAdmin || tier >= (ROLE_TIER["admin"] ?? 0))
-        return true;
+      if (effectivePlatformAdmin || tier >= stewardTier) return true;
       return toolMap.get(toolId)?.canEdit ?? false;
     },
 
-    hasMinRole: (minRole: CahaRole) => {
-      const minTier = ROLE_TIER[minRole];
-      if (minTier === undefined) {
-        console.warn(
-          `useChurchRole.hasMinRole: unknown role "${minRole}". Valid: ${Object.keys(ROLE_TIER).join(", ")}`,
-        );
-        return false;
-      }
-      return effectivePlatformAdmin || tier >= minTier;
-    },
-
-    hasExactRole: (role: string) => churchRole === role,
-
-    hasMinistryRole: (ministryId: string, minRole: CahaRole) => {
+    hasMinistryRole: (ministryId: string, minRole: string) => {
       if (effectivePlatformAdmin) return true;
       const entry = ministryRoles.find((m) => {
         const id =
@@ -226,15 +318,21 @@ function buildResult(
         return id === ministryId;
       });
       if (!entry) return false;
-      const entryTier = ROLE_TIER[entry.role ?? "visitor"] ?? 0;
-      const minTier = ROLE_TIER[minRole] ?? 0;
-      return entryTier >= minTier;
+      const entryPosition = MINISTRY_POSITION_TIERS[entry.role ?? "participant"] ?? 0;
+      const minPosition = MINISTRY_POSITION_TIERS[minRole] ?? 0;
+      return entryPosition >= minPosition;
     },
 
-    isAdmin: effectivePlatformAdmin || tier >= (ROLE_TIER["admin"] ?? 0),
-    isVolunteer:
-      effectivePlatformAdmin || tier >= (ROLE_TIER["volunteer"] ?? 0),
-    isMember: effectivePlatformAdmin || tier >= (ROLE_TIER["member"] ?? 0),
+    // ── Raw data ──────────────────────────────────────────────────────────────
+    membership: membership ?? null,
+    currentChurchId,
+
+    // ── Deprecated aliases ────────────────────────────────────────────────────
+    churchRole:     stage,
+    churchRoleTier: tier,
+    isAdmin:        isSteward,
+    hasMinRole:     hasMinStage,
+    hasExactRole:   (role: string) => stage === role || rawRole === role,
   };
 }
 

@@ -201,7 +201,7 @@ export function TimePicker({
 
   const triggerFocus = (focused: boolean): React.CSSProperties => ({
     border: focused
-      ? "1px solid var(--border-glow, var(--primary-resonance))"
+      ? "1px solid var()"
       : "1px solid var(--glass-outline, rgba(255,255,255,0.12))",
     boxShadow: focused ? "0 0 0 3px var(--primary-glow, rgba(99,102,241,0.2))" : "none",
   });

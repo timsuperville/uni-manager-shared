@@ -25,9 +25,15 @@ if (typeof document !== "undefined" && !document.getElementById(INPUT_STYLE_ID))
   const style = document.createElement("style");
   style.id = INPUT_STYLE_ID;
   style.textContent = `
+    /* Focus ring — uses canonical LG spec tokens (§6) */
     .um-search-field:focus {
-      border-color: var(--border-glow, var(--primary-resonance)) !important;
+      border-color: var(--glass-outline-active, rgba(255,255,255,0.25)) !important;
       box-shadow: 0 0 0 3px var(--primary-glow, hsla(272,65%,62%,0.2)) !important;
+    }
+    /* Placeholder colour */
+    .um-search-field::placeholder {
+      color: var(--text-muted, rgba(255,255,255,0.4));
+      opacity: 1;
     }
     /* Suppress browser-forced autofill background */
     .um-search-field:-webkit-autofill,
@@ -141,9 +147,21 @@ export function SearchInput({
 
   const inputStyle = useMemo<React.CSSProperties>(
     () => ({
+      // border-box: total rendered width = 100% of wrapper (padding + border
+      // are subtracted from the content area, not added on top). Without this,
+      // the input overflows the wrapper by padding+border, pushing the physical
+      // border outside the position:relative container that the icons use as
+      // their reference frame — causing the "internal border" visual artifact
+      // and misaligning the absolutely-positioned icons.
+      boxSizing: "border-box",
+      // appearance:none removes the browser UA-stylesheet chrome (internal
+      // padding, border, box-shadow) that Chrome/Safari/Edge inject into
+      // <input> elements, eliminating hidden offsets that shift icon alignment.
+      WebkitAppearance: "none",
+      appearance: "none",
       width: "100%",
       padding: sz.padding,
-      paddingRight: hasValue ? "46px" : "12px",
+      paddingRight: hasValue ? "36px" : "12px",
       fontSize: sz.fontSize,
       fontFamily: "var(--font-body, inherit)",
       background: "var(--glass-input, var(--bg-surface-1, rgba(255,255,255,0.05)))",
@@ -151,8 +169,9 @@ export function SearchInput({
       borderRadius: "var(--radius-lg, 0.5rem)",
       color: "var(--text-primary, inherit)",
       outline: "none",
-      // Transition covers both the CSS :focus rule and the base border.
-      transition: "border-color 0.15s, box-shadow 0.15s",
+      // Transition covers focus ring, border, and the padding-right jump
+      // when the clear button appears/disappears.
+      transition: "border-color 0.15s, box-shadow 0.15s, padding-right 0.15s",
       opacity: disabled ? 0.55 : 1,
       cursor: disabled ? "not-allowed" : "text",
     }),
@@ -162,18 +181,21 @@ export function SearchInput({
   const clearBtnStyle = useMemo<React.CSSProperties>(
     () => ({
       position: "absolute",
-      right: "20px",
+      // right must leave enough room for the icon + its own 2px padding,
+      // producing a ~10px visual gap from the input edge at all sizes.
+      right: "8px",
       top: "50%",
       transform: "translateY(-50%)",
       background: "none",
       border: "none",
-      padding: "2px",
+      // lineHeight:0 prevents inline descender space from shifting the SVG
+      // transform origin downward (same fix applied to the search icon span).
+      lineHeight: 0,
+      padding: "4px",
       borderRadius: "50%",
       cursor: "pointer",
-      display: "flex",
-      alignItems: "center",
       color: "var(--text-muted)",
-      transition: "color 0.15s",
+      transition: "color 0.1s, background 0.1s",
     }),
     [],
   );
@@ -235,8 +257,14 @@ export function SearchInput({
           onClick={handleClear}
           tabIndex={-1}
           style={clearBtnStyle}
-          onMouseEnter={(e) => { e.currentTarget.style.color = "var(--text-primary)"; }}
-          onMouseLeave={(e) => { e.currentTarget.style.color = "var(--text-muted)"; }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = "var(--text-primary)";
+            e.currentTarget.style.background = "var(--glass-surface, rgba(255,255,255,0.08))";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = "var(--text-muted)";
+            e.currentTarget.style.background = "none";
+          }}
         >
           <X style={{ width: sz.iconSize, height: sz.iconSize }} />
         </button>

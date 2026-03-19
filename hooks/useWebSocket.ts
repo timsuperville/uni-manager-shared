@@ -65,6 +65,10 @@ export const useWebSocket = (endpoint = ""): UseWebSocketResult => {
   );
   const subscribersRef = useRef<Map<string, WsEventCallback>>(new Map());
   const reconnectAttemptsRef = useRef(0);
+  // Tracks whether the hook is still intentionally mounted.
+  // Flipped to false during cleanup so handleClose never queues a reconnect
+  // after a deliberate disconnect (e.g. React Strict Mode double-invocation).
+  const isMountedRef = useRef(false);
 
   const buildWebSocketUrl = useCallback((): string => {
     return `${getWebSocketUrl()}/ws${endpoint}`;
@@ -120,7 +124,10 @@ export const useWebSocket = (endpoint = ""): UseWebSocketResult => {
       heartbeatIntervalRef.current = null;
     }
 
+    // Only reconnect if the hook is still mounted AND this was not a clean
+    // code-1000 close (which indicates a deliberate disconnect / cleanup).
     if (
+      isMountedRef.current &&
       event.code !== 1000 &&
       reconnectAttemptsRef.current < MAX_RECONNECT_ATTEMPTS
     ) {
@@ -134,6 +141,9 @@ export const useWebSocket = (endpoint = ""): UseWebSocketResult => {
         RECONNECT_INTERVAL_MS *
           Math.pow(2, Math.min(reconnectAttemptsRef.current - 1, 5)),
       );
+    } else if (!isMountedRef.current || event.code === 1000) {
+      // Intentional close — stay silent.
+      setConnectionStatus("disconnected");
     } else {
       setConnectionStatus("failed");
     }
@@ -211,8 +221,10 @@ export const useWebSocket = (endpoint = ""): UseWebSocketResult => {
   }, []);
 
   useEffect(() => {
+    isMountedRef.current = true;
     connect();
     return () => {
+      isMountedRef.current = false;
       disconnect();
     };
   }, [connect, disconnect]);

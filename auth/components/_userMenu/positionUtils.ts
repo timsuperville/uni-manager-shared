@@ -21,6 +21,8 @@ export interface DropdownCoords {
 export function computeDropdownCoords(
   rect: DOMRect,
   preferredPosition: PreferredPosition,
+  width: number = DROPDOWN_W,
+  height: number = DROPDOWN_EST_H
 ): DropdownCoords {
   const vpW = window.innerWidth;
   const vpH = window.innerHeight;
@@ -36,26 +38,26 @@ export function computeDropdownCoords(
   let opensUpward = false;
 
   if (preferTop) {
-    if (spaceAbove >= DROPDOWN_EST_H || spaceAbove >= spaceBelow) {
-      top = rect.top - DROPDOWN_EST_H - 8;
+    if (spaceAbove >= height || spaceAbove >= spaceBelow) {
+      top = rect.top - height - 8;
       opensUpward = true;
     } else {
       top = rect.bottom + 8;
     }
   } else {
-    if (spaceBelow >= DROPDOWN_EST_H || spaceBelow >= spaceAbove) {
+    if (spaceBelow >= height || spaceBelow >= spaceAbove) {
       top = rect.bottom + 8;
     } else {
-      top = rect.top - DROPDOWN_EST_H - 8;
+      top = rect.top - height - 8;
       opensUpward = true;
     }
   }
 
-  top = Math.max(EDGE_MARGIN, Math.min(top, vpH - DROPDOWN_EST_H - EDGE_MARGIN));
+  top = Math.max(EDGE_MARGIN, Math.min(top, vpH - height - EDGE_MARGIN));
 
   // ── Horizontal ────────────────────────────────────────────────────────────
-  let left = preferLeft ? rect.left : rect.right - DROPDOWN_W;
-  left = Math.max(EDGE_MARGIN, Math.min(left, vpW - DROPDOWN_W - EDGE_MARGIN));
+  let left = preferLeft ? rect.left : rect.right - width;
+  left = Math.max(EDGE_MARGIN, Math.min(left, vpW - width - EDGE_MARGIN));
 
   return { top, left, opensUpward };
 }

@@ -264,9 +264,8 @@ const SignupForm = ({
     try {
       type SignupFn = (data: { firstName: string; lastName: string; email: string; password: string; acceptTerms: boolean }) => Promise<{ success: boolean; requiresVerification?: boolean }>;
       const svcAny = authService as unknown as Record<string, SignupFn | undefined>;
-      const signupFn = svcAny.signup;
-      if (!signupFn) throw new Error("signup method not available");
-      const result = await signupFn({
+      if (!svcAny.signup) throw new Error("signup method not available");
+      const result = await svcAny.signup({
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,

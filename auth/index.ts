@@ -57,10 +57,12 @@ export {
 } from "./hooks/useRateLimit.ts";
 export { useAuthForm } from "./hooks/useAuthForm.ts";
 
-// Church CAHA hooks + types
+// Church CAHA hooks + types (CAHA_PROTOCOL.md v2.0)
 export {
   useChurchRole,
   type UseChurchRoleReturn,
+  type CommunityStage,
+  type MinistryPosition,
   type MinistryRole,
 } from "./hooks/useChurchRole.ts";
 export { useChurchId } from "./hooks/useChurchId.ts";

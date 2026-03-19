@@ -48,14 +48,14 @@ export function Toggle({
           height: 20,
           borderRadius: 10,
           background: checked
-            ? "var(--primary-resonance, var(--color-primary, #6366f1))"
-            : "var(--glass-outline, var(--glass-border, rgba(255,255,255,0.12)))",
+            ? "var(--primary-resonance)"
+            : "var(--glass-outline)",
           position: "relative",
           transition: "background 0.2s",
           cursor: disabled ? "not-allowed" : "pointer",
           flexShrink: 0,
           outline: "none",
-          border: "1px solid var(--glass-outline, rgba(255,255,255,0.1))",
+          border: "1px solid var(--glass-outline)",
         }}
       >
         <span
@@ -66,7 +66,7 @@ export function Toggle({
             width: 14,
             height: 14,
             borderRadius: "50%",
-            background: "#fff",
+            background: "var(--text-primary)",
             transition: "left 0.2s cubic-bezier(0.4,0,0.2,1)",
             boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
           }}
@@ -75,8 +75,8 @@ export function Toggle({
       {label && (
         <span
           style={{
-            fontSize: "var(--text-sm, 0.875rem)",
-            color: "var(--text-primary, inherit)",
+            fontSize: "var(--text-sm)",
+            color: "var(--text-primary)",
             userSelect: "none",
           }}
         >

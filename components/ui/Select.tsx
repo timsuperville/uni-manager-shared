@@ -78,12 +78,12 @@ const Select: React.FC<SelectProps> = ({
     display: "inline-flex", alignItems: "center", gap: 5,
     height: 32, padding: "0 10px 0 8px", borderRadius: 999,
     border: hasValue
-      ? "1.5px solid var(--primary-resonance, #7c3aed)"
+      ? "1.5px solid var()"
       : "1px solid var(--glass-outline, rgba(255,255,255,0.18))",
     background: hasValue
       ? "var(--primary-glow, hsla(272,65%,62%,0.22))"
       : "var(--glass-input, rgba(255,255,255,0.07))",
-    color: hasValue ? "var(--primary-resonance, #7c3aed)" : "var(--text-secondary)",
+    color: hasValue ? "var()" : "var(--text-secondary)",
     fontSize: 12, fontWeight: hasValue ? 600 : 500,
     fontFamily: "var(--font-body)", cursor: disabled ? "not-allowed" : "pointer",
     opacity: disabled ? 0.5 : 1, whiteSpace: "nowrap", flexShrink: 0,
@@ -93,11 +93,11 @@ const Select: React.FC<SelectProps> = ({
     display: "flex", alignItems: "center", justifyContent: "space-between",
     width: "100%", padding: `${padY} 36px ${padY} 12px`,
     fontSize, fontFamily: "var(--font-body)",
-    borderRadius: "var(--radius-md, 0.5rem)",
+    borderRadius: "var()",
     border: error
-      ? "1px solid var(--accent-rose, #f87171)"
+      ? "1px solid var()"
       : isOpen
-        ? "1px solid var(--primary-resonance, #7c3aed)"
+        ? "1px solid var()"
         : "1px solid var(--glass-outline, rgba(255,255,255,0.1))",
     background: disabled
       ? "var(--glass-input-disabled, rgba(255,255,255,0.02))"
@@ -130,7 +130,7 @@ const Select: React.FC<SelectProps> = ({
           padding: "8px 12px", fontSize: "13px", fontFamily: "var(--font-body)",
           cursor: "pointer",
           color: isSelected
-            ? "var(--primary-resonance, #7c3aed)"
+            ? "var()"
             : isHighlighted ? "var(--text-primary)" : "var(--text-secondary)",
           background: isSelected
             ? "var(--primary-glow, hsla(272,65%,62%,0.15))"
@@ -168,7 +168,7 @@ const Select: React.FC<SelectProps> = ({
         onKeyDown={handleKeyDown}
         onMouseEnter={(e) => {
           if (!disabled && !isOpen)
-            e.currentTarget.style.border = "1px solid var(--border-glow, var(--primary-resonance))";
+            e.currentTarget.style.border = "1px solid var()";
         }}
         onMouseLeave={(e) => {
           if (!isOpen)
@@ -240,7 +240,7 @@ const Select: React.FC<SelectProps> = ({
             top: dropdownPos.top, left: dropdownPos.left, width: dropdownPos.width,
             background: "var(--glass-surface, rgba(15,15,35,0.96))",
             border: "1px solid var(--glass-outline, rgba(255,255,255,0.12))",
-            borderRadius: "var(--radius-md, 0.5rem)",
+            borderRadius: "var()",
             backdropFilter: "blur(20px) saturate(150%)",
             boxShadow: dropdownPos.flipUp ? "0 -16px 40px rgba(0,0,0,0.5)" : "0 16px 40px rgba(0,0,0,0.5)",
             maxHeight: dropdownPos.maxHeight || 240,
@@ -262,7 +262,7 @@ const Select: React.FC<SelectProps> = ({
                   fontFamily: "var(--font-body)",
                   background: "var(--glass-input, rgba(255,255,255,0.06))",
                   border: "1px solid var(--glass-outline)",
-                  borderRadius: "var(--radius-sm, 0.375rem)",
+                  borderRadius: "var()",
                   color: "var(--text-primary)", outline: "none",
                 }}
               />

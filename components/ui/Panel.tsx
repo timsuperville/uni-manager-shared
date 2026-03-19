@@ -39,20 +39,20 @@ export function Panel({ open, onClose, title, children, footer, width = 440, cla
       />
       <div
         className={className}
-        style={{ position: "relative", width: "100%", maxWidth: width, height: "100%", display: "flex", flexDirection: "column", background: "var(--glass-surface, rgba(15,15,35,0.92))", borderLeft: "1px solid var(--glass-outline, rgba(255,255,255,0.12))", backdropFilter: "blur(32px) saturate(200%)", WebkitBackdropFilter: "blur(32px) saturate(200%)", boxShadow: "-12px 0 48px rgba(0,0,0,0.45)", animation: "slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards" }}
+        style={{ position: "relative", width: "100%", maxWidth: width, height: "100%", display: "flex", flexDirection: "column", background: "var(--glass-surface)", borderLeft: "1px solid var(--glass-outline)", backdropFilter: "blur(32px) saturate(200%)", WebkitBackdropFilter: "blur(32px) saturate(200%)", boxShadow: "-12px 0 48px rgba(0,0,0,0.45)", animation: "slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards" }}
       >
-        <div style={{ padding: "1.25rem 1.5rem", borderBottom: "1px solid var(--glass-outline, rgba(255,255,255,0.08))", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ padding: "1.25rem 1.5rem", borderBottom: "1px solid var(--glass-outline)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           {title ? (
-            <h3 style={{ margin: 0, fontSize: "1.125rem", fontWeight: 600, color: "var(--text-primary, #fff)", fontFamily: "var(--font-display, inherit)" }}>
+            <h3 style={{ margin: 0, fontSize: "1.125rem", fontWeight: 600, color: "var(--text-primary)", fontFamily: "var(--font-display, inherit)" }}>
               {title}
             </h3>
           ) : <div />}
           <button
             onClick={onClose}
             aria-label="Close panel"
-            style={{ background: "transparent", border: "none", color: "var(--text-muted, #9ca3af)", cursor: "pointer", padding: "4px", display: "flex", alignItems: "center", justifyContent: "center", transition: "color 0.2s" }}
-            onMouseEnter={e => (e.currentTarget.style.color = "var(--text-primary, #fff)")}
-            onMouseLeave={e => (e.currentTarget.style.color = "var(--text-muted, #9ca3af)")}
+            style={{ background: "transparent", border: "none", color: "var(--text-muted)", cursor: "pointer", padding: "4px", display: "flex", alignItems: "center", justifyContent: "center", transition: "color 0.2s" }}
+            onMouseEnter={e => (e.currentTarget.style.color = "var(--text-primary)")}
+            onMouseLeave={e => (e.currentTarget.style.color = "var(--text-muted)")}
           >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="18" y1="6" x2="6" y2="18" />
@@ -62,7 +62,7 @@ export function Panel({ open, onClose, title, children, footer, width = 440, cla
         </div>
         <div style={{ flex: 1, overflowY: "auto", padding: padded ? "1.5rem" : "0" }}>{children}</div>
         {footer && (
-          <div style={{ padding: "1.25rem 1.5rem", borderTop: "1px solid var(--glass-outline, rgba(255,255,255,0.08))", background: "rgba(0,0,0,0.2)" }}>
+          <div style={{ padding: "1.25rem 1.5rem", borderTop: "1px solid var(--glass-outline)", background: "rgba(0,0,0,0.2)" }}>
             {footer}
           </div>
         )}

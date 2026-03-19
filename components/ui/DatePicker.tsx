@@ -107,7 +107,7 @@ export function DatePicker({
 
   const triggerFocusStyle = (focused: boolean): React.CSSProperties => ({
     border: focused
-      ? "1px solid var(--border-glow, var(--primary-resonance))"
+      ? "1px solid var()"
       : "1px solid var(--glass-outline, rgba(255,255,255,0.12))",
     boxShadow: focused ? "0 0 0 3px var(--primary-glow, rgba(99,102,241,0.2))" : "none",
   });
@@ -185,11 +185,11 @@ export function DatePicker({
                   style={{
                     ...S.day,
                     ...(dis ? { opacity: 0.3, cursor: "not-allowed" } : {}),
-                    ...(tod && !sel ? { color: "var(--text-accent, var(--primary-resonance))", fontWeight: 700 } : {}),
+                    ...(tod && !sel ? { color: "var()", fontWeight: 700 } : {}),
                     ...(sel ? { background: "var(--primary-resonance)", color: "#fff", fontWeight: 700, boxShadow: "0 2px 8px var(--primary-glow, rgba(99,102,241,0.3))" } : {}),
                   }}
                   onMouseEnter={(e) => { if (!sel && !dis) { e.currentTarget.style.background = "var(--glass-surface-hover, rgba(255,255,255,0.07))"; e.currentTarget.style.color = "var(--text-primary)"; } }}
-                  onMouseLeave={(e) => { if (!sel && !dis) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = tod ? "var(--text-accent, var(--primary-resonance))" : "var(--text-secondary)"; } }}
+                  onMouseLeave={(e) => { if (!sel && !dis) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = tod ? "var()" : "var(--text-secondary)"; } }}
                 >
                   {day}
                 </button>
@@ -212,7 +212,7 @@ export function DatePicker({
             {parsed && (
               <button
                 type="button" style={S.clearBtn} onClick={clear}
-                onMouseEnter={(e) => { e.currentTarget.style.color = "var(--color-error, #ef4444)"; }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = "var()"; }}
                 onMouseLeave={(e) => { e.currentTarget.style.color = "var(--text-muted)"; }}
               >
                 <X style={{ width: 11, height: 11 }} />
