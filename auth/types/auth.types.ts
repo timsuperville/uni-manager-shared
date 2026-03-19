@@ -100,7 +100,7 @@ export interface AuthContextType {
     credentials: LoginCredentials,
   ) => Promise<LoginResult | LoginResponse>;
   logout: () => Promise<void | { success: boolean }>;
-  signup?: (data: SignupData) => Promise<any>;
+  signup?: (data: SignupData) => Promise<LoginResult>;
 
   // Token management
   refreshToken?: () => Promise<void>;

@@ -67,12 +67,13 @@ const DOMAIN_ROLE_MAP: Record<string, Record<string, string>> = {
     employee: "business_user",
     viewer: "guest",
   },
+  // CAHA community journey stages — canonical per CAHA_PROTOCOL.md §1.1
   church: {
-    admin: "church_admin",
-    staff: "church_manager",
-    leader: "church_manager",
-    member: "church_user",
-    visitor: "guest",
+    steward:  'church_steward',
+    member:   'church_user',
+    attendee: 'church_user',
+    visitor:  'guest',
+    viewer:   'guest',
   },
   personal: { personal_user: "personal_user" },
   playback: { operator: "playback_admin", viewer: "playback_user" },
