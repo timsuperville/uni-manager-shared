@@ -21,12 +21,14 @@ import {
 import { formatDistanceToNow } from "date-fns";
 import { useNotifications } from "../../hooks/useNotifications";
 import { useWebSocket } from "../../hooks/useWebSocket";
-import { LoadingSpinner } from "../ui/LoadingSpinner";
-import { Button } from "../ui/Button";
-import { Badge } from "../ui/Badge";
-import { Dropdown } from "../ui/Dropdown";
-import { SearchInput } from "../ui/SearchInput";
-import { Pagination } from "../ui/Pagination";
+import {
+  LoadingSpinner,
+  Button,
+  Badge,
+  Dropdown,
+  SearchInput,
+  Pagination,
+} from "@shared/components/ui";
 import { NotificationModal } from "./NotificationModal";
 import NotificationToast from "./NotificationToast";
 import { NotificationPreferences } from "./NotificationPreferences";
@@ -408,13 +410,13 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
       return (
         <div
           key={id}
-          className={`relative p-4 border-b border-gray-200 cursor-pointer transition-colors ${
-            isSelected ? "bg-blue-50 border-blue-200" : "hover:bg-gray-50"
-          } ${isUnread ? "bg-blue-25" : ""}`}
+          className={`relative p-4 border-b border-[var(--glass-outline)] cursor-pointer glass-node-hover ${
+            isSelected ? "bg-[var(--primary-subtle)]" : ""
+          } ${isUnread ? "bg-[var(--glass-surface)]" : ""}`}
           onClick={() => handleNotificationClick(notification)}
         >
           {/* Selection checkbox */}
-          <div className="absolute top-4 left-4">
+          <div className="absolute top-4 left-4 z-10">
             <input
               type="checkbox"
               checked={isSelected}
@@ -422,7 +424,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                 e.stopPropagation();
                 handleNotificationSelect(id);
               }}
-              className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+              className="w-4 h-4 text-[var(--primary-resonance)] bg-transparent rounded border-[var(--glass-outline)] focus:ring-[var(--primary-glow)] focus:ring-opacity-50"
             />
           </div>
 
@@ -433,11 +435,11 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                 {getNotificationIcon(notification.type, notification.priority)}
                 <div className="flex-1 min-w-0">
                   <h4
-                    className={`text-sm font-medium ${isUnread ? "text-gray-900" : "text-gray-700"}`}
+                    className={`text-sm font-medium ${isUnread ? "text-[var(--text-primary)]" : "text-[var(--text-secondary)]"}`}
                   >
                     {notification.subject ?? notification.title ?? "No subject"}
                   </h4>
-                  <p className="text-sm text-gray-600 line-clamp-2 mt-1">
+                  <p className="text-sm text-[var(--text-muted)] line-clamp-2 mt-1">
                     {notification.content ??
                       notification.message ??
                       "No content"}
@@ -447,7 +449,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
 
               <div className="flex flex-col items-end space-y-1 ml-4">
                 {getPriorityBadge(notification.priority)}
-                <span className="text-xs text-gray-500 flex items-center">
+                <span className="text-xs text-[var(--text-muted)] flex items-center">
                   <FiClock className="w-3 h-3 mr-1" />
                   {formatDistanceToNow(
                     new Date(
@@ -461,18 +463,20 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
               </div>
             </div>
 
-            <div className="flex items-center justify-between mt-2">
+            <div className="flex items-center justify-between mt-3 pl-4 border-t border-[var(--glass-outline)] pt-3 opacity-80">
               <div className="flex items-center space-x-2">
-                <Badge color="gray" size="xs">
+                <span className="text-[10px] tracking-wider uppercase font-semibold px-2 py-0.5 rounded-full bg-[var(--glass-surface)] border border-[var(--glass-outline)] text-[var(--text-secondary)]">
                   {notification.type ?? "General"}
-                </Badge>
+                </span>
                 {notification.module && (
-                  <Badge color="gray" size="xs">
+                  <span className="text-[10px] tracking-wider uppercase font-semibold px-2 py-0.5 rounded-full bg-[var(--glass-surface)] border border-[var(--glass-outline)] text-[var(--text-secondary)]">
                     {notification.module}
-                  </Badge>
+                  </span>
                 )}
               </div>
-              {isUnread && <div className="w-2 h-2 bg-blue-500 rounded-full" />}
+              {isUnread && (
+                <div className="w-2 h-2 bg-[var(--primary-resonance)] shadow-[0_0_8px_var(--primary-glow)] rounded-full animate-pulse" />
+              )}
             </div>
           </div>
         </div>
@@ -496,66 +500,65 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
 
       {/* Panel */}
       <div
-        className={`fixed top-0 ${position === "right" ? "right-0" : "left-0"} h-full w-96 bg-white shadow-xl z-50
-          transform transition-transform duration-300 ease-in-out
+        className={`fixed top-0 ${position === "right" ? "right-0" : "left-0"} h-full w-96 glass-sidebar z-50
+          transform transition-transform duration-300 ease-in-out shadow-2xl
           ${isOpen ? "translate-x-0" : position === "right" ? "translate-x-full" : "-translate-x-full"}
           ${className}`}
       >
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col h-full bg-aurora overflow-hidden mix-blend-screen pointer-events-none" />
+        <div className="flex flex-col h-full absolute inset-0">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-200">
-            <div className="flex items-center space-x-2">
-              <FiBell className="w-5 h-5 text-gray-700" />
-              <h2 className="text-lg font-semibold text-gray-900">
-                Notifications
-              </h2>
+          <div className="flex items-center justify-between p-5 glass-header">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 rounded-xl bg-[var(--primary-subtle)]">
+                <FiBell className="w-5 h-5 text-[var(--primary-resonance)]" />
+              </div>
+              <h2 className="text-lg section-heading-violet">Notifications</h2>
               {unreadCount > 0 && (
-                <Badge color="blue" size="sm">
+                <div className="ml-2 px-2 py-0.5 rounded-full bg-[var(--accent-amber-subtle)] border border-[var(--accent-amber)] border-opacity-30 text-[var(--text-amber)] text-xs font-bold">
                   {unreadCount}
-                </Badge>
+                </div>
               )}
             </div>
             <div className="flex items-center space-x-1">
               <div
-                className={`w-2 h-2 rounded-full ${isConnected ? "bg-green-500" : "bg-red-500"}`}
+                className={`w-2 h-2 rounded-full mr-2 shadow-[0_0_8px_currentColor] ${isConnected ? "text-green-500 bg-green-500" : "text-red-500 bg-red-500"}`}
+                title={isConnected ? "Connected" : "Disconnected"}
               />
-              <Button
-                variant="ghost"
-                size="sm"
+              <button
                 onClick={() => setShowPreferences(true)}
-                className="p-1"
+                className="church-link-muted p-2"
+                aria-label="Settings"
               >
                 <FiSettings className="w-4 h-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
+              </button>
+              <button
                 onClick={refreshNotifications}
                 disabled={notificationsLoading}
-                className="p-1"
+                className="church-link-muted p-2 disabled:opacity-50"
+                aria-label="Refresh"
               >
                 <FiRefreshCw
                   className={`w-4 h-4 ${notificationsLoading ? "animate-spin" : ""}`}
                 />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
+              </button>
+              <button
                 onClick={onClose}
-                className="p-1"
+                className="church-cancel-btn p-2 rounded-lg"
+                aria-label="Close"
               >
                 <FiX className="w-4 h-4" />
-              </Button>
+              </button>
             </div>
           </div>
 
           {/* Search + filters */}
-          <div className="p-4 border-b border-gray-200 space-y-3">
+          <div className="p-4 border-b border-[var(--glass-outline)] space-y-3 z-10 glass-surface">
             <SearchInput
               placeholder="Search notifications..."
               value={searchQuery}
               onChange={handleSearch}
-              className="w-full"
+              className="w-full input-ecclesia"
             />
             <div className="flex items-center space-x-2">
               <Dropdown
@@ -595,69 +598,66 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
 
           {/* Bulk actions bar */}
           {selectedNotifications.size > 0 && (
-            <div className="p-4 bg-blue-50 border-b border-blue-200">
+            <div className="p-4 bg-[var(--primary-subtle)] border-b border-[var(--primary-resonance)] border-opacity-20 animate-fade-in">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-blue-700">
+                <span className="text-sm font-medium text-[var(--text-accent)]">
                   {selectedNotifications.size} selected
                 </span>
                 <div className="flex items-center space-x-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
+                  <button
                     onClick={() => handleBulkAction("markRead")}
                     disabled={isLoading}
+                    className="btn-ghost flex items-center px-3 py-1 text-xs"
                   >
-                    <FiCheck className="w-4 h-4 mr-1" />
+                    <FiCheck className="w-3 h-3 mr-1" />
                     Mark Read
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
+                  </button>
+                  <button
                     onClick={() => handleBulkAction("archive")}
                     disabled={isLoading}
+                    className="btn-ghost px-3 py-1 text-xs"
                   >
                     Archive
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
+                  </button>
+                  <button
                     onClick={() => handleBulkAction("delete")}
                     disabled={isLoading}
-                    className="text-red-600 hover:text-red-700"
+                    className="church-cancel-btn p-2 rounded-lg ml-1 text-xs"
                   >
                     <FiTrash2 className="w-4 h-4" />
-                  </Button>
+                  </button>
                 </div>
               </div>
             </div>
           )}
 
           {/* List */}
-          <div className="flex-1 overflow-y-auto" ref={notificationListRef}>
+          <div
+            className="flex-1 overflow-y-auto scrollbar-responsive"
+            ref={notificationListRef}
+          >
             {notificationsLoading && notifications.length === 0 ? (
               <div className="flex items-center justify-center h-32">
                 <LoadingSpinner size="md" />
               </div>
             ) : error ? (
               <div className="p-4 text-center">
-                <p className="text-red-600 mb-2">
+                <p className="text-red-500 mb-2">
                   Failed to load notifications
                 </p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={refreshNotifications}
-                >
+                <button className="btn-ghost" onClick={refreshNotifications}>
                   Retry
-                </Button>
+                </button>
               </div>
             ) : processedNotifications.length === 0 ? (
-              <div className="p-8 text-center">
-                <FiBell className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
+              <div className="p-8 text-center animate-fade-up">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--glass-surface)] border border-[var(--glass-outline)] flex items-center justify-center shadow-lg">
+                  <FiBell className="w-6 h-6 text-[var(--text-muted)] opacity-50" />
+                </div>
+                <h3 className="text-lg font-medium text-[var(--text-primary)] mb-2">
                   No notifications
                 </h3>
-                <p className="text-gray-600">
+                <p className="text-[var(--text-secondary)] text-sm">
                   {searchQuery
                     ? "No notifications match your search."
                     : "You're all caught up!"}
@@ -666,8 +666,8 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
             ) : (
               <>
                 {/* Select all */}
-                <div className="p-4 border-b border-gray-200">
-                  <label className="flex items-center">
+                <div className="p-3 border-b border-[var(--glass-outline)] bg-[var(--glass-surface)] sticky top-0 z-10 backdrop-blur-md">
+                  <label className="flex items-center cursor-pointer select-none">
                     <input
                       type="checkbox"
                       checked={
@@ -675,9 +675,9 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                         processedNotifications.length
                       }
                       onChange={handleSelectAll}
-                      className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                      className="w-4 h-4 text-[var(--primary-resonance)] bg-transparent rounded border-[var(--glass-outline)] focus:ring-[var(--primary-glow)] focus:ring-opacity-50"
                     />
-                    <span className="ml-2 text-sm text-gray-700">
+                    <span className="ml-3 text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
                       Select all
                     </span>
                   </label>
@@ -689,7 +689,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
 
           {/* Footer pagination */}
           {totalCount > 0 && (
-            <div className="p-4 border-t border-gray-200">
+            <div className="p-4 glass-bottom-nav z-10">
               <Pagination
                 currentPage={currentPage}
                 totalPages={Math.ceil(totalCount / 20)}

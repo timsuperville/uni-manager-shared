@@ -10,8 +10,7 @@ import {
   FiTrash2,
   FiArchive,
 } from "react-icons/fi";
-import { Button } from "../../components/ui/Button";
-import { Avatar } from "../../components/ui/Avatar";
+import { Button, Avatar } from "@shared/components/ui";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -267,34 +266,68 @@ const NotificationToast: React.FC<NotificationToastProps> = ({
   const getIcon = useCallback(() => {
     const iconMap: Record<
       ToastType,
-      { icon: React.ComponentType<{ className?: string }>; color: string }
+      {
+        icon: React.ComponentType<{ className?: string }>;
+        color: string;
+        bg: string;
+      }
     > = {
-      success: { icon: FiCheck, color: "text-green-500" },
-      error: { icon: FiAlertCircle, color: "text-red-500" },
-      warning: { icon: FiAlertTriangle, color: "text-orange-500" },
-      info: { icon: FiInfo, color: "text-blue-500" },
-      notification: { icon: FiBell, color: "text-purple-500" },
+      success: {
+        icon: FiCheck,
+        color: "text-green-400",
+        bg: "bg-green-500 bg-opacity-10",
+      },
+      error: {
+        icon: FiAlertCircle,
+        color: "text-red-400",
+        bg: "bg-red-500 bg-opacity-10",
+      },
+      warning: {
+        icon: FiAlertTriangle,
+        color: "text-orange-400",
+        bg: "bg-orange-500 bg-opacity-10",
+      },
+      info: {
+        icon: FiInfo,
+        color: "text-blue-400",
+        bg: "bg-blue-500 bg-opacity-10",
+      },
+      notification: {
+        icon: FiBell,
+        color: "text-[var(--primary-resonance)]",
+        bg: "bg-[var(--primary-glow)]",
+      },
     };
     const config = iconMap[type] ?? iconMap.info;
     const Icon = config.icon;
-    return <Icon className={`w-5 h-5 ${config.color}`} />;
+    return (
+      <div
+        className={`p-2 rounded-xl flex items-center justify-center ${config.bg}`}
+      >
+        <Icon className={`w-5 h-5 ${config.color}`} />
+      </div>
+    );
   }, [type]);
 
   const getToastStyles = useCallback(() => {
     const base =
-      "relative flex items-start space-x-3 p-4 rounded-lg shadow-lg backdrop-blur-sm border transition-all duration-300 ease-in-out max-w-sm";
+      "relative flex items-start space-x-3 p-4 rounded-xl glass-card border transition-all duration-300 ease-in-out max-w-sm overflow-hidden";
     const typeStyles: Record<ToastType, string> = {
-      success: "bg-green-50 border-green-200 text-green-800",
-      error: "bg-red-50 border-red-200 text-red-800",
-      warning: "bg-orange-50 border-orange-200 text-orange-800",
-      info: "bg-blue-50 border-blue-200 text-blue-800",
-      notification: "bg-white border-gray-200 text-gray-800 shadow-xl",
+      success:
+        "border-[var(--glass-outline)] text-[var(--text-primary)] shadow-[0_8px_32px_rgba(16,185,129,0.15)]",
+      error:
+        "border-[var(--glass-outline)] text-[var(--text-primary)] shadow-[0_8px_32px_rgba(239,68,68,0.2)]",
+      warning:
+        "border-[var(--glass-outline)] text-[var(--text-primary)] shadow-[0_8px_32px_rgba(245,158,11,0.15)]",
+      info: "border-[var(--glass-outline)] text-[var(--text-primary)] shadow-[0_8px_32px_rgba(59,130,246,0.15)]",
+      notification: "border-[var(--glass-outline)] text-[var(--text-primary)]",
     };
     const priorityStyles: Record<NotificationPriority, string> = {
       low: "",
       normal: "",
-      high: "ring-2 ring-orange-400 ring-opacity-50",
-      urgent: "ring-2 ring-red-500 ring-opacity-75 animate-pulse",
+      high: "border-[var(--accent-amber)] border-opacity-50 shadow-[0_0_16px_var(--accent-amber-glow)]",
+      urgent:
+        "border-red-500 border-opacity-70 shadow-[0_0_24px_rgba(239,68,68,0.4)] animate-pulse",
     };
     const positionStyles: Record<ToastPosition, string> = {
       "top-right": "top-4 right-4",
@@ -347,26 +380,26 @@ const NotificationToast: React.FC<NotificationToastProps> = ({
     >
       {/* Progress bar */}
       {showProgress && autoClose && (
-        <div className="absolute bottom-0 left-0 w-full h-1 bg-gray-200 rounded-b-lg overflow-hidden">
+        <div className="absolute bottom-0 left-0 w-full h-1 bg-[var(--glass-surface)] z-20">
           <div
             ref={progressRef}
             className={`h-full transition-all duration-100 ease-linear ${
               type === "success"
-                ? "bg-green-400"
+                ? "bg-green-500 shadow-[0_0_8px_currentColor]"
                 : type === "error"
-                  ? "bg-red-400"
+                  ? "bg-red-500 shadow-[0_0_8px_currentColor]"
                   : type === "warning"
-                    ? "bg-orange-400"
+                    ? "bg-orange-400 shadow-[0_0_8px_currentColor]"
                     : type === "info"
-                      ? "bg-blue-400"
-                      : "bg-purple-400"
+                      ? "bg-blue-400 shadow-[0_0_8px_currentColor]"
+                      : "bg-[var(--primary-resonance)] shadow-[0_0_8px_var(--primary-glow)]"
             }`}
             style={{ width: `${progress}%` }}
           />
         </div>
       )}
 
-      <div className="shrink-0">
+      <div className="shrink-0 z-10 pt-0.5">
         {avatar ? (
           <Avatar src={avatar} alt="Notification" size="sm" />
         ) : (
@@ -374,16 +407,23 @@ const NotificationToast: React.FC<NotificationToastProps> = ({
         )}
       </div>
 
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 z-10">
         {title && (
-          <h4 className="text-sm font-medium mb-1 truncate">{title}</h4>
+          <h4 className="text-sm font-semibold mb-0.5 mt-0.5 truncate text-[var(--text-primary)] tracking-tight">
+            {title}
+          </h4>
         )}
         {message && (
-          <p className="text-sm opacity-90 line-clamp-3">{message}</p>
+          <p className="text-[13px] text-[var(--text-secondary)] opacity-90 line-clamp-3 leading-snug">
+            {message}
+          </p>
         )}
         {resonanceId && (
-          <div className="mt-1 font-mono text-[10px] opacity-70 break-all select-all">
-            Error Ref: {resonanceId}
+          <div className="mt-1.5 font-mono text-[10px] text-[var(--text-muted)] opacity-70 break-all select-all flex items-center bg-black/20 px-1.5 py-0.5 rounded w-fit">
+            <span className="mr-1 text-[8px] uppercase tracking-widest font-bold">
+              Ref
+            </span>{" "}
+            {resonanceId}
           </div>
         )}
 
@@ -392,37 +432,31 @@ const NotificationToast: React.FC<NotificationToastProps> = ({
             {allActions.map((action, index) => {
               const Icon = action.icon;
               return (
-                <Button
+                <button
                   key={index}
-                  // @ts-ignore
-                  variant={action.variant || "primary"}
-                  size="xs"
                   onClick={() => handleActionClick(action)}
-                  className={
-                    type === "notification"
-                      ? "text-gray-600 hover:text-gray-800"
-                      : ""
-                  }
+                  className={`
+                    flex items-center text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-all
+                    ${action.variant === "primary" ? "bg-[var(--primary-resonance)] text-white shadow-md hover:brightness-110" : "bg-[var(--glass-surface)] border border-[var(--glass-outline)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--glass-surface-hover)]"}
+                  `}
                 >
-                  {Icon && <Icon className="w-3 h-3 mr-1" />}
+                  {Icon && <Icon className="w-3.5 h-3.5 mr-1.5" />}
                   {action.label}
-                </Button>
+                </button>
               );
             })}
           </div>
         )}
       </div>
 
-      <div className="shrink-0">
-        <Button
-          variant="ghost"
-          size="xs"
+      <div className="shrink-0 z-10">
+        <button
           onClick={handleClose}
-          className="text-gray-400 hover:text-gray-600 p-1"
+          className="church-cancel-btn p-1.5 rounded-md"
           aria-label="Close notification"
         >
           <FiX className="w-4 h-4" />
-        </Button>
+        </button>
       </div>
     </div>
   );

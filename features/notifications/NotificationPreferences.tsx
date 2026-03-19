@@ -10,17 +10,20 @@ import {
   FiVolumeX,
   FiSave,
   FiRefreshCw,
+  FiDownload,
 } from "react-icons/fi";
 import { useNotificationPreferences } from "../../hooks/useNotificationPreferences";
 import type { NotificationPreferences as StoredPreferences } from "../../hooks/useNotificationPreferences";
-import { Button } from "../ui/Button";
-import { Card } from "../ui/Card";
-import { Switch } from "../ui/Switch";
-import { Select } from "../ui/Select";
-import { Slider } from "../ui/Slider";
-import { TimePicker } from "../ui/TimePicker";
-import { LoadingSpinner } from "../ui/LoadingSpinner";
-import { Modal } from "../ui/Modal";
+import {
+  Button,
+  Card,
+  Switch,
+  Select,
+  TimePicker,
+  LoadingSpinner,
+  Modal,
+} from "@shared/components/ui";
+import { Slider } from "@shared/components/ui/Slider";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -259,7 +262,7 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
     if (preferences && Object.keys(preferences).length > 0) {
       setLocalPreferences((prev) => ({
         ...prev,
-        ...(preferences as Partial<LocalPreferences>),
+        ...(preferences as unknown as Partial<LocalPreferences>),
       }));
     }
   }, [preferences]);
@@ -311,7 +314,7 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
       value: unknown,
     ) => {
       setLocalPreferences((prev) => {
-        const sectionData = prev[section] as Record<
+        const sectionData = prev[section] as unknown as Record<
           string,
           Record<string, unknown>
         >;
@@ -336,7 +339,7 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
     setIsLoading(true);
     setSaveStatus(null);
     try {
-      await updatePreferences(localPreferences as StoredPreferences);
+      await updatePreferences(localPreferences as unknown as StoredPreferences);
       setSaveStatus("success");
       setHasChanges(false);
       setTimeout(() => setSaveStatus(null), 3000);
@@ -393,7 +396,7 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
   const renderChannelPreferences = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-4">
+        <h3 className="text-xl font-semibold text-[var(--text-primary)] tracking-tight mb-4">
           Delivery Channels
         </h3>
         <div className="space-y-4">
@@ -401,47 +404,54 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
             ([channel, settings]) => {
               const Icon = CHANNEL_ICONS[channel] ?? FiBell;
               return (
-                <Card key={channel} className="p-4">
-                  <div className="flex items-center justify-between mb-3">
+                <div
+                  key={channel}
+                  className="p-5 glass-card rounded-2xl border border-[var(--glass-outline)]"
+                >
+                  <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center space-x-3">
-                      <Icon className="w-5 h-5 text-gray-600" />
-                      <span className="font-medium text-gray-900 capitalize">
+                      <div className="p-2.5 rounded-xl bg-[var(--primary-subtle)] border border-[var(--primary-resonance)] border-opacity-30">
+                        <Icon className="w-5 h-5 text-[var(--primary-resonance)]" />
+                      </div>
+                      <span className="font-semibold text-[var(--text-primary)] capitalize">
                         {channel === "inApp" ? "In-App" : channel}
                       </span>
                     </div>
                     <Switch
                       checked={settings.enabled}
-                      onChange={(enabled: boolean) =>
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        const enabled = e.target.checked;
                         updateNestedPreference(
                           "channels",
                           channel,
                           "enabled",
                           enabled,
-                        )
-                      }
+                        );
+                      }}
                     />
                   </div>
                   {settings.enabled && (
-                    <div className="ml-8">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <div className="ml-[3.25rem] mt-2">
+                      <label className="block text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">
                         Frequency
                       </label>
                       <Select
                         value={settings.frequency}
-                        onChange={(frequency: string) =>
+                        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                          const frequency = e.target.value;
                           updateNestedPreference(
                             "channels",
                             channel,
                             "frequency",
                             frequency,
-                          )
-                        }
+                          );
+                        }}
                         options={FREQUENCY_OPTIONS}
-                        className="w-full"
+                        className="w-full max-w-xs focus:ring-[var(--primary-glow)] border-[var(--glass-outline)] bg-[var(--glass-surface)] text-[var(--text-primary)]"
                       />
                     </div>
                   )}
-                </Card>
+                </div>
               );
             },
           )}
@@ -453,44 +463,49 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
   const renderTypePreferences = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-4">
+        <h3 className="text-xl font-semibold text-[var(--text-primary)] tracking-tight mb-4">
           Notification Types
         </h3>
         <div className="space-y-4">
           {Object.entries(localPreferences.types).map(([type, settings]) => (
-            <Card key={type} className="p-4">
-              <div className="flex items-center justify-between mb-3">
-                <span className="font-medium text-gray-900 capitalize">
+            <div
+              key={type}
+              className="p-5 glass-card rounded-2xl border border-[var(--glass-outline)]"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <span className="font-semibold text-[var(--text-primary)] capitalize">
                   {type}
                 </span>
                 <Switch
                   checked={settings.enabled}
-                  onChange={(enabled: boolean) =>
-                    updateNestedPreference("types", type, "enabled", enabled)
-                  }
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    const enabled = e.target.checked;
+                    updateNestedPreference("types", type, "enabled", enabled);
+                  }}
                 />
               </div>
               {settings.enabled && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                <div className="mt-2 text-left w-full justify-start text-[var(--text-secondary)]">
+                  <label className="block text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">
                     Priority Level
                   </label>
                   <Select
                     value={settings.priority}
-                    onChange={(priority: string) =>
+                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                      const priority = e.target.value;
                       updateNestedPreference(
                         "types",
                         type,
                         "priority",
                         priority,
-                      )
-                    }
+                      );
+                    }}
                     options={PRIORITY_OPTIONS}
-                    className="w-full"
+                    className="w-full max-w-xs focus:ring-[var(--primary-glow)] border-[var(--glass-outline)] bg-[var(--glass-surface)] text-[var(--text-primary)]"
                   />
                 </div>
               )}
-            </Card>
+            </div>
           ))}
         </div>
       </div>
@@ -500,34 +515,39 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
   const renderQuietHoursPreferences = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Quiet Hours</h3>
-        <Card className="p-4">
-          <div className="flex items-center justify-between mb-4">
+        <h3 className="text-xl font-semibold text-[var(--text-primary)] tracking-tight mb-4">
+          Quiet Hours
+        </h3>
+        <div className="p-5 glass-card rounded-2xl border border-[var(--glass-outline)]">
+          <div className="flex items-center justify-between mb-5">
             <div className="flex items-center space-x-3">
-              <FiVolumeX className="w-5 h-5 text-gray-600" />
-              <span className="font-medium text-gray-900">
+              <div className="p-2.5 rounded-xl bg-[var(--primary-subtle)] border border-[var(--primary-resonance)] border-opacity-30">
+                <FiVolumeX className="w-5 h-5 text-[var(--primary-resonance)]" />
+              </div>
+              <span className="font-semibold text-[var(--text-primary)]">
                 Enable Quiet Hours
               </span>
             </div>
             <Switch
               checked={localPreferences.quietHours.enabled}
-              onChange={(enabled: boolean) =>
-                updateLocalPreference("quietHours", "enabled", enabled)
-              }
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                const enabled = e.target.checked;
+                updateLocalPreference("quietHours", "enabled", enabled);
+              }}
             />
           </div>
           {localPreferences.quietHours.enabled && (
-            <div className="space-y-4">
+            <div className="space-y-5">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">
                     Start Time
                   </label>
                   <TimePicker
                     value={localPreferences.quietHours.startTime}
-                    onChange={(time: string) =>
-                      updateLocalPreference("quietHours", "startTime", time)
-                    }
+                    onChange={(time: string) => {
+                      updateLocalPreference("quietHours", "startTime", time);
+                    }}
                   />
                 </div>
                 <div>
@@ -536,30 +556,31 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                   </label>
                   <TimePicker
                     value={localPreferences.quietHours.endTime}
-                    onChange={(time: string) =>
-                      updateLocalPreference("quietHours", "endTime", time)
-                    }
+                    onChange={(time: string) => {
+                      updateLocalPreference("quietHours", "endTime", time);
+                    }}
                   />
                 </div>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-700">
+              <div className="flex items-center justify-between pt-2 border-t border-[var(--glass-outline)]">
+                <span className="text-sm font-semibold text-[var(--text-primary)]">
                   Allow urgent notifications
                 </span>
                 <Switch
                   checked={localPreferences.quietHours.allowUrgent}
-                  onChange={(allowUrgent: boolean) =>
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    const allowUrgent = e.target.checked;
                     updateLocalPreference(
                       "quietHours",
                       "allowUrgent",
                       allowUrgent,
-                    )
-                  }
+                    );
+                  }}
                 />
               </div>
             </div>
           )}
-        </Card>
+        </div>
       </div>
     </div>
   );
@@ -567,26 +588,27 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
   const renderDeliveryPreferences = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-4">
+        <h3 className="text-xl font-semibold text-[var(--text-primary)] tracking-tight mb-4">
           Delivery Options
         </h3>
         <div className="space-y-4">
-          <Card className="p-4">
-            <div className="flex items-center justify-between mb-3">
-              <span className="font-medium text-gray-900">
+          <div className="p-5 glass-card rounded-2xl border border-[var(--glass-outline)]">
+            <div className="flex items-center justify-between mb-4">
+              <span className="font-semibold text-[var(--text-primary)]">
                 Batch Notifications
               </span>
               <Switch
                 checked={localPreferences.delivery.batching}
-                onChange={(batching: boolean) =>
-                  updateLocalPreference("delivery", "batching", batching)
-                }
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  const batching = e.target.checked;
+                  updateLocalPreference("delivery", "batching", batching);
+                }}
               />
             </div>
             {localPreferences.delivery.batching && (
-              <div className="space-y-3">
+              <div className="space-y-5">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">
                     Batch Interval (minutes)
                   </label>
                   <Slider
@@ -601,14 +623,14 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                     min={5}
                     max={240}
                     step={5}
-                    className="w-full"
+                    className="w-full accent-[var(--accent-sky)] py-2"
                   />
-                  <span className="text-sm text-gray-500">
+                  <span className="text-sm font-medium text-[var(--text-secondary)] mt-1 inline-block">
                     {localPreferences.delivery.batchInterval} minutes
                   </span>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">
                     Max Batch Size
                   </label>
                   <Slider
@@ -623,47 +645,51 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                     min={1}
                     max={50}
                     step={1}
-                    className="w-full"
+                    className="w-full accent-[var(--accent-sky)] py-2"
                   />
-                  <span className="text-sm text-gray-500">
+                  <span className="text-sm font-medium text-[var(--text-secondary)] mt-1 inline-block">
                     {localPreferences.delivery.maxBatchSize} notifications
                   </span>
                 </div>
               </div>
             )}
-          </Card>
-          <Card className="p-4">
-            <div className="space-y-3">
+          </div>
+          <div className="p-5 glass-card rounded-2xl border border-[var(--glass-outline)]">
+            <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="font-medium text-gray-900">Smart Timing</span>
+                <span className="font-semibold text-[var(--text-primary)]">
+                  Smart Timing
+                </span>
                 <Switch
                   checked={localPreferences.delivery.smartTiming}
-                  onChange={(smartTiming: boolean) =>
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    const smartTiming = e.target.checked;
                     updateLocalPreference(
                       "delivery",
                       "smartTiming",
                       smartTiming,
-                    )
-                  }
+                    );
+                  }}
                 />
               </div>
-              <div className="flex items-center justify-between">
-                <span className="font-medium text-gray-900">
+              <div className="flex items-center justify-between pt-2">
+                <span className="font-semibold text-[var(--text-primary)]">
                   Respect User Activity
                 </span>
                 <Switch
                   checked={localPreferences.delivery.respectUserActivity}
-                  onChange={(respectUserActivity: boolean) =>
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    const respectUserActivity = e.target.checked;
                     updateLocalPreference(
                       "delivery",
                       "respectUserActivity",
                       respectUserActivity,
-                    )
-                  }
+                    );
+                  }}
                 />
               </div>
             </div>
-          </Card>
+          </div>
         </div>
       </div>
     </div>
@@ -672,20 +698,23 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
   const renderInterfacePreferences = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-4">
+        <h3 className="text-xl font-semibold text-[var(--text-primary)] tracking-tight mb-4">
           Interface Settings
         </h3>
         <div className="space-y-4">
-          <Card className="p-4">
-            <h4 className="font-medium text-gray-900 mb-3">Sound & Alerts</h4>
+          <div className="p-5 glass-card rounded-2xl border border-[var(--glass-outline)]">
+            <h4 className="font-semibold text-[var(--text-primary)] mb-4">
+              Sound & Alerts
+            </h4>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-700">Enable Sound</span>
                 <Switch
                   checked={localPreferences.interface.sound}
-                  onChange={(sound: boolean) =>
-                    updateLocalPreference("interface", "sound", sound)
-                  }
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    const sound = e.target.checked;
+                    updateLocalPreference("interface", "sound", sound);
+                  }}
                 />
               </div>
               {localPreferences.interface.sound && (
@@ -714,13 +743,14 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                     </label>
                     <Select
                       value={localPreferences.interface.soundTheme}
-                      onChange={(soundTheme: string) =>
+                      onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                        const soundTheme = e.target.value;
                         updateLocalPreference(
                           "interface",
                           "soundTheme",
                           soundTheme,
-                        )
-                      }
+                        );
+                      }}
                       options={SOUND_THEME_OPTIONS}
                       className="w-full"
                     />
@@ -731,27 +761,31 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                 <span className="text-sm text-gray-700">Enable Vibration</span>
                 <Switch
                   checked={localPreferences.interface.vibration}
-                  onChange={(vibration: boolean) =>
-                    updateLocalPreference("interface", "vibration", vibration)
-                  }
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    const vibration = e.target.checked;
+                    updateLocalPreference("interface", "vibration", vibration);
+                  }}
                 />
               </div>
             </div>
-          </Card>
-          <Card className="p-4">
-            <h4 className="font-medium text-gray-900 mb-3">Display Options</h4>
+          </div>
+          <div className="p-5 glass-card rounded-2xl border border-[var(--glass-outline)]">
+            <h4 className="font-semibold text-[var(--text-primary)] mb-4">
+              Display Options
+            </h4>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-700">Show Previews</span>
                 <Switch
                   checked={localPreferences.interface.showPreviews}
-                  onChange={(showPreviews: boolean) =>
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    const showPreviews = e.target.checked;
                     updateLocalPreference(
                       "interface",
                       "showPreviews",
                       showPreviews,
-                    )
-                  }
+                    );
+                  }}
                 />
               </div>
               <div className="flex items-center justify-between">
@@ -760,26 +794,28 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                 </span>
                 <Switch
                   checked={localPreferences.interface.markReadOnClick}
-                  onChange={(markReadOnClick: boolean) =>
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    const markReadOnClick = e.target.checked;
                     updateLocalPreference(
                       "interface",
                       "markReadOnClick",
                       markReadOnClick,
-                    )
-                  }
+                    );
+                  }}
                 />
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-700">Auto Archive</span>
                 <Switch
                   checked={localPreferences.interface.autoArchive}
-                  onChange={(autoArchive: boolean) =>
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    const autoArchive = e.target.checked;
                     updateLocalPreference(
                       "interface",
                       "autoArchive",
                       autoArchive,
-                    )
-                  }
+                    );
+                  }}
                 />
               </div>
               {localPreferences.interface.autoArchive && (
@@ -807,7 +843,7 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                 </div>
               )}
             </div>
-          </Card>
+          </div>
         </div>
       </div>
     </div>
@@ -816,12 +852,14 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
   const renderAdvancedPreferences = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-4">
+        <h3 className="text-xl font-semibold text-[var(--text-primary)] tracking-tight mb-4">
           Advanced Settings
         </h3>
         <div className="space-y-4">
-          <Card className="p-4">
-            <h4 className="font-medium text-gray-900 mb-3">Localization</h4>
+          <div className="p-5 glass-card rounded-2xl border border-[var(--glass-outline)]">
+            <h4 className="font-semibold text-[var(--text-primary)] mb-4">
+              Localization
+            </h4>
             <div className="space-y-3">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -829,9 +867,10 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                 </label>
                 <Select
                   value={localPreferences.advanced.language}
-                  onChange={(language: string) =>
-                    updateLocalPreference("advanced", "language", language)
-                  }
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                    const language = e.target.value;
+                    updateLocalPreference("advanced", "language", language);
+                  }}
                   options={LANGUAGE_OPTIONS}
                   className="w-full"
                 />
@@ -859,22 +898,25 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                 </select>
               </div>
             </div>
-          </Card>
-          <Card className="p-4">
-            <h4 className="font-medium text-gray-900 mb-3">Email Settings</h4>
+          </div>
+          <div className="p-5 glass-card rounded-2xl border border-[var(--glass-outline)]">
+            <h4 className="font-semibold text-[var(--text-primary)] mb-4">
+              Email Settings
+            </h4>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Email Template
               </label>
               <Select
                 value={localPreferences.advanced.emailTemplate}
-                onChange={(emailTemplate: string) =>
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                  const emailTemplate = e.target.value;
                   updateLocalPreference(
                     "advanced",
                     "emailTemplate",
                     emailTemplate,
-                  )
-                }
+                  );
+                }}
                 options={[
                   { value: "default", label: "Default" },
                   { value: "minimal", label: "Minimal" },
@@ -884,9 +926,11 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                 className="w-full"
               />
             </div>
-          </Card>
-          <Card className="p-4">
-            <h4 className="font-medium text-gray-900 mb-3">System Options</h4>
+          </div>
+          <div className="p-5 glass-card rounded-2xl border border-[var(--glass-outline)]">
+            <h4 className="font-semibold text-[var(--text-primary)] mb-4">
+              System Options
+            </h4>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-700">
@@ -894,39 +938,42 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                 </span>
                 <Switch
                   checked={localPreferences.advanced.consolidateDigests}
-                  onChange={(consolidateDigests: boolean) =>
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    const consolidateDigests = e.target.checked;
                     updateLocalPreference(
                       "advanced",
                       "consolidateDigests",
                       consolidateDigests,
-                    )
-                  }
+                    );
+                  }}
                 />
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-700">Enable Analytics</span>
                 <Switch
                   checked={localPreferences.advanced.enableAnalytics}
-                  onChange={(enableAnalytics: boolean) =>
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    const enableAnalytics = e.target.checked;
                     updateLocalPreference(
                       "advanced",
                       "enableAnalytics",
                       enableAnalytics,
-                    )
-                  }
+                    );
+                  }}
                 />
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-700">Debug Mode</span>
                 <Switch
                   checked={localPreferences.advanced.debugMode}
-                  onChange={(debugMode: boolean) =>
-                    updateLocalPreference("advanced", "debugMode", debugMode)
-                  }
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    const debugMode = e.target.checked;
+                    updateLocalPreference("advanced", "debugMode", debugMode);
+                  }}
                 />
               </div>
             </div>
-          </Card>
+          </div>
         </div>
       </div>
     </div>
@@ -951,23 +998,25 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
         title="Notification Preferences"
         size="lg"
       >
-        <div className="flex h-96">
+        <div className="flex h-[32rem]">
           {/* Sidebar */}
-          <div className="w-48 border-r border-gray-200 pr-4">
-            <nav className="space-y-1">
+          <div className="w-48 border-r border-[var(--glass-outline)] pr-4 overflow-y-auto scrollbar-responsive">
+            <nav className="space-y-1 mt-2">
               {TABS.map((tab) => {
                 const Icon = tab.icon;
                 return (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-md ${
+                    className={`w-full flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all ${
                       activeTab === tab.id
-                        ? "bg-blue-100 text-blue-700"
-                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                        ? "bg-[var(--primary-subtle)] text-[var(--text-primary)] shadow-sm border border-[var(--primary-resonance)] border-opacity-30"
+                        : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--glass-surface-hover)] border border-transparent"
                     }`}
                   >
-                    <Icon className="w-4 h-4 mr-3" />
+                    <Icon
+                      className={`w-4 h-4 mr-3 ${activeTab === tab.id ? "text-[var(--primary-resonance)]" : "opacity-70"}`}
+                    />
                     {tab.label}
                   </button>
                 );
@@ -976,18 +1025,22 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
           </div>
 
           {/* Content */}
-          <div className="flex-1 pl-6">
-            <div className="h-full overflow-y-auto">
+          <div className="flex-1 pl-8">
+            <div className="h-full overflow-y-auto scrollbar-responsive pr-4 pb-4">
               {preferencesLoading ? (
                 <div className="flex items-center justify-center h-32">
                   <LoadingSpinner size="md" />
                 </div>
               ) : error ? (
                 <div className="text-center py-8">
-                  <p className="text-red-600 mb-4">
+                  <p className="text-red-500 mb-4 font-semibold">
                     Failed to load preferences
                   </p>
-                  <Button onClick={refreshPreferences} variant="outline">
+                  <Button
+                    onClick={refreshPreferences}
+                    variant="outline"
+                    className="church-cancel-btn rounded-xl"
+                  >
                     <FiRefreshCw className="w-4 h-4 mr-2" />
                     Retry
                   </Button>
@@ -1007,45 +1060,47 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="mt-6 flex items-center justify-between border-t border-gray-200 pt-4">
-          <div className="flex items-center space-x-2">
-            <Button onClick={handleExport} variant="outline" size="sm">
+        <div className="mt-6 flex items-center justify-between border-t border-[var(--glass-outline)] pt-5">
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={handleExport}
+              className="btn-ghost flex items-center shadow-sm"
+            >
+              <FiDownload className="w-4 h-4 mr-2" />
               Export
-            </Button>
-            <Button
+            </button>
+            <button
               onClick={handleReset}
-              variant="outline"
-              size="sm"
-              className="text-red-600 hover:text-red-700"
+              className="church-cancel-btn flex items-center px-3 py-1.5 rounded-lg text-sm font-semibold"
             >
               Reset
-            </Button>
+            </button>
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-3">
             {saveStatus && (
               <span
-                className={`text-sm ${
-                  saveStatus === "error" ? "text-red-600" : "text-green-600"
+                className={`text-sm font-medium pr-2 ${
+                  saveStatus === "error" ? "text-red-500" : "text-green-500"
                 }`}
               >
                 {SAVE_STATUS_MESSAGES[saveStatus]}
               </span>
             )}
-            <Button onClick={onClose} variant="outline">
+            <button onClick={onClose} className="btn-ghost flex items-center">
               Cancel
-            </Button>
-            <Button
+            </button>
+            <button
               onClick={handleSave}
               disabled={!hasChanges || isLoading}
-              className="flex items-center"
+              className="btn-primary flex items-center focus:ring-4 focus:ring-[var(--primary-glow)] disabled:opacity-50"
             >
               {isLoading ? (
-                <LoadingSpinner size="sm" className="mr-2" />
+                <LoadingSpinner size="sm" className="mr-2 border-white" />
               ) : (
                 <FiSave className="w-4 h-4 mr-2" />
               )}
               Save Changes
-            </Button>
+            </button>
           </div>
         </div>
       </Modal>
@@ -1057,21 +1112,22 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
         title="Reset Preferences"
         size="sm"
       >
-        <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+        <p className="text-sm font-medium text-[var(--text-secondary)]">
           Are you sure you want to reset all preferences to default? This cannot
           be undone.
         </p>
-        <div className="mt-6 flex justify-end gap-3">
-          <Button variant="outline" onClick={() => setConfirmReset(false)}>
+        <div className="mt-8 flex items-center justify-end gap-3 pt-4 border-t border-[var(--glass-outline)]">
+          <button className="btn-ghost" onClick={() => setConfirmReset(false)}>
             Cancel
-          </Button>
-          <Button
-            variant="danger"
+          </button>
+          <button
+            className="church-cancel-btn px-4 py-2 rounded-xl text-sm font-semibold flex items-center shadow-sm"
             onClick={handleResetConfirmed}
             disabled={isLoading}
           >
+            {isLoading && <LoadingSpinner size="sm" className="mr-2" />}
             Reset to Default
-          </Button>
+          </button>
         </div>
       </Modal>
     </>
