@@ -25,8 +25,8 @@ declare global {
 }
 
 // Environment-specific configuration
-const isProd = ((import.meta as any).env?.MODE || "development") === "production";
-const isStaging = ((import.meta as any).env?.MODE || "development") === "staging";
+const isProd = (import.meta.env?.MODE || "development") === "production";
+const isStaging = (import.meta.env?.MODE || "development") === "staging";
 
 // ── Ingest endpoints ──────────────────────────────────────────────────────────
 // Intentionally RELATIVE — Vite proxy routes /api/v1 → backend in dev,
@@ -41,7 +41,9 @@ export { ErrorBoundary } from "../../components/ErrorBoundary";
 // ── Recent user activity ──────────────────────────────────────────────────────
 const getRecentUserActivity = () => {
   try {
-    return JSON.parse(sessionStorage.getItem("userActivities") || "[]").slice(-5);
+    return JSON.parse(sessionStorage.getItem("userActivities") || "[]").slice(
+      -5,
+    );
   } catch (_) {
     return [];
   }
@@ -75,21 +77,27 @@ export const collectAdvancedErrorContext = (baseError: any): any => {
       performanceInfo: {
         memory: p?.memory
           ? {
-            usedJSHeapSize: p.memory.usedJSHeapSize,
-            totalJSHeapSize: p.memory.totalJSHeapSize,
-            jsHeapSizeLimit: p.memory.jsHeapSizeLimit,
-          }
+              usedJSHeapSize: p.memory.usedJSHeapSize,
+              totalJSHeapSize: p.memory.totalJSHeapSize,
+              jsHeapSizeLimit: p.memory.jsHeapSizeLimit,
+            }
           : null,
         // performance.timing is deprecated but widely supported.
         // Only include when loadEventEnd is positive (fired after page load).
-        timing: p?.timing && p.timing.loadEventEnd > 0
-          ? {
-            loadTime: p.timing.loadEventEnd - p.timing.navigationStart,
-            domReady: p.timing.domContentLoadedEventEnd - p.timing.navigationStart,
-          }
-          : null,
+        timing:
+          p?.timing && p.timing.loadEventEnd > 0
+            ? {
+                loadTime: p.timing.loadEventEnd - p.timing.navigationStart,
+                domReady:
+                  p.timing.domContentLoadedEventEnd - p.timing.navigationStart,
+              }
+            : null,
         connection: n?.connection
-          ? { effectiveType: n.connection.effectiveType, downlink: n.connection.downlink, rtt: n.connection.rtt }
+          ? {
+              effectiveType: n.connection.effectiveType,
+              downlink: n.connection.downlink,
+              rtt: n.connection.rtt,
+            }
           : null,
       },
 
@@ -102,7 +110,9 @@ export const collectAdvancedErrorContext = (baseError: any): any => {
         cookieEnabled: n?.cookieEnabled ?? null,
         onLine: n?.onLine ?? null,
         viewport: w ? { width: w.innerWidth, height: w.innerHeight } : null,
-        screen: s ? { width: s.width, height: s.height, colorDepth: s.colorDepth } : null,
+        screen: s
+          ? { width: s.width, height: s.height, colorDepth: s.colorDepth }
+          : null,
       },
 
       capabilities: {
@@ -149,28 +159,28 @@ const buildGlobalFeedbackPayload = (errorData: any): any => {
 
   const description = trunc(
     `**Automatic Global Error Report**\n\n` +
-    `**Error Type:** ${errorData.type}\n` +
-    `**Message:** ${trunc(errorData.message, 200)}\n` +
-    `**Location:** ${errorData.url}\n` +
-    `**Time:** ${new Date(errorData.timestamp).toLocaleString()}\n\n` +
-    `**Technical Details:**\n` +
-    `- File: ${errorData.filename || "Unknown"}\n` +
-    `- Line: ${errorData.lineno || "Unknown"}\n` +
-    `- Column: ${errorData.colno || "Unknown"}\n\n` +
-    `**Stack Trace:**\n\`\`\`\n${stackSnippet}\n\`\`\``,
-    1000
+      `**Error Type:** ${errorData.type}\n` +
+      `**Message:** ${trunc(errorData.message, 200)}\n` +
+      `**Location:** ${errorData.url}\n` +
+      `**Time:** ${new Date(errorData.timestamp).toLocaleString()}\n\n` +
+      `**Technical Details:**\n` +
+      `- File: ${errorData.filename || "Unknown"}\n` +
+      `- Line: ${errorData.lineno || "Unknown"}\n` +
+      `- Column: ${errorData.colno || "Unknown"}\n\n` +
+      `**Stack Trace:**\n\`\`\`\n${stackSnippet}\n\`\`\``,
+    1000,
   );
 
   const actualBehavior = trunc(
     `Uncaught ${errorData.name || "Error"}: ${errorData.message || "Unknown error"} ` +
-    `at ${errorData.filename || "unknown"}:${errorData.lineno || "?"}:${errorData.colno || "?"}`,
-    1000
+      `at ${errorData.filename || "unknown"}:${errorData.lineno || "?"}:${errorData.colno || "?"}`,
+    1000,
   );
 
   return {
     // ── Enum-safe values ──────────────────────────────────────────────────────
-    type: "error-report",      // was: "automatic_global_error" (invalid enum)
-    category: "bug",           // was: "runtime_error" (invalid enum)
+    type: "error-report", // was: "automatic_global_error" (invalid enum)
+    category: "bug", // was: "runtime_error" (invalid enum)
     severity: errorData.type === "uncaught" ? "critical" : "high",
 
     // ── User-input fields (schema maxlengths respected) ───────────────────────
@@ -184,12 +194,17 @@ const buildGlobalFeedbackPayload = (errorData: any): any => {
     systemContext: {
       source: "error-boundary",
       page: {
-        url: errorData.url || (typeof window !== "undefined" ? window.location.href : ""),
-        path: errorData.path || (typeof window !== "undefined" ? window.location.pathname : "/"),
+        url:
+          errorData.url ||
+          (typeof window !== "undefined" ? window.location.href : ""),
+        path:
+          errorData.path ||
+          (typeof window !== "undefined" ? window.location.pathname : "/"),
         timestamp: new Date(errorData.timestamp || Date.now()),
       },
       browser: {
-        userAgent: errorData.meta?.browserContext?.userAgent ||
+        userAgent:
+          errorData.meta?.browserContext?.userAgent ||
           (typeof navigator !== "undefined" ? navigator.userAgent : "unknown"),
         language: errorData.meta?.browserContext?.language || "",
       },
@@ -217,18 +232,25 @@ export const setupGlobalErrorHandling = () => {
   if (window.__errorHandlersInstalled) return;
   window.__errorHandlersInstalled = true;
 
-  const appType = (import.meta as any).env?.VITE_APP_TYPE || "unknown";
-  const env = normaliseEnvironment((import.meta as any).env?.MODE);
+  const appType = import.meta.env?.VITE_APP_TYPE || "unknown";
+  const env = normaliseEnvironment(import.meta.env?.MODE);
 
   // ── Activity breadcrumb tracker ───────────────────────────────────────────
   const trackActivity = (activity: string) => {
     try {
-      const activities = JSON.parse(sessionStorage.getItem("userActivities") || "[]");
+      const activities = JSON.parse(
+        sessionStorage.getItem("userActivities") || "[]",
+      );
       // Trim to prevent unbounded sessionStorage growth (10 entries max, 100-char cap each)
       const entry = `${new Date().toLocaleTimeString()}: ${String(activity).substring(0, 100)}`;
       activities.push(entry);
-      sessionStorage.setItem("userActivities", JSON.stringify(activities.slice(-10)));
-    } catch (_) { /* sessionStorage unavailable */ }
+      sessionStorage.setItem(
+        "userActivities",
+        JSON.stringify(activities.slice(-10)),
+      );
+    } catch (_) {
+      /* sessionStorage unavailable */
+    }
   };
 
   trackActivity(`Navigated to ${window.location.pathname}`);
@@ -240,7 +262,9 @@ export const setupGlobalErrorHandling = () => {
       target.closest("a") ||
       (target.tagName === "BUTTON" || target.tagName === "A" ? target : null);
     if (!el) return;
-    trackActivity(`Clicked: ${(el.textContent?.trim() || el.getAttribute("aria-label") || "element").substring(0, 50)}`);
+    trackActivity(
+      `Clicked: ${(el.textContent?.trim() || el.getAttribute("aria-label") || "element").substring(0, 50)}`,
+    );
   });
 
   // Helper — build auth headers so global errors also get user attribution
@@ -257,7 +281,10 @@ export const setupGlobalErrorHandling = () => {
       type: "unhandledrejection",
       // Generate a short unique ID so admin can cross-reference FeedbackReport↔↔ErrorLog
       errorId: `ERR-${Date.now().toString(36).toUpperCase().slice(-8)}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`,
-      message: event.reason?.message || String(event.reason) || "Unhandled promise rejection",
+      message:
+        event.reason?.message ||
+        String(event.reason) ||
+        "Unhandled promise rejection",
       name: event.reason?.name || "UnhandledRejection",
       stack: event.reason?.stack,
       timestamp: new Date().toISOString(),
@@ -272,9 +299,19 @@ export const setupGlobalErrorHandling = () => {
     const headers = makeHeaders();
 
     Promise.all([
-      fetch(INGEST_ERRORS, { method: "POST", headers, body: JSON.stringify(enhanced) }),
-      fetch(INGEST_FEEDBACK, { method: "POST", headers, body: JSON.stringify(buildGlobalFeedbackPayload(enhanced)) }),
-    ]).catch(() => { /* swallow — don't loop on monitor failure */ });
+      fetch(INGEST_ERRORS, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(enhanced),
+      }),
+      fetch(INGEST_FEEDBACK, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(buildGlobalFeedbackPayload(enhanced)),
+      }),
+    ]).catch(() => {
+      /* swallow — don't loop on monitor failure */
+    });
   });
 
   // ── Uncaught synchronous errors ───────────────────────────────────────────
@@ -305,9 +342,19 @@ export const setupGlobalErrorHandling = () => {
     const headers = makeHeaders();
 
     Promise.all([
-      fetch(INGEST_ERRORS, { method: "POST", headers, body: JSON.stringify(enhanced) }),
-      fetch(INGEST_FEEDBACK, { method: "POST", headers, body: JSON.stringify(buildGlobalFeedbackPayload(enhanced)) }),
-    ]).catch(() => { /* swallow */ });
+      fetch(INGEST_ERRORS, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(enhanced),
+      }),
+      fetch(INGEST_FEEDBACK, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(buildGlobalFeedbackPayload(enhanced)),
+      }),
+    ]).catch(() => {
+      /* swallow */
+    });
   });
 };
 
@@ -315,12 +362,13 @@ export const setupGlobalErrorHandling = () => {
 // Layer 3 — reports 5xx and true network failures without per-call instrumentation.
 // Uses _originalFetch to bypass the interceptor itself (no reporting loops).
 export const installFetchInterceptor = () => {
-  if (typeof window === "undefined" || window.__fetchInterceptorInstalled) return;
+  if (typeof window === "undefined" || window.__fetchInterceptorInstalled)
+    return;
   window.__fetchInterceptorInstalled = true;
 
   const _originalFetch = window.fetch;
-  const appType = (import.meta as any).env?.VITE_APP_TYPE || "unknown";
-  const env = normaliseEnvironment((import.meta as any).env?.MODE);
+  const appType = import.meta.env?.VITE_APP_TYPE || "unknown";
+  const env = normaliseEnvironment(import.meta.env?.MODE);
 
   window.fetch = async function interceptedFetch(...args: any[]) {
     const url = typeof args[0] === "string" ? args[0] : (args[0]?.url ?? "");
@@ -351,7 +399,9 @@ export const installFetchInterceptor = () => {
             category: "network",
             meta: { endpoint: url },
           }),
-        }).catch(() => { /* swallow */ });
+        }).catch(() => {
+          /* swallow */
+        });
       }
       throw networkError; // Re-throw so caller still gets the error
     }
@@ -372,7 +422,9 @@ export const installFetchInterceptor = () => {
           category: "network",
           meta: { status: response.status, endpoint: response.url || url },
         }),
-      }).catch(() => { /* swallow */ });
+      }).catch(() => {
+        /* swallow */
+      });
     }
 
     return response;
@@ -417,7 +469,9 @@ const sendToAnalytics = (metric: any) => {
         userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "",
       },
     }),
-  }).catch((_) => { /* analytics must never throw */ });
+  }).catch((_) => {
+    /* analytics must never throw */
+  });
 };
 
 export const setupPerformanceMonitoring = () => {
@@ -435,7 +489,9 @@ export const setupPerformanceMonitoring = () => {
     .catch(() => {
       if (import.meta.env?.DEV) {
         // eslint-disable-next-line no-console
-        console.warn("[ErrorMonitoring] web-vitals package not found — Core Web Vitals reporting disabled. Install with: npm install web-vitals");
+        console.warn(
+          "[ErrorMonitoring] web-vitals package not found — Core Web Vitals reporting disabled. Install with: npm install web-vitals",
+        );
       }
     });
 
@@ -444,12 +500,18 @@ export const setupPerformanceMonitoring = () => {
       const observer = new PerformanceObserver((list) => {
         for (const entry of list.getEntries()) {
           if (entry.entryType === "longtask") {
-            sendToAnalytics({ name: "longtask", value: entry.duration, startTime: entry.startTime });
+            sendToAnalytics({
+              name: "longtask",
+              value: entry.duration,
+              startTime: entry.startTime,
+            });
           }
         }
       });
       observer.observe({ entryTypes: ["longtask"] });
-    } catch (_) { /* entryType 'longtask' not supported in this browser */ }
+    } catch (_) {
+      /* entryType 'longtask' not supported in this browser */
+    }
   }
 };
 
@@ -459,15 +521,20 @@ export const setupPerformanceMonitoring = () => {
 // so the admin dashboard registers the outage even before any user hits a 5xx.
 // Returns a cleanup fn so tests can cancel the interval.
 export const setupHealthCheck = () => {
-  if (typeof window === "undefined") return () => { };
-  if (window.__healthCheckInstalled) return () => { };
+  if (typeof window === "undefined") return () => {};
+  if (window.__healthCheckInstalled) return () => {};
   window.__healthCheckInstalled = true;
 
   const appType = import.meta.env?.VITE_APP_TYPE || "unknown";
-  const env = (import.meta.env?.MODE || "development") === "development"
-    ? "development" : "production";
+  const env =
+    (import.meta.env?.MODE || "development") === "development"
+      ? "development"
+      : "production";
 
-  const reportHealthFailure = (reason: string, statusCode: number | null = null) => {
+  const reportHealthFailure = (
+    reason: string,
+    statusCode: number | null = null,
+  ) => {
     fetch(INGEST_ERRORS, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -483,7 +550,9 @@ export const setupHealthCheck = () => {
         path: window.location.pathname,
         meta: { statusCode, reason },
       }),
-    }).catch(() => { /* still failing — don't loop */ });
+    }).catch(() => {
+      /* still failing — don't loop */
+    });
   };
 
   const intervalId = setInterval(async () => {
@@ -533,16 +602,24 @@ export const initializeMonitoring = () => {
 //     { QueryClient, QueryCache, MutationCache },
 //     { appType: "church", defaultOptions: { queries: { staleTime: 5 * 60_000 } } }
 //   );
-export const createMonitoredQueryClient = (reactQuery: any, options: Record<string, any> = {}) => {
+export const createMonitoredQueryClient = (
+  reactQuery: any,
+  options: Record<string, any> = {},
+) => {
   const { QueryClient, QueryCache, MutationCache } = reactQuery;
 
-  const appType = options.appType || (import.meta as any).env?.VITE_APP_TYPE || "unknown";
-  const env = (import.meta?.env?.MODE || "development") === "development"
-    ? "development" : "production";
+  const appType =
+    options.appType || import.meta.env?.VITE_APP_TYPE || "unknown";
+  const env =
+    (import.meta?.env?.MODE || "development") === "development"
+      ? "development"
+      : "production";
 
   const reportQueryError = (error: any, context: any) => {
     const token = getAuthToken(appType);
-    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
     if (token) headers["Authorization"] = `Bearer ${token}`;
 
     fetch(INGEST_ERRORS, {
@@ -564,7 +641,9 @@ export const createMonitoredQueryClient = (reactQuery: any, options: Record<stri
           errorName: error?.name || "Error",
         },
       }),
-    }).catch(() => { /* swallow — don't loop if ingest is down */ });
+    }).catch(() => {
+      /* swallow — don't loop if ingest is down */
+    });
   };
 
   // Strip our custom option before passing the rest to QueryClient
@@ -572,7 +651,8 @@ export const createMonitoredQueryClient = (reactQuery: any, options: Record<stri
 
   return new QueryClient({
     queryCache: new QueryCache({
-      onError: (error: any, query: any) => reportQueryError(error, { queryKey: query.queryKey }),
+      onError: (error: any, query: any) =>
+        reportQueryError(error, { queryKey: query.queryKey }),
     }),
     mutationCache: new MutationCache({
       onError: (error: any, _vars: any, _ctx: any, mutation: any) =>
