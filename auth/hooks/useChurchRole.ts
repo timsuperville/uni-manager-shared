@@ -14,16 +14,21 @@ import { useAuth } from "@shared/auth";
 //   - 'super_admin' is a platform role handled by isPlatformAdmin bypass
 //
 const COMMUNITY_TIER: Record<string, number> = {
-  viewer:   0,
-  visitor:  1,
+  viewer: 0,
+  visitor: 1,
   attendee: 2,
-  member:   3,
-  steward:  4,
-  admin:    4, // legacy alias for 'steward' — accepted during migration
+  member: 3,
+  steward: 4,
+  admin: 4, // legacy alias for 'steward' — accepted during migration
 };
 
 /** The canonical community journey stage vocabulary. */
-export type CommunityStage = "viewer" | "visitor" | "attendee" | "member" | "steward";
+export type CommunityStage =
+  | "viewer"
+  | "visitor"
+  | "attendee"
+  | "member"
+  | "steward";
 
 /** Ministry position tokens — per CAHA_PROTOCOL.md §2.1. */
 export type MinistryPosition = "participant" | "volunteer" | "leader";
@@ -100,24 +105,15 @@ export interface UseChurchRoleReturn {
   /** Check if user can edit a specific tool. */
   canEditTool: (toolId: string) => boolean;
   /** Check if user has at least minPosition in the given ministry. */
-  hasMinistryRole: (ministryId: string, minRole: MinistryPosition | string) => boolean;
+  hasMinistryRole: (
+    ministryId: string,
+    minRole: MinistryPosition | string,
+  ) => boolean;
 
   // ── Raw data ───────────────────────────────────────────────────────────────
   /** The resolved journey stage string (same as journeyStage). */
   membership: Membership | null;
   currentChurchId: string | null;
-
-  // ── Deprecated aliases (backward compat — remove after migration) ──────────
-  /** @deprecated Use `journeyStage` */
-  churchRole: string;
-  /** @deprecated Use `journeyTier` */
-  churchRoleTier: number;
-  /** @deprecated Use `isSteward` */
-  isAdmin: boolean;
-  /** @deprecated Use `hasMinStage` */
-  hasMinRole: (minRole: string) => boolean;
-  /** Check exact role equality. */
-  hasExactRole: (role: string) => boolean;
 }
 
 // ── Hook ──────────────────────────────────────────────────────────────────────
@@ -194,7 +190,8 @@ export function useChurchRole(): UseChurchRoleReturn {
       return buildResult("viewer", null, currentChurchId, u);
     }
 
-    const rawRole = membership.status === "left" ? "viewer" : (membership.role ?? "viewer");
+    const rawRole =
+      membership.status === "left" ? "viewer" : (membership.role ?? "viewer");
     // Normalize legacy 'admin' token to 'steward'
     const effectiveRole = rawRole === "admin" ? "steward" : rawRole;
 
@@ -207,8 +204,8 @@ export function useChurchRole(): UseChurchRoleReturn {
 /** Ministry position tier map — parallel to MINISTRY_POSITION_TIERS on the backend. */
 const MINISTRY_POSITION_TIERS: Record<string, number> = {
   participant: 0,
-  volunteer:   1,
-  leader:      2,
+  volunteer: 1,
+  leader: 2,
 };
 
 function buildResult(
@@ -255,8 +252,7 @@ function buildResult(
       (extUser as { role?: string } | null)?.role === "super_admin"
     );
 
-  const isSteward =
-    effectivePlatformAdmin || stage === "steward";
+  const isSteward = effectivePlatformAdmin || stage === "steward";
   const stewardTier = COMMUNITY_TIER["steward"] ?? 4;
 
   /** Check if user meets the minimum community stage (by tier). */
@@ -277,10 +273,12 @@ function buildResult(
     // ── Community Journey ────────────────────────────────────────────────────
     journeyStage: stage,
     journeyTier: tier,
-    isMember:   effectivePlatformAdmin || tier >= (COMMUNITY_TIER["member"]   ?? 3),
-    isAttendee: effectivePlatformAdmin || tier >= (COMMUNITY_TIER["attendee"] ?? 2),
-    isVisitor:  effectivePlatformAdmin || tier >= (COMMUNITY_TIER["visitor"]  ?? 1),
-    isViewer:   true, // always true if in church context
+    isMember: effectivePlatformAdmin || tier >= (COMMUNITY_TIER["member"] ?? 3),
+    isAttendee:
+      effectivePlatformAdmin || tier >= (COMMUNITY_TIER["attendee"] ?? 2),
+    isVisitor:
+      effectivePlatformAdmin || tier >= (COMMUNITY_TIER["visitor"] ?? 1),
+    isViewer: true, // always true if in church context
 
     // ── Institutional ────────────────────────────────────────────────────────
     isSteward,
@@ -318,7 +316,24 @@ function buildResult(
         return id === ministryId;
       });
       if (!entry) return false;
-      const entryPosition = MINISTRY_POSITION_TIERS[entry.role ?? "participant"] ?? 0;
+      // Read `position` (CAHA v2 field) with fallback to `role` for legacy documents
+      // that haven't been migrated yet. Remove the fallback once migration is complete.
+      const rawPosition =
+        (entry as { position?: string }).position ??
+        entry.role ??
+        "participant";
+
+      const lowerPos = rawPosition.toLowerCase();
+      const normalizedPosition =
+        lowerPos === "leader"
+          ? "leader"
+          : lowerPos === "volunteer" ||
+              lowerPos === "assistant" ||
+              lowerPos === "coordinator"
+            ? "volunteer"
+            : "participant";
+
+      const entryPosition = MINISTRY_POSITION_TIERS[normalizedPosition] ?? 0;
       const minPosition = MINISTRY_POSITION_TIERS[minRole] ?? 0;
       return entryPosition >= minPosition;
     },
@@ -326,13 +341,6 @@ function buildResult(
     // ── Raw data ──────────────────────────────────────────────────────────────
     membership: membership ?? null,
     currentChurchId,
-
-    // ── Deprecated aliases ────────────────────────────────────────────────────
-    churchRole:     stage,
-    churchRoleTier: tier,
-    isAdmin:        isSteward,
-    hasMinRole:     hasMinStage,
-    hasExactRole:   (role: string) => stage === role || rawRole === role,
   };
 }
 
