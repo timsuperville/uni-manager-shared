@@ -38,24 +38,12 @@ export interface ToastAction {
   callback?: (notification: unknown) => void;
 }
 
-export interface Notification {
-  id?: string;
-  _id?: string;
-  subject?: string;
-  title?: string;
-  content?: string;
-  message?: string;
-  type?: string;
-  priority?: NotificationPriority;
-  status?: "unread" | "read" | "archived";
-  createdAt?: string;
-  timestamp?: string;
-  module?: string;
-  sender?: { name?: string; avatar?: string };
-  attachments?: Attachment[];
-  actions?: NotificationAction[];
-  deliveryStatus?: Record<string, string>;
-}
+/**
+ * Re-export AppNotification as `Notification` for backwards compatibility.
+ * All notification data in the UI layer must use this type.
+ * The source of truth is NotificationAdapter.ts.
+ */
+export type { AppNotification as Notification } from "./NotificationAdapter";
 
 export interface Attachment {
   url: string;
@@ -294,8 +282,8 @@ const NotificationToast: React.FC<NotificationToastProps> = ({
       },
       notification: {
         icon: FiBell,
-        color: "text-[var(--primary-resonance)]",
-        bg: "bg-[var(--primary-glow)]",
+        color: "text-()",
+        bg: "bg-()",
       },
     };
     const config = iconMap[type] ?? iconMap.info;
@@ -313,19 +301,16 @@ const NotificationToast: React.FC<NotificationToastProps> = ({
     const base =
       "relative flex items-start space-x-3 p-4 rounded-xl glass-card border transition-all duration-300 ease-in-out max-w-sm overflow-hidden";
     const typeStyles: Record<ToastType, string> = {
-      success:
-        "border-[var(--glass-outline)] text-[var(--text-primary)] shadow-[0_8px_32px_rgba(16,185,129,0.15)]",
-      error:
-        "border-[var(--glass-outline)] text-[var(--text-primary)] shadow-[0_8px_32px_rgba(239,68,68,0.2)]",
-      warning:
-        "border-[var(--glass-outline)] text-[var(--text-primary)] shadow-[0_8px_32px_rgba(245,158,11,0.15)]",
-      info: "border-[var(--glass-outline)] text-[var(--text-primary)] shadow-[0_8px_32px_rgba(59,130,246,0.15)]",
-      notification: "border-[var(--glass-outline)] text-[var(--text-primary)]",
+      success: "border-() text-() shadow-[0_8px_32px_rgba(16,185,129,0.15)]",
+      error: "border-() text-() shadow-[0_8px_32px_rgba(239,68,68,0.2)]",
+      warning: "border-() text-() shadow-[0_8px_32px_rgba(245,158,11,0.15)]",
+      info: "border-() text-() shadow-[0_8px_32px_rgba(59,130,246,0.15)]",
+      notification: "border-() text-()",
     };
     const priorityStyles: Record<NotificationPriority, string> = {
       low: "",
       normal: "",
-      high: "border-[var(--accent-amber)] border-opacity-50 shadow-[0_0_16px_var(--accent-amber-glow)]",
+      high: "border-() border-opacity-50 shadow-[0_0_16px_var(--accent-amber-glow)]",
       urgent:
         "border-red-500 border-opacity-70 shadow-[0_0_24px_rgba(239,68,68,0.4)] animate-pulse",
     };
@@ -380,7 +365,7 @@ const NotificationToast: React.FC<NotificationToastProps> = ({
     >
       {/* Progress bar */}
       {showProgress && autoClose && (
-        <div className="absolute bottom-0 left-0 w-full h-1 bg-[var(--glass-surface)] z-20">
+        <div className="absolute bottom-0 left-0 w-full h-1 bg-() z-20">
           <div
             ref={progressRef}
             className={`h-full transition-all duration-100 ease-linear ${
@@ -392,7 +377,7 @@ const NotificationToast: React.FC<NotificationToastProps> = ({
                     ? "bg-orange-400 shadow-[0_0_8px_currentColor]"
                     : type === "info"
                       ? "bg-blue-400 shadow-[0_0_8px_currentColor]"
-                      : "bg-[var(--primary-resonance)] shadow-[0_0_8px_var(--primary-glow)]"
+                      : "bg-() shadow-[0_0_8px_var(--primary-glow)]"
             }`}
             style={{ width: `${progress}%` }}
           />
@@ -409,17 +394,17 @@ const NotificationToast: React.FC<NotificationToastProps> = ({
 
       <div className="flex-1 min-w-0 z-10">
         {title && (
-          <h4 className="text-sm font-semibold mb-0.5 mt-0.5 truncate text-[var(--text-primary)] tracking-tight">
+          <h4 className="text-sm font-semibold mb-0.5 mt-0.5 truncate text-() tracking-tight">
             {title}
           </h4>
         )}
         {message && (
-          <p className="text-[13px] text-[var(--text-secondary)] opacity-90 line-clamp-3 leading-snug">
+          <p className="text-[13px] text-() opacity-90 line-clamp-3 leading-snug">
             {message}
           </p>
         )}
         {resonanceId && (
-          <div className="mt-1.5 font-mono text-[10px] text-[var(--text-muted)] opacity-70 break-all select-all flex items-center bg-black/20 px-1.5 py-0.5 rounded w-fit">
+          <div className="mt-1.5 font-mono text-[10px] text-() opacity-70 break-all select-all flex items-center bg-black/20 px-1.5 py-0.5 rounded w-fit">
             <span className="mr-1 text-[8px] uppercase tracking-widest font-bold">
               Ref
             </span>{" "}
@@ -437,7 +422,7 @@ const NotificationToast: React.FC<NotificationToastProps> = ({
                   onClick={() => handleActionClick(action)}
                   className={`
                     flex items-center text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-all
-                    ${action.variant === "primary" ? "bg-[var(--primary-resonance)] text-white shadow-md hover:brightness-110" : "bg-[var(--glass-surface)] border border-[var(--glass-outline)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--glass-surface-hover)]"}
+                    ${action.variant === "primary" ? "bg-() text-white shadow-md hover:brightness-110" : "bg-() border border-() text-() hover:text-() hover:bg-()"}
                   `}
                 >
                   {Icon && <Icon className="w-3.5 h-3.5 mr-1.5" />}

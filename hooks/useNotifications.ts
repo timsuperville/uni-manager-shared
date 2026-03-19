@@ -1,74 +1,63 @@
 /* eslint-env browser */
 import { useState, useEffect, useCallback, useRef } from "react";
-import { useWebSocket } from "./useWebSocket";
-import { getApiBaseUrl } from "../api/config/apiConfig";
-import type { Notification } from "../features/notifications/NotificationToast";
+import { useNotificationContext } from "../features/notifications/NotificationContext";
+import type {
+  AppNotification,
+  FetchNotificationsParams,
+} from "../features/notifications/NotificationAdapter";
 
-// ── Types ────────────────────────────────────────────────────────────────────
+// ── Types ─────────────────────────────────────────────────────────────────────
 
-interface UseNotificationsOptions {
-  limit?: number;
-  page?: number;
-  type?: string;
-  status?: string;
-  search?: string;
-  userId?: string | null;
-}
-
-interface NotificationsResponse {
-  notifications: Notification[];
-  totalCount: number;
-  unreadCount: number;
-}
-
-interface CacheEntry {
-  data: NotificationsResponse;
-  timestamp: number;
-}
-
-interface ApiRequestOptions extends RequestInit {}
+export interface UseNotificationsOptions extends FetchNotificationsParams {}
 
 export interface UseNotificationsReturn {
-  notifications: Notification[];
+  notifications: AppNotification[];
   totalCount: number;
   unreadCount: number;
   isLoading: boolean;
   error: string | null;
   lastFetch: number | null;
   loadNotifications: (forceRefresh?: boolean) => Promise<void>;
-  markAsRead: (notificationId: string) => Promise<void>;
-  markMultipleAsRead: (notificationIds: string[]) => Promise<void>;
+  markAsRead: (id: string) => Promise<void>;
+  markMultipleAsRead: (ids: string[]) => Promise<void>;
   markAllAsRead: () => Promise<void>;
-  archiveNotification: (notificationId: string) => Promise<void>;
-  deleteNotification: (notificationId: string) => Promise<void>;
+  archiveNotification: (id: string) => Promise<void>;
+  deleteNotification: (id: string) => Promise<void>;
   refreshNotifications: () => Promise<void>;
 }
 
-// ── Hook ─────────────────────────────────────────────────────────────────────
+// ── Cache entry ───────────────────────────────────────────────────────────────
 
-const _API_BASE = getApiBaseUrl();
+interface CacheEntry {
+  items: AppNotification[];
+  total: number;
+  unreadCount: number;
+  timestamp: number;
+}
+
+// ── Hook ──────────────────────────────────────────────────────────────────────
 
 /**
- * useNotifications - Custom hook for notification management
+ * useNotifications
  *
- * Features:
- * - Notification CRUD operations
- * - Real-time updates via WebSocket
- * - Pagination and filtering
- * - Optimistic updates
- * - Error handling and retry logic
- * - Local caching
- * - Batch operations
+ * Provides notification state and mutation methods to the UI.
+ * All API calls are delegated to the `NotificationAdapter` supplied via
+ * `NotificationProvider` — this hook has zero knowledge of URLs, scope keys
+ * (churchId, householdId), or HTTP method differences between backends.
+ *
+ * Use this hook only inside a `NotificationProvider` tree. It falls back to
+ * the `NULL_NOTIFICATION_ADAPTER` (dev warning, no crash) if used outside one.
  */
 export const useNotifications = ({
-  limit = 20,
   page = 1,
-  type = undefined,
-  status = undefined,
-  search = undefined,
-  userId = null,
+  limit = 20,
+  status,
+  type,
+  search,
 }: UseNotificationsOptions = {}): UseNotificationsReturn => {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const { adapter } = useNotificationContext();
+
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
@@ -76,175 +65,138 @@ export const useNotifications = ({
   const [lastFetch, setLastFetch] = useState<number | null>(null);
 
   const cacheRef = useRef(new Map<string, CacheEntry>());
-  const abortControllerRef = useRef<AbortController | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
-  const { isConnected, subscribe, unsubscribe } =
-    useWebSocket("/notifications");
-
-  const buildApiUrl = useCallback(
-    (endpoint: string, params: Record<string, unknown> = {}) => {
-      const url = new URL(`${_API_BASE}/api/notifications${endpoint}`);
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined && value !== null && value !== "") {
-          url.searchParams.append(key, String(value));
-        }
-      });
-      return url.toString();
-    },
-    [],
-  );
-
-  const apiRequest = useCallback(
-    async (url: string, options: ApiRequestOptions = {}): Promise<unknown> => {
-      const response = await fetch(url, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${typeof localStorage !== "undefined" && localStorage.getItem("authToken")}`,
-          ...options.headers,
-        },
-        ...options,
-      });
-      if (!response.ok) {
-        throw new Error(
-          `API request failed: ${response.status} ${response.statusText}`,
-        );
-      }
-      return response.json();
-    },
-    [],
-  );
+  // ── Load ────────────────────────────────────────────────────────────────────
 
   const loadNotifications = useCallback(
     async (forceRefresh = false) => {
-      const cacheKey = `notifications_${page}_${limit}_${type}_${status}_${search}_${userId}`;
+      const cacheKey = `${page}:${limit}:${status ?? ""}:${type ?? ""}:${search ?? ""}`;
 
       if (!forceRefresh && cacheRef.current.has(cacheKey)) {
         const cached = cacheRef.current.get(cacheKey)!;
         if (Date.now() - cached.timestamp < 30_000) {
-          setNotifications(cached.data.notifications ?? []);
-          setTotalCount(cached.data.totalCount ?? 0);
-          setUnreadCount(cached.data.unreadCount ?? 0);
+          setNotifications(cached.items);
+          setTotalCount(cached.total);
+          setUnreadCount(cached.unreadCount);
           return;
         }
       }
 
-      abortControllerRef.current?.abort();
-      abortControllerRef.current = new AbortController();
+      abortRef.current?.abort();
+      abortRef.current = new AbortController();
 
       setIsLoading(true);
       setError(null);
 
       try {
-        const url = buildApiUrl("", {
+        const result = await adapter.fetchNotifications({
           page,
           limit,
-          type,
           status,
+          type,
           search,
-          userId,
         });
-        const response = (await apiRequest(url, {
-          signal: abortControllerRef.current.signal,
-        })) as NotificationsResponse;
 
-        setNotifications(response.notifications ?? []);
-        setTotalCount(response.totalCount ?? 0);
-        setUnreadCount(response.unreadCount ?? 0);
+        setNotifications(result.items);
+        setTotalCount(result.total);
+        setUnreadCount(result.unreadCount);
         setLastFetch(Date.now());
 
         cacheRef.current.set(cacheKey, {
-          data: response,
+          items: result.items,
+          total: result.total,
+          unreadCount: result.unreadCount,
           timestamp: Date.now(),
         });
 
-        // Evict oldest entry if cache grows too large
+        // Evict oldest cache entry beyond 10 entries
         if (cacheRef.current.size > 10) {
-          const oldestKey = cacheRef.current.keys().next().value as string;
-          cacheRef.current.delete(oldestKey);
+          const oldest = cacheRef.current.keys().next().value as string;
+          cacheRef.current.delete(oldest);
         }
       } catch (err) {
-        // Root-cause fix: the original code caught as `_error` but threw
-        // an undefined outer `error` — that caused a ReferenceError.
         const typedErr = err instanceof Error ? err : new Error(String(err));
         if (typedErr.name !== "AbortError") {
           setError(typedErr.message);
+          if (import.meta.env?.DEV) {
+            console.warn(
+              "[useNotifications] fetchNotifications failed:",
+              typedErr.message,
+            );
+          }
         }
       } finally {
         setIsLoading(false);
       }
     },
-    [page, limit, type, status, search, userId, buildApiUrl, apiRequest],
+    // adapter is stable for the lifetime of the provider;
+    // params change triggers a refetch via the effect below.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [adapter, page, limit, status, type, search],
   );
 
+  // ── Mutations ───────────────────────────────────────────────────────────────
+
   const markAsRead = useCallback(
-    async (notificationId: string) => {
+    async (id: string) => {
       // Optimistic update
       setNotifications((prev) =>
-        prev.map((n) =>
-          (n.id ?? n._id) === notificationId
-            ? { ...n, status: "read" as const }
-            : n,
-        ),
+        prev.map((n) => (n.id === id ? { ...n, status: "read" as const } : n)),
       );
       setUnreadCount((prev) => Math.max(0, prev - 1));
 
       try {
-        await apiRequest(buildApiUrl(`/${notificationId}/read`), {
-          method: "PUT",
-        });
+        await adapter.markRead(id);
       } catch (err) {
         // Revert
         setNotifications((prev) =>
           prev.map((n) =>
-            (n.id ?? n._id) === notificationId
-              ? { ...n, status: "unread" as const }
-              : n,
+            n.id === id ? { ...n, status: "unread" as const } : n,
           ),
         );
         setUnreadCount((prev) => prev + 1);
+        if (import.meta.env?.DEV) {
+          console.warn("[useNotifications] markRead failed:", err);
+        }
         throw err;
       }
     },
-    [buildApiUrl, apiRequest],
+    [adapter],
   );
 
   const markMultipleAsRead = useCallback(
-    async (notificationIds: string[]) => {
-      const originalNotifications = [...notifications];
-      const originalUnreadCount = unreadCount;
+    async (ids: string[]) => {
+      const snapshot = [...notifications];
+      const snapshotUnread = unreadCount;
 
-      // Optimistic update
       setNotifications((prev) =>
         prev.map((n) =>
-          notificationIds.includes((n.id ?? n._id) as string)
-            ? { ...n, status: "read" as const }
-            : n,
+          ids.includes(n.id) ? { ...n, status: "read" as const } : n,
         ),
       );
-      const unreadToRead = notifications.filter(
-        (n) =>
-          notificationIds.includes((n.id ?? n._id) as string) &&
-          n.status === "unread",
+      const toRead = notifications.filter(
+        (n) => ids.includes(n.id) && n.status === "unread",
       ).length;
-      setUnreadCount((prev) => Math.max(0, prev - unreadToRead));
+      setUnreadCount((prev) => Math.max(0, prev - toRead));
 
       try {
-        await apiRequest(buildApiUrl("/bulk/read"), {
-          method: "PUT",
-          body: JSON.stringify({ notificationIds }),
-        });
+        await adapter.bulkMarkRead(ids);
       } catch (err) {
-        setNotifications(originalNotifications);
-        setUnreadCount(originalUnreadCount);
+        setNotifications(snapshot);
+        setUnreadCount(snapshotUnread);
+        if (import.meta.env?.DEV) {
+          console.warn("[useNotifications] bulkMarkRead failed:", err);
+        }
         throw err;
       }
     },
-    [notifications, unreadCount, buildApiUrl, apiRequest],
+    [adapter, notifications, unreadCount],
   );
 
   const markAllAsRead = useCallback(async () => {
-    const originalNotifications = [...notifications];
-    const originalUnreadCount = unreadCount;
+    const snapshot = [...notifications];
+    const snapshotUnread = unreadCount;
 
     setNotifications((prev) =>
       prev.map((n) => ({ ...n, status: "read" as const })),
@@ -252,112 +204,72 @@ export const useNotifications = ({
     setUnreadCount(0);
 
     try {
-      await apiRequest(buildApiUrl("/all/read"), { method: "PUT" });
+      await adapter.markAllRead();
     } catch (err) {
-      setNotifications(originalNotifications);
-      setUnreadCount(originalUnreadCount);
+      setNotifications(snapshot);
+      setUnreadCount(snapshotUnread);
+      if (import.meta.env?.DEV) {
+        console.warn("[useNotifications] markAllRead failed:", err);
+      }
       throw err;
     }
-  }, [notifications, unreadCount, buildApiUrl, apiRequest]);
+  }, [adapter, notifications, unreadCount]);
 
   const archiveNotification = useCallback(
-    async (notificationId: string) => {
-      setNotifications((prev) =>
-        prev.filter((n) => (n.id ?? n._id) !== notificationId),
-      );
+    async (id: string) => {
+      setNotifications((prev) => prev.filter((n) => n.id !== id));
       try {
-        await apiRequest(buildApiUrl(`/${notificationId}/archive`), {
-          method: "PUT",
-        });
+        await adapter.archive(id);
       } catch (err) {
+        // Refetch to restore consistent state
         await loadNotifications(true);
+        if (import.meta.env?.DEV) {
+          console.warn("[useNotifications] archive failed:", err);
+        }
         throw err;
       }
     },
-    [buildApiUrl, apiRequest, loadNotifications],
+    [adapter, loadNotifications],
   );
 
   const deleteNotification = useCallback(
-    async (notificationId: string) => {
-      const target = notifications.find(
-        (n) => (n.id ?? n._id) === notificationId,
-      );
-      setNotifications((prev) =>
-        prev.filter((n) => (n.id ?? n._id) !== notificationId),
-      );
+    async (id: string) => {
+      const target = notifications.find((n) => n.id === id);
+      setNotifications((prev) => prev.filter((n) => n.id !== id));
       if (target?.status === "unread")
         setUnreadCount((prev) => Math.max(0, prev - 1));
 
       try {
-        await apiRequest(buildApiUrl(`/${notificationId}`), {
-          method: "DELETE",
-        });
+        await adapter.delete(id);
       } catch (err) {
         await loadNotifications(true);
+        if (import.meta.env?.DEV) {
+          console.warn("[useNotifications] delete failed:", err);
+        }
         throw err;
       }
     },
-    [notifications, buildApiUrl, apiRequest, loadNotifications],
+    [adapter, notifications, loadNotifications],
   );
 
-  const refreshNotifications = useCallback(() => {
+  const refreshNotifications = useCallback(async () => {
     cacheRef.current.clear();
-    return loadNotifications(true);
+    await loadNotifications(true);
   }, [loadNotifications]);
 
-  // WebSocket real-time updates
-  useEffect(() => {
-    if (!isConnected) return;
-
-    const handleNotificationUpdate = (data: {
-      event: string;
-      data: Notification & { id?: string };
-    }) => {
-      switch (data.event) {
-        case "notification:created":
-          setNotifications((prev) => [data.data, ...prev]);
-          if (data.data.status === "unread") setUnreadCount((prev) => prev + 1);
-          break;
-        case "notification:updated":
-          setNotifications((prev) =>
-            prev.map((n) =>
-              (n.id ?? n._id) === data.data.id ? { ...n, ...data.data } : n,
-            ),
-          );
-          break;
-        case "notification:deleted":
-          setNotifications((prev) =>
-            prev.filter((n) => (n.id ?? n._id) !== data.data.id),
-          );
-          break;
-        case "notification:read":
-          setNotifications((prev) =>
-            prev.map((n) =>
-              (n.id ?? n._id) === data.data.id
-                ? { ...n, status: "read" as const }
-                : n,
-            ),
-          );
-          setUnreadCount((prev) => Math.max(0, prev - 1));
-          break;
-        default:
-          break;
-      }
-    };
-
-    subscribe("notification-update", handleNotificationUpdate);
-    return () => unsubscribe("notification-update");
-  }, [isConnected, subscribe, unsubscribe]);
+  // ── Effects ─────────────────────────────────────────────────────────────────
 
   useEffect(() => {
-    loadNotifications();
+    void loadNotifications();
   }, [loadNotifications]);
 
   useEffect(() => {
     return () => {
-      abortControllerRef.current?.abort();
+      abortRef.current?.abort();
     };
   }, []);
+
+  // ── Return ──────────────────────────────────────────────────────────────────
 
   return {
     notifications,

@@ -1,10 +1,32 @@
+/**
+ * NotificationCenter.tsx
+ *
+ * Shared notification panel — app-agnostic UI layer.
+ * All data comes from `useNotifications`, which delegates
+ * to the `NotificationAdapter` provided by the nearest
+ * `<NotificationProvider>`.  This component has zero knowledge
+ * of backend URLs, scope keys, or HTTP verbs.
+ *
+ * Features
+ * ─────────
+ * • Tabbed filter  — All / Unread (n) / Church / System
+ * • Date-grouped list — Today / Yesterday / This Week / Older
+ * • Per-row quick actions — mark read, archive, delete (on hover)
+ * • Bulk actions — select-all, mark read, archive, delete
+ * • Keyboard navigation — ↑ ↓ Enter  R (read)  D (delete)
+ * • 30 s auto-refresh while the panel is open
+ * • Toast feedback on every mutating action
+ * • Popover or side-drawer positioning
+ */
 import React, {
   useState,
   useEffect,
   useCallback,
   useMemo,
   useRef,
+  type KeyboardEvent,
 } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   FiBell,
   FiSettings,
@@ -17,57 +39,30 @@ import {
   FiMail,
   FiMessageSquare,
   FiAlertCircle,
+  FiArchive,
 } from "react-icons/fi";
-import { formatDistanceToNow } from "date-fns";
+import {
+  formatDistanceToNow,
+  isToday,
+  isYesterday,
+  isThisWeek,
+} from "date-fns";
 import { useNotifications } from "../../hooks/useNotifications";
-import { useWebSocket } from "../../hooks/useWebSocket";
+import type { AppNotification } from "./NotificationAdapter";
 import {
   LoadingSpinner,
   Button,
   Badge,
-  Dropdown,
   SearchInput,
   Pagination,
 } from "@shared/components/ui";
 import { NotificationModal } from "./NotificationModal";
 import NotificationToast from "./NotificationToast";
 import { NotificationPreferences } from "./NotificationPreferences";
-import type { Notification } from "./NotificationToast";
 
-// ── Types ────────────────────────────────────────────────────────────────────
+// ── Constants ──────────────────────────────────────────────────────────────────
 
-type PanelPosition = "right" | "left";
-type FilterType =
-  | "all"
-  | "user"
-  | "system"
-  | "church"
-  | "business"
-  | "security";
-type FilterStatus = "all" | "unread" | "read" | "archived";
-type SortField = "date" | "priority" | "type";
-type SortOrder = "asc" | "desc";
-type BulkAction = "markRead" | "archive" | "delete";
-
-interface ToastConfig {
-  type: "success" | "error" | "info" | "warning";
-  title: string;
-  message: string;
-  duration?: number;
-}
-
-interface FilterOption {
-  value: string;
-  label: string;
-  icon?: React.ComponentType<{ className?: string }>;
-}
-
-interface NotificationCenterProps {
-  className?: string;
-  isOpen?: boolean;
-  onClose?: () => void;
-  position?: PanelPosition;
-}
+const OPEN_POLL_MS = 30_000;
 
 const PRIORITY_ORDER: Record<string, number> = {
   urgent: 4,
@@ -76,7 +71,7 @@ const PRIORITY_ORDER: Record<string, number> = {
   low: 1,
 };
 
-const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+const TYPE_ICON: Record<string, React.ComponentType<{ className?: string }>> = {
   user: FiUser,
   system: FiSettings,
   church: FiMessageSquare,
@@ -91,635 +86,957 @@ const PRIORITY_BADGE: Record<string, { color: string; label: string }> = {
   low: { color: "gray", label: "Low" },
 };
 
-// ── Component ────────────────────────────────────────────────────────────────
+// ── Types ──────────────────────────────────────────────────────────────────────
 
-/**
- * NotificationCenter - Comprehensive real-time notification management interface
- *
- * Features:
- * - Real-time notification display with WebSocket integration
- * - Advanced filtering and search capabilities
- * - Notification actions (mark as read, archive, dismiss)
- * - Bulk notification management
- * - Notification preferences integration
- * - Performance-optimized virtual scrolling for large lists
- * - Responsive design for all devices
- * - Accessibility compliance
- */
+type TabFilter = "all" | "unread" | "church" | "system";
+type SortField = "date" | "priority" | "type";
+type SortOrder = "asc" | "desc";
+type BulkAction = "markRead" | "archive" | "delete";
+type PanelPosition = "right" | "left" | "popover";
+
+interface ToastConfig {
+  type: "success" | "error" | "info" | "warning";
+  title: string;
+  message: string;
+  duration?: number;
+}
+
+export interface DropdownCoords {
+  top: number;
+  left: number;
+  opensUpward: boolean;
+}
+
+export interface NotificationCenterProps {
+  className?: string;
+  isOpen?: boolean;
+  onClose?: () => void;
+  position?: PanelPosition;
+  dropdownCoords?: DropdownCoords | null;
+  panelRef?: React.Ref<HTMLDivElement>;
+}
+
+// ── Helpers ────────────────────────────────────────────────────────────────────
+
+function dateGroup(date: Date): string {
+  if (isToday(date)) return "Today";
+  if (isYesterday(date)) return "Yesterday";
+  if (isThisWeek(date)) return "This Week";
+  return "Older";
+}
+
+function notifId(n: AppNotification): string {
+  return n.id;
+}
+
+function notifTitle(n: AppNotification): string {
+  return n.subject ?? n.title ?? "No subject";
+}
+
+function notifBody(n: AppNotification): string {
+  return n.body ?? n.content ?? n.message ?? "";
+}
+
+function notifDate(n: AppNotification): Date {
+  return new Date(n.createdAt ?? n.timestamp ?? Date.now());
+}
+
+// ── Component ──────────────────────────────────────────────────────────────────
+
 const NotificationCenter: React.FC<NotificationCenterProps> = ({
   className = "",
   isOpen = false,
   onClose = () => {},
   position = "right",
+  dropdownCoords = null,
+  panelRef,
 }) => {
-  // State
-  const [selectedNotification, setSelectedNotification] =
-    useState<Notification | null>(null);
-  const [showPreferences, setShowPreferences] = useState(false);
-  const [selectedNotifications, setSelectedNotifications] = useState<
-    Set<string>
-  >(new Set());
+  // ── Local state ─────────────────────────────────────────────────────────────
+  const [activeTab, setActiveTab] = useState<TabFilter>("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterType, setFilterType] = useState<FilterType>("all");
-  const [filterStatus, setFilterStatus] = useState<FilterStatus>("all");
-  const [sortBy, setSortBy] = useState<SortField>("date");
-  const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
   const [currentPage, setCurrentPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
+  const [sortBy, setSortBy] = useState<SortField>("date");
+  const [sortOrder] = useState<SortOrder>("desc");
+
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [focusedIndex, setFocusedIndex] = useState(-1);
+  const [isMutating, setIsMutating] = useState(false);
+
+  const [detailNotif, setDetailNotif] = useState<AppNotification | null>(null);
+  const [showPrefs, setShowPrefs] = useState(false);
   const [toast, setToast] = useState<ToastConfig | null>(null);
 
-  // Refs
-  const notificationListRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
 
-  // Notification data hook
+  // ── Data ────────────────────────────────────────────────────────────────────
   const {
     notifications,
     unreadCount,
     totalCount,
-    isLoading: notificationsLoading,
+    isLoading,
     error,
     loadNotifications,
     markAsRead,
     markMultipleAsRead,
     markAllAsRead: _markAllAsRead,
-    deleteNotification,
     archiveNotification,
+    deleteNotification,
     refreshNotifications,
   } = useNotifications({
-    limit: 20,
     page: currentPage,
-    type: filterType === "all" ? undefined : filterType,
-    status: filterStatus === "all" ? undefined : filterStatus,
-    search: searchQuery,
+    limit: 20,
+    status: activeTab === "unread" ? "unread" : undefined,
+    type:
+      activeTab === "church" || activeTab === "system" ? activeTab : undefined,
+    search: searchQuery || undefined,
   });
 
-  const { isConnected, subscribe, unsubscribe } =
-    useWebSocket("/notifications");
+  // ── Polling + reset ──────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (!isOpen) return;
+    void loadNotifications();
+    const id = setInterval(() => void refreshNotifications(), OPEN_POLL_MS);
+    return () => clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, currentPage, activeTab, searchQuery]);
 
-  // ── Filter/sort options ────────────────────────────────────────────────────
+  useEffect(() => {
+    setCurrentPage(1);
+    setSelectedIds(new Set());
+    setFocusedIndex(-1);
+  }, [activeTab, searchQuery]);
 
-  const filterTypeOptions: FilterOption[] = [
-    { value: "all", label: "All Types", icon: FiBell },
-    { value: "user", label: "User", icon: FiUser },
-    { value: "system", label: "System", icon: FiSettings },
-    { value: "church", label: "Church", icon: FiMessageSquare },
-    { value: "business", label: "Business", icon: FiMail },
-    { value: "security", label: "Security", icon: FiAlertCircle },
-  ];
+  // ── Derived list ─────────────────────────────────────────────────────────────
+  const processed = useMemo<AppNotification[]>(() => {
+    let list = [...notifications];
 
-  const filterStatusOptions: FilterOption[] = [
-    { value: "all", label: "All Status" },
-    { value: "unread", label: "Unread" },
-    { value: "read", label: "Read" },
-    { value: "archived", label: "Archived" },
-  ];
-
-  // ── Memoised filtered / sorted list ───────────────────────────────────────
-
-  const processedNotifications = useMemo(() => {
-    let filtered = [...notifications];
-
+    // Client-side search (server already filtered, but keep for instant UX)
     if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(
+      const q = searchQuery.toLowerCase();
+      list = list.filter(
         (n) =>
-          n.subject?.toLowerCase().includes(query) ||
-          n.content?.toLowerCase().includes(query) ||
-          n.type?.toLowerCase().includes(query),
+          notifTitle(n).toLowerCase().includes(q) ||
+          notifBody(n).toLowerCase().includes(q) ||
+          n.type?.toLowerCase().includes(q),
       );
     }
 
-    filtered.sort((a, b) => {
-      let aValue: number | string;
-      let bValue: number | string;
-
-      switch (sortBy) {
-        case "priority":
-          aValue = PRIORITY_ORDER[a.priority ?? ""] ?? 0;
-          bValue = PRIORITY_ORDER[b.priority ?? ""] ?? 0;
-          break;
-        case "type":
-          aValue = a.type ?? "";
-          bValue = b.type ?? "";
-          break;
-        case "date":
-        default:
-          aValue = new Date(a.createdAt ?? a.timestamp ?? 0).getTime();
-          bValue = new Date(b.createdAt ?? b.timestamp ?? 0).getTime();
-          break;
+    list.sort((a, b) => {
+      let av: number | string = 0;
+      let bv: number | string = 0;
+      if (sortBy === "priority") {
+        av = PRIORITY_ORDER[a.priority ?? ""] ?? 0;
+        bv = PRIORITY_ORDER[b.priority ?? ""] ?? 0;
+      } else if (sortBy === "type") {
+        av = a.type ?? "";
+        bv = b.type ?? "";
+      } else {
+        av = notifDate(a).getTime();
+        bv = notifDate(b).getTime();
       }
-
-      return sortOrder === "asc"
-        ? aValue > bValue
-          ? 1
-          : -1
-        : aValue < bValue
-          ? 1
-          : -1;
+      return sortOrder === "asc" ? (av > bv ? 1 : -1) : av < bv ? 1 : -1;
     });
 
-    return filtered;
+    return list;
   }, [notifications, searchQuery, sortBy, sortOrder]);
 
-  // ── WebSocket ──────────────────────────────────────────────────────────────
-
-  const handleNotificationReceived = useCallback(
-    (data: { event: string; data: Notification }) => {
-      if (data.event === "notification:created") {
-        setToast({
-          type: "info",
-          title: "New Notification",
-          message: data.data.subject ?? "You have a new notification",
-          duration: 5000,
-        });
-        refreshNotifications();
-      } else if (data.event === "notification:processed") {
-        refreshNotifications();
-      }
-    },
-    [refreshNotifications],
-  );
-
-  useEffect(() => {
-    if (isOpen && isConnected) {
-      subscribe("notification-update", handleNotificationReceived);
+  const grouped = useMemo<{ label: string; items: AppNotification[] }[]>(() => {
+    const ORDER = ["Today", "Yesterday", "This Week", "Older"];
+    const map = new Map<string, AppNotification[]>();
+    for (const n of processed) {
+      const label = dateGroup(notifDate(n));
+      if (!map.has(label)) map.set(label, []);
+      map.get(label)!.push(n);
     }
-    return () => {
-      if (isConnected) unsubscribe("notification-update");
-    };
-  }, [isOpen, isConnected, subscribe, unsubscribe, handleNotificationReceived]);
+    return ORDER.filter((l) => map.has(l)).map((label) => ({
+      label,
+      items: map.get(label)!,
+    }));
+  }, [processed]);
 
-  useEffect(() => {
-    if (isOpen) loadNotifications();
-  }, [
-    isOpen,
-    currentPage,
-    filterType,
-    filterStatus,
-    searchQuery,
-    loadNotifications,
-  ]);
+  // ── Toast helper ─────────────────────────────────────────────────────────────
+  const flash = useCallback((cfg: ToastConfig) => setToast(cfg), []);
 
-  // ── Handlers ───────────────────────────────────────────────────────────────
-
-  const handleNotificationSelect = useCallback((notificationId: string) => {
-    setSelectedNotifications((prev) => {
+  // ── Selection ─────────────────────────────────────────────────────────────────
+  const toggleSelect = useCallback((id: string) => {
+    setSelectedIds((prev) => {
       const next = new Set(prev);
-      if (next.has(notificationId)) {
-        next.delete(notificationId);
-      } else {
-        next.add(notificationId);
-      }
+      next.has(id) ? next.delete(id) : next.add(id);
       return next;
     });
   }, []);
 
-  const handleSelectAll = useCallback(() => {
-    if (selectedNotifications.size === processedNotifications.length) {
-      setSelectedNotifications(new Set());
+  const toggleSelectAll = useCallback(() => {
+    if (selectedIds.size === processed.length) {
+      setSelectedIds(new Set());
     } else {
-      setSelectedNotifications(
-        new Set(processedNotifications.map((n) => (n.id ?? n._id) as string)),
-      );
+      setSelectedIds(new Set(processed.map(notifId)));
     }
-  }, [selectedNotifications.size, processedNotifications]);
+  }, [selectedIds.size, processed]);
 
-  const handleNotificationClick = useCallback(
-    async (notification: Notification) => {
-      setSelectedNotification(notification);
-      if (notification.status === "unread") {
+  // ── Single-item actions ───────────────────────────────────────────────────────
+  const handleClick = useCallback(
+    async (n: AppNotification) => {
+      setDetailNotif(n);
+      if (n.status === "unread") {
         try {
-          await markAsRead((notification.id ?? notification._id) as string);
+          await markAsRead(notifId(n));
         } catch {
-          setToast({
+          flash({
             type: "error",
             title: "Error",
-            message: "Failed to mark notification as read",
+            message: "Failed to mark as read",
             duration: 3000,
           });
         }
       }
     },
-    [markAsRead],
+    [markAsRead, flash],
   );
 
-  const handleBulkAction = useCallback(
-    async (action: BulkAction) => {
-      if (selectedNotifications.size === 0) return;
-      setIsLoading(true);
-      const notificationIds = Array.from(selectedNotifications);
+  const handleMarkRead = useCallback(
+    async (n: AppNotification) => {
       try {
-        switch (action) {
-          case "markRead":
-            await markMultipleAsRead(notificationIds);
-            setToast({
-              type: "success",
-              title: "Success",
-              message: `Marked ${notificationIds.length} notifications as read`,
-              duration: 3000,
-            });
-            break;
-          case "archive":
-            for (const id of notificationIds) await archiveNotification(id);
-            setToast({
-              type: "success",
-              title: "Success",
-              message: `Archived ${notificationIds.length} notifications`,
-              duration: 3000,
-            });
-            break;
-          case "delete":
-            for (const id of notificationIds) await deleteNotification(id);
-            setToast({
-              type: "success",
-              title: "Success",
-              message: `Deleted ${notificationIds.length} notifications`,
-              duration: 3000,
-            });
-            break;
-        }
-        setSelectedNotifications(new Set());
-        refreshNotifications();
+        await markAsRead(notifId(n));
+        flash({
+          type: "success",
+          title: "Done",
+          message: "Marked as read",
+          duration: 2000,
+        });
       } catch {
-        setToast({
+        flash({
           type: "error",
           title: "Error",
-          message: `Failed to ${action} notifications`,
+          message: "Failed to mark as read",
+          duration: 3000,
+        });
+      }
+    },
+    [markAsRead, flash],
+  );
+
+  const handleArchive = useCallback(
+    async (n: AppNotification) => {
+      try {
+        await archiveNotification(notifId(n));
+        flash({
+          type: "success",
+          title: "Archived",
+          message: "Notification archived",
+          duration: 2000,
+        });
+        void refreshNotifications();
+      } catch {
+        flash({
+          type: "error",
+          title: "Error",
+          message: "Failed to archive",
+          duration: 3000,
+        });
+      }
+    },
+    [archiveNotification, refreshNotifications, flash],
+  );
+
+  const handleDelete = useCallback(
+    async (n: AppNotification) => {
+      try {
+        await deleteNotification(notifId(n));
+        flash({
+          type: "success",
+          title: "Deleted",
+          message: "Notification deleted",
+          duration: 2000,
+        });
+        void refreshNotifications();
+      } catch {
+        flash({
+          type: "error",
+          title: "Error",
+          message: "Failed to delete",
+          duration: 3000,
+        });
+      }
+    },
+    [deleteNotification, refreshNotifications, flash],
+  );
+
+  // ── Bulk actions ──────────────────────────────────────────────────────────────
+  const runBulk = useCallback(
+    async (action: BulkAction) => {
+      if (selectedIds.size === 0) return;
+      setIsMutating(true);
+      const ids = Array.from(selectedIds);
+      const count = ids.length;
+      const noun = `${count} notification${count > 1 ? "s" : ""}`;
+      try {
+        if (action === "markRead") {
+          await markMultipleAsRead(ids);
+          flash({
+            type: "success",
+            title: "Done",
+            message: `${noun} marked as read`,
+            duration: 3000,
+          });
+        } else if (action === "archive") {
+          await Promise.all(ids.map((id) => archiveNotification(id)));
+          flash({
+            type: "success",
+            title: "Done",
+            message: `${noun} archived`,
+            duration: 3000,
+          });
+        } else {
+          await Promise.all(ids.map((id) => deleteNotification(id)));
+          flash({
+            type: "success",
+            title: "Done",
+            message: `${noun} deleted`,
+            duration: 3000,
+          });
+        }
+        setSelectedIds(new Set());
+        void refreshNotifications();
+      } catch {
+        flash({
+          type: "error",
+          title: "Error",
+          message: `Failed to ${action === "markRead" ? "mark as read" : action}`,
           duration: 3000,
         });
       } finally {
-        setIsLoading(false);
+        setIsMutating(false);
       }
     },
     [
-      selectedNotifications,
+      selectedIds,
       markMultipleAsRead,
       archiveNotification,
       deleteNotification,
       refreshNotifications,
+      flash,
     ],
   );
 
-  const handleSearch = useCallback((query: string) => {
-    setSearchQuery(query);
-    setCurrentPage(1);
+  const markAllAsRead = useCallback(async () => {
+    setIsMutating(true);
+    try {
+      await _markAllAsRead();
+      flash({
+        type: "success",
+        title: "Done",
+        message: "All notifications marked as read",
+        duration: 3000,
+      });
+      void refreshNotifications();
+    } catch {
+      flash({
+        type: "error",
+        title: "Error",
+        message: "Failed to mark all as read",
+        duration: 3000,
+      });
+    } finally {
+      setIsMutating(false);
+    }
+  }, [_markAllAsRead, refreshNotifications, flash]);
+
+  // ── Keyboard navigation ───────────────────────────────────────────────────────
+  const onKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLDivElement>) => {
+      if (!processed.length) return;
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setFocusedIndex((i) => Math.min(i + 1, processed.length - 1));
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setFocusedIndex((i) => Math.max(i - 1, 0));
+      } else if (e.key === "Enter" && focusedIndex >= 0) {
+        void handleClick(processed[focusedIndex]!);
+      } else if ((e.key === "r" || e.key === "R") && focusedIndex >= 0) {
+        const n = processed[focusedIndex]!;
+        if (n.status === "unread") void handleMarkRead(n);
+      } else if ((e.key === "d" || e.key === "D") && focusedIndex >= 0) {
+        void handleDelete(processed[focusedIndex]!);
+      }
+    },
+    [processed, focusedIndex, handleClick, handleMarkRead, handleDelete],
+  );
+
+  // ── Icon / badge helpers ──────────────────────────────────────────────────────
+  const typeIcon = useCallback((n: AppNotification) => {
+    const Icon = TYPE_ICON[n.type ?? ""] ?? FiBell;
+    const colour =
+      n.priority === "urgent"
+        ? "text-red-500"
+        : n.priority === "high"
+          ? "text-orange-500"
+          : n.priority === "normal"
+            ? "text-blue-500"
+            : "text-[var(--text-secondary)]";
+    return <Icon className={`w-5 h-5 ${colour}`} />;
   }, []);
 
-  const handleFilterChange = useCallback(
-    (type: "type" | "status", value: string) => {
-      if (type === "type") setFilterType(value as FilterType);
-      else setFilterStatus(value as FilterStatus);
-      setCurrentPage(1);
-    },
-    [],
-  );
-
-  // ── Sub-renderers ──────────────────────────────────────────────────────────
-
-  const getNotificationIcon = useCallback(
-    (type: string | undefined, priority: string | undefined) => {
-      const Icon = ICON_MAP[type ?? ""] ?? FiBell;
-      const color =
-        priority === "urgent"
-          ? "text-red-500"
-          : priority === "high"
-            ? "text-orange-500"
-            : priority === "normal"
-              ? "text-blue-500"
-              : "text-gray-500";
-      return <Icon className={`w-5 h-5 ${color}`} />;
-    },
-    [],
-  );
-
-  const getPriorityBadge = useCallback((priority: string | undefined) => {
-    const badge = PRIORITY_BADGE[priority ?? ""] ?? PRIORITY_BADGE.normal;
+  const priorityBadge = useCallback((n: AppNotification) => {
+    const b =
+      PRIORITY_BADGE[n.priority ?? "normal"] ?? PRIORITY_BADGE["normal"]!;
     return (
-      <Badge color={badge.color} size="sm">
-        {badge.label}
+      <Badge color={b.color} size="sm">
+        {b.label}
       </Badge>
     );
   }, []);
 
-  const renderNotificationItem = useCallback(
-    (notification: Notification) => {
-      const id = (notification.id ?? notification._id) as string;
-      const isSelected = selectedNotifications.has(id);
-      const isUnread = notification.status === "unread";
+  // ── Row renderer ──────────────────────────────────────────────────────────────
+  const renderRow = useCallback(
+    (n: AppNotification, flatIdx: number) => {
+      const id = notifId(n);
+      const isSelected = selectedIds.has(id);
+      const isUnread = n.status === "unread";
+      const isFocused = focusedIndex === flatIdx;
 
       return (
         <div
           key={id}
-          className={`relative p-4 border-b border-[var(--glass-outline)] cursor-pointer glass-node-hover ${
-            isSelected ? "bg-[var(--primary-subtle)]" : ""
-          } ${isUnread ? "bg-[var(--glass-surface)]" : ""}`}
-          onClick={() => handleNotificationClick(notification)}
+          role="option"
+          aria-selected={isSelected}
+          tabIndex={isFocused ? 0 : -1}
+          className={[
+            "relative p-4 border-b border-[var(--glass-outline)] cursor-pointer transition-colors group",
+            isSelected ? "bg-[var(--primary-subtle)]" : "",
+            isUnread && !isSelected ? "bg-[hsla(272,65%,62%,0.04)]" : "",
+            isFocused
+              ? "ring-2 ring-inset ring-[var(--primary-resonance)] ring-opacity-60"
+              : "",
+            "hover:bg-[var(--glass-surface-hover)]",
+          ]
+            .filter(Boolean)
+            .join(" ")}
+          onClick={() => void handleClick(n)}
         >
-          {/* Selection checkbox */}
-          <div className="absolute top-4 left-4 z-10">
+          {/* Checkbox */}
+          <div className="absolute top-4 left-3 z-10">
             <input
               type="checkbox"
               checked={isSelected}
               onChange={(e) => {
                 e.stopPropagation();
-                handleNotificationSelect(id);
+                toggleSelect(id);
               }}
-              className="w-4 h-4 text-[var(--primary-resonance)] bg-transparent rounded border-[var(--glass-outline)] focus:ring-[var(--primary-glow)] focus:ring-opacity-50"
+              onClick={(e) => e.stopPropagation()}
+              className="w-4 h-4 rounded border-[var(--glass-outline)] bg-transparent
+                text-[var(--primary-resonance)] focus:ring-[var(--primary-resonance)]"
+              aria-label={`Select: ${notifTitle(n)}`}
             />
           </div>
 
-          {/* Content */}
+          {/* Body */}
           <div className="ml-8">
-            <div className="flex items-start justify-between">
-              <div className="flex items-center space-x-2">
-                {getNotificationIcon(notification.type, notification.priority)}
-                <div className="flex-1 min-w-0">
-                  <h4
-                    className={`text-sm font-medium ${isUnread ? "text-[var(--text-primary)]" : "text-[var(--text-secondary)]"}`}
+            <div className="flex items-start justify-between gap-3">
+              {/* Icon + title + body */}
+              <div className="flex items-start gap-2 min-w-0">
+                <span className="mt-0.5 shrink-0">{typeIcon(n)}</span>
+                <div className="min-w-0">
+                  <p
+                    className={`text-sm font-medium truncate ${isUnread ? "text-[var(--text-primary)]" : "text-[var(--text-secondary)]"}`}
                   >
-                    {notification.subject ?? notification.title ?? "No subject"}
-                  </h4>
-                  <p className="text-sm text-[var(--text-muted)] line-clamp-2 mt-1">
-                    {notification.content ??
-                      notification.message ??
-                      "No content"}
+                    {isUnread && (
+                      <span
+                        className="inline-block w-1.5 h-1.5 rounded-full mr-2 mb-0.5
+                          bg-[var(--primary-resonance)] shadow-[0_0_6px_var(--primary-glow)]"
+                        aria-hidden
+                      />
+                    )}
+                    {notifTitle(n)}
+                  </p>
+                  <p className="text-xs text-[var(--text-secondary)] line-clamp-2 mt-0.5">
+                    {notifBody(n)}
                   </p>
                 </div>
               </div>
 
-              <div className="flex flex-col items-end space-y-1 ml-4">
-                {getPriorityBadge(notification.priority)}
-                <span className="text-xs text-[var(--text-muted)] flex items-center">
-                  <FiClock className="w-3 h-3 mr-1" />
-                  {formatDistanceToNow(
-                    new Date(
-                      notification.createdAt ??
-                        notification.timestamp ??
-                        Date.now(),
-                    ),
-                    { addSuffix: true },
-                  )}
+              {/* Priority badge + timestamp */}
+              <div className="flex flex-col items-end gap-1 shrink-0">
+                {priorityBadge(n)}
+                <span className="text-[10px] text-[var(--text-muted)] flex items-center gap-1 whitespace-nowrap">
+                  <FiClock className="w-3 h-3" />
+                  {formatDistanceToNow(notifDate(n), { addSuffix: true })}
                 </span>
               </div>
             </div>
 
-            <div className="flex items-center justify-between mt-3 pl-4 border-t border-[var(--glass-outline)] pt-3 opacity-80">
-              <div className="flex items-center space-x-2">
-                <span className="text-[10px] tracking-wider uppercase font-semibold px-2 py-0.5 rounded-full bg-[var(--glass-surface)] border border-[var(--glass-outline)] text-[var(--text-secondary)]">
-                  {notification.type ?? "General"}
+            {/* Type tag + quick actions */}
+            <div className="flex items-center justify-between mt-2 pl-7">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span
+                  className="text-[10px] tracking-wider uppercase font-semibold px-2 py-0.5
+                  rounded-full bg-[var(--glass-surface)] border border-[var(--glass-outline)]
+                  text-[var(--text-secondary)]"
+                >
+                  {n.type ?? "General"}
                 </span>
-                {notification.module && (
-                  <span className="text-[10px] tracking-wider uppercase font-semibold px-2 py-0.5 rounded-full bg-[var(--glass-surface)] border border-[var(--glass-outline)] text-[var(--text-secondary)]">
-                    {notification.module}
+                {n.module && (
+                  <span
+                    className="text-[10px] tracking-wider uppercase font-semibold px-2 py-0.5
+                    rounded-full bg-[var(--glass-surface)] border border-[var(--glass-outline)]
+                    text-[var(--text-secondary)]"
+                  >
+                    {n.module}
                   </span>
                 )}
               </div>
-              {isUnread && (
-                <div className="w-2 h-2 bg-[var(--primary-resonance)] shadow-[0_0_8px_var(--primary-glow)] rounded-full animate-pulse" />
-              )}
+
+              {/* Per-row actions — visible on hover / keyboard focus */}
+              <div
+                className="flex items-center gap-1 opacity-0 group-hover:opacity-100
+                  focus-within:opacity-100 transition-opacity"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {isUnread && (
+                  <button
+                    className="p-1 rounded hover:bg-[var(--glass-surface)]
+                      text-[var(--text-secondary)] hover:text-[var(--primary-resonance)]
+                      transition-colors"
+                    title="Mark as read  (R)"
+                    onClick={() => void handleMarkRead(n)}
+                  >
+                    <FiCheck className="w-3 h-3" />
+                  </button>
+                )}
+                <button
+                  className="p-1 rounded hover:bg-[var(--glass-surface)]
+                    text-[var(--text-secondary)] hover:text-amber-400 transition-colors"
+                  title="Archive"
+                  onClick={() => void handleArchive(n)}
+                >
+                  <FiArchive className="w-3 h-3" />
+                </button>
+                <button
+                  className="p-1 rounded hover:bg-[var(--glass-surface)]
+                    text-[var(--text-secondary)] hover:text-red-400 transition-colors"
+                  title="Delete  (D)"
+                  onClick={() => void handleDelete(n)}
+                >
+                  <FiTrash2 className="w-3 h-3" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
       );
     },
     [
-      selectedNotifications,
-      handleNotificationClick,
-      handleNotificationSelect,
-      getNotificationIcon,
-      getPriorityBadge,
+      selectedIds,
+      focusedIndex,
+      handleClick,
+      handleMarkRead,
+      handleArchive,
+      handleDelete,
+      toggleSelect,
+      typeIcon,
+      priorityBadge,
     ],
   );
 
-  if (!isOpen) return null;
+  // ── Tabs ──────────────────────────────────────────────────────────────────────
+  const TABS: { id: TabFilter; label: string }[] = [
+    { id: "all", label: "All" },
+    {
+      id: "unread",
+      label: unreadCount > 0 ? `Unread (${unreadCount})` : "Unread",
+    },
+    { id: "church", label: "Church" },
+    { id: "system", label: "System" },
+  ];
 
-  return (
-    <>
-      {/* Overlay */}
-      <div className="fixed inset-0 bg-black/25 z-40" onClick={onClose} />
+  // ── Layout helpers ────────────────────────────────────────────────────────────
+  const isPopover = position === "popover";
 
-      {/* Panel */}
+  const popoverStyle: React.CSSProperties =
+    isPopover && dropdownCoords
+      ? {
+          position: "fixed",
+          top: dropdownCoords.top,
+          left: dropdownCoords.left,
+          zIndex: 99000,
+          width: "calc(100vw - 32px)",
+          maxWidth: "420px",
+          height: "620px",
+          maxHeight: "calc(100vh - 40px)",
+          borderRadius: "var(--radius-lg, 14px)",
+          border: "1px solid var(--glass-outline)",
+          background: "var(--bg-sidebar)",
+          backdropFilter: "blur(24px) saturate(180%)",
+          WebkitBackdropFilter: "blur(24px) saturate(180%)",
+          boxShadow:
+            "0 16px 48px hsla(222,47%,4%,0.55), 0 0 0 1px var(--glass-outline)",
+          overflow: "hidden",
+          display: "flex",
+          flexDirection: "column",
+        }
+      : {};
+
+  const animProps = {
+    initial: {
+      opacity: 0,
+      y: dropdownCoords?.opensUpward ? -8 : 8,
+      scale: 0.96,
+    },
+    animate: { opacity: 1, y: 0, scale: 1 },
+    exit: { opacity: 0, y: dropdownCoords?.opensUpward ? -8 : 8, scale: 0.96 },
+    transition: { duration: 0.15, ease: "easeOut" as const },
+  };
+
+  // ── Inner content ─────────────────────────────────────────────────────────────
+  let flatIdx = -1; // mutable counter for keyboard nav index
+
+  const content = (
+    <div
+      className="flex flex-col h-full relative z-10 overflow-hidden"
+      role="listbox"
+      aria-label="Notifications"
+      onKeyDown={onKeyDown}
+    >
+      {/* ── Header ─────────────────────────────────────────────────────────── */}
       <div
-        className={`fixed top-0 ${position === "right" ? "right-0" : "left-0"} h-full w-96 glass-sidebar z-50
-          transform transition-transform duration-300 ease-in-out shadow-2xl
-          ${isOpen ? "translate-x-0" : position === "right" ? "translate-x-full" : "-translate-x-full"}
-          ${className}`}
+        className="shrink-0"
+        style={{
+          padding: "14px 16px 0",
+          borderBottom: "1px solid var(--glass-outline)",
+          background: "hsla(0,0%,100%,0.02)",
+        }}
       >
-        <div className="flex flex-col h-full bg-aurora overflow-hidden mix-blend-screen pointer-events-none" />
-        <div className="flex flex-col h-full absolute inset-0">
-          {/* Header */}
-          <div className="flex items-center justify-between p-5 glass-header">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 rounded-xl bg-[var(--primary-subtle)]">
-                <FiBell className="w-5 h-5 text-[var(--primary-resonance)]" />
-              </div>
-              <h2 className="text-lg section-heading-violet">Notifications</h2>
-              {unreadCount > 0 && (
-                <div className="ml-2 px-2 py-0.5 rounded-full bg-[var(--accent-amber-subtle)] border border-[var(--accent-amber)] border-opacity-30 text-[var(--text-amber)] text-xs font-bold">
-                  {unreadCount}
-                </div>
-              )}
-            </div>
-            <div className="flex items-center space-x-1">
-              <div
-                className={`w-2 h-2 rounded-full mr-2 shadow-[0_0_8px_currentColor] ${isConnected ? "text-green-500 bg-green-500" : "text-red-500 bg-red-500"}`}
-                title={isConnected ? "Connected" : "Disconnected"}
+        {/* Title row */}
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <span className="p-1.5 rounded-lg bg-[var(--primary-subtle)]">
+              <FiBell className="w-4 h-4 text-[var(--primary-resonance)]" />
+            </span>
+            <h2 className="text-sm font-semibold text-[var(--text-primary)] m-0">
+              Notifications
+            </h2>
+          </div>
+
+          <div className="flex items-center gap-1">
+            {/* Refresh */}
+            <button
+              onClick={() => void refreshNotifications()}
+              disabled={isLoading}
+              className="p-1.5 rounded-md text-[var(--text-secondary)]
+                hover:text-[var(--primary-resonance)] hover:bg-[var(--glass-surface)]
+                transition-colors"
+              title="Refresh"
+              aria-label="Refresh notifications"
+            >
+              <FiRefreshCw
+                className={`w-3.5 h-3.5 ${isLoading ? "animate-spin" : ""}`}
               />
+            </button>
+
+            {/* Preferences */}
+            <button
+              onClick={() => setShowPrefs(true)}
+              className="p-1.5 rounded-md text-[var(--text-secondary)]
+                hover:text-[var(--primary-resonance)] hover:bg-[var(--glass-surface)]
+                transition-colors"
+              title="Notification preferences"
+              aria-label="Open notification preferences"
+            >
+              <FiSettings className="w-4 h-4" />
+            </button>
+
+            {/* Mark all read — only visible when there are unread */}
+            {unreadCount > 0 && (
               <button
-                onClick={() => setShowPreferences(true)}
-                className="church-link-muted p-2"
-                aria-label="Settings"
+                onClick={() => void markAllAsRead()}
+                disabled={isMutating}
+                className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs
+                  bg-[var(--primary-subtle)] hover:bg-[hsla(272,65%,62%,0.2)]
+                  text-[var(--text-primary)] border border-[var(--primary-resonance)]
+                  border-opacity-30 transition-colors disabled:opacity-50"
+                title="Mark all notifications as read"
               >
-                <FiSettings className="w-4 h-4" />
+                <FiCheck className="w-3.5 h-3.5 text-[var(--text-accent)]" />
+                <span>Mark all read</span>
               </button>
-              <button
-                onClick={refreshNotifications}
-                disabled={notificationsLoading}
-                className="church-link-muted p-2 disabled:opacity-50"
-                aria-label="Refresh"
-              >
-                <FiRefreshCw
-                  className={`w-4 h-4 ${notificationsLoading ? "animate-spin" : ""}`}
-                />
-              </button>
+            )}
+
+            {/* Close — side-drawer mode only */}
+            {!isPopover && (
               <button
                 onClick={onClose}
-                className="church-cancel-btn p-2 rounded-lg"
-                aria-label="Close"
+                className="p-1.5 rounded-md text-[var(--text-secondary)]
+                  hover:text-white hover:bg-white/10 transition-colors"
+                aria-label="Close notifications"
               >
                 <FiX className="w-4 h-4" />
               </button>
-            </div>
-          </div>
-
-          {/* Search + filters */}
-          <div className="p-4 border-b border-[var(--glass-outline)] space-y-3 z-10 glass-surface">
-            <SearchInput
-              placeholder="Search notifications..."
-              value={searchQuery}
-              onChange={handleSearch}
-              className="w-full input-ecclesia"
-            />
-            <div className="flex items-center space-x-2">
-              <Dropdown
-                value={filterType}
-                onChange={(value: string) => handleFilterChange("type", value)}
-                options={filterTypeOptions}
-                placeholder="Type"
-                size="sm"
-              />
-              <Dropdown
-                value={filterStatus}
-                onChange={(value: string) =>
-                  handleFilterChange("status", value)
-                }
-                options={filterStatusOptions}
-                placeholder="Status"
-                size="sm"
-              />
-              <Dropdown
-                value={`${sortBy}-${sortOrder}`}
-                onChange={(value: string) => {
-                  const [field, order] = value.split("-");
-                  setSortBy(field as SortField);
-                  setSortOrder(order as SortOrder);
-                }}
-                options={[
-                  { value: "date-desc", label: "Latest first" },
-                  { value: "date-asc", label: "Oldest first" },
-                  { value: "priority-desc", label: "High priority first" },
-                  { value: "priority-asc", label: "Low priority first" },
-                ]}
-                placeholder="Sort"
-                size="sm"
-              />
-            </div>
-          </div>
-
-          {/* Bulk actions bar */}
-          {selectedNotifications.size > 0 && (
-            <div className="p-4 bg-[var(--primary-subtle)] border-b border-[var(--primary-resonance)] border-opacity-20 animate-fade-in">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-[var(--text-accent)]">
-                  {selectedNotifications.size} selected
-                </span>
-                <div className="flex items-center space-x-2">
-                  <button
-                    onClick={() => handleBulkAction("markRead")}
-                    disabled={isLoading}
-                    className="btn-ghost flex items-center px-3 py-1 text-xs"
-                  >
-                    <FiCheck className="w-3 h-3 mr-1" />
-                    Mark Read
-                  </button>
-                  <button
-                    onClick={() => handleBulkAction("archive")}
-                    disabled={isLoading}
-                    className="btn-ghost px-3 py-1 text-xs"
-                  >
-                    Archive
-                  </button>
-                  <button
-                    onClick={() => handleBulkAction("delete")}
-                    disabled={isLoading}
-                    className="church-cancel-btn p-2 rounded-lg ml-1 text-xs"
-                  >
-                    <FiTrash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* List */}
-          <div
-            className="flex-1 overflow-y-auto scrollbar-responsive"
-            ref={notificationListRef}
-          >
-            {notificationsLoading && notifications.length === 0 ? (
-              <div className="flex items-center justify-center h-32">
-                <LoadingSpinner size="md" />
-              </div>
-            ) : error ? (
-              <div className="p-4 text-center">
-                <p className="text-red-500 mb-2">
-                  Failed to load notifications
-                </p>
-                <button className="btn-ghost" onClick={refreshNotifications}>
-                  Retry
-                </button>
-              </div>
-            ) : processedNotifications.length === 0 ? (
-              <div className="p-8 text-center animate-fade-up">
-                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--glass-surface)] border border-[var(--glass-outline)] flex items-center justify-center shadow-lg">
-                  <FiBell className="w-6 h-6 text-[var(--text-muted)] opacity-50" />
-                </div>
-                <h3 className="text-lg font-medium text-[var(--text-primary)] mb-2">
-                  No notifications
-                </h3>
-                <p className="text-[var(--text-secondary)] text-sm">
-                  {searchQuery
-                    ? "No notifications match your search."
-                    : "You're all caught up!"}
-                </p>
-              </div>
-            ) : (
-              <>
-                {/* Select all */}
-                <div className="p-3 border-b border-[var(--glass-outline)] bg-[var(--glass-surface)] sticky top-0 z-10 backdrop-blur-md">
-                  <label className="flex items-center cursor-pointer select-none">
-                    <input
-                      type="checkbox"
-                      checked={
-                        selectedNotifications.size ===
-                        processedNotifications.length
-                      }
-                      onChange={handleSelectAll}
-                      className="w-4 h-4 text-[var(--primary-resonance)] bg-transparent rounded border-[var(--glass-outline)] focus:ring-[var(--primary-glow)] focus:ring-opacity-50"
-                    />
-                    <span className="ml-3 text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
-                      Select all
-                    </span>
-                  </label>
-                </div>
-                <div>{processedNotifications.map(renderNotificationItem)}</div>
-              </>
             )}
           </div>
+        </div>
 
-          {/* Footer pagination */}
-          {totalCount > 0 && (
-            <div className="p-4 glass-bottom-nav z-10">
-              <Pagination
-                currentPage={currentPage}
-                totalPages={Math.ceil(totalCount / 20)}
-                onPageChange={setCurrentPage}
-                size="sm"
-              />
-            </div>
-          )}
+        {/* Tab bar */}
+        <div
+          className="flex gap-0.5"
+          role="tablist"
+          aria-label="Filter notifications"
+        >
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              role="tab"
+              aria-selected={activeTab === tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`px-3 py-2 text-xs font-medium rounded-t-md transition-colors
+                border-b-2 -mb-px ${
+                  activeTab === tab.id
+                    ? "border-[var(--primary-resonance)] text-[var(--primary-resonance)]"
+                    : "border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Modals / toasts */}
-      {selectedNotification && (
+      {/* ── Search ─────────────────────────────────────────────────────────── */}
+      <div className="shrink-0 p-3 border-b border-[var(--glass-outline)] glass-surface">
+        <SearchInput
+          placeholder="Search notifications…"
+          value={searchQuery}
+          onChange={(q: string) => {
+            setSearchQuery(q);
+            setCurrentPage(1);
+          }}
+          className="w-full input-ecclesia"
+        />
+      </div>
+
+      {/* ── Bulk action bar — visible when items selected ──────────────────── */}
+      {selectedIds.size > 0 && (
+        <div
+          className="shrink-0 px-4 py-2.5 bg-[var(--primary-subtle)]
+            border-b border-[var(--primary-resonance)] border-opacity-20"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-[var(--text-accent)]">
+              {selectedIds.size} selected
+            </span>
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => void runBulk("markRead")}
+                disabled={isMutating}
+                className="btn-ghost flex items-center gap-1 px-2.5 py-1 text-xs
+                  disabled:opacity-50"
+              >
+                <FiCheck className="w-3 h-3" />
+                Mark Read
+              </button>
+              <button
+                onClick={() => void runBulk("archive")}
+                disabled={isMutating}
+                className="btn-ghost flex items-center gap-1 px-2.5 py-1 text-xs
+                  disabled:opacity-50"
+              >
+                <FiArchive className="w-3 h-3" />
+                Archive
+              </button>
+              <button
+                onClick={() => void runBulk("delete")}
+                disabled={isMutating}
+                className="church-cancel-btn p-1.5 rounded-lg text-xs disabled:opacity-50"
+                title="Delete selected"
+              >
+                <FiTrash2 className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── List ───────────────────────────────────────────────────────────── */}
+      <div
+        className="flex-1 overflow-y-auto scrollbar-responsive"
+        ref={listRef}
+      >
+        {isLoading && notifications.length === 0 ? (
+          /* Loading */
+          <div className="flex items-center justify-center h-32">
+            <LoadingSpinner size="md" />
+          </div>
+        ) : error ? (
+          /* Error */
+          <div className="p-6 text-center">
+            <div className="w-10 h-10 mx-auto mb-3 rounded-full bg-red-500/10 flex items-center justify-center">
+              <FiAlertCircle className="w-5 h-5 text-red-500" />
+            </div>
+            <p className="text-sm text-[var(--text-secondary)] mb-3">
+              Failed to load notifications
+            </p>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => void refreshNotifications()}
+            >
+              Try again
+            </Button>
+          </div>
+        ) : processed.length === 0 ? (
+          /* Empty state */
+          <div className="p-8 text-center animate-fade-up">
+            <div
+              className="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--glass-surface)]
+              border border-[var(--glass-outline)] flex items-center justify-center shadow-lg"
+            >
+              <FiBell className="w-6 h-6 text-[var(--text-secondary)] opacity-50" />
+            </div>
+            <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-1">
+              {activeTab === "unread" ? "All caught up!" : "No notifications"}
+            </h3>
+            <p className="text-xs text-[var(--text-secondary)]">
+              {searchQuery
+                ? "No notifications match your search."
+                : activeTab === "unread"
+                  ? "You have no unread notifications."
+                  : "Notifications will appear here."}
+            </p>
+            <p className="mt-4 text-[10px] text-[var(--text-muted)]">
+              ↑ ↓ navigate · Enter open · R read · D delete
+            </p>
+          </div>
+        ) : (
+          /* Grouped list */
+          <div className="group">
+            {/* Select-all sticky row */}
+            <div
+              className="px-4 py-2.5 border-b border-[var(--glass-outline)]
+              bg-[var(--glass-surface)] sticky top-0 z-10 backdrop-blur-md
+              flex items-center justify-between"
+            >
+              <label className="flex items-center gap-2 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={
+                    selectedIds.size === processed.length &&
+                    processed.length > 0
+                  }
+                  onChange={toggleSelectAll}
+                  className="w-4 h-4 rounded border-[var(--glass-outline)] bg-transparent
+                    text-[var(--primary-resonance)] focus:ring-[var(--primary-resonance)]"
+                  aria-label="Select all"
+                />
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
+                  Select all
+                </span>
+              </label>
+              <span className="text-[10px] text-[var(--text-muted)]">
+                {processed.length} notification
+                {processed.length !== 1 ? "s" : ""}
+              </span>
+            </div>
+
+            {/* Date groups */}
+            {grouped.map(({ label, items }) => (
+              <div key={label}>
+                <div
+                  className="px-4 py-1.5 text-[10px] font-semibold uppercase
+                  tracking-widest text-[var(--text-muted)] bg-[var(--glass-surface)]
+                  border-b border-[var(--glass-outline)] sticky top-10 z-[9]
+                  backdrop-blur-md"
+                >
+                  {label}
+                </div>
+                {items.map((n) => {
+                  flatIdx++;
+                  return renderRow(n, flatIdx);
+                })}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* ── Pagination ─────────────────────────────────────────────────────── */}
+      {totalCount > 20 && (
+        <div className="shrink-0 p-3 glass-bottom-nav z-10">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={Math.ceil(totalCount / 20)}
+            onPageChange={setCurrentPage}
+            size="sm"
+          />
+        </div>
+      )}
+    </div>
+  );
+
+  // ── Render ────────────────────────────────────────────────────────────────────
+  return (
+    <>
+      <AnimatePresence>
+        {isOpen &&
+          (isPopover ? (
+            <motion.div
+              ref={panelRef as React.RefCallback<HTMLDivElement>}
+              initial={animProps.initial}
+              animate={animProps.animate}
+              exit={animProps.exit}
+              transition={animProps.transition}
+              style={popoverStyle}
+              className={className}
+            >
+              {content}
+            </motion.div>
+          ) : (
+            <>
+              {/* Scrim */}
+              <div
+                className="fixed inset-0 z-40 bg-black/25"
+                onClick={onClose}
+                aria-hidden
+              />
+              {/* Side drawer */}
+              <div
+                className={[
+                  "fixed top-0 h-full w-96 glass-sidebar z-50 shadow-2xl",
+                  "transform transition-transform duration-300 ease-in-out",
+                  position === "right" ? "right-0" : "left-0",
+                  isOpen
+                    ? "translate-x-0"
+                    : position === "right"
+                      ? "translate-x-full"
+                      : "-translate-x-full",
+                  className,
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
+              >
+                {content}
+              </div>
+            </>
+          ))}
+      </AnimatePresence>
+
+      {/* Detail modal */}
+      {detailNotif && (
         <NotificationModal
-          notification={selectedNotification}
-          isOpen={true}
-          onClose={() => setSelectedNotification(null)}
+          notification={detailNotif}
+          isOpen
+          onClose={() => setDetailNotif(null)}
           onMarkAsRead={markAsRead}
           onArchive={archiveNotification}
           onDelete={deleteNotification}
         />
       )}
 
-      {showPreferences && (
-        <NotificationPreferences
-          isOpen={true}
-          onClose={() => setShowPreferences(false)}
-        />
+      {/* Preferences modal */}
+      {showPrefs && (
+        <NotificationPreferences isOpen onClose={() => setShowPrefs(false)} />
       )}
 
+      {/* Toast */}
       {toast && <NotificationToast {...toast} onClose={() => setToast(null)} />}
     </>
   );
