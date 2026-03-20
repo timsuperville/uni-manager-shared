@@ -57,31 +57,41 @@ const disabledCls =
 const enabledCls =
   "[background:var(--bg-surface-1,rgba(255,255,255,0.05))] text-(--text-primary,inherit)";
 
-export const Input: React.FC<InputProps> = ({
-  type = "text",
-  placeholder = "",
-  value,
-  onChange,
-  className = "",
-  size = "default",
-  variant = "default",
-  disabled = false,
-  error = false,
-  fullWidth: _fullWidth,
-  helperText: _ht,
-  label: _lbl,
-  ...props
-}) => (
-  <input
-    type={type}
-    placeholder={placeholder}
-    value={value}
-    onChange={onChange}
-    disabled={disabled}
-    className={`block w-full rounded-md shadow-sm ${getSizeClasses(size)} ${getVariantClasses(error, variant)} ${disabled ? disabledCls : enabledCls} focus:outline-none focus:ring-1 transition-colors duration-200 ${className}`}
-    {...props}
-  />
+export const Input = React.forwardRef<HTMLInputElement, InputProps>(
+  function Input(
+    {
+      type = "text",
+      placeholder = "",
+      value,
+      onChange,
+      className = "",
+      size = "default",
+      variant = "default",
+      disabled = false,
+      error = false,
+      fullWidth: _fullWidth,
+      helperText: _ht,
+      label: _lbl,
+      ...props
+    },
+    ref,
+  ) {
+    return (
+      <input
+        ref={ref}
+        type={type}
+        placeholder={placeholder}
+        value={value}
+        onChange={onChange}
+        disabled={disabled}
+        className={`block w-full rounded-md shadow-sm ${getSizeClasses(size)} ${getVariantClasses(error, variant)} ${disabled ? disabledCls : enabledCls} focus:outline-none focus:ring-1 transition-colors duration-200 ${className}`}
+        {...props}
+      />
+    );
+  },
 );
+
+Input.displayName = "Input";
 
 export const InputSelect: React.FC<InputSelectProps> = ({
   children,
