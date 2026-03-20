@@ -75,7 +75,7 @@ export abstract class BaseService {
    */
   protected buildIdEndpoint(id: string, path: string = ""): string {
     const cleanPath = path ? (path.startsWith("/") ? path : `/${path}`) : "";
-    return `${this.baseEndpoint}/${id}${cleanPath}`;
+    return `/${id}${cleanPath}`;
   }
 
   /**

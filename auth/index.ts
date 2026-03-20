@@ -98,7 +98,7 @@ export { default as OAuthCallback } from "./components/OAuthCallback.tsx";
 export { default as ProtectedRoute } from "./components/ProtectedRoute.tsx";
 export { default as SecurityDashboard } from "./components/SecurityDashboard.tsx";
 export { default as AuthLayout } from "./components/AuthLayout.tsx";
-export { default as UserMenu } from "./components/UserMenu.tsx";
+export { UserMenu, UserMenuItem } from "./components/index.ts";
 
 // RBAC — context (backward compat: wraps useAuth)
 export { RBACProvider, useRBAC } from "./components/RBACComponents.tsx";

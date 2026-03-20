@@ -41,6 +41,7 @@ export { default as AuthLayout } from "./AuthLayout.tsx";
 // ── User Management ───────────────────────────────────────────────────────────
 
 export { default as UserMenu } from "./UserMenu.tsx";
+export { default as UserMenuItem } from "./_userMenu/UserMenuItem.tsx";
 
 // Re-export default for convenience
 export { default } from "./LoginForm.tsx";
