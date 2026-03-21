@@ -64,7 +64,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       placeholder = "",
       value,
       onChange,
-      className = "",
+      className = "input-ecclesia",
       size = "default",
       variant = "default",
       disabled = false,
