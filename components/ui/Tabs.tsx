@@ -9,33 +9,58 @@ interface TabsInternalProps {
 
 interface TabsProps extends React.HTMLAttributes<HTMLDivElement> {
   defaultValue?: string;
+  value?: string;
+  onValueChange?: (value: string) => void;
 }
 
-interface TabsListProps extends React.HTMLAttributes<HTMLDivElement>, TabsInternalProps {}
+interface TabsListProps
+  extends React.HTMLAttributes<HTMLDivElement>, TabsInternalProps {
+  className?: string;
+}
 
-interface TabsTriggerProps extends React.ButtonHTMLAttributes<HTMLButtonElement>, TabsInternalProps {
+interface TabsTriggerProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>, TabsInternalProps {
   value: string;
 }
 
-interface TabsContentProps extends React.HTMLAttributes<HTMLDivElement>, TabsInternalProps {
+interface TabsContentProps
+  extends React.HTMLAttributes<HTMLDivElement>, TabsInternalProps {
   value: string;
 }
 
 // ── Components ─────────────────────────────────────────────────────────────────
 
-export const Tabs: React.FC<TabsProps> = ({ defaultValue = "", children, className = "", ...props }) => {
-  const [activeTab, setActiveTab] = useState(defaultValue);
+export const Tabs: React.FC<TabsProps> = ({
+  defaultValue = "",
+  value,
+  onValueChange,
+  children,
+  className = "",
+  ...props
+}) => {
+  const [internalTab, setInternalTab] = useState(defaultValue);
+  const activeTab = value !== undefined ? value : internalTab;
+  const handleSetActiveTab = (v: string) => {
+    if (value === undefined) setInternalTab(v);
+    if (onValueChange) onValueChange(v);
+  };
 
   const tabsList = React.Children.toArray(children).find(
-    (c): c is React.ReactElement => React.isValidElement(c) && c.type === TabsList,
+    (c): c is React.ReactElement =>
+      React.isValidElement(c) && c.type === TabsList,
   );
   const tabsContent = React.Children.toArray(children).filter(
-    (c): c is React.ReactElement => React.isValidElement(c) && c.type === TabsContent,
+    (c): c is React.ReactElement =>
+      React.isValidElement(c) && c.type === TabsContent,
   );
 
   return (
     <div className={`w-full ${className}`} {...props}>
-      {tabsList && React.cloneElement(tabsList, { activeTab, setActiveTab })}
+      {tabsList &&
+        React.cloneElement(tabsList, {
+          activeTab,
+          setActiveTab: handleSetActiveTab,
+        })}
       {tabsContent.map((content) =>
         React.cloneElement(content, { activeTab, key: content.props.value }),
       )}
@@ -43,17 +68,38 @@ export const Tabs: React.FC<TabsProps> = ({ defaultValue = "", children, classNa
   );
 };
 
-export const TabsList: React.FC<TabsListProps> = ({ children, className = "", activeTab, setActiveTab, ...props }) => (
-  <div className={`border-b border-(--glass-outline,rgba(255,255,255,0.15)) ${className}`} {...props}>
+export const TabsList: React.FC<TabsListProps> = ({
+  children,
+  className = "",
+  activeTab,
+  setActiveTab,
+  ...props
+}) => (
+  <div
+    className={`border-b border-(--glass-outline,rgba(255,255,255,0.15)) ${className}`}
+    {...props}
+  >
     <nav className="-mb-px flex space-x-8">
       {React.Children.map(children, (child) =>
-        React.isValidElement(child) ? React.cloneElement(child as React.ReactElement<TabsInternalProps>, { activeTab, setActiveTab }) : child,
+        React.isValidElement(child)
+          ? React.cloneElement(child as React.ReactElement<TabsInternalProps>, {
+              activeTab,
+              setActiveTab,
+            })
+          : child,
       )}
     </nav>
   </div>
 );
 
-export const TabsTrigger: React.FC<TabsTriggerProps> = ({ children, value, className = "", activeTab, setActiveTab, ...props }) => {
+export const TabsTrigger: React.FC<TabsTriggerProps> = ({
+  children,
+  value,
+  className = "",
+  activeTab,
+  setActiveTab,
+  ...props
+}) => {
   const isActive = activeTab === value;
   return (
     <button
@@ -66,9 +112,17 @@ export const TabsTrigger: React.FC<TabsTriggerProps> = ({ children, value, class
   );
 };
 
-export const TabsContent: React.FC<TabsContentProps> = ({ children, value, className = "", activeTab, ...props }) => {
+export const TabsContent: React.FC<TabsContentProps> = ({
+  children,
+  value,
+  className = "",
+  activeTab,
+  ...props
+}) => {
   if (activeTab !== value) return null;
   return (
-    <div className={`mt-4 ${className}`} {...props}>{children}</div>
+    <div className={`mt-4 ${className}`} {...props}>
+      {children}
+    </div>
   );
 };
