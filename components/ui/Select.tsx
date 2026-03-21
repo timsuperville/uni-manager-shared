@@ -1,7 +1,12 @@
-// Unified Select component — Liquid Glass Design System
-// Dropdown is rendered via ReactDOM.createPortal so it escapes any stacking
-// context created by backdrop-filter, transform, or will-change on ancestors.
-import React from "react";
+/**
+ * Select — Liquid Glass Design System
+ * 
+ * Design contract:
+ *   - Layout        → Tailwind utilities (sizing, rounding, flex)
+ *   - Color tokens  → Tailwind [color:var(--*)]
+ *   - Dropdown uses ReactDOM.createPortal
+ */
+import React, { useId } from "react";
 import ReactDOM from "react-dom";
 import { ChevronDown, Check, Loader2, X } from "lucide-react";
 import { useSelectState } from "./useSelectState";
@@ -12,10 +17,7 @@ type SelectVariant = "default" | "outlined" | "filled";
 
 import type { SelectOption, SelectValue } from "./useSelectState";
 
-interface SelectProps extends Omit<
-  React.HTMLAttributes<HTMLDivElement>,
-  "onChange"
-> {
+interface SelectProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "onChange"> {
   options?: SelectOption[];
   value?: SelectValue | SelectValue[];
   onChange?: (value: SelectValue | SelectValue[]) => void;
@@ -38,7 +40,14 @@ interface SelectProps extends Omit<
   variant?: SelectVariant;
 }
 
-const Select: React.FC<SelectProps> = ({
+const SIZE_CLASSES: Record<SelectSize, string> = {
+  small: "py-1.5 px-3 text-xs",
+  medium: "py-2 px-3 text-sm",
+  large: "py-3 px-4 text-sm",
+  chip: "h-8 px-2.5 text-xs rounded-full",
+};
+
+export const Select: React.FC<SelectProps> = ({
   options = [],
   value,
   onChange,
@@ -49,9 +58,9 @@ const Select: React.FC<SelectProps> = ({
   size = "medium",
   error = false,
   helperText = "",
-  className = "input-ecclesia",
+  className = "",
   name,
-  id,
+  id: idProp,
   required = false,
   clearable = false,
   loading = false,
@@ -61,6 +70,9 @@ const Select: React.FC<SelectProps> = ({
   variant: _variant,
   ...props
 }) => {
+  const generatedId = useId();
+  const id = idProp ?? `select-${generatedId}`;
+
   const {
     isOpen,
     searchTerm,
@@ -95,159 +107,35 @@ const Select: React.FC<SelectProps> = ({
     allowFreeText,
   });
 
-  // ── Styles ─────────────────────────────────────────────────────────────────
   const isChip = size === "chip";
-  const padY = size === "small" ? "6px" : size === "large" ? "12px" : "9px";
-  const fontSize =
-    size === "small" ? "12px" : size === "large" ? "15px" : "13px";
 
-  const triggerStyle: React.CSSProperties = isChip
-    ? {
-        display: "inline-flex",
-        alignItems: "center",
-        gap: 5,
-        height: 32,
-        padding: "0 10px 0 8px",
-        borderRadius: 999,
-        border: hasValue
-          ? "1.5px solid var()"
-          : "1px solid var(--glass-outline, rgba(255,255,255,0.18))",
-        background: hasValue
-          ? "var(--primary-glow, hsla(272,65%,62%,0.22))"
-          : "var(--glass-input, rgba(255,255,255,0.07))",
-        color: hasValue ? "var()" : "var(--text-secondary)",
-        fontSize: 12,
-        fontWeight: hasValue ? 600 : 500,
-        fontFamily: "var(--font-body)",
-        cursor: disabled ? "not-allowed" : "pointer",
-        opacity: disabled ? 0.5 : 1,
-        whiteSpace: "nowrap",
-        flexShrink: 0,
-        transition: "all 0.15s",
-        outline: "none",
-        backdropFilter: "blur(8px)",
-        boxShadow: isOpen
-          ? "0 0 0 2px var(--primary-glow, hsla(272,65%,62%,0.35))"
-          : "none",
-      }
-    : {
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        width: "100%",
-        padding: `${padY} 36px ${padY} 12px`,
-        fontSize,
-        fontFamily: "var(--font-body)",
-        borderRadius: "var()",
-        border: error
-          ? "1px solid var()"
-          : isOpen
-            ? "1px solid var()"
-            : "1px solid var(--glass-outline, rgba(255,255,255,0.1))",
-        background: disabled
-          ? "var(--glass-input-disabled, rgba(255,255,255,0.02))"
-          : "var(--glass-input, rgba(255,255,255,0.06))",
-        color: hasValue ? "var(--text-primary)" : "var(--text-muted)",
-        cursor: disabled ? "not-allowed" : "pointer",
-        opacity: disabled ? 0.5 : 1,
-        backdropFilter: "blur(8px)",
-        boxShadow: isOpen
-          ? "0 0 0 2px var(--primary-glow, hsla(272,65%,62%,0.25))"
-          : "none",
-        transition: "border-color 0.15s, box-shadow 0.15s",
-        textAlign: "left",
-        position: "relative",
-      };
-
-  // ── Option row ─────────────────────────────────────────────────────────────
-  const renderOption = (
-    option: SelectOption,
-    _listIndex: number,
-    offsetIndex: number,
-  ) => {
-    const isSelected = multiple
-      ? Array.isArray(value) && value.includes(option.value)
-      : value === option.value;
-    const isHighlighted = highlightedIndex === offsetIndex;
-    return (
-      <li
-        key={option.value}
-        role="option"
-        aria-selected={isSelected}
-        onMouseDown={(e) => e.preventDefault()}
-        onClick={() => handleOptionClick(option)}
-        onMouseEnter={() => setHighlightedIndex(offsetIndex)}
-        onMouseLeave={() => setHighlightedIndex(-1)}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: "8px 12px",
-          fontSize: "13px",
-          fontFamily: "var(--font-body)",
-          cursor: "pointer",
-          color: isSelected
-            ? "var()"
-            : isHighlighted
-              ? "var(--text-primary)"
-              : "var(--text-secondary)",
-          background: isSelected
-            ? "var(--primary-glow, hsla(272,65%,62%,0.15))"
-            : isHighlighted
-              ? "var(--glass-input, rgba(255,255,255,0.06))"
-              : "transparent",
-          transition: "background 0.12s, color 0.12s",
-        }}
-      >
-        <span
-          style={{
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-            display: "flex",
-            alignItems: "center",
-            gap: 6,
-          }}
-        >
-          {option.icon &&
-            (typeof option.icon === "string" ? (
-              <img
-                src={option.icon}
-                alt=""
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = "none";
-                }}
-                style={{
-                  width: 20,
-                  height: 14,
-                  objectFit: "cover",
-                  borderRadius: 2,
-                  flexShrink: 0,
-                }}
-              />
-            ) : (
-              option.icon
-            ))}
-          {option.label}
-        </span>
-        {isSelected && (
-          <Check
-            style={{ width: 13, height: 13, flexShrink: 0, marginLeft: 8 }}
-          />
-        )}
-      </li>
-    );
+  const renderIcon = (icon: React.ReactNode | string, sizeClass = "w-4 h-4") => {
+    if (!icon) return null;
+    if (typeof icon === "string") {
+      return (
+        <img
+          src={icon}
+          alt=""
+          onError={(e) => ((e.target as HTMLImageElement).style.display = "none")}
+          className={`object-cover rounded-sm shrink-0 ${sizeClass}`}
+        />
+      );
+    }
+    return icon;
   };
 
-  // ── Render ─────────────────────────────────────────────────────────────────
+  const triggerClass = isChip
+    ? `inline-flex items-center gap-1.5 transition-all duration-200 outline-none font-medium shrink-0
+       ${SIZE_CLASSES.chip}
+       ${hasValue ? "bg-(--primary-resonance,#4f46e5) text-white border-transparent" : "[background:var(--bg-surface-1,rgba(255,255,255,0.05))] border border-(--glass-outline,rgba(255,255,255,0.18)) text-(--text-secondary,rgba(255,255,255,0.5))"}
+       ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:border-(--primary-resonance,#4f46e5)"}`
+    : `flex items-center justify-between w-full lg-input shadow-sm focus:outline-none
+       ${SIZE_CLASSES[size]}
+       ${error ? "lg-input-error" : ""}
+       ${isOpen ? "border-[color:var(--glass-outline-active)] bg-[color-mix(in_srgb,var(--primary-resonance)_10%,transparent)] [box-shadow:0_0_0_3px_var(--primary-glow)]" : ""}`;
+
   return (
-    <div
-      ref={selectRef}
-      className={`relative ${className}`}
-      style={{ position: "relative" }}
-      {...props}
-    >
-      {/* ── Trigger ── */}
+    <div ref={selectRef} className={`relative ${className}`} {...props}>
       <button
         ref={triggerRef}
         type="button"
@@ -255,380 +143,174 @@ const Select: React.FC<SelectProps> = ({
         disabled={disabled}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
-        style={triggerStyle}
         onClick={handleOpen}
         onKeyDown={handleKeyDown}
-        onMouseEnter={(e) => {
-          if (!disabled && !isOpen)
-            e.currentTarget.style.border = "1px solid var()";
-        }}
-        onMouseLeave={(e) => {
-          if (!isOpen)
-            e.currentTarget.style.border = error
-              ? "1px solid var(--accent-rose)"
-              : "1px solid var(--glass-outline, rgba(255,255,255,0.1))";
-        }}
+        className={triggerClass}
       >
         {isChip ? (
           <>
             {loading ? (
-              <Loader2
-                style={{
-                  width: 11,
-                  height: 11,
-                  animation: "spin 1s linear infinite",
-                  flexShrink: 0,
-                }}
-              />
+              <Loader2 className="w-3 h-3 animate-[spin_1000ms_linear_infinite] shrink-0" />
             ) : selectedIcon ? (
-              typeof selectedIcon === "string" ? (
-                <img
-                  src={selectedIcon}
-                  alt=""
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = "none";
-                  }}
-                  style={{
-                    width: 16,
-                    height: 11,
-                    objectFit: "cover",
-                    borderRadius: 2,
-                    flexShrink: 0,
-                  }}
-                />
-              ) : (
-                selectedIcon
-              )
+              renderIcon(selectedIcon, "w-4 h-3")
             ) : chipIcon ? (
-              <span
-                style={{
-                  display: "flex",
-                  flexShrink: 0,
-                  opacity: hasValue ? 0.8 : 0.55,
-                }}
-              >
+              <span className={`flex shrink-0 ${hasValue ? "opacity-80" : "opacity-55"}`}>
                 {chipIcon}
               </span>
             ) : null}
-            <span
-              style={{
-                maxWidth: 90,
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-              }}
-            >
+            <span className="max-w-[90px] overflow-hidden text-ellipsis whitespace-nowrap">
               {selectedLabel ?? placeholder}
             </span>
             {clearable && hasValue ? (
               <span
                 role="button"
-                aria-label="Clear filter"
+                aria-label="Clear selection"
                 onMouseDown={(e) => {
                   e.stopPropagation();
                   e.preventDefault();
                   onChange?.(multiple ? [] : "");
                 }}
-                onClick={(e) => e.stopPropagation()}
-                style={{ display: "flex", flexShrink: 0, opacity: 0.7 }}
+                className="flex shrink-0 opacity-70 hover:opacity-100"
               >
-                <X style={{ width: 11, height: 11 }} />
+                <X className="w-3 h-3" />
               </span>
             ) : (
               <ChevronDown
-                style={{
-                  width: 11,
-                  height: 11,
-                  flexShrink: 0,
-                  transform: isOpen ? "rotate(180deg)" : "none",
-                  transition: "transform 0.2s",
-                  opacity: 0.5,
-                }}
+                className={`w-3 h-3 shrink-0 transition-transform duration-200 opacity-50 ${isOpen ? "rotate-180" : ""}`}
               />
             )}
           </>
         ) : (
           <>
-            <span
-              style={{
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-              }}
-            >
+            <span className="flex items-center gap-2 overflow-hidden text-ellipsis whitespace-nowrap">
               {loading ? (
-                <span
-                  style={{
-                    color: "var(--text-muted)",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 6,
-                  }}
-                >
-                  <Loader2
-                    style={{
-                      width: 13,
-                      height: 13,
-                      animation: "spin 1s linear infinite",
-                    }}
-                  />
+                <span className="flex items-center gap-2 text-(--text-muted)">
+                  <Loader2 className="w-3.5 h-3.5 animate-[spin_1000ms_linear_infinite]" />
                   Loading…
                 </span>
               ) : (
                 <>
-                  {selectedIcon &&
-                    (typeof selectedIcon === "string" ? (
-                      <img
-                        src={selectedIcon}
-                        alt=""
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = "none";
-                        }}
-                        style={{
-                          width: 20,
-                          height: 14,
-                          objectFit: "cover",
-                          borderRadius: 2,
-                          flexShrink: 0,
-                        }}
-                      />
-                    ) : (
-                      selectedIcon
-                    ))}
-                  {selectedLabel ?? placeholder}
+                  {selectedIcon && renderIcon(selectedIcon, "w-5 h-3.5")}
+                  <span className={hasValue ? "text-(--text-primary)" : "text-(--text-muted)"}>
+                    {selectedLabel ?? placeholder}
+                  </span>
                 </>
               )}
             </span>
-            <span
-              style={{
-                position: "absolute",
-                right: 10,
-                top: "50%",
-                transform: `translateY(-50%) rotate(${isOpen ? 180 : 0}deg)`,
-                transition: "transform 0.2s",
-                color: "var(--text-muted)",
-                display: "flex",
-              }}
-            >
-              <ChevronDown style={{ width: 15, height: 15 }} />
+            <span className="flex items-center gap-1 shrink-0">
+              {hasClear && (
+                <button
+                  type="button"
+                  aria-label="Clear selection"
+                  tabIndex={-1}
+                  onMouseDown={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    onChange?.(multiple ? [] : "");
+                    close();
+                  }}
+                  className="p-1 rounded-full text-(--text-muted) hover:bg-(--glass-surface-hover) hover:text-(--text-primary) transition-colors"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+              <ChevronDown
+                className={`w-4 h-4 text-(--text-muted) transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+              />
             </span>
           </>
         )}
       </button>
 
-      {/* ── Portal Dropdown ── */}
-      {portalRoot &&
-        ReactDOM.createPortal(
-          <div
-            role="listbox"
-            aria-multiselectable={multiple}
-            style={{
-              position: "absolute",
-              zIndex: 99999,
-              top: dropdownPos.top,
-              left: dropdownPos.left,
-              width: dropdownPos.width,
-              background: "var(--glass-surface, rgba(15,15,35,0.96))",
-              border: "1px solid var(--glass-outline, rgba(255,255,255,0.12))",
-              borderRadius: "var()",
-              backdropFilter: "blur(20px) saturate(150%)",
-              boxShadow: dropdownPos.flipUp
-                ? "0 -16px 40px rgba(0,0,0,0.5)"
-                : "0 16px 40px rgba(0,0,0,0.5)",
-              maxHeight: dropdownPos.maxHeight || 240,
-              overflowY: "auto",
-              overflowX: "hidden",
-              opacity: isOpen ? 1 : 0,
-              transform: isOpen
-                ? "translateY(0)"
-                : dropdownPos.flipUp
-                  ? "translateY(6px)"
-                  : "translateY(-6px)",
-              pointerEvents: isOpen ? "auto" : "none",
-              transition: "opacity 0.15s, transform 0.15s",
-            }}
-          >
-            {searchable && (
-              <div
-                style={{
-                  padding: "8px",
-                  borderBottom: "1px solid var(--glass-outline)",
-                }}
-              >
-                <input
-                  ref={searchRef}
-                  type="text"
-                  value={searchTerm}
-                  onChange={handleSearchChange}
-                  onKeyDown={handleKeyDown}
-                  placeholder="Search…"
-                  style={{
-                    width: "100%",
-                    padding: "6px 10px",
-                    fontSize: "12px",
-                    fontFamily: "var(--font-body)",
-                    background: "var(--glass-input, rgba(255,255,255,0.06))",
-                    border: "1px solid var(--glass-outline)",
-                    borderRadius: "var()",
-                    color: "var(--text-primary)",
-                    outline: "none",
-                  }}
-                />
-              </div>
-            )}
-
-            <ul
-              ref={listRef}
-              style={{ listStyle: "none", margin: 0, padding: "4px 0" }}
-            >
-              {/* Clear row */}
-              {hasClear &&
-                (() => {
-                  const idx = 0;
-                  return (
-                    <li
-                      role="option"
-                      aria-selected={false}
-                      onMouseDown={(e) => e.preventDefault()}
-                      onClick={() => {
-                        onChange?.(multiple ? [] : "");
-                        close();
-                      }}
-                      onMouseEnter={() => setHighlightedIndex(idx)}
-                      onMouseLeave={() => setHighlightedIndex(-1)}
-                      style={{
-                        padding: "8px 12px",
-                        fontSize: "12px",
-                        color: "var(--accent-rose)",
-                        cursor: "pointer",
-                        borderBottom: "1px solid var(--glass-outline)",
-                        background:
-                          highlightedIndex === idx
-                            ? "hsla(0,72%,50%,0.08)"
-                            : "transparent",
-                        transition: "background 0.12s",
-                      }}
-                    >
-                      Clear selection
-                    </li>
-                  );
-                })()}
-
-              {/* Free-text "Use X" row */}
-              {allowFreeText &&
-                searchTerm.trim().length > 0 &&
-                (() => {
-                  const idx = hasClear ? 1 : 0;
-                  const isHighlighted = highlightedIndex === idx;
-                  return (
-                    <li
-                      role="option"
-                      aria-selected={false}
-                      onMouseDown={(e) => e.preventDefault()}
-                      onClick={commitFreeText}
-                      onMouseEnter={() => setHighlightedIndex(idx)}
-                      onMouseLeave={() => setHighlightedIndex(-1)}
-                      style={{
-                        padding: "8px 12px",
-                        fontSize: "12px",
-                        cursor: "pointer",
-                        borderBottom:
-                          filteredOptions.length > 0
-                            ? "1px solid var(--glass-outline)"
-                            : "none",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 6,
-                        color: isHighlighted
-                          ? "var(--text-primary)"
-                          : "var(--text-secondary)",
-                        background: isHighlighted
-                          ? "var(--glass-input, rgba(255,255,255,0.06))"
-                          : "transparent",
-                        transition: "background 0.12s, color 0.12s",
-                      }}
-                    >
-                      <span
-                        style={{ fontSize: 11, opacity: 0.6, flexShrink: 0 }}
-                      >
-                        Use
-                      </span>
-                      <span style={{ fontWeight: 500 }}>
-                        &ldquo;{searchTerm.trim()}&rdquo;
-                      </span>
-                    </li>
-                  );
-                })()}
-
-              {filteredOptions.length === 0 && !allowFreeText ? (
-                <li
-                  style={{
-                    padding: "10px 12px",
-                    fontSize: "12px",
-                    color: "var(--text-muted)",
-                    textAlign: "center",
-                  }}
-                >
-                  {searchTerm ? "No results" : "No options available"}
-                </li>
-              ) : filteredOptions.length === 0 &&
-                allowFreeText &&
-                searchTerm.trim().length === 0 ? (
-                <li
-                  style={{
-                    padding: "10px 12px",
-                    fontSize: "12px",
-                    color: "var(--text-muted)",
-                    textAlign: "center",
-                  }}
-                >
-                  Type to search…
-                </li>
-              ) : (
-                filteredOptions.map((option, listIndex) => {
-                  const extraOffset =
-                    (hasClear ? 1 : 0) +
-                    (allowFreeText && searchTerm.trim().length > 0 ? 1 : 0);
-                  return renderOption(
-                    option,
-                    listIndex,
-                    listIndex + extraOffset,
-                  );
-                })
-              )}
-            </ul>
-          </div>,
-          portalRoot,
-        )}
-
-      {/* Helper / Error text */}
       {helperText && (
-        <p
-          style={{
-            marginTop: 4,
-            fontSize: "11px",
-            color: error ? "var(--accent-rose)" : "var(--text-muted)",
-          }}
-        >
+        <p className={`mt-1.5 text-xs ${error ? "text-(--danger)" : "text-(--text-muted)"}`}>
           {helperText}
         </p>
       )}
 
-      {/* Hidden native select for form semantics */}
-      <select
-        name={name}
-        value={multiple ? "" : (value as string) || ""}
-        onChange={() => {}}
-        required={required}
-        multiple={multiple}
-        className="sr-only"
-        tabIndex={-1}
-        aria-hidden="true"
-      >
-        <option value={(value as string) || ""}>{placeholder}</option>
-      </select>
+      {isOpen &&
+        portalRoot &&
+        dropdownPos &&
+        ReactDOM.createPortal(
+          <div
+            className="fixed inset-0 z-[99999]"
+            style={{ pointerEvents: "none" }}
+          >
+            <div
+              className="absolute z-[99999] pointer-events-auto backdrop-blur-3xl bg-(--surface-primary) border border-(--glass-outline) rounded-md shadow-lg overflow-hidden"
+              style={{
+                top: Math.max(8, dropdownPos.top),
+                left: dropdownPos.left,
+                width: isChip ? Math.max(dropdownPos.width, 220) : dropdownPos.width,
+                maxHeight: Math.min(dropdownPos.maxHeight, 350),
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
+              {searchable && (
+                <div className="p-2 border-b border-(--glass-outline) bg-(--bg-surface-1) sticky top-0 z-10">
+                  <input
+                    ref={searchRef}
+                    type="text"
+                    spellCheck={false}
+                    onChange={handleSearchChange}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && filteredOptions.length === 0 && allowFreeText) {
+                        e.preventDefault();
+                        commitFreeText();
+                      } else {
+                        handleKeyDown(e);
+                      }
+                    }}
+                    placeholder="Search…"
+                    className="w-full lg-input py-1.5 px-3 text-sm"
+                  />
+                </div>
+              )}
+              <ul
+                ref={listRef}
+                role="listbox"
+                aria-multiselectable={multiple}
+                className="overflow-y-auto py-1.5 m-0 p-0 list-none scroll-smooth flex-1"
+                style={{ overscrollBehavior: "none" }}
+              >
+                {filteredOptions.length === 0 ? (
+                  <li className="py-6 text-center text-sm text-(--text-muted) font-body">
+                    {allowFreeText ? "Press Enter to use this value" : "No options found"}
+                  </li>
+                ) : (
+                  filteredOptions.map((option, offsetIndex) => {
+                    const isSelected = multiple
+                      ? Array.isArray(value) && value.includes(option.value)
+                      : value === option.value;
+                    const isHighlighted = highlightedIndex === offsetIndex;
+
+                    return (
+                      <li
+                        key={option.value}
+                        role="option"
+                        aria-selected={isSelected}
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => handleOptionClick(option)}
+                        onMouseEnter={() => setHighlightedIndex(offsetIndex)}
+                        onMouseLeave={() => setHighlightedIndex(-1)}
+                        className={`flex items-center justify-between py-2 px-3 text-[13px] font-body cursor-pointer transition-colors duration-150
+                          ${isSelected ? "bg-(--primary-resonance) text-white" : isHighlighted ? "bg-(--glass-surface-hover) text-(--text-primary)" : "text-(--text-secondary)"}`}
+                      >
+                        <span className="flex items-center gap-1.5 overflow-hidden text-ellipsis whitespace-nowrap">
+                          {renderIcon(option.icon, "w-5 h-3.5")}
+                          {option.label}
+                        </span>
+                        {isSelected && <Check className="w-3.5 h-3.5 shrink-0 ml-2" />}
+                      </li>
+                    );
+                  })
+                )}
+              </ul>
+            </div>
+          </div>,
+          portalRoot
+        )}
     </div>
   );
 };

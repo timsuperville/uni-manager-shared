@@ -41,21 +41,10 @@ interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement
 }
 
 const getSizeClasses = (size: InputSize): string => {
-  if (size === "sm") return "px-3 py-2 text-sm";
+  if (size === "sm") return "px-3 py-1.5 text-xs";
   if (size === "lg") return "px-4 py-3 text-base";
   return "px-3 py-2 text-sm";
 };
-
-const getVariantClasses = (error: boolean, variant?: InputVariant): string => {
-  if (error)
-    return "border-(--danger,#ef4444) focus:border-(--danger,#ef4444) focus:ring-(--danger,#ef4444)/40";
-  return "border-(--glass-outline,rgba(255,255,255,0.18)) focus:border-(--primary-resonance,#4f46e5) focus:ring-(--primary-resonance,#4f46e5)/30";
-};
-
-const disabledCls =
-  "[background:var(--bg-surface-0,rgba(255,255,255,0.02))] text-(--text-muted,rgba(255,255,255,0.4)) cursor-not-allowed";
-const enabledCls =
-  "[background:var(--bg-surface-1,rgba(255,255,255,0.05))] text-(--text-primary,inherit)";
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
   function Input(
@@ -64,7 +53,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       placeholder = "",
       value,
       onChange,
-      className = "input-ecclesia",
+      className = "",
       size = "default",
       variant = "default",
       disabled = false,
@@ -84,7 +73,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         value={value}
         onChange={onChange}
         disabled={disabled}
-        className={`block w-full rounded-md shadow-sm ${getSizeClasses(size)} ${getVariantClasses(error, variant)} ${disabled ? disabledCls : enabledCls} focus:outline-none focus:ring-1 transition-colors duration-200 ${className}`}
+        className={`block w-full lg-input ${error ? "lg-input-error" : ""} shadow-sm ${getSizeClasses(size)} ${className}`}
         {...props}
       />
     );
@@ -112,7 +101,7 @@ export const InputSelect: React.FC<InputSelectProps> = ({
     value={value}
     onChange={onChange}
     disabled={disabled}
-    className={`block w-full rounded-md shadow-sm ${getSizeClasses(size)} ${getVariantClasses(error)} ${disabled ? disabledCls : enabledCls} focus:outline-none focus:ring-1 transition-colors duration-200 ${className}`}
+    className={`block w-full lg-input ${error ? "lg-input-error" : ""} shadow-sm ${getSizeClasses(size)} ${className}`}
     {...props}
   >
     {placeholder && (
@@ -152,7 +141,7 @@ export const Textarea: React.FC<TextareaProps> = ({
     onChange={onChange}
     rows={rows}
     disabled={disabled}
-    className={`block w-full rounded-md shadow-sm px-3 py-2 text-sm ${getVariantClasses(error)} ${disabled ? disabledCls : enabledCls} focus:outline-none focus:ring-1 transition-colors duration-200 resize-vertical ${className}`}
+    className={`block w-full lg-input ${error ? "lg-input-error" : ""} shadow-sm px-3 py-2 text-sm resize-vertical ${className}`}
     {...props}
   />
 );
