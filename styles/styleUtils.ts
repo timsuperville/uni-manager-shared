@@ -26,14 +26,23 @@ import type React from "react";
 // ── Text colour tokens ─────────────────────────────────────────────────────────
 
 /** var(--text-primary) — high-contrast body text */
-export const textPrimary: React.CSSProperties = { color: "var(--text-primary, #f1f5f9)" };
+export const textPrimary: React.CSSProperties = {
+  color: "var(--text-primary, #f1f5f9)",
+};
 
 /** var(--text-muted) — de-emphasised / secondary labels */
-export const textMuted: React.CSSProperties = { color: "var(--text-muted, #94a3b8)" };
+export const textMuted: React.CSSProperties = {
+  color: "var(--text-muted, #94a3b8)",
+};
 
 /** var(--text-secondary) — mid-emphasis text */
 export const textSecondary: React.CSSProperties = {
   color: "var(--text-secondary, rgba(255,255,255,0.7))",
+};
+
+/** var(--text-accent) — ecclesiastical/thematic text highlight */
+export const textAccent: React.CSSProperties = {
+  color: "var(--text-accent, hsl(272, 65%, 76%))",
 };
 
 // ── Spacing helper ────────────────────────────────────────────────────────────
@@ -57,6 +66,16 @@ export const flex = (extra: React.CSSProperties = {}): React.CSSProperties => ({
   alignItems: "center",
   ...extra,
 });
+
+/** var(--bg-ecclesia) — Deep base background */
+export const bgEcclesia: React.CSSProperties = {
+  background: "var(--bg-ecclesia, hsl(268, 35%, 5%))",
+};
+
+/** var(--primary-resonance) surface — solid primary background */
+export const primaryResonanceSurface: React.CSSProperties = {
+  background: "var(--primary-resonance, hsl(272, 65%, 62%))",
+};
 
 // ── Glass surface objects ─────────────────────────────────────────────────────
 
@@ -156,7 +175,9 @@ export const errorSurface: React.CSSProperties = {
 };
 
 /** Error text colour — for headings and copy on error surfaces. */
-export const errorText: React.CSSProperties = { color: "var(--color-error, hsl(0,70%,60%))" };
+export const errorText: React.CSSProperties = {
+  color: "var(--color-error, hsl(0,70%,60%))",
+};
 
 // ── Semantic success surface ──────────────────────────────────────────────────
 
@@ -171,7 +192,9 @@ export const successSurface: React.CSSProperties = {
 };
 
 /** Success text colour — for copy on success surfaces. */
-export const successText: React.CSSProperties = { color: "var(--color-success, hsl(160,70%,50%))" };
+export const successText: React.CSSProperties = {
+  color: "var(--color-success, hsl(160,70%,50%))",
+};
 
 // ── Skeleton / loading shimmer ────────────────────────────────────────────────
 
