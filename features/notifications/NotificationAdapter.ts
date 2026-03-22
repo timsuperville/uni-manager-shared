@@ -73,6 +73,7 @@ export interface FetchNotificationsParams {
   /** Filter by type (announcement, system, …) */
   type?: string;
   search?: string;
+  signal?: AbortSignal;
 }
 
 // ── Page result ───────────────────────────────────────────────────────────────

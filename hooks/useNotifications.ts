@@ -96,6 +96,7 @@ export const useNotifications = ({
           status,
           type,
           search,
+          signal: abortRef.current.signal,
         });
 
         setNotifications(result.items);

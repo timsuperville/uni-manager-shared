@@ -5,7 +5,7 @@
  * and user-friendly error messages across all applications.
  */
 
-import { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios";
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios";
 import { reportApiError } from "@shared/utils";
 
 /** Ambient type for optional window-level error tracker (e.g. Sentry, LogRocket). */
@@ -31,6 +31,7 @@ export enum ApiErrorType {
   NOT_FOUND = "NOT_FOUND",
   RATE_LIMIT = "RATE_LIMIT",
   TIMEOUT = "TIMEOUT",
+  CANCELLED = "CANCELLED",
   UNKNOWN = "UNKNOWN",
 }
 
@@ -90,6 +91,17 @@ export class ErrorHandler {
    */
   transformError(error: AxiosError): ApiError {
     const requestId = error.config?.headers?.["X-Request-ID"] as string;
+
+    if (axios.isCancel(error)) {
+      return this.createApiError({
+        type: ApiErrorType.CANCELLED,
+        message: "Request was cancelled",
+        originalError: error,
+        retryable: false,
+        timestamp: new Date().toISOString(),
+        requestId,
+      });
+    }
 
     let apiError: ApiError;
 
@@ -274,6 +286,10 @@ export class ErrorHandler {
     error: ApiError,
     config?: AxiosRequestConfig & { _retryCount?: number },
   ): void {
+    if (error.type === ApiErrorType.CANCELLED) {
+      return; // Do not log intentional cancellations
+    }
+
     const context: ErrorContext = {
       endpoint: config?.url,
       method: config?.method?.toUpperCase(),

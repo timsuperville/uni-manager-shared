@@ -36,6 +36,7 @@ export interface RequestOptions {
   params?: Record<string, string | number | boolean | undefined>;
   onUploadProgress?: (progressEvent: any) => void;
   onDownloadProgress?: (progressEvent: any) => void;
+  signal?: AbortSignal;
 }
 
 export interface ApiResponse<T = any> {
@@ -148,6 +149,7 @@ export class ApiClient {
       params: options.params,
       onUploadProgress: options.onUploadProgress,
       onDownloadProgress: options.onDownloadProgress,
+      signal: options.signal,
     };
 
     // Check cache for GET requests
