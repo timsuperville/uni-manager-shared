@@ -27,7 +27,12 @@ export interface ApiKeyCreateResult {
 export class DeveloperApiService extends ApiService {
   /** List all API keys for the current user */
   getApiKeys(): Promise<ApiKey[]> {
-    return this.get<ApiKey[]>("/developer/keys");
+    // ── BACKEND NOT YET IMPLEMENTED ─────────────────────────────────────────
+    // The /developer/keys endpoint does not exist yet. Return empty array so
+    // ApiKeyList shows its clean empty state. Restore the real call below:
+    //   return this.get<ApiKey[]>("/developer/keys");
+    return Promise.resolve([]);
+    // ────────────────────────────────────────────────────────────────────────
   }
 
   /**
