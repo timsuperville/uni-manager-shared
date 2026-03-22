@@ -62,3 +62,32 @@ export const getUserInitials = (user: UserLike | null | undefined): string => {
   }
   return (user.email?.[0] || "U").toUpperCase();
 };
+
+/**
+ * Formats a duration in seconds to a mm:ss string.
+ * e.g. 189 → "3:09"
+ * Returns "" for null/undefined.
+ */
+export const formatDuration = (seconds: number | null | undefined): string => {
+  if (seconds == null || isNaN(seconds)) return "";
+  const totalSec = Math.round(Math.abs(seconds));
+  const m = Math.floor(totalSec / 60);
+  const s = totalSec % 60;
+  return `${m}:${String(s).padStart(2, "0")}`;
+};
+
+/**
+ * Parses a mm:ss string (or bare second count) to a number of seconds.
+ * Returns undefined if the string is empty or not parseable.
+ * e.g. "3:09" → 189, "189" → 189, "" → undefined
+ */
+export const parseDuration = (value: string): number | undefined => {
+  const trimmed = value.trim();
+  if (!trimmed) return undefined;
+  if (/^\d+:\d{1,2}$/.test(trimmed)) {
+    const [m, s] = trimmed.split(":").map(Number);
+    return m * 60 + s;
+  }
+  const n = Number(trimmed);
+  return isNaN(n) ? undefined : Math.round(n);
+};

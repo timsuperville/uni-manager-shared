@@ -24,6 +24,8 @@ export const GlassInput = React.forwardRef<HTMLInputElement, GlassInputProps>(
       type = "text",
       disabled = false,
       style: styleProp = {},
+      onFocus: consumerOnFocus,
+      onBlur: consumerOnBlur,
       ...props
     },
     ref,
@@ -70,12 +72,18 @@ export const GlassInput = React.forwardRef<HTMLInputElement, GlassInputProps>(
             ...styleProp,
           }}
           onFocus={(e) => {
+            // Internal focus ring
             e.target.style.borderColor = "var(--border-glow)";
             e.target.style.boxShadow = "0 0 0 3px var(--primary-glow)";
+            // Merge with consumer handler if provided
+            consumerOnFocus?.(e);
           }}
           onBlur={(e) => {
+            // Internal focus ring reset
             e.target.style.borderColor = "var(--glass-outline)";
             e.target.style.boxShadow = "none";
+            // Merge with consumer handler if provided
+            consumerOnBlur?.(e);
           }}
           {...props}
         />
