@@ -91,3 +91,11 @@ export const parseDuration = (value: string): number | undefined => {
   const n = Number(trimmed);
   return isNaN(n) ? undefined : Math.round(n);
 };
+
+/**
+ * Returns true if the value is empty OR starts with http:// or https://.
+ * An empty string is treated as valid (field is optional) — callers that
+ * require a non-empty URL should pair this with a separate required check.
+ */
+export const isValidHttpUrl = (value: string): boolean =>
+  !value.trim() || /^https?:\/\/.+/.test(value.trim());
