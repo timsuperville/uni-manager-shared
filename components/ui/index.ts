@@ -23,6 +23,7 @@ export { Input, Select, Textarea } from "./Input";
 export { Progress, CircularProgress } from "./Progress";
 export { Switch } from "./Switch";
 export { ProgressCard, QuickActionCard } from "./CompositeCards";
+export { SignaturePad } from "./SignaturePad";
 
 // Liquid Glass primitives (CSS vars — zero hardcoded colours)
 export { ProgressBar, default as ProgressBarDefault } from "./ProgressBar";
