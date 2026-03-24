@@ -266,9 +266,9 @@ const SignupForm = ({
       const svcAny = authService as unknown as Record<string, SignupFn | undefined>;
       if (!svcAny.signup) throw new Error("signup method not available");
       const result = await svcAny.signup({
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
+        firstName: formData.firstName.trim(),
+        lastName: formData.lastName.trim(),
+        email: formData.email.trim(),
         password: formData.password,
         acceptTerms: formData.agreeToTerms,
       });

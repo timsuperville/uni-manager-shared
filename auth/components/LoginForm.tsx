@@ -146,7 +146,7 @@ export function LoginForm({
     setIsSubmitting(true);
     try {
       const result = await login({
-        email: formData.email,
+        email: formData.email.trim(),
         password: formData.password,
         rememberMe: formData.rememberMe,
         appType: appType as Parameters<typeof login>[0]["appType"],
@@ -200,10 +200,11 @@ export function LoginForm({
   };
 
   // Validate both presence and email format for accurate button state
-  const isFormValid =
+  const isFormValid = Boolean(
     formData.email &&
-    validateEmail(formData.email).isValid &&
-    formData.password;
+    validateEmail(formData.email.trim()).isValid &&
+    formData.password
+  );
 
   const isFormLoading = isLoading || isSubmitting;
 
