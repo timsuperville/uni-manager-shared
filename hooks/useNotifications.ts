@@ -118,7 +118,24 @@ export const useNotifications = ({
         }
       } catch (err) {
         const typedErr = err instanceof Error ? err : new Error(String(err));
-        if (typedErr.name !== "AbortError") {
+        const isCancel =
+          typedErr.name === "AbortError" ||
+          typedErr.name === "CanceledError" ||
+          typedErr.message === "canceled" ||
+          typedErr.message === "Request was cancelled";
+
+        // Auth failures (401 / token expiry) during background polls are
+        // transient — the AuthInterceptor is already handling the refresh.
+        // Do NOT surface these as UI-visible errors or console noise; just
+        // skip this poll cycle and let the next tick succeed post-refresh.
+        const isAuthError =
+          !isCancel &&
+          ((err as { response?: { status?: number } })?.response?.status === 401 ||
+            typedErr.message.toLowerCase().includes("token expired") ||
+            typedErr.message.toLowerCase().includes("unauthorized") ||
+            typedErr.message.toLowerCase().includes("401"));
+
+        if (!isCancel && !isAuthError) {
           setError(typedErr.message);
           if (import.meta.env?.DEV) {
             console.warn(
@@ -127,6 +144,7 @@ export const useNotifications = ({
             );
           }
         }
+        // isAuthError: silently swallowed — AuthInterceptor owns the recovery.
       } finally {
         setIsLoading(false);
       }
