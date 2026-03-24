@@ -321,7 +321,7 @@ class AuthService {
         const refreshToken = this.tokenStorage.getRefreshToken();
         if (refreshToken) {
           if (import.meta.env?.DEV) {
-            console.warn(
+            console.info(
               `[AuthService] checkExistingSession: verify-token returned ${response.status} — attempting silent refresh`,
             );
           }
@@ -339,14 +339,14 @@ class AuthService {
           }
         } else {
           if (import.meta.env?.DEV) {
-            console.warn(
+            console.info(
               `[AuthService] checkExistingSession: verify-token returned ${response.status} — no refresh token, clearing stored auth`,
             );
             response
               .clone()
               .text()
               .then((t) =>
-                console.warn("[AuthService] verify-token response body:", t),
+                console.info("[AuthService] verify-token response body:", t),
               )
               .catch(() => {});
           }
