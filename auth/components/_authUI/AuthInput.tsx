@@ -1,4 +1,5 @@
 import React from "react";
+import { textSecondary, textMuted, inputBase, errorSurface } from "../../../styles/styleUtils.ts";
 
 interface AuthInputProps {
   id: string;
@@ -47,7 +48,7 @@ export const AuthInput = ({
       <label
         htmlFor={id}
         className="block text-sm font-medium mb-1.5 transition-colors"
-        style={{ color: "var(--text-secondary, rgba(120,120,140,0.9))" }}
+        style={textSecondary}
       >
         {label}
         {required && <span className="text-red-400 ml-1">*</span>}
@@ -57,7 +58,7 @@ export const AuthInput = ({
       {icon && (
         <div
           className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none transition-colors"
-          style={{ color: "var(--text-muted)" }}
+          style={textMuted}
         >
           {icon}
         </div>
@@ -73,13 +74,8 @@ export const AuthInput = ({
         autoComplete={autoComplete}
         autoFocus={autoFocus}
         disabled={disabled}
-        className={`block w-full ${icon ? "pl-10" : "pl-4"} ${rightElement ? "pr-10" : "pr-4"} py-3 sm:py-3.5 text-sm sm:text-base rounded-xl shadow-sm focus:outline-none transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed focus:border-primary-ecclesia focus:ring-0`}
-        style={{
-          background: error ? "hsla(0,72%,50%,0.08)" : "hsla(0,0%,100%,0.04)",
-          border: error ? "1px solid hsla(0,72%,55%,0.5)" : "1px solid var(--glass-outline, hsla(0,0%,100%,0.1))",
-          color: "var(--text-primary, #f8f8fc)",
-          boxShadow: "none",
-        }}
+        className={`block w-full ${icon ? "pl-10" : "pl-4"} ${rightElement ? "pr-10" : "pr-4"} py-3 sm:py-3.5 text-sm sm:text-base rounded-xl shadow-sm focus:outline-none transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed`}
+        style={error ? { ...inputBase, ...errorSurface, borderRadius: "0.75rem" } : { ...inputBase, borderRadius: "0.75rem" }}
         onFocus={(e) => {
           if (!error) {
             e.target.style.borderColor = "var(--glass-outline-active, hsla(272,65%,62%,0.5))";

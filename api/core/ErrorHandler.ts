@@ -83,6 +83,19 @@ export class ErrorHandler {
     // Log error for monitoring
     this.logError(apiError, error.config);
 
+    // Dispatch a global event so the UI can show a toast or banner
+    if (typeof window !== "undefined" && apiError.type !== ApiErrorType.CANCELLED) {
+      window.dispatchEvent(
+        new CustomEvent("api:error", {
+          detail: {
+            message: this.getUserMessage(apiError),
+            type: apiError.type,
+            statusCode: apiError.statusCode,
+          },
+        }),
+      );
+    }
+
     throw apiError;
   }
 

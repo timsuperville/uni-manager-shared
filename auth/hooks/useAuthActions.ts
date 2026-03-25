@@ -96,6 +96,7 @@ export function useAuthActions(
       } catch (error) {
         const errorMessage = (error as { message?: string })?.message ?? "Login failed";
         setError(errorMessage);
+        updateState({ isLoading: false });
         notifyError(error);
         throw error;
       }
@@ -130,6 +131,7 @@ export function useAuthActions(
       } catch (error) {
         const errorMessage = (error as { message?: string })?.message ?? "Signup failed";
         setError(errorMessage);
+        updateState({ isLoading: false });
         notifyError(error);
         throw error;
       }
@@ -147,6 +149,7 @@ export function useAuthActions(
       } catch (error) {
         const errorMessage = (error as { message?: string })?.message ?? "Password reset failed";
         setError(errorMessage);
+        updateState({ isLoading: false });
         notifyError(error);
         throw error;
       }
@@ -172,6 +175,7 @@ export function useAuthActions(
       } catch (error) {
         const errorMessage = (error as { message?: string })?.message ?? "MFA verification failed";
         setError(errorMessage);
+        updateState({ isLoading: false });
         notifyError(error);
         throw error;
       }
@@ -189,6 +193,7 @@ export function useAuthActions(
       } catch (error) {
         const errorMessage = (error as { message?: string })?.message ?? "MFA setup failed";
         setError(errorMessage);
+        updateState({ isLoading: false });
         notifyError(error);
         throw error;
       }
@@ -253,6 +258,7 @@ export function useAuthActions(
       } catch (error) {
         const errorMessage = (error as { message?: string })?.message ?? "Church switch failed";
         setError(errorMessage);
+        updateState({ isLoading: false });
         notifyError(error);
         throw error;
       }

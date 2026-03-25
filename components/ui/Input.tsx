@@ -134,34 +134,64 @@ export const InputSelect: React.FC<InputSelectProps> = ({
   error = false,
   options,
   fullWidth: _fw,
-  helperText: _ht,
-  label: _lbl,
+  helperText,
+  label,
   ...props
-}) => (
-  <select
-    value={value}
-    onChange={onChange}
-    disabled={disabled}
-    className={`block w-full lg-input ${error ? "lg-input-error" : ""} shadow-sm ${getSizeClasses(size)} ${className}`}
-    {...props}
-  >
-    {placeholder && (
-      <option value="" disabled>
-        {placeholder}
-      </option>
-    )}
-    {options
-      ? options.map((opt) => (
-          <option
-            key={opt.value !== undefined ? opt.value : String(opt.label)}
-            value={opt.value}
-          >
-            {opt.label}
-          </option>
-        ))
-      : children}
-  </select>
-);
+}) => {
+  const errorMsg = typeof error === "string" ? error : undefined;
+  const isError = hasError(error);
+  const showHelper = errorMsg || helperText;
+
+  const selectEl = (
+    <select
+      value={value}
+      onChange={onChange}
+      disabled={disabled}
+      className={`block w-full lg-input ${isError ? "lg-input-error" : ""} shadow-sm ${getSizeClasses(size)} ${className}`}
+      {...props}
+    >
+      {placeholder && (
+        <option value="" disabled>
+          {placeholder}
+        </option>
+      )}
+      {options
+        ? options.map((opt) => (
+            <option
+              key={opt.value !== undefined ? opt.value : String(opt.label)}
+              value={opt.value}
+            >
+              {opt.label}
+            </option>
+          ))
+        : children}
+    </select>
+  );
+
+  if (!label && !showHelper) return selectEl;
+
+  return (
+    <div className="w-full">
+      {label && (
+        <label
+          className="block text-sm font-medium mb-1"
+          style={{ color: "var(--text-secondary)" }}
+        >
+          {label}
+        </label>
+      )}
+      {selectEl}
+      {showHelper && (
+        <p
+          className={`text-xs mt-1 ${isError ? "text-red-500" : ""}`}
+          style={!isError ? { color: "var(--text-muted)" } : undefined}
+        >
+          {errorMsg ?? helperText}
+        </p>
+      )}
+    </div>
+  );
+};
 
 export const Textarea: React.FC<TextareaProps> = ({
   placeholder = "",
@@ -172,20 +202,50 @@ export const Textarea: React.FC<TextareaProps> = ({
   disabled = false,
   error = false,
   fullWidth: _fw,
-  helperText: _ht,
-  label: _lbl,
+  helperText,
+  label,
   ...props
-}) => (
-  <textarea
-    placeholder={placeholder}
-    value={value}
-    onChange={onChange}
-    rows={rows}
-    disabled={disabled}
-    className={`block w-full lg-input ${error ? "lg-input-error" : ""} shadow-sm px-3 py-2 text-sm resize-vertical ${className}`}
-    {...props}
-  />
-);
+}) => {
+  const errorMsg = typeof error === "string" ? error : undefined;
+  const isError = hasError(error);
+  const showHelper = errorMsg || helperText;
+
+  const textareaEl = (
+    <textarea
+      placeholder={placeholder}
+      value={value}
+      onChange={onChange}
+      rows={rows}
+      disabled={disabled}
+      className={`block w-full lg-input ${isError ? "lg-input-error" : ""} shadow-sm px-3 py-2 text-sm resize-vertical ${className}`}
+      {...props}
+    />
+  );
+
+  if (!label && !showHelper) return textareaEl;
+
+  return (
+    <div className="w-full">
+      {label && (
+        <label
+          className="block text-sm font-medium mb-1"
+          style={{ color: "var(--text-secondary)" }}
+        >
+          {label}
+        </label>
+      )}
+      {textareaEl}
+      {showHelper && (
+        <p
+          className={`text-xs mt-1 ${isError ? "text-red-500" : ""}`}
+          style={!isError ? { color: "var(--text-muted)" } : undefined}
+        >
+          {errorMsg ?? helperText}
+        </p>
+      )}
+    </div>
+  );
+};
 
 /** @deprecated Use InputSelect — Select alias kept for backward compatibility */
 export { InputSelect as Select };

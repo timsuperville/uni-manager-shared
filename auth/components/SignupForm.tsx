@@ -28,6 +28,8 @@ interface SignupFormProps {
   authService?: Record<string, unknown> | null;
   appType?: string;
   loginPath?: string;
+  onTermsClick?: React.MouseEventHandler<HTMLAnchorElement>;
+  onPrivacyClick?: React.MouseEventHandler<HTMLAnchorElement>;
 }
 
 interface SignupFormData {
@@ -60,6 +62,8 @@ const SignupForm = ({
   authService: providedAuthService = null,
   appType = "default",
   loginPath = "/auth/login",
+  onTermsClick,
+  onPrivacyClick,
 }: SignupFormProps) => {
   const navigate = useNavigate();
   const appConfig = getCurrentAppConfig(appType);
@@ -114,6 +118,10 @@ const SignupForm = ({
         ...prev,
         [name]: "",
       }));
+    }
+
+    if (name === "password" && errors.confirmPassword) {
+      setErrors((prev) => ({ ...prev, confirmPassword: "" }));
     }
   };
 
@@ -512,6 +520,7 @@ const SignupForm = ({
                 <a
                   href="/terms"
                   className="text-blue-600 hover:text-blue-500 dark:text-blue-400 font-medium"
+                  onClick={onTermsClick}
                 >
                   Terms of Service
                 </a>{" "}
@@ -519,6 +528,7 @@ const SignupForm = ({
                 <a
                   href="/privacy"
                   className="text-blue-600 hover:text-blue-500 dark:text-blue-400 font-medium"
+                  onClick={onPrivacyClick}
                 >
                   Privacy Policy
                 </a>

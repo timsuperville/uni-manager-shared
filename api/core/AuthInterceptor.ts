@@ -313,12 +313,6 @@ export class AuthInterceptor {
           accessToken = altToken;
           refreshToken = altStorage.getItem(this.config.refreshTokenKey);
           expiresAt = altStorage.getItem(`${this.config.tokenKey}_expires`);
-          if (import.meta.env?.DEV) {
-            const altName = this.config.tokenStorage === "sessionStorage" ? "localStorage" : "sessionStorage";
-            console.warn(
-              `[AuthInterceptor] token found in alternate storage (${altName}) — primary ${this.config.tokenStorage} was empty. Align AuthService storageNamespace with AuthInterceptor tokenStorage config.`,
-            );
-          }
         }
       }
 

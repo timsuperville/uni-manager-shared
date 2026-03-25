@@ -48,7 +48,7 @@ export const AuthButton = ({
   const primaryStyle: React.CSSProperties | undefined =
     variant === "primary"
       ? {
-          background: "linear-gradient(135deg, var(--primary-resonance, hsl(272,65%,62%)), var(--accent-indigo, hsl(239,72%,66%)))",
+          background: "linear-gradient(135deg, var(--primary-resonance, hsl(272,65%,62%)), var(--accent-indigo, var(--primary-resonance, hsl(239,72%,66%))))",
           boxShadow: "0 4px 18px var(--primary-glow, hsla(272,65%,62%,0.32))",
           color: "white",
         }

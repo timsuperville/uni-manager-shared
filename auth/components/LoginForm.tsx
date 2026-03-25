@@ -16,6 +16,7 @@ import {
   GoogleIcon,
   PasswordToggleButton,
 } from "./_authUI";
+import { textAccent, textSecondary, textMuted } from "../../styles/styleUtils.ts";
 
 // Default UI config for unknown/unregistered appTypes
 const DEFAULT_UI = {
@@ -346,7 +347,7 @@ export function LoginForm({
             <button
               type="button"
               className="text-xs font-medium hover:underline focus:outline-none"
-              style={{ color: "var(--text-accent, hsl(272,65%,76%))" }}
+              style={textAccent}
               onClick={() => navigate("/auth/forgot-password")}
             >
               Forgot password?
@@ -371,7 +372,7 @@ export function LoginForm({
               <label
                 htmlFor="login-rememberMe"
                 className="text-sm cursor-pointer select-none"
-                style={{ color: "var(--text-secondary)" }}
+                style={textSecondary}
               >
                 Remember me
               </label>
@@ -394,13 +395,13 @@ export function LoginForm({
           {showRegistration && (
             <p
               className="text-center text-sm"
-              style={{ color: "var(--text-muted)" }}
+              style={textMuted}
             >
               {"Don't have an account? "}
               <button
                 type="button"
                 className="font-semibold hover:underline focus:outline-none"
-                style={{ color: "var(--text-accent, hsl(272,65%,76%))" }}
+                style={textAccent}
                 onClick={() => navigate(ui.registerPath)}
               >
                 Create account
