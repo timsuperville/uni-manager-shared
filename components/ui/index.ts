@@ -64,5 +64,7 @@ export { SectionTabBar } from "./SectionTabBar";
 // Typography primitives
 export { Heading } from "./Heading";
 export { Text } from "./Text";
+export * from "./ProgressRing";
+
 // TextArea — alias for Textarea (capitalization variant used in groups feature)
 export { Textarea as TextArea } from "./Input";
