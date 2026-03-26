@@ -230,8 +230,8 @@ export class AuthInterceptor {
         refreshToken: this.tokens?.refreshToken,
       });
 
-      const { accessToken, refreshToken, expiresIn }: TokenRefreshResponse =
-        response.data;
+      const responseData = response.data.data || response.data;
+      const { accessToken, refreshToken, expiresIn }: TokenRefreshResponse = responseData;
 
       this.updateTokens({
         accessToken,
