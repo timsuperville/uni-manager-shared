@@ -10,6 +10,7 @@ export { useAdvancedSearch } from "./useAdvancedSearch";
 export * from "./useCachedPersonalization";
 export { useUserPreferences } from "./useUserPreferences";
 export { useDebounce } from "./useDebounce";
+export { useLocalStorage } from "./useLocalStorage";
 
 // Engagement / feedback hooks
 export { useNpsPulse } from "./useNpsPulse";
