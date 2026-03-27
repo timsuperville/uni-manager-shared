@@ -18,24 +18,6 @@ interface InputProps extends Omit<
   icon?: React.ReactNode;
 }
 
-interface SelectOption {
-  value: string | number;
-  label: React.ReactNode;
-}
-
-interface InputSelectProps extends Omit<
-  React.SelectHTMLAttributes<HTMLSelectElement>,
-  "size"
-> {
-  size?: InputSize;
-  error?: boolean | string;
-  options?: SelectOption[];
-  helperText?: string;
-  label?: string;
-  fullWidth?: boolean;
-  placeholder?: string;
-}
-
 interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   error?: boolean | string;
   helperText?: string;
@@ -123,76 +105,6 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
 
 Input.displayName = "Input";
 
-export const InputSelect: React.FC<InputSelectProps> = ({
-  children,
-  value,
-  onChange,
-  placeholder = "Select an option",
-  className = "",
-  size = "default",
-  disabled = false,
-  error = false,
-  options,
-  fullWidth: _fw,
-  helperText,
-  label,
-  ...props
-}) => {
-  const errorMsg = typeof error === "string" ? error : undefined;
-  const isError = hasError(error);
-  const showHelper = errorMsg || helperText;
-
-  const selectEl = (
-    <select
-      value={value}
-      onChange={onChange}
-      disabled={disabled}
-      className={`block w-full lg-input ${isError ? "lg-input-error" : ""} shadow-sm ${getSizeClasses(size)} ${className}`}
-      {...props}
-    >
-      {placeholder && (
-        <option value="" disabled>
-          {placeholder}
-        </option>
-      )}
-      {options
-        ? options.map((opt) => (
-            <option
-              key={opt.value !== undefined ? opt.value : String(opt.label)}
-              value={opt.value}
-            >
-              {opt.label}
-            </option>
-          ))
-        : children}
-    </select>
-  );
-
-  if (!label && !showHelper) return selectEl;
-
-  return (
-    <div className="w-full">
-      {label && (
-        <label
-          className="block text-sm font-medium mb-1"
-          style={{ color: "var(--text-secondary)" }}
-        >
-          {label}
-        </label>
-      )}
-      {selectEl}
-      {showHelper && (
-        <p
-          className={`text-xs mt-1 ${isError ? "text-red-500" : ""}`}
-          style={!isError ? { color: "var(--text-muted)" } : undefined}
-        >
-          {errorMsg ?? helperText}
-        </p>
-      )}
-    </div>
-  );
-};
-
 export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
   function Textarea(
     {
@@ -208,7 +120,7 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
       label,
       ...props
     },
-    ref
+    ref,
   ) {
     const errorMsg = typeof error === "string" ? error : undefined;
     const isError = hasError(error);
@@ -250,11 +162,9 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         )}
       </div>
     );
-  }
+  },
 );
 
 Textarea.displayName = "Textarea";
 
-/** @deprecated Use InputSelect — Select alias kept for backward compatibility */
-export { InputSelect as Select };
 export { Input as default };

@@ -15,7 +15,10 @@ export interface SelectOptionGroup {
 
 export type SelectItemType = SelectOption | SelectOptionGroup;
 
-export interface SelectProps extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, "onChange" | "value" | "size"> {
+export interface SelectProps extends Omit<
+  React.SelectHTMLAttributes<HTMLSelectElement>,
+  "onChange" | "value" | "size"
+> {
   options?: SelectItemType[];
   value?: string | string[];
   onChange?: any;
@@ -34,6 +37,8 @@ export interface SelectProps extends Omit<React.SelectHTMLAttributes<HTMLSelectE
   chipIcon?: ReactNode;
   size?: string;
 }
+
+const EMPTY_VALUE = "__empty_value__";
 
 export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
   (
@@ -60,7 +65,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
       name,
       ...props
     },
-    ref
+    ref,
   ) => {
     const errorMsg = typeof error === "string" ? error : undefined;
     const isError = error !== false && error !== undefined;
@@ -71,12 +76,15 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
     if (!options && children) {
       React.Children.forEach(children, (child) => {
         if (!React.isValidElement<any>(child)) return;
-        
+
         // Handle <optgroup>
         if (child.type === "optgroup") {
           const groupOptions: SelectOption[] = [];
           React.Children.forEach(child.props.children, (groupChild) => {
-            if (React.isValidElement<any>(groupChild) && groupChild.type === "option") {
+            if (
+              React.isValidElement<any>(groupChild) &&
+              groupChild.type === "option"
+            ) {
               groupOptions.push({
                 value: groupChild.props.value as string,
                 label: groupChild.props.children,
@@ -90,7 +98,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
               options: groupOptions,
             });
           }
-        } 
+        }
         // Handle <option>
         else if (child.type === "option") {
           parsedOptions.push({
@@ -104,29 +112,26 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
 
     const handleValueChange = (val: string) => {
       if (!onChange) return;
+      const mappedVal = val === EMPTY_VALUE ? "" : val;
       // Synthetic event for FormSelect/GlassSelect compatibility
       const event = {
-        target: { name: name || "", value: val },
-        currentTarget: { name: name || "", value: val },
+        target: { name: name || "", value: mappedVal },
+        currentTarget: { name: name || "", value: mappedVal },
         preventDefault: () => {},
         stopPropagation: () => {},
       };
-      
-      // We pass the event as the first arg for AddEventModal (expecting standard event),
-      // and we attach toString so that if something blindly uses it as a string, it returns the value!
-      // But typically, FormSelect users use `e.target.value`. 
-      // Users who were using `Select` (primitive) might expect just `val`.
-      // Let's call onChange(event) and if that fails or they expect primitive, oh well. 
-      // Actually, we can check function arity, but simpler is to pass the synthetic event.
-      // Wait, let's just use string primitive if it's ParallelReader, but ParallelReader has multiple=true!
-      onChange(event, val); // Pass both!
+
+      onChange(event, mappedVal); // Pass both!
     };
 
     if (multiple) {
       return (
         <div className={`w-full ${className}`}>
           {label && (
-            <label className="block text-sm font-medium mb-1" style={{ color: "var(--text-secondary)" }}>
+            <label
+              className="block text-sm font-medium mb-1"
+              style={{ color: "var(--text-secondary)" }}
+            >
               {label}
             </label>
           )}
@@ -136,7 +141,10 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
             onChange={(e) => {
               if (onChange) {
                 // Return array of strings to maintain old Select behavior for multiple
-                const vals = Array.from(e.target.selectedOptions, (opt) => opt.value);
+                const vals = Array.from(
+                  e.target.selectedOptions,
+                  (opt) => opt.value,
+                );
                 onChange(vals, e); // Pass value first to appease ParallelReader!
               }
             }}
@@ -148,7 +156,11 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
                 return (
                   <optgroup key={i} label={opt.label as string}>
                     {opt.options.map((subOpt) => (
-                      <option key={subOpt.value} value={subOpt.value} disabled={subOpt.disabled}>
+                      <option
+                        key={subOpt.value}
+                        value={subOpt.value}
+                        disabled={subOpt.disabled}
+                      >
                         {subOpt.label}
                       </option>
                     ))}
@@ -156,14 +168,20 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
                 );
               }
               return (
-                <option key={opt.value} value={opt.value} disabled={opt.disabled}>
+                <option
+                  key={opt.value}
+                  value={opt.value}
+                  disabled={opt.disabled}
+                >
                   {opt.label}
                 </option>
               );
             })}
           </select>
           {showHelper && (
-            <p className={`text-xs mt-1 ${isError ? "text-red-500" : "text-(--text-muted)"}`}>
+            <p
+              className={`text-xs mt-1 ${isError ? "text-red-500" : "text-(--text-muted)"}`}
+            >
               {errorMsg || helperText}
             </p>
           )}
@@ -174,13 +192,16 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
     return (
       <div className={`w-full ${className}`}>
         {label && (
-          <label className="block text-sm font-medium mb-1" style={{ color: "var(--text-secondary)" }}>
+          <label
+            className="block text-sm font-medium mb-1"
+            style={{ color: "var(--text-secondary)" }}
+          >
             {label}
           </label>
         )}
         <div className="relative">
           <SelectPrimitive.Root
-            value={value as string}
+            value={value === "" ? EMPTY_VALUE : (value as string)}
             onValueChange={handleValueChange}
             disabled={props.disabled}
           >
@@ -190,7 +211,9 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
                 focus:ring-2 focus:ring-(--primary-resonance) disabled:cursor-not-allowed disabled:opacity-50`}
             >
               <div className="flex items-center truncate">
-                {icon && <span className="mr-2 text-(--text-muted)">{icon}</span>}
+                {icon && (
+                  <span className="mr-2 text-(--text-muted)">{icon}</span>
+                )}
                 <SelectPrimitive.Value placeholder={placeholder} />
               </div>
               <SelectPrimitive.Icon asChild>
@@ -214,8 +237,12 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
                           </SelectPrimitive.Label>
                           {opt.options.map((subOpt) => (
                             <SelectPrimitive.Item
-                              key={subOpt.value}
-                              value={subOpt.value}
+                              key={
+                                subOpt.value === "" ? EMPTY_VALUE : subOpt.value
+                              }
+                              value={
+                                subOpt.value === "" ? EMPTY_VALUE : subOpt.value
+                              }
                               disabled={subOpt.disabled}
                               className="relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm text-(--text-primary) outline-none focus:bg-(--primary-resonance) focus:text-white data-disabled:pointer-events-none data-disabled:opacity-50"
                             >
@@ -224,7 +251,9 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
                                   <Check className="h-4 w-4" />
                                 </SelectPrimitive.ItemIndicator>
                               </span>
-                              <SelectPrimitive.ItemText>{subOpt.label}</SelectPrimitive.ItemText>
+                              <SelectPrimitive.ItemText>
+                                {subOpt.label}
+                              </SelectPrimitive.ItemText>
                             </SelectPrimitive.Item>
                           ))}
                         </SelectPrimitive.Group>
@@ -232,8 +261,8 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
                     }
                     return (
                       <SelectPrimitive.Item
-                        key={opt.value}
-                        value={opt.value}
+                        key={opt.value === "" ? EMPTY_VALUE : opt.value}
+                        value={opt.value === "" ? EMPTY_VALUE : opt.value}
                         disabled={opt.disabled}
                         className="relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm text-(--text-primary) outline-none focus:bg-(--primary-resonance) focus:text-white data-disabled:pointer-events-none data-disabled:opacity-50"
                       >
@@ -242,7 +271,9 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
                             <Check className="h-4 w-4" />
                           </SelectPrimitive.ItemIndicator>
                         </span>
-                        <SelectPrimitive.ItemText>{opt.label}</SelectPrimitive.ItemText>
+                        <SelectPrimitive.ItemText>
+                          {opt.label}
+                        </SelectPrimitive.ItemText>
                       </SelectPrimitive.Item>
                     );
                   })}
@@ -252,13 +283,15 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
           </SelectPrimitive.Root>
         </div>
         {showHelper && (
-          <p className={`text-xs mt-1 ${isError ? "text-red-500" : "text-(--text-muted)"}`}>
+          <p
+            className={`text-xs mt-1 ${isError ? "text-red-500" : "text-(--text-muted)"}`}
+          >
             {errorMsg || helperText}
           </p>
         )}
       </div>
     );
-  }
+  },
 );
 
 Select.displayName = "Select";

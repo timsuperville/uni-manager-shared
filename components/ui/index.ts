@@ -40,7 +40,6 @@ export { RankMedal } from "./RankMedal";
 export { Alert, AlertTitle, AlertDescription } from "./Alert";
 
 // Liquid Glass form primitives (inline-style, CSS token—based)
-export { GlassInput } from "./GlassInput";
 export { Select } from "./Select";
 export { Chip, CHIP_VARIANTS } from "./Chip";
 export type { ChipProps } from "./Chip";
