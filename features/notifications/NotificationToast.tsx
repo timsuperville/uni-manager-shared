@@ -108,8 +108,8 @@ const NotificationToast: React.FC<NotificationToastProps> = ({
   sound = false,
   vibration = false,
   onClose = () => {},
-  onView = () => {},
-  onArchive = () => {},
+  onView,
+  onArchive,
   onAction = () => {},
   className = "",
   resonanceId = "",
@@ -190,9 +190,9 @@ const NotificationToast: React.FC<NotificationToastProps> = ({
   const handleActionClick = useCallback(
     (action: ToastAction) => {
       if (action.type === "view") {
-        onView(notification);
+        onView?.(notification);
       } else if (action.type === "archive") {
-        onArchive(notification);
+        onArchive?.(notification);
       } else if (action.callback) {
         action.callback(notification);
       } else {
@@ -236,7 +236,7 @@ const NotificationToast: React.FC<NotificationToastProps> = ({
         handleClose();
       } else if (event.key === "Enter" || event.key === " ") {
         if (actions.length > 0) handleActionClick(actions[0]);
-        else onView(notification);
+        else onView?.(notification);
       }
     };
     document.addEventListener("keydown", handleKeyDown);

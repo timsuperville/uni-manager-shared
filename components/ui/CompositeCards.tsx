@@ -1,7 +1,7 @@
 import React from "react";
 import { Card, CardContent } from "./Card";
 
-type CompositeColor = "blue" | "green" | "purple" | "orange";
+type CompositeColor = "blue" | "green" | "purple" | "orange" | "red";
 
 interface ColorTokens {
   bg: string;
@@ -32,6 +32,12 @@ const COLOR_VARS: Record<CompositeColor, ColorTokens> = {
   orange: {
     bg: "var(--color-warning, #f59e0b)",
     text: "var(--color-warning, #f59e0b)",
+    light: "var(--glass-surface, rgba(15,15,35,0.7))",
+    border: "var(--glass-outline, rgba(255,255,255,0.12))",
+  },
+  red: {
+    bg: "var(--color-error, #ef4444)",
+    text: "var(--color-error, #ef4444)",
     light: "var(--glass-surface, rgba(15,15,35,0.7))",
     border: "var(--glass-outline, rgba(255,255,255,0.12))",
   },

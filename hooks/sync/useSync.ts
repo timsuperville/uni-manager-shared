@@ -7,7 +7,7 @@ import { useAuth } from "@shared/auth/hooks/useAuth";
 // Types
 // ---------------------------------------------------------------------------
 
-export type SyncStatus = "connected" | "disconnected";
+export type SyncStatus = "connected" | "disconnected" | "connecting";
 
 export interface AwarenessUser {
   name: string;

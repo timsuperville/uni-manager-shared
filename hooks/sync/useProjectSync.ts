@@ -21,8 +21,8 @@ export interface UseProjectSyncResult {
   tasks: TaskRecord[];
   /** Project meta map (milestone toggles, labels, etc.) */
   projectMeta: ProjectMeta;
-  /** Connection state: 'connected' | 'disconnected' */
-  status: "connected" | "disconnected";
+  /** Connection state */
+  status: "connected" | "disconnected" | "connecting";
   /** Array of {name, color, userId} for all users on the canvas */
   awareness: Array<{ name: string; color: string; userId: string }>;
   /** Move task to new column */

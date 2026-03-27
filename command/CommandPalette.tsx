@@ -424,6 +424,7 @@ export function CommandPalette() {
       const id = setTimeout(() => inputRef.current?.focus(), 50);
       return () => clearTimeout(id);
     }
+    return undefined;
   }, [isOpen]);
 
   // Scroll active item into view

@@ -193,59 +193,67 @@ export const InputSelect: React.FC<InputSelectProps> = ({
   );
 };
 
-export const Textarea: React.FC<TextareaProps> = ({
-  placeholder = "",
-  value,
-  onChange,
-  className = "",
-  rows = 3,
-  disabled = false,
-  error = false,
-  fullWidth: _fw,
-  helperText,
-  label,
-  ...props
-}) => {
-  const errorMsg = typeof error === "string" ? error : undefined;
-  const isError = hasError(error);
-  const showHelper = errorMsg || helperText;
+export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
+  function Textarea(
+    {
+      placeholder = "",
+      value,
+      onChange,
+      className = "",
+      rows = 3,
+      disabled = false,
+      error = false,
+      fullWidth: _fw,
+      helperText,
+      label,
+      ...props
+    },
+    ref
+  ) {
+    const errorMsg = typeof error === "string" ? error : undefined;
+    const isError = hasError(error);
+    const showHelper = errorMsg || helperText;
 
-  const textareaEl = (
-    <textarea
-      placeholder={placeholder}
-      value={value}
-      onChange={onChange}
-      rows={rows}
-      disabled={disabled}
-      className={`block w-full lg-input ${isError ? "lg-input-error" : ""} shadow-sm px-3 py-2 text-sm resize-vertical ${className}`}
-      {...props}
-    />
-  );
+    const textareaEl = (
+      <textarea
+        ref={ref}
+        placeholder={placeholder}
+        value={value}
+        onChange={onChange}
+        rows={rows}
+        disabled={disabled}
+        className={`block w-full lg-input ${isError ? "lg-input-error" : ""} shadow-sm px-3 py-2 text-sm resize-vertical ${className}`}
+        {...props}
+      />
+    );
 
-  if (!label && !showHelper) return textareaEl;
+    if (!label && !showHelper) return textareaEl;
 
-  return (
-    <div className="w-full">
-      {label && (
-        <label
-          className="block text-sm font-medium mb-1"
-          style={{ color: "var(--text-secondary)" }}
-        >
-          {label}
-        </label>
-      )}
-      {textareaEl}
-      {showHelper && (
-        <p
-          className={`text-xs mt-1 ${isError ? "text-red-500" : ""}`}
-          style={!isError ? { color: "var(--text-muted)" } : undefined}
-        >
-          {errorMsg ?? helperText}
-        </p>
-      )}
-    </div>
-  );
-};
+    return (
+      <div className="w-full">
+        {label && (
+          <label
+            className="block text-sm font-medium mb-1"
+            style={{ color: "var(--text-secondary)" }}
+          >
+            {label}
+          </label>
+        )}
+        {textareaEl}
+        {showHelper && (
+          <p
+            className={`text-xs mt-1 ${isError ? "text-red-500" : ""}`}
+            style={!isError ? { color: "var(--text-muted)" } : undefined}
+          >
+            {errorMsg ?? helperText}
+          </p>
+        )}
+      </div>
+    );
+  }
+);
+
+Textarea.displayName = "Textarea";
 
 /** @deprecated Use InputSelect — Select alias kept for backward compatibility */
 export { InputSelect as Select };

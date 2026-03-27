@@ -551,7 +551,7 @@ class AuthService {
         );
       try {
         sessionStorage.removeItem(
-          `${this.tokenStorage["namespace"]}_session_id`,
+          `${(this.tokenStorage as any).namespace}_session_id`,
         );
       } catch {
         /* storage unavailable */

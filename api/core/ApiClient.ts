@@ -49,7 +49,7 @@ export interface ApiResponse<T = any> {
 }
 
 export class ApiClient {
-  private axios: AxiosInstance;
+  private axios!: AxiosInstance;
   private errorHandler: ErrorHandler;
   private cacheManager: CacheManager;
   private authInterceptor: AuthInterceptor;
