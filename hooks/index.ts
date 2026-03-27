@@ -40,3 +40,6 @@ export { useToast } from "../components/ToastProvider";
 
 // Audio analysis hooks
 export { useAnalyserLevel } from "./useAnalyserLevel";
+
+// Live cue safety
+export { useArmConfirm } from "./useArmConfirm";
