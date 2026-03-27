@@ -14,15 +14,7 @@ import {
 } from "react-icons/fi";
 import { useNotificationPreferences } from "../../hooks/useNotificationPreferences";
 import type { NotificationPreferences as StoredPreferences } from "../../hooks/useNotificationPreferences";
-import {
-  Button,
-  Card,
-  Switch,
-  Select,
-  TimePicker,
-  LoadingSpinner,
-  Modal,
-} from "@shared/components/ui";
+import { Button, Card, Switch, Select, TimePicker, LoadingSpinner, Modal } from "@shared/components/ui";
 import { Slider } from "@shared/components/ui/Slider";
 
 // ── Types ────────────────────────────────────────────────────────────────────

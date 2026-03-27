@@ -19,7 +19,7 @@ export {
 } from "./Table";
 export { Tabs, TabsList, TabsTrigger, TabsContent } from "./Tabs";
 export { Badge } from "./Badge";
-export { Input, Select, Textarea } from "./Input";
+export { Input, Textarea } from "./Input";
 export { Progress, CircularProgress } from "./Progress";
 export { Switch } from "./Switch";
 export { ProgressCard, QuickActionCard } from "./CompositeCards";
@@ -41,8 +41,7 @@ export { Alert, AlertTitle, AlertDescription } from "./Alert";
 
 // Liquid Glass form primitives (inline-style, CSS token—based)
 export { GlassInput } from "./GlassInput";
-export { GlassSelect } from "./GlassSelect";
-export { FormSelect } from "./FormSelect";
+export { Select } from "./Select";
 export { Chip, CHIP_VARIANTS } from "./Chip";
 export type { ChipProps } from "./Chip";
 export { StatusBadge, STATUS_VARIANTS } from "./StatusBadge";
@@ -55,7 +54,6 @@ export { TimePicker } from "./TimePicker";
 export { Avatar } from "./Avatar";
 export { LoadingSpinner } from "./LoadingSpinner";
 export { Dropdown } from "./Dropdown";
-export { default as DropdownSelect } from "./Select";
 export { Pagination } from "./Pagination";
 export { StatsStrip } from "./StatsStrip";
 export { PageHeader } from "./PageHeader";

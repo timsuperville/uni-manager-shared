@@ -15,13 +15,7 @@ import {
   FiCornerUpRight as FiForward,
 } from "react-icons/fi";
 import { format } from "date-fns";
-import {
-  Button,
-  Badge,
-  Avatar,
-  LoadingSpinner,
-  Modal,
-} from "@shared/components/ui";
+import { Button, Badge, Avatar, LoadingSpinner, Modal } from "@shared/components/ui";
 import type { Notification, Attachment } from "./NotificationToast";
 
 // ── Types ────────────────────────────────────────────────────────────────────

@@ -49,13 +49,7 @@ import {
 } from "date-fns";
 import { useNotifications } from "../../hooks/useNotifications";
 import type { AppNotification } from "./NotificationAdapter";
-import {
-  LoadingSpinner,
-  Button,
-  Badge,
-  SearchInput,
-  Pagination,
-} from "@shared/components/ui";
+import { LoadingSpinner, Button, Badge, SearchInput, Pagination } from "@shared/components/ui";
 import { NotificationModal } from "./NotificationModal";
 import NotificationToast from "./NotificationToast";
 import { NotificationPreferences } from "./NotificationPreferences";
