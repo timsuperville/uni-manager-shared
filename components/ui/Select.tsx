@@ -223,7 +223,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
 
             <SelectPrimitive.Portal>
               <SelectPrimitive.Content
-                className="z-50 min-w-32 overflow-hidden rounded-md border border-(--glass-outline,rgba(255,255,255,0.1)) bg-(--glass-surface-solid,#1c1c1e) shadow-md animate-in fade-in-80 zoom-in-95"
+                className="z-[9999] min-w-32 overflow-hidden rounded-md border border-(--glass-outline,rgba(255,255,255,0.1)) bg-(--glass-surface-solid,#1c1c1e) shadow-md animate-in fade-in-80 zoom-in-95"
                 position="popper"
                 sideOffset={4}
               >
