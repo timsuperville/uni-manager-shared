@@ -49,6 +49,9 @@ export { usePermissions } from "./usePermissions.ts";
 export { useChurchRole } from "./useChurchRole.ts";
 export { useChurchId } from "./useChurchId.ts";
 
+// Home domain extension hooks
+export { useHouseholdId } from "./useHouseholdId.ts";
+
 // Rate Limiting
 export {
   useRateLimit,

@@ -67,6 +67,9 @@ export {
 } from "./hooks/useChurchRole.ts";
 export { useChurchId } from "./hooks/useChurchId.ts";
 
+// Home domain extension hooks
+export { useHouseholdId } from "./hooks/useHouseholdId.ts";
+
 // Session management
 export {
   useSessionManagement,
