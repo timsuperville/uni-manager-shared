@@ -142,7 +142,7 @@ describe("AuthService - switchChurch", () => {
     });
 
     await expect(authService.switchChurch(mockChurchId)).rejects.toThrow(
-      "Server Error (500): Please try again later",
+      /Server returned HTTP 500 with non-JSON body/,
     );
 
     expect(authService.tokenStorage.updateUser).not.toHaveBeenCalled();

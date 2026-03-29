@@ -345,6 +345,9 @@ describe("Complete Authentication Flows", () => {
         ok: false,
         status: 401,
         json: async () => ({ message: "Session expired" }),
+        clone: () => ({
+          text: async () => JSON.stringify({ message: "Session expired" }),
+        }),
       });
 
       const onAuthStateChange = vi.fn();
