@@ -437,7 +437,7 @@ export function getCurrentAppName(): AppName {
   // Priority 4: Subdomain-based lookup (production)
   if (typeof window !== "undefined") {
     const subdomain = window.location.hostname.split(".")[0] as AppName;
-    if (Object.hasOwn(APP_CONFIGS, subdomain)) return subdomain;
+    if (Object.prototype.hasOwnProperty.call(APP_CONFIGS, subdomain)) return subdomain;
   }
 
   return "church";

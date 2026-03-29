@@ -12,6 +12,7 @@ export { useUserPreferences } from "./useUserPreferences";
 export { useDebounce } from "./useDebounce";
 export { useLocalStorage } from "./useLocalStorage";
 export { useDarkMode } from "./useDarkMode";
+export { useIntersectionObserver } from "./useIntersectionObserver";
 
 // Engagement / feedback hooks
 export { useNpsPulse } from "./useNpsPulse";

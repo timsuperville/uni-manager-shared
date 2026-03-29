@@ -1,4 +1,4 @@
-import React from "react";
+
 import { Card, CardContent } from "./Card";
 
 type CompositeColor = "blue" | "green" | "purple" | "orange" | "red";

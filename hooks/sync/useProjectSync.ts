@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from "react";
-import * as Y from "yjs";
+
 import { useSync } from "./useSync.ts";
 
 // ---------------------------------------------------------------------------

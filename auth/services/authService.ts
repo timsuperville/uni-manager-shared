@@ -21,7 +21,7 @@ import { TokenStorage } from "../utils/TokenStorage.ts";
 import { validateCredentials } from "../utils/authValidation.ts";
 import { getApiBaseUrl } from "../../api/config/apiConfig.ts";
 import { RateLimitService } from "./RateLimitService.ts";
-import { TokenManagementService } from "./TokenManagementService.ts";
+
 import type { User } from "../types/auth.types.ts";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -109,7 +109,7 @@ interface RequestOptions extends RequestInit {
 
 class AuthService {
   private readonly config: ResolvedAuthConfig;
-  private readonly apiEndpoint: string;
+
   private currentUser: unknown = null;
   private sessionToken: string | null = null;
   private sessionId: string | null = null;
@@ -117,7 +117,7 @@ class AuthService {
   private activityTracker: ReturnType<typeof setInterval> | null = null;
   private readonly tokenStorage: TokenStorage;
   private readonly rateLimitService: RateLimitService;
-  private readonly tokenService: TokenManagementService;
+
 
   // Backward compat proxies onto rateLimitService (fields are public readonly on RateLimitService)
   readonly loginAttempts: Map<string, { count: number; lastAttempt: number }>;
@@ -157,9 +157,7 @@ class AuthService {
       appType: config.appType ?? "default",
     };
 
-    this.apiEndpoint = (
-      this.config.endpoints.login ?? "/api/v1/auth/login"
-    ).replace("/login", "");
+
 
     const storageNamespace = config.storageNamespace ?? config.appType ?? "uni";
     this.tokenStorage = new TokenStorage(storageNamespace);
@@ -168,11 +166,7 @@ class AuthService {
       maxLoginAttempts: config.maxLoginAttempts ?? 5,
       lockoutDuration: config.lockoutDuration ?? 15 * 60 * 1000,
     });
-    this.tokenService = new TokenManagementService({
-      tokenStorage: this.tokenStorage,
-      onTokenRefreshed: config.onTokenRefreshed,
-      onTokenExpired: config.onTokenExpired,
-    });
+
 
     this.loginAttempts = this.rateLimitService.loginAttempts;
     this.maxLoginAttempts = this.rateLimitService.maxAttempts;

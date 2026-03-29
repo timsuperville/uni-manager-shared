@@ -1,7 +1,7 @@
 import React from "react";
 
 type TableHtmlProps = React.HTMLAttributes<HTMLTableElement>;
-type DivHtmlProps = React.HTMLAttributes<HTMLDivElement>;
+
 type TrHtmlProps = React.HTMLAttributes<HTMLTableRowElement>;
 type ThHtmlProps = React.ThHTMLAttributes<HTMLTableCellElement>;
 type TdHtmlProps = React.TdHTMLAttributes<HTMLTableCellElement>;

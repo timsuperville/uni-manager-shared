@@ -1,4 +1,4 @@
-import React from "react";
+
 import { skeletonBase } from "../../styles/styleUtils";
 
 /**

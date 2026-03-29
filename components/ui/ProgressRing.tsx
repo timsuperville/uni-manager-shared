@@ -1,4 +1,4 @@
-import React from "react";
+
 
 export interface ProgressRingProps {
   pct: number;

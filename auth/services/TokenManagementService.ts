@@ -37,7 +37,7 @@ interface TokenManagementConfig {
 // ---------------------------------------------------------------------------
 
 export class TokenManagementService {
-  private readonly config: TokenManagementConfig;
+
   private readonly storage: TokenStorage;
   private refreshInterval: ReturnType<typeof setInterval> | null;
   private readonly onTokenRefreshed: (() => void) | null;
@@ -49,7 +49,7 @@ export class TokenManagementService {
    * legacy/test contexts.
    */
   constructor(config: TokenManagementConfig = {}) {
-    this.config = config;
+
     this.storage = config.tokenStorage ?? new TokenStorage();
     this.refreshInterval = null;
     this.onTokenRefreshed = config.onTokenRefreshed ?? null;

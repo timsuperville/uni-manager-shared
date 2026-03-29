@@ -206,7 +206,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     updateState,
     clearError,
     resetState,
-    setLoading,
     setError,
     updateActivity,
   } = useAuthState();

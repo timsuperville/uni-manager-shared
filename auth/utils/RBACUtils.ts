@@ -12,7 +12,6 @@
 
 import {
   ROLES,
-  PERMISSIONS,
   APPLICATION_ROLES,
   PROTECTED_ROUTES,
   type Permission,

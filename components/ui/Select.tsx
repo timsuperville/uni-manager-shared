@@ -1,4 +1,4 @@
-import React, { ReactNode, useId } from "react";
+import React, { ReactNode } from "react";
 import * as SelectPrimitive from "@radix-ui/react-select";
 import { ChevronDown, Check } from "lucide-react";
 
@@ -65,7 +65,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
       name,
       ...props
     },
-    ref,
+    _ref,
   ) => {
     const errorMsg = typeof error === "string" ? error : undefined;
     const isError = error !== false && error !== undefined;
