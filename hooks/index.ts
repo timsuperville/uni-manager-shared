@@ -11,6 +11,7 @@ export * from "./useCachedPersonalization";
 export { useUserPreferences } from "./useUserPreferences";
 export { useDebounce } from "./useDebounce";
 export { useLocalStorage } from "./useLocalStorage";
+export { useDarkMode } from "./useDarkMode";
 
 // Engagement / feedback hooks
 export { useNpsPulse } from "./useNpsPulse";

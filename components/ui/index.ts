@@ -28,6 +28,7 @@ export { SignaturePad } from "./SignaturePad";
 // Liquid Glass primitives (CSS vars — zero hardcoded colours)
 export { ProgressBar, default as ProgressBarDefault } from "./ProgressBar";
 export { Toggle } from "./Toggle";
+export { ThemeToggle } from "./ThemeToggle";
 export { Modal } from "./Modal";
 export { Panel } from "./Panel";
 export { Spinner } from "./Spinner";

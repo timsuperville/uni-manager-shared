@@ -118,17 +118,37 @@ export const AppLogo: React.FC<AppLogoProps> = ({
       default:
         return (
           <>
+            <defs>
+              <linearGradient id="platform-grad-top" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+                <stop stopColor="#8b5cf6" stopOpacity="0.9" />  {/* violet-500 */}
+                <stop offset="1" stopColor="#f43f5e" stopOpacity="0.9" /> {/* rose-500 */}
+              </linearGradient>
+              <linearGradient id="platform-grad-bottom" x1="100" y1="100" x2="0" y2="0" gradientUnits="userSpaceOnUse">
+                <stop stopColor="#f59e0b" stopOpacity="0.8" /> {/* amber-500 */}
+                <stop offset="1" stopColor="#f43f5e" stopOpacity="0.8" /> {/* rose-500 */}
+              </linearGradient>
+            </defs>
+            {/* Top Sweeping Arc */}
             <path
-              d="M 50 15 C 65 15, 75 25, 75 40 C 75 46, 72 50, 68 53 C 63 56, 58 52, 55 48 L 50 42 L 45 48 C 42 52, 37 56, 32 53 C 28 50, 25 46, 25 40 C 25 25, 35 15, 50 15 Z"
-              fill="url(#logo-grad-top)"
+              d="M 50 15 C 70 15, 85 25, 85 50 C 85 62, 80 72, 70 80 L 50 50 Z"
+              fill="url(#platform-grad-top)"
             />
+            {/* Bottom Sweeping Arc */}
             <path
-              d="M 50 85 C 35 85, 25 75, 25 60 C 25 54, 28 50, 32 47 C 37 44, 42 48, 45 52 L 50 58 L 55 52 C 58 48, 63 44, 68 47 C 72 50, 75 54, 75 60 C 75 75, 65 85, 50 85 Z"
-              fill="url(#logo-grad-bottom)"
+              d="M 50 85 C 30 85, 15 75, 15 50 C 15 38, 20 28, 30 20 L 50 50 Z"
+              fill="url(#platform-grad-bottom)"
             />
-            <circle cx="28" cy="50" r="9" fill="currentColor" fillOpacity="0.45" />
-            <circle cx="72" cy="50" r="9" fill="currentColor" fillOpacity="0.45" />
-            <circle cx="50" cy="50" r="7" fill="#ffffff" fillOpacity="0.95" />
+            
+            {/* Inner Core Shield / Diamond */}
+            <polygon points="50,32 68,50 50,68 32,50" fill="#ffffff" fillOpacity="0.8" />
+            
+            {/* Orbiting Nodes */}
+            <circle cx="72" cy="28" r="5" fill="#f59e0b" fillOpacity="0.9" /> {/* amber */}
+            <circle cx="28" cy="72" r="5" fill="#8b5cf6" fillOpacity="0.9" /> {/* violet */}
+            
+            {/* Center Singular Node */}
+            <circle cx="50" cy="50" r="4" fill="#ffffff" />
+            <circle cx="50" cy="50" r="9" fill="none" stroke="#f43f5e" strokeWidth="2" strokeOpacity="0.8" />
           </>
         );
     }
