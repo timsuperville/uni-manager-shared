@@ -165,7 +165,7 @@ export function LoginForm({
       // MFA step changes handled via the useEffect above
     } catch (err) {
       setIsSubmitting(false);
-      if (import.meta.env?.DEV) console.error("[LoginForm] Login error:", err);
+      // We purposefully do not console.error here to keep expected validation failures (like bad password) out of the console logs
       onError?.(err);
     }
   };

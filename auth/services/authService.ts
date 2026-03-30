@@ -225,7 +225,7 @@ class AuthService {
         (data["error"] as string | undefined);
       throw new Error(
         serverMessage
-          ? `HTTP ${response.status}: ${serverMessage}`
+          ? serverMessage
           : `Request failed with status ${response.status}`,
       );
     }
