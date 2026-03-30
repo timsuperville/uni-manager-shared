@@ -27,7 +27,10 @@ interface AuthContainerProps {
  *   Strips the shell entirely (no min-h-screen, no background, no blobs).
  *   Renders only the glass card so AuthLayout's split panel is visible.
  */
-export const AuthContainer = ({ children, maxWidth = "md" }: AuthContainerProps) => {
+export const AuthContainer = ({
+  children,
+  maxWidth = "md",
+}: AuthContainerProps) => {
   const isNested = useAuthShell();
 
   const maxWidths: Record<MaxWidth, string> = {
@@ -38,13 +41,14 @@ export const AuthContainer = ({ children, maxWidth = "md" }: AuthContainerProps)
   };
 
   const card = (
-    <div className={`w-full ${maxWidths[maxWidth]} relative z-10 animate-slideUpFade`}>
+    <div
+      className={`w-full ${maxWidths[maxWidth]} relative z-10 animate-slideUpFade`}
+    >
       <div
-        className="backdrop-blur-xl shadow-2xl rounded-3xl overflow-hidden mx-auto"
+        className="backdrop-blur-xl rounded-3xl overflow-hidden mx-auto bg-white/70 dark:bg-[#151125]/80 border border-gray-200/50 dark:border-white/10 shadow-[0_8px_40px_rgba(0,0,0,0.1)] dark:shadow-[0_8px_40px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.04)]"
         style={{
-          background: "var(--glass-surface, hsla(265,28%,14%,0.76))",
-          border: "1px solid var(--glass-outline, hsla(0,0%,100%,0.07))",
-          boxShadow: "0 8px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04)",
+          background: "var(--glass-surface-auto)",
+          borderColor: "var(--glass-outline-auto)",
         }}
       >
         {children}
@@ -68,7 +72,9 @@ export const AuthContainer = ({ children, maxWidth = "md" }: AuthContainerProps)
       />
       <div
         className="absolute bottom-[-10%] left-[-5%] w-96 h-96 rounded-full blur-3xl"
-        style={{ background: "var(--accent-amber-glow, hsla(38,90%,58%,0.08))" }}
+        style={{
+          background: "var(--accent-amber-glow, hsla(38,90%,58%,0.08))",
+        }}
       />
       {card}
     </div>
