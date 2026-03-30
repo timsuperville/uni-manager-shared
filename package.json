@@ -48,6 +48,7 @@
     "date-fns": "^4.1.0",
     "idb-keyval": "^6.2.2",
     "lerna": "9.0.3",
+    "@radix-ui/react-select": "^2.1.2",
     "socket.io-client": "^4.8.3",
     "swagger-jsdoc": "6.2.8",
     "y-websocket": "^3.0.0",
