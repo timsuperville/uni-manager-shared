@@ -22,6 +22,28 @@ const COMMUNITY_TIER: Record<string, number> = {
   admin: 4, // legacy alias for 'steward' — accepted during migration
 };
 
+/**
+ * TIER_DEFAULT_TOOLS — Tools that are automatically granted to users
+ * who meet the tool's minimum community stage requirement, without needing
+ * a ministry membership grant.
+ * Reference: docs/product/church/navigation-architecture.md
+ */
+const TIER_DEFAULT_TOOLS = new Set<string>([
+  "tool:events-view",
+  "tool:giving-personal",
+  "tool:giving-recurring",
+  "tool:capital-campaigns-view",
+  "tool:communications-receive",
+  "tool:formation-tracks",
+  "tool:library-browse",
+  "tool:events-rsvp",
+  "tool:groups-browse",
+  "tool:discovery-browse",
+  "tool:ministries-browse",
+  "tool:maintenance-submit",
+  "tool:resources-book",
+]);
+
 /** The canonical community journey stage vocabulary. */
 export type CommunityStage =
   | "viewer"
@@ -296,6 +318,7 @@ function buildResult(
 
     hasGrantedTool: (toolId: string) => {
       if (effectivePlatformAdmin || tier >= stewardTier) return true;
+      if (TIER_DEFAULT_TOOLS.has(toolId)) return true;
       return toolMap.get(toolId)?.canView ?? false;
     },
 
