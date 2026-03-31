@@ -45,6 +45,7 @@ export type {
 } from "./services/BaseService";
 
 export { AuthService } from "./services/AuthService";
+export { ArtNetBridgeService, artNetBridgeService } from "./services/ArtNetBridgeService";
 
 // Main service registry
 export {
