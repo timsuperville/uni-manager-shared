@@ -29,42 +29,42 @@ Each app type comes with preconfigured styling and behavior:
 
 ### Admin App
 
-- **Icon**: 🔐
+- **Icon**: `<ShieldIcon />`
 - **Title**: Admin Portal Access
 - **Color**: Blue
 - **Default Redirect**: `/dashboard`
 
 ### Church App
 
-- **Icon**: ⛪
+- **Icon**: `<ChurchIcon />`
 - **Title**: Church Management
 - **Color**: Purple
 - **Default Redirect**: `/services`
 
 ### Business App
 
-- **Icon**: 💼
+- **Icon**: `<BriefcaseIcon />`
 - **Title**: Business Portal
 - **Color**: Emerald
 - **Default Redirect**: `/overview`
 
 ### Home App
 
-- **Icon**: 🏠
+- **Icon**: `<HomeIcon />`
 - **Title**: Home Management
 - **Color**: Amber
 - **Default Redirect**: `/dashboard`
 
 ### Personal App
 
-- **Icon**: 👤
+- **Icon**: `<UserIcon />`
 - **Title**: Personal Dashboard
 - **Color**: Indigo
 - **Default Redirect**: `/dashboard`
 
 ### Playback App
 
-- **Icon**: 🎵
+- **Icon**: `<PlayIcon />`
 - **Title**: Media Playback
 - **Color**: Pink
 - **Default Redirect**: `/player`

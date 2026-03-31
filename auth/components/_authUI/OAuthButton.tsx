@@ -25,7 +25,7 @@ export const OAuthButton = ({
     type="button"
     onClick={onClick}
     disabled={disabled}
-    className="w-full flex items-center justify-center gap-3 px-4 py-3 sm:py-3.5 rounded-xl text-sm sm:text-base font-medium focus:outline-none disabled:opacity-50 transition-all duration-200 active:scale-[0.98] active:shadow-inner bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 border border-gray-200 dark:border-white/10 text-gray-700 dark:text-white"
+    className="w-full flex items-center justify-center gap-3 px-4 py-3 sm:py-3.5 rounded-xl text-sm sm:text-base font-medium focus:outline-none disabled:opacity-50 transition-all duration-200 active:scale-[0.98] active:shadow-inner bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 border border-gray-200 dark:border-white/10 text-gray-700 dark:text-white cursor-pointer disabled:cursor-not-allowed"
     style={{
       boxShadow: "none",
     }}

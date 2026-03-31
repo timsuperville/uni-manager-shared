@@ -43,5 +43,10 @@ export { default as AuthLayout } from "./AuthLayout.tsx";
 export { default as UserMenu } from "./UserMenu.tsx";
 export { default as UserMenuItem } from "./_userMenu/UserMenuItem.tsx";
 
+// ── Legal Components ────────────────────────────────────────────────────────────
+
+export { default as TermsOfService } from "./legal/TermsOfService.tsx";
+export { default as PrivacyPolicy } from "./legal/PrivacyPolicy.tsx";
+
 // Re-export default for convenience
 export { default } from "./LoginForm.tsx";

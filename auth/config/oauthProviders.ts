@@ -4,7 +4,7 @@
  * Supports Google, Microsoft, LinkedIn, GitHub, Spotify, Apple OAuth providers
  */
 
-import type { AppName } from "./appConfigs.ts";
+import type { AppName } from "./appConfigs";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 

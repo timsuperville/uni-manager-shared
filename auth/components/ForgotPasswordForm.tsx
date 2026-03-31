@@ -12,6 +12,7 @@ import {
   AuthInput,
   Alert,
 } from "./_authUI";
+import { LockIcon } from "../../components/icons";
 
 // Seconds to wait before auto-redirecting to login after a successful submission
 const SUCCESS_REDIRECT_DELAY = 5;
@@ -95,7 +96,7 @@ const ForgotPasswordForm = ({
         <button
           type="button"
           onClick={handleBack}
-          className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium transition-colors -mt-1 mb-1"
+          className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium transition-colors -mt-1 mb-1 cursor-pointer"
         >
           <svg
             className="w-4 h-4 shrink-0"
@@ -116,8 +117,8 @@ const ForgotPasswordForm = ({
 
         {/* Header */}
         <div className="text-center">
-          <div className="text-4xl mb-3" aria-hidden="true">
-            🔒
+          <div className="flex justify-center mb-3 text-gray-900 dark:text-white" aria-hidden="true">
+            <LockIcon size={40} />
           </div>
           <h2 className="text-2xl font-extrabold text-gray-900 dark:text-white">
             Reset your password
@@ -196,7 +197,7 @@ const ForgotPasswordForm = ({
           <button
             type="button"
             onClick={handleBack}
-            className="font-semibold text-blue-600 dark:text-blue-400 hover:underline focus:outline-none"
+            className="font-semibold text-blue-600 dark:text-blue-400 hover:underline focus:outline-none cursor-pointer"
           >
             Sign in
           </button>

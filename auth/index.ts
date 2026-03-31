@@ -101,6 +101,8 @@ export { default as OAuthCallback } from "./components/OAuthCallback.tsx";
 export { default as ProtectedRoute } from "./components/ProtectedRoute.tsx";
 export { default as SecurityDashboard } from "./components/SecurityDashboard.tsx";
 export { default as AuthLayout } from "./components/AuthLayout.tsx";
+export { default as TermsOfService } from "./components/legal/TermsOfService.tsx";
+export { default as PrivacyPolicy } from "./components/legal/PrivacyPolicy.tsx";
 export { UserMenu, UserMenuItem } from "./components/index.ts";
 
 // RBAC — context (backward compat: wraps useAuth)
@@ -187,7 +189,7 @@ export {
   getAppConfig,
   getCurrentAppName,
   getCurrentAppConfig,
-} from "./config/appConfigs.ts";
+} from "./config/appConfigs";
 
 export {
   getSupportedProvidersForApp,

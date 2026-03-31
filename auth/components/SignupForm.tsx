@@ -6,7 +6,7 @@ import {
   validateName,
   getPasswordStrength,
 } from "../utils/authValidation.ts";
-import { getCurrentAppConfig } from "../config/appConfigs.ts";
+import { getCurrentAppConfig } from "../config/appConfigs";
 import defaultAuthService from "../services/authService.ts";
 import {
   AuthContainer,
@@ -19,6 +19,7 @@ import {
   GoogleIcon,
   PasswordToggleButton,
 } from "./_authUI";
+import { UserIcon } from "../../components/icons";
 
 interface SignupFormProps {
   onLogin?: () => void;
@@ -316,8 +317,8 @@ const SignupForm = ({
       <AuthCardContent>
         {/* Header */}
         <div className="text-center mb-4 sm:mb-6">
-          <div className="text-4xl sm:text-5xl mb-3 sm:mb-4" aria-hidden="true">
-            {appConfig?.ui?.icon ?? "👤"}
+          <div className="flex justify-center mb-3 sm:mb-4 text-gray-900 dark:text-white" aria-hidden="true">
+            {appConfig?.ui?.icon ?? <UserIcon size={40} />}
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">
             Join {appConfig?.appName ?? "Uni-Manager"}
@@ -559,7 +560,7 @@ const SignupForm = ({
               Already have an account?{" "}
               <button
                 type="button"
-                className="font-semibold text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 underline underline-offset-2"
+                className="font-semibold text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 underline underline-offset-2 cursor-pointer"
                 onClick={() => {
                   if (onLogin) {
                     onLogin();

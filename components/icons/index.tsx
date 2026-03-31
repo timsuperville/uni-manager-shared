@@ -218,3 +218,144 @@ export const BarChartIcon = svg(
   <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />,
   1.5,
 );
+
+// ── Domains & Ecosystem ────────────────────────────────────────────────────────
+
+// Church
+export const ChurchIcon = svg(<path d="M18 7v4h-6v4M6 7v4h6M12 2v20M3 21h18" />, 1.5);
+
+export const ChurchAppLogo = svg(
+  <>
+    <path d="M10 9h4" />
+    <path d="M12 7v5" />
+    <path d="M8 22V10.51a2 2 0 0 1 .53-1.36L12 6l3.47 3.15a2 2 0 0 1 .53 1.36V22" />
+    <path d="M4 22V13.51a2 2 0 0 1 .53-1.36L8 9" />
+    <path d="M20 22V13.51a2 2 0 0 0-.53-1.36L16 9" />
+    <path d="M3 22h18" />
+    <path d="M10 16a2 2 0 0 1 4 0v6h-4v-6Z" />
+  </>,
+  1.5
+);
+
+export const MusicIcon = svg(
+  <>
+    <path d="M9 18V5l12-2v13" />
+    <circle cx="6" cy="18" r="3" />
+    <circle cx="18" cy="16" r="3" />
+  </>,
+  1.5
+);
+export const CoinsIcon = svg(
+  <>
+    <circle cx="8" cy="8" r="6" />
+    <path d="M18.09 10.37A6 6 0 1 1 10.34 18" />
+    <path d="M7 6h1v4" />
+    <path d="m16.71 13.88.7.71-2.82 2.82" />
+  </>,
+  1.5
+);
+
+// Home
+export const HomeIcon = svg(<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />, 1.5);
+export const ShoppingCartIcon = svg(
+  <>
+    <circle cx="9" cy="21" r="1" />
+    <circle cx="20" cy="21" r="1" />
+    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+  </>,
+  1.5
+);
+
+// Personal
+export const BrainIcon = svg(
+  <>
+    <path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z" />
+    <path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z" />
+    <path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4" />
+    <path d="M17.599 6.5A3 3 0 0 0 13.6 4.6" />
+    <path d="M6.401 6.5A3 3 0 0 1 10.4 4.6" />
+    <path d="M6.082 16H4a2 2 0 0 1-2-2v-1" />
+    <path d="M17.918 16H20a2 2 0 0 0 2-2v-1" />
+    <path d="M12 20v2" />
+    <path d="M12 18v-2" />
+  </>,
+  1.5
+);
+export const TargetIcon = svg(
+  <>
+    <circle cx="12" cy="12" r="10" />
+    <circle cx="12" cy="12" r="6" />
+    <circle cx="12" cy="12" r="2" />
+  </>,
+  1.5
+);
+export const DiamondIcon = svg(<path d="M6 3h12l4 6-10 13L2 9z" />, 1.5);
+
+// Business
+export const PackageIcon = svg(
+  <>
+    <line x1="16.5" y1="9.4" x2="7.5" y2="4.21" />
+    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+    <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+    <line x1="12" y1="22.08" x2="12" y2="12" />
+  </>,
+  1.5
+);
+export const BriefcaseIcon = svg(
+  <>
+    <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+  </>,
+  1.5
+);
+
+// Playback
+export const MicIcon = svg(
+  <>
+    <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+    <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+    <line x1="12" y1="19" x2="12" y2="22" />
+  </>,
+  1.5
+);
+export const KeyboardIcon = svg(
+  <>
+    <rect x="2" y="6" width="20" height="12" rx="2" />
+    <path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M6 14h.01M10 14h.01M14 14h.01M18 14h.01M10 18h4" />
+  </>,
+  1.5
+);
+export const SpeakerIcon = svg(
+  <>
+    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+    <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
+  </>,
+  1.5
+);
+
+// Default
+export const GlobeIcon = svg(
+  <>
+    <circle cx="12" cy="12" r="10" />
+    <line x1="2" y1="12" x2="22" y2="12" />
+    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+  </>,
+  1.5
+);
+export const LightningIcon = svg(<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />, 1.5);
+
+// ── App Logos (Source of Truth) ────────────────────────────────────────────────
+
+export const HomeAppLogo = HomeIcon;
+export const PersonalAppLogo = BrainIcon;
+export const WorkAppLogo = BriefcaseIcon;
+export const AdminAppLogo = ShieldIcon;
+export const PlaybackAppLogo = SpeakerIcon;
+export const PresentationAppLogo = svg(
+  <>
+    <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+    <line x1="8" y1="21" x2="16" y2="21" />
+    <line x1="12" y1="17" x2="12" y2="21" />
+  </>,
+  1.5
+);

@@ -5,7 +5,7 @@
  * and session activity tracking.
  */
 
-import { getCurrentAppConfig } from "../config/appConfigs.ts";
+import { getCurrentAppConfig } from "../config/appConfigs";
 import {
   getCachedDeviceFingerprint,
   setCachedDeviceFingerprint,

@@ -182,7 +182,7 @@ const SecurityDashboard = ({
             <div className="ml-auto">
               <button
                 onClick={loadSecurityData}
-                className="bg-red-100 hover:bg-red-200 text-red-800 px-3 py-1 rounded text-sm font-medium transition-colors"
+                className="bg-red-100 hover:bg-red-200 text-red-800 px-3 py-1 rounded text-sm font-medium transition-colors cursor-pointer"
               >
                 Retry
               </button>
@@ -226,7 +226,7 @@ const SecurityDashboard = ({
           {/* Manual Refresh */}
           <button
             onClick={loadSecurityData}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer"
           >
             Refresh
           </button>

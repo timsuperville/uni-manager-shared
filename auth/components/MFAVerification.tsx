@@ -270,7 +270,7 @@ const MFAVerification = ({
       <div className="text-center">
         <button
           onClick={switchToBackupMode}
-          className="text-sm text-blue-600 hover:text-blue-800 underline"
+          className="text-sm text-blue-600 hover:text-blue-800 underline cursor-pointer"
         >
           Use backup code instead
         </button>
@@ -309,7 +309,7 @@ const MFAVerification = ({
       <div className="text-center space-y-2">
         <button
           onClick={switchToTOTPMode}
-          className="text-sm text-blue-600 hover:text-blue-800 underline"
+          className="text-sm text-blue-600 hover:text-blue-800 underline cursor-pointer"
         >
           Use authenticator app instead
         </button>
@@ -417,7 +417,7 @@ const MFAVerification = ({
             <button
               onClick={handleVerification}
               disabled={!canSubmit() || remainingAttempts === 0}
-              className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+              className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed transition-colors font-medium"
             >
               {isVerifying ? (
                 <div className="flex items-center justify-center space-x-2">
@@ -435,7 +435,7 @@ const MFAVerification = ({
 
             <button
               onClick={onCancel}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer disabled:cursor-not-allowed"
               disabled={isVerifying}
             >
               Cancel

@@ -3,7 +3,7 @@ import { useAuth } from "../context/AuthContext.tsx";
 import { useNavigate, useLocation } from "react-router-dom";
 import MFAVerification from "./MFAVerification";
 import MFASetup from "./MFASetup";
-import { getCurrentAppConfig } from "../config/appConfigs.ts";
+import { getCurrentAppConfig } from "../config/appConfigs";
 import { validateEmail } from "../utils/authValidation.ts";
 import {
   AuthContainer,
@@ -17,10 +17,11 @@ import {
   PasswordToggleButton,
 } from "./_authUI";
 import { textAccent, textSecondary, textMuted } from "../../styles/styleUtils.ts";
+import { KeyIcon } from "../../components/icons";
 
 // Default UI config for unknown/unregistered appTypes
 const DEFAULT_UI = {
-  icon: "🔑",
+  icon: <KeyIcon size={40} className="mx-auto" />,
   loginTitle: "Sign In",
   loginDescription: "Sign in to your account",
   registerPath: "/auth/register",
@@ -276,7 +277,7 @@ export function LoginForm({
       <AuthCardContent>
         {/* Card header */}
         <div className="text-center mb-6 sm:mb-8">
-          <div className="text-4xl sm:text-5xl mb-3 sm:mb-4" aria-hidden="true">
+          <div className="flex justify-center mb-3 sm:mb-4 text-gray-900 dark:text-white" aria-hidden="true">
             {ui.icon}
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">
@@ -346,7 +347,7 @@ export function LoginForm({
           <div className="-mt-3 flex justify-end">
             <button
               type="button"
-              className="text-xs font-medium hover:underline focus:outline-none"
+              className="text-xs font-medium hover:underline focus:outline-none cursor-pointer"
               style={textAccent}
               onClick={() => navigate("/auth/forgot-password")}
             >
@@ -400,7 +401,7 @@ export function LoginForm({
               {"Don't have an account? "}
               <button
                 type="button"
-                className="font-semibold hover:underline focus:outline-none"
+                className="font-semibold hover:underline focus:outline-none cursor-pointer"
                 style={textAccent}
                 onClick={() => navigate(ui.registerPath)}
               >

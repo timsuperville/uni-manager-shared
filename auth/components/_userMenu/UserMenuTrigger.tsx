@@ -4,7 +4,7 @@ import { ChevronDown, WifiOff } from "lucide-react";
 import { UserAvatar } from "../../../components/ui";
 import { getUserDisplayName } from "../../../utils";
 import type { User } from "../../types/auth.types.ts";
-import type { AppConfig } from "../../config/appConfigs.ts";
+import type { AppConfig } from "../../config/appConfigs";
 
 interface UserMenuTriggerProps {
   buttonRef: React.RefObject<HTMLButtonElement>;

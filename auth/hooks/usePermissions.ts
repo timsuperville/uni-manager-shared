@@ -1,5 +1,5 @@
 import { useAuth } from "../context/AuthContext.tsx";
-import { getCurrentAppConfig } from "../config/appConfigs.ts";
+import { getCurrentAppConfig } from "../config/appConfigs";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 

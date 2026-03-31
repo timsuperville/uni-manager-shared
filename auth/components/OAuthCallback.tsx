@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.tsx";
-import { getCurrentAppConfig } from "../config/appConfigs.ts";
+import { getCurrentAppConfig } from "../config/appConfigs";
 
 type CallbackStatus = "processing" | "success" | "error";
 
@@ -122,14 +122,14 @@ const OAuthCallback = ({ onSuccess, onError, redirectPath = "/" }: OAuthCallback
             <div className="space-y-4">
               <button
                 onClick={() => navigate("/auth/login")}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2"
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer"
                 style={{ backgroundColor: brandColor }}
               >
                 Back to Login
               </button>
               <button
                 onClick={() => navigate("/")}
-                className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2"
+                className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer"
               >
                 Go Home
               </button>

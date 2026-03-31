@@ -38,7 +38,7 @@ import { useLocation } from "react-router-dom";
 
 import { useAuth } from "../context/AuthContext.tsx";
 import { PresenceContext } from "../../context/PresenceContext";
-import { getCurrentAppConfig } from "../config/appConfigs.ts";
+import { getCurrentAppConfig } from "../config/appConfigs";
 import { formatRole } from "../../utils";
 import UserMenuSkeleton from "../../components/skeletons/UserMenuSkeleton";
 

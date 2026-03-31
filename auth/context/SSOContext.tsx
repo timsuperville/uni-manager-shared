@@ -5,13 +5,21 @@ import React, {
   useCallback,
   useEffect,
 } from "react";
+import {
+  ChurchIcon,
+  LockIcon,
+  BriefcaseIcon,
+  HomeIcon,
+  UserIcon,
+  SpeakerIcon
+} from "../../components/icons";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 interface AppInfo {
   id: string;
   name: string;
-  icon: string;
+  icon: React.ReactNode;
   [key: string]: unknown;
 }
 
@@ -69,12 +77,12 @@ const initialState: SSOState = {
 };
 
 const DEFAULT_APPS: AppInfo[] = [
-  { id: "church", name: "Church", icon: "⛪" },
-  { id: "admin", name: "Administration", icon: "🔧" },
-  { id: "business", name: "Business", icon: "💼" },
-  { id: "home", name: "Home Services", icon: "🏠" },
-  { id: "personal", name: "Personal", icon: "👤" },
-  { id: "playback", name: "Playback", icon: "▶️" },
+  { id: "church", name: "Church", icon: <ChurchIcon size={18} /> },
+  { id: "admin", name: "Administration", icon: <LockIcon size={18} /> },
+  { id: "business", name: "Business", icon: <BriefcaseIcon size={18} /> },
+  { id: "home", name: "Home Services", icon: <HomeIcon size={18} /> },
+  { id: "personal", name: "Personal", icon: <UserIcon size={18} /> },
+  { id: "playback", name: "Playback", icon: <SpeakerIcon size={18} /> },
 ];
 
 function ssoReducer(state: SSOState, action: SSOAction): SSOState {

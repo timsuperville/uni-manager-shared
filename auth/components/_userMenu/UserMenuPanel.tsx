@@ -10,7 +10,7 @@ import { DROPDOWN_W } from "./positionUtils";
 import type { DropdownCoords } from "./positionUtils";
 import { getUserDisplayName } from "../../../utils";
 import type { User } from "../../types/auth.types.ts";
-import type { AppConfig } from "../../config/appConfigs.ts";
+import type { AppConfig } from "../../config/appConfigs";
 
 interface UserMenuPanelProps {
   panelRef: React.RefObject<HTMLDivElement>;

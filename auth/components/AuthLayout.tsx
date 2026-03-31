@@ -12,19 +12,27 @@
  *
  * @see docs/developer/LIQUID_GLASS_SPEC.md
  * @see docs/product/06-ux-design.md
- * @see frontend/shared/auth/config/appConfigs.ts
+ * @see frontend/shared/auth/config/appConfigs
  */
 import React from "react";
-import { getCurrentAppConfig } from "../config/appConfigs.ts";
+import { getCurrentAppConfig } from "../config/appConfigs";
 import { AuthShellContext } from "./_authUI/AuthContainer.tsx";
 import { ThemeToggle } from "../../components/ThemeToggle";
+import {
+  ChurchIcon, MusicIcon, CoinsIcon,
+  HomeIcon, ShoppingCartIcon, UsersIcon,
+  BrainIcon, TargetIcon, DiamondIcon,
+  BarChartIcon, PackageIcon, BriefcaseIcon,
+  MicIcon, KeyboardIcon, SpeakerIcon,
+  LockIcon, GlobeIcon, LightningIcon
+} from "../../components/icons";
 
 // ─── Per-app Visual Identity Fencing ──────────────────────────────────────────
 
 type AppType = "church" | "home" | "personal" | "business" | "playback" | "default";
 
 interface PillarItem {
-  icon: string;
+  icon: React.ReactNode;
   label: string;
 }
 
@@ -45,9 +53,9 @@ const APP_IDENTITY: Record<AppType, AppIdentity> = {
     glowColor: "rgba(139, 92, 246, 0.25)",
     accentLight: "rgba(167, 139, 250, 0.15)",
     pillars: [
-      { icon: "⛪", label: "Member & Ministry Management" },
-      { icon: "🎵", label: "Liturgical Scheduling & Playback" },
-      { icon: "💰", label: "Tithing & Fiduciary Stewardship" },
+      { icon: <ChurchIcon size={22} />, label: "Member & Ministry Management" },
+      { icon: <MusicIcon size={22} />, label: "Liturgical Scheduling & Playback" },
+      { icon: <CoinsIcon size={22} />, label: "Tithing & Fiduciary Stewardship" },
     ],
   },
   home: {
@@ -57,9 +65,9 @@ const APP_IDENTITY: Record<AppType, AppIdentity> = {
     glowColor: "rgba(245, 158, 11, 0.25)",
     accentLight: "rgba(252, 211, 77, 0.15)",
     pillars: [
-      { icon: "🏠", label: "Household & Asset Management" },
-      { icon: "🛒", label: "Budget, Pantry & Meal Planning" },
-      { icon: "👨‍👩‍👧", label: "Family Scheduling & Messaging" },
+      { icon: <HomeIcon size={22} />, label: "Household & Asset Management" },
+      { icon: <ShoppingCartIcon size={22} />, label: "Budget, Pantry & Meal Planning" },
+      { icon: <UsersIcon size={22} />, label: "Family Scheduling & Messaging" },
     ],
   },
   personal: {
@@ -69,9 +77,9 @@ const APP_IDENTITY: Record<AppType, AppIdentity> = {
     glowColor: "rgba(139, 92, 246, 0.25)",
     accentLight: "rgba(165, 180, 252, 0.15)",
     pillars: [
-      { icon: "🧠", label: "Second Brain & Deep Work" },
-      { icon: "🎯", label: "Habits, Goals & Journal" },
-      { icon: "💎", label: "Personal Finance & Identity" },
+      { icon: <BrainIcon size={22} />, label: "Second Brain & Deep Work" },
+      { icon: <TargetIcon size={22} />, label: "Habits, Goals & Journal" },
+      { icon: <DiamondIcon size={22} />, label: "Personal Finance & Identity" },
     ],
   },
   business: {
@@ -81,9 +89,9 @@ const APP_IDENTITY: Record<AppType, AppIdentity> = {
     glowColor: "rgba(16, 185, 129, 0.25)",
     accentLight: "rgba(110, 231, 183, 0.15)",
     pillars: [
-      { icon: "📈", label: "CRM & Pipeline Intelligence" },
-      { icon: "📦", label: "Inventory & Operations" },
-      { icon: "💼", label: "Finance & Team Management" },
+      { icon: <BarChartIcon size={22} />, label: "CRM & Pipeline Intelligence" },
+      { icon: <PackageIcon size={22} />, label: "Inventory & Operations" },
+      { icon: <BriefcaseIcon size={22} />, label: "Finance & Team Management" },
     ],
   },
   playback: {
@@ -93,9 +101,9 @@ const APP_IDENTITY: Record<AppType, AppIdentity> = {
     glowColor: "rgba(244, 63, 94, 0.25)",
     accentLight: "rgba(251, 146, 60, 0.12)",
     pillars: [
-      { icon: "🎤", label: "Live Multitrack Performance" },
-      { icon: "🎹", label: "MIDI & Stage Automation" },
-      { icon: "🔊", label: "In-Ear Monitor & Stem Control" },
+      { icon: <MicIcon size={22} />, label: "Live Multitrack Performance" },
+      { icon: <KeyboardIcon size={22} />, label: "MIDI & Stage Automation" },
+      { icon: <SpeakerIcon size={22} />, label: "In-Ear Monitor & Stem Control" },
     ],
   },
   default: {
@@ -105,9 +113,9 @@ const APP_IDENTITY: Record<AppType, AppIdentity> = {
     glowColor: "rgba(99, 102, 241, 0.25)",
     accentLight: "rgba(165, 180, 252, 0.15)",
     pillars: [
-      { icon: "🔐", label: "Secure, unified identity" },
-      { icon: "🌐", label: "Six specialized life contexts" },
-      { icon: "⚡", label: "Sub-second resonance" },
+      { icon: <LockIcon size={22} />, label: "Secure, unified identity" },
+      { icon: <GlobeIcon size={22} />, label: "Six specialized life contexts" },
+      { icon: <LightningIcon size={22} />, label: "Sub-second resonance" },
     ],
   },
 };

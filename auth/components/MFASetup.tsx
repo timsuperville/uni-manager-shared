@@ -240,7 +240,7 @@ const MFASetup = ({ onSetupComplete, onCancel, className = "" }: MFASetupProps) 
                     <code className="text-sm font-mono break-all">{setupData.manualEntryKey}</code>
                     <button
                       onClick={() => handleCopyToClipboard(setupData.manualEntryKey, "manual-key")}
-                      className="ml-2 p-2 text-gray-500 hover:text-gray-700 transition-colors"
+                      className="ml-2 p-2 text-gray-500 hover:text-gray-700 transition-colors cursor-pointer"
                       title="Copy to clipboard"
                     >
                       {copiedStates["manual-key"] ? (
@@ -300,7 +300,7 @@ const MFASetup = ({ onSetupComplete, onCancel, className = "" }: MFASetupProps) 
           <div className="flex justify-center space-x-4">
             <button
               onClick={onCancel}
-              className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+              className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer disabled:cursor-not-allowed"
               disabled={isVerifying}
             >
               Cancel
@@ -308,7 +308,7 @@ const MFASetup = ({ onSetupComplete, onCancel, className = "" }: MFASetupProps) 
             <button
               onClick={verifyAndEnableMFA}
               disabled={verificationToken.length !== 6 || isVerifying}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed transition-colors"
             >
               {isVerifying ? (
                 <div className="flex items-center space-x-2">
@@ -352,7 +352,7 @@ const MFASetup = ({ onSetupComplete, onCancel, className = "" }: MFASetupProps) 
               <h3 className="text-lg font-medium text-gray-900">Backup Recovery Codes</h3>
               <button
                 onClick={() => setShowBackupCodes(!showBackupCodes)}
-                className="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-800"
+                className="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-800 cursor-pointer"
               >
                 {showBackupCodes ? <EyeOff size={16} /> : <Eye size={16} />}
                 <span>{showBackupCodes ? "Hide" : "Show"} Codes</span>
@@ -370,7 +370,7 @@ const MFASetup = ({ onSetupComplete, onCancel, className = "" }: MFASetupProps) 
                       <code className="font-mono text-sm">{code}</code>
                       <button
                         onClick={() => handleCopyToClipboard(code, `code-${index}`)}
-                        className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+                        className="p-1 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
                         title="Copy code"
                       >
                         {copiedStates[`code-${index}`] ? (
@@ -386,14 +386,14 @@ const MFASetup = ({ onSetupComplete, onCancel, className = "" }: MFASetupProps) 
                 <div className="flex justify-center space-x-4 mt-6">
                   <button
                     onClick={() => handleCopyToClipboard(setupData.backupCodes!.join("\n"), "all-codes")}
-                    className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                    className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
                   >
                     {copiedStates["all-codes"] ? <Check size={16} /> : <Copy size={16} />}
                     <span>Copy All</span>
                   </button>
                   <button
                     onClick={downloadBackupCodes}
-                    className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors cursor-pointer"
                   >
                     <Download size={16} />
                     <span>Download</span>
@@ -407,7 +407,7 @@ const MFASetup = ({ onSetupComplete, onCancel, className = "" }: MFASetupProps) 
         <div className="flex justify-center">
           <button
             onClick={completeSetup}
-            className="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+            className="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium cursor-pointer"
           >
             I&apos;ve Saved My Backup Codes
           </button>
@@ -466,7 +466,7 @@ const MFASetup = ({ onSetupComplete, onCancel, className = "" }: MFASetupProps) 
             <div className="mt-3">
               <button
                 onClick={initializeMFASetup}
-                className="text-sm text-red-600 hover:text-red-800 underline"
+                className="text-sm text-red-600 hover:text-red-800 underline cursor-pointer"
               >
                 Try Again
               </button>

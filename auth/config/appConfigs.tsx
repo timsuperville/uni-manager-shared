@@ -4,7 +4,16 @@
  * Each app has its own branding and API endpoints while maintaining consistent UX.
  */
 
+import React from "react";
 import { getApiBaseUrl } from "../../api/config/apiConfig.ts";
+import {
+  ChurchAppLogo,
+  AdminAppLogo,
+  WorkAppLogo,
+  HomeAppLogo,
+  PersonalAppLogo,
+  PlaybackAppLogo,
+} from "../../components/icons";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -57,7 +66,7 @@ export interface AppBranding {
 }
 
 export interface AppUI {
-  icon: string;
+  icon: React.ReactNode;
   loginTitle: string;
   loginDescription: string;
   registerPath: string;
@@ -88,10 +97,10 @@ const BASE_API_URL = getApiBaseUrl();
 
 export const APP_CONFIGS: Record<AppName, AppConfig> = {
   church: {
-    appName: "Ecclesia — Church Manager",
+    appName: "Ecclesia",
     brandColor: "violet",
-    logo: "/church-logo.png",
-    favicon: "/church-favicon.ico",
+    logo: "/favicon.svg",
+    favicon: "/favicon.svg",
     apiEndpoints: {
       login: `${BASE_API_URL}/api/v1/auth/login`,
       signup: `${BASE_API_URL}/api/v1/auth/signup`,
@@ -133,7 +142,7 @@ export const APP_CONFIGS: Record<AppName, AppConfig> = {
       accentColor: "accent-violet-600",
     },
     ui: {
-      icon: "⛪",
+      icon: <ChurchAppLogo size={40} style={{ color: "rgb(124, 58, 237)" }} sw={2} />,
       loginTitle: "Ecclesia",
       loginDescription: "Sign in to your church community",
       registerPath: "/auth/register",
@@ -143,8 +152,8 @@ export const APP_CONFIGS: Record<AppName, AppConfig> = {
   admin: {
     appName: "Admin Portal",
     brandColor: "red",
-    logo: "/admin-logo.png",
-    favicon: "/admin-favicon.ico",
+    logo: "/favicon.svg",
+    favicon: "/favicon.svg",
     apiEndpoints: {
       login: `${BASE_API_URL}/api/v1/auth/login`,
       signup: `${BASE_API_URL}/api/v1/auth/signup`,
@@ -185,7 +194,7 @@ export const APP_CONFIGS: Record<AppName, AppConfig> = {
       accentColor: "accent-slate-600",
     },
     ui: {
-      icon: "🔐",
+      icon: <AdminAppLogo size={40} style={{ color: "rgb(71, 85, 105)" }} sw={2} />,
       loginTitle: "Admin Portal Access",
       loginDescription: "Sign in to access the administrative dashboard",
       registerPath: "/auth/register",
@@ -195,8 +204,8 @@ export const APP_CONFIGS: Record<AppName, AppConfig> = {
   business: {
     appName: "Business Manager",
     brandColor: "emerald",
-    logo: "/business-logo.png",
-    favicon: "/business-favicon.ico",
+    logo: "/favicon.svg",
+    favicon: "/favicon.svg",
     apiEndpoints: {
       login: `${BASE_API_URL}/api/v1/auth/login`,
       signup: `${BASE_API_URL}/api/v1/auth/signup`,
@@ -237,7 +246,7 @@ export const APP_CONFIGS: Record<AppName, AppConfig> = {
       accentColor: "accent-emerald-500",
     },
     ui: {
-      icon: "💼",
+      icon: <WorkAppLogo size={40} style={{ color: "rgb(16, 185, 129)" }} sw={2} />,
       loginTitle: "Business Portal",
       loginDescription: "Access your business management tools",
       registerPath: "/auth/register",
@@ -247,8 +256,8 @@ export const APP_CONFIGS: Record<AppName, AppConfig> = {
   home: {
     appName: "Home Hub",
     brandColor: "amber",
-    logo: "/home-logo.png",
-    favicon: "/home-favicon.ico",
+    logo: "/favicon.svg",
+    favicon: "/favicon.svg",
     apiEndpoints: {
       login: `${BASE_API_URL}/api/v1/auth/login`,
       signup: `${BASE_API_URL}/api/v1/auth/signup`,
@@ -284,7 +293,7 @@ export const APP_CONFIGS: Record<AppName, AppConfig> = {
       accentColor: "accent-amber-500",
     },
     ui: {
-      icon: "🏠",
+      icon: <HomeAppLogo size={40} style={{ color: "rgb(245, 158, 11)" }} sw={2} />,
       loginTitle: "Home Management",
       loginDescription: "Manage your household and family activities",
       registerPath: "/auth/register",
@@ -294,8 +303,8 @@ export const APP_CONFIGS: Record<AppName, AppConfig> = {
   personal: {
     appName: "Personal Dashboard",
     brandColor: "purple",
-    logo: "/personal-logo.png",
-    favicon: "/personal-favicon.ico",
+    logo: "/favicon.svg",
+    favicon: "/favicon.svg",
     apiEndpoints: {
       login: `${BASE_API_URL}/api/v1/auth/login`,
       signup: `${BASE_API_URL}/api/v1/auth/signup`,
@@ -336,7 +345,7 @@ export const APP_CONFIGS: Record<AppName, AppConfig> = {
       accentColor: "accent-purple-500",
     },
     ui: {
-      icon: "👤",
+      icon: <PersonalAppLogo size={40} style={{ color: "rgb(168, 85, 247)" }} sw={2} />,
       loginTitle: "Personal Dashboard",
       loginDescription: "Access your personal productivity tools",
       registerPath: "/auth/register",
@@ -346,8 +355,8 @@ export const APP_CONFIGS: Record<AppName, AppConfig> = {
   playback: {
     appName: "Media Player",
     brandColor: "rose",
-    logo: "/playback-logo.png",
-    favicon: "/playback-favicon.ico",
+    logo: "/favicon.svg",
+    favicon: "/favicon.svg",
     apiEndpoints: {
       login: `${BASE_API_URL}/api/v1/auth/login`,
       signup: `${BASE_API_URL}/api/v1/auth/signup`,
@@ -389,7 +398,7 @@ export const APP_CONFIGS: Record<AppName, AppConfig> = {
       accentColor: "accent-rose-500",
     },
     ui: {
-      icon: "🎵",
+      icon: <PlaybackAppLogo size={40} style={{ color: "rgb(244, 63, 94)" }} sw={2} />,
       loginTitle: "Media Playback",
       loginDescription: "Control and manage media playback",
       registerPath: "/auth/register",

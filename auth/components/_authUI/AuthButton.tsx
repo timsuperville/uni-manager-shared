@@ -36,7 +36,7 @@ export const AuthButton = ({
   className = "",
 }: AuthButtonProps) => {
   const base =
-    "inline-flex items-center justify-center px-4 py-3 sm:py-3.5 border border-transparent text-sm sm:text-base font-semibold rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-200 disabled:opacity-60 transform active:scale-[0.98]";
+    "inline-flex items-center justify-center px-4 py-3 sm:py-3.5 border border-transparent text-sm sm:text-base font-semibold rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-200 disabled:opacity-60 transform active:scale-[0.98] cursor-pointer disabled:cursor-not-allowed";
 
   const variants: Record<ButtonVariant, string> = {
     primary: "", // style applied inline below for CSS-var fidelity

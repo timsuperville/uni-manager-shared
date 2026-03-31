@@ -11,7 +11,7 @@ import {
   generateNonce,
   generateState,
 } from "../config/oauthProviders.ts";
-import { getCurrentAppConfig } from "../config/appConfigs.ts";
+import { getCurrentAppConfig } from "../config/appConfigs";
 import { trackUserActivity } from "../utils/socialAuth.ts";
 
 // ── Types ─────────────────────────────────────────────────────────────────────

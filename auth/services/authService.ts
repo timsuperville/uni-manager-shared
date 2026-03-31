@@ -16,7 +16,7 @@ import {
   generateNonce,
   generateState,
 } from "../config/oauthProviders.ts";
-import { getCurrentAppConfig } from "../config/appConfigs.ts";
+import { getCurrentAppConfig } from "../config/appConfigs";
 import { TokenStorage } from "../utils/TokenStorage.ts";
 import { validateCredentials } from "../utils/authValidation.ts";
 import { getApiBaseUrl } from "../../api/config/apiConfig.ts";

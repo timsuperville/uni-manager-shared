@@ -33,7 +33,7 @@ export const PasswordToggleButton = ({ visible, onToggle, ariaLabel }: PasswordT
     type="button"
     aria-label={ariaLabel ?? (visible ? "Hide password" : "Show password")}
     onClick={onToggle}
-    className="text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400 transition-colors focus:outline-none"
+    className="text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400 transition-colors focus:outline-none cursor-pointer"
   >
     {visible ? <EyeIcon /> : <EyeOffIcon />}
   </button>
