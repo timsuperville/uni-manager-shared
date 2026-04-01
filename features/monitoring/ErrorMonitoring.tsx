@@ -28,11 +28,12 @@ declare global {
 const isProd = (import.meta.env?.MODE || "development") === "production";
 const isStaging = (import.meta.env?.MODE || "development") === "staging";
 
+import { getApiBaseUrl } from "../../api/config/apiConfig";
+
 // ── Ingest endpoints ──────────────────────────────────────────────────────────
-// Intentionally RELATIVE — Vite proxy routes /api/v1 → backend in dev,
-// nginx routes in prod. See frontend/vite-proxy.js and shared/api/config/apiConfig.ts.
-const INGEST_ERRORS = "/api/v1/infra/errors/log";
-const INGEST_FEEDBACK = "/api/v1/integrations/feedback";
+// Support remote hosts explicitly if VITE_API_URL is configured
+const INGEST_ERRORS = `${getApiBaseUrl()}/api/v1/infra/errors/log`;
+const INGEST_FEEDBACK = `${getApiBaseUrl()}/api/v1/integrations/feedback`;
 
 // ErrorBoundary — canonical unified component. Re-exported here so any code
 // that still imports from this module continues to work.
@@ -457,7 +458,7 @@ export const setupOfflineFlush = () => {
 
 // ── Performance monitoring ────────────────────────────────────────────────────
 const sendToAnalytics = (metric: any) => {
-  fetch("/analytics/web-vitals", {
+  fetch(`${getApiBaseUrl()}/analytics/web-vitals`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -557,7 +558,9 @@ export const setupHealthCheck = () => {
 
   const intervalId = setInterval(async () => {
     try {
-      const res = await fetch("/health", { cache: "no-store" });
+      const res = await fetch(`${getApiBaseUrl()}/health`, {
+        cache: "no-store",
+      });
       if (!res.ok) {
         reportHealthFailure(`HTTP ${res.status}`, res.status);
       }
