@@ -373,8 +373,12 @@ export const installFetchInterceptor = () => {
 
   window.fetch = async function interceptedFetch(...args: any[]) {
     const url = typeof args[0] === "string" ? args[0] : (args[0]?.url ?? "");
-    // Monitoring endpoints excluded to prevent feedback loops
-    const isMonitoringCall = /\/api\/v1\/(errors|feedback)\//.test(url);
+    // Monitoring + health endpoints excluded to prevent feedback loops.
+    // /health failures are owned exclusively by setupHealthCheck (which applies
+    // grace periods and consecutive-failure thresholds before logging).
+    const isMonitoringCall =
+      /\/api\/v1\/(errors|feedback)\//.test(url) ||
+      /\/health(\?|$)/.test(url);
 
     let response;
     try {
@@ -532,10 +536,26 @@ export const setupHealthCheck = () => {
       ? "development"
       : "production";
 
+  // Grace period: don't log any failures for the first 60 seconds after the
+  // page loads. This suppresses the wave of errors that occur during rolling
+  // deployments (backend restart window) and cold-start scenarios.
+  const startupDeadline = Date.now() + 60_000;
+
+  // Consecutive failure counter: only log to the DB after 2 back-to-back
+  // failures so a single blip (brief network hiccup) is not persisted.
+  let consecutiveFailures = 0;
+  const FAILURE_THRESHOLD = 2;
+
   const reportHealthFailure = (
     reason: string,
     statusCode: number | null = null,
   ) => {
+    // Still within startup grace period — silently skip.
+    if (Date.now() < startupDeadline) return;
+
+    consecutiveFailures++;
+    if (consecutiveFailures < FAILURE_THRESHOLD) return;
+
     fetch(INGEST_ERRORS, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -549,7 +569,7 @@ export const setupHealthCheck = () => {
         timestamp: new Date().toISOString(),
         url: window.location.href,
         path: window.location.pathname,
-        meta: { statusCode, reason },
+        meta: { statusCode, reason, consecutiveFailures },
       }),
     }).catch(() => {
       /* still failing — don't loop */
@@ -561,7 +581,10 @@ export const setupHealthCheck = () => {
       const res = await fetch(`${getApiBaseUrl()}/health`, {
         cache: "no-store",
       });
-      if (!res.ok) {
+      if (res.ok) {
+        // Reset counter on recovery so a subsequent failure restarts the threshold
+        consecutiveFailures = 0;
+      } else {
         reportHealthFailure(`HTTP ${res.status}`, res.status);
       }
     } catch (err: unknown) {
