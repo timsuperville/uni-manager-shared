@@ -33,11 +33,7 @@ import("../features/monitoring/ErrorMonitoring.jsx")
 // ── Ingest endpoints ──────────────────────────────────────────────────────────
 // Resolve VITE_API_URL at module init time — same pattern as ErrorMonitoring.tsx.
 // Falls back to "" (relative) in local dev where the Vite proxy handles routing.
-const _apiOrigin: string =
-  (typeof import.meta !== "undefined" &&
-    (import.meta as Record<string, unknown>).env &&
-    ((import.meta as Record<string, unknown>).env as Record<string, string>).VITE_API_URL) ||
-  "";
+const _apiOrigin: string = (import.meta as any).env?.VITE_API_URL ?? "";
 const INGEST_ERRORS   = `${_apiOrigin}/api/v1/infra/errors/log`;
 const INGEST_FEEDBACK = `${_apiOrigin}/api/v1/integrations/feedback`;
 
