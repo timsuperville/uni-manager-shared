@@ -19,6 +19,7 @@ import { useOptionalUser } from "./hooks/useOptionalUser";
 import { collectSystemContext } from "./utils/collectSystemContext";
 import type { FeedbackUser } from "./utils/collectSystemContext";
 import { useFrustrationDetector } from "../../hooks/useFrustrationDetector.js";
+import { getApiBaseUrl } from "../../api/config/apiConfig";
 
 // ─── Schema field limits (must match FeedbackReport Mongoose schema) ──────────
 // Enforced here at the network boundary so no caller can overflow regardless
@@ -91,7 +92,7 @@ export async function submitFeedbackSilently({
     const systemCtx = collectSystemContext(appName, user ?? null);
     systemCtx.source = resolveSource(source);
 
-    await fetch("/api/v1/integrations/feedback", {
+    await fetch(`${getApiBaseUrl()}/api/v1/integrations/feedback`, {
       method: "POST",
       headers,
       body: JSON.stringify({

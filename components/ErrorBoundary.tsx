@@ -12,8 +12,10 @@
  *      would create a self-reporting loop if ApiClient itself throws.
  *   c) The monitor must survive even when ApiClient is the error source.
  *
- * Both paths are RELATIVE — Vite proxy handles dev, nginx handles prod.
- * See frontend/vite-proxy.js. Do NOT introduce VITE_API_URL here.
+ * URL resolution: VITE_API_URL is read at module-init time. On Firebase Hosting
+ * there is no server-side proxy, so a relative path would resolve to the frontend
+ * host. Using the explicit origin (https://api.uni-manager.com) ensures the
+ * telemetry reaches the backend in all environments.
  */
 
 import React from "react";
@@ -29,8 +31,15 @@ import("../features/monitoring/ErrorMonitoring.jsx")
   .catch(() => { /* monitoring module unavailable — degrade gracefully */ });
 
 // ── Ingest endpoints ──────────────────────────────────────────────────────────
-const INGEST_ERRORS   = "/api/v1/errors/log";
-const INGEST_FEEDBACK = "/api/v1/integrations/feedback";
+// Resolve VITE_API_URL at module init time — same pattern as ErrorMonitoring.tsx.
+// Falls back to "" (relative) in local dev where the Vite proxy handles routing.
+const _apiOrigin: string =
+  (typeof import.meta !== "undefined" &&
+    (import.meta as Record<string, unknown>).env &&
+    ((import.meta as Record<string, unknown>).env as Record<string, string>).VITE_API_URL) ||
+  "";
+const INGEST_ERRORS   = `${_apiOrigin}/api/v1/infra/errors/log`;
+const INGEST_FEEDBACK = `${_apiOrigin}/api/v1/integrations/feedback`;
 
 // ── Environment normalisation ─────────────────────────────────────────────────
 function normaliseEnvironment(mode: string | undefined): "development" | "production" {

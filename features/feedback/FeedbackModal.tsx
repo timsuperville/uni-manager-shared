@@ -11,6 +11,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import ReactDOM from "react-dom";
 import { collectSystemContext } from "./utils/collectSystemContext";
 import type { FeedbackUser, SystemContext } from "./utils/collectSystemContext";
+import { getApiBaseUrl } from "../../api/config/apiConfig";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -133,7 +134,7 @@ function FeedbackModal({
       const reqHeaders: Record<string, string> = { "Content-Type": "application/json" };
       if (authToken) reqHeaders["Authorization"] = `Bearer ${authToken}`;
 
-      const response = await fetch("/api/v1/integrations/feedback", {
+      const response = await fetch(`${getApiBaseUrl()}/api/v1/integrations/feedback`, {
         method:  "POST",
         headers: reqHeaders,
         body:    JSON.stringify(payload),
