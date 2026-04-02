@@ -43,6 +43,7 @@ export { WidgetSkeleton, WidgetSkeletonRow, WidgetSkeletonBar, WidgetSkeletonLis
 
 // Liquid Glass form primitives (inline-style, CSS token—based)
 export { Select } from "./Select";
+export { default as Autocomplete } from "./Autocomplete";
 export { Chip, CHIP_VARIANTS } from "./Chip";
 export type { ChipProps } from "./Chip";
 export { StatusBadge, STATUS_VARIANTS } from "./StatusBadge";

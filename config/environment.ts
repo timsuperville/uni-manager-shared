@@ -15,7 +15,7 @@ export const getSharedEnvironmentConfig = () => ({
     personal: import.meta.env.VITE_PERSONAL_APP_URL || "http://localhost:5177",
     playback: import.meta.env.VITE_PLAYBACK_APP_URL || "http://localhost:5178",
     mainWebsite:
-      import.meta.env.VITE_MAIN_WEBSITE_URL || "http://localhost:3000",
+      import.meta.env.VITE_MAIN_WEBSITE_URL || "http://localhost:5172",
   },
 });
 
