@@ -299,18 +299,13 @@ export const setupGlobalErrorHandling = () => {
     const enhanced = collectAdvancedErrorContext(base);
     const headers = makeHeaders();
 
-    Promise.all([
-      fetch(INGEST_ERRORS, {
-        method: "POST",
-        headers,
-        body: JSON.stringify(enhanced),
-      }),
-      fetch(INGEST_FEEDBACK, {
-        method: "POST",
-        headers,
-        body: JSON.stringify(buildGlobalFeedbackPayload(enhanced)),
-      }),
-    ]).catch(() => {
+    // Errors from unhandled rejections are logged to ErrorLog only.
+    // FeedbackReport is reserved for real user-submitted feedback.
+    fetch(INGEST_ERRORS, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(enhanced),
+    }).catch(() => {
       /* swallow — don't loop on monitor failure */
     });
   });
@@ -342,18 +337,13 @@ export const setupGlobalErrorHandling = () => {
     const enhanced = collectAdvancedErrorContext(base);
     const headers = makeHeaders();
 
-    Promise.all([
-      fetch(INGEST_ERRORS, {
-        method: "POST",
-        headers,
-        body: JSON.stringify(enhanced),
-      }),
-      fetch(INGEST_FEEDBACK, {
-        method: "POST",
-        headers,
-        body: JSON.stringify(buildGlobalFeedbackPayload(enhanced)),
-      }),
-    ]).catch(() => {
+    // Uncaught synchronous errors are logged to ErrorLog only.
+    // FeedbackReport is reserved for real user-submitted feedback.
+    fetch(INGEST_ERRORS, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(enhanced),
+    }).catch(() => {
       /* swallow */
     });
   });
