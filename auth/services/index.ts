@@ -15,13 +15,13 @@
 // ---------------------------------------------------------------------------
 
 /** Handles login attempt tracking and exponential back-off */
-export { RateLimitService } from "./RateLimitService.ts";
+export { RateLimitService } from "./RateLimitService";
 
 /** Token lifecycle: storage delegation, JWT decode/expiry, auto-refresh */
-export { TokenManagementService } from "./TokenManagementService.ts";
+export { TokenManagementService } from "./TokenManagementService";
 
 /** Traditional email/password flows (login, signup, forgot/reset password) */
-export { EmailPasswordAuthService } from "./EmailPasswordAuthService.ts";
+export { EmailPasswordAuthService } from "./EmailPasswordAuthService";
 
 /** MFA utility helpers — phone formatting, code validation, display names */
 export {
@@ -31,27 +31,27 @@ export {
   validateSMSCode,
   formatPhoneNumber,
   type MFAMethod,
-} from "../utils/mfaUtils.ts";
+} from "../utils/mfaUtils";
 
 /** OAuth 2.0 PKCE flows */
-export { OAuthAuthService } from "./OAuthAuthService.ts";
+export { OAuthAuthService } from "./OAuthAuthService";
 
 // ---------------------------------------------------------------------------
 // Lazy-loaded exports — load on demand to keep the auth bundle lean
 // ---------------------------------------------------------------------------
 
 export function getSessionService() {
-  return import("./SessionService.ts").then((m) => m.default);
+  return import("./SessionService").then((m) => m.default);
 }
 
 export async function getAuthService() {
-  const m = await import("./AuthService.ts");
+  const m = await import("./AuthService");
   const { getApiClient } = await import("../../api");
   return new m.default(getApiClient());
 }
 
 export function getMFAService() {
-  return import("./mfaService.ts").then((m) => m.default);
+  return import("./mfaService").then((m) => m.default);
 }
 
 /**
@@ -60,21 +60,21 @@ export function getMFAService() {
  * tracked in BL-xxx.
  */
 export function getRBACService() {
-  return import("./rbacService.ts").then((m) => m.default);
+  return import("./rbacService").then((m) => m.default);
 }
 
 export function getSecurityService() {
-  return import("./securityService.ts").then((m) => m.default);
+  return import("./securityService").then((m) => m.default);
 }
 
 export function getDeviceService() {
-  return import("./DeviceService.ts").then((m) => m.default);
+  return import("./DeviceService").then((m) => m.default);
 }
 
 export function getCacheService() {
-  return import("./sharedDataCache.ts").then((m) => m.default);
+  return import("./sharedDataCache").then((m) => m.default);
 }
 
 export function getCrossAppService() {
-  return import("./CrossAppService.ts").then((m) => m.default);
+  return import("./CrossAppService").then((m) => m.default);
 }

@@ -20,42 +20,37 @@ export {
   useAuth,
   AuthContext,
   type AuthStateChangePayload,
-} from "./context/AuthContext.tsx";
-export { withAuth, AuthContextProvider } from "./context/index.ts";
-export {
-  SSOContext,
-  SSOProvider,
-  useSSO,
-  withSSO,
-} from "./context/SSOContext.tsx";
+} from "./context/AuthContext";
+export { withAuth, AuthContextProvider } from "./context/index";
+export { SSOContext, SSOProvider, useSSO, withSSO } from "./context/SSOContext";
 export {
   RealTimeSecurityProvider,
   useRealTimeSecurity,
-} from "./context/RealTimeSecurityContext.tsx";
+} from "./context/RealTimeSecurityContext";
 
 // ── Hooks ─────────────────────────────────────────────────────────────────────
 
 // Core context hooks (internal)
-export { useAuthState } from "./hooks/useAuthState.ts";
-export { useAuthActions } from "./hooks/useAuthActions.ts";
-export { useAuthCallbacks } from "./hooks/useAuthCallbacks.ts";
+export { useAuthState } from "./hooks/useAuthState";
+export { useAuthActions } from "./hooks/useAuthActions";
+export { useAuthCallbacks } from "./hooks/useAuthCallbacks";
 
 // Specialized hooks
-export { useLogin } from "./hooks/useLogin.ts";
-export { useLogout } from "./hooks/useLogout.ts";
-export { useMFA } from "./hooks/useMFA.ts";
-export { useSession } from "./hooks/useSession.ts";
-export { useOAuth } from "./hooks/useOAuth.ts";
-export { useDeviceTrust } from "./hooks/useDeviceTrust.ts";
-export { usePermissions } from "./hooks/usePermissions.ts";
+export { useLogin } from "./hooks/useLogin";
+export { useLogout } from "./hooks/useLogout";
+export { useMFA } from "./hooks/useMFA";
+export { useSession } from "./hooks/useSession";
+export { useOAuth } from "./hooks/useOAuth";
+export { useDeviceTrust } from "./hooks/useDeviceTrust";
+export { usePermissions } from "./hooks/usePermissions";
 export {
   useRateLimit,
   useLoginRateLimit,
   useMFARateLimit,
   useAPIRateLimit,
   usePasswordResetRateLimit,
-} from "./hooks/useRateLimit.ts";
-export { useAuthForm } from "./hooks/useAuthForm.ts";
+} from "./hooks/useRateLimit";
+export { useAuthForm } from "./hooks/useAuthForm";
 
 // Church CAHA hooks + types (CAHA_PROTOCOL.md v2.0)
 export {
@@ -64,11 +59,11 @@ export {
   type CommunityStage,
   type MinistryPosition,
   type MinistryRole,
-} from "./hooks/useChurchRole.ts";
-export { useChurchId } from "./hooks/useChurchId.ts";
+} from "./hooks/useChurchRole";
+export { useChurchId } from "./hooks/useChurchId";
 
 // Home domain extension hooks
-export { useHouseholdId } from "./hooks/useHouseholdId.ts";
+export { useHouseholdId } from "./hooks/useHouseholdId";
 
 // Session management
 export {
@@ -76,74 +71,74 @@ export {
   useUserSessions,
   useSessionSecurity,
   useSessionAnalytics,
-} from "./hooks/useSessionManagement.ts";
+} from "./hooks/useSessionManagement";
 
 // Feature gates
 export {
   useFeatureGate,
   useFeatureGates,
   invalidateFeatureGateCache,
-} from "./hooks/useFeatureGate.ts";
+} from "./hooks/useFeatureGate";
 
 // ── Components ────────────────────────────────────────────────────────────────
 
-export { default as LoginForm } from "./components/LoginForm.tsx";
-export { default as SignupForm } from "./components/SignupForm.tsx";
-export { default as ForgotPasswordForm } from "./components/ForgotPasswordForm.tsx";
+export { default as LoginForm } from "./components/LoginForm";
+export { default as SignupForm } from "./components/SignupForm";
+export { default as ForgotPasswordForm } from "./components/ForgotPasswordForm";
 
 export const MFAVerification = React.lazy(
-  () => import("./components/MFAVerification.tsx"),
+  () => import("./components/MFAVerification"),
 );
-export const MFASetup = React.lazy(() => import("./components/MFASetup.tsx"));
+export const MFASetup = React.lazy(() => import("./components/MFASetup"));
 
-export { default as OAuthProviderComponents } from "./components/OAuthProviderComponents.tsx";
-export { default as OAuthCallback } from "./components/OAuthCallback.tsx";
-export { default as ProtectedRoute } from "./components/ProtectedRoute.tsx";
-export { default as SecurityDashboard } from "./components/SecurityDashboard.tsx";
-export { default as AuthLayout } from "./components/AuthLayout.tsx";
-export { default as TermsOfService } from "./components/legal/TermsOfService.tsx";
-export { default as PrivacyPolicy } from "./components/legal/PrivacyPolicy.tsx";
-export { UserMenu, UserMenuItem } from "./components/index.ts";
+export { default as OAuthProviderComponents } from "./components/OAuthProviderComponents";
+export { default as OAuthCallback } from "./components/OAuthCallback";
+export { default as ProtectedRoute } from "./components/ProtectedRoute";
+export { default as SecurityDashboard } from "./components/SecurityDashboard";
+export { default as AuthLayout } from "./components/AuthLayout";
+export { default as TermsOfService } from "./components/legal/TermsOfService";
+export { default as PrivacyPolicy } from "./components/legal/PrivacyPolicy";
+export { UserMenu, UserMenuItem } from "./components/index";
 
 // RBAC — context (backward compat: wraps useAuth)
-export { RBACProvider, useRBAC } from "./components/RBACComponents.tsx";
+export { RBACProvider, useRBAC } from "./components/RBACComponents";
 
 // RBAC — guards (lazy-loaded, avoid bloating the initial bundle)
 export const PermissionGuard = React.lazy(() =>
-  import("./components/RBACComponents.tsx").then((m) => ({
+  import("./components/RBACComponents").then((m) => ({
     default: m.PermissionGuard,
   })),
 );
 export const RoleGuard = React.lazy(() =>
-  import("./components/RBACComponents.tsx").then((m) => ({
+  import("./components/RBACComponents").then((m) => ({
     default: m.RoleGuard,
   })),
 );
 export const ApplicationGuard = React.lazy(() =>
-  import("./components/RBACComponents.tsx").then((m) => ({
+  import("./components/RBACComponents").then((m) => ({
     default: m.ApplicationGuard,
   })),
 );
 export const RouteGuard = React.lazy(() =>
-  import("./components/RBACComponents.tsx").then((m) => ({
+  import("./components/RBACComponents").then((m) => ({
     default: m.RouteGuard,
   })),
 );
 export const AdminGuard = React.lazy(() =>
-  import("./components/RBACComponents.tsx").then((m) => ({
+  import("./components/RBACComponents").then((m) => ({
     default: m.AdminGuard,
   })),
 );
 export const FeatureGuard = React.lazy(() =>
-  import("./components/RBACComponents.tsx").then((m) => ({
+  import("./components/RBACComponents").then((m) => ({
     default: m.FeatureGuard,
   })),
 );
 
 // ── Services ──────────────────────────────────────────────────────────────────
 
-export { default as SessionService } from "./services/SessionService.ts";
-export { default as authService } from "./services/AuthService.ts";
+export { default as SessionService } from "./services/SessionService";
+export { default as authService } from "./services/AuthService";
 export {
   getSessionService,
   getAuthService,
@@ -153,7 +148,7 @@ export {
   getDeviceService,
   getCacheService,
   getCrossAppService,
-} from "./services/index.ts";
+} from "./services/index";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -177,10 +172,10 @@ export {
   AUTH_ENDPOINTS,
   HTTP_STATUS,
   AUTH_EVENTS,
-} from "./types/index.ts";
+} from "./types/index";
 
 // MFA derived types (canonical source: types/mfaConstants.ts)
-export type { MFAMethod, MFAStatus } from "./types/index.ts";
+export type { MFAMethod, MFAStatus } from "./types/index";
 
 // -- Configuration -----------------------------------------------------------
 
@@ -194,7 +189,7 @@ export {
 export {
   getSupportedProvidersForApp,
   getOAuthConfig,
-} from "./config/oauthProviders.ts";
+} from "./config/oauthProviders";
 
 // ── Utilities ─────────────────────────────────────────────────────────────────
 
@@ -206,9 +201,9 @@ export {
   validateMFACode,
   validatePhoneNumber,
   sanitizeInput,
-} from "./utils/authValidation.ts";
+} from "./utils/authValidation";
 
-export { TokenStorage, tokenStorage } from "./utils/TokenStorage.ts";
+export { TokenStorage, tokenStorage } from "./utils/TokenStorage";
 
 // ── RBAC ──────────────────────────────────────────────────────────────────────
 
@@ -217,7 +212,7 @@ export {
   PermissionUtils,
   RouteUtils,
   createRBAC,
-} from "./utils/RBACUtils.ts";
+} from "./utils/RBACUtils";
 export {
   PERMISSIONS,
   ROLES,
@@ -231,7 +226,7 @@ export {
   checkPermission,
   hasRole,
   checkAccess,
-} from "./types/rbacRoles.ts";
+} from "./types/rbacRoles";
 
 // ── Debug ─────────────────────────────────────────────────────────────────────
 

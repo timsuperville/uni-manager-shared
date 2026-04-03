@@ -1,8 +1,8 @@
 import { useCallback, useState, useEffect } from "react";
-import { useAuth } from "./useAuth.ts";
+import { useAuth } from "./useAuth";
 // removed authService import
-import { getApiBaseUrl } from "../../api/config/apiConfig.ts";
-import type { Session, SecurityAlert } from "../types/auth.types.ts";
+import { getApiBaseUrl } from "../../api/config/apiConfig";
+import type { Session, SecurityAlert } from "../types/auth.types";
 
 const API_URL = getApiBaseUrl() as string;
 
@@ -35,8 +35,8 @@ export function useSessionManagement(): UseSessionManagementReturn {
   const invalidateSession = useCallback(async (): Promise<void> => {
     try {
       setSessionStatus("invalidated");
-      const { getApiClient } = await import("../../api/index.ts");
-      const AuthService = (await import("../services/AuthService.ts")).default;
+      const { getApiClient } = await import("../../api/index");
+      const AuthService = (await import("../services/AuthService")).default;
       const authService = new AuthService(getApiClient());
       await authService.logout();
       if (logout) await logout();

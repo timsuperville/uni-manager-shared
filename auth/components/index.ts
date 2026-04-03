@@ -12,41 +12,41 @@
 
 // ── Core Authentication Forms ────────────────────────────────────────────────
 
-export { default as LoginForm } from "./LoginForm.tsx";
-export { default as SignupForm } from "./SignupForm.tsx";
-export { default as ForgotPasswordForm } from "./ForgotPasswordForm.tsx";
+export { default as LoginForm } from "./LoginForm";
+export { default as SignupForm } from "./SignupForm";
+export { default as ForgotPasswordForm } from "./ForgotPasswordForm";
 
 // ── MFA Components ────────────────────────────────────────────────────────────
 
-export { default as MFAVerification } from "./MFAVerification.tsx";
-export { default as MFASetup } from "./MFASetup.tsx";
+export { default as MFAVerification } from "./MFAVerification";
+export { default as MFASetup } from "./MFASetup";
 
 // ── OAuth Components ──────────────────────────────────────────────────────────
 
-export { default as OAuthProviderComponents } from "./OAuthProviderComponents.tsx";
-export { default as OAuthCallback } from "./OAuthCallback.tsx";
+export { default as OAuthProviderComponents } from "./OAuthProviderComponents";
+export { default as OAuthCallback } from "./OAuthCallback";
 
 // ── Authorization & Access Control ────────────────────────────────────────────
 
-export { default as ProtectedRoute } from "./ProtectedRoute.tsx";
+export { default as ProtectedRoute } from "./ProtectedRoute";
 
 // ── Security Components ───────────────────────────────────────────────────────
 
-export { default as SecurityDashboard } from "./SecurityDashboard.tsx";
+export { default as SecurityDashboard } from "./SecurityDashboard";
 
 // ── Layout Components ─────────────────────────────────────────────────────────
 
-export { default as AuthLayout } from "./AuthLayout.tsx";
+export { default as AuthLayout } from "./AuthLayout";
 
 // ── User Management ───────────────────────────────────────────────────────────
 
-export { default as UserMenu } from "./UserMenu.tsx";
-export { default as UserMenuItem } from "./_userMenu/UserMenuItem.tsx";
+export { default as UserMenu } from "./UserMenu";
+export { default as UserMenuItem } from "./_userMenu/UserMenuItem";
 
 // ── Legal Components ────────────────────────────────────────────────────────────
 
-export { default as TermsOfService } from "./legal/TermsOfService.tsx";
-export { default as PrivacyPolicy } from "./legal/PrivacyPolicy.tsx";
+export { default as TermsOfService } from "./legal/TermsOfService";
+export { default as PrivacyPolicy } from "./legal/PrivacyPolicy";
 
 // Re-export default for convenience
-export { default } from "./LoginForm.tsx";
+export { default } from "./LoginForm";

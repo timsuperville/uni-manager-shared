@@ -10,47 +10,47 @@
 
 // ── Primary Hook ──────────────────────────────────────────────────────────────
 
-export { useAuth, default as useAuthDefault } from "./useAuth.ts";
+export { useAuth, default as useAuthDefault } from "./useAuth";
 
 // ── Core Context Hooks (internal, used by AuthProvider) ───────────────────────
 
-export { useAuthState } from "./useAuthState.ts";
-export { useAuthActions } from "./useAuthActions.ts";
-export { useAuthCallbacks } from "./useAuthCallbacks.ts";
+export { useAuthState } from "./useAuthState";
+export { useAuthActions } from "./useAuthActions";
+export { useAuthCallbacks } from "./useAuthCallbacks";
 
 // ── Specialized Public Hooks ──────────────────────────────────────────────────
 
 // Login / Logout
-export { useLogin } from "./useLogin.ts";
-export { useLogout } from "./useLogout.ts";
+export { useLogin } from "./useLogin";
+export { useLogout } from "./useLogout";
 
 // MFA
-export { useMFA } from "./useMFA.ts";
+export { useMFA } from "./useMFA";
 
 // Session Management
-export { useSession } from "./useSession.ts";
+export { useSession } from "./useSession";
 export {
   useSessionManagement,
   useUserSessions,
   useSessionSecurity,
   useSessionAnalytics,
-} from "./useSessionManagement.ts";
+} from "./useSessionManagement";
 
 // OAuth
-export { useOAuth } from "./useOAuth.ts";
+export { useOAuth } from "./useOAuth";
 
 // Device Trust
-export { useDeviceTrust } from "./useDeviceTrust.ts";
+export { useDeviceTrust } from "./useDeviceTrust";
 
 // Permissions
-export { usePermissions } from "./usePermissions.ts";
+export { usePermissions } from "./usePermissions";
 
 // Church CAHA extension hooks
-export { useChurchRole } from "./useChurchRole.ts";
-export { useChurchId } from "./useChurchId.ts";
+export { useChurchRole } from "./useChurchRole";
+export { useChurchId } from "./useChurchId";
 
 // Home domain extension hooks
-export { useHouseholdId } from "./useHouseholdId.ts";
+export { useHouseholdId } from "./useHouseholdId";
 
 // Rate Limiting
 export {
@@ -59,10 +59,14 @@ export {
   useMFARateLimit,
   useAPIRateLimit,
   usePasswordResetRateLimit,
-} from "./useRateLimit.ts";
+} from "./useRateLimit";
 
 // Feature Gates
-export { useFeatureGate, useFeatureGates, invalidateFeatureGateCache } from "./useFeatureGate.ts";
+export {
+  useFeatureGate,
+  useFeatureGates,
+  invalidateFeatureGateCache,
+} from "./useFeatureGate";
 
 // Auth Form
-export { useAuthForm } from "./useAuthForm.ts";
+export { useAuthForm } from "./useAuthForm";
