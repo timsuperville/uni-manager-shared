@@ -367,8 +367,7 @@ export const installFetchInterceptor = () => {
     // /health failures are owned exclusively by setupHealthCheck (which applies
     // grace periods and consecutive-failure thresholds before logging).
     const isMonitoringCall =
-      /\/api\/v1\/(errors|feedback)\//.test(url) ||
-      /\/health(\?|$)/.test(url);
+      /\/api\/v1\/(errors|feedback)\//.test(url) || /\/health(\?|$)/.test(url);
 
     let response;
     try {
@@ -452,21 +451,12 @@ export const setupOfflineFlush = () => {
 
 // ── Performance monitoring ────────────────────────────────────────────────────
 const sendToAnalytics = (metric: any) => {
-  fetch(`${getApiBaseUrl()}/analytics/web-vitals`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      metric: {
-        ...metric,
-        timestamp: new Date().toISOString(),
-        url: typeof window !== "undefined" ? window.location.href : "",
-        appType: import.meta.env?.VITE_APP_TYPE || "unknown",
-        userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "",
-      },
-    }),
-  }).catch((_) => {
-    /* analytics must never throw */
-  });
+  // NOTE: No backend ingest endpoint exists for web-vitals —
+  //       metrics are retained in-memory and logged DEV-only (Rule 9.8/§451).
+  // This suppresses the 404 (Not Found) errors in production.
+  if (import.meta.env?.DEV) {
+    console.info("[ErrorMonitoring] Web Vitals Metric:", metric);
+  }
 };
 
 export const setupPerformanceMonitoring = () => {
