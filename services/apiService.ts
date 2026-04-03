@@ -18,8 +18,10 @@ class ApiService {
         this._base = getApiBaseUrl();
       } catch {
         this._base =
-          (import.meta as { env?: { VITE_API_URL?: string } }).env
-            ?.VITE_API_URL ?? "http://localhost:5000";
+          (typeof import.meta !== "undefined" &&
+            import.meta.env &&
+            import.meta.env.VITE_API_URL) ??
+          "http://localhost:5000";
       }
     }
     return this._base;
@@ -59,11 +61,12 @@ class ApiService {
 
   get<T = unknown>(endpoint: string, params: QueryParams = {}): Promise<T> {
     const qs = Object.keys(params).length
-      ? "?" + new URLSearchParams(
+      ? "?" +
+        new URLSearchParams(
           Object.fromEntries(
-            Object.entries(params).filter(([, v]) => v != null).map(
-              ([k, v]) => [k, String(v)],
-            ),
+            Object.entries(params)
+              .filter(([, v]) => v != null)
+              .map(([k, v]) => [k, String(v)]),
           ),
         ).toString()
       : "";

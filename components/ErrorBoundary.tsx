@@ -24,21 +24,33 @@ import { getAuthToken } from "../utils/authToken.js";
 
 // collectAdvancedErrorContext is imported lazily (dynamic import) to avoid a
 // circular dependency: ErrorMonitoring re-exports ErrorBoundary from this file.
-type CollectAdvancedFn = ((ctx: Record<string, unknown>) => Record<string, unknown>) | null;
+type CollectAdvancedFn =
+  | ((ctx: Record<string, unknown>) => Record<string, unknown>)
+  | null;
 let _collectAdvanced: CollectAdvancedFn = null;
 import("../features/monitoring/ErrorMonitoring.jsx")
-  .then((m) => { _collectAdvanced = m.collectAdvancedErrorContext as CollectAdvancedFn; })
-  .catch(() => { /* monitoring module unavailable — degrade gracefully */ });
+  .then((m) => {
+    _collectAdvanced = m.collectAdvancedErrorContext as CollectAdvancedFn;
+  })
+  .catch(() => {
+    /* monitoring module unavailable — degrade gracefully */
+  });
 
 // ── Ingest endpoints ──────────────────────────────────────────────────────────
 // Resolve VITE_API_URL at module init time — same pattern as ErrorMonitoring.tsx.
 // Falls back to "" (relative) in local dev where the Vite proxy handles routing.
-const _apiOrigin: string = (import.meta as any).env?.VITE_API_URL ?? "";
-const INGEST_ERRORS   = `${_apiOrigin}/api/v1/infra/errors/log`;
+const _apiOrigin: string =
+  (typeof import.meta !== "undefined" &&
+    import.meta.env &&
+    import.meta.env.VITE_API_URL) ??
+  "";
+const INGEST_ERRORS = `${_apiOrigin}/api/v1/infra/errors/log`;
 const INGEST_FEEDBACK = `${_apiOrigin}/api/v1/integrations/feedback`;
 
 // ── Environment normalisation ─────────────────────────────────────────────────
-function normaliseEnvironment(mode: string | undefined): "development" | "production" {
+function normaliseEnvironment(
+  mode: string | undefined,
+): "development" | "production" {
   if (mode === "development") return "development";
   return "production";
 }
@@ -53,7 +65,11 @@ function hashString(str: string): string {
   return (h >>> 0).toString(16).padStart(8, "0");
 }
 
-function buildErrorId(message: string, pathname: string, appType: string): string {
+function buildErrorId(
+  message: string,
+  pathname: string,
+  appType: string,
+): string {
   const seed = `${message || "unknown"}-${pathname}-${appType}-${Date.now()}`;
   return `ERR-${hashString(seed).toUpperCase()}`;
 }
@@ -76,16 +92,25 @@ function getUserContext(): UserContext {
         const parsed = JSON.parse(raw) as Record<string, unknown>;
         userInfo = (parsed?.user as Record<string, unknown>) || parsed || {};
         if (userInfo.id || userInfo._id) break;
-      } catch (_) { /* malformed JSON */ }
+      } catch (_) {
+        /* malformed JSON */
+      }
     }
     return {
       isAuthenticated: !!(userInfo.id || userInfo._id),
       userId: (userInfo.id || userInfo._id || null) as string | null,
-      userEmail: (userInfo.email || userInfo.userEmail || null) as string | null,
+      userEmail: (userInfo.email || userInfo.userEmail || null) as
+        | string
+        | null,
       userRole: (userInfo.role || null) as string | null,
     };
   } catch (_) {
-    return { isAuthenticated: false, userId: null, userEmail: null, userRole: null };
+    return {
+      isAuthenticated: false,
+      userId: null,
+      userEmail: null,
+      userRole: null,
+    };
   }
 }
 
@@ -108,7 +133,11 @@ interface TelemetryPayload {
   meta: Record<string, unknown>;
 }
 
-function collectTelemetry(error: Error | null, errorInfo: React.ErrorInfo | null, appType: string): TelemetryPayload {
+function collectTelemetry(
+  error: Error | null,
+  errorInfo: React.ErrorInfo | null,
+  appType: string,
+): TelemetryPayload {
   const user = getUserContext();
   const w = typeof window !== "undefined" ? window : null;
   const n = typeof navigator !== "undefined" ? navigator : null;
@@ -133,8 +162,14 @@ function collectTelemetry(error: Error | null, errorInfo: React.ErrorInfo | null
       userContext: user,
       viewport: w ? { width: w.innerWidth, height: w.innerHeight } : null,
       screen: s ? { width: s.width, height: s.height } : null,
-      memoryMB: (p as Performance & { memory?: { usedJSHeapSize: number } })?.memory
-        ? Math.round((p as Performance & { memory: { usedJSHeapSize: number } }).memory.usedJSHeapSize / 1024 / 1024)
+      memoryMB: (p as Performance & { memory?: { usedJSHeapSize: number } })
+        ?.memory
+        ? Math.round(
+            (p as Performance & { memory: { usedJSHeapSize: number } }).memory
+              .usedJSHeapSize /
+              1024 /
+              1024,
+          )
         : null,
     },
   };
@@ -144,27 +179,37 @@ function collectTelemetry(error: Error | null, errorInfo: React.ErrorInfo | null
 export function flushPendingErrorReports(appType?: string): void {
   if (typeof localStorage === "undefined") return;
   try {
-    const pending = JSON.parse(localStorage.getItem("pendingErrorReports") || "[]") as TelemetryPayload[];
+    const pending = JSON.parse(
+      localStorage.getItem("pendingErrorReports") || "[]",
+    ) as TelemetryPayload[];
     if (!pending.length) return;
     localStorage.removeItem("pendingErrorReports");
     const resolvedType = appType || (import.meta as any).env?.VITE_APP_TYPE;
     const token = getAuthToken(resolvedType);
-    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
     if (token) headers["Authorization"] = `Bearer ${token}`;
     pending.forEach((report) => {
       fetch(INGEST_ERRORS, {
         method: "POST",
         headers,
         body: JSON.stringify({ ...report, _retried: true }),
-      }).catch(() => { /* still failing — drop silently */ });
+      }).catch(() => {
+        /* still failing — drop silently */
+      });
     });
-  } catch (_) { /* localStorage unavailable */ }
+  } catch (_) {
+    /* localStorage unavailable */
+  }
 }
 
 // ── Reporting ─────────────────────────────────────────────────────────────────
 function reportError(telemetry: TelemetryPayload, appType: string): void {
   const token = getAuthToken(appType);
-  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
   if (token) headers["Authorization"] = `Bearer ${token}`;
 
   let fullMeta = { ...telemetry.meta };
@@ -172,10 +217,13 @@ function reportError(telemetry: TelemetryPayload, appType: string): void {
     const advanced = _collectAdvanced({});
     fullMeta = {
       ...fullMeta,
-      performanceInfo: (advanced as Record<string, unknown>).performanceInfo || null,
-      browserContext: (advanced as Record<string, unknown>).browserContext || null,
+      performanceInfo:
+        (advanced as Record<string, unknown>).performanceInfo || null,
+      browserContext:
+        (advanced as Record<string, unknown>).browserContext || null,
       capabilities: (advanced as Record<string, unknown>).capabilities || null,
-      recentActivity: (advanced as Record<string, unknown>).recentActivity || [],
+      recentActivity:
+        (advanced as Record<string, unknown>).recentActivity || [],
     };
   }
 
@@ -196,7 +244,9 @@ function reportError(telemetry: TelemetryPayload, appType: string): void {
         "```",
         telemetry.componentStack || "(unavailable)",
         "```",
-      ].join("\n").substring(0, 1000),
+      ]
+        .join("\n")
+        .substring(0, 1000),
       allowContact: false,
     },
     systemContext: {
@@ -204,11 +254,17 @@ function reportError(telemetry: TelemetryPayload, appType: string): void {
       user: {
         id: telemetry.userId || undefined,
         email: telemetry.userEmail || undefined,
-        role: (telemetry.meta?.userContext as UserContext | undefined)?.userRole || undefined,
+        role:
+          (telemetry.meta?.userContext as UserContext | undefined)?.userRole ||
+          undefined,
       },
       page: {
-        url: telemetry.url || (typeof window !== "undefined" ? window.location.href : ""),
-        path: telemetry.path || (typeof window !== "undefined" ? window.location.pathname : "/"),
+        url:
+          telemetry.url ||
+          (typeof window !== "undefined" ? window.location.href : ""),
+        path:
+          telemetry.path ||
+          (typeof window !== "undefined" ? window.location.pathname : "/"),
         timestamp: new Date(telemetry.timestamp || Date.now()),
       },
       browser: {
@@ -224,15 +280,23 @@ function reportError(telemetry: TelemetryPayload, appType: string): void {
           stack: telemetry.stack,
           timestamp: new Date(telemetry.timestamp || Date.now()),
           level: "error",
-        }
-      ]
+        },
+      ],
     },
     linkedErrorId: telemetry.errorId,
   };
 
   Promise.all([
-    fetch(INGEST_ERRORS, { method: "POST", headers, body: JSON.stringify(ingestPayload) }),
-    fetch(INGEST_FEEDBACK, { method: "POST", headers, body: JSON.stringify(feedbackPayload) }),
+    fetch(INGEST_ERRORS, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(ingestPayload),
+    }),
+    fetch(INGEST_FEEDBACK, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(feedbackPayload),
+    }),
   ]).catch(() => {
     try {
       const safe = {
@@ -245,10 +309,17 @@ function reportError(telemetry: TelemetryPayload, appType: string): void {
         timestamp: telemetry.timestamp,
         environment: telemetry.environment,
       };
-      const pending = JSON.parse(localStorage.getItem("pendingErrorReports") || "[]") as unknown[];
+      const pending = JSON.parse(
+        localStorage.getItem("pendingErrorReports") || "[]",
+      ) as unknown[];
       pending.push(safe);
-      localStorage.setItem("pendingErrorReports", JSON.stringify(pending.slice(-10)));
-    } catch (_) { /* localStorage unavailable */ }
+      localStorage.setItem(
+        "pendingErrorReports",
+        JSON.stringify(pending.slice(-10)),
+      );
+    } catch (_) {
+      /* localStorage unavailable */
+    }
   });
 }
 
@@ -296,49 +367,160 @@ interface FallbackProps {
 }
 
 // ── Inline variant ────────────────────────────────────────────────────────────
-function InlineFallback({ title, message, error, errorInfo, errorId, onReset }: FallbackProps) {
+function InlineFallback({
+  title,
+  message,
+  error,
+  errorInfo,
+  errorId,
+  onReset,
+}: FallbackProps) {
   injectAnimations();
   const [showDetail, setShowDetail] = React.useState(false);
   const hasDev = (import.meta as any).env?.DEV && (error || errorInfo);
 
   return (
-    <div className="eb-inline" role="alert" aria-live="assertive"
-      style={{ padding: "1.25rem 1.5rem", borderRadius: T.radiusLg, background: T.errorSurface, border: `1px solid ${T.errorBorder}` }}>
-      <div style={{ display: "flex", alignItems: "flex-start", gap: "0.625rem", marginBottom: "0.625rem" }}>
-        <AlertTriangle aria-hidden="true" style={{ width: 18, height: 18, color: T.error, flexShrink: 0, marginTop: 2 }} />
-        <p style={{ margin: 0, fontSize: "0.9375rem", fontWeight: 600, color: T.textPrimary, lineHeight: 1.4 }}>
+    <div
+      className="eb-inline"
+      role="alert"
+      aria-live="assertive"
+      style={{
+        padding: "1.25rem 1.5rem",
+        borderRadius: T.radiusLg,
+        background: T.errorSurface,
+        border: `1px solid ${T.errorBorder}`,
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "flex-start",
+          gap: "0.625rem",
+          marginBottom: "0.625rem",
+        }}
+      >
+        <AlertTriangle
+          aria-hidden="true"
+          style={{
+            width: 18,
+            height: 18,
+            color: T.error,
+            flexShrink: 0,
+            marginTop: 2,
+          }}
+        />
+        <p
+          style={{
+            margin: 0,
+            fontSize: "0.9375rem",
+            fontWeight: 600,
+            color: T.textPrimary,
+            lineHeight: 1.4,
+          }}
+        >
           {title || "Something went wrong"}
         </p>
       </div>
-      <p style={{ margin: "0 0 1rem 1.625rem", fontSize: "0.875rem", color: T.textMuted, lineHeight: 1.6 }}>
+      <p
+        style={{
+          margin: "0 0 1rem 1.625rem",
+          fontSize: "0.875rem",
+          color: T.textMuted,
+          lineHeight: 1.6,
+        }}
+      >
         {message || "An unexpected error occurred in this section."}
       </p>
       {hasDev && (
         <div style={{ marginBottom: "1rem", marginLeft: "1.625rem" }}>
-          <button onClick={() => setShowDetail(v => !v)}
-            style={{ display: "flex", alignItems: "center", gap: "0.25rem", background: "none", border: "none", padding: 0, cursor: "pointer", fontSize: "0.75rem", color: T.textMuted, fontWeight: 500 }}
-            aria-expanded={showDetail}>
-            <ChevronDown aria-hidden="true" style={{ width: 14, height: 14, transform: showDetail ? "rotate(180deg)" : "none", transition: "transform 0.15s" }} />
+          <button
+            onClick={() => setShowDetail((v) => !v)}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.25rem",
+              background: "none",
+              border: "none",
+              padding: 0,
+              cursor: "pointer",
+              fontSize: "0.75rem",
+              color: T.textMuted,
+              fontWeight: 500,
+            }}
+            aria-expanded={showDetail}
+          >
+            <ChevronDown
+              aria-hidden="true"
+              style={{
+                width: 14,
+                height: 14,
+                transform: showDetail ? "rotate(180deg)" : "none",
+                transition: "transform 0.15s",
+              }}
+            />
             Error details (dev only)
           </button>
           {showDetail && (
-            <pre style={{ marginTop: "0.5rem", padding: "0.75rem", background: "rgba(0,0,0,0.3)", borderRadius: T.radiusSm, fontSize: "0.6875rem", color: T.error, overflowX: "auto", whiteSpace: "pre-wrap", wordBreak: "break-all", maxHeight: 240 }}>
-              {[error?.toString?.(), errorInfo?.componentStack].filter(Boolean).join("\n\n")}
+            <pre
+              style={{
+                marginTop: "0.5rem",
+                padding: "0.75rem",
+                background: "rgba(0,0,0,0.3)",
+                borderRadius: T.radiusSm,
+                fontSize: "0.6875rem",
+                color: T.error,
+                overflowX: "auto",
+                whiteSpace: "pre-wrap",
+                wordBreak: "break-all",
+                maxHeight: 240,
+              }}
+            >
+              {[error?.toString?.(), errorInfo?.componentStack]
+                .filter(Boolean)
+                .join("\n\n")}
             </pre>
           )}
         </div>
       )}
-      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginLeft: "1.625rem" }}>
-        <button onClick={onReset}
-          style={{ display: "flex", alignItems: "center", gap: "0.375rem", padding: "0.375rem 0.875rem", borderRadius: T.radiusSm, background: T.primary, color: "#fff", border: "none", fontWeight: 600, fontSize: "0.8125rem", cursor: "pointer", transition: "opacity 0.15s" }}
-          onMouseEnter={e => (e.currentTarget.style.opacity = "0.85")}
-          onMouseLeave={e => (e.currentTarget.style.opacity = "1")}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "0.5rem",
+          marginLeft: "1.625rem",
+        }}
+      >
+        <button
+          onClick={onReset}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "0.375rem",
+            padding: "0.375rem 0.875rem",
+            borderRadius: T.radiusSm,
+            background: T.primary,
+            color: "#fff",
+            border: "none",
+            fontWeight: 600,
+            fontSize: "0.8125rem",
+            cursor: "pointer",
+            transition: "opacity 0.15s",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
+          onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+        >
           <RefreshCw aria-hidden="true" style={{ width: 13, height: 13 }} />
           Try Again
         </button>
         {errorId && (
-          <span title="Reference this ID when reporting the issue"
-            style={{ fontSize: "0.6875rem", color: T.textMuted, fontFamily: "monospace" }}>
+          <span
+            title="Reference this ID when reporting the issue"
+            style={{
+              fontSize: "0.6875rem",
+              color: T.textMuted,
+              fontFamily: "monospace",
+            }}
+          >
             {errorId}
           </span>
         )}
@@ -348,71 +530,265 @@ function InlineFallback({ title, message, error, errorInfo, errorId, onReset }: 
 }
 
 // ── Full-screen variant ───────────────────────────────────────────────────────
-function FullScreenFallback({ title, message, error, errorInfo, errorId, onReset, showHomeButton }: FallbackProps) {
+function FullScreenFallback({
+  title,
+  message,
+  error,
+  errorInfo,
+  errorId,
+  onReset,
+  showHomeButton,
+}: FallbackProps) {
   injectAnimations();
   const [showDetail, setShowDetail] = React.useState(false);
   const hasDev = (import.meta as any).env?.DEV && (error || errorInfo);
 
   return (
-    <div role="alert" aria-live="assertive"
-      style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: T.pageBg, padding: "1rem" }}>
-      <div className="eb-card"
-        style={{ maxWidth: 460, width: "100%", background: T.surface, border: `1px solid ${T.outline}`, backdropFilter: "blur(24px) saturate(180%)", WebkitBackdropFilter: "blur(24px) saturate(180%)", boxShadow: "0 8px 32px rgba(0,0,0,0.4)", borderRadius: T.radiusLg, padding: "2rem", boxSizing: "border-box" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.875rem", marginBottom: "1.125rem" }}>
-          <div className="eb-icon" aria-hidden="true"
-            style={{ flexShrink: 0, width: 44, height: 44, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(239,68,68,0.12)", borderRadius: "50%", border: "1px solid rgba(239,68,68,0.25)" }}>
+    <div
+      role="alert"
+      aria-live="assertive"
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: T.pageBg,
+        padding: "1rem",
+      }}
+    >
+      <div
+        className="eb-card"
+        style={{
+          maxWidth: 460,
+          width: "100%",
+          background: T.surface,
+          border: `1px solid ${T.outline}`,
+          backdropFilter: "blur(24px) saturate(180%)",
+          WebkitBackdropFilter: "blur(24px) saturate(180%)",
+          boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
+          borderRadius: T.radiusLg,
+          padding: "2rem",
+          boxSizing: "border-box",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "0.875rem",
+            marginBottom: "1.125rem",
+          }}
+        >
+          <div
+            className="eb-icon"
+            aria-hidden="true"
+            style={{
+              flexShrink: 0,
+              width: 44,
+              height: 44,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              background: "rgba(239,68,68,0.12)",
+              borderRadius: "50%",
+              border: "1px solid rgba(239,68,68,0.25)",
+            }}
+          >
             <AlertTriangle style={{ width: 22, height: 22, color: T.error }} />
           </div>
-          <h1 style={{ margin: 0, flex: 1, fontSize: "clamp(1rem, 3vw, 1.25rem)", fontWeight: 700, color: T.textPrimary, lineHeight: 1.3, fontFamily: "Outfit, Inter, system-ui, sans-serif" }}>
+          <h1
+            style={{
+              margin: 0,
+              flex: 1,
+              fontSize: "clamp(1rem, 3vw, 1.25rem)",
+              fontWeight: 700,
+              color: T.textPrimary,
+              lineHeight: 1.3,
+              fontFamily: "Outfit, Inter, system-ui, sans-serif",
+            }}
+          >
             {title || "Something went wrong"}
           </h1>
         </div>
-        <p style={{ margin: "0 0 1.25rem", color: T.textMuted, fontSize: "0.9375rem", lineHeight: 1.65 }}>
-          {message || "The application encountered an unexpected error. An error report has been sent to our team automatically."}
+        <p
+          style={{
+            margin: "0 0 1.25rem",
+            color: T.textMuted,
+            fontSize: "0.9375rem",
+            lineHeight: 1.65,
+          }}
+        >
+          {message ||
+            "The application encountered an unexpected error. An error report has been sent to our team automatically."}
         </p>
         {errorId && (
-          <div style={{ display: "inline-flex", alignItems: "center", gap: "0.375rem", marginBottom: "1.25rem", padding: "0.375rem 0.75rem", background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.2)", borderRadius: T.radiusSm }}>
-            <span style={{ fontSize: "0.6875rem", color: T.textMuted, textTransform: "uppercase", letterSpacing: "0.05em" }}>Ref</span>
-            <span title="Quote this ID when contacting support" style={{ fontSize: "0.75rem", fontFamily: "JetBrains Mono, monospace", color: "hsl(239,84%,72%)", letterSpacing: "0.02em" }}>{errorId}</span>
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.375rem",
+              marginBottom: "1.25rem",
+              padding: "0.375rem 0.75rem",
+              background: "rgba(99,102,241,0.08)",
+              border: "1px solid rgba(99,102,241,0.2)",
+              borderRadius: T.radiusSm,
+            }}
+          >
+            <span
+              style={{
+                fontSize: "0.6875rem",
+                color: T.textMuted,
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+              }}
+            >
+              Ref
+            </span>
+            <span
+              title="Quote this ID when contacting support"
+              style={{
+                fontSize: "0.75rem",
+                fontFamily: "JetBrains Mono, monospace",
+                color: "hsl(239,84%,72%)",
+                letterSpacing: "0.02em",
+              }}
+            >
+              {errorId}
+            </span>
           </div>
         )}
         {hasDev && (
           <div style={{ marginBottom: "1.25rem" }}>
-            <button onClick={() => setShowDetail(v => !v)}
-              style={{ display: "flex", alignItems: "center", gap: "0.375rem", background: "none", border: "none", padding: 0, cursor: "pointer", fontSize: "0.8125rem", color: T.textMuted, fontWeight: 500, marginBottom: showDetail ? "0.5rem" : 0 }}
-              aria-expanded={showDetail}>
-              <ChevronDown aria-hidden="true" style={{ width: 15, height: 15, transform: showDetail ? "rotate(180deg)" : "none", transition: "transform 0.18s" }} />
-              Error details <span style={{ fontSize: "0.6875rem", opacity: 0.6 }}>(dev only)</span>
+            <button
+              onClick={() => setShowDetail((v) => !v)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.375rem",
+                background: "none",
+                border: "none",
+                padding: 0,
+                cursor: "pointer",
+                fontSize: "0.8125rem",
+                color: T.textMuted,
+                fontWeight: 500,
+                marginBottom: showDetail ? "0.5rem" : 0,
+              }}
+              aria-expanded={showDetail}
+            >
+              <ChevronDown
+                aria-hidden="true"
+                style={{
+                  width: 15,
+                  height: 15,
+                  transform: showDetail ? "rotate(180deg)" : "none",
+                  transition: "transform 0.18s",
+                }}
+              />
+              Error details{" "}
+              <span style={{ fontSize: "0.6875rem", opacity: 0.6 }}>
+                (dev only)
+              </span>
             </button>
             {showDetail && (
-              <pre style={{ padding: "0.875rem", background: "rgba(0,0,0,0.45)", borderRadius: T.radiusSm, border: `1px solid ${T.errorBorder}`, fontSize: "0.6875rem", color: T.error, overflowX: "auto", whiteSpace: "pre-wrap", wordBreak: "break-all", maxHeight: 280, overflowY: "auto" }}>
-                {[error?.toString?.(), errorInfo?.componentStack].filter(Boolean).join("\n\n")}
+              <pre
+                style={{
+                  padding: "0.875rem",
+                  background: "rgba(0,0,0,0.45)",
+                  borderRadius: T.radiusSm,
+                  border: `1px solid ${T.errorBorder}`,
+                  fontSize: "0.6875rem",
+                  color: T.error,
+                  overflowX: "auto",
+                  whiteSpace: "pre-wrap",
+                  wordBreak: "break-all",
+                  maxHeight: 280,
+                  overflowY: "auto",
+                }}
+              >
+                {[error?.toString?.(), errorInfo?.componentStack]
+                  .filter(Boolean)
+                  .join("\n\n")}
               </pre>
             )}
           </div>
         )}
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+        <div
+          style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}
+        >
           {onReset && (
-            <button onClick={onReset}
-              style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", padding: "0.65rem 1rem", borderRadius: T.radiusSm, background: T.primary, color: "#fff", border: "none", fontWeight: 600, fontSize: "0.9375rem", cursor: "pointer", transition: "opacity 0.15s" }}
-              onMouseEnter={e => (e.currentTarget.style.opacity = "0.85")}
-              onMouseLeave={e => (e.currentTarget.style.opacity = "1")}>
+            <button
+              onClick={onReset}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "0.5rem",
+                padding: "0.65rem 1rem",
+                borderRadius: T.radiusSm,
+                background: T.primary,
+                color: "#fff",
+                border: "none",
+                fontWeight: 600,
+                fontSize: "0.9375rem",
+                cursor: "pointer",
+                transition: "opacity 0.15s",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
+              onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+            >
               <RefreshCw aria-hidden="true" style={{ width: 16, height: 16 }} />
               Try Again
             </button>
           )}
-          <button onClick={() => window.location.reload()}
-            style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", padding: "0.65rem 1rem", borderRadius: T.radiusSm, background: "rgba(255,255,255,0.05)", border: `1px solid ${T.outline}`, color: T.textMuted, fontWeight: 600, fontSize: "0.9375rem", cursor: "pointer", transition: "background 0.15s" }}
-            onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.09)")}
-            onMouseLeave={e => (e.currentTarget.style.background = "rgba(255,255,255,0.05)")}>
+          <button
+            onClick={() => window.location.reload()}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "0.5rem",
+              padding: "0.65rem 1rem",
+              borderRadius: T.radiusSm,
+              background: "rgba(255,255,255,0.05)",
+              border: `1px solid ${T.outline}`,
+              color: T.textMuted,
+              fontWeight: 600,
+              fontSize: "0.9375rem",
+              cursor: "pointer",
+              transition: "background 0.15s",
+            }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.background = "rgba(255,255,255,0.09)")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.background = "rgba(255,255,255,0.05)")
+            }
+          >
             <RefreshCw aria-hidden="true" style={{ width: 16, height: 16 }} />
             Reload Page
           </button>
           {showHomeButton && (
-            <button onClick={() => (window.location.href = "/")}
-              style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.375rem", padding: "0.5rem 1rem", background: "transparent", color: T.textMuted, border: "none", fontWeight: 500, fontSize: "0.875rem", cursor: "pointer", opacity: 0.75, transition: "opacity 0.15s" }}
-              onMouseEnter={e => (e.currentTarget.style.opacity = "1")}
-              onMouseLeave={e => (e.currentTarget.style.opacity = "0.75")}>
+            <button
+              onClick={() => (window.location.href = "/")}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "0.375rem",
+                padding: "0.5rem 1rem",
+                background: "transparent",
+                color: T.textMuted,
+                border: "none",
+                fontWeight: 500,
+                fontSize: "0.875rem",
+                cursor: "pointer",
+                opacity: 0.75,
+                transition: "opacity 0.15s",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
+              onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.75")}
+            >
               <Home aria-hidden="true" style={{ width: 14, height: 14 }} />
               Go to Home
             </button>
@@ -430,7 +806,12 @@ interface ErrorBoundaryProps {
   /** "full-screen" (default) for app roots; "inline" for feature sections */
   variant?: "full-screen" | "inline";
   /** Custom render prop — receives { error, errorInfo, errorId, reset } */
-  fallback?: (ctx: { error: Error | null; errorInfo: React.ErrorInfo | null; errorId: string | null; reset: () => void }) => React.ReactNode;
+  fallback?: (ctx: {
+    error: Error | null;
+    errorInfo: React.ErrorInfo | null;
+    errorId: string | null;
+    reset: () => void;
+  }) => React.ReactNode;
   /** Identifies the app for telemetry tagging. Falls back to VITE_APP_TYPE. */
   appType?: string;
   onError?: (error: Error, errorInfo: React.ErrorInfo) => void;
@@ -449,10 +830,18 @@ interface ErrorBoundaryState {
 }
 
 // ── Unified ErrorBoundary ─────────────────────────────────────────────────────
-export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+export class ErrorBoundary extends React.Component<
+  ErrorBoundaryProps,
+  ErrorBoundaryState
+> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
-    this.state = { hasError: false, error: null, errorInfo: null, errorId: null };
+    this.state = {
+      hasError: false,
+      error: null,
+      errorInfo: null,
+      errorId: null,
+    };
     this.handleReset = this.handleReset.bind(this);
   }
 
@@ -461,13 +850,24 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
-    const appType = this.props.appType || (import.meta as any).env?.VITE_APP_TYPE || "unknown";
-    const errorId = buildErrorId(error?.message, window?.location?.pathname, appType);
+    const appType =
+      this.props.appType ||
+      (import.meta as any).env?.VITE_APP_TYPE ||
+      "unknown";
+    const errorId = buildErrorId(
+      error?.message,
+      window?.location?.pathname,
+      appType,
+    );
     this.setState({ error, errorInfo, errorId });
 
     if ((import.meta as any).env?.DEV) {
       // eslint-disable-next-line no-console
-      console.error("[ErrorBoundary]", { errorId, error, componentStack: errorInfo?.componentStack });
+      console.error("[ErrorBoundary]", {
+        errorId,
+        error,
+        componentStack: errorInfo?.componentStack,
+      });
     }
 
     const telemetry = collectTelemetry(error, errorInfo, appType);
@@ -476,7 +876,12 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
   }
 
   handleReset(): void {
-    this.setState({ hasError: false, error: null, errorInfo: null, errorId: null });
+    this.setState({
+      hasError: false,
+      error: null,
+      errorInfo: null,
+      errorId: null,
+    });
     this.props.onReset?.();
   }
 
@@ -499,12 +904,15 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
       errorInfo: this.state.errorInfo,
       errorId: this.state.errorId,
       onReset: this.handleReset,
-      showHomeButton: this.props.showHomeButton ?? (this.props.variant !== "inline"),
+      showHomeButton:
+        this.props.showHomeButton ?? this.props.variant !== "inline",
     };
 
-    return this.props.variant === "inline"
-      ? <InlineFallback {...shared} />
-      : <FullScreenFallback {...shared} />;
+    return this.props.variant === "inline" ? (
+      <InlineFallback {...shared} />
+    ) : (
+      <FullScreenFallback {...shared} />
+    );
   }
 }
 

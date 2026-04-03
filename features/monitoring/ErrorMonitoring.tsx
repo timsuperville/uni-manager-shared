@@ -233,7 +233,8 @@ export const setupGlobalErrorHandling = () => {
   if (window.__errorHandlersInstalled) return;
   window.__errorHandlersInstalled = true;
 
-  const appType = import.meta.env?.VITE_APP_TYPE || "unknown";
+  const appType =
+    (import.meta.env && import.meta.env.VITE_APP_TYPE) || "unknown";
   const env = normaliseEnvironment(import.meta.env?.MODE);
 
   // ── Activity breadcrumb tracker ───────────────────────────────────────────
@@ -358,7 +359,8 @@ export const installFetchInterceptor = () => {
   window.__fetchInterceptorInstalled = true;
 
   const _originalFetch = window.fetch;
-  const appType = import.meta.env?.VITE_APP_TYPE || "unknown";
+  const appType =
+    (import.meta.env && import.meta.env.VITE_APP_TYPE) || "unknown";
   const env = normaliseEnvironment(import.meta.env?.MODE);
 
   window.fetch = async function interceptedFetch(...args: any[]) {
@@ -433,7 +435,7 @@ export const setupOfflineFlush = () => {
   if (window.__offlineFlushInstalled) return;
   window.__offlineFlushInstalled = true;
 
-  const appType = import.meta.env?.VITE_APP_TYPE;
+  const appType = import.meta.env && import.meta.env.VITE_APP_TYPE;
 
   // Retry when network comes back
   window.addEventListener("online", () => flushPendingErrorReports(appType));
@@ -510,7 +512,8 @@ export const setupHealthCheck = () => {
   if (window.__healthCheckInstalled) return () => {};
   window.__healthCheckInstalled = true;
 
-  const appType = import.meta.env?.VITE_APP_TYPE || "unknown";
+  const appType =
+    (import.meta.env && import.meta.env.VITE_APP_TYPE) || "unknown";
   const env =
     (import.meta.env?.MODE || "development") === "development"
       ? "development"
@@ -615,7 +618,9 @@ export const createMonitoredQueryClient = (
   const { QueryClient, QueryCache, MutationCache } = reactQuery;
 
   const appType =
-    options.appType || import.meta.env?.VITE_APP_TYPE || "unknown";
+    options.appType ||
+    (import.meta.env && import.meta.env.VITE_APP_TYPE) ||
+    "unknown";
   const env =
     (import.meta?.env?.MODE || "development") === "development"
       ? "development"
