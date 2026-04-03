@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useMemo, useRef } from "react";
-import { AuthService } from "../services/authService.ts";
+import { AuthService } from "../services/AuthService.ts";
 import { useAuthState } from "../hooks/useAuthState.ts";
 import { useAuthActions, type AuthServiceLike } from "../hooks/useAuthActions.ts";
 import { useAuthCallbacks, type AuthStateShape } from "../hooks/useAuthCallbacks.ts";
@@ -195,10 +195,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   onAuthStateChange,
   onError,
 }) => {
-  // config is AuthConfig (a loose superset of AuthServiceConfig) — safe to widen via unknown
+  const { apiClient } = useApi();
   const authService = useMemo(
-    () => new AuthService(config as unknown as ConstructorParameters<typeof AuthService>[0]),
-    [config],
+    () => new AuthService(apiClient),
+    [apiClient],
   );
 
   const {
