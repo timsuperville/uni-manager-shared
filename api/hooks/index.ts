@@ -5,9 +5,15 @@
  * with React applications across the Uni-Manager ecosystem.
  */
 
-import { useCallback, useContext, useEffect, useState, useMemo } from "react";
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+  useMemo,
+  useRef,
+} from "react";
 import { ApiClient } from "../core/ApiClient";
-import { AuthService } from "../../auth/services/AuthService";
 import type { User, LoginRequest, SignupRequest } from "../types";
 
 import { ApiContext, ApiContextValue } from "../components/ApiProvider";
@@ -50,19 +56,32 @@ export const useApi = (): { apiClient: ApiClient } => {
  */
 export const useAuth = () => {
   const { apiClient } = useApi();
-  const authService = useMemo(() => new AuthService(apiClient), [apiClient]);
+  // Lazy-load AuthService to avoid a circular static-import chain:
+  // shared/api → shared/auth/services/AuthService (cross-package, fails on CI)
+  const authServiceRef = useRef<InstanceType<
+    Awaited<typeof import("../../auth/services/AuthService")>["AuthService"]
+  > | null>(null);
+  const [serviceReady, setServiceReady] = useState(false);
+
+  useEffect(() => {
+    import("../../auth/services/AuthService").then(({ AuthService }) => {
+      authServiceRef.current = new AuthService(apiClient);
+      setServiceReady(true);
+    });
+  }, [apiClient]);
 
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Check authentication status on mount
+  // Check authentication status once the service is ready
   useEffect(() => {
+    if (!serviceReady || !authServiceRef.current) return;
     const checkAuth = async () => {
       try {
         setIsLoading(true);
-        const authStatus = await authService.checkAuthStatus();
+        const authStatus = await authServiceRef.current!.checkAuthStatus();
         setIsAuthenticated(authStatus.isAuthenticated);
         setUser(authStatus.user || null);
         setError(null);
@@ -80,14 +99,14 @@ export const useAuth = () => {
     };
 
     checkAuth();
-  }, [authService]);
+  }, [serviceReady]);
 
   const login = useCallback(
     async (credentials: LoginRequest) => {
       try {
         setIsLoading(true);
         setError(null);
-        const response = await authService.login(credentials);
+        const response = await authServiceRef.current!.login(credentials);
         setUser(response.user);
         setIsAuthenticated(true);
         return response;
@@ -98,13 +117,13 @@ export const useAuth = () => {
         setIsLoading(false);
       }
     },
-    [authService],
+    [serviceReady],
   );
 
   const logout = useCallback(async () => {
     try {
       setIsLoading(true);
-      await authService.logout();
+      await authServiceRef.current?.logout();
     } catch (_err) {
       // Intentionally silent — logout should always succeed locally even if network fails.
     } finally {
@@ -113,14 +132,14 @@ export const useAuth = () => {
       setIsLoading(false);
       setError(null);
     }
-  }, [authService]);
+  }, [serviceReady]);
 
   const signup = useCallback(
     async (userData: SignupRequest) => {
       try {
         setIsLoading(true);
         setError(null);
-        const response = await authService.signup(userData);
+        const response = await authServiceRef.current!.signup(userData);
         setUser(response.user);
         setIsAuthenticated(true);
         return response;
@@ -131,7 +150,7 @@ export const useAuth = () => {
         setIsLoading(false);
       }
     },
-    [authService],
+    [serviceReady],
   );
 
   return {
@@ -142,7 +161,7 @@ export const useAuth = () => {
     login,
     logout,
     signup,
-    authService,
+    authService: authServiceRef.current,
   };
 };
 
