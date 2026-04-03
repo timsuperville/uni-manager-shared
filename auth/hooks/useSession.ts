@@ -1,6 +1,6 @@
 import { useCallback } from "react";
-import { useAuth } from "./useAuth.ts";
-import type { Session } from "../types/auth.types.ts";
+import { useAuth } from "./useAuth";
+import type { Session } from "../types/auth.types";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -18,12 +18,13 @@ interface UseSessionReturn {
  * Session hook — provides session state and lifecycle methods.
  */
 export function useSession(): UseSessionReturn {
-  const { session, sessionExpiry, refreshAuth, logout } = useAuth() as unknown as {
-    session: Session | null | undefined;
-    sessionExpiry: number | undefined;
-    refreshAuth: (() => Promise<boolean>) | undefined;
-    logout: () => Promise<void | { success: boolean }>;
-  };
+  const { session, sessionExpiry, refreshAuth, logout } =
+    useAuth() as unknown as {
+      session: Session | null | undefined;
+      sessionExpiry: number | undefined;
+      refreshAuth: (() => Promise<boolean>) | undefined;
+      logout: () => Promise<void | { success: boolean }>;
+    };
 
   const handleRenewSession = useCallback(async (): Promise<void> => {
     if (!refreshAuth) return;

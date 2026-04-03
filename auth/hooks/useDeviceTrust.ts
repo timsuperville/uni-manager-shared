@@ -1,10 +1,7 @@
 import { useCallback, useState, useEffect, useMemo } from "react";
-import { useAuth } from "./useAuth.ts";
-import { MFAService } from "../services/mfaService.ts";
-import {
-  generateDeviceFingerprint,
-  getDeviceInfo,
-} from "../utils/socialAuth.ts";
+import { useAuth } from "./useAuth";
+import { MFAService } from "../services/mfaService";
+import { generateDeviceFingerprint, getDeviceInfo } from "../utils/socialAuth";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -24,7 +21,9 @@ interface UseDeviceTrustReturn {
  */
 export function useDeviceTrust(): UseDeviceTrustReturn {
   const { token } = useAuth();
-  const [deviceFingerprint, setDeviceFingerprint] = useState<string | null>(null);
+  const [deviceFingerprint, setDeviceFingerprint] = useState<string | null>(
+    null,
+  );
   const [isTrusted, setIsTrusted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -54,7 +53,9 @@ export function useDeviceTrust(): UseDeviceTrustReturn {
 
     const checkTrust = async () => {
       try {
-        const result = await mfaService.checkDeviceTrust(deviceFingerprint) as { isTrusted: boolean };
+        const result = (await mfaService.checkDeviceTrust(
+          deviceFingerprint,
+        )) as { isTrusted: boolean };
         setIsTrusted(result.isTrusted);
       } catch (err) {
         if (import.meta.env.DEV) {
@@ -86,7 +87,8 @@ export function useDeviceTrust(): UseDeviceTrustReturn {
       if (import.meta.env.DEV) {
         console.error("Failed to trust device:", err);
       }
-      const message = err instanceof Error ? err.message : "Failed to trust device";
+      const message =
+        err instanceof Error ? err.message : "Failed to trust device";
       setError(message);
       throw err;
     } finally {
@@ -106,7 +108,8 @@ export function useDeviceTrust(): UseDeviceTrustReturn {
       if (import.meta.env.DEV) {
         console.error("Failed to untrust device:", err);
       }
-      const message = err instanceof Error ? err.message : "Failed to untrust device";
+      const message =
+        err instanceof Error ? err.message : "Failed to untrust device";
       setError(message);
       throw err;
     } finally {

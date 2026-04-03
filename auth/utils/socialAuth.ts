@@ -9,7 +9,7 @@ import { getCurrentAppConfig } from "../config/appConfigs";
 import {
   getCachedDeviceFingerprint,
   setCachedDeviceFingerprint,
-} from "./deviceFingerprintCache.ts";
+} from "./deviceFingerprintCache";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -137,7 +137,8 @@ export const OAUTH_PROVIDERS: Record<string, OAuthProviderConfig> = {
     name: "Microsoft",
     icon: "SiMicrosoft",
     color: "#00a4ef",
-    getAuthUrl: (c) => `${c.apiEndpoints.login.replace("/login", "")}/microsoft`,
+    getAuthUrl: (c) =>
+      `${c.apiEndpoints.login.replace("/login", "")}/microsoft`,
     scopes: ["User.Read"],
   },
   linkedin: {
@@ -194,13 +195,16 @@ export const initiateOAuthLogin = (
   const provider = OAUTH_PROVIDERS[providerId];
 
   if (!provider) throw new Error(`Unknown OAuth provider: ${providerId}`);
-  if (!appConfig.features.socialLogin?.enabled) throw new Error("Social login is not enabled for this app");
+  if (!appConfig.features.socialLogin?.enabled)
+    throw new Error("Social login is not enabled for this app");
   if (!appConfig.features.socialLogin.providers.includes(providerId)) {
     throw new Error(`${provider.name} login is not enabled for this app`);
   }
 
   const authUrl = provider.getAuthUrl(appConfig);
-  const redirectUrl = options.redirectUrl ?? (typeof window !== "undefined" ? window.location.origin : "");
+  const redirectUrl =
+    options.redirectUrl ??
+    (typeof window !== "undefined" ? window.location.origin : "");
 
   if (typeof window !== "undefined") {
     sessionStorage.setItem("oauthRedirectUrl", redirectUrl);
@@ -229,7 +233,8 @@ export const handleOAuthCallback = async (
           code,
           state,
           provider,
-          redirectUrl: typeof window !== "undefined" ? window.location.origin : "",
+          redirectUrl:
+            typeof window !== "undefined" ? window.location.origin : "",
         }),
       },
     );
@@ -258,7 +263,10 @@ export const isOAuthCallback = (): boolean => {
   if (typeof window === "undefined") return false;
 
   const params = new URLSearchParams(window.location.search);
-  return params.has("code") && (params.has("state") || sessionStorage.getItem("oauthProvider") !== null);
+  return (
+    params.has("code") &&
+    (params.has("state") || sessionStorage.getItem("oauthProvider") !== null)
+  );
 };
 
 /** Returns the post-OAuth redirect path stored before the provider redirect. */
@@ -276,7 +284,10 @@ export const sessionUtils = {
    * Attaches activity event listeners and starts a periodic inactivity check.
    * Returns a cleanup function to unbind listeners and clear the interval.
    */
-  startActivityTracking: (callback: ActivityCallback, interval = 60_000): (() => void) | null => {
+  startActivityTracking: (
+    callback: ActivityCallback,
+    interval = 60_000,
+  ): (() => void) | null => {
     if (typeof window === "undefined") return null;
 
     let lastActivity = Date.now();
@@ -285,7 +296,14 @@ export const sessionUtils = {
       callback(lastActivity);
     };
 
-    const events: string[] = ["mousedown", "mousemove", "keypress", "scroll", "touchstart", "click"];
+    const events: string[] = [
+      "mousedown",
+      "mousemove",
+      "keypress",
+      "scroll",
+      "touchstart",
+      "click",
+    ];
     events.forEach((e) => document.addEventListener(e, trackActivity, true));
 
     const intervalId = setInterval(() => {
@@ -295,13 +313,18 @@ export const sessionUtils = {
     }, interval);
 
     return () => {
-      events.forEach((e) => document.removeEventListener(e, trackActivity, true));
+      events.forEach((e) =>
+        document.removeEventListener(e, trackActivity, true),
+      );
       clearInterval(intervalId);
     };
   },
 
   /** Returns true if the last activity timestamp is within the allowed inactivity window. */
-  isSessionValid: (lastActivity: number | null, maxInactiveTime = 30 * 60 * 1000): boolean => {
+  isSessionValid: (
+    lastActivity: number | null,
+    maxInactiveTime = 30 * 60 * 1000,
+  ): boolean => {
     if (!lastActivity) return false;
     return Date.now() - lastActivity < maxInactiveTime;
   },

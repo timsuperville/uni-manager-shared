@@ -5,11 +5,11 @@
 
 import React, { createContext, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth.ts";
-import { useFeatureGate } from "../hooks/useFeatureGate.ts";
-import { RBACUtils } from "../utils/RBACUtils.ts";
-import type { User } from "../types/auth.types.ts";
-import type { Permission } from "../types/rbacRoles.ts";
+import { useAuth } from "../hooks/useAuth";
+import { useFeatureGate } from "../hooks/useFeatureGate";
+import { RBACUtils } from "../utils/RBACUtils";
+import type { User } from "../types/auth.types";
+import type { Permission } from "../types/rbacRoles";
 
 // ── RBACContext (backward-compat: wraps useAuth) ──────────────────────────────
 
@@ -42,7 +42,10 @@ interface RBACProviderProps {
  * RBACProvider — thin compatibility wrapper.
  * Prefer using useAuth directly in new components.
  */
-export function RBACProvider({ children, application = null }: RBACProviderProps) {
+export function RBACProvider({
+  children,
+  application = null,
+}: RBACProviderProps) {
   const auth = useAuth();
   const { user, isAuthenticated } = auth || {};
 
@@ -62,11 +65,17 @@ export function RBACProvider({ children, application = null }: RBACProviderProps
     hasRole: (r) => rbac.hasRole(r),
     hasAnyRole: (rs) => rbac.hasAnyRole(rs),
     canAccessRoute: (route) => rbac.canAccessRoute(application ?? "", route),
-    canAccessApplication: (app) => rbac.canAccessApplication(app ?? application ?? ""),
-    isApplicationAdmin: (app) => rbac.isApplicationAdmin(app ?? application ?? ""),
+    canAccessApplication: (app) =>
+      rbac.canAccessApplication(app ?? application ?? ""),
+    isApplicationAdmin: (app) =>
+      rbac.isApplicationAdmin(app ?? application ?? ""),
     isAnyAdmin: () => rbac.isAnyAdmin(),
     getAccessibleApplications: () => rbac.getAccessibleApplications(),
-    filterMenuItems: (items) => rbac.filterMenuItems(items as Parameters<typeof rbac.filterMenuItems>[0], application),
+    filterMenuItems: (items) =>
+      rbac.filterMenuItems(
+        items as Parameters<typeof rbac.filterMenuItems>[0],
+        application,
+      ),
   };
 
   return <RBACContext.Provider value={value}>{children}</RBACContext.Provider>;
@@ -97,7 +106,11 @@ interface ApplicationGuardProps extends GuardChildren {
 /**
  * ApplicationGuard — ensures the user can access the given application.
  */
-export function ApplicationGuard({ application, fallback, children }: ApplicationGuardProps) {
+export function ApplicationGuard({
+  application,
+  fallback,
+  children,
+}: ApplicationGuardProps) {
   const auth = useAuth();
   const navigate = useNavigate();
 
@@ -144,7 +157,8 @@ export function PermissionGuard({
     return <>{fallback}</>;
   }
 
-  if (!permsToCheck.length || !auth || !auth.hasPermission) return <>{fallback}</>;
+  if (!permsToCheck.length || !auth || !auth.hasPermission)
+    return <>{fallback}</>;
 
   // Capture after the guard — TS can't narrow closures
   const checkPerm = auth.hasPermission.bind(auth);
@@ -192,7 +206,10 @@ export function RoleGuard({
 
   if (minimumLevel !== null) {
     if (!auth || !auth.hasMinimumRoleLevel) return <>{fallback}</>;
-    const level = typeof minimumLevel === "string" ? parseInt(minimumLevel, 10) : minimumLevel;
+    const level =
+      typeof minimumLevel === "string"
+        ? parseInt(minimumLevel, 10)
+        : minimumLevel;
     const hasLevel = auth.hasMinimumRoleLevel(level);
     return hasLevel ? <>{children}</> : <>{fallback}</>;
   }
@@ -266,8 +283,12 @@ export function RouteGuard({
 
   if (permissions.length > 0) {
     hasAccess = requireAll
-      ? permissions.every((perm) => auth.hasPermission && auth.hasPermission(perm))
-      : permissions.some((perm) => auth.hasPermission && auth.hasPermission(perm));
+      ? permissions.every(
+          (perm) => auth.hasPermission && auth.hasPermission(perm),
+        )
+      : permissions.some(
+          (perm) => auth.hasPermission && auth.hasPermission(perm),
+        );
   }
 
   if (hasAccess && roles.length > 0) {
@@ -297,7 +318,11 @@ interface AdminGuardProps extends GuardChildren {
  * Admin Guard Component
  * Renders children only for admin users.
  */
-export function AdminGuard({ children, fallback = null, application = null }: AdminGuardProps) {
+export function AdminGuard({
+  children,
+  fallback = null,
+  application = null,
+}: AdminGuardProps) {
   const auth = useAuth();
   if (!auth) return <>{fallback}</>;
 
@@ -309,7 +334,10 @@ export function AdminGuard({ children, fallback = null, application = null }: Ad
   } else {
     isAdmin = auth.isAnyAdmin
       ? auth.isAnyAdmin()
-      : !!(auth.hasRole && (auth.hasRole("super_admin") || auth.hasRole("admin")));
+      : !!(
+          auth.hasRole &&
+          (auth.hasRole("super_admin") || auth.hasRole("admin"))
+        );
   }
 
   return isAdmin ? <>{children}</> : <>{fallback}</>;
@@ -412,7 +440,9 @@ export function PermissionButton({
     const checkRole2 = auth.hasRole.bind(auth);
     hasAccess =
       hasAccess &&
-      (auth.hasAnyRole ? auth.hasAnyRole(roles) : roles.some((r) => checkRole2(r)));
+      (auth.hasAnyRole
+        ? auth.hasAnyRole(roles)
+        : roles.some((r) => checkRole2(r)));
   }
 
   if (hideIfNoAccess && !hasAccess) return null;
@@ -462,7 +492,9 @@ export function PermissionMenuItem({
     const checkRole3 = auth.hasRole.bind(auth);
     hasAccess =
       hasAccess &&
-      (auth.hasAnyRole ? auth.hasAnyRole(roles) : roles.some((r) => checkRole3(r)));
+      (auth.hasAnyRole
+        ? auth.hasAnyRole(roles)
+        : roles.some((r) => checkRole3(r)));
   }
 
   if (!hasAccess) return null;
@@ -486,7 +518,10 @@ interface WithPermissionsOptions {
  * Higher-Order Component for Permission-based rendering.
  * Usage: withPermissions(['permission1', 'permission2'], options)(Component)
  */
-export function withPermissions(permissions: string[] = [], options: WithPermissionsOptions = {}) {
+export function withPermissions(
+  permissions: string[] = [],
+  options: WithPermissionsOptions = {},
+) {
   return function <P extends object>(WrappedComponent: React.ComponentType<P>) {
     const { requireAll = false, fallback = null, redirectTo = null } = options;
 
@@ -495,7 +530,9 @@ export function withPermissions(permissions: string[] = [], options: WithPermiss
 
       if (!auth || !auth.hasPermission) {
         if (redirectTo && import.meta.env?.DEV) {
-          console.warn("withPermissions: redirectTo not supported without useNavigate hook");
+          console.warn(
+            "withPermissions: redirectTo not supported without useNavigate hook",
+          );
         }
         if (!fallback) return null;
         if (typeof fallback === "function") {
@@ -514,7 +551,9 @@ export function withPermissions(permissions: string[] = [], options: WithPermiss
 
       if (!hasPermission) {
         if (redirectTo && import.meta.env?.DEV) {
-          console.warn("withPermissions: redirectTo not supported without useNavigate hook");
+          console.warn(
+            "withPermissions: redirectTo not supported without useNavigate hook",
+          );
         }
         if (!fallback) return null;
         if (typeof fallback === "function") {
@@ -545,9 +584,17 @@ interface WithRolesOptions {
  * Higher-Order Component for Role-based rendering.
  * Usage: withRoles(['role1', 'role2'], options)(Component)
  */
-export function withRoles(roles: string[] = [], options: WithRolesOptions = {}) {
+export function withRoles(
+  roles: string[] = [],
+  options: WithRolesOptions = {},
+) {
   return function <P extends object>(WrappedComponent: React.ComponentType<P>) {
-    const { requireAll = false, minimumLevel = null, fallback = null, redirectTo = null } = options;
+    const {
+      requireAll = false,
+      minimumLevel = null,
+      fallback = null,
+      redirectTo = null,
+    } = options;
 
     const WithRoleComponent = (props: P) => {
       const auth = useAuth();
@@ -563,16 +610,23 @@ export function withRoles(roles: string[] = [], options: WithRolesOptions = {}) 
 
       if (!auth || !auth.hasRole) {
         if (redirectTo && import.meta.env?.DEV) {
-          console.warn("withRoles: redirectTo not supported without useNavigate hook");
+          console.warn(
+            "withRoles: redirectTo not supported without useNavigate hook",
+          );
         }
         return renderFallback();
       }
 
       if (minimumLevel !== null && auth.hasMinimumRoleLevel) {
-        const lvl = typeof minimumLevel === "string" ? parseInt(minimumLevel, 10) : minimumLevel;
+        const lvl =
+          typeof minimumLevel === "string"
+            ? parseInt(minimumLevel, 10)
+            : minimumLevel;
         if (!auth.hasMinimumRoleLevel(lvl)) {
           if (redirectTo && import.meta.env?.DEV) {
-            console.warn("withRoles: redirectTo not supported without useNavigate hook");
+            console.warn(
+              "withRoles: redirectTo not supported without useNavigate hook",
+            );
           }
           return renderFallback();
         }
@@ -590,7 +644,9 @@ export function withRoles(roles: string[] = [], options: WithRolesOptions = {}) 
 
       if (!hasRole) {
         if (redirectTo && import.meta.env?.DEV) {
-          console.warn("withRoles: redirectTo not supported without useNavigate hook");
+          console.warn(
+            "withRoles: redirectTo not supported without useNavigate hook",
+          );
         }
         return renderFallback();
       }
@@ -623,7 +679,11 @@ interface FeatureGuardProps extends GuardChildren {
  *   <BudgetGoals />
  * </FeatureGuard>
  */
-export function FeatureGuard({ featureKey, children, fallback = null }: FeatureGuardProps) {
+export function FeatureGuard({
+  featureKey,
+  children,
+  fallback = null,
+}: FeatureGuardProps) {
   const isEnabled = useFeatureGate(featureKey);
   return isEnabled ? <>{children}</> : <>{fallback}</>;
 }

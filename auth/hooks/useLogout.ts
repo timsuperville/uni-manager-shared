@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { useAuth } from "./useAuth.ts";
+import { useAuth } from "./useAuth";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 

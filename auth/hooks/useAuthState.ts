@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import type { User } from "../types/auth.types.ts";
+import type { User } from "../types/auth.types";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 

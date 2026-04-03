@@ -5,7 +5,7 @@ import {
   validatePassword,
   validateName,
   getPasswordStrength,
-} from "../utils/authValidation.ts";
+} from "../utils/authValidation";
 import { getCurrentAppConfig } from "../config/appConfigs";
 import { getAuthService } from "../services";
 import {

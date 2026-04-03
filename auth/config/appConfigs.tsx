@@ -5,7 +5,7 @@
  */
 
 import React from "react";
-import { getApiBaseUrl } from "../../api/config/apiConfig.ts";
+import { getApiBaseUrl } from "../../api/config/apiConfig";
 import {
   ChurchAppLogo,
   AdminAppLogo,
@@ -17,7 +17,13 @@ import {
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-export type AppName = "church" | "admin" | "business" | "home" | "personal" | "playback";
+export type AppName =
+  | "church"
+  | "admin"
+  | "business"
+  | "home"
+  | "personal"
+  | "playback";
 
 export interface SocialLoginConfig {
   enabled: boolean;
@@ -119,7 +125,9 @@ export const APP_CONFIGS: Record<AppName, AppConfig> = {
       socialLogin: {
         enabled: true,
         providers: ["google"],
-        googleClientId: import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined,
+        googleClientId: import.meta.env.VITE_GOOGLE_CLIENT_ID as
+          | string
+          | undefined,
       },
       passwordReset: true,
       emailVerification: true,
@@ -142,7 +150,13 @@ export const APP_CONFIGS: Record<AppName, AppConfig> = {
       accentColor: "accent-violet-600",
     },
     ui: {
-      icon: <ChurchAppLogo size={40} style={{ color: "rgb(124, 58, 237)" }} sw={2} />,
+      icon: (
+        <ChurchAppLogo
+          size={40}
+          style={{ color: "rgb(124, 58, 237)" }}
+          sw={2}
+        />
+      ),
       loginTitle: "Ecclesia",
       loginDescription: "Sign in to your church community",
       registerPath: "/auth/register",
@@ -170,8 +184,12 @@ export const APP_CONFIGS: Record<AppName, AppConfig> = {
       socialLogin: {
         enabled: true,
         providers: ["google", "microsoft"],
-        googleClientId: import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined,
-        microsoftClientId: import.meta.env.VITE_MICROSOFT_CLIENT_ID as string | undefined,
+        googleClientId: import.meta.env.VITE_GOOGLE_CLIENT_ID as
+          | string
+          | undefined,
+        microsoftClientId: import.meta.env.VITE_MICROSOFT_CLIENT_ID as
+          | string
+          | undefined,
       },
       passwordReset: true,
       emailVerification: true,
@@ -194,7 +212,9 @@ export const APP_CONFIGS: Record<AppName, AppConfig> = {
       accentColor: "accent-slate-600",
     },
     ui: {
-      icon: <AdminAppLogo size={40} style={{ color: "rgb(71, 85, 105)" }} sw={2} />,
+      icon: (
+        <AdminAppLogo size={40} style={{ color: "rgb(71, 85, 105)" }} sw={2} />
+      ),
       loginTitle: "Admin Portal Access",
       loginDescription: "Sign in to access the administrative dashboard",
       registerPath: "/auth/register",
@@ -222,8 +242,12 @@ export const APP_CONFIGS: Record<AppName, AppConfig> = {
       socialLogin: {
         enabled: true,
         providers: ["google", "linkedin"],
-        googleClientId: import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined,
-        linkedinClientId: import.meta.env.VITE_LINKEDIN_CLIENT_ID as string | undefined,
+        googleClientId: import.meta.env.VITE_GOOGLE_CLIENT_ID as
+          | string
+          | undefined,
+        linkedinClientId: import.meta.env.VITE_LINKEDIN_CLIENT_ID as
+          | string
+          | undefined,
       },
       passwordReset: true,
       emailVerification: true,
@@ -246,7 +270,9 @@ export const APP_CONFIGS: Record<AppName, AppConfig> = {
       accentColor: "accent-emerald-500",
     },
     ui: {
-      icon: <WorkAppLogo size={40} style={{ color: "rgb(16, 185, 129)" }} sw={2} />,
+      icon: (
+        <WorkAppLogo size={40} style={{ color: "rgb(16, 185, 129)" }} sw={2} />
+      ),
       loginTitle: "Business Portal",
       loginDescription: "Access your business management tools",
       registerPath: "/auth/register",
@@ -293,7 +319,9 @@ export const APP_CONFIGS: Record<AppName, AppConfig> = {
       accentColor: "accent-amber-500",
     },
     ui: {
-      icon: <HomeAppLogo size={40} style={{ color: "rgb(245, 158, 11)" }} sw={2} />,
+      icon: (
+        <HomeAppLogo size={40} style={{ color: "rgb(245, 158, 11)" }} sw={2} />
+      ),
       loginTitle: "Home Management",
       loginDescription: "Manage your household and family activities",
       registerPath: "/auth/register",
@@ -321,8 +349,12 @@ export const APP_CONFIGS: Record<AppName, AppConfig> = {
       socialLogin: {
         enabled: true,
         providers: ["google", "github"],
-        googleClientId: import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined,
-        githubClientId: import.meta.env.VITE_GITHUB_CLIENT_ID as string | undefined,
+        googleClientId: import.meta.env.VITE_GOOGLE_CLIENT_ID as
+          | string
+          | undefined,
+        githubClientId: import.meta.env.VITE_GITHUB_CLIENT_ID as
+          | string
+          | undefined,
       },
       passwordReset: true,
       emailVerification: false,
@@ -345,7 +377,13 @@ export const APP_CONFIGS: Record<AppName, AppConfig> = {
       accentColor: "accent-purple-500",
     },
     ui: {
-      icon: <PersonalAppLogo size={40} style={{ color: "rgb(168, 85, 247)" }} sw={2} />,
+      icon: (
+        <PersonalAppLogo
+          size={40}
+          style={{ color: "rgb(168, 85, 247)" }}
+          sw={2}
+        />
+      ),
       loginTitle: "Personal Dashboard",
       loginDescription: "Access your personal productivity tools",
       registerPath: "/auth/register",
@@ -373,9 +411,15 @@ export const APP_CONFIGS: Record<AppName, AppConfig> = {
       socialLogin: {
         enabled: true,
         providers: ["google", "spotify", "apple"],
-        googleClientId: import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined,
-        spotifyClientId: import.meta.env.VITE_SPOTIFY_CLIENT_ID as string | undefined,
-        appleClientId: import.meta.env.VITE_APPLE_CLIENT_ID as string | undefined,
+        googleClientId: import.meta.env.VITE_GOOGLE_CLIENT_ID as
+          | string
+          | undefined,
+        spotifyClientId: import.meta.env.VITE_SPOTIFY_CLIENT_ID as
+          | string
+          | undefined,
+        appleClientId: import.meta.env.VITE_APPLE_CLIENT_ID as
+          | string
+          | undefined,
       },
       passwordReset: true,
       emailVerification: false,
@@ -398,7 +442,13 @@ export const APP_CONFIGS: Record<AppName, AppConfig> = {
       accentColor: "accent-rose-500",
     },
     ui: {
-      icon: <PlaybackAppLogo size={40} style={{ color: "rgb(244, 63, 94)" }} sw={2} />,
+      icon: (
+        <PlaybackAppLogo
+          size={40}
+          style={{ color: "rgb(244, 63, 94)" }}
+          sw={2}
+        />
+      ),
       loginTitle: "Media Playback",
       loginDescription: "Control and manage media playback",
       registerPath: "/auth/register",
@@ -446,14 +496,19 @@ export function getCurrentAppName(): AppName {
   // Priority 4: Subdomain-based lookup (production)
   if (typeof window !== "undefined") {
     const subdomain = window.location.hostname.split(".")[0] as AppName;
-    if (Object.prototype.hasOwnProperty.call(APP_CONFIGS, subdomain)) return subdomain;
+    if (Object.prototype.hasOwnProperty.call(APP_CONFIGS, subdomain))
+      return subdomain;
   }
 
   return "church";
 }
 
-export function getCurrentAppConfig(appType?: string): AppConfig & { name: AppName } {
-  const name = appType ? (appType.toLowerCase() as AppName) : getCurrentAppName();
+export function getCurrentAppConfig(
+  appType?: string,
+): AppConfig & { name: AppName } {
+  const name = appType
+    ? (appType.toLowerCase() as AppName)
+    : getCurrentAppName();
   const config = getAppConfig(name);
   return { ...config, name };
 }

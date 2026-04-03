@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
-import { useAuth } from "./useAuth.ts";
-import type { LoginFormData } from "../types/auth.types.ts";
+import { useAuth } from "./useAuth";
+import type { LoginFormData } from "../types/auth.types";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 

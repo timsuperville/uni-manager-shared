@@ -20,7 +20,7 @@
  * reads — only add async if the caller itself does real I/O (fetch, etc.).
  */
 
-import type { User } from "../types/auth.types.ts";
+import type { User } from "../types/auth.types";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -70,11 +70,18 @@ export class TokenStorage {
       sessionId: `${namespace}_auth_session_id`,
     };
     this.storage = typeof window !== "undefined" ? window.sessionStorage : null;
-    this.persistentStorage = typeof window !== "undefined" ? window.localStorage : null;
+    this.persistentStorage =
+      typeof window !== "undefined" ? window.localStorage : null;
   }
 
   /** Store authentication tokens. Writes to sessionStorage unless `persistent` is true. */
-  setTokens({ accessToken, refreshToken, user, sessionId, persistent = false }: SetTokensParams): boolean {
+  setTokens({
+    accessToken,
+    refreshToken,
+    user,
+    sessionId,
+    persistent = false,
+  }: SetTokensParams): boolean {
     try {
       const storage = persistent ? this.persistentStorage : this.storage;
       if (!storage) return false;
@@ -82,13 +89,18 @@ export class TokenStorage {
       if (accessToken) {
         storage.setItem(this.storageKeys.accessToken, accessToken);
       }
-      if (refreshToken) storage.setItem(this.storageKeys.refreshToken, refreshToken);
+      if (refreshToken)
+        storage.setItem(this.storageKeys.refreshToken, refreshToken);
       if (user) storage.setItem(this.storageKeys.user, JSON.stringify(user));
       if (sessionId) storage.setItem(this.storageKeys.sessionId, sessionId);
 
       return true;
     } catch (error) {
-      if (import.meta.env.DEV) console.warn("[TokenStorage] setTokens failed:", (error as Error).message);
+      if (import.meta.env.DEV)
+        console.warn(
+          "[TokenStorage] setTokens failed:",
+          (error as Error).message,
+        );
       return false;
     }
   }
@@ -102,7 +114,11 @@ export class TokenStorage {
         null
       );
     } catch (error) {
-      if (import.meta.env.DEV) console.warn("[TokenStorage] getAccessToken failed:", (error as Error).message);
+      if (import.meta.env.DEV)
+        console.warn(
+          "[TokenStorage] getAccessToken failed:",
+          (error as Error).message,
+        );
       return null;
     }
   }
@@ -116,7 +132,11 @@ export class TokenStorage {
         null
       );
     } catch (error) {
-      if (import.meta.env.DEV) console.warn("[TokenStorage] getRefreshToken failed:", (error as Error).message);
+      if (import.meta.env.DEV)
+        console.warn(
+          "[TokenStorage] getRefreshToken failed:",
+          (error as Error).message,
+        );
       return null;
     }
   }
@@ -129,7 +149,11 @@ export class TokenStorage {
         this.persistentStorage?.getItem(this.storageKeys.user);
       return raw ? (JSON.parse(raw) as User) : null;
     } catch (error) {
-      if (import.meta.env.DEV) console.warn("[TokenStorage] getUser failed:", (error as Error).message);
+      if (import.meta.env.DEV)
+        console.warn(
+          "[TokenStorage] getUser failed:",
+          (error as Error).message,
+        );
       return null;
     }
   }
@@ -143,7 +167,11 @@ export class TokenStorage {
         null
       );
     } catch (error) {
-      if (import.meta.env.DEV) console.warn("[TokenStorage] getSessionId failed:", (error as Error).message);
+      if (import.meta.env.DEV)
+        console.warn(
+          "[TokenStorage] getSessionId failed:",
+          (error as Error).message,
+        );
       return null;
     }
   }
@@ -157,7 +185,11 @@ export class TokenStorage {
       }
       return true;
     } catch (error) {
-      if (import.meta.env.DEV) console.warn("[TokenStorage] clearTokens failed:", (error as Error).message);
+      if (import.meta.env.DEV)
+        console.warn(
+          "[TokenStorage] clearTokens failed:",
+          (error as Error).message,
+        );
       return false;
     }
   }
@@ -178,10 +210,26 @@ export class TokenStorage {
       const refreshToken = this.getRefreshToken();
       const user = this.getUser();
       const sessionId = this.getSessionId();
-      return { accessToken, refreshToken, user, sessionId, isAuthenticated: !!(accessToken && user) };
+      return {
+        accessToken,
+        refreshToken,
+        user,
+        sessionId,
+        isAuthenticated: !!(accessToken && user),
+      };
     } catch (error) {
-      if (import.meta.env.DEV) console.warn("[TokenStorage] getAuthData failed:", (error as Error).message);
-      return { accessToken: null, refreshToken: null, user: null, sessionId: null, isAuthenticated: false };
+      if (import.meta.env.DEV)
+        console.warn(
+          "[TokenStorage] getAuthData failed:",
+          (error as Error).message,
+        );
+      return {
+        accessToken: null,
+        refreshToken: null,
+        user: null,
+        sessionId: null,
+        isAuthenticated: false,
+      };
     }
   }
 
@@ -202,7 +250,11 @@ export class TokenStorage {
 
       return true;
     } catch (error) {
-      if (import.meta.env.DEV) console.warn("[TokenStorage] updateUser failed:", (error as Error).message);
+      if (import.meta.env.DEV)
+        console.warn(
+          "[TokenStorage] updateUser failed:",
+          (error as Error).message,
+        );
       return false;
     }
   }

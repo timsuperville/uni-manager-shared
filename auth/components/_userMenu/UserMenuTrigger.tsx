@@ -3,7 +3,7 @@ import { ChevronDown, WifiOff } from "lucide-react";
 
 import { UserAvatar } from "../../../components/ui";
 import { getUserDisplayName } from "../../../utils";
-import type { User } from "../../types/auth.types.ts";
+import type { User } from "../../types/auth.types";
 import type { AppConfig } from "../../config/appConfigs";
 
 interface UserMenuTriggerProps {
@@ -83,11 +83,20 @@ function UserMenuTrigger({
               width: "9px",
               height: "9px",
               borderRadius: "50%",
-              background: isConnected ? statusDotColor : "var(--color-warning, hsl(38,95%,54%))",
-              border: "2px solid var(--bg-sidebar, var(--bg-obsidian, #0a0e1a))",
+              background: isConnected
+                ? statusDotColor
+                : "var(--color-warning, hsl(38,95%,54%))",
+              border:
+                "2px solid var(--bg-sidebar, var(--bg-obsidian, #0a0e1a))",
               transition: "background 300ms ease",
             }}
-            title={!isConnected ? "Offline" : status === "available" ? "Available" : "Unavailable"}
+            title={
+              !isConnected
+                ? "Offline"
+                : status === "available"
+                  ? "Available"
+                  : "Unavailable"
+            }
             aria-hidden="true"
           />
         )}
@@ -133,7 +142,10 @@ function UserMenuTrigger({
       {hasPresence && !isConnected && (
         <WifiOff
           size={12}
-          style={{ color: "var(--color-warning, hsl(38,95%,54%))", flexShrink: 0 }}
+          style={{
+            color: "var(--color-warning, hsl(38,95%,54%))",
+            flexShrink: 0,
+          }}
           aria-label="Offline"
         />
       )}

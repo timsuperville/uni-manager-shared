@@ -36,7 +36,7 @@ import React, {
 import { createPortal } from "react-dom";
 import { useLocation } from "react-router-dom";
 
-import { useAuth } from "../context/AuthContext.tsx";
+import { useAuth } from "../context/AuthContext";
 import { PresenceContext } from "../../context/PresenceContext";
 import { getCurrentAppConfig } from "../config/appConfigs";
 import { formatRole } from "../../utils";
@@ -203,7 +203,9 @@ const UserMenu = ({
     if (!isOpen) return;
     window.addEventListener("keydown", handleKeyDown);
     requestAnimationFrame(() => {
-      const firstItem = panelRef.current?.querySelector('[role="menuitem"]') as HTMLElement | null;
+      const firstItem = panelRef.current?.querySelector(
+        '[role="menuitem"]',
+      ) as HTMLElement | null;
       firstItem?.focus();
     });
     return () => window.removeEventListener("keydown", handleKeyDown);
@@ -225,12 +227,9 @@ const UserMenu = ({
       setIsLoggingOut(false);
     }
   }, [logout]);
-  const handleToggleStatus = useCallback(
-    () => {
-      setStatus?.(status === "available" ? "unavailable" : "available");
-    },
-    [status, setStatus],
-  );
+  const handleToggleStatus = useCallback(() => {
+    setStatus?.(status === "available" ? "unavailable" : "available");
+  }, [status, setStatus]);
 
   // ── Derived ───────────────────────────────────────────────────────────────
   const statusDotColor =
@@ -251,13 +250,19 @@ const UserMenu = ({
   //      config. This prevents the global system role (e.g. super_admin →
   //      "Super Admin") from leaking into unrelated app contexts.
   const appRoles = appConfig.permissions?.roles ?? [];
-  const extUser = user as typeof user & { churchRole?: string; title?: string; position?: string };
+  const extUser = user as typeof user & {
+    churchRole?: string;
+    title?: string;
+    position?: string;
+  };
   const roleLabel: string | undefined =
     roleLabelProp ??
     extUser?.churchRole ??
     extUser?.title ??
     extUser?.position ??
-    (user?.role && appRoles.includes(user.role) ? formatRole(user.role) : undefined);
+    (user?.role && appRoles.includes(user.role)
+      ? formatRole(user.role)
+      : undefined);
 
   const triggerId = `user-menu-trigger-${uid}`;
   const panelId = `user-menu-panel-${uid}`;

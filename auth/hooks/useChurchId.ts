@@ -1,5 +1,5 @@
-import { useAuth } from "./useAuth.ts";
-import type { User } from "../types/auth.types.ts";
+import { useAuth } from "./useAuth";
+import type { User } from "../types/auth.types";
 
 /**
  * useChurchId — resolves the active church ID from the auth user object.
@@ -20,11 +20,13 @@ export function useChurchId(): string | null {
 
   if (!user) return null;
 
-  const church = (user as User & { currentChurch?: string | { id?: string; _id?: string } }).currentChurch;
+  const church = (
+    user as User & { currentChurch?: string | { id?: string; _id?: string } }
+  ).currentChurch;
   if (!church) return null;
 
   return typeof church === "object"
-    ? church.id ?? church._id ?? null
+    ? (church.id ?? church._id ?? null)
     : church;
 }
 

@@ -4,7 +4,7 @@
  */
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { validateEmail } from "../utils/authValidation.ts";
+import { validateEmail } from "../utils/authValidation";
 import {
   AuthContainer,
   AuthCardContent,
@@ -117,7 +117,10 @@ const ForgotPasswordForm = ({
 
         {/* Header */}
         <div className="text-center">
-          <div className="flex justify-center mb-3 text-gray-900 dark:text-white" aria-hidden="true">
+          <div
+            className="flex justify-center mb-3 text-gray-900 dark:text-white"
+            aria-hidden="true"
+          >
             <LockIcon size={40} />
           </div>
           <h2 className="text-2xl font-extrabold text-gray-900 dark:text-white">

@@ -5,9 +5,14 @@
  * login, signup, password reset, and profile updates.
  */
 
-import { validateCredentials } from "../utils/authValidation.ts";
-import { getDeviceInfo } from "../utils/socialAuth.ts";
-import type { User, SignupData, LoginResult, Session } from "../types/auth.types.ts";
+import { validateCredentials } from "../utils/authValidation";
+import { getDeviceInfo } from "../utils/socialAuth";
+import type {
+  User,
+  SignupData,
+  LoginResult,
+  Session,
+} from "../types/auth.types";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -55,7 +60,10 @@ export class EmailPasswordAuthService {
     this.deviceFingerprint = config.deviceFingerprint ?? null;
   }
 
-  private async _makeRequest(endpoint: string, options: RequestOptions = {}): Promise<Response> {
+  private async _makeRequest(
+    endpoint: string,
+    options: RequestOptions = {},
+  ): Promise<Response> {
     const url = `${this.apiBaseUrl}${this.endpoints[endpoint] ?? endpoint}`;
     return fetch(url, {
       ...options,
@@ -69,20 +77,32 @@ export class EmailPasswordAuthService {
   private async _handleResponse(response: Response): Promise<ApiResponse> {
     const contentType = response.headers.get("content-type");
     if (!contentType?.includes("application/json")) {
-      if (!response.ok) throw new Error(`Server error: ${response.status} ${response.statusText}`);
+      if (!response.ok)
+        throw new Error(
+          `Server error: ${response.status} ${response.statusText}`,
+        );
       return { success: true };
     }
 
-    const data = await response.json() as ApiResponse;
-    if (!response.ok) throw new Error(data.message ?? `Request failed with status ${response.status}`);
+    const data = (await response.json()) as ApiResponse;
+    if (!response.ok)
+      throw new Error(
+        data.message ?? `Request failed with status ${response.status}`,
+      );
     return data;
   }
 
   /** Authenticates with email and password credentials. */
-  async login(credentials: { email: string; password: string; rememberMe?: boolean }): Promise<LoginResult> {
+  async login(credentials: {
+    email: string;
+    password: string;
+    rememberMe?: boolean;
+  }): Promise<LoginResult> {
     const validation = validateCredentials(credentials);
     if (!validation.isValid) {
-      const errorValues = Object.values(validation.errors).filter((v): v is string => typeof v === "string");
+      const errorValues = Object.values(validation.errors).filter(
+        (v): v is string => typeof v === "string",
+      );
       throw new Error(errorValues.join(", "));
     }
 
@@ -109,14 +129,26 @@ export class EmailPasswordAuthService {
     }
 
     if (data.success && data.requiresMFA) {
-      return { success: true, mfaRequired: true, userId: data.userId, tempToken: data.tempToken };
+      return {
+        success: true,
+        mfaRequired: true,
+        userId: data.userId,
+        tempToken: data.tempToken,
+      };
     }
 
     throw new Error(data.message ?? "Login failed");
   }
 
   /** Registers a new user account. */
-  async signup(userData: SignupData): Promise<{ success: boolean; message?: string; requiresVerification?: boolean; user?: User }> {
+  async signup(
+    userData: SignupData,
+  ): Promise<{
+    success: boolean;
+    message?: string;
+    requiresVerification?: boolean;
+    user?: User;
+  }> {
     const response = await this._makeRequest("signup", {
       method: "POST",
       body: JSON.stringify({
@@ -129,36 +161,49 @@ export class EmailPasswordAuthService {
 
     const data = await this._handleResponse(response);
     if (data.success) {
-      return { success: true, message: data.message, requiresVerification: data.requiresVerification, user: data.user };
+      return {
+        success: true,
+        message: data.message,
+        requiresVerification: data.requiresVerification,
+        user: data.user,
+      };
     }
 
     throw new Error(data.message ?? "Signup failed");
   }
 
   /** Sends a password reset email. */
-  async forgotPassword(email: string): Promise<{ success: boolean; message?: string }> {
+  async forgotPassword(
+    email: string,
+  ): Promise<{ success: boolean; message?: string }> {
     const response = await this._makeRequest("forgotPassword", {
       method: "POST",
       body: JSON.stringify({ email, appType: this.appType }),
     });
 
-    const data = await response.json() as ApiResponse;
+    const data = (await response.json()) as ApiResponse;
     return { success: data.success, message: data.message };
   }
 
   /** Resets the password using a token from the reset email. */
-  async resetPassword(token: string, newPassword: string): Promise<{ success: boolean; message?: string }> {
+  async resetPassword(
+    token: string,
+    newPassword: string,
+  ): Promise<{ success: boolean; message?: string }> {
     const response = await this._makeRequest("resetPassword", {
       method: "POST",
       body: JSON.stringify({ token, newPassword, appType: this.appType }),
     });
 
-    const data = await response.json() as ApiResponse;
+    const data = (await response.json()) as ApiResponse;
     return { success: data.success, message: data.message };
   }
 
   /** Updates the authenticated user's profile. */
-  async updateProfile(profileData: Partial<User>, sessionToken: string): Promise<{ success: boolean; user?: User }> {
+  async updateProfile(
+    profileData: Partial<User>,
+    sessionToken: string,
+  ): Promise<{ success: boolean; user?: User }> {
     const response = await this._makeRequest("updateProfile", {
       method: "PUT",
       headers: { Authorization: `Bearer ${sessionToken}` },
@@ -188,7 +233,11 @@ export class EmailPasswordAuthService {
       const data = await this._handleResponse(response);
       return data.user ?? null;
     } catch (error) {
-      if (import.meta.env?.DEV) console.warn("[EmailPasswordAuthService] verifyToken failed:", (error as Error).message);
+      if (import.meta.env?.DEV)
+        console.warn(
+          "[EmailPasswordAuthService] verifyToken failed:",
+          (error as Error).message,
+        );
       return null;
     }
   }
@@ -205,7 +254,11 @@ export class EmailPasswordAuthService {
       return { success: true };
     } catch (error) {
       // Intentionally returns success — client-side cleanup continues regardless of backend failure.
-      if (import.meta.env?.DEV) console.warn("[EmailPasswordAuthService] logout backend call failed:", (error as Error).message);
+      if (import.meta.env?.DEV)
+        console.warn(
+          "[EmailPasswordAuthService] logout backend call failed:",
+          (error as Error).message,
+        );
       return { success: true };
     }
   }

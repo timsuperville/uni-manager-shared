@@ -1,11 +1,11 @@
 import { useState, useRef, useEffect } from "react";
-import { useAuth } from "../context/AuthContext.tsx";
+import { useAuth } from "../context/AuthContext";
 import {
   validateEmail,
   validatePassword,
   validateName,
-} from "../utils/authValidation.ts";
-import type { SignupData } from "../types/auth.types.ts";
+} from "../utils/authValidation";
+import type { SignupData } from "../types/auth.types";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -53,9 +53,15 @@ interface UseAuthFormReturn {
 /**
  * Unified hook for authentication forms (login, signup, forgot password).
  */
-export const useAuthForm = (formType: FormType = "login"): UseAuthFormReturn => {
+export const useAuthForm = (
+  formType: FormType = "login",
+): UseAuthFormReturn => {
   const { login, signup, resetPassword } = useAuth() as unknown as {
-    login: (email: string, password: string, rememberMe?: boolean) => Promise<unknown>;
+    login: (
+      email: string,
+      password: string,
+      rememberMe?: boolean,
+    ) => Promise<unknown>;
     signup: (data: SignupData) => Promise<unknown>;
     resetPassword: (email: string) => Promise<unknown>;
   };
@@ -111,33 +117,53 @@ export const useAuthForm = (formType: FormType = "login"): UseAuthFormReturn => 
 
     switch (formType) {
       case "signup": {
-        const firstNameResult = validateName(data["firstName"] as string, "First name");
-        if (!firstNameResult.isValid) newErrors["firstName"] = firstNameResult.error ?? "Invalid first name";
-        const lastNameResult = validateName(data["lastName"] as string, "Last name");
-        if (!lastNameResult.isValid) newErrors["lastName"] = lastNameResult.error ?? "Invalid last name";
+        const firstNameResult = validateName(
+          data["firstName"] as string,
+          "First name",
+        );
+        if (!firstNameResult.isValid)
+          newErrors["firstName"] =
+            firstNameResult.error ?? "Invalid first name";
+        const lastNameResult = validateName(
+          data["lastName"] as string,
+          "Last name",
+        );
+        if (!lastNameResult.isValid)
+          newErrors["lastName"] = lastNameResult.error ?? "Invalid last name";
         const emailValidation = validateEmail(data["email"] as string);
-        if (!emailValidation.isValid) newErrors["email"] = emailValidation.errors["email"] ?? "Invalid email";
+        if (!emailValidation.isValid)
+          newErrors["email"] =
+            emailValidation.errors["email"] ?? "Invalid email";
         const passwordValidation = validatePassword(data["password"] as string);
-        if (!passwordValidation.isValid) newErrors["password"] = passwordValidation.error ?? "Invalid password";
+        if (!passwordValidation.isValid)
+          newErrors["password"] =
+            passwordValidation.error ?? "Invalid password";
         if (data["password"] !== data["confirmPassword"]) {
           newErrors["confirmPassword"] = "Passwords do not match";
         }
         if (!data["agreeToTerms"]) {
-          newErrors["agreeToTerms"] = "You must agree to the terms and conditions";
+          newErrors["agreeToTerms"] =
+            "You must agree to the terms and conditions";
         }
         break;
       }
       case "forgotPassword": {
         const emailValidation = validateEmail(data["email"] as string);
-        if (!emailValidation.isValid) newErrors["email"] = emailValidation.errors["email"] ?? "Invalid email";
+        if (!emailValidation.isValid)
+          newErrors["email"] =
+            emailValidation.errors["email"] ?? "Invalid email";
         break;
       }
       case "login":
       default: {
         const emailValidation = validateEmail(data["email"] as string);
-        if (!emailValidation.isValid) newErrors["email"] = emailValidation.errors["email"] ?? "Invalid email";
+        if (!emailValidation.isValid)
+          newErrors["email"] =
+            emailValidation.errors["email"] ?? "Invalid email";
         const passwordValidation = validatePassword(data["password"] as string);
-        if (!passwordValidation.isValid) newErrors["password"] = passwordValidation.error ?? "Invalid password";
+        if (!passwordValidation.isValid)
+          newErrors["password"] =
+            passwordValidation.error ?? "Invalid password";
         break;
       }
     }
@@ -145,7 +171,9 @@ export const useAuthForm = (formType: FormType = "login"): UseAuthFormReturn => 
     return newErrors;
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<unknown> => {
+  const handleSubmit = async (
+    e: React.FormEvent<HTMLFormElement>,
+  ): Promise<unknown> => {
     e.preventDefault();
 
     const newErrors = validateForm();
@@ -161,7 +189,6 @@ export const useAuthForm = (formType: FormType = "login"): UseAuthFormReturn => 
     let result: unknown;
     const data = formData as unknown as Record<string, unknown>;
     try {
-
       switch (formType) {
         case "signup": {
           result = await signup({
@@ -192,7 +219,9 @@ export const useAuthForm = (formType: FormType = "login"): UseAuthFormReturn => 
     } catch (err) {
       if (mounted.current) {
         setError(
-          err instanceof Error ? err.message : "An error occurred. Please try again.",
+          err instanceof Error
+            ? err.message
+            : "An error occurred. Please try again.",
         );
       }
       return undefined;

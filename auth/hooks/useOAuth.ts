@@ -1,5 +1,5 @@
 import { useCallback, useState, useEffect, useRef } from "react";
-import { getApiBaseUrl } from "../../api/config/apiConfig.ts";
+import { getApiBaseUrl } from "../../api/config/apiConfig";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -27,13 +27,18 @@ export function useOAuth(): UseOAuthReturn {
   useEffect(() => {
     return () => {
       if (checkTimerRef.current) clearInterval(checkTimerRef.current);
-      if (popupRef.current && !popupRef.current.closed) popupRef.current.close();
+      if (popupRef.current && !popupRef.current.closed)
+        popupRef.current.close();
     };
   }, []);
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      const { type, data, error: errorMsg } = event.data as {
+      const {
+        type,
+        data,
+        error: errorMsg,
+      } = event.data as {
         type?: string;
         data?: unknown;
         error?: string;
@@ -56,41 +61,44 @@ export function useOAuth(): UseOAuthReturn {
     return () => window.removeEventListener("message", handleMessage);
   }, []);
 
-  const loginWithProvider = useCallback(async (provider: string): Promise<void> => {
-    setIsLoading(true);
-    setError(null);
+  const loginWithProvider = useCallback(
+    async (provider: string): Promise<void> => {
+      setIsLoading(true);
+      setError(null);
 
-    try {
-      const width = 500;
-      const height = 600;
-      const left = window.screen.width / 2 - width / 2;
-      const top = window.screen.height / 2 - height / 2;
+      try {
+        const width = 500;
+        const height = 600;
+        const left = window.screen.width / 2 - width / 2;
+        const top = window.screen.height / 2 - height / 2;
 
-      const url = `${API_URL}/auth/${provider}`;
-      const name = `uni_manager_${provider}_login`;
-      const features = `width=${width},height=${height},left=${left},top=${top}`;
+        const url = `${API_URL}/auth/${provider}`;
+        const name = `uni_manager_${provider}_login`;
+        const features = `width=${width},height=${height},left=${left},top=${top}`;
 
-      const popup = window.open(url, name, features);
-      popupRef.current = popup;
+        const popup = window.open(url, name, features);
+        popupRef.current = popup;
 
-      if (!popup) {
-        throw new Error("Popup blocked. Please allow popups for this site.");
-      }
-
-      checkTimerRef.current = setInterval(() => {
-        if (popupRef.current?.closed) {
-          clearInterval(checkTimerRef.current!);
-          setIsLoading(false);
+        if (!popup) {
+          throw new Error("Popup blocked. Please allow popups for this site.");
         }
-      }, 1000);
-    } catch (err) {
-      if (import.meta.env.DEV) {
-        console.error("OAuth Error:", err);
+
+        checkTimerRef.current = setInterval(() => {
+          if (popupRef.current?.closed) {
+            clearInterval(checkTimerRef.current!);
+            setIsLoading(false);
+          }
+        }, 1000);
+      } catch (err) {
+        if (import.meta.env.DEV) {
+          console.error("OAuth Error:", err);
+        }
+        setError(err instanceof Error ? err.message : "OAuth failed");
+        setIsLoading(false);
       }
-      setError(err instanceof Error ? err.message : "OAuth failed");
-      setIsLoading(false);
-    }
-  }, []);
+    },
+    [],
+  );
 
   return {
     isLoading,

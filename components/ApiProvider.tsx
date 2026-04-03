@@ -1,5 +1,5 @@
 import React, { createContext, useContext } from "react";
-import { getSharedEnvironmentConfig } from "../config/environment.ts";
+import { getSharedEnvironmentConfig } from "../config/environment";
 
 interface ApiContextValue {
   baseURL: string;

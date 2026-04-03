@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useAuth } from "../context/AuthContext.tsx";
+import { useAuth } from "../context/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import MFAVerification from "./MFAVerification";
 import MFASetup from "./MFASetup";
 import { getCurrentAppConfig } from "../config/appConfigs";
-import { validateEmail } from "../utils/authValidation.ts";
+import { validateEmail } from "../utils/authValidation";
 import {
   AuthContainer,
   AuthCardContent,
@@ -16,7 +16,7 @@ import {
   GoogleIcon,
   PasswordToggleButton,
 } from "./_authUI";
-import { textAccent, textSecondary, textMuted } from "../../styles/styleUtils.ts";
+import { textAccent, textSecondary, textMuted } from "../../styles/styleUtils";
 import { KeyIcon } from "../../components/icons";
 
 // Default UI config for unknown/unregistered appTypes
@@ -92,7 +92,9 @@ export function LoginForm({
   });
   const [trustDevice, setTrustDevice] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [deviceFingerprint, setDeviceFingerprint] = useState<string | null>(null);
+  const [deviceFingerprint, setDeviceFingerprint] = useState<string | null>(
+    null,
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Pull ui branding from the single source of truth — appConfigs.js
@@ -155,7 +157,9 @@ export function LoginForm({
       });
       const loginResult = result as unknown as Record<string, unknown>;
       const isMFAPending =
-        loginResult?.mfaRequired || loginResult?.requiresMFA || loginResult?.mfaSetupRequired;
+        loginResult?.mfaRequired ||
+        loginResult?.requiresMFA ||
+        loginResult?.mfaSetupRequired;
       if (loginResult?.success && !isMFAPending) {
         if (onSuccess) onSuccess(result);
         else navigate(finalRedirect);
@@ -205,7 +209,7 @@ export function LoginForm({
   const isFormValid = Boolean(
     formData.email &&
     validateEmail(formData.email.trim()).isValid &&
-    formData.password
+    formData.password,
   );
 
   const isFormLoading = isLoading || isSubmitting;
@@ -239,7 +243,9 @@ export function LoginForm({
             </p>
           </div>
           <MFAVerification
-            onVerificationSuccess={(result) => handleMFAVerification(result?.verified ? "verified" : "")}
+            onVerificationSuccess={(result) =>
+              handleMFAVerification(result?.verified ? "verified" : "")
+            }
             onCancel={handleBackToLogin}
             deviceFingerprint={deviceFingerprint}
             className=""
@@ -277,7 +283,10 @@ export function LoginForm({
       <AuthCardContent>
         {/* Card header */}
         <div className="text-center mb-6 sm:mb-8">
-          <div className="flex justify-center mb-3 sm:mb-4 text-gray-900 dark:text-white" aria-hidden="true">
+          <div
+            className="flex justify-center mb-3 sm:mb-4 text-gray-900 dark:text-white"
+            aria-hidden="true"
+          >
             {ui.icon}
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">
@@ -394,10 +403,7 @@ export function LoginForm({
 
           {/* Registration link */}
           {showRegistration && (
-            <p
-              className="text-center text-sm"
-              style={textMuted}
-            >
+            <p className="text-center text-sm" style={textMuted}>
               {"Don't have an account? "}
               <button
                 type="button"

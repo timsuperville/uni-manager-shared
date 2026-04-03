@@ -10,9 +10,9 @@ import {
   generatePKCE,
   generateNonce,
   generateState,
-} from "../config/oauthProviders.ts";
+} from "../config/oauthProviders";
 import { getCurrentAppConfig } from "../config/appConfigs";
-import { trackUserActivity } from "../utils/socialAuth.ts";
+import { trackUserActivity } from "../utils/socialAuth";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -70,7 +70,10 @@ export class OAuthAuthService {
     this.deviceFingerprint = config.deviceFingerprint ?? null;
   }
 
-  private async _makeRequest(endpoint: string, options: ApiRequestOptions = {}): Promise<Response> {
+  private async _makeRequest(
+    endpoint: string,
+    options: ApiRequestOptions = {},
+  ): Promise<Response> {
     const url = `${this.apiBaseUrl}${this.endpoints[endpoint] ?? endpoint}`;
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
@@ -79,27 +82,39 @@ export class OAuthAuthService {
     return fetch(url, { ...options, headers });
   }
 
-  private async _handleResponse(response: Response): Promise<Record<string, unknown>> {
+  private async _handleResponse(
+    response: Response,
+  ): Promise<Record<string, unknown>> {
     const contentType = response.headers.get("content-type");
     if (!contentType?.includes("application/json")) {
       if (!response.ok) {
-        throw new Error(`Server error: ${response.status} ${response.statusText}`);
+        throw new Error(
+          `Server error: ${response.status} ${response.statusText}`,
+        );
       }
       return { success: true };
     }
-    const data = await response.json() as Record<string, unknown>;
+    const data = (await response.json()) as Record<string, unknown>;
     if (!response.ok) {
-      throw new Error((data["message"] as string | undefined) ?? `Request failed with status ${response.status}`);
+      throw new Error(
+        (data["message"] as string | undefined) ??
+          `Request failed with status ${response.status}`,
+      );
     }
     return data;
   }
 
-  async startOAuthFlow(providerId: string, options: OAuthFlowOptions = {}): Promise<OAuthFlowResult> {
+  async startOAuthFlow(
+    providerId: string,
+    options: OAuthFlowOptions = {},
+  ): Promise<OAuthFlowResult> {
     const appConfig = getCurrentAppConfig();
     const providerConfig = getProviderConfig(providerId, appConfig.name);
 
     if (!providerConfig) {
-      throw new Error(`OAuth provider ${providerId} not supported for ${appConfig.name}`);
+      throw new Error(
+        `OAuth provider ${providerId} not supported for ${appConfig.name}`,
+      );
     }
 
     const { codeVerifier, codeChallenge } = await generatePKCE();
@@ -144,17 +159,28 @@ export class OAuthAuthService {
     if (error) throw new Error(`OAuth error: ${error}`);
 
     const storedState =
-      typeof sessionStorage !== "undefined" ? sessionStorage.getItem("oauth_state") : null;
+      typeof sessionStorage !== "undefined"
+        ? sessionStorage.getItem("oauth_state")
+        : null;
     if (state !== storedState) throw new Error("Invalid OAuth state parameter");
 
     const providerId =
-      typeof sessionStorage !== "undefined" ? sessionStorage.getItem("oauth_provider") : null;
+      typeof sessionStorage !== "undefined"
+        ? sessionStorage.getItem("oauth_provider")
+        : null;
     const codeVerifier =
-      typeof sessionStorage !== "undefined" ? sessionStorage.getItem("pkce_verifier") : null;
+      typeof sessionStorage !== "undefined"
+        ? sessionStorage.getItem("pkce_verifier")
+        : null;
 
-    if (!providerId || !codeVerifier) throw new Error("Missing OAuth session data");
+    if (!providerId || !codeVerifier)
+      throw new Error("Missing OAuth session data");
 
-    const tokenResponse = await this.exchangeOAuthCode(providerId, code, codeVerifier);
+    const tokenResponse = await this.exchangeOAuthCode(
+      providerId,
+      code,
+      codeVerifier,
+    );
 
     if (typeof sessionStorage !== "undefined") {
       sessionStorage.removeItem("pkce_verifier");
@@ -201,10 +227,16 @@ export class OAuthAuthService {
       };
     }
 
-    throw new Error((responseData["message"] as string | undefined) ?? "OAuth token exchange failed");
+    throw new Error(
+      (responseData["message"] as string | undefined) ??
+        "OAuth token exchange failed",
+    );
   }
 
-  async linkOAuthAccount(providerId: string, sessionToken: string): Promise<OAuthFlowResult> {
+  async linkOAuthAccount(
+    providerId: string,
+    sessionToken: string,
+  ): Promise<OAuthFlowResult> {
     const { authUrl, state } = await this.startOAuthFlow(providerId, {
       additionalParams: { link_account: "true" },
     });
@@ -229,11 +261,16 @@ export class OAuthAuthService {
     if (responseData["success"]) {
       return {
         success: true,
-        message: (responseData["message"] as string | undefined) ?? "Account unlinked successfully",
+        message:
+          (responseData["message"] as string | undefined) ??
+          "Account unlinked successfully",
       };
     }
 
-    throw new Error((responseData["message"] as string | undefined) ?? "Failed to unlink OAuth account");
+    throw new Error(
+      (responseData["message"] as string | undefined) ??
+        "Failed to unlink OAuth account",
+    );
   }
 
   async getLinkedProviders(sessionToken: string): Promise<unknown[]> {

@@ -15,7 +15,7 @@ export {
   SESSION_CONFIG,
   SESSION_ACTIONS,
   STORAGE_KEYS,
-} from "./sessionConstants.ts";
+} from "./sessionConstants";
 
 // MFA constants
 export {
@@ -23,7 +23,7 @@ export {
   MFA_STATUS,
   MFA_CONFIG,
   MFA_ACTIONS,
-} from "./mfaConstants.ts";
+} from "./mfaConstants";
 
 // RBAC constants and types (canonical source: rbacRoles.ts)
 export {
@@ -39,14 +39,14 @@ export {
   checkPermission,
   hasRole,
   checkAccess,
-} from "./rbacRoles.ts";
+} from "./rbacRoles";
 
 // Error constants
 export {
   AUTH_ERROR_CODES,
   ERROR_MESSAGES,
   ERROR_ACTIONS,
-} from "./errorConstants.ts";
+} from "./errorConstants";
 
 // ==================== GENERAL AUTH CONSTANTS ====================
 

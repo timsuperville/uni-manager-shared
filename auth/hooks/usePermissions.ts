@@ -1,4 +1,4 @@
-import { useAuth } from "../context/AuthContext.tsx";
+import { useAuth } from "../context/AuthContext";
 import { getCurrentAppConfig } from "../config/appConfigs";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -18,11 +18,25 @@ const ROLE_PERMISSIONS: PermissionMap = {
   member: ["read", "write_limited"],
   visitor: ["read_limited"],
   // Admin app
-  super_admin: ["read", "write", "delete", "manage_users", "manage_settings", "manage_system"],
+  super_admin: [
+    "read",
+    "write",
+    "delete",
+    "manage_users",
+    "manage_settings",
+    "manage_system",
+  ],
   moderator: ["read", "write", "manage_content"],
   support: ["read", "write_limited"],
   // Business app
-  owner: ["read", "write", "delete", "manage_users", "manage_settings", "manage_billing"],
+  owner: [
+    "read",
+    "write",
+    "delete",
+    "manage_users",
+    "manage_settings",
+    "manage_billing",
+  ],
   manager: ["read", "write", "manage_employees"],
   employee: ["read", "write_limited"],
   client: ["read_limited"],
@@ -41,17 +55,33 @@ const ROLE_PERMISSIONS: PermissionMap = {
 
 const ROLE_LEVELS: Record<string, number> = {
   // Church
-  visitor: 1, member: 2, leader: 3, pastor: 4, church_admin: 5,
+  visitor: 1,
+  member: 2,
+  leader: 3,
+  pastor: 4,
+  church_admin: 5,
   // Admin
-  support: 1, moderator: 2, admin: 3, super_admin: 4,
+  support: 1,
+  moderator: 2,
+  admin: 3,
+  super_admin: 4,
   // Business
-  business_guest: 1, client: 2, employee: 3, business_manager: 3, business_owner: 5,
+  business_guest: 1,
+  client: 2,
+  employee: 3,
+  business_manager: 3,
+  business_owner: 5,
   // Home
-  child: 1, teen: 2, home_adult: 3, head: 4,
+  child: 1,
+  teen: 2,
+  home_adult: 3,
+  head: 4,
   // Personal
   personal_user: 1,
   // Playback
-  playback_guest: 1, play_standard: 2, premium: 3,
+  playback_guest: 1,
+  play_standard: 2,
+  premium: 3,
 };
 
 const ADMIN_ROLES: Record<string, string> = {
@@ -74,7 +104,11 @@ interface UsePermissionsReturn {
   hasPermission: (permission: Permission) => boolean;
   getRolePermissions: (role: RoleName) => Permission[];
   isAdmin: () => boolean;
-  canPerform: (action: string, resource: string, resourceData?: { ownerId?: string }) => boolean;
+  canPerform: (
+    action: string,
+    resource: string,
+    resourceData?: { ownerId?: string },
+  ) => boolean;
   getRoleLevel: (role: RoleName) => number;
   hasHigherRoleThan: (role: RoleName) => boolean;
   userRole: string | undefined;

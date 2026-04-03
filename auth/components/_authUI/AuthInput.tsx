@@ -4,7 +4,7 @@ import {
   textMuted,
   inputBase,
   errorSurface,
-} from "../../../styles/styleUtils.ts";
+} from "../../../styles/styleUtils";
 
 interface AuthInputProps {
   id: string;

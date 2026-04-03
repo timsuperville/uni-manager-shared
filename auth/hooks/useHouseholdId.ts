@@ -1,9 +1,9 @@
-import { useAuth } from "./useAuth.ts";
+import { useAuth } from "./useAuth";
 
 /**
  * useHouseholdId — resolves the active household ID from the auth user object or session layer.
  *
- * It checks session storage, local storage, and the `householdId` / `household._id` 
+ * It checks session storage, local storage, and the `householdId` / `household._id`
  * properties directly on the user object.
  *
  * @returns The resolved household ID, or null when not found.

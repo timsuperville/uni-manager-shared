@@ -16,7 +16,7 @@ import {
   PROTECTED_ROUTES,
   type Permission,
   type RoleDefinition,
-} from "../types/rbacRoles.ts";
+} from "../types/rbacRoles";
 
 // ── Module-level types ────────────────────────────────────────────────────────
 
@@ -96,7 +96,10 @@ export class RBACUtils {
 
     if (role.inherits.length > 0) {
       for (const inheritedRoleId of role.inherits) {
-        permissions = [...permissions, ...this.getRolePermissions(inheritedRoleId)];
+        permissions = [
+          ...permissions,
+          ...this.getRolePermissions(inheritedRoleId),
+        ];
       }
     }
 
@@ -139,7 +142,9 @@ export class RBACUtils {
   }
 
   hasMinimumRoleLevel(minLevel: number): boolean {
-    const levels = this.userRoles.map((roleId) => ROLE_LOOKUP[roleId]?.level ?? 0);
+    const levels = this.userRoles.map(
+      (roleId) => ROLE_LOOKUP[roleId]?.level ?? 0,
+    );
     return Math.max(...levels, 0) >= minLevel;
   }
 
@@ -164,11 +169,15 @@ export class RBACUtils {
   }
 
   getAccessibleApplications(): string[] {
-    return Object.keys(APPLICATION_ROLES).filter((app) => this.canAccessApplication(app));
+    return Object.keys(APPLICATION_ROLES).filter((app) =>
+      this.canAccessApplication(app),
+    );
   }
 
   getHighestRoleLevel(): number {
-    const levels = this.userRoles.map((roleId) => ROLE_LOOKUP[roleId]?.level ?? 0);
+    const levels = this.userRoles.map(
+      (roleId) => ROLE_LOOKUP[roleId]?.level ?? 0,
+    );
     return Math.max(...levels, 0);
   }
 
@@ -190,14 +199,32 @@ export class RBACUtils {
     return this.hasRole(`${application}_admin`);
   }
 
-  filterMenuItems(menuItems: MenuItem[], application: string | null = null): MenuItem[] {
+  filterMenuItems(
+    menuItems: MenuItem[],
+    application: string | null = null,
+  ): MenuItem[] {
     return menuItems.filter((item) => {
       if (!item) return false;
-      if (item.requiredPermissions && !this.hasAnyPermission(item.requiredPermissions)) return false;
-      if (item.requiredRoles && !this.hasAnyRole(item.requiredRoles)) return false;
-      if (item.minimumRoleLevel && !this.hasMinimumRoleLevel(item.minimumRoleLevel)) return false;
-      if (item.route && application && !this.canAccessRoute(application, item.route)) return false;
-      if (item.children) item.children = this.filterMenuItems(item.children, application);
+      if (
+        item.requiredPermissions &&
+        !this.hasAnyPermission(item.requiredPermissions)
+      )
+        return false;
+      if (item.requiredRoles && !this.hasAnyRole(item.requiredRoles))
+        return false;
+      if (
+        item.minimumRoleLevel &&
+        !this.hasMinimumRoleLevel(item.minimumRoleLevel)
+      )
+        return false;
+      if (
+        item.route &&
+        application &&
+        !this.canAccessRoute(application, item.route)
+      )
+        return false;
+      if (item.children)
+        item.children = this.filterMenuItems(item.children, application);
       return true;
     });
   }
@@ -236,13 +263,19 @@ export const PermissionUtils = {
     };
   },
 
-  validateRoleAssignment: (assignerRoles: string[], targetRole: string): boolean => {
+  validateRoleAssignment: (
+    assignerRoles: string[],
+    targetRole: string,
+  ): boolean => {
     const assignerRBAC = new RBACUtils({ roles: assignerRoles });
     const targetRoleLevel = ROLE_LOOKUP[targetRole]?.level ?? 0;
     return assignerRBAC.getHighestRoleLevel() >= targetRoleLevel;
   },
 
-  getAssignableRoles: (assignerRoles: string[], application: string | null = null): AssignableRole[] => {
+  getAssignableRoles: (
+    assignerRoles: string[],
+    application: string | null = null,
+  ): AssignableRole[] => {
     const assignerRBAC = new RBACUtils({ roles: assignerRoles });
     const assignerLevel = assignerRBAC.getHighestRoleLevel();
 
@@ -288,4 +321,4 @@ export const RouteUtils = {
 };
 
 // Re-export for consumers that imported data directly from this module.
-export { PERMISSIONS, ROLES } from "../types/rbacRoles.ts";
+export { PERMISSIONS, ROLES } from "../types/rbacRoles";

@@ -10,8 +10,8 @@
  * callback, which invokes a network request).
  */
 
-import { TokenStorage } from "../utils/TokenStorage.ts";
-import type { User } from "../types/auth.types.ts";
+import { TokenStorage } from "../utils/TokenStorage";
+import type { User } from "../types/auth.types";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -37,7 +37,6 @@ interface TokenManagementConfig {
 // ---------------------------------------------------------------------------
 
 export class TokenManagementService {
-
   private readonly storage: TokenStorage;
   private refreshInterval: ReturnType<typeof setInterval> | null;
   private readonly onTokenRefreshed: (() => void) | null;
@@ -49,7 +48,6 @@ export class TokenManagementService {
    * legacy/test contexts.
    */
   constructor(config: TokenManagementConfig = {}) {
-
     this.storage = config.tokenStorage ?? new TokenStorage();
     this.refreshInterval = null;
     this.onTokenRefreshed = config.onTokenRefreshed ?? null;
@@ -61,7 +59,11 @@ export class TokenManagementService {
   // ---------------------------------------------------------------------------
 
   /** Store authentication tokens — throws if accessToken is missing. */
-  setTokens(tokens: { accessToken: string; refreshToken?: string; user?: User }): void {
+  setTokens(tokens: {
+    accessToken: string;
+    refreshToken?: string;
+    user?: User;
+  }): void {
     if (!tokens?.accessToken) throw new Error("Access token is required");
     this.storage.setTokens({
       accessToken: tokens.accessToken,
@@ -124,7 +126,11 @@ export class TokenManagementService {
       );
       return JSON.parse(jsonPayload) as TokenPayload;
     } catch (error) {
-      if (import.meta.env.DEV) console.warn("[TokenManagementService] decodeToken failed:", (error as Error).message);
+      if (import.meta.env.DEV)
+        console.warn(
+          "[TokenManagementService] decodeToken failed:",
+          (error as Error).message,
+        );
       return null;
     }
   }
@@ -161,7 +167,10 @@ export class TokenManagementService {
    * Starts automatic token refresh on a timer.
    * The callback is invoked when a token is within 5 minutes of expiry.
    */
-  startAutoRefresh(refreshCallback: RefreshCallback, interval = 10 * 60 * 1000): void {
+  startAutoRefresh(
+    refreshCallback: RefreshCallback,
+    interval = 10 * 60 * 1000,
+  ): void {
     if (this.refreshInterval !== null) this.stopAutoRefresh();
 
     this.refreshInterval = setInterval(async () => {
@@ -178,7 +187,10 @@ export class TokenManagementService {
         }
       } catch (error) {
         if (import.meta.env.DEV) {
-          console.warn("[TokenManagementService] Auto-refresh failed:", (error as Error).message);
+          console.warn(
+            "[TokenManagementService] Auto-refresh failed:",
+            (error as Error).message,
+          );
         }
         this.onTokenExpired?.(error as Error);
       }

@@ -5,7 +5,7 @@
  * All functions are pure — no side effects, no I/O.
  */
 
-import type { ValidationResult } from "../types/auth.types.ts";
+import type { ValidationResult } from "../types/auth.types";
 
 // ---------------------------------------------------------------------------
 // Internal result shapes
@@ -76,7 +76,10 @@ export const validateEmail = (email: string): ValidationResult => {
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
-    return { isValid: false, errors: { email: "Please enter a valid email address" } };
+    return {
+      isValid: false,
+      errors: { email: "Please enter a valid email address" },
+    };
   }
 
   return { isValid: true, errors: {} };
@@ -104,10 +107,13 @@ export const validatePassword = (
   if (password.length < minLength) {
     errors.push(`Password must be at least ${minLength} characters`);
   }
-  if (requireUppercase && !/[A-Z]/.test(password)) errors.push("uppercase letter");
-  if (requireLowercase && !/[a-z]/.test(password)) errors.push("lowercase letter");
+  if (requireUppercase && !/[A-Z]/.test(password))
+    errors.push("uppercase letter");
+  if (requireLowercase && !/[a-z]/.test(password))
+    errors.push("lowercase letter");
   if (requireNumbers && !/\d/.test(password)) errors.push("number");
-  if (requireSpecialChars && !/[!@#$%^&*(),.?':{}|<>]/.test(password)) errors.push("special character");
+  if (requireSpecialChars && !/[!@#$%^&*(),.?':{}|<>]/.test(password))
+    errors.push("special character");
 
   if (errors.length > 1) {
     const lastError = errors.pop()!;
@@ -117,7 +123,10 @@ export const validatePassword = (
     };
   }
   if (errors.length === 1) {
-    return { isValid: false, error: `Password must contain at least one ${errors[0]!}` };
+    return {
+      isValid: false,
+      error: `Password must contain at least one ${errors[0]!}`,
+    };
   }
 
   return { isValid: true, error: null };
@@ -167,23 +176,32 @@ export const validateCredentials = ({ email, password }: CredentialsInput) => {
   const errors: string[] = [];
 
   const emailResult = validateEmail(email);
-  if (!emailResult.isValid && emailResult.errors.email) errors.push(emailResult.errors.email);
+  if (!emailResult.isValid && emailResult.errors.email)
+    errors.push(emailResult.errors.email);
   if (!password) errors.push("Password is required");
 
   return { isValid: errors.length === 0, errors };
 };
 
 /** Full signup form validation. */
-export const validateSignupData = ({ name, email, password, confirmPassword }: SignupInput) => {
+export const validateSignupData = ({
+  name,
+  email,
+  password,
+  confirmPassword,
+}: SignupInput) => {
   const errors: string[] = [];
 
-  if (!name || name.trim().length < 2) errors.push("Name must be at least 2 characters");
+  if (!name || name.trim().length < 2)
+    errors.push("Name must be at least 2 characters");
 
   const emailResult = validateEmail(email);
-  if (!emailResult.isValid && emailResult.errors.email) errors.push(emailResult.errors.email);
+  if (!emailResult.isValid && emailResult.errors.email)
+    errors.push(emailResult.errors.email);
 
   const passwordResult = validatePassword(password);
-  if (!passwordResult.isValid && passwordResult.error) errors.push(passwordResult.error);
+  if (!passwordResult.isValid && passwordResult.error)
+    errors.push(passwordResult.error);
 
   if (password !== confirmPassword) errors.push("Passwords do not match");
 
@@ -195,13 +213,18 @@ export const validateSignupData = ({ name, email, password, confirmPassword }: S
 };
 
 /** Validates the reset-password form (token + new password). */
-export const validateResetPassword = ({ password, confirmPassword, token }: ResetPasswordInput) => {
+export const validateResetPassword = ({
+  password,
+  confirmPassword,
+  token,
+}: ResetPasswordInput) => {
   const errors: string[] = [];
 
   if (!token) errors.push("Reset token is required");
 
   const passwordResult = validatePassword(password);
-  if (!passwordResult.isValid && passwordResult.error) errors.push(passwordResult.error);
+  if (!passwordResult.isValid && passwordResult.error)
+    errors.push(passwordResult.error);
 
   if (password !== confirmPassword) errors.push("Passwords do not match");
 
@@ -209,7 +232,9 @@ export const validateResetPassword = ({ password, confirmPassword, token }: Rese
 };
 
 /** Validates that an auth data payload contains the required fields. */
-export const validateAuthData = (authData: AuthDataInput | null | undefined) => {
+export const validateAuthData = (
+  authData: AuthDataInput | null | undefined,
+) => {
   if (!authData) return { isValid: false, error: "No auth data provided" };
 
   const { user, accessToken } = authData;
@@ -226,10 +251,21 @@ export const validateName = (name: string, fieldName = "Name") => {
   if (!name) return { isValid: false, error: `${fieldName} is required` };
 
   const trimmedName = name.trim();
-  if (trimmedName.length < 2) return { isValid: false, error: `${fieldName} must be at least 2 characters` };
-  if (trimmedName.length > 50) return { isValid: false, error: `${fieldName} must be less than 50 characters` };
+  if (trimmedName.length < 2)
+    return {
+      isValid: false,
+      error: `${fieldName} must be at least 2 characters`,
+    };
+  if (trimmedName.length > 50)
+    return {
+      isValid: false,
+      error: `${fieldName} must be less than 50 characters`,
+    };
   if (!/^[a-zA-Z\s\-']+$/.test(trimmedName)) {
-    return { isValid: false, error: `${fieldName} can only contain letters, spaces, hyphens, and apostrophes` };
+    return {
+      isValid: false,
+      error: `${fieldName} can only contain letters, spaces, hyphens, and apostrophes`,
+    };
   }
 
   return { isValid: true, error: null };
@@ -242,7 +278,9 @@ export const validateName = (name: string, fieldName = "Name") => {
 export const getPasswordStrength = (password: string): PasswordStrength => {
   const strength = calculatePasswordStrength(password);
   const { label, color } = getPasswordStrengthLabel(strength);
-  const score = (strength < 30 ? 1 : strength < 50 ? 2 : strength < 75 ? 3 : 4) as 1 | 2 | 3 | 4;
+  const score = (
+    strength < 30 ? 1 : strength < 50 ? 2 : strength < 75 ? 3 : 4
+  ) as 1 | 2 | 3 | 4;
   return { score, label, color };
 };
 

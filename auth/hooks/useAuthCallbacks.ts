@@ -1,8 +1,8 @@
 import { useEffect, useRef } from "react";
-import type { AuthStateShape } from "../types/auth.types.ts";
+import type { AuthStateShape } from "../types/auth.types";
 
 // Re-export so existing callers who import AuthStateShape from this module keep working.
-export type { AuthStateShape } from "../types/auth.types.ts";
+export type { AuthStateShape } from "../types/auth.types";
 
 interface AuthActions {
   initializeAuth?: () => Promise<void>;
@@ -15,7 +15,9 @@ interface CallbackRef<T> {
 }
 
 interface ExternalCallbackRefs {
-  onAuthStateChangeRef?: CallbackRef<((state: Record<string, unknown>) => void) | null | undefined>;
+  onAuthStateChangeRef?: CallbackRef<
+    ((state: Record<string, unknown>) => void) | null | undefined
+  >;
   onErrorRef?: CallbackRef<((error: unknown) => void) | null | undefined>;
 }
 
@@ -106,7 +108,13 @@ export function useAuthCallbacks(
       // Throttled naturally by browser event loop
     };
 
-    const events = ["mousedown", "mousemove", "keypress", "scroll", "touchstart"] as const;
+    const events = [
+      "mousedown",
+      "mousemove",
+      "keypress",
+      "scroll",
+      "touchstart",
+    ] as const;
 
     events.forEach((event) => {
       if (typeof document !== "undefined") {

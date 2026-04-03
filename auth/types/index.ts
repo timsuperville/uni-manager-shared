@@ -54,7 +54,7 @@ export {
 
   // Events
   AUTH_EVENTS,
-} from "./constants.ts";
+} from "./constants";
 
 // ==================== TYPES ====================
 

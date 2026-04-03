@@ -1,13 +1,16 @@
 import React, { createContext, useContext, useMemo, useRef } from "react";
-import { AuthService } from "../services/AuthService.ts";
-import { useAuthState } from "../hooks/useAuthState.ts";
-import { useAuthActions, type AuthServiceLike } from "../hooks/useAuthActions.ts";
-import { useAuthCallbacks, type AuthStateShape } from "../hooks/useAuthCallbacks.ts";
-import { RBACUtils } from "../utils/RBACUtils.ts";
-import type { Permission } from "../types/rbacRoles.ts";
-import { useApi } from "../../api/hooks/index.ts";
+import { AuthService } from "../services/AuthService";
+import { useAuthState } from "../hooks/useAuthState";
+import { useAuthActions, type AuthServiceLike } from "../hooks/useAuthActions";
+import {
+  useAuthCallbacks,
+  type AuthStateShape,
+} from "../hooks/useAuthCallbacks";
+import { RBACUtils } from "../utils/RBACUtils";
+import type { Permission } from "../types/rbacRoles";
+import { useApi } from "../../api/hooks/index";
 
-import type { AuthContextType, User } from "../types/auth.types.ts";
+import type { AuthContextType, User } from "../types/auth.types";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -60,7 +63,12 @@ interface RBACMethods {
 // ── Domain → RBAC role map ────────────────────────────────────────────────────
 
 const DOMAIN_ROLE_MAP: Record<string, Record<string, string>> = {
-  home: { owner: "home_admin", adult: "home_user", child: "home_user", guest: "guest" },
+  home: {
+    owner: "home_admin",
+    adult: "home_user",
+    child: "home_user",
+    guest: "guest",
+  },
   business: {
     owner: "business_admin",
     manager: "business_manager",
@@ -70,11 +78,11 @@ const DOMAIN_ROLE_MAP: Record<string, Record<string, string>> = {
   },
   // CAHA community journey stages — canonical per CAHA_PROTOCOL.md §1.1
   church: {
-    steward:  'church_steward',
-    member:   'church_user',
-    attendee: 'church_user',
-    visitor:  'guest',
-    viewer:   'guest',
+    steward: "church_steward",
+    member: "church_user",
+    attendee: "church_user",
+    visitor: "guest",
+    viewer: "guest",
   },
   personal: { personal_user: "personal_user" },
   playback: { operator: "playback_admin", viewer: "playback_user" },
@@ -99,9 +107,14 @@ export const useAuth = (): AuthContextType => {
 
 // ── SessionRBAC (inline subclass) ─────────────────────────────────────────────
 
-type SyntheticUser = User & { _resolvedPermissions: Permission[]; roles: string[] };
+type SyntheticUser = User & {
+  _resolvedPermissions: Permission[];
+  roles: string[];
+};
 
-class SessionRBAC extends (RBACUtils as new (user: SyntheticUser | null) => RBACUtils) {
+class SessionRBAC extends (RBACUtils as new (
+  user: SyntheticUser | null,
+) => RBACUtils) {
   private readonly _resolved: Permission[];
 
   constructor(user: SyntheticUser) {
@@ -113,7 +126,8 @@ class SessionRBAC extends (RBACUtils as new (user: SyntheticUser | null) => RBAC
 
   hasPermission(permission: Permission): boolean {
     // Guard: _resolved may not be assigned yet if super() triggers this method
-    if (this._resolved && this._resolved.length > 0) return this._resolved.includes(permission);
+    if (this._resolved && this._resolved.length > 0)
+      return this._resolved.includes(permission);
     return super.hasPermission(permission);
   }
 
@@ -123,7 +137,6 @@ class SessionRBAC extends (RBACUtils as new (user: SyntheticUser | null) => RBAC
     return super.resolveUserPermissions();
   }
 }
-
 
 // ── RBAC methods builder ──────────────────────────────────────────────────────
 
@@ -162,14 +175,20 @@ function buildRBACMethods(user: User | null): RBACMethods {
   const domainMap = DOMAIN_ROLE_MAP[appType] ?? {};
   const mappedAppRole = rbacRole ? (domainMap[rbacRole] ?? rbacRole) : null;
   const allRoles = [
-    ...new Set([...platformRoles, ...appRoles, ...(mappedAppRole ? [mappedAppRole] : [])]),
+    ...new Set([
+      ...platformRoles,
+      ...appRoles,
+      ...(mappedAppRole ? [mappedAppRole] : []),
+    ]),
   ];
 
   const syntheticUser: SyntheticUser = {
     ...user,
     roles: allRoles,
     // rbac.global contains string permission IDs that are valid Permission literals at runtime
-    _resolvedPermissions: (Array.isArray(extUser.rbac?.global) ? extUser.rbac!.global! : []) as Permission[],
+    _resolvedPermissions: (Array.isArray(extUser.rbac?.global)
+      ? extUser.rbac!.global!
+      : []) as Permission[],
   };
 
   const rbac = new SessionRBAC(syntheticUser);
@@ -184,7 +203,8 @@ function buildRBACMethods(user: User | null): RBACMethods {
     isApplicationAdmin: (app) => rbac.isApplicationAdmin(app),
     isAnyAdmin: () => rbac.isAnyAdmin(),
     getApplicationRoles: (app) => rbac.getApplicationRoles(app),
-    getPermissionSummary: () => rbac.getPermissionSummary() as unknown as Record<string, unknown>,
+    getPermissionSummary: () =>
+      rbac.getPermissionSummary() as unknown as Record<string, unknown>,
   };
 }
 
@@ -197,10 +217,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   onError,
 }) => {
   const { apiClient } = useApi();
-  const authService = useMemo(
-    () => new AuthService(apiClient),
-    [apiClient],
-  );
+  const authService = useMemo(() => new AuthService(apiClient), [apiClient]);
 
   const {
     state,
@@ -233,7 +250,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     onAuthStateChange as ((state: Record<string, unknown>) => void) | undefined,
     onError as ((error: unknown) => void) | undefined,
     config,
-    callbackRefsRef.current as unknown as Parameters<typeof useAuthCallbacks>[5],
+    callbackRefsRef.current as unknown as Parameters<
+      typeof useAuthCallbacks
+    >[5],
   );
 
   // Derive RBAC methods from resolved user.rbac (injected by verify-token)

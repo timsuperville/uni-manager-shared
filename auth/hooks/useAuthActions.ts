@@ -1,11 +1,11 @@
 import { useCallback } from "react";
-import { clearCachedDeviceFingerprint } from "../utils/deviceFingerprintCache.ts";
+import { clearCachedDeviceFingerprint } from "../utils/deviceFingerprintCache";
 import type {
   User,
   LoginCredentials,
   SignupData,
   AuthServiceLike,
-} from "../types/auth.types.ts";
+} from "../types/auth.types";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -19,7 +19,7 @@ interface CallbackRefs {
 }
 
 // Generic auth service shape — see types/auth.types.ts for the canonical definition.
-export type { AuthServiceLike } from "../types/auth.types.ts";
+export type { AuthServiceLike } from "../types/auth.types";
 
 type StateUpdater = (updates: Record<string, unknown>) => void;
 type ErrorSetter = (error: unknown) => void;

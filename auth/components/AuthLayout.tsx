@@ -16,20 +16,38 @@
  */
 import React from "react";
 import { getCurrentAppConfig } from "../config/appConfigs";
-import { AuthShellContext } from "./_authUI/AuthContainer.tsx";
+import { AuthShellContext } from "./_authUI/AuthContainer";
 import { ThemeToggle } from "../../components/ThemeToggle";
 import {
-  ChurchIcon, MusicIcon, CoinsIcon,
-  HomeIcon, ShoppingCartIcon, UsersIcon,
-  BrainIcon, TargetIcon, DiamondIcon,
-  BarChartIcon, PackageIcon, BriefcaseIcon,
-  MicIcon, KeyboardIcon, SpeakerIcon,
-  LockIcon, GlobeIcon, LightningIcon
+  ChurchIcon,
+  MusicIcon,
+  CoinsIcon,
+  HomeIcon,
+  ShoppingCartIcon,
+  UsersIcon,
+  BrainIcon,
+  TargetIcon,
+  DiamondIcon,
+  BarChartIcon,
+  PackageIcon,
+  BriefcaseIcon,
+  MicIcon,
+  KeyboardIcon,
+  SpeakerIcon,
+  LockIcon,
+  GlobeIcon,
+  LightningIcon,
 } from "../../components/icons";
 
 // ─── Per-app Visual Identity Fencing ──────────────────────────────────────────
 
-type AppType = "church" | "home" | "personal" | "business" | "playback" | "default";
+type AppType =
+  | "church"
+  | "home"
+  | "personal"
+  | "business"
+  | "playback"
+  | "default";
 
 interface PillarItem {
   icon: React.ReactNode;
@@ -48,31 +66,43 @@ interface AppIdentity {
 const APP_IDENTITY: Record<AppType, AppIdentity> = {
   church: {
     tagline: "Stewardship, Empowered.",
-    description: "Ministry leadership, relational intelligence, and liturgical orchestration — unified for your congregation.",
+    description:
+      "Ministry leadership, relational intelligence, and liturgical orchestration — unified for your congregation.",
     gradient: "from-violet-600 via-purple-600 to-indigo-700",
     glowColor: "rgba(139, 92, 246, 0.25)",
     accentLight: "rgba(167, 139, 250, 0.15)",
     pillars: [
       { icon: <ChurchIcon size={22} />, label: "Member & Ministry Management" },
-      { icon: <MusicIcon size={22} />, label: "Liturgical Scheduling & Playback" },
-      { icon: <CoinsIcon size={22} />, label: "Tithing & Fiduciary Stewardship" },
+      {
+        icon: <MusicIcon size={22} />,
+        label: "Liturgical Scheduling & Playback",
+      },
+      {
+        icon: <CoinsIcon size={22} />,
+        label: "Tithing & Fiduciary Stewardship",
+      },
     ],
   },
   home: {
     tagline: "Domestic Harmony, Orchestrated.",
-    description: "Household orchestration, stewardship rituals, and physical asset maintenance — all in one Domestic Nucleus.",
+    description:
+      "Household orchestration, stewardship rituals, and physical asset maintenance — all in one Domestic Nucleus.",
     gradient: "from-amber-500 via-orange-500 to-rose-500",
     glowColor: "rgba(245, 158, 11, 0.25)",
     accentLight: "rgba(252, 211, 77, 0.15)",
     pillars: [
       { icon: <HomeIcon size={22} />, label: "Household & Asset Management" },
-      { icon: <ShoppingCartIcon size={22} />, label: "Budget, Pantry & Meal Planning" },
+      {
+        icon: <ShoppingCartIcon size={22} />,
+        label: "Budget, Pantry & Meal Planning",
+      },
       { icon: <UsersIcon size={22} />, label: "Family Scheduling & Messaging" },
     ],
   },
   personal: {
     tagline: "Your Sovereign Sanctuary.",
-    description: "Sovereign development, physiological intelligence, and relational accountability — a Personal OS built for you alone.",
+    description:
+      "Sovereign development, physiological intelligence, and relational accountability — a Personal OS built for you alone.",
     gradient: "from-purple-600 via-indigo-600 to-blue-700",
     glowColor: "rgba(139, 92, 246, 0.25)",
     accentLight: "rgba(165, 180, 252, 0.15)",
@@ -84,31 +114,40 @@ const APP_IDENTITY: Record<AppType, AppIdentity> = {
   },
   business: {
     tagline: "Professional Velocity, Mastered.",
-    description: "Strategic toolset for high-performance SMB operations — CRM, inventory, and margin-focused fiduciary velocity.",
+    description:
+      "Strategic toolset for high-performance SMB operations — CRM, inventory, and margin-focused fiduciary velocity.",
     gradient: "from-emerald-500 via-teal-600 to-cyan-700",
     glowColor: "rgba(16, 185, 129, 0.25)",
     accentLight: "rgba(110, 231, 183, 0.15)",
     pillars: [
-      { icon: <BarChartIcon size={22} />, label: "CRM & Pipeline Intelligence" },
+      {
+        icon: <BarChartIcon size={22} />,
+        label: "CRM & Pipeline Intelligence",
+      },
       { icon: <PackageIcon size={22} />, label: "Inventory & Operations" },
       { icon: <BriefcaseIcon size={22} />, label: "Finance & Team Management" },
     ],
   },
   playback: {
     tagline: "Frame-Accurate. Stage-Ready.",
-    description: "A precision audio engine for live multitrack, MIDI performance, and stage automation — built for ministry teams.",
+    description:
+      "A precision audio engine for live multitrack, MIDI performance, and stage automation — built for ministry teams.",
     gradient: "from-rose-600 via-pink-600 to-fuchsia-700",
     glowColor: "rgba(244, 63, 94, 0.25)",
     accentLight: "rgba(251, 146, 60, 0.12)",
     pillars: [
       { icon: <MicIcon size={22} />, label: "Live Multitrack Performance" },
       { icon: <KeyboardIcon size={22} />, label: "MIDI & Stage Automation" },
-      { icon: <SpeakerIcon size={22} />, label: "In-Ear Monitor & Stem Control" },
+      {
+        icon: <SpeakerIcon size={22} />,
+        label: "In-Ear Monitor & Stem Control",
+      },
     ],
   },
   default: {
     tagline: "Total Life Orchestration.",
-    description: "Uni-Manager bridges your professional, spiritual, and domestic life through a single unified identity.",
+    description:
+      "Uni-Manager bridges your professional, spiritual, and domestic life through a single unified identity.",
     gradient: "from-blue-600 via-indigo-600 to-violet-700",
     glowColor: "rgba(99, 102, 241, 0.25)",
     accentLight: "rgba(165, 180, 252, 0.15)",
@@ -138,14 +177,24 @@ interface AuthLayoutProps {
   showLogo?: boolean;
 }
 
-const AuthLayout = ({ children, appType, showLogo = true }: AuthLayoutProps) => {
+const AuthLayout = ({
+  children,
+  appType,
+  showLogo = true,
+}: AuthLayoutProps) => {
   const appConfig = getCurrentAppConfig(appType);
 
   // Resolve identity: prefer explicit appType, fall back to auto-detected config
-  const identityKey = (appType ?? appConfig?.appName?.toLowerCase() ?? "default") as AppType;
+  const identityKey = (appType ??
+    appConfig?.appName?.toLowerCase() ??
+    "default") as AppType;
   const identity =
     APP_IDENTITY[identityKey] ??
-    APP_IDENTITY[Object.keys(APP_IDENTITY).find((k) => identityKey.includes(k as AppType)) as AppType] ??
+    APP_IDENTITY[
+      Object.keys(APP_IDENTITY).find((k) =>
+        identityKey.includes(k as AppType),
+      ) as AppType
+    ] ??
     APP_IDENTITY.default;
 
   return (
@@ -165,22 +214,52 @@ const AuthLayout = ({ children, appType, showLogo = true }: AuthLayoutProps) => 
       <div className="auth-layout-root h-screen w-full flex overflow-hidden bg-gray-50 dark:bg-[hsl(222,47%,4%)] relative">
         {/* ══ LEFT PANEL — Branded identity (lg+ only) ══ */}
         <div className="hidden lg:flex lg:w-2/5 lg:relative overflow-hidden h-full shrink-0">
-          <div className={`absolute inset-0 bg-linear-to-br ${identity.gradient}`} />
+          <div
+            className={`absolute inset-0 bg-linear-to-br ${identity.gradient}`}
+          />
 
           {/* Atmospheric depth blobs */}
-          <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full blur-3xl opacity-40" style={{ background: identity.glowColor }} />
-          <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full blur-3xl opacity-30" style={{ background: identity.glowColor }} />
-          <div className="absolute top-1/2 left-1/3 w-64 h-64 rounded-full blur-2xl opacity-20" style={{ background: identity.accentLight }} />
+          <div
+            className="absolute -top-32 -left-32 w-96 h-96 rounded-full blur-3xl opacity-40"
+            style={{ background: identity.glowColor }}
+          />
+          <div
+            className="absolute bottom-0 right-0 w-80 h-80 rounded-full blur-3xl opacity-30"
+            style={{ background: identity.glowColor }}
+          />
+          <div
+            className="absolute top-1/2 left-1/3 w-64 h-64 rounded-full blur-2xl opacity-20"
+            style={{ background: identity.accentLight }}
+          />
 
           {/* Subtle grid overlay — per Liquid Glass spec */}
           <div className="absolute inset-0 opacity-10" aria-hidden="true">
-            <svg className="absolute inset-0 h-full w-full" fill="none" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <svg
+              className="absolute inset-0 h-full w-full"
+              fill="none"
+              viewBox="0 0 100 100"
+              preserveAspectRatio="none"
+            >
               <defs>
-                <pattern id={`auth-grid-${identityKey}`} width="8" height="8" patternUnits="userSpaceOnUse">
-                  <path d="M 8 0 L 0 0 0 8" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="0.4" />
+                <pattern
+                  id={`auth-grid-${identityKey}`}
+                  width="8"
+                  height="8"
+                  patternUnits="userSpaceOnUse"
+                >
+                  <path
+                    d="M 8 0 L 0 0 0 8"
+                    fill="none"
+                    stroke="rgba(255,255,255,0.4)"
+                    strokeWidth="0.4"
+                  />
                 </pattern>
               </defs>
-              <rect width="100" height="100" fill={`url(#auth-grid-${identityKey})`} />
+              <rect
+                width="100"
+                height="100"
+                fill={`url(#auth-grid-${identityKey})`}
+              />
             </svg>
           </div>
 
@@ -191,10 +270,17 @@ const AuthLayout = ({ children, appType, showLogo = true }: AuthLayoutProps) => 
                 <div className="inline-flex items-center gap-3 mb-2">
                   <div
                     className="w-9 h-9 rounded-xl shadow-lg flex items-center justify-center"
-                    style={{ background: "hsla(0,0%,100%,0.15)", backdropFilter: "blur(12px)", border: "1px solid hsla(0,0%,100%,0.25)" }}
+                    style={{
+                      background: "hsla(0,0%,100%,0.15)",
+                      backdropFilter: "blur(12px)",
+                      border: "1px solid hsla(0,0%,100%,0.25)",
+                    }}
                     aria-hidden="true"
                   />
-                  <span className="auth-layout-headline text-white/90 font-bold text-lg tracking-tight" style={{ fontFamily: "'Outfit', system-ui, sans-serif" }}>
+                  <span
+                    className="auth-layout-headline text-white/90 font-bold text-lg tracking-tight"
+                    style={{ fontFamily: "'Outfit', system-ui, sans-serif" }}
+                  >
                     {appConfig.appName}
                   </span>
                 </div>
@@ -204,10 +290,15 @@ const AuthLayout = ({ children, appType, showLogo = true }: AuthLayoutProps) => 
 
             <div className="space-y-8">
               <div>
-                <h1 className="text-4xl xl:text-5xl font-extrabold text-white leading-tight tracking-tight drop-shadow-sm mb-4" style={{ fontFamily: "'Outfit', system-ui, sans-serif" }}>
+                <h1
+                  className="text-4xl xl:text-5xl font-extrabold text-white leading-tight tracking-tight drop-shadow-sm mb-4"
+                  style={{ fontFamily: "'Outfit', system-ui, sans-serif" }}
+                >
                   {identity.tagline}
                 </h1>
-                <p className="text-base text-white/70 max-w-xs leading-relaxed">{identity.description}</p>
+                <p className="text-base text-white/70 max-w-xs leading-relaxed">
+                  {identity.description}
+                </p>
               </div>
 
               <div className="space-y-3">
@@ -223,15 +314,25 @@ const AuthLayout = ({ children, appType, showLogo = true }: AuthLayoutProps) => 
                       animationDelay: `${0.2 + i * 0.1}s`,
                     }}
                   >
-                    <span className="text-xl shrink-0" role="img" aria-hidden="true">{pillar.icon}</span>
-                    <span className="text-sm font-medium text-white/90 leading-snug">{pillar.label}</span>
+                    <span
+                      className="text-xl shrink-0"
+                      role="img"
+                      aria-hidden="true"
+                    >
+                      {pillar.icon}
+                    </span>
+                    <span className="text-sm font-medium text-white/90 leading-snug">
+                      {pillar.label}
+                    </span>
                   </div>
                 ))}
               </div>
             </div>
 
             <div className="animate-[fadeIn_0.8s_ease_0.4s_both]">
-              <p className="text-xs text-white/40 font-medium tracking-widest uppercase">Uni-Manager · Total Life Orchestration</p>
+              <p className="text-xs text-white/40 font-medium tracking-widest uppercase">
+                Uni-Manager · Total Life Orchestration
+              </p>
             </div>
           </div>
         </div>
@@ -241,7 +342,9 @@ const AuthLayout = ({ children, appType, showLogo = true }: AuthLayoutProps) => 
           <div className="flex flex-col items-center px-4 sm:px-8 lg:px-12 py-4 sm:py-6 w-full min-h-full">
             <div className="my-auto w-full max-w-md">
               <AuthShellContext.Provider value={true}>
-                <div className="animate-[fadeInUp_0.5s_ease_0.05s_both]">{children}</div>
+                <div className="animate-[fadeInUp_0.5s_ease_0.05s_both]">
+                  {children}
+                </div>
               </AuthShellContext.Provider>
 
               <div className="mt-4 sm:mt-5 flex items-center justify-between animate-[fadeIn_0.6s_ease_0.2s_both]">

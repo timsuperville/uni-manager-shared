@@ -1,6 +1,6 @@
 import { useCallback, useState, useMemo } from "react";
-import { useAuth } from "./useAuth.ts";
-import { MFAService } from "../services/mfaService.ts";
+import { useAuth } from "./useAuth";
+import { MFAService } from "../services/mfaService";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -21,7 +21,10 @@ interface UseMFAReturn {
   isLoading: boolean;
   error: string | null;
   backupCodes: string[];
-  setupMFA: (method?: MFAMethod, identifier?: string | null) => Promise<MFASetupResult>;
+  setupMFA: (
+    method?: MFAMethod,
+    identifier?: string | null,
+  ) => Promise<MFASetupResult>;
   verifyCode: (code: string, isSetup?: boolean) => Promise<unknown>;
   disableMFA: (method?: MFAMethod, code?: string | null) => Promise<void>;
   generateBackupCodes: () => Promise<BackupCodesResult>;
@@ -42,7 +45,10 @@ export function useMFA(): UseMFAReturn {
   const mfaService = useMemo(() => new MFAService(token), [token]);
 
   const handleSetupMFA = useCallback(
-    async (method: MFAMethod = "totp", identifier: string | null = null): Promise<MFASetupResult> => {
+    async (
+      method: MFAMethod = "totp",
+      identifier: string | null = null,
+    ): Promise<MFASetupResult> => {
       setIsLoading(true);
       setError(null);
       try {
@@ -50,10 +56,11 @@ export function useMFA(): UseMFAReturn {
         if (method === "totp") {
           const targetEmail = identifier ?? user?.email;
           if (!targetEmail) throw new Error("Email is required for TOTP setup");
-          result = await mfaService.setupTOTP(targetEmail) as MFASetupResult;
+          result = (await mfaService.setupTOTP(targetEmail)) as MFASetupResult;
         } else if (method === "sms") {
-          if (!identifier) throw new Error("Phone number is required for SMS setup");
-          result = await mfaService.setupSMS(identifier) as MFASetupResult;
+          if (!identifier)
+            throw new Error("Phone number is required for SMS setup");
+          result = (await mfaService.setupSMS(identifier)) as MFASetupResult;
         } else {
           throw new Error(`Unsupported MFA method: ${method}`);
         }
@@ -76,10 +83,11 @@ export function useMFA(): UseMFAReturn {
       try {
         let result: unknown;
         if (isSetup) {
-          result = await mfaService.verifyTOTPSetup(code) as MFASetupResult;
+          result = (await mfaService.verifyTOTPSetup(code)) as MFASetupResult;
           if ((result as MFASetupResult).success) {
             try {
-              const codes = await mfaService.generateBackupCodes() as BackupCodesResult;
+              const codes =
+                (await mfaService.generateBackupCodes()) as BackupCodesResult;
               setBackupCodes(codes.backupCodes ?? []);
             } catch (e) {
               if (import.meta.env.DEV) {
@@ -92,7 +100,8 @@ export function useMFA(): UseMFAReturn {
         }
         return result;
       } catch (err) {
-        const message = err instanceof Error ? err.message : "Code verification failed";
+        const message =
+          err instanceof Error ? err.message : "Code verification failed";
         setError(message);
         throw err;
       } finally {
@@ -103,14 +112,18 @@ export function useMFA(): UseMFAReturn {
   );
 
   const handleDisableMFA = useCallback(
-    async (method: MFAMethod = "totp", code: string | null = null): Promise<void> => {
+    async (
+      method: MFAMethod = "totp",
+      code: string | null = null,
+    ): Promise<void> => {
       setIsLoading(true);
       setError(null);
       try {
         await mfaService.disableMFA(method, code);
         setBackupCodes([]);
       } catch (err) {
-        const message = err instanceof Error ? err.message : "Failed to disable MFA";
+        const message =
+          err instanceof Error ? err.message : "Failed to disable MFA";
         setError(message);
         throw err;
       } finally {
@@ -120,21 +133,26 @@ export function useMFA(): UseMFAReturn {
     [mfaService],
   );
 
-  const handleGenerateBackupCodes = useCallback(async (): Promise<BackupCodesResult> => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const result = await mfaService.generateBackupCodes() as BackupCodesResult;
-      setBackupCodes(result.backupCodes ?? []);
-      return result;
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to generate backup codes";
-      setError(message);
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [mfaService]);
+  const handleGenerateBackupCodes =
+    useCallback(async (): Promise<BackupCodesResult> => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const result =
+          (await mfaService.generateBackupCodes()) as BackupCodesResult;
+        setBackupCodes(result.backupCodes ?? []);
+        return result;
+      } catch (err) {
+        const message =
+          err instanceof Error
+            ? err.message
+            : "Failed to generate backup codes";
+        setError(message);
+        throw err;
+      } finally {
+        setIsLoading(false);
+      }
+    }, [mfaService]);
 
   const extUser = user as typeof user & { mfaStatus?: string };
 

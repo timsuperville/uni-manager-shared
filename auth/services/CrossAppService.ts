@@ -10,7 +10,7 @@
  * auth service contract is finalised.
  */
 
-import type { User } from "../types/auth.types.ts";
+import type { User } from "../types/auth.types";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -25,7 +25,11 @@ interface AuthEventMap {
   "auth-logout": { source: string; timestamp: Date };
   "auth-token-refreshed": { user: User | null; timestamp: Date };
   "auth-token-refresh-failed": { error: unknown };
-  "auth-state-changed": { user: User | null; isAuthenticated: boolean; timestamp: Date };
+  "auth-state-changed": {
+    user: User | null;
+    isAuthenticated: boolean;
+    timestamp: Date;
+  };
   "auth-synced-from-storage": { user: User | null; isAuthenticated: boolean };
   "auth-error": { error: unknown; source: string };
 }
@@ -49,7 +53,10 @@ interface StoredAuth {
 class SimpleEventEmitter {
   private readonly events: Record<string, EventListener[]> = {};
 
-  on<K extends keyof AuthEventMap>(event: K, listener: EventListener<AuthEventMap[K]>): void {
+  on<K extends keyof AuthEventMap>(
+    event: K,
+    listener: EventListener<AuthEventMap[K]>,
+  ): void {
     if (!this.events[event]) this.events[event] = [];
     this.events[event]!.push(listener as EventListener);
   }
@@ -58,7 +65,10 @@ class SimpleEventEmitter {
     this.events[event]?.forEach((l) => l(payload));
   }
 
-  off<K extends keyof AuthEventMap>(event: K, listener: EventListener<AuthEventMap[K]>): void {
+  off<K extends keyof AuthEventMap>(
+    event: K,
+    listener: EventListener<AuthEventMap[K]>,
+  ): void {
     if (this.events[event]) {
       this.events[event] = this.events[event]!.filter((l) => l !== listener);
     }
@@ -105,20 +115,34 @@ class SharedAuthService extends SimpleEventEmitter {
 
   unregisterApplication(appName: string): void {
     this.applications.delete(appName);
-    this.emit("app-unregistered", { appName, totalApps: this.applications.size });
+    this.emit("app-unregistered", {
+      appName,
+      totalApps: this.applications.size,
+    });
   }
 
   // ---------------------------------------------------------------------------
   // Authentication methods
   // ---------------------------------------------------------------------------
 
-  async login(credentials: Credentials, appContext = "unknown"): Promise<{ success: boolean; user: User | null }> {
+  async login(
+    credentials: Credentials,
+    appContext = "unknown",
+  ): Promise<{ success: boolean; user: User | null }> {
     try {
       const response = await this.mockAuthenticate(credentials);
 
       if (response.success && response.user && response.accessToken) {
-        this.setAuthState(response.user, response.accessToken, response.refreshToken ?? null);
-        this.emit("auth-login", { user: this.currentUser, source: appContext, timestamp: new Date() });
+        this.setAuthState(
+          response.user,
+          response.accessToken,
+          response.refreshToken ?? null,
+        );
+        this.emit("auth-login", {
+          user: this.currentUser,
+          source: appContext,
+          timestamp: new Date(),
+        });
         return { success: true, user: this.currentUser };
       }
 
@@ -147,8 +171,15 @@ class SharedAuthService extends SimpleEventEmitter {
       const response = await this.mockRefreshToken();
 
       if (response.success && response.accessToken) {
-        this.setAuthState(this.currentUser!, response.accessToken, response.refreshToken ?? null);
-        this.emit("auth-token-refreshed", { user: this.currentUser, timestamp: new Date() });
+        this.setAuthState(
+          this.currentUser!,
+          response.accessToken,
+          response.refreshToken ?? null,
+        );
+        this.emit("auth-token-refreshed", {
+          user: this.currentUser,
+          timestamp: new Date(),
+        });
         return response.accessToken;
       }
 
@@ -164,20 +195,33 @@ class SharedAuthService extends SimpleEventEmitter {
   // Auth state management
   // ---------------------------------------------------------------------------
 
-  private setAuthState(user: User, accessToken: string, refreshToken: string | null): void {
+  private setAuthState(
+    user: User,
+    accessToken: string,
+    refreshToken: string | null,
+  ): void {
     this.currentUser = user;
     this.accessToken = accessToken;
     this.refreshToken = refreshToken;
     this.storeAuth();
-    this.emit("auth-state-changed", { user: this.currentUser, isAuthenticated: this.isAuthenticated(), timestamp: new Date() });
+    this.emit("auth-state-changed", {
+      user: this.currentUser,
+      isAuthenticated: this.isAuthenticated(),
+      timestamp: new Date(),
+    });
   }
 
   private clearAuthState(): void {
     this.currentUser = null;
     this.accessToken = null;
     this.refreshToken = null;
-    if (typeof localStorage !== "undefined") localStorage.removeItem("uni_manager_auth");
-    this.emit("auth-state-changed", { user: null, isAuthenticated: false, timestamp: new Date() });
+    if (typeof localStorage !== "undefined")
+      localStorage.removeItem("uni_manager_auth");
+    this.emit("auth-state-changed", {
+      user: null,
+      isAuthenticated: false,
+      timestamp: new Date(),
+    });
   }
 
   isAuthenticated(): boolean {
@@ -194,7 +238,9 @@ class SharedAuthService extends SimpleEventEmitter {
 
   getAuthHeaders(): Record<string, string> {
     const base = { "Content-Type": "application/json" };
-    return this.accessToken ? { ...base, Authorization: `Bearer ${this.accessToken}` } : base;
+    return this.accessToken
+      ? { ...base, Authorization: `Bearer ${this.accessToken}` }
+      : base;
   }
 
   // ---------------------------------------------------------------------------
@@ -215,7 +261,10 @@ class SharedAuthService extends SimpleEventEmitter {
 
   private loadStoredAuth(): void {
     try {
-      const stored = typeof localStorage !== "undefined" ? localStorage.getItem("uni_manager_auth") : null;
+      const stored =
+        typeof localStorage !== "undefined"
+          ? localStorage.getItem("uni_manager_auth")
+          : null;
       if (!stored) return;
 
       const authData = JSON.parse(stored) as StoredAuth;
@@ -240,7 +289,10 @@ class SharedAuthService extends SimpleEventEmitter {
       this.clearAuthState();
     } else {
       this.loadStoredAuth();
-      this.emit("auth-synced-from-storage", { user: this.currentUser, isAuthenticated: this.isAuthenticated() });
+      this.emit("auth-synced-from-storage", {
+        user: this.currentUser,
+        isAuthenticated: this.isAuthenticated(),
+      });
     }
   }
 
@@ -269,7 +321,15 @@ class SharedAuthService extends SimpleEventEmitter {
   // Development stubs — replace with real API calls in production
   // ---------------------------------------------------------------------------
 
-  private async mockAuthenticate(credentials: Credentials): Promise<{ success: boolean; user?: User; accessToken?: string; refreshToken?: string; message?: string }> {
+  private async mockAuthenticate(
+    credentials: Credentials,
+  ): Promise<{
+    success: boolean;
+    user?: User;
+    accessToken?: string;
+    refreshToken?: string;
+    message?: string;
+  }> {
     await new Promise<void>((resolve) => setTimeout(resolve, 500));
 
     if (credentials.email && credentials.password) {
@@ -290,7 +350,11 @@ class SharedAuthService extends SimpleEventEmitter {
     return { success: false, message: "Invalid credentials" };
   }
 
-  private async mockRefreshToken(): Promise<{ success: boolean; accessToken?: string; refreshToken?: string }> {
+  private async mockRefreshToken(): Promise<{
+    success: boolean;
+    accessToken?: string;
+    refreshToken?: string;
+  }> {
     await new Promise<void>((resolve) => setTimeout(resolve, 300));
     return {
       success: true,
@@ -301,7 +365,10 @@ class SharedAuthService extends SimpleEventEmitter {
 
   private async mockValidateToken(token: string): Promise<boolean> {
     await new Promise<void>((resolve) => setTimeout(resolve, 200));
-    return token.startsWith("mock-access-token") || token.startsWith("refreshed-access-token");
+    return (
+      token.startsWith("mock-access-token") ||
+      token.startsWith("refreshed-access-token")
+    );
   }
 
   // ---------------------------------------------------------------------------

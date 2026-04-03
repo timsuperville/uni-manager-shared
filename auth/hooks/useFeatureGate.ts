@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { useAuth } from "./useAuth.ts";
-import { getApiBaseUrl } from "../../api/config/apiConfig.ts";
+import { useAuth } from "./useAuth";
+import { getApiBaseUrl } from "../../api/config/apiConfig";
 
 // ── Module-level gate cache ───────────────────────────────────────────────────
 // Keyed by `${appType}:${userId}`, value is Map<featureKey, boolean>.
@@ -35,7 +35,9 @@ async function fetchActiveGates(
       return new Map();
     }
 
-    const data = await res.json() as { features?: Array<{ featureKey: string; isEnabled?: boolean }> };
+    const data = (await res.json()) as {
+      features?: Array<{ featureKey: string; isEnabled?: boolean }>;
+    };
     const gates = data.features ?? [];
     const gateMap = new Map<string, boolean>();
     gates.forEach((gate) => {
@@ -55,7 +57,10 @@ async function fetchActiveGates(
  * Invalidate the feature gate cache for a given user/app.
  * Call from admin UI after toggling a gate.
  */
-export function invalidateFeatureGateCache(appType: string, userId: string): void {
+export function invalidateFeatureGateCache(
+  appType: string,
+  userId: string,
+): void {
   _cache.delete(`${appType}:${userId}`);
 }
 
@@ -68,7 +73,9 @@ export function useFeatureGate(featureKey: string): boolean {
 
   useEffect(() => {
     mountedRef.current = true;
-    return () => { mountedRef.current = false; };
+    return () => {
+      mountedRef.current = false;
+    };
   }, []);
 
   useEffect(() => {
@@ -103,7 +110,9 @@ export function useFeatureGate(featureKey: string): boolean {
 
 // ── Batch hook ────────────────────────────────────────────────────────────────
 
-export function useFeatureGates(featureKeys: string[]): Record<string, boolean> {
+export function useFeatureGates(
+  featureKeys: string[],
+): Record<string, boolean> {
   const { user, isAuthenticated } = useAuth();
   const [gates, setGates] = useState<Record<string, boolean>>(() =>
     Object.fromEntries(featureKeys.map((k) => [k, true])),
@@ -112,7 +121,9 @@ export function useFeatureGates(featureKeys: string[]): Record<string, boolean> 
 
   useEffect(() => {
     mountedRef.current = true;
-    return () => { mountedRef.current = false; };
+    return () => {
+      mountedRef.current = false;
+    };
   }, []);
 
   useEffect(() => {
