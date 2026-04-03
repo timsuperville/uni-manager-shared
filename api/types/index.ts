@@ -757,6 +757,3 @@ export interface PushSubscription {
   deviceType?: "desktop" | "mobile" | "tablet";
 }
 
-export default {
-  // Export all types for easy importing
-};

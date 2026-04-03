@@ -5,7 +5,7 @@
  * and user-friendly error messages across all applications.
  */
 
-import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios";
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 import { reportApiError } from "@shared/utils";
 
 /** Ambient type for optional window-level error tracker (e.g. Sentry, LogRocket). */
@@ -69,7 +69,7 @@ export class ErrorHandler {
   async handleError(
     error: AxiosError,
     axiosInstance: AxiosInstance,
-  ): Promise<unknown> {
+  ): Promise<AxiosResponse> {
     const apiError = this.transformError(error);
     const config = error.config as AxiosRequestConfig & {
       _retryCount?: number;

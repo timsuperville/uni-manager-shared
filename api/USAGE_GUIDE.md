@@ -12,87 +12,97 @@ Practical examples and patterns for using the unified API layer.
 6. [Error Handling](#error-handling)
 7. [Caching](#caching)
 8. [Advanced Patterns](#advanced-patterns)
+9. [Debugging](#debugging)
+
+---
 
 ## Configuration
 
-### Basic Setup
+### Wrapping your app
 
-```typescript
-// main.tsx or App.tsx
-import { initializeApiServices } from "@shared/api";
+```tsx
+// main.tsx — do this once at the root level
+import { ApiProvider, getApiBaseUrl } from "@shared/api";
 
-// Initialize once at app startup
-const api = initializeApiServices({
-  baseUrl: import.meta.env.VITE_API_URL,
-  timeout: 10000,
-  enableDebugLogging: import.meta.env.DEV,
-});
-
-export default api;
-```
-
-### Environment Variables
-
-create `.env.local`:
-
-```. env
-VITE_API_URL=http://localhost:5000
+function Root() {
+  return (
+    <ApiProvider
+      config={{
+        baseURL: getApiBaseUrl(),
+        timeout: 10000,
+        cacheEnabled: true,
+        authEnabled: true,
+        authConfig: {
+          tokenKey: "uni_auth_access_token",
+          refreshTokenKey: "uni_auth_refresh_token",
+          tokenStorage: "sessionStorage",
+        },
+      }}
+      onError={(error) => console.error("[API]", error)}
+    >
+      <App />
+    </ApiProvider>
+  );
+}
 ```
 
 ### Getting API Base URL
 
+Always use `getApiBaseUrl()` — never read `import.meta.env.VITE_API_URL` directly in component code.
+
 ```typescript
 import { getApiBaseUrl, getAbsoluteUrl } from "@shared/api";
 
-// Get base URL
-const apiUrl = getApiBaseUrl(); // http://localhost:5000
+const base = getApiBaseUrl();
+// Dev:        "http://localhost:5000/api"
+// Production: "/api" (Vite proxy or Firebase rewrite handles routing)
 
-//Convert relative to absolute
 const avatarUrl = getAbsoluteUrl("/uploads/avatar.jpg");
-// http://localhost:5000/uploads/avatar.jpg
+// Dev:        "http://localhost:5000/uploads/avatar.jpg"
+// Production: "/uploads/avatar.jpg"
 ```
+
+---
 
 ## Authentication
 
 ### Login
 
 ```typescript
-import { useAuth } from '@shared/api/hooks';
+import { useAuth } from "@shared/api";
 
 function LoginForm() {
   const { login, isLoading, error } = useAuth();
 
-  const handleSubmit = async (email, password) => {
+  const handleSubmit = async (email: string, password: string) => {
     await login({ email, password });
-    // User is automatically updated in context
+    // user state is automatically updated — no setUser needed
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      {error && <div>{error.message}</div>}
-      <button disabled={isLoading}>
-        {isLoading ? 'Logging in...' : 'Login'}
+    <form onSubmit={...}>
+      {error && <div className="error">{error}</div>}
+      <button type="submit" disabled={isLoading}>
+        {isLoading ? "Logging in…" : "Log In"}
       </button>
     </form>
   );
 }
 ```
 
-### Check Auth Status
+### Protected Route
 
-```typescript
-import { useAuth } from '@shared/api/hooks';
+```tsx
+import { useAuth } from "@shared/api";
+import { Navigate } from "react-router-dom";
 
-function ProtectedRoute({ children }) {
-  const { isAuthenticated, user, isLoading } = useAuth();
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated, isLoading } = useAuth();
 
-  if (isLoading) return <LoadingSpinner />;
+  if (isLoading) return <Spinner />;
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
 
-  if (!isAuthenticated) {
-    return <Navigate to="/login" />;
-  }
-
-  return children;
+  return <>{children}</>;
 }
 ```
 
@@ -102,470 +112,364 @@ function ProtectedRoute({ children }) {
 const { logout } = useAuth();
 
 const handleLogout = async () => {
-  await logout();
-  // User state is cleared, tokens removed
+  await logout(); // tokens cleared, session invalidated
   navigate("/login");
 };
 ```
 
-## Data Fetching
+### Forced Logout (Token Refresh Failure)
 
-### Simple Data Fetch
+The `AuthInterceptor` dispatches `auth:failure` on `window` when a token refresh fails. Listen at your app root:
 
 ```typescript
-import { useChurch } from '@shared/api/hooks';
+useEffect(() => {
+  const handler = () => navigate("/login");
+  window.addEventListener("auth:failure", handler);
+  return () => window.removeEventListener("auth:failure", handler);
+}, [navigate]);
+```
 
-function ChurchList() {
-  const { churches, loading, error, refetch } = useChurch();
+---
 
-  if (loading) return <LoadingSpinner />;
+## Data Fetching
+
+### Simple Fetch
+
+```tsx
+import { useApi, useApiQuery } from "@shared/api";
+
+function UserProfile() {
+  const api = useApi();
+  const { data: user, isLoading, error } = useApiQuery(
+    "current-user",
+    () => api.auth.getCurrentUser(),
+  );
+
+  if (isLoading) return <Spinner />;
   if (error) return <ErrorMessage error={error} />;
 
-  return (
-    <div>
-      <button onClick={refetch}>Refresh</button>
-      {churches.map(church => (
-        <ChurchCard key={church.id} church={church} />
-      ))}
-    </div>
-  );
+  return <div>{user?.displayName}</div>;
 }
 ```
 
-### Fetch with Pagination
+### Conditional Fetch
 
 ```typescript
-import { getApiServices } from '@shared/api';
+const { isAuthenticated } = useAuth();
 
-function PaginatedList() {
-  const [page, setPage] = useState(1);
-  const api = getApiServices();
+const { data } = useApiQuery(
+  "user-notifications",
+  () => api.notifications.getUserNotifications(),
+  { enabled: isAuthenticated }, // only runs when logged in
+);
+```
 
-  const { data, loading } = useApiQuery(
-    ['churches', page],
-    () => api.church.getChurches({}, { page, limit: 10 }),
-    { cacheTime: 300000 }
-  );
+### Paginated Fetch
 
-  return (
-    <div>
-      {data?.data.map(church => <ChurchCard key={church.id} church={church} />  )}
-      <Pagination
-        page={page}
-        totalPages={data?.totalPages}
-        onPageChange={setPage}
-      />
-    </div>
-  );
-}
+```typescript
+const [page, setPage] = useState(1);
+
+const { data } = useApiQuery(
+  ["churches", page],
+  () => api.church.getChurches({}, { page, limit: 10 }),
+  { staleTime: 300_000 },
+);
+
+// data.items — current page
+// data.pagination.totalPages
+// data.pagination.hasNextPage
 ```
 
 ### Fetch with Filters
 
 ```typescript
-const [filters, setFilters] = useState({
-  denomination: "",
-  city: "",
-});
+const [search, setSearch] = useState("");
 
-const { data: churches, loading } = useApiQuery(
-  ["churches", filters],
-  () => api.church.getChurches(filters),
-  { enabled: !!filters.city }, // Only fetch when city is set
+const { data: results } = useApiQuery(
+  ["notifications", search],
+  () => api.notifications.getUserNotifications({ search }),
+  { enabled: search.length > 2 },
 );
 ```
 
+---
+
 ## Data Mutations
 
-### Create Record
+### Create
 
 ```typescript
-import { useApiMutation } from '@shared/api/hooks';
+import { useApi, useApiMutation } from "@shared/api";
+import type { CreateNotificationRequest } from "@shared/api";
 
-function CreateChurchForm() {
-  const api = getApiServices();
-  const navigate = useNavigate();
+function SendNotificationForm() {
+  const api = useApi();
 
-  const { mutate, isLoading, error } = useApiMutation(
-    (churchData) => api.church.createChurch(churchData),
+  const { mutate: send, isLoading } = useApiMutation(
+    (data: CreateNotificationRequest) => api.notifications.createNotification(data),
     {
-      onSuccess: (newChurch) => {
-        console.log('Created:', newChurch);
-        navigate(`/churches/${newChurch.id}`);
-      },
-      onError: (error) => {
-        console.error('Failed:', error);
-      },
-    }
+      onSuccess: () => toast.success("Notification sent!"),
+      onError: (err) => toast.error(err.message),
+    },
   );
 
-  const handleSubmit = (formData) => {
-    mutate(formData);
-  };
-
   return (
-    <form onSubmit={handleSubmit}>
-      {error && <ErrorMessage error={error} />}
-      <button disabled={isLoading}>
-        {isLoading ? 'Creating...' : 'Create Church'}
-      </button>
-    </form>
+    <button onClick={() => send({ title: "Hello", message: "…", type: "info", recipients: [userId] })} disabled={isLoading}>
+      {isLoading ? "Sending…" : "Send"}
+    </button>
   );
 }
 ```
 
-### Update Record
+### Update
 
 ```typescript
-const { mutate: updateChurch } = useApiMutation(({ id, updates }) => api.church.updateChurch(id, updates), {
-  onSuccess: () => {
-    // Invalidate cache to refetch
-    queryClient.invalidateQueries(["church", churchId]);
-    toast.success("Updated successfully");
+const { mutate: updatePrefs } = useApiMutation(
+  (prefs: Partial<NotificationPreferences>) =>
+    api.notifications.updateUserPreferences(prefs),
+  {
+    onSuccess: () => {
+      // Invalidate the cached preferences so they refetch
+      refetchPreferences();
+    },
   },
-});
-
-const handleUpdate = () => {
-  updateChurch({ id: churchId, updates: formData });
-};
+);
 ```
 
-### Delete Record
+### Delete
 
 ```typescript
-const { mutate: deleteChurch, isLoading: isDeleting } = useApiMutation((id) => api.church.deleteChurch(id), {
-  onSuccess: () => {
-    queryClient.invalidateQueries(["churches"]);
-    navigate("/churches");
+const { mutate: deleteFile, isLoading: isDeleting } = useApiMutation(
+  (id: string) => api.files.deleteFile(id),
+  {
+    onSuccess: () => {
+      setFiles((prev) => prev.filter((f) => f.id !== id));
+      toast.success("File deleted");
+    },
   },
-});
-
-const handleDelete = () => {
-  if (confirm("Are you sure?")) {
-    deleteChurch(churchId);
-  }
-};
+);
 ```
+
+---
 
 ## File Uploads
 
-### Upload Avatar
+### Avatar Upload (via `useFileUpload`)
 
-```typescript
-import { useFileUpload } from '@shared/api/hooks';
+```tsx
+import { useFileUpload, useApi } from "@shared/api";
 
 function AvatarUpload() {
-  const api = getApiServices();
+  const api = useApi();
 
-  const { upload, progress, isUploading } = useFileUpload();
-
-  const handleFileChange = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    try {
-      const result = await upload(
-        (file, onProgress) => api.files.uploadFile({
-          file,
-          type: 'avatar'
-        }, onProgress)
-      );
-
-      console.log('Uploaded:', result);
-    } catch (error) {
-      console.error('Upload failed:', error);
-    }
-  };
+  const { upload, progress, isUploading, error } = useFileUpload({
+    uploadFn: (file) => api.auth.uploadAvatar(file),
+    onSuccess: (updatedUser) => setAvatarUrl(updatedUser.avatar),
+    onError: (err) => toast.error(err.message),
+  });
 
   return (
     <div>
       <input
         type="file"
-        onChange={handleFileChange}
+        accept="image/*"
         disabled={isUploading}
+        onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])}
       />
-      {isUploading && (
-        <ProgressBar value={progress} max={100} />
-      )}
+      {isUploading && <ProgressBar value={progress} max={100} />}
+      {error && <p className="error">{error}</p>}
     </div>
   );
 }
 ```
 
-### Upload with Progress
+### File Upload with Manual Progress
 
 ```typescript
-const handleUpload = async (file) => {
-  const result = await api.files.uploadFile({ file, folder: "avatars" }, (progressEvent) => {
-    const percent = (progressEvent.loaded / progressEvent.total) * 100;
-    setProgress(percent);
-  });
+import type { AxiosProgressEvent } from "axios";
 
-  setAvatarUrl(result.url);
+const handleUpload = async (file: File) => {
+  const result = await api.files.uploadFile(
+    { file, category: "documents" },
+    (event: AxiosProgressEvent) => {
+      // event.total can be undefined if the server omits Content-Length
+      const pct = Math.round((event.loaded * 100) / (event.total ?? event.loaded));
+      setProgress(pct);
+    },
+  );
+  setFileUrl(result.url);
 };
 ```
 
+---
+
 ## Error Handling
 
-### Component-Level Error Handling
+### Component-Level
 
-```typescript
-function ChurchDetail({ id }) {
-  const { data: church, error, isLoading } = useApiQuery(
-    ['church', id],
-    () => api.church.getChurch(id)
-  );
+```tsx
+import { ApiErrorType } from "@shared/api";
 
-  if (isLoading) return <LoadingSpinner />;
+const { data, error } = useApiQuery("church", () => api.church.getChurch(id));
 
-  if (error) {
-    // Different UIs based on error type
-    if (error.type === 'NETWORK_ERROR') {
-      return <OfflineMessage onRetry={() => refetch()} />;
-    }
-
-    if (error.type === 'NOT_FOUND') {
-      return <NotFoundMessage />;
-    }
-
-    return <ErrorMessage error={error} />;
-  }
-
-  return <ChurchCard church={church} />;
+if (error) {
+  if (error.type === ApiErrorType.NOT_FOUND) return <NotFound />;
+  if (error.type === ApiErrorType.NETWORK_ERROR) return <Offline onRetry={refetch} />;
+  return <ErrorMessage error={error} />;
 }
 ```
 
 ### Global Error Handler
 
-```typescript
-// App.tsx
-import { ApiProvider } from '@shared/api';
-
-function App() {
-  const handleApiError = (error) => {
-    if (error.type === 'AUTH_ERROR') {
-      // Redirect to login
-      navigate('/login');
-    } else if (error.type === 'NETWORK_ERROR') {
-      // Show global offline banner
-      setOffline(true);
-    }
-  };
-
-  return (
-    <ApiProvider config={apiConfig} onError={handleApiError}>
-      <YourApp />
-    </ApiProvider>
-  );
-}
+```tsx
+<ApiProvider
+  config={...}
+  onError={(error) => {
+    if (error.type === ApiErrorType.UNAUTHORIZED) navigate("/login");
+    else if (error.type === ApiErrorType.NETWORK_ERROR) setOfflineBanner(true);
+  }}
+>
 ```
+
+### Mutation Error Handling
+
+```typescript
+const { mutate, error, reset } = useApiMutation(
+  (data) => api.notifications.createNotification(data),
+  { onError: (err) => Sentry.captureException(err) },
+);
+
+// Clear error state after user fixes input
+reset();
+```
+
+---
 
 ## Caching
 
-### Cache with Custom TTL
+### Custom TTL per Query
 
 ```typescript
-const { data } = useApiQuery("churches-list", () => api.church.getChurches(), {
-  cacheTime: 600000, // 10 minutes
-  staleTime: 300000, // 5 minutes
-});
-```
-
-### Invalidate Cache on Mutation
-
-```typescript
-const { mutate } = useApiMutation((data) => api.church.createChurch(data), {
-  onSuccess: () => {
-    // Invalidate all church queries
-    queryClient.invalidateQueries(["churches"]);
+const { data } = useApiQuery(
+  "notification-prefs",
+  () => api.notifications.getUserPreferences(),
+  {
+    staleTime: 600_000,   // serve from cache for 10 minutes
+    retry: 1,
   },
-});
+);
 ```
 
-### Manual Cache Control
+### Manual Cache Control (DEV)
 
-```typescript
-import { getApiServices } from "@shared/api";
+Available in browser console when `enableDebugLogging: true`:
 
-const api = getApiServices();
-
-// Clear specific cache
-api.clearCache();
-
-// Get cache stats
-const stats = api.getCacheStats();
-console.log("Cache size:", stats.size);
+```javascript
+window.apiCacheStats();    // { size, hits, misses, hitRate }
+window.clearApiCache();    // Wipe everything
+window.apiHealthCheck();   // Ping auth service
+window.apiServices;        // Direct access to ApiServices instance
 ```
+
+---
 
 ## Advanced Patterns
 
 ### Optimistic Updates
 
 ```typescript
-const { mutate } = useApiMutation(({ id, updates }) => api.church.updateChurch(id, updates), {
-  onMutate: async ({ id, updates }) => {
-    // Cancel outgoing refetches
-    await queryClient.cancelQueries(["church", id]);
+const queryClient = useQueryClient();
 
-    // Snapshot previous value
-    const previous = queryClient.getQueryData(["church", id]);
-
-    // Optimistically update UI
-    queryClient.setQueryData(["church", id], (old) => ({
-      ...old,
-      ...updates,
-    }));
-
-    return { previous };
+const { mutate: markRead } = useApiMutation(
+  (id: string) => api.notifications.markAsRead(id),
+  {
+    onMutate: async (id) => {
+      await queryClient.cancelQueries(["notifications"]);
+      const previous = queryClient.getQueryData(["notifications"]);
+      queryClient.setQueryData(["notifications"], (old: Notification[]) =>
+        old.map((n) => (n.id === id ? { ...n, status: "read" } : n)),
+      );
+      return { previous };
+    },
+    onError: (_err, _id, context) => {
+      queryClient.setQueryData(["notifications"], context?.previous);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(["notifications"]);
+    },
   },
-  onError: (err, variables, context) => {
-    // Rollback on error
-    queryClient.setQueryData(["church", variables.id], context.previous);
-  },
-  onSettled: (data, error, variables) => {
-    // Refetch to ensure sync
-    queryClient.invalidateQueries(["church", variables.id]);
-  },
-});
+);
 ```
 
 ### Parallel Requests
 
 ```typescript
-import { useQueries } from '@tanstack/react-query';
+import { useQueries } from "@tanstack/react-query";
 
-function Dashboard() {
-  const api = getApiServices();
+const [profileResult, notifResult] = useQueries({
+  queries: [
+    { queryKey: ["user-profile"], queryFn: () => api.auth.getCurrentUser() },
+    { queryKey: ["unread-count"], queryFn: () => api.notifications.getUnreadCount() },
+  ],
+});
 
-  const results = useQueries({
-    queries: [
-      { queryKey: ['churches'], queryFn: () => api.church.getChurches() },
-      { queryKey: ['events'], queryFn: () => api.events.getEvents() },
-      { queryKey: ['members'], queryFn: () => api.church.getMembers() },
-    ],
-  });
+const isLoading = profileResult.isLoading || notifResult.isLoading;
+```
 
-  const [churches, events, members] = results;
+### Offline Mutation Queue
 
-  const isLoading = results.some(r => r.isLoading);
-  const hasError = results.some(r => r.error);
+```typescript
+import { syncEngine, getApiServices } from "@shared/api";
 
-  return (
-    <div>
-      {isLoading && <LoadingSpinner />}
-      {hasError && <ErrorMessage />}
-      {/* Render data */}
-    </div>
+// Queue when offline
+const handleOfflineAction = async (data: CreateNotificationRequest) => {
+  await syncEngine.queueMutation(
+    "notification-create",
+    [data],
+    "notifications.createNotification",
   );
-}
+  toast.info("Saved offline — will sync when reconnected");
+};
+
+// Drain on reconnect
+useEffect(() => {
+  const drain = async () => {
+    const api = getApiServices();
+    await syncEngine.processQueue({
+      notifications: api.notifications,
+      files: api.files,
+    });
+  };
+  window.addEventListener("online", drain);
+  return () => window.removeEventListener("online", drain);
+}, []);
 ```
 
 ### Dependent Queries
 
 ```typescript
-function ChurchMembers({ churchId }) {
-  // First, get church
-  const { data: church } = useApiQuery(
-    ['church', churchId],
-    () => api.church.getChurch(churchId)
-  );
+const { data: user } = useApiQuery("user", () => api.auth.getCurrentUser());
 
-  // Then get members (only runs if church loaded)
-  const { data: members } = useApiQuery(
-    ['church-members', churchId],
-    () => api.church.getChurchMembers(churchId),
-    { enabled: !!church }  // Wait for church to load
-  );
-
-  return <MemberList members={members} />;
-}
+const { data: notifications } = useApiQuery(
+  ["notifications", user?.id],
+  () => api.notifications.getUserNotifications(),
+  { enabled: !!user }, // only fetches after user loads
+);
 ```
 
-### Infinite Scroll
-
-```typescript
-import { useInfiniteQuery } from '@tanstack/react-query';
-
-function InfiniteChurchList() {
-  const api = getApiServices();
-
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  } = useInfiniteQuery({
-    queryKey: ['churches-infinite'],
-    queryFn: ({ pageParam = 1 }) =>
-      api.church.getChurches({}, { page: pageParam, limit: 20 }),
-    getNextPageParam: (lastPage) =>
-      lastPage.hasMore ? lastPage.page + 1 : undefined,
-  });
-
-  return (
-    <div>
-      {data?.pages.map(page =>
-        page.data.map(church => (
-          <ChurchCard key={church.id} church={church} />
-        ))
-      )}
-
-      {hasNextPage && (
-        <button onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
-          {isFetchingNextPage ? 'Loading...' : 'Load More'}
-        </button>
-      )}
-    </div>
-  );
-}
-```
-
-## Best Practices
-
-1. **Always handle loading and error states**
-2. **Use TypeScript types for type safety**
-3. **Invalidate cache after mutations**
-4. **Set appropriate cache TTLs**
-5. **Use optimistic updates for better UX**
-6. **Handle offline scenarios gracefully**
-7. **Avoid fetching in render - use hooks**
-8. **Batch related requests when possible**
-
-## Performance Tips
-
-1. **Enable caching** for frequently accessed data
-2. **Use pagination** for large lists
-3. **Implement infinite scroll** for better UX
-4. **Optimize cache invalidation** (don't clear everything)
-5. **Use query prefetching** for predictable navigation
-6. **Debounce search inputs** to reduce API calls
-7. **Use request deduplication** (automatic with ApiClient)
+---
 
 ## Debugging
 
-Enable debug mode to see detailed API logs:
+Enable detailed request/response logging:
 
 ```typescript
-const api = initializeApiServices({
-  baseUrl: import.meta.env.VITE_API_URL,
-  enableDebugLogging: true, // Shows all API calls in console
-});
+<ApiProvider
+  config={{
+    ...config,
+    enableDebugLogging: import.meta.env.DEV,
+  }}
+>
 ```
 
-Access debug utilities in browser console:
-
-```javascript
-// Available in development mode
-window.apiServices; // Access API services
-window.clearApiCache(); // Clear all caches
-window.apiCacheStats(); // View cache statistics
-window.apiHealthCheck(); // Check service health
-```
-
-## Support
-
-For questions or issues:
-
-- Check [README.md](./README.md) for architecture overview
-- See [MIGRATION_GUIDE.md](./MIGRATION_GUIDE.md) for migration help
-- Review existing examples in `examples/` directory
+> In DEV mode all HTTP requests log to the console and `window.apiServices`, `window.clearApiCache`, `window.apiCacheStats`, and `window.apiHealthCheck` are available in the browser developer tools.

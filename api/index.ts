@@ -44,8 +44,14 @@ export type {
   PaginatedResponse,
 } from "./services/BaseService";
 
-export { AuthService } from "./services/AuthService";
-export { ArtNetBridgeService, artNetBridgeService } from "./services/ArtNetBridgeService";
+export {
+  AuthService,
+} from "./services/AuthService";
+export {
+  ArtNetBridgeService,
+  artNetBridgeService,
+  initArtNetBridge,
+} from "./services/ArtNetBridgeService";
 
 // Main service registry
 export {
@@ -80,13 +86,6 @@ export type { SyncEntry, ServiceMap } from "./syncEngine";
 
 // ==================== CONVENIENCE EXPORTS ====================
 
-/**
- * Version information
- */
 export const VERSION = "1.0.0";
 export const API_VERSION = "v1";
 
-export default {
-  VERSION,
-  API_VERSION,
-};

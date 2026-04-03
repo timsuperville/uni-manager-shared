@@ -102,6 +102,15 @@ export const syncEngine = {
           if (import.meta.env.DEV) {
             console.error(`[SyncEngine] Max retries reached for ${entry.id}. Dropping.`);
           }
+        } else {
+          // Persist the incremented retry count back to IndexedDB.
+          // Without this write-back, the counter resets to 0 on every
+          // processQueue() call and entries can never be dropped.
+          const currentQueue: SyncEntry[] = (await get(SYNC_STORE_NAME)) ?? [];
+          const updated = currentQueue.map((item) =>
+            item.id === entry.id ? { ...item, retries: entry.retries } : item,
+          );
+          await set(SYNC_STORE_NAME, updated);
         }
       }
     }

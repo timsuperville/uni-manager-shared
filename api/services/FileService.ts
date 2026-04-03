@@ -32,6 +32,7 @@ import {
   StorageAnalytics,
 } from "../types";
 import { ApiClient } from "../core/ApiClient";
+import type { AxiosProgressEvent } from "axios";
 
 export class FileService extends BaseService {
   constructor(client: ApiClient) {
@@ -132,7 +133,7 @@ export class FileService extends BaseService {
    */
   async uploadFile(
     request: FileUploadRequest,
-    onProgress?: (progress: ProgressEvent) => void,
+    onProgress?: (progress: AxiosProgressEvent) => void,
   ): Promise<FileMetadata> {
     const schema: ValidationSchema = FileService.SCHEMAS.fileUpload;
     this.validateRequest(request, schema);
@@ -161,7 +162,7 @@ export class FileService extends BaseService {
     }
 
     return this.upload<FileMetadata>(this.baseEndpoint + "/upload", formData, {
-      onUploadProgress: (progress: ProgressEvent) => {
+      onUploadProgress: (progress: AxiosProgressEvent) => {
         onProgress?.(progress);
 
         // Emit global progress event

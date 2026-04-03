@@ -186,7 +186,7 @@ export class NotificationService extends BaseService {
       NotificationService.SCHEMAS.createNotification;
     this.validateRequest(notificationData, schema);
 
-    return this.post<Notification>(this.baseEndpoint, notificationData);
+    return this.post<Notification>("", notificationData);
   }
 
   /**
@@ -307,8 +307,8 @@ export class NotificationService extends BaseService {
         : "";
 
     const endpoint = queryString
-      ? `${this.baseEndpoint}/user?${queryString}`
-      : `${this.baseEndpoint}/user`;
+      ? `/user?${queryString}`
+      : "/user";
 
     return this.get<PaginatedResponse<Notification>>(endpoint);
   }
@@ -336,7 +336,7 @@ export class NotificationService extends BaseService {
     return this.post<{
       successful: string[];
       failed: string[];
-    }>(this.baseEndpoint + "/mark-read", { notificationIds });
+    }>("/mark-read", { notificationIds });
   }
 
   /**
@@ -368,7 +368,7 @@ export class NotificationService extends BaseService {
     this.validateRequest(templateData, schema);
 
     return this.post<NotificationTemplate>(
-      this.baseEndpoint + "/templates",
+      "/templates",
       templateData,
     );
   }
@@ -447,8 +447,8 @@ export class NotificationService extends BaseService {
         : "";
 
     const endpoint = queryString
-      ? `${this.baseEndpoint}/templates?${queryString}`
-      : `${this.baseEndpoint}/templates`;
+      ? `/templates?${queryString}`
+      : "/templates";
 
     return this.get<PaginatedResponse<NotificationTemplate>>(endpoint);
   }
@@ -494,7 +494,7 @@ export class NotificationService extends BaseService {
       jobId: string;
       totalNotifications: number;
       estimatedCompletion: string;
-    }>(this.baseEndpoint + "/bulk", bulkRequest);
+    }>("/bulk", bulkRequest);
   }
 
   /**
@@ -525,7 +525,7 @@ export class NotificationService extends BaseService {
       createdAt: string;
       completedAt?: string;
       error?: string;
-    }>(`${this.baseEndpoint}/bulk/${jobId}/status`);
+    }>(`/bulk/${jobId}/status`);
   }
 
   // ===============================================
@@ -536,9 +536,7 @@ export class NotificationService extends BaseService {
    * Get user notification preferences
    */
   async getUserPreferences(): Promise<NotificationPreferences> {
-    return this.get<NotificationPreferences>(
-      this.baseEndpoint + "/preferences",
-    );
+    return this.get<NotificationPreferences>("/preferences");
   }
 
   /**
@@ -551,7 +549,7 @@ export class NotificationService extends BaseService {
     this.validateRequest(preferences, schema);
 
     return this.patch<NotificationPreferences>(
-      this.baseEndpoint + "/preferences",
+      "/preferences",
       preferences,
     );
   }
@@ -563,7 +561,7 @@ export class NotificationService extends BaseService {
     subscription: PushSubscription,
   ): Promise<{ success: boolean }> {
     return this.post<{ success: boolean }>(
-      this.baseEndpoint + "/push/subscribe",
+      "/push/subscribe",
       subscription,
     );
   }
@@ -573,7 +571,7 @@ export class NotificationService extends BaseService {
    */
   async unsubscribeFromPush(endpoint: string): Promise<{ success: boolean }> {
     return this.post<{ success: boolean }>(
-      this.baseEndpoint + "/push/unsubscribe",
+      "/push/unsubscribe",
       { endpoint },
     );
   }
@@ -660,7 +658,7 @@ export class NotificationService extends BaseService {
    * Get unread notification count
    */
   async getUnreadCount(): Promise<{ count: number }> {
-    return this.get<{ count: number }>(this.baseEndpoint + "/unread-count");
+    return this.get<{ count: number }>("/unread-count");
   }
 
   /**
@@ -679,7 +677,7 @@ export class NotificationService extends BaseService {
       sent: boolean;
       deliveryTime: number;
       error?: string;
-    }>(this.baseEndpoint + "/test", {
+    }>("/test", {
       type,
       recipient,
       message,
@@ -700,8 +698,8 @@ export class NotificationService extends BaseService {
         : "";
 
     const endpoint = queryString
-      ? `${this.baseEndpoint}/users/${userId}/history?${queryString}`
-      : `${this.baseEndpoint}/users/${userId}/history`;
+      ? `/users/${userId}/history?${queryString}`
+      : `/users/${userId}/history`;
 
     return this.get<PaginatedResponse<Notification>>(endpoint);
   }

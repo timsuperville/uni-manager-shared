@@ -41,7 +41,9 @@ export class CacheManager {
   };
 
   private options: Required<CacheOptions>;
-  private cleanupTimer?: NodeJS.Timeout;
+  // ReturnType<typeof setInterval> is correct for browser environments.
+  // NodeJS.Timeout is a Node.js type and does not apply here.
+  private cleanupTimer?: ReturnType<typeof setInterval>;
 
   constructor(options: CacheOptions = {}) {
     this.options = {

@@ -3,6 +3,40 @@
  *
  * Unified HTTP client for all Uni-Manager applications with built-in
  * authentication, error handling, caching, and request optimization.
+ *
+ * ─── FUTURE MIGRATION: Eliminate Axios ──────────────────────────────────────
+ * Axios is the ONLY remaining direct HTTP client dependency declared across the
+ * entire frontend. It is intentionally isolated here in `frontend/shared` as a
+ * single controlled owner (all app-level package.json files are axios-free).
+ *
+ * To remove it entirely, two pieces of work are required:
+ *
+ * 1. Replace `this.axios.request()` calls with native `fetch()`.
+ *    The interceptor pipeline (auth headers, token refresh, retry-on-401)
+ *    will need to be reimplemented as a small middleware chain around `fetch`.
+ *    AuthInterceptor.ts will also need a parallel rewrite.
+ *
+ * 2. Replace `onUploadProgress` (line ~150, passed to axios AxiosRequestConfig)
+ *    with a native `XMLHttpRequest` wrapper for endpoints that report file
+ *    upload progress. Example pattern:
+ *
+ *      function uploadWithProgress(url, formData, onProgress) {
+ *        return new Promise((resolve, reject) => {
+ *          const xhr = new XMLHttpRequest();
+ *          xhr.open('POST', url);
+ *          xhr.setRequestHeader('Authorization', `Bearer ${getToken()}`);
+ *          xhr.upload.onprogress = (e) => {
+ *            if (e.lengthComputable) onProgress(Math.round((e.loaded / e.total) * 100));
+ *          };
+ *          xhr.onload = () => (xhr.status < 300 ? resolve(xhr.response) : reject(xhr));
+ *          xhr.onerror = reject;
+ *          xhr.send(formData);
+ *        });
+ *      }
+ *
+ * Once both pieces are complete, `axios` can be removed from
+ * `frontend/shared/package.json` and the supply-chain exposure is zero.
+ * ────────────────────────────────────────────────────────────────────────────
  */
 
 import axios, {
@@ -10,10 +44,11 @@ import axios, {
   AxiosRequestConfig,
   AxiosResponse,
   AxiosError,
+  AxiosProgressEvent,
   RawAxiosRequestHeaders,
 } from "axios";
 import { ErrorHandler } from "./ErrorHandler";
-import { CacheManager } from "./CacheManager";
+import { CacheManager, CacheStats } from "./CacheManager";
 import { AuthInterceptor, AuthInterceptorConfig } from "./AuthInterceptor";
 
 export interface ApiClientConfig {
@@ -34,8 +69,8 @@ export interface RequestOptions {
   timeout?: number;
   headers?: Record<string, string>;
   params?: Record<string, string | number | boolean | undefined>;
-  onUploadProgress?: (progressEvent: any) => void;
-  onDownloadProgress?: (progressEvent: any) => void;
+  onUploadProgress?: (progressEvent: AxiosProgressEvent) => void;
+  onDownloadProgress?: (progressEvent: AxiosProgressEvent) => void;
   signal?: AbortSignal;
 }
 
@@ -70,6 +105,9 @@ export class ApiClient {
     this.authInterceptor = new AuthInterceptor(this.config.authConfig);
 
     this.setupInterceptors();
+    // Wire the interceptor to THIS instance so 401-retry requests use the
+    // correct baseURL and interceptor chain, not the bare global axios.
+    this.authInterceptor.setAxiosInstance(this.axios);
   }
 
   private setupAxiosInstance(): void {
@@ -131,7 +169,7 @@ export class ApiClient {
   }
 
   private generateRequestId(): string {
-    return `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    return `req_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
   }
 
   private async executeRequest<T>(
@@ -305,7 +343,7 @@ export class ApiClient {
   /**
    * Get cache statistics
    */
-  getCacheStats(): any {
+  getCacheStats(): CacheStats {
     return this.cacheManager.getStats();
   }
 

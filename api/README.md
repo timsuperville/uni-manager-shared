@@ -1,583 +1,503 @@
 # Unified API Service Layer
 
-A comprehensive, type-safe API layer that provides consistent patterns and functionality across all 6 Uni-Manager applications.
+> **Canonical documentation** lives in [`docs/developer/12-frontend-api-overview.md`](../../../../docs/developer/12-frontend-api-overview.md).  
+> See also: [Usage Guide](../../../../docs/developer/13-frontend-api-usage.md) · [Service Author Guide](../../../../docs/developer/14-frontend-api-service-author.md)
+
+A comprehensive, type-safe API layer that provides consistent patterns and functionality across all Uni-Manager applications.
 
 ## Table of Contents
 
 - [Overview](#overview)
+- [Architecture](#architecture)
 - [Quick Start](#quick-start)
-- [Core Architecture](#core-architecture)
-- [React Integration](#react-integration)
+- [Configuration](#configuration)
 - [Services](#services)
+- [React Integration](#react-integration)
+- [Authentication](#authentication)
 - [Error Handling](#error-handling)
 - [Caching](#caching)
-- [Authentication](#authentication)
-- [Migration Guide](#migration-guide)
+- [Offline Sync](#offline-sync)
+- [ArtNet Bridge](#artnet-bridge)
+- [Troubleshooting](#troubleshooting)
+- [Future: Removing Axios](#future-removing-axios)
+
+---
 
 ## Overview
 
-The Unified API Service Layer provides:
+The unified API layer is the **single source of truth** for all HTTP communication across the Uni-Manager frontend. It provides:
 
-- **Type Safety**: Full TypeScript support with comprehensive type definitions
-- **Consistent Patterns**: Standardized request/response handling across all services
-- **Error Handling**: Centralized error management with user-friendly messages
-- **Intelligent Caching**: Automatic response caching with TTL and invalidation
-- **Authentication**: Seamless token management with automatic refresh
-- **React Integration**: Custom hooks for easy component integration
+- **Type Safety** — Full TypeScript with comprehensive shared type definitions in `types/`
+- **Consistent Patterns** — Standardized request/response handling via `BaseService`
+- **Centralized Error Handling** — User-friendly messages via `ErrorHandler`
+- **Intelligent Caching** — TTL-based with pattern invalidation via `CacheManager`
+- **Authentication** — Transparent token management + automatic refresh via `AuthInterceptor`
+- **React Integration** — Hooks and `ApiProvider` for clean component integration
+- **Offline Sync** — IndexedDB-backed mutation queue via `SyncEngine`
 
-## Quick Start
+---
 
-### 1. Basic Setup
-
-```typescript
-import { ApiProvider, setupDevApi } from "@shared/api";
-
-// For development
-const apiServices = setupDevApi();
-
-// For production
-const apiServices = setupProdApi("https://api.yourdomain.com");
-```
-
-### 2. React Application Setup
-
-```tsx
-import React from "react";
-import { ApiProvider } from "@shared/api";
-
-const App: React.FC = () => {
-  const apiConfig = {
-    baseURL: "http://localhost:5000/api",
-    timeout: 10000,
-    enableCaching: true,
-    enableAuth: true,
-  };
-
-  return (
-    <ApiProvider config={apiConfig}>
-      <YourApplication />
-    </ApiProvider>
-  );
-};
-```
-
-### 3. Using Hooks in Components
-
-```tsx
-import { useAuth, useChurch, useApiQuery } from "@shared/api";
-
-const MyComponent: React.FC = () => {
-  const { user, login, logout } = useAuth();
-  const { getChurches, createChurch } = useChurch();
-
-  const { data: churches, isLoading } = useApiQuery("churches-list", () => getChurches());
-
-  return <div>{/* Your component JSX */}</div>;
-};
-```
-
-## Core Architecture
-
-### Components Overview
+## Architecture
 
 ```
 frontend/shared/api/
-├── core/                 # Core infrastructure
-│   ├── ApiClient.ts     # HTTP client with interceptors
-│   ├── ErrorHandler.ts  # Centralized error handling
-│   ├── CacheManager.ts  # Intelligent caching system
-│   └── AuthInterceptor.ts # Authentication management
-├── services/            # Shared services only
-│   ├── BaseService.ts   # Abstract base class for all services
-│   ├── AuthService.ts   # Authentication operations
-│   ├── FileService.ts   # File management
-│   ├── NotificationService.ts # Notifications
-│   └── index.ts         # Service registry
-├── types/               # TypeScript definitions
-│   └── index.ts         # All type definitions
-├── hooks/               # React hooks
-│   └── index.ts         # Custom hooks for React integration
-├── components/          # React components
-│   └── ApiProvider.tsx  # Context provider
-└── examples/            # Integration examples
+├── index.ts                  ← Barrel export (import everything from here)
+├── config/
+│   └── apiConfig.ts          ← Single source of truth for base URL / env
+├── core/
+│   ├── ApiClient.ts          ← Axios wrapper with interceptors, caching, retry
+│   ├── AuthInterceptor.ts    ← Token attach, refresh, retry-on-401
+│   ├── CacheManager.ts       ← In-memory TTL cache with pattern invalidation
+│   └── ErrorHandler.ts       ← Typed error classification & messaging
+├── services/
+│   ├── BaseService.ts        ← Abstract base — all services extend this
+│   ├── AuthService.ts        ← Login, signup, profile, avatar upload
+│   ├── FileService.ts        ← File/folder CRUD + upload with progress
+│   ├── NotificationService.ts← Notifications, templates, preferences, push
+│   ├── ArtNetBridgeService.ts← ArtNet UDP trigger for Presentation Pro
+│   └── index.ts              ← ApiServices class + factory functions
+├── hooks/
+│   └── index.ts              ← useApi, useAuth, useApiQuery, useApiMutation, useFileUpload
+├── components/
+│   └── ApiProvider.tsx       ← React context provider
+├── types/
+│   └── index.ts              ← All shared TypeScript interfaces
+├── syncEngine.ts             ← Offline mutation queue (IndexedDB via idb-keyval)
+└── examples/
     └── integration-examples.tsx
+```
 
+**Feature-specific services** (e.g. `ChurchService`, `SongService`) live in their respective app feature folders and extend `BaseService`:
+
+```
 frontend/apps/church/src/features/
-├── church/
-│   └── services/ChurchService.ts    # Church-specific operations
-├── events/
-│   └── services/EventService.ts     # Event management
-├── songs/
-│   └── services/SongService.ts      # Song library
-└── services/
-    └── services/WorshipService.ts   # Worship services
-
-Note: Feature-specific services now live in their respective feature folders
-and import shared infrastructure from @shared/api
+├── church/services/ChurchService.ts
+├── events/services/EventService.ts
+└── songs/services/SongService.ts
 ```
 
-### Core Classes
+---
 
-#### ApiClient
+## Quick Start
 
-HTTP client with automatic retries, request/response interceptors, and error handling.
-
-```typescript
-const client = new ApiClient({
-  baseURL: "http://localhost:5000/api",
-  timeout: 10000,
-  enableRetry: true,
-  maxRetries: 3,
-});
-```
-
-#### ErrorHandler
-
-Centralized error handling with user-friendly messages and retry logic.
-
-```typescript
-const errorHandler = new ErrorHandler({
-  enableUserFriendlyMessages: true,
-  enableRetry: true,
-  logErrors: true,
-});
-```
-
-#### CacheManager
-
-Intelligent caching with TTL, pattern-based invalidation, and memory management.
-
-```typescript
-const cacheManager = new CacheManager({
-  defaultTTL: 300000, // 5 minutes
-  maxSize: 100,
-  enablePatternInvalidation: true,
-});
-```
-
-## React Integration
-
-### ApiProvider
-
-Provides API services to your React application tree.
+### 1. Wrap your app in `ApiProvider`
 
 ```tsx
-<ApiProvider config={apiConfig} onError={(error) => console.error("API Error:", error)}>
-  <App />
-</ApiProvider>
+// main.tsx
+import React from "react";
+import { ApiProvider } from "@shared/api";
+import { getApiBaseUrl } from "@shared/api";
+
+const App: React.FC = () => (
+  <ApiProvider
+    config={{
+      baseURL: getApiBaseUrl(),  // reads VITE_API_URL or defaults to /api
+      timeout: 10000,
+      cacheEnabled: true,
+      authEnabled: true,
+      authConfig: {
+        tokenKey: "uni_auth_access_token",
+        refreshTokenKey: "uni_auth_refresh_token",
+        tokenStorage: "sessionStorage",
+      },
+    }}
+    onError={(error) => console.error("[API]", error)}
+  >
+    <YourApplication />
+  </ApiProvider>
+);
 ```
 
-### Core Hooks
+### 2. Use hooks in components
 
-#### useApi
+```tsx
+import { useAuth, useApiQuery, useApi } from "@shared/api";
 
-Access to all API services.
+const Dashboard: React.FC = () => {
+  const { user, isAuthenticated } = useAuth();
+  const api = useApi();
+
+  const { data: profile, isLoading } = useApiQuery(
+    "user-profile",
+    () => api.auth.getCurrentUser(),
+  );
+
+  if (isLoading) return <Spinner />;
+  return <div>Welcome, {profile?.displayName}</div>;
+};
+```
+
+---
+
+## Configuration
+
+### Environment Variables
+
+```env
+# .env.local
+VITE_API_URL=http://localhost:5000/api
+```
+
+In production (Firebase Hosting + Cloud Run backend), the Vite proxy rewrites `/api/*` to the backend automatically. `VITE_API_URL` is not required in production builds.
+
+### `getApiBaseUrl()` — Single Source of Truth
+
+Always use this helper instead of reading `import.meta.See [SERVICE_AUTHOR_GUIDE.md](./SERVICE_AUTHOR_GUIDE.md).irectly:
 
 ```typescript
-const api = useApi();
-const churches = await api.church.getChurches();
+import { getApiBaseUrl, getAbsoluteUrl } from "@shared/api";
+
+const base = getApiBaseUrl();             // "/api" or "http://localhost:5000/api"
+const avatarUrl = getAbsoluteUrl("/uploads/avatar.jpg");
 ```
 
-#### useAuth
-
-Authentication state and operations.
+### `ApiClientConfig` Reference
 
 ```typescript
-const { user, isAuthenticated, isLoading, login, logout, signup } = useAuth();
+interface ApiClientConfig {
+  baseURL: string;              // Required — use getApiBaseUrl()
+  timeout?: number;             // Default: 10000ms
+  retryAttempts?: number;       // Default: 3
+  cacheEnabled?: boolean;       // Default: true
+  authEnabled?: boolean;        // Default: true
+  defaultHeaders?: Record<string, string>;
+  authConfig?: {
+    tokenKey: string;                           // localStorage/sessionStorage key
+    refreshTokenKey: string;
+    tokenStorage: "localStorage" | "sessionStorage" | "memory";
+    refreshEndpoint?: string;                   // Default: "/auth/refresh"
+    onTokenRefreshFailure?: () => void;
+  };
+}
 ```
 
-#### useApiQuery
-
-Data fetching with loading states and caching.
-
-```typescript
-const { data, isLoading, error, refetch } = useApiQuery("unique-key", () => api.church.getChurches(), { cacheTime: 300000 });
-```
-
-#### useApiMutation
-
-Data mutations with loading states and callbacks.
-
-```typescript
-const { mutate, isLoading, error } = useApiMutation((churchData) => api.church.createChurch(churchData), {
-  onSuccess: (data) => console.log("Created:", data),
-  onError: (error) => console.error("Failed:", error),
-});
-```
+---
 
 ## Services
 
-### AuthService
+All services extend `BaseService` and are available through the `ApiServices` instance.
 
-Handles authentication operations.
+### Accessing Services
 
-**Available Methods:**
+```typescript
+// Inside React components — preferred approach
+const api = useApi();
+await api.auth.login({ email, password });
+await api.files.uploadFile(request);
+await api.notifications.getUnreadCount();
 
-- `login(credentials)` - User login
-- `logout()` - User logout
-- `signup(userData)` - User registration
-- `refreshToken()` - Refresh authentication token
-- `getCurrentUser()` - Get current user data
-- `updateProfile(updates)` - Update user profile
-- `changePassword(data)` - Change user password
-- `checkAuthStatus()` - Check authentication status
+// Outside React (e.g. in a utility)
+import { getApiServices } from "@shared/api";
+const api = getApiServices();
+```
 
-### Feature-Specific Services
+### AuthService (`api.auth`)
 
-**Important:** Feature-specific services (ChurchService, EventService, SongService, etc.) now live in their respective app feature folders, not in the shared API layer.
+| Method | Description |
+|--------|-------------|
+| `login(credentials)` | Authenticate user, store tokens |
+| `signup(userData)` | Register new user |
+| `logout()` | Clear tokens, invalidate session |
+| `getCurrentUser()` | `GET /auth/me` |
+| `updateProfile(updates)` | `PATCH /profile` |
+| `changePassword(data)` | `POST /auth/change-password` |
+| `uploadAvatar(file)` | `POST /avatar` — emits `avatar-upload-progress` CustomEvent |
+| `checkAuthStatus()` | Lightweight session check |
+| `refreshToken()` | Force token refresh |
+| `requestPasswordReset(email)` | Send reset email |
+| `resetPassword(token, password)` | Complete reset flow |
 
-For example:
+### FileService (`api.files`)
 
-- `ChurchService` → `apps/church/src/features/church/services/ChurchService.ts`
-- `EventService` → `apps/church/src/features/events/services/EventService.ts`
-- `SongService` → `apps/church/src/features/songs/services/SongService.ts`
-- `WorshipService` → `apps/church/src/features/services/services/WorshipService.ts`
+| Method | Description |
+|--------|-------------|
+| `uploadFile(request, onProgress?)` | Upload with `AxiosProgressEvent` progress |
+| `getFile(id)` | Get file metadata |
+| `downloadFile(id)` | Download file |
+| `updateFile(id, updates)` | Update metadata |
+| `deleteFile(id)` | Delete file |
+| `searchFiles(params?, pagination?)` | Search with filters |
+| `createFolder(data)` | Create folder |
+| `getFolder(id, pagination?)` | Get folder contents |
+| `updateFolder(id, updates)` | Rename / update folder |
+| `deleteFolder(id, options?)` | Delete (with recursive option) |
+| `shareFile(shareRequest)` | Share with users |
+| `bulkFileOperation(operation)` | Move / copy / delete / tag in bulk |
+| `getStorageAnalytics(folderId?)` | Usage statistics |
 
-All feature services extend `BaseService` from `@shared/api` and follow the same patterns:
+**Progress tracking:**
+
+```typescript
+import type { AxiosProgressEvent } from "axios";
+
+await api.files.uploadFile(request, (event: AxiosProgressEvent) => {
+  const pct = Math.round((event.loaded * 100) / (event.total ?? event.loaded));
+  setProgress(pct);
+});
+```
+
+### NotificationService (`api.notifications`)
+
+| Method | Description |
+|--------|-------------|
+| `createNotification(data)` | Create notification |
+| `getNotification(id)` | Get by ID |
+| `getUserNotifications(filters?, pagination?)` | Paginated list |
+| `markAsRead(id)` | Mark single read |
+| `markMultipleAsRead(ids)` | Bulk read |
+| `getUnreadCount()` | Unread badge count |
+| `createTemplate(data)` | Create template |
+| `getTemplate(id)` | Get template |
+| `getTemplates(filters?, pagination?)` | List templates |
+| `sendBulkNotifications(request)` | Batch send |
+| `getUserPreferences()` | Fetch user preferences |
+| `updateUserPreferences(prefs)` | Update preferences |
+| `subscribeToPush(subscription)` | Register push endpoint |
+| `unsubscribeFromPush(endpoint)` | Deregister push endpoint |
+| `getNotificationStats(filters?)` | Delivery statistics |
+
+### Building Custom Feature Services
 
 ```typescript
 import { BaseService, ValidationSchema } from "@shared/api";
 import type { ApiClient } from "@shared/api";
 
-class ChurchService extends BaseService {
+export class ChurchService extends BaseService {
   constructor(client: ApiClient) {
-    super(client, "churches");
+    // Relative path — ApiClient.baseURL (/api/v1) is prepended automatically.
+    // Do NOT include the /api/v1 prefix here.
+    super(client, "/churches", "ChurchService");
   }
 
-  // Church-specific methods...
+  async getChurches(filters?: ChurchFilters) {
+    return this.getMany<Church>("", filters);
+  }
+
+  async createChurch(data: CreateChurchRequest) {
+    return this.post<Church>("", data);
+  }
 }
 ```
 
-### EventService
+> **Critical:** Never concatenate `this.baseEndpoint` manually inside a service method. `BaseService.buildEndpoint()` does this automatically. Passing `this.baseEndpoint + "/path"` doubles the prefix.
 
-**Location:** `apps/church/src/features/events/services/EventService.ts`
+---
 
-Comprehensive event management system.
+## React Integration
 
-**Available Methods:**
-
-- `createEvent(data)` - Create new event
-- `getEvent(id)` - Get event details
-- `updateEvent(id, updates)` - Update event
-- `deleteEvent(id)` - Delete event
-- `searchEvents(params?, pagination?)` - Search events with filters
-- `registerForEvent(eventId, data)` - Register for event
-- `unregisterFromEvent(eventId, registrationId)` - Cancel registration
-- `getEventRegistrations(eventId, pagination?)` - Get event registrations
-- `updateRegistration(eventId, registrationId, updates)` - Update registration
-- `getEventAnalytics(eventId, metrics?)` - Get event analytics
-- `uploadEventImage(eventId, imageFile, onProgress?)` - Upload event image
-
-### FileService
-
-Complete file management solution.
-
-**Available Methods:**
-
-- `uploadFile(request, onProgress?)` - Upload file with progress tracking
-- `getFile(id)` - Get file metadata
-- `downloadFile(id)` - Download file
-- `updateFile(id, updates)` - Update file metadata
-- `deleteFile(id)` - Delete file
-- `searchFiles(params?, pagination?)` - Search files with filters
-- `createFolder(data)` - Create new folder
-- `getFolder(id, pagination?)` - Get folder contents
-- `updateFolder(id, updates)` - Update folder
-- `deleteFolder(id, options?)` - Delete folder (with recursive option)
-- `shareFile(shareRequest)` - Share file with users
-- `bulkFileOperation(operation)` - Perform bulk operations
-- `getStorageAnalytics(folderId?)` - Get storage statistics
-
-### NotificationService
-
-Advanced notification system.
-
-**Available Methods:**
-
-- `createNotification(data)` - Create new notification
-- `getNotification(id)` - Get notification details
-- `updateNotification(id, updates)` - Update notification
-- `sendNotification(id)` - Send notification immediately
-- `getUserNotifications(filters?, pagination?)` - Get user notifications
-- `markAsRead(id)` - Mark notification as read
-- `createTemplate(data)` - Create notification template
-- `getTemplate(id)` - Get template details
-- `sendBulkNotifications(request)` - Send bulk notifications
-- `getUserPreferences()` - Get notification preferences
-- `updateUserPreferences(preferences)` - Update preferences
-- `getNotificationStats(filters?)` - Get notification statistics
-
-## Error Handling
-
-### Automatic Error Processing
-
-All API errors are automatically processed and transformed into user-friendly messages.
+### `useApi` — Access Services
 
 ```typescript
-try {
-  await api.church.createChurch(invalidData);
-} catch (error) {
-  // Error is already processed and user-friendly
-  console.error(error.message); // "Please check the required fields"
-}
+const api = useApi();
+// api.auth, api.files, api.notifications
 ```
 
-### Custom Error Handling
+### `useAuth` — Authentication State
 
 ```typescript
-const { mutate } = useApiMutation((data) => api.church.createChurch(data), {
-  onError: (error, variables) => {
-    // Custom error handling
-    if (error.type === "VALIDATION_ERROR") {
-      showValidationErrors(error.details);
-    } else {
-      showGenericError(error.message);
-    }
-  },
-});
+const {
+  user,             // User | null
+  isAuthenticated,  // boolean
+  isLoading,        // boolean
+  error,            // string | null
+  login,            // (credentials: LoginRequest) => Promise<void>
+  logout,           // () => Promise<void>
+  signup,           // (data: SignupRequest) => Promise<void>
+} = useAuth();
 ```
 
-## Caching
-
-### Automatic Caching
-
-API responses are automatically cached based on endpoints and parameters.
+### `useApiQuery` — Data Fetching
 
 ```typescript
-// First call - hits the server
-const churches1 = await api.church.getChurches();
-
-// Second call - served from cache
-const churches2 = await api.church.getChurches();
-```
-
-### Cache Invalidation
-
-```typescript
-// Invalidate specific cache
-api.cache.invalidate("churches/list");
-
-// Invalidate by pattern
-api.cache.invalidatePattern("churches/*");
-
-// Clear all cache
-api.cache.clear();
-```
-
-### Custom Cache TTL
-
-```typescript
-const { data } = useApiQuery(
-  "churches",
-  () => api.church.getChurches(),
-  { cacheTime: 600000 }, // 10 minutes
+const { data, isLoading, error, refetch } = useApiQuery(
+  "unique-cache-key",
+  () => api.auth.getCurrentUser(),
+  {
+    enabled: isAuthenticated,   // Conditional fetch
+    staleTime: 300_000,         // 5 minutes
+    retry: 2,
+    onSuccess: (data) => { ... },
+    onError: (error) => { ... },
+  }
 );
 ```
 
+### `useApiMutation` — Data Modifications
+
+```typescript
+const { mutate, isLoading, error, reset } = useApiMutation(
+  (data: CreateNotificationRequest) => api.notifications.createNotification(data),
+  {
+    onSuccess: (result) => toast.success("Sent!"),
+    onError: (error) => toast.error(error.message),
+  },
+);
+
+// Call it:
+mutate({ title: "Hello", message: "World", type: "info", recipients: [userId] });
+```
+
+### `useFileUpload` — Upload with Progress Bar
+
+```typescript
+const {
+  upload,       // (file: File) => Promise<T>
+  progress,     // number (0–100)
+  isUploading,  // boolean
+  error,        // string | null
+  result,       // T | null
+} = useFileUpload({
+  uploadFn: (file) => api.auth.uploadAvatar(file),
+  onSuccess: (result) => setAvatarUrl(result.avatar),
+  onError: (err) => toast.error(err.message),
+  onProgress: (pct) => console.log(`${pct}%`),
+});
+```
+
+Progress is tracked via `CustomEvent` dispatched by the service:
+- Avatar uploads emit `"avatar-upload-progress"`
+- File uploads emit `"file-upload-progress"`
+
+---
+
 ## Authentication
 
-### Automatic Token Management
+Tokens flow automatically:
 
-Authentication tokens are automatically:
+1. `AuthInterceptor` attaches `Authorization: Bearer <token>` to every request.
+2. On `401`, the interceptor calls `POST /auth/refresh` using the **configured** instance (not the global axios — this was a critical bug fixed in this codebase).
+3. The failed request is retried once with the new token.
+4. On refresh failure, `auth:failure` is dispatched on `window` for app-level redirect handling.
 
-- Attached to all requests
-- Refreshed when expired
-- Stored securely
-- Removed on logout
-
-### Authentication Status
+**Listening for forced logout:**
 
 ```typescript
-const { isAuthenticated, user } = useAuth();
-
-if (isAuthenticated) {
-  console.log("User:", user.displayName);
-} else {
-  // Redirect to login
-}
-```
-
-## Migration Guide
-
-### From Existing API Patterns
-
-#### Before (Direct Axios)
-
-```typescript
-const response = await axios.get("/api/churches", {
-  headers: { Authorization: `Bearer ${token}` },
-});
-const churches = response.data;
-```
-
-#### After (Unified API)
-
-```typescript
-const churches = await api.church.getChurches();
-```
-
-#### Before (Manual Error Handling)
-
-```typescript
-try {
-  const response = await axios.post("/api/churches", data);
-  return response.data;
-} catch (error) {
-  if (error.response?.status === 400) {
-    throw new Error("Validation failed");
-  } else if (error.response?.status === 401) {
-    // Handle auth error
-  }
-  throw error;
-}
-```
-
-#### After (Automatic Error Handling)
-
-```typescript
-try {
-  return await api.church.createChurch(data);
-} catch (error) {
-  // Error is already processed and user-friendly
-  throw error;
-}
-```
-
-### React Component Migration
-
-#### Before (useEffect + State)
-
-```typescript
-const [churches, setChurches] = useState([]);
-const [loading, setLoading] = useState(true);
-const [error, setError] = useState(null);
-
 useEffect(() => {
-  const fetchChurches = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.get("/api/churches");
-      setChurches(response.data);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  fetchChurches();
-}, []);
+  const handler = () => navigate("/login");
+  window.addEventListener("auth:failure", handler);
+  return () => window.removeEventListener("auth:failure", handler);
+}, [navigate]);
 ```
 
-#### After (useApiQuery)
+---
+
+## Error Handling
+
+All errors are classified by `ErrorHandler` into typed `ApiError` objects:
 
 ```typescript
-const { data: churches, isLoading: loading, error } = useApiQuery("churches", () => api.church.getChurches());
+import { ApiErrorType } from "@shared/api";
+
+try {
+  await api.auth.login(credentials);
+} catch (error) {
+  switch (error.type) {
+    case ApiErrorType.UNAUTHORIZED:    // 401
+    case ApiErrorType.FORBIDDEN:       // 403
+    case ApiErrorType.NOT_FOUND:       // 404
+    case ApiErrorType.VALIDATION:      // 422 / 400
+    case ApiErrorType.NETWORK_ERROR:   // No response
+    case ApiErrorType.SERVER_ERROR:    // 5xx
+  }
+}
 ```
 
-## Best Practices
+**Global handler via `ApiProvider`:**
 
-### 1. Use Appropriate Hooks
-
-- `useApiQuery` for data fetching
-- `useApiMutation` for data modifications
-- Direct service calls for imperative operations
-
-### 2. Handle Loading States
-
-```typescript
-const { data, isLoading, error } = useApiQuery(key, queryFn);
-
-if (isLoading) return <LoadingSpinner />;
-if (error) return <ErrorMessage error={error} />;
-if (!data) return <NoData />;
-
-return <DataDisplay data={data} />;
+```tsx
+<ApiProvider
+  config={...}
+  onError={(error) => {
+    if (error.type === ApiErrorType.UNAUTHORIZED) navigate("/login");
+  }}
+>
 ```
 
-### 3. Implement Optimistic Updates
+---
+
+## Caching
+
+Responses are cached in memory by `CacheManager` using the request URL + params as key.
 
 ```typescript
-const { mutate } = useApiMutation((updates) => api.church.updateChurch(churchId, updates), {
-  onSuccess: () => {
-    // Invalidate and refetch
-    queryClient.invalidateQueries(["church", churchId]);
-  },
+// Check cache stats (DEV only)
+window.apiCacheStats();   // { size, hits, misses, hitRate }
+window.clearApiCache();   // Wipe all cached entries
+```
+
+Cache TTL is configured per-service or per-request via `RequestOptions.cacheTTL`. The default TTL is **5 minutes**.
+
+---
+
+## Offline Sync
+
+`syncEngine` (backed by `idb-keyval`) queues mutations made while offline. Call `processQueue()` when the device reconnects:
+
+```typescript
+import { syncEngine } from "@shared/api";
+
+// Queue a mutation
+await syncEngine.queueMutation("notifications.create", [notificationData], "notifications.createNotification");
+
+// Drain on reconnect
+window.addEventListener("online", async () => {
+  const api = getApiServices();
+  await syncEngine.processQueue({
+    notifications: api.notifications,
+    files: api.files,
+  });
 });
 ```
 
-### 4. Use TypeScript Types
+Failed entries are retried up to **5 times**. The retry counter is persisted to IndexedDB so it survives page refreshes.
+
+---
+
+## ArtNet Bridge
+
+`ArtNetBridgeService` triggers ArtNet UDP presets on a connected lighting console. It is initialized automatically when `ApiServices` is instantiated — no manual setup required.
 
 ```typescript
-import type { Church, CreateChurchRequest } from "@shared/api";
+import { artNetBridgeService } from "@shared/api";
 
-const createChurch = (data: CreateChurchRequest): Promise<Church> => {
-  return api.church.createChurch(data);
-};
+await artNetBridgeService.triggerPreset("192.168.1.100", presetId, universe);
 ```
+
+If you need to use it outside the `ApiServices` lifecycle:
+
+```typescript
+import { initArtNetBridge, artNetBridgeService } from "@shared/api";
+import { ApiClient } from "@shared/api";
+
+const client = new ApiClient({ baseURL: getApiBaseUrl() });
+initArtNetBridge(client);
+
+await artNetBridgeService.triggerPreset(ip, id);
+```
+
+---
 
 ## Troubleshooting
 
-### Common Issues
+| Symptom | Cause | Fix |
+|---------|-------|-----|
+| API calls hit `localhost:5000` in production | `getApiBaseUrl()` not used; hardcoded URL | Replace with `getApiBaseUrl()` |
+| Endpoints doubling (`/notifications/notifications`) | `this.baseEndpoint` prepended manually in a service | Use relative paths in `this.post()` / `this.get()` — `buildEndpoint()` handles the prefix |
+| Upload progress is `NaN%` | `event.total` is `undefined` (server didn't send `Content-Length`) | Use `event.total ?? event.loaded` as divisor |
+| Ghost listeners on repeated failed uploads | `removeEventListener` only ran on success | Fixed — listeners are removed in a `finally` block |
+| `ArtNetBridgeService not initialized` error | `initArtNetBridge()` not called | `ApiServices` constructor calls it automatically; only call manually if using `ApiClient` directly |
+| `auth:failure` event fires but app doesn't redirect | No listener on `window` | Add `window.addEventListener("auth:failure", ...)` in your Auth error boundary |
+| TypeScript error: no `useChurch` / `setupDevApi` | These were removed; they were phantom helpers | Use `useApi()` and `createApiServices()` |
 
-1. **API services not initialized**
-   - Ensure `ApiProvider` wraps your app
-   - Check that config is properly passed
+---
 
-2. **TypeScript errors**
-   - Import types from `@shared/api`
-   - Use proper generic types with hooks
+## Future: Removing Axios
 
-3. **Authentication errors**
-   - Check token storage settings
-   - Verify backend authentication endpoints
+Axios is **intentionally isolated** to `frontend/shared/package.json` only. No app-level `package.json` declares it.
 
-4. **Cache issues**
-   - Use cache invalidation after mutations
-   - Check cache TTL settings
+When the time comes to remove it entirely, two pieces of work remain:
 
-### Debug Mode
+1. **Replace `this.axios.request()` with `fetch()`** — Reimplement the auth header attachment, 401-retry, and retry-on-error logic as a small middleware chain.
+2. **Replace `onUploadProgress` with `XMLHttpRequest`** — `fetch()` does not support upload progress. Use the `xhr.upload.onprogress` pattern documented in `core/ApiClient.ts`.
 
-```typescript
-const apiConfig = {
-  baseURL: "http://localhost:5000/api",
-  debug: true, // Enables detailed logging
-  enableRetry: false, // Disable for debugging
-};
-```
-
-## Performance Considerations
-
-### 1. Cache Strategy
-
-- Default TTL: 5 minutes for lists, 1 minute for details
-- Automatic invalidation on mutations
-- Pattern-based cache clearing
-
-### 2. Request Optimization
-
-- Automatic request deduplication
-- Configurable retry logic
-- Request/response compression
-
-### 3. Bundle Size
-
-The unified API layer adds approximately 15KB gzipped to your bundle.
-
-## Contributing
-
-When adding new services:
-
-1. Extend `BaseService` class
-2. Implement comprehensive validation schemas
-3. Add TypeScript types
-4. Create corresponding React hooks
-5. Update documentation and examples
-
-## Version History
-
-- **1.0.0** - Initial release with core infrastructure
-- **1.1.0** - Added React hooks integration
-- **1.2.0** - Enhanced caching and error handling
-- **1.3.0** - Added file upload support
-- **2.0.0** - Complete rewrite with TypeScript
+Once both are done, `axios` can be removed from `frontend/shared/package.json` entirely.

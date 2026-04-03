@@ -11,6 +11,7 @@
 
 import { BaseService, ValidationSchema } from "./BaseService";
 import { ApiClient } from "../core/ApiClient";
+import type { AxiosProgressEvent } from "axios";
 import {
   User,
   LoginRequest,
@@ -348,9 +349,12 @@ export class AuthService extends BaseService {
     return this.upload<User>("/avatar", file, {
       fieldName: "avatar",
       cache: false,
-      onUploadProgress: (progressEvent) => {
+      onUploadProgress: (progressEvent: AxiosProgressEvent) => {
+        // total can be undefined if the server doesn't send Content-Length.
+        // Fall back to loaded so progress shows 100% rather than NaN.
+        const total = progressEvent.total ?? progressEvent.loaded;
         const percentCompleted = Math.round(
-          (progressEvent.loaded * 100) / progressEvent.total,
+          (progressEvent.loaded * 100) / total,
         );
         typeof window !== "undefined" &&
           window.dispatchEvent(

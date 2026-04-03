@@ -6,6 +6,7 @@
  */
 
 import axios, {
+  AxiosInstance,
   InternalAxiosRequestConfig,
   AxiosResponse,
   AxiosError,
@@ -49,6 +50,8 @@ export class AuthInterceptor {
   private tokens: AuthTokens | null = null;
   private refreshPromise: Promise<string> | null = null;
   private refreshInProgress = false;
+  /** The axios instance from ApiClient — used to retry requests on token refresh. */
+  private axiosInstance: AxiosInstance | null = null;
 
   constructor(config: AuthInterceptorConfig = {}) {
     this.config = {
@@ -64,6 +67,15 @@ export class AuthInterceptor {
     };
 
     this.loadTokensFromStorage();
+  }
+
+  /**
+   * Inject the AxiosInstance so token-refresh retries use the configured
+   * instance (with correct baseURL, interceptors, and error normalization)
+   * rather than the bare global `axios`.
+   */
+  setAxiosInstance(instance: AxiosInstance): void {
+    this.axiosInstance = instance;
   }
 
   /**
@@ -125,7 +137,9 @@ export class AuthInterceptor {
               `${this.config.tokenPrefix} ${newToken}`;
 
             // Retry the original request with the refreshed token.
-            return axios.request(originalRequest);
+            // Use the injected instance so the retry goes through the
+            // configured baseURL, interceptors, and error normalization.
+            return (this.axiosInstance ?? axios).request(originalRequest);
           }
         } catch (refreshError) {
           // Refresh definitively failed — the token is unrecoverable.
@@ -268,8 +282,9 @@ export class AuthInterceptor {
     ) {
       // Start refresh in background (don't wait for it)
       this.refreshToken().catch(() => {
-        // Handle refresh failure silently in background
         this.clearTokens();
+        // Notify the UI so it doesn't enter a silent partial-auth state
+        this.notifyAuthFailure();
       });
     }
 
@@ -410,17 +425,13 @@ export class AuthInterceptor {
 
     switch (this.config.tokenStorage) {
       case "sessionStorage":
-        return (
-          typeof window !== "undefined" ? window.sessionStorage : null
-        ) as Storage;
+        // typeof window guard already confirmed above — no inner check needed
+        return window.sessionStorage;
       case "memory":
-        // Simple in-memory storage (not persistent)
         return this.createMemoryStorage();
       case "localStorage":
       default:
-        return (
-          typeof window !== "undefined" ? window.localStorage : null
-        ) as Storage;
+        return window.localStorage;
     }
   }
 
@@ -432,25 +443,20 @@ export class AuthInterceptor {
       setItem: (key: string, value: string) => store.set(key, value),
       removeItem: (key: string) => store.delete(key),
       clear: () => store.clear(),
-      length: store.size,
+      // Getter so length reflects the live map size, not a stale snapshot
+      get length() { return store.size; },
       key: (index: number) => Array.from(store.keys())[index] || null,
     };
   }
 
   private notifyAuthFailure(): void {
-    // Dispatch custom event for auth failure
     if (typeof window !== "undefined") {
-      typeof window !== "undefined" &&
-        window.dispatchEvent(
-          new CustomEvent("auth:failure", {
-            detail: { reason: "token_expired" },
-          }),
-        );
-    }
-
-    // Call global auth failure handler if available
-    if (typeof window !== "undefined" && window.onAuthFailure) {
-      window.onAuthFailure();
+      window.dispatchEvent(
+        new CustomEvent("auth:failure", {
+          detail: { reason: "token_expired" },
+        }),
+      );
+      window.onAuthFailure?.();
     }
   }
 }

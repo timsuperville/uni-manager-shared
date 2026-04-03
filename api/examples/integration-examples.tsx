@@ -16,7 +16,9 @@ import {
   useAuth,
   useApiQuery,
   useApiMutation,
+  getApiBaseUrl,
 } from "../index";
+import type { UserProfile } from "../types";
 
 // ==================== BASIC SETUP ====================
 
@@ -25,7 +27,7 @@ import {
  */
 const AppWithApiProvider: React.FC = () => {
   const apiConfig = {
-    baseURL: "http://localhost:5000/api",
+    baseURL: getApiBaseUrl(),
     timeout: 10000,
     enableCaching: true,
     enableAuth: true,
@@ -151,7 +153,7 @@ const MutationExample: React.FC = () => {
     isLoading: updateLoading,
     error: updateError,
   } = useApiMutation(
-    (profileData: any) => api.auth.updateProfile(profileData),
+    (profileData: Partial<UserProfile>) => api.auth.updateProfile(profileData),
     {
       onSuccess: (_data) => {
         // console.log('Profile updated successfully:', data);

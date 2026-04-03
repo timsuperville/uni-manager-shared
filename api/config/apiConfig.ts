@@ -17,7 +17,7 @@
 
 export interface ApiConfig {
   /** Full baseURL for the Axios instance, e.g. "/api/v1" or "https://api.example.com/api/v1" */
-  baseURL: string; // uppercase L — matches ApiClientConfig exactly
+  baseURL: string;
   timeout: number;
   retryAttempts: number;
   cacheEnabled: boolean;

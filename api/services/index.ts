@@ -2,6 +2,8 @@ import { ApiClient, ApiClientConfig } from "../core/ApiClient";
 import { AuthService } from "./AuthService";
 import { FileService } from "./FileService";
 import { NotificationService } from "./NotificationService";
+import { initArtNetBridge } from "./ArtNetBridgeService";
+import type { CacheStats } from "../core/CacheManager";
 
 /** DEV-only: expose API utilities on window for console debugging. */
 declare global {
@@ -58,6 +60,10 @@ export class ApiServices {
     this._files = new FileService(this.client);
     this._notifications = new NotificationService(this.client);
 
+    // Initialize standalone singletons that require an ApiClient.
+    // Doing it here (not inside each service file) prevents circular imports.
+    initArtNetBridge(this.client);
+
     // Setup debug logging if enabled
     if (config.enableDebugLogging) {
       this.setupDebugLogging();
@@ -109,7 +115,7 @@ export class ApiServices {
   /**
    * Get cache statistics
    */
-  getCacheStats(): any {
+  getCacheStats(): CacheStats {
     return this.client.getCacheStats();
   }
 
@@ -183,7 +189,7 @@ export class ApiServices {
       // Add global debug helpers (DEV only — removed in destroy())
       window.apiServices = this;
       window.clearApiCache = () => this.clearAllCaches();
-      window.apiCacheStats = () => this.getCacheStats() as Record<string, unknown>;
+      window.apiCacheStats = () => this.getCacheStats() as unknown as Record<string, unknown>;
       window.apiHealthCheck = () => this.healthCheck() as Promise<Record<string, unknown>>;
     }
   }

@@ -267,47 +267,35 @@ export const useFileUpload = <TResult = unknown>(
           onProgress?.(pct);
         };
 
-        typeof window !== "undefined" &&
+        if (typeof window !== "undefined") {
           window.addEventListener("avatar-upload-progress", progressHandler);
-        typeof window !== "undefined" &&
-          window.addEventListener(
-            "church-logo-upload-progress",
-            progressHandler,
-          );
-        typeof window !== "undefined" &&
-          window.addEventListener(
-            "church-cover-upload-progress",
-            progressHandler,
-          );
+          window.addEventListener("church-logo-upload-progress", progressHandler);
+          window.addEventListener("church-cover-upload-progress", progressHandler);
+        }
 
-        const uploadResult = await uploadFn(file);
-        setResult(uploadResult);
-        setProgress(100);
-        onSuccess?.(uploadResult);
-
-        // Cleanup listeners
-        typeof window !== "undefined" &&
-          window.removeEventListener("avatar-upload-progress", progressHandler);
-        typeof window !== "undefined" &&
-          window.removeEventListener(
-            "church-logo-upload-progress",
-            progressHandler,
-          );
-        typeof window !== "undefined" &&
-          window.removeEventListener(
-            "church-cover-upload-progress",
-            progressHandler,
-          );
-
-        return uploadResult;
-      } catch (caughtError) {
-        const error =
-          caughtError instanceof Error
-            ? caughtError
-            : new Error("Upload failed");
-        setError(error.message);
-        onError?.(error);
-        throw error;
+        try {
+          const uploadResult = await uploadFn(file);
+          setResult(uploadResult);
+          setProgress(100);
+          onSuccess?.(uploadResult);
+          return uploadResult;
+        } catch (caughtError) {
+          const error =
+            caughtError instanceof Error
+              ? caughtError
+              : new Error("Upload failed");
+          setError(error.message);
+          onError?.(error);
+          throw error;
+        } finally {
+          // Always remove listeners — even on upload failure.
+          // Without this, every failed attempt adds a permanent ghost listener.
+          if (typeof window !== "undefined") {
+            window.removeEventListener("avatar-upload-progress", progressHandler);
+            window.removeEventListener("church-logo-upload-progress", progressHandler);
+            window.removeEventListener("church-cover-upload-progress", progressHandler);
+          }
+        }
       } finally {
         setIsUploading(false);
       }
