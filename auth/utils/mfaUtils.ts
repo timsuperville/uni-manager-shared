@@ -8,7 +8,7 @@
  * directly without loading the full service.
  */
 
-import { MFA_METHOD, type MFAMethod } from "../types/mfaConstants.ts";
+import { MFA_METHOD, type MFAMethod } from "../types/mfaConstants";
 
 // Re-export so callers who import from mfaUtils don't need a second import.
 export type { MFAMethod };

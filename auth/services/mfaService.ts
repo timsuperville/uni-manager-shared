@@ -5,7 +5,7 @@
  * Utility helpers (display names, validation, phone formatting) live in utils/mfaUtils.ts.
  */
 
-import type { MFAMethod } from "../utils/mfaUtils.ts";
+import type { MFAMethod } from "../utils/mfaUtils";
 
 // -- Types --------------------------------------------------------------------
 
@@ -33,14 +33,19 @@ export class MFAService {
   }
 
   /** Authenticated POST request helper */
-  private async _makeRequest(endpoint: string, options: MFARequestOptions = {}): Promise<unknown> {
+  private async _makeRequest(
+    endpoint: string,
+    options: MFARequestOptions = {},
+  ): Promise<unknown> {
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
       ...options.headers,
     };
     if (this.authToken) headers["Authorization"] = `Bearer ${this.authToken}`;
 
-    const url = endpoint.startsWith("http") ? endpoint : `${this.baseUrl}${endpoint}`;
+    const url = endpoint.startsWith("http")
+      ? endpoint
+      : `${this.baseUrl}${endpoint}`;
 
     const response = await fetch(url, {
       method: options.method ?? "POST",
@@ -49,23 +54,34 @@ export class MFAService {
     });
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({})) as { message?: string };
-      throw new Error(errorData.message ?? `HTTP error! status: ${response.status}`);
+      const errorData = (await response.json().catch(() => ({}))) as {
+        message?: string;
+      };
+      throw new Error(
+        errorData.message ?? `HTTP error! status: ${response.status}`,
+      );
     }
 
     return await response.json();
   }
 
   async getMFAStatus(): Promise<unknown> {
-    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
     if (this.authToken) headers["Authorization"] = `Bearer ${this.authToken}`;
-    const response = await fetch(`${this.baseUrl}/status`, { method: "GET", headers });
+    const response = await fetch(`${this.baseUrl}/status`, {
+      method: "GET",
+      headers,
+    });
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     return await response.json();
   }
 
   async setupTOTP(email: string): Promise<unknown> {
-    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
     if (this.authToken) headers["Authorization"] = `Bearer ${this.authToken}`;
     const response = await fetch(`${this.baseUrl}/totp/setup`, {
       method: "POST",
@@ -83,7 +99,9 @@ export class MFAService {
   }
 
   async verifyTOTP(token: string): Promise<unknown> {
-    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
     if (this.authToken) headers["Authorization"] = `Bearer ${this.authToken}`;
     const response = await fetch(`${this.baseUrl}/totp/verify`, {
       method: "POST",
@@ -91,14 +109,18 @@ export class MFAService {
       body: JSON.stringify({ token, sessionId: this.sessionId }),
     });
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({})) as { message?: string };
+      const errorData = (await response.json().catch(() => ({}))) as {
+        message?: string;
+      };
       throw new Error(errorData.message ?? "Invalid token");
     }
     return await response.json();
   }
 
   async setupSMS(phoneNumber: string): Promise<unknown> {
-    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
     if (this.authToken) headers["Authorization"] = `Bearer ${this.authToken}`;
     const response = await fetch(`${this.baseUrl}/sms/setup`, {
       method: "POST",
@@ -106,7 +128,9 @@ export class MFAService {
       body: JSON.stringify({ phoneNumber }),
     });
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({})) as { message?: string };
+      const errorData = (await response.json().catch(() => ({}))) as {
+        message?: string;
+      };
       throw new Error(errorData.message ?? "Invalid phone number format");
     }
     return await response.json();
@@ -125,7 +149,9 @@ export class MFAService {
   }
 
   async setupEmail(email: string): Promise<unknown> {
-    return this._makeRequest("/email/setup", { body: JSON.stringify({ email }) });
+    return this._makeRequest("/email/setup", {
+      body: JSON.stringify({ email }),
+    });
   }
 
   async sendEmailCode(): Promise<unknown> {
@@ -141,7 +167,9 @@ export class MFAService {
   }
 
   async generateBackupCodes(): Promise<unknown> {
-    return this._makeRequest("/backup-codes/generate", { body: JSON.stringify({}) });
+    return this._makeRequest("/backup-codes/generate", {
+      body: JSON.stringify({}),
+    });
   }
 
   async useBackupCode(code: string): Promise<unknown> {
@@ -154,13 +182,25 @@ export class MFAService {
     return this._makeRequest("/backup-codes/count", { method: "GET" });
   }
 
-  async verifyMFAChallenge(challengeId: string, method: MFAMethod, code: string): Promise<unknown> {
+  async verifyMFAChallenge(
+    challengeId: string,
+    method: MFAMethod,
+    code: string,
+  ): Promise<unknown> {
     return this._makeRequest("/challenge/verify", {
-      body: JSON.stringify({ challengeId, method, code, sessionId: this.sessionId }),
+      body: JSON.stringify({
+        challengeId,
+        method,
+        code,
+        sessionId: this.sessionId,
+      }),
     });
   }
 
-  async disableMFA(method: MFAMethod, confirmationCode: string | null = null): Promise<unknown> {
+  async disableMFA(
+    method: MFAMethod,
+    confirmationCode: string | null = null,
+  ): Promise<unknown> {
     return this._makeRequest("/disable", {
       body: JSON.stringify({ method, confirmationCode }),
     });
@@ -172,13 +212,19 @@ export class MFAService {
     });
   }
 
-  async challengeMFA(sessionId: string, method: MFAMethod | null = null): Promise<unknown> {
+  async challengeMFA(
+    sessionId: string,
+    method: MFAMethod | null = null,
+  ): Promise<unknown> {
     return this._makeRequest("/challenge", {
       body: JSON.stringify({ sessionId, method }),
     });
   }
 
-  async completeMFAChallenge(challengeId: string, response: unknown): Promise<unknown> {
+  async completeMFAChallenge(
+    challengeId: string,
+    response: unknown,
+  ): Promise<unknown> {
     return this._makeRequest("/challenge/complete", {
       body: JSON.stringify({ challengeId, response }),
     });
@@ -189,7 +235,9 @@ export class MFAService {
   }
 
   async resetMFA(recoveryCode: string): Promise<unknown> {
-    return this._makeRequest("/reset", { body: JSON.stringify({ recoveryCode }) });
+    return this._makeRequest("/reset", {
+      body: JSON.stringify({ recoveryCode }),
+    });
   }
 
   async requiresMFA(userId: string): Promise<unknown> {
@@ -232,7 +280,9 @@ export class MFAService {
   }
 
   async removeTrustedDevice(deviceId: string): Promise<unknown> {
-    return this._makeRequest(`/trusted-devices/${deviceId}`, { method: "DELETE" });
+    return this._makeRequest(`/trusted-devices/${deviceId}`, {
+      method: "DELETE",
+    });
   }
 
   async getMFAAuditLog(limit = 50): Promise<unknown> {
@@ -258,4 +308,4 @@ export {
   validateSMSCode,
   formatPhoneNumber,
   type MFAMethod,
-} from "../utils/mfaUtils.ts";
+} from "../utils/mfaUtils";

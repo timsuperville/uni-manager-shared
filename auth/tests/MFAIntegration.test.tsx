@@ -1,43 +1,33 @@
+// @ts-nocheck
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { MFAService } from "../services/mfaService.ts";
-import { AuthService } from "../services/authService.ts";
-
-// Mock localStorage
-const localStorageMock = (() => {
-  let store = {};
-  return {
-    getItem: vi.fn((key) => store[key] || null),
-    setItem: vi.fn((key, value) => {
-      store[key] = value.toString();
-    }),
-    removeItem: vi.fn((key) => {
-      delete store[key];
-    }),
-    clear: vi.fn(() => {
-      store = {};
-    }),
-  };
-})();
-
-Object.defineProperty(global, "localStorage", {
-  value: localStorageMock,
-});
+import { MFAService } from "../services/mfaService";
+import { AuthService } from "../services/AuthService";
 
 describe("MFA Integration Scenarios", () => {
-  let mfaService;
-  let authService;
+  let mfaService: MFAService;
+  let authService: AuthService;
 
   beforeEach(() => {
     // Reset mocks
     vi.clearAllMocks();
-    localStorageMock.clear();
+    if (typeof localStorage !== "undefined") localStorage.clear();
 
     // Mock fetch
-    global.fetch = vi.fn();
+    global.fetch = vi.fn() as any;
+    // Mock ApiClient for BaseService
+    const mockApiClient = {
+      get: vi.fn(),
+      post: vi.fn(),
+      put: vi.fn(),
+      delete: vi.fn(),
+      setAuthToken: vi.fn(),
+      clearAuthToken: vi.fn(),
+      hasAuthToken: vi.fn().mockReturnValue(false),
+    };
 
     // Create service instances
     mfaService = new MFAService();
-    authService = new AuthService();
+    authService = new AuthService(mockApiClient as any);
   });
 
   afterEach(() => {
@@ -46,19 +36,20 @@ describe("MFA Integration Scenarios", () => {
 
   describe("Complete Authentication Flow Integration", () => {
     it("should handle complete login flow with MFA verification", async () => {
-      // Mock initial login response requiring MFA
-      fetch
-        .mockResolvedValueOnce({
-          ok: true,
-          headers: new Headers({ "content-type": "application/json" }),
-          json: vi.fn().mockResolvedValue({
-            success: true,
-            requiresMFA: true,
-            userId: "user123",
-            tempToken: "temp-123",
-          }),
-        })
-        // Mock MFA challenge
+      // Mock AuthService login response using ApiClient
+      const mockPost = authService.client.post as any;
+      mockPost.mockResolvedValueOnce({
+        data: {
+          success: true,
+          requiresMFA: true,
+          userId: "user123",
+          tempToken: "temp-123",
+          accessToken: "", // Provide empty accessToken if MFA required
+        },
+      });
+
+      // Mock MFA challenge and verification via fetch
+      (global.fetch as any)
         .mockResolvedValueOnce({
           ok: true,
           headers: new Headers({ "content-type": "application/json" }),
@@ -376,16 +367,13 @@ describe("MFA Integration Scenarios", () => {
 
       await serviceWithToken.getMFAStatus();
 
-      expect(fetch).toHaveBeenCalledWith(
-        "/api/v1/auth/mfa/status",
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer custom-token",
-          },
+      expect(fetch).toHaveBeenCalledWith("/api/v1/auth/mfa/status", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer custom-token",
         },
-      );
+      });
     });
   });
 
