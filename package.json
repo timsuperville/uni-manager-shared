@@ -4,16 +4,53 @@
   "description": "Shared utilities, components, and types for Uni-Manager applications",
   "private": true,
   "type": "module",
-  "main": "index.js",
+  "main": "index.ts",
   "exports": {
-    ".": "./index.js",
-    "./components": "./components/index.js",
-    "./utils": "./utils/index.js",
-    "./types": "./types/index.js",
-    "./theme": "./theme/index.js",
-    "./auth": "./auth/index.js",
-    "./paypal": "./paypal/index.js",
-    "./command": "./command/index.js",
+    ".": {
+      "types": "./index.ts",
+      "import": "./index.ts",
+      "default": "./index.ts"
+    },
+    "./components": {
+      "types": "./components/index.ts",
+      "import": "./components/index.ts",
+      "default": "./components/index.ts"
+    },
+    "./utils": {
+      "types": "./utils/index.ts",
+      "import": "./utils/index.ts",
+      "default": "./utils/index.ts"
+    },
+    "./types": {
+      "types": "./types/index.ts",
+      "import": "./types/index.ts",
+      "default": "./types/index.ts"
+    },
+    "./theme": {
+      "types": "./theme/index.ts",
+      "import": "./theme/index.ts",
+      "default": "./theme/index.ts"
+    },
+    "./auth": {
+      "types": "./auth/index.ts",
+      "import": "./auth/index.ts",
+      "default": "./auth/index.ts"
+    },
+    "./auth/*": {
+      "types": "./auth/*.ts",
+      "import": "./auth/*.ts",
+      "default": "./auth/*.ts"
+    },
+    "./paypal": {
+      "types": "./paypal/index.ts",
+      "import": "./paypal/index.ts",
+      "default": "./paypal/index.ts"
+    },
+    "./command": {
+      "types": "./command/index.ts",
+      "import": "./command/index.ts",
+      "default": "./command/index.ts"
+    },
     "./tailwind.preset": "./tailwind.preset.js"
   },
   "scripts": {
