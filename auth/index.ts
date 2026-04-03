@@ -137,8 +137,16 @@ export const FeatureGuard = React.lazy(() =>
 
 // ── Services ──────────────────────────────────────────────────────────────────
 
-export { default as SessionService } from "./services/SessionService";
-export { default as authService } from "./services/AuthService";
+// Static class re-exports replaced with lazy dynamic loaders to avoid Rollup
+// eagerly resolving these files during module-graph construction (CI/Linux/Node 20
+// fails to resolve bare .ts specifiers statically even with resolve.extensions set).
+// Use getAuthService() / getSessionService() from the factory exports below for
+// all production code — these lazy loaders are for legacy call-sites only.
+export const loadAuthServiceClass = () =>
+  import("./services/AuthService").then((m) => m.default);
+export const loadSessionServiceClass = () =>
+  import("./services/SessionService").then((m) => m.default);
+
 export {
   getSessionService,
   getAuthService,
