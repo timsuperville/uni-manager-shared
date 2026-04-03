@@ -5,6 +5,7 @@ import { useAuthActions, type AuthServiceLike } from "../hooks/useAuthActions.ts
 import { useAuthCallbacks, type AuthStateShape } from "../hooks/useAuthCallbacks.ts";
 import { RBACUtils } from "../utils/RBACUtils.ts";
 import type { Permission } from "../types/rbacRoles.ts";
+import { useApi } from "../../api/hooks/index.ts";
 
 import type { AuthContextType, User } from "../types/auth.types.ts";
 
