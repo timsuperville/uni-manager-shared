@@ -16,7 +16,7 @@ export {
 } from "./config/apiConfig";
 
 // Core exports
-export { ApiClient } from "./core/ApiClient";
+export { ApiClient, initializeApiClient, getApiClient } from "./core/ApiClient";
 export type {
   ApiClientConfig,
   RequestOptions,
@@ -44,27 +44,6 @@ export type {
   PaginatedResponse,
 } from "./services/BaseService";
 
-export {
-  AuthService,
-} from "./services/AuthService";
-export {
-  ArtNetBridgeService,
-  artNetBridgeService,
-  initArtNetBridge,
-} from "./services/ArtNetBridgeService";
-
-// Main service registry
-export {
-  default as ApiServices,
-  createApiServices,
-  createDevApiServices,
-  createProdApiServices,
-  initializeApiServices,
-  getApiServices,
-  getAuthService,
-} from "./services";
-export type { ApiServiceConfig } from "./services";
-
 // Type exports
 export * from "./types";
 
@@ -88,4 +67,3 @@ export type { SyncEntry, ServiceMap } from "./syncEngine";
 
 export const VERSION = "1.0.0";
 export const API_VERSION = "v1";
-

@@ -72,6 +72,13 @@ export interface RequestOptions {
   onUploadProgress?: (progressEvent: AxiosProgressEvent) => void;
   onDownloadProgress?: (progressEvent: AxiosProgressEvent) => void;
   signal?: AbortSignal;
+  responseType?:
+    | "arraybuffer"
+    | "blob"
+    | "document"
+    | "json"
+    | "text"
+    | "stream";
 }
 
 export interface ApiResponse<T = any> {
@@ -188,6 +195,7 @@ export class ApiClient {
       onUploadProgress: options.onUploadProgress,
       onDownloadProgress: options.onDownloadProgress,
       signal: options.signal,
+      responseType: options.responseType as any,
     };
 
     // Check cache for GET requests
@@ -318,6 +326,7 @@ export class ApiClient {
   async download(endpoint: string, options?: RequestOptions): Promise<Blob> {
     const downloadOptions: RequestOptions = {
       ...options,
+      responseType: "blob",
       headers: {
         Accept: "application/octet-stream",
         ...options?.headers,
@@ -387,6 +396,30 @@ export class ApiClient {
       this.axios.defaults.timeout = this.config.timeout;
     }
   }
+}
+
+// ==================== DEFAULT INSTANCE ====================
+
+let defaultApiClient: ApiClient | null = null;
+
+/**
+ * Initialize default API client instance
+ */
+export function initializeApiClient(config: ApiClientConfig): ApiClient {
+  defaultApiClient = new ApiClient(config);
+  return defaultApiClient;
+}
+
+/**
+ * Get default API client instance
+ */
+export function getApiClient(): ApiClient {
+  if (!defaultApiClient) {
+    throw new Error(
+      "API Client not initialized. Call initializeApiClient() first.",
+    );
+  }
+  return defaultApiClient;
 }
 
 export default ApiClient;

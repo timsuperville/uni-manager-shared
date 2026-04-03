@@ -44,8 +44,10 @@ export function getSessionService() {
   return import("./SessionService.ts").then((m) => m.default);
 }
 
-export function getAuthService() {
-  return import("./authService.ts").then((m) => m.default);
+export async function getAuthService() {
+  const m = await import("./AuthService.ts");
+  const { getApiClient } = await import("../../api");
+  return new m.default(getApiClient());
 }
 
 export function getMFAService() {

@@ -21,7 +21,7 @@ import {
   ValidationSchema,
   PaginationParams,
   PaginatedResponse,
-} from "./BaseService";
+} from "../../../api/services/BaseService";
 import {
   Notification,
   CreateNotificationRequest,
@@ -33,8 +33,8 @@ import {
   BulkNotificationRequest,
   NotificationStats,
   PushSubscription,
-} from "../types";
-import { ApiClient } from "../core/ApiClient";
+} from "../../../api/types";
+import { ApiClient } from "../../../api/core/ApiClient";
 
 export class NotificationService extends BaseService {
   constructor(client: ApiClient) {
@@ -306,9 +306,7 @@ export class NotificationService extends BaseService {
         ? new URLSearchParams(allParams).toString()
         : "";
 
-    const endpoint = queryString
-      ? `/user?${queryString}`
-      : "/user";
+    const endpoint = queryString ? `/user?${queryString}` : "/user";
 
     return this.get<PaginatedResponse<Notification>>(endpoint);
   }
@@ -367,10 +365,7 @@ export class NotificationService extends BaseService {
     const schema: ValidationSchema = NotificationService.SCHEMAS.createTemplate;
     this.validateRequest(templateData, schema);
 
-    return this.post<NotificationTemplate>(
-      "/templates",
-      templateData,
-    );
+    return this.post<NotificationTemplate>("/templates", templateData);
   }
 
   /**
@@ -446,9 +441,7 @@ export class NotificationService extends BaseService {
         ? new URLSearchParams(allParams).toString()
         : "";
 
-    const endpoint = queryString
-      ? `/templates?${queryString}`
-      : "/templates";
+    const endpoint = queryString ? `/templates?${queryString}` : "/templates";
 
     return this.get<PaginatedResponse<NotificationTemplate>>(endpoint);
   }
@@ -548,10 +541,7 @@ export class NotificationService extends BaseService {
     const schema: ValidationSchema = NotificationService.SCHEMAS.preferences;
     this.validateRequest(preferences, schema);
 
-    return this.patch<NotificationPreferences>(
-      "/preferences",
-      preferences,
-    );
+    return this.patch<NotificationPreferences>("/preferences", preferences);
   }
 
   /**
@@ -560,20 +550,14 @@ export class NotificationService extends BaseService {
   async subscribeToPush(
     subscription: PushSubscription,
   ): Promise<{ success: boolean }> {
-    return this.post<{ success: boolean }>(
-      "/push/subscribe",
-      subscription,
-    );
+    return this.post<{ success: boolean }>("/push/subscribe", subscription);
   }
 
   /**
    * Unsubscribe from push notifications
    */
   async unsubscribeFromPush(endpoint: string): Promise<{ success: boolean }> {
-    return this.post<{ success: boolean }>(
-      "/push/unsubscribe",
-      { endpoint },
-    );
+    return this.post<{ success: boolean }>("/push/unsubscribe", { endpoint });
   }
 
   // ===============================================

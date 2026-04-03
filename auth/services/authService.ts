@@ -1,1188 +1,410 @@
-/* global fetch, sessionStorage, URLSearchParams, setInterval, clearInterval */
 /**
- * Consolidated Authentication Service
+ * Authentication Service (Axios / ApiClient-backed)
  *
- * Unified service combining OAuth and traditional authentication.
+ * Handles auth-related API operations. Uses BaseService with baseEndpoint="/auth",
+ * so every method path is relative to that — pass "/me", not "/auth/me".
+ *
+ * BaseService.get/post/put/delete all call buildEndpoint() internally, so
+ * DO NOT pre-build the endpoint with this.buildEndpoint() before calling them —
+ * that would double the baseEndpoint prefix (e.g. /auth/auth/me).
  */
 
+import { BaseService, ValidationSchema } from "../../api/services/BaseService";
+import { ApiClient } from "../../api/core/ApiClient";
+import type { AxiosProgressEvent } from "axios";
 import {
-  generateDeviceFingerprint,
-  getDeviceInfo,
-  trackUserActivity,
-} from "../utils/socialAuth.ts";
-import {
-  getProviderConfig,
-  generatePKCE,
-  generateNonce,
-  generateState,
-} from "../config/oauthProviders.ts";
-import { getCurrentAppConfig } from "../config/appConfigs";
-import { TokenStorage } from "../utils/TokenStorage.ts";
-import { validateCredentials } from "../utils/authValidation.ts";
-import { getApiBaseUrl } from "../../api/config/apiConfig.ts";
-import { RateLimitService } from "./RateLimitService.ts";
+  User,
+  LoginRequest,
+  SignupRequest,
+  AuthResponse,
+  UserProfile,
+  UpdateRequest,
+} from "../../api/types";
 
-import type { User } from "../types/auth.types.ts";
-
-// ── Types ─────────────────────────────────────────────────────────────────────
-
-interface AuthServiceEndpoints {
-  login?: string;
-  logout?: string;
-  signup?: string;
-  forgotPassword?: string;
-  resetPassword?: string;
-  refreshToken?: string;
-  validateToken?: string;
-  verify?: string;
-  changePassword?: string;
-  uploadAvatar?: string;
-  uploadCoverImage?: string;
-  checkEmail?: string;
-  updateProfile?: string;
-  [key: string]: string | undefined;
-}
-
-interface AuthServiceConfig {
-  apiBaseUrl?: string;
-  endpoints?: AuthServiceEndpoints;
-  apiEndpoints?: AuthServiceEndpoints;
-  appType?: string;
-  storageNamespace?: string;
-  maxLoginAttempts?: number;
-  lockoutDuration?: number;
-  onTokenRefreshed?: () => void;
-  onTokenExpired?: () => void;
-}
-
-interface ResolvedAuthConfig {
-  apiBaseUrl: string;
-  endpoints: Required<
-    Pick<
-      AuthServiceEndpoints,
-      | "login"
-      | "logout"
-      | "signup"
-      | "forgotPassword"
-      | "resetPassword"
-      | "refreshToken"
-      | "validateToken"
-      | "verify"
-    >
-  > &
-    AuthServiceEndpoints;
-  appType: string;
-}
-
-interface LoginCredentials {
+export interface ForgotPasswordRequest {
   email: string;
-  password: string;
-  [key: string]: unknown;
 }
 
-interface LoginResult {
-  success: true;
-  user?: unknown;
-  session?: unknown;
-  requiresMFA?: boolean;
-  userId?: string;
-  tempToken?: string;
+export interface ResetPasswordRequest {
+  token: string;
+  newPassword: string;
+  confirmPassword: string;
 }
 
-interface SignupResult {
-  success: true;
-  message?: string;
-  requiresVerification?: boolean;
-  user?: unknown;
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
 }
 
-interface TokenRefreshResult {
-  success: true;
-  accessToken: string;
+export interface VerifyEmailRequest {
+  token: string;
 }
 
-interface RequestOptions extends RequestInit {
-  signal?: AbortSignal;
+export interface ResendVerificationRequest {
+  email: string;
 }
 
-// ── AuthService ───────────────────────────────────────────────────────────────
+export class AuthService extends BaseService {
+  constructor(client: ApiClient) {
+    // baseEndpoint = "/auth"  →  all paths are relative: "/login", "/me", etc.
+    super(client, "/auth", "AuthService");
+  }
 
-class AuthService {
-  private readonly config: ResolvedAuthConfig;
-
-  private currentUser: unknown = null;
-  private sessionToken: string | null = null;
-  private sessionId: string | null = null;
-  private deviceFingerprint: string | null = null;
-  private activityTracker: ReturnType<typeof setInterval> | null = null;
-  private readonly tokenStorage: TokenStorage;
-  private readonly rateLimitService: RateLimitService;
-
-
-  // Backward compat proxies onto rateLimitService (fields are public readonly on RateLimitService)
-  readonly loginAttempts: Map<string, { count: number; lastAttempt: number }>;
-  readonly maxLoginAttempts: number;
-  readonly lockoutDuration: number;
-
-  constructor(config: AuthServiceConfig = {}) {
-    const endpoints = config.apiEndpoints ?? config.endpoints ?? {};
-
-    // Transform full URLs to relative paths for _makeRequest
-    const transformedEndpoints: AuthServiceEndpoints = {};
-    for (const [key, url] of Object.entries(endpoints)) {
-      if (url && url.startsWith("http")) {
-        try {
-          transformedEndpoints[key] = new URL(url).pathname;
-        } catch (_err) {
-          transformedEndpoints[key] = url;
-        }
-      } else {
-        transformedEndpoints[key] = url;
-      }
-    }
-
-    this.config = {
-      apiBaseUrl: config.apiBaseUrl ?? getApiBaseUrl(),
-      endpoints: {
-        login: "/api/v1/auth/login",
-        logout: "/api/v1/auth/logout",
-        signup: "/api/v1/auth/signup",
-        forgotPassword: "/api/v1/auth/forgot-password",
-        resetPassword: "/api/v1/auth/reset-password",
-        refreshToken: "/api/v1/auth/refresh-token",
-        validateToken: "/api/v1/auth/validate-token",
-        verify: "/api/v1/auth/verify-token",
-        ...transformedEndpoints,
+  /**
+   * User login
+   */
+  async login(credentials: LoginRequest): Promise<AuthResponse> {
+    const schema: ValidationSchema = {
+      email: {
+        type: "string",
+        required: true,
+        pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+        validator: (value) =>
+          value.length >= 3 || "Email must be at least 3 characters",
       },
-      appType: config.appType ?? "default",
+      password: {
+        type: "string",
+        required: true,
+        minLength: 6,
+      },
+      rememberMe: {
+        type: "boolean",
+        required: false,
+      },
     };
 
-
-
-    const storageNamespace = config.storageNamespace ?? config.appType ?? "uni";
-    this.tokenStorage = new TokenStorage(storageNamespace);
-
-    this.rateLimitService = new RateLimitService({
-      maxLoginAttempts: config.maxLoginAttempts ?? 5,
-      lockoutDuration: config.lockoutDuration ?? 15 * 60 * 1000,
+    const validatedData = this.validateRequest(credentials, schema);
+    // Pass "/login" — BaseService.post() prepends baseEndpoint → /auth/login
+    const response = await this.post<AuthResponse>("/login", validatedData, {
+      cache: false,
     });
 
+    // Store token in interceptor so subsequent requests carry the Bearer header
+    this.client.setAuthToken(response.accessToken);
 
-    this.loginAttempts = this.rateLimitService.loginAttempts;
-    this.maxLoginAttempts = this.rateLimitService.maxAttempts;
-    this.lockoutDuration = this.rateLimitService.lockoutDuration;
+    return response;
   }
 
-  // ── Lifecycle ───────────────────────────────────────────────────────────────
-
-  async initialize(): Promise<boolean> {
-    try {
-      this.deviceFingerprint = await generateDeviceFingerprint();
-      await this.checkExistingSession();
-      this.startActivityTracking();
-      return true;
-    } catch (error) {
-      if (import.meta.env.DEV)
-        console.warn(
-          "[AuthService] initialize failed:",
-          (error as Error).message,
-        );
-      return false;
-    }
-  }
-
-  // ── Private Helpers ─────────────────────────────────────────────────────────
-
-  private async _handleResponse(
-    response: Response,
-  ): Promise<Record<string, unknown>> {
-    const contentType = response.headers.get("content-type");
-
-    if (!contentType?.includes("application/json")) {
-      throw new Error(
-        `Server returned HTTP ${response.status} with non-JSON body. ` +
-          `The backend may be down or returning an unexpected response.`,
-      );
-    }
-
-    let data: Record<string, unknown>;
-    try {
-      data = (await response.json()) as Record<string, unknown>;
-    } catch (error) {
-      if (import.meta.env.DEV)
-        console.warn(
-          "[AuthService] _handleResponse JSON parse failed:",
-          (error as Error).message,
-        );
-      throw new Error(
-        `HTTP ${response.status}: Invalid JSON response from server`,
-      );
-    }
-
-    if (!response.ok) {
-      const serverMessage =
-        (data["message"] as string | undefined) ??
-        (data["error"] as string | undefined);
-      throw new Error(
-        serverMessage
-          ? serverMessage
-          : `Request failed with status ${response.status}`,
-      );
-    }
-
-    return data;
-  }
-
-  private _getEndpointUrl(key: string): string | null {
-    const endpoint = this.config.endpoints[key];
-    if (!endpoint) return null;
-    if (endpoint.startsWith("http")) return endpoint;
-    return `${this.config.apiBaseUrl}${endpoint}`;
-  }
-
-  private async _makeRequest(
-    endpoint: string,
-    options: RequestOptions = {},
-  ): Promise<Response> {
-    const endpointPath = this.config.endpoints[endpoint] ?? endpoint;
-    const url = (endpointPath ?? "").startsWith("http")
-      ? endpointPath!
-      : `${this.config.apiBaseUrl}${endpointPath}`;
-
-    const defaultHeaders: Record<string, string> = {
-      "Content-Type": "application/json",
-      ...(options.headers as Record<string, string>),
-    };
-
-    try {
-      return await fetch(url!, {
-        ...options,
-        headers: defaultHeaders,
-        credentials: "include",
-      });
-    } catch (networkError) {
-      // Enrich opaque network errors (e.g. "Failed to fetch" from COEP blocks,
-      // connection refused, or DNS failure) with actionable context.
-      const msg = (networkError as Error)?.message ?? "";
-      const isNetworkFailure =
-        networkError instanceof TypeError ||
-        msg.toLowerCase().includes("failed to fetch") ||
-        msg.toLowerCase().includes("networkerror") ||
-        msg.toLowerCase().includes("load failed");
-
-      if (isNetworkFailure) {
-        const origin = (() => {
-          try {
-            return new URL(url!).origin;
-          } catch {
-            return url;
+  /**
+   * User signup
+   */
+  async signup(userData: SignupRequest): Promise<AuthResponse> {
+    const schema: ValidationSchema = {
+      email: {
+        type: "string",
+        required: true,
+        pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+      },
+      password: {
+        type: "string",
+        required: true,
+        minLength: 8,
+        validator: (value) => {
+          const hasUpper = /[A-Z]/.test(value);
+          const hasLower = /[a-z]/.test(value);
+          const hasNumber = /\d/.test(value);
+          const hasSpecial = /[!@#$%^&*(),.?':{}|<>]/.test(value);
+          if (!hasUpper || !hasLower || !hasNumber || !hasSpecial) {
+            return "Password must contain uppercase, lowercase, number, and special character";
           }
-        })();
-        throw new Error(
-          `Cannot reach server at ${origin}. ` +
-            `Check that the backend is running and that VITE_API_URL is correct.`,
-        );
-      }
-      throw networkError;
-    }
-  }
-
-  // ── Session ─────────────────────────────────────────────────────────────────
-
-  async checkExistingSession(): Promise<unknown> {
-    const token = this.getStoredToken();
-    if (!token) return null;
-
-    try {
-      const response = await this._makeRequest("verify", {
-        method: "POST",
-        headers: {
-          // The backend protect middleware reads ONLY the Authorization header.
-          // Without this, the server returns 401 "token missing" which previously
-          // caused clearStoredAuth() to wipe the token on every page load after setup.
-          Authorization: `Bearer ${token}`,
+          return true;
         },
-        body: JSON.stringify({
-          token,
-          deviceFingerprint: this.deviceFingerprint,
-          deviceInfo: getDeviceInfo(),
-        }),
-      });
+      },
+      firstName: {
+        type: "string",
+        required: true,
+        minLength: 1,
+        maxLength: 50,
+      },
+      lastName: { type: "string", required: true, minLength: 1, maxLength: 50 },
+      acceptTerms: {
+        type: "boolean",
+        required: true,
+        validator: (value) =>
+          value === true || "You must accept the terms and conditions",
+      },
+    };
 
-      if (response.status === 401 || response.status === 403) {
-        // Before giving up, attempt a silent token refresh if we have a refresh token.
-        // This handles the common "Token expired" case without forcing the user to log in again.
-        const refreshToken = this.tokenStorage.getRefreshToken();
-        if (refreshToken) {
-          if (import.meta.env?.DEV) {
-            console.info(
-              `[AuthService] checkExistingSession: verify-token returned ${response.status} — attempting silent refresh`,
-            );
-          }
-          try {
-            await this.refreshToken();
-            // Refresh succeeded — re-run verification with the new access token
-            return await this.checkExistingSession();
-          } catch (refreshError) {
-            if (import.meta.env?.DEV) {
-              console.warn(
-                "[AuthService] Silent refresh failed — clearing stored auth:",
-                (refreshError as Error).message,
-              );
-            }
-          }
-        } else {
-          if (import.meta.env?.DEV) {
-            console.info(
-              `[AuthService] checkExistingSession: verify-token returned ${response.status} — no refresh token, clearing stored auth`,
-            );
-            response
-              .clone()
-              .text()
-              .then((t) =>
-                console.info("[AuthService] verify-token response body:", t),
-              )
-              .catch(() => {});
-          }
-        }
-        this.clearStoredAuth();
-        return null;
-      }
-
-      let responseData: Record<string, unknown>;
-      try {
-        if (response.ok) {
-          responseData = await this._handleResponse(response);
-        } else {
-          throw new Error(`Server returned ${response.status}`);
-        }
-      } catch (e) {
-        if (import.meta.env?.DEV) {
-          console.warn(
-            "[AuthService] Session verification failed, restoring from storage:",
-            (e as Error).message,
-          );
-        }
-        const storedUser = this.tokenStorage.getUser();
-        if (storedUser) {
-          this.currentUser = storedUser;
-          this.sessionToken = token;
-          return storedUser;
-        }
-        return null;
-      }
-
-      // The canonical API response shape is { success, data: { valid, user } }.
-      // Unwrap the data envelope; fall back to top-level user for legacy compatibility.
-      const envelope = responseData["data"] as
-        | Record<string, unknown>
-        | undefined;
-      const user = (envelope?.["user"] ?? responseData["user"]) as
-        | User
-        | undefined;
-
-      this.currentUser = user ?? null;
-      this.sessionToken = token;
-
-      if (user) {
-        this.tokenStorage.updateUser(user as Partial<User>);
-      } else {
-        // verify-token succeeded but returned no user — restore from storage
-        const storedUser = this.tokenStorage.getUser();
-        if (storedUser) {
-          this.currentUser = storedUser;
-          return storedUser;
-        }
-      }
-
-      return this.currentUser;
-    } catch (error) {
-      if (import.meta.env.DEV)
-        console.warn(
-          "[AuthService] validateToken fallback to stored user:",
-          (error as Error).message,
-        );
-      const storedUser = this.tokenStorage.getUser();
-      if (storedUser) {
-        this.currentUser = storedUser;
-        this.sessionToken = token;
-        return storedUser;
-      }
-      return null;
-    }
-  }
-
-  // ── Traditional Auth ────────────────────────────────────────────────────────
-
-  async login(credentials: LoginCredentials): Promise<LoginResult> {
-    const { email } = credentials;
-
-    if (this.isRateLimited(email)) {
-      throw new Error("Too many attempts. Please try again later.");
-    }
-
-    try {
-      const validation = validateCredentials(credentials);
-      if (!validation.isValid) {
-        throw new Error(validation.errors.join(", "));
-      }
-
-      const response = await this._makeRequest("login", {
-        method: "POST",
-        body: JSON.stringify({
-          ...credentials,
-          appType: this.config.appType,
-          deviceFingerprint: this.deviceFingerprint,
-          deviceInfo: getDeviceInfo(),
-        }),
-      });
-
-      const responseData = await this._handleResponse(response);
-
-      // The admin login endpoint wraps its payload in a `data` envelope:
-      // { success, data: { admin, tokens: { accessToken, refreshToken }, sessionId } }
-      // Fall back to a flat shape for other auth endpoints.
-      const envelope =
-        (responseData["data"] as Record<string, unknown> | undefined) ??
-        responseData;
-      const tokens = envelope["tokens"] as Record<string, string> | undefined;
-      const accessToken =
-        tokens?.["accessToken"] ??
-        (responseData["accessToken"] as string | undefined) ??
-        (envelope["accessToken"] as string | undefined);
-      const refreshToken =
-        tokens?.["refreshToken"] ??
-        (responseData["refreshToken"] as string | undefined) ??
-        (envelope["refreshToken"] as string | undefined);
-      // admin endpoint returns `admin` key; other endpoints return `user`
-      const user =
-        (envelope["admin"] as Record<string, unknown> | undefined) ??
-        (envelope["user"] as Record<string, unknown> | undefined) ??
-        (responseData["user"] as Record<string, unknown> | undefined);
-      const sessionId =
-        (envelope["sessionId"] as string | undefined) ??
-        (responseData["sessionId"] as string | undefined);
-
-      if (responseData["success"] && accessToken) {
-        this.tokenStorage.setTokens({
-          accessToken,
-          refreshToken,
-          user: user as User | undefined,
-          sessionId: sessionId ?? undefined,
-        });
-        this.currentUser = user;
-        this.sessionToken = accessToken;
-
-        // Keep in-memory sessionId for this service instance (used by logout).
-        if (sessionId) {
-          this.sessionId = sessionId;
-        }
-
-        this.resetLoginAttempts(email);
-        return {
-          success: true,
-          user,
-          session: envelope["session"] ?? responseData["session"],
-        };
-      }
-
-      if (
-        responseData["success"] &&
-        (responseData["requiresMFA"] || envelope["requiresMFA"])
-      ) {
-        this.resetLoginAttempts(email);
-        return {
-          success: true,
-          requiresMFA: true,
-          userId: (responseData["userId"] ?? envelope["userId"]) as
-            | string
-            | undefined,
-          tempToken: (responseData["tempToken"] ?? envelope["tempToken"]) as
-            | string
-            | undefined,
-        };
-      }
-
-      this.recordLoginAttempt(email);
-      throw new Error(
-        (responseData["message"] as string | undefined) ?? "Login failed",
-      );
-    } catch (err) {
-      this.recordLoginAttempt(email);
-      throw err;
-    }
-  }
-
-  async logout(): Promise<{ success: true }> {
-    try {
-      const token = this.getStoredToken();
-      // Retrieve persisted sessionId — required by the admin logout endpoint.
-      // Use the canonical getSessionId() which reads the correctly-namespaced
-      // storage key (e.g. "admin_auth_session_id") rather than raw sessionStorage.
-      const storedSessionId =
-        this.sessionId ?? this.tokenStorage.getSessionId();
-
-      if (token) {
-        await this._makeRequest("logout", {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
-          // Always send body — admin logout requires sessionId in the body.
-          // Non-admin endpoints ignore the field gracefully.
-          body: JSON.stringify({ sessionId: storedSessionId ?? undefined }),
-        });
-      }
-      this.sessionId = null;
-      this.clearStoredAuth(); // clears all namespaced keys including sessionId
-      this.currentUser = null;
-      this.sessionToken = null;
-      this.stopActivityTracking();
-      return { success: true };
-    } catch (error) {
-      if (import.meta.env.DEV)
-        console.warn(
-          "[AuthService] logout backend call failed — clearing local session:",
-          (error as Error).message,
-        );
-      try {
-        sessionStorage.removeItem(
-          `${(this.tokenStorage as any).namespace}_session_id`,
-        );
-      } catch {
-        /* storage unavailable */
-      }
-      this.sessionId = null;
-      this.clearStoredAuth();
-      this.currentUser = null;
-      this.sessionToken = null;
-      return { success: true };
-    }
-  }
-
-  async signup(userData: Record<string, unknown>): Promise<SignupResult> {
-    const response = await this._makeRequest("signup", {
-      method: "POST",
-      body: JSON.stringify({
-        ...userData,
-        appType: this.config.appType,
-        deviceFingerprint: this.deviceFingerprint,
-        deviceInfo: getDeviceInfo(),
-      }),
+    const validatedData = this.validateRequest(userData, schema);
+    const response = await this.post<AuthResponse>("/signup", validatedData, {
+      cache: false,
     });
 
-    const responseData = await this._handleResponse(response);
-
-    if (responseData["success"]) {
-      return {
-        success: true,
-        message: responseData["message"] as string | undefined,
-        requiresVerification: responseData["requiresVerification"] as
-          | boolean
-          | undefined,
-        user: responseData["user"],
-      };
-    }
-    throw new Error(
-      (responseData["message"] as string | undefined) ?? "Signup failed",
-    );
+    this.client.setAuthToken(response.accessToken);
+    return response;
   }
 
+  /**
+   * Check if an email is already registered
+   */
   async checkEmailAvailability(
     email: string,
-    options: { signal?: AbortSignal } = {},
+    options?: { signal?: AbortSignal },
   ): Promise<{ available: boolean }> {
     try {
-      const checkUrl = this.config.endpoints["checkEmail"];
-      if (!checkUrl) return { available: true };
-
-      const response = await this._makeRequest("checkEmail", {
-        method: "POST",
-        body: JSON.stringify({ email }),
-        signal: options.signal,
-      });
-
-      const data = await this._handleResponse(response);
-      return { available: !!data["available"] };
-    } catch (err) {
-      if ((err as Error)?.name === "AbortError") throw err;
+      const response = await this.client.get<{ available: boolean }>(
+        "/auth/check-email",
+        {
+          params: { email },
+          signal: options?.signal,
+        },
+      );
+      return response.data;
+    } catch (e: any) {
+      if (e.name === "AbortError" || e.name === "CanceledError") {
+        throw e;
+      }
+      // If endpoint doesn't exist, assume available (fail-open) to unblock registration
       return { available: true };
     }
   }
 
-  async forgotPassword(
-    email: string,
-  ): Promise<{ success: boolean; message?: string }> {
-    const response = await this._makeRequest("forgotPassword", {
-      method: "POST",
-      body: JSON.stringify({ email, appType: this.config.appType }),
-    });
-    const responseData = (await response.json()) as {
-      success: boolean;
-      message?: string;
-    };
-    return { success: responseData.success, message: responseData.message };
-  }
-
-  async resetPassword(
-    token: string,
-    newPassword: string,
-  ): Promise<{ success: boolean; message?: string }> {
-    const response = await this._makeRequest("resetPassword", {
-      method: "POST",
-      body: JSON.stringify({
-        token,
-        newPassword,
-        appType: this.config.appType,
-      }),
-    });
-    const responseData = (await response.json()) as {
-      success: boolean;
-      message?: string;
-    };
-    return { success: responseData.success, message: responseData.message };
-  }
-
-  async updateProfile(
-    profileData: Record<string, unknown>,
-  ): Promise<{ success: true; user: unknown; message: string }> {
-    const response = await this._makeRequest("updateProfile", {
-      method: "PUT",
-      headers: { Authorization: `Bearer ${this.sessionToken}` },
-      body: JSON.stringify(profileData),
-    });
-
-    const responseData = await this._handleResponse(response);
-
-    if (responseData["success"]) {
-      const updatedUser = responseData["user"] ?? responseData["data"];
-      this.currentUser = {
-        ...(this.currentUser as Record<string, unknown>),
-        ...(updatedUser as Record<string, unknown>),
-      };
-      return {
-        success: true,
-        user: this.currentUser,
-        message:
-          (responseData["message"] as string | undefined) ??
-          "Profile updated successfully",
-      };
+  /**
+   * User logout
+   */
+  async logout(): Promise<void> {
+    try {
+      await this.post<void>("/logout", {}, { cache: false, retry: false });
+    } finally {
+      this.client.clearAuthToken();
     }
+  }
 
-    throw new Error(
-      (responseData["message"] as string | undefined) ??
-        "Failed to update profile",
+  /**
+   * Refresh authentication token
+   */
+  async refreshToken(refreshToken: string): Promise<AuthResponse> {
+    const response = await this.post<AuthResponse>(
+      "/refresh",
+      { refreshToken },
+      { cache: false },
     );
+    this.client.setAuthToken(response.accessToken);
+    return response;
   }
 
-  async uploadAvatar(
-    file: File,
-  ): Promise<{ success: true; avatarUrl: string; message: string }> {
-    const formData = new FormData();
-    formData.append("avatar", file);
-
-    const endpoint = this.config.endpoints["uploadAvatar"]
-      ? this._getEndpointUrl("uploadAvatar")
-      : `${this.config.apiBaseUrl}/profile/avatar`;
-
-    const response = await fetch(endpoint!, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${this.sessionToken}` },
-      body: formData,
-      credentials: "include",
-    });
-
-    const responseData = await this._handleResponse(response);
-
-    if (responseData["success"]) {
-      this.currentUser = {
-        ...(this.currentUser as Record<string, unknown>),
-        avatarUrl: responseData["avatarUrl"],
-      };
-      return {
-        success: true,
-        avatarUrl: responseData["avatarUrl"] as string,
-        message:
-          (responseData["message"] as string | undefined) ??
-          "Avatar uploaded successfully",
-      };
-    }
-
-    throw new Error(
-      (responseData["message"] as string | undefined) ??
-        "Failed to upload avatar",
-    );
+  /**
+   * Get current user profile
+   * Calls GET /api/v1/auth/me
+   */
+  async getCurrentUser(): Promise<User> {
+    return this.get<User>("/me");
   }
 
-  async uploadCoverImage(file: File): Promise<{
-    success: true;
-    coverImageUrl: string;
-    user?: unknown;
-    message: string;
-  }> {
-    const formData = new FormData();
-    formData.append("cover", file);
-
-    const endpoint = this.config.endpoints["uploadCoverImage"]
-      ? this._getEndpointUrl("uploadCoverImage")
-      : `${this.config.apiBaseUrl}/profile/cover`;
-
-    const response = await fetch(endpoint!, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${this.sessionToken}` },
-      body: formData,
-      credentials: "include",
-    });
-
-    const responseData = await this._handleResponse(response);
-
-    if (responseData["success"]) {
-      const coverImageUrl = responseData["coverImageUrl"] as string;
-      this.currentUser = {
-        ...(this.currentUser as Record<string, unknown>),
-        coverImageUrl,
-        coverImage: coverImageUrl,
-      };
-      return {
-        success: true,
-        coverImageUrl,
-        user: responseData["user"],
-        message:
-          (responseData["message"] as string | undefined) ??
-          "Cover image uploaded successfully",
-      };
-    }
-
-    throw new Error(
-      (responseData["message"] as string | undefined) ??
-        "Failed to upload cover image",
-    );
-  }
-
-  async changePassword(
-    currentPassword: string,
-    newPassword: string,
-  ): Promise<{ success: true; message: string }> {
-    const response = await this._makeRequest("changePassword", {
-      method: "POST",
-      body: JSON.stringify({ currentPassword, newPassword }),
-    });
-
-    const responseData = await this._handleResponse(response);
-
-    if (responseData["success"]) {
-      return {
-        success: true,
-        message:
-          (responseData["message"] as string | undefined) ??
-          "Password changed successfully",
-      };
-    }
-
-    throw new Error(
-      (responseData["message"] as string | undefined) ??
-        "Failed to change password",
-    );
-  }
-
-  // ── OAuth ───────────────────────────────────────────────────────────────────
-
-  async startOAuthFlow(
-    providerId: string,
-    options: { additionalParams?: Record<string, string> } = {},
-  ): Promise<{ authUrl: string; state: string }> {
-    const appConfig = getCurrentAppConfig();
-    const providerConfig = getProviderConfig(providerId, appConfig.name);
-
-    if (!providerConfig) {
-      throw new Error(
-        `OAuth provider ${providerId} not supported for ${appConfig.name}`,
-      );
-    }
-
-    const { codeVerifier, codeChallenge } = await generatePKCE();
-    const state = generateState();
-    const nonce = generateNonce();
-
-    if (typeof sessionStorage !== "undefined") {
-      sessionStorage.setItem("pkce_verifier", codeVerifier);
-      sessionStorage.setItem("oauth_state", state);
-      sessionStorage.setItem("oauth_nonce", nonce);
-      sessionStorage.setItem("oauth_provider", providerId);
-    }
-
-    const authParams = new URLSearchParams({
-      response_type: "code",
-      client_id: providerConfig.clientId,
-      redirect_uri: providerConfig.redirectUri,
-      scope: providerConfig.scopes.join(" "),
-      state,
-      code_challenge: codeChallenge,
-      code_challenge_method: "S256",
-      nonce,
-      ...options.additionalParams,
-    });
-
-    const authUrl = `${providerConfig.authorizationEndpoint}?${authParams.toString()}`;
-
-    trackUserActivity("oauth_init", {
-      provider: providerId,
-      app: appConfig.name,
-      deviceFingerprint: this.deviceFingerprint,
-    });
-
-    return { authUrl, state };
-  }
-
-  async handleOAuthCallback(
-    code: string,
-    state: string,
-    error: string | null = null,
-  ): Promise<{ success: true; user: unknown; provider: string }> {
-    if (error) throw new Error(`OAuth error: ${error}`);
-
-    const storedState =
-      typeof sessionStorage !== "undefined"
-        ? sessionStorage.getItem("oauth_state")
-        : null;
-    if (state !== storedState) throw new Error("Invalid OAuth state parameter");
-
-    const providerId =
-      typeof sessionStorage !== "undefined"
-        ? sessionStorage.getItem("oauth_provider")
-        : null;
-    const codeVerifier =
-      typeof sessionStorage !== "undefined"
-        ? sessionStorage.getItem("pkce_verifier")
-        : null;
-
-    if (!providerId || !codeVerifier)
-      throw new Error("Missing OAuth session data");
-
-    const tokenResponse = await this.exchangeOAuthCode(
-      providerId,
-      code,
-      codeVerifier,
-    );
-
-    this.tokenStorage.setTokens({
-      accessToken: tokenResponse.accessToken,
-      refreshToken: tokenResponse.refreshToken,
-      user: tokenResponse.user as User | undefined,
-    });
-    this.currentUser = tokenResponse.user as User | undefined;
-    this.sessionToken = tokenResponse.accessToken;
-
-    if (typeof sessionStorage !== "undefined") {
-      sessionStorage.removeItem("pkce_verifier");
-      sessionStorage.removeItem("oauth_state");
-      sessionStorage.removeItem("oauth_nonce");
-      sessionStorage.removeItem("oauth_provider");
-    }
-
-    return { success: true, user: tokenResponse.user, provider: providerId };
-  }
-
-  async exchangeOAuthCode(
-    providerId: string,
-    code: string,
-    codeVerifier: string,
-  ): Promise<{ accessToken: string; refreshToken?: string; user: unknown }> {
-    const appConfig = getCurrentAppConfig();
-    const providerConfig = getProviderConfig(providerId, appConfig.name);
-
-    const tokenParams = {
-      grant_type: "authorization_code",
-      client_id: providerConfig.clientId,
-      code,
-      redirect_uri: providerConfig.redirectUri,
-      code_verifier: codeVerifier,
-    };
-
-    const response = await fetch(providerConfig.tokenEndpoint, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        Accept: "application/json",
+  /**
+   * Update user profile
+   */
+  async updateProfile(updates: UpdateRequest<UserProfile>): Promise<User> {
+    const schema: ValidationSchema = {
+      firstName: {
+        type: "string",
+        required: false,
+        minLength: 1,
+        maxLength: 50,
       },
-      body: new URLSearchParams(tokenParams).toString(),
-    });
-
-    if (!response.ok)
-      throw new Error(`Token exchange failed: ${response.status}`);
-
-    const tokenData = (await response.json()) as { access_token: string };
-    const userInfo = await this.getOAuthUserInfo(
-      providerId,
-      tokenData.access_token,
-    );
-
-    const authResponse = await this._makeRequest("login", {
-      method: "POST",
-      body: JSON.stringify({
-        authType: "oauth",
-        provider: providerId,
-        oauthToken: tokenData.access_token,
-        userInfo,
-        deviceFingerprint: this.deviceFingerprint,
-        deviceInfo: getDeviceInfo(),
-        appType: this.config.appType,
-      }),
-    });
-
-    const authData = (await authResponse.json()) as {
-      success: boolean;
-      message?: string;
-      accessToken: string;
-      refreshToken?: string;
-      user: unknown;
-    };
-
-    if (!authResponse.ok || !authData.success) {
-      throw new Error(authData.message ?? "OAuth authentication failed");
-    }
-
-    return {
-      accessToken: authData.accessToken,
-      refreshToken: authData.refreshToken,
-      user: authData.user,
-    };
-  }
-
-  async getOAuthUserInfo(
-    providerId: string,
-    accessToken: string,
-  ): Promise<unknown> {
-    const appConfig = getCurrentAppConfig();
-    const providerConfig = getProviderConfig(providerId, appConfig.name);
-
-    const response = await fetch(providerConfig.userInfoEndpoint, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        Accept: "application/json",
+      lastName: {
+        type: "string",
+        required: false,
+        minLength: 1,
+        maxLength: 50,
       },
-    });
+      displayName: { type: "string", required: false, maxLength: 100 },
+      phoneNumber: {
+        type: "string",
+        required: false,
+        pattern: /^[\+]?[1-9][\d]{0,15}$/,
+      },
+      bio: { type: "string", required: false, maxLength: 500 },
+      location: { type: "string", required: false, maxLength: 100 },
+      timezone: { type: "string", required: false },
+    };
 
-    if (!response.ok)
-      throw new Error(`Failed to get user info: ${response.status}`);
-
-    return await response.json();
+    const validatedData = this.validateRequest(updates, schema);
+    return this.put<User>("/profile", validatedData, { cache: false });
   }
 
-  // ── Token Management ────────────────────────────────────────────────────────
-
-  getStoredToken(): string | null {
-    try {
-      return this.tokenStorage.getAccessToken();
-    } catch (error) {
-      if (import.meta.env.DEV)
-        console.warn(
-          "[AuthService] getStoredToken failed:",
-          (error as Error).message,
-        );
-      return null;
-    }
-  }
-
-  async refreshToken(): Promise<TokenRefreshResult> {
-    try {
-      const refreshToken = this.tokenStorage.getRefreshToken();
-      if (!refreshToken) throw new Error("No refresh token available");
-
-      const response = await this._makeRequest("refreshToken", {
-        method: "POST",
-        body: JSON.stringify({
-          refreshToken,
-          deviceFingerprint: this.deviceFingerprint,
-          appType: this.config.appType,
-        }),
-      });
-
-      const responseData = (await response.json()) as {
-        success: boolean;
-        message?: string;
-        accessToken?: string;
-        refreshToken?: string;
-        user?: unknown;
-        // Admin backend wraps tokens in a `data` envelope via formatSuccess()
-        data?: { accessToken?: string; refreshToken?: string; user?: unknown };
-      };
-
-      if (response.ok && responseData.success) {
-        // Unwrap the `data` envelope (admin backend) or use flat shape (other endpoints)
-        const envelope = responseData.data ?? responseData;
-        const accessToken = envelope.accessToken;
-        const refreshToken = envelope.refreshToken;
-        const user = envelope.user;
-
-        if (!accessToken)
-          throw new Error(
-            "Token refresh succeeded but no accessToken in response",
-          );
-
-        this.tokenStorage.setTokens({
-          accessToken,
-          refreshToken,
-          user: user as User | undefined,
-        });
-        this.sessionToken = accessToken;
-        this.currentUser = user as User | undefined;
-
-        return { success: true, accessToken };
-      }
-
-      throw new Error(responseData.message ?? "Token refresh failed");
-    } catch (_error) {
-      this.clearStoredAuth();
-      throw _error;
-    }
-  }
-
-  async isTokenValid(): Promise<boolean> {
-    try {
-      const token = this.getStoredToken();
-      if (!token) return false;
-
-      const response = await this._makeRequest("validateToken", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      const responseData = (await response.json()) as { valid?: boolean };
-      return response.ok && !!responseData.valid;
-    } catch (_err) {
-      return false;
-    }
-  }
-
-  async switchChurch(
-    churchId: string,
-  ): Promise<{ success: true; user: unknown; noChange?: boolean }> {
-    if (!this.currentUser) throw new Error("User not authenticated");
-
-    const currentUser = this.currentUser as Record<string, unknown>;
-    if (
-      currentUser["currentChurch"] &&
-      currentUser["currentChurch"].toString() === churchId
-    ) {
-      return { success: true, user: this.currentUser, noChange: true };
-    }
-
-    const response = await fetch(
-      `${this.config.apiBaseUrl}/api/v1/church/${churchId}/select`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${this.sessionToken}`,
+  /**
+   * Change password
+   */
+  async changePassword(passwordData: ChangePasswordRequest): Promise<void> {
+    const schema: ValidationSchema = {
+      currentPassword: { type: "string", required: true, minLength: 1 },
+      newPassword: {
+        type: "string",
+        required: true,
+        minLength: 8,
+        validator: (value) => {
+          const hasUpper = /[A-Z]/.test(value);
+          const hasLower = /[a-z]/.test(value);
+          const hasNumber = /\d/.test(value);
+          const hasSpecial = /[!@#$%^&*(),.?':{}|<>]/.test(value);
+          if (!hasUpper || !hasLower || !hasNumber || !hasSpecial) {
+            return "Password must contain uppercase, lowercase, number, and special character";
+          }
+          return true;
         },
       },
-    );
-
-    const responseData = await this._handleResponse(response);
-
-    if (responseData["success"]) {
-      const updatedUser = responseData["data"] ?? responseData["user"];
-      this.tokenStorage.updateUser(
-        updatedUser as Partial<Record<string, unknown>>,
-      );
-      this.currentUser = updatedUser;
-
-      return { success: true, user: updatedUser };
-    }
-
-    throw new Error(
-      (responseData["message"] as string | undefined) ??
-        "Failed to switch church",
-    );
-  }
-
-  clearStoredAuth(): void {
-    try {
-      this.tokenStorage.clearTokens();
-    } catch (error) {
-      if (import.meta.env?.DEV)
-        console.warn(
-          "[AuthService] clearStoredAuth failed:",
-          (error as Error).message,
-        );
-    }
-  }
-
-  // ── Security ────────────────────────────────────────────────────────────────
-
-  isRateLimited(email: string): boolean {
-    const attempts = this.loginAttempts.get(email);
-    if (!attempts) return false;
-
-    if (attempts.count >= this.maxLoginAttempts) {
-      const timeSinceLastAttempt = Date.now() - attempts.lastAttempt;
-      return timeSinceLastAttempt < this.lockoutDuration;
-    }
-
-    return false;
-  }
-
-  recordLoginAttempt(email: string): void {
-    const attempts = this.loginAttempts.get(email) ?? {
-      count: 0,
-      lastAttempt: 0,
+      confirmPassword: {
+        type: "string",
+        required: true,
+        validator: (value, data) => {
+          if (value !== data?.["newPassword"]) return "Passwords do not match";
+          return true;
+        },
+      },
     };
-    attempts.count++;
-    attempts.lastAttempt = Date.now();
-    this.loginAttempts.set(email, attempts);
+
+    const validatedData = this.validateRequest(passwordData, schema);
+    await this.put<void>("/change-password", validatedData, { cache: false });
   }
 
-  resetLoginAttempts(email: string): void {
-    this.loginAttempts.delete(email);
+  /**
+   * Request password reset
+   */
+  async forgotPassword(data: ForgotPasswordRequest): Promise<void> {
+    const schema: ValidationSchema = {
+      email: {
+        type: "string",
+        required: true,
+        pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+      },
+    };
+    const validatedData = this.validateRequest(data, schema);
+    await this.post<void>("/forgot-password", validatedData, { cache: false });
   }
 
-  // ── Activity Tracking ───────────────────────────────────────────────────────
-
-  startActivityTracking(): void {
-    if (this.activityTracker) return;
-    this.activityTracker = setInterval(() => {
-      this.updateActivity();
-    }, 30000);
+  /**
+   * Reset password with token
+   */
+  async resetPassword(data: ResetPasswordRequest): Promise<void> {
+    const schema: ValidationSchema = {
+      token: { type: "string", required: true, minLength: 1 },
+      newPassword: {
+        type: "string",
+        required: true,
+        minLength: 8,
+        validator: (value) => {
+          const hasUpper = /[A-Z]/.test(value);
+          const hasLower = /[a-z]/.test(value);
+          const hasNumber = /\d/.test(value);
+          const hasSpecial = /[!@#$%^&*(),.?':{}|<>]/.test(value);
+          if (!hasUpper || !hasLower || !hasNumber || !hasSpecial) {
+            return "Password must contain uppercase, lowercase, number, and special character";
+          }
+          return true;
+        },
+      },
+      confirmPassword: {
+        type: "string",
+        required: true,
+        validator: (value, data) => {
+          if (value !== data?.["newPassword"]) return "Passwords do not match";
+          return true;
+        },
+      },
+    };
+    const validatedData = this.validateRequest(data, schema);
+    await this.post<void>("/reset-password", validatedData, { cache: false });
   }
 
-  stopActivityTracking(): void {
-    if (this.activityTracker) {
-      clearInterval(this.activityTracker);
-      this.activityTracker = null;
+  /**
+   * Verify email address
+   */
+  async verifyEmail(data: VerifyEmailRequest): Promise<void> {
+    const schema: ValidationSchema = {
+      token: { type: "string", required: true, minLength: 1 },
+    };
+    const validatedData = this.validateRequest(data, schema);
+    await this.post<void>("/verify-email", validatedData, { cache: false });
+  }
+
+  /**
+   * Resend email verification
+   */
+  async resendVerification(data: ResendVerificationRequest): Promise<void> {
+    const schema: ValidationSchema = {
+      email: {
+        type: "string",
+        required: true,
+        pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+      },
+    };
+    const validatedData = this.validateRequest(data, schema);
+    await this.post<void>("/resend-verification", validatedData, {
+      cache: false,
+    });
+  }
+
+  /**
+   * Check authentication status by probing GET /auth/me.
+   * Returns { isAuthenticated: false } gracefully if unauthenticated.
+   */
+  async checkAuthStatus(): Promise<{ isAuthenticated: boolean; user?: User }> {
+    if (!this.client.hasAuthToken()) {
+      return { isAuthenticated: false };
     }
-  }
 
-  async updateActivity(): Promise<void> {
-    if (!this.currentUser) return;
     try {
-      const user = this.currentUser as Record<string, unknown>;
-      trackUserActivity("session_active", {
-        userId: user["id"],
-        app: this.config.appType,
-        deviceFingerprint: this.deviceFingerprint,
-      });
-    } catch (_err) {
-      // Intentionally silent — activity tracking is best-effort and must not
-      // disrupt the auth flow if the tracker itself throws.
+      const user = await this.getCurrentUser();
+      return { isAuthenticated: true, user };
+    } catch (_error) {
+      return { isAuthenticated: false };
     }
   }
 
-  async isSessionExpired(): Promise<boolean> {
-    return !(await this.isTokenValid());
+  /**
+   * Upload user avatar
+   */
+  async uploadAvatar(file: File): Promise<User> {
+    const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+    const maxSize = 5 * 1024 * 1024; // 5MB
+
+    if (!allowedTypes.includes(file.type)) {
+      throw this.createValidationError(
+        "Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.",
+      );
+    }
+    if (file.size > maxSize) {
+      throw this.createValidationError(
+        "File size too large. Maximum size is 5MB.",
+      );
+    }
+
+    return this.upload<User>("/avatar", file, {
+      fieldName: "avatar",
+      cache: false,
+      onUploadProgress: (progressEvent: AxiosProgressEvent) => {
+        // total can be undefined if the server doesn't send Content-Length.
+        // Fall back to loaded so progress shows 100% rather than NaN.
+        const total = progressEvent.total ?? progressEvent.loaded;
+        const percentCompleted = Math.round(
+          (progressEvent.loaded * 100) / total,
+        );
+        typeof window !== "undefined" &&
+          window.dispatchEvent(
+            new CustomEvent("avatar-upload-progress", {
+              detail: { progress: percentCompleted },
+            }),
+          );
+      },
+    });
   }
 
-  // ── Getters ─────────────────────────────────────────────────────────────────
-
-  getCurrentUser(): unknown {
-    return this.currentUser;
-  }
-
-  isAuthenticated(): boolean {
-    return !!(this.currentUser && this.sessionToken);
+  /**
+   * Delete user account
+   */
+  async deleteAccount(password: string): Promise<void> {
+    const schema: ValidationSchema = {
+      password: { type: "string", required: true, minLength: 1 },
+    };
+    this.validateRequest({ password }, schema);
+    await this.delete<void>("/account", {
+      cache: false,
+      headers: { "X-Confirm-Delete": "true" },
+    });
+    this.client.clearAuthToken();
   }
 }
 
-// ── Singleton ─────────────────────────────────────────────────────────────────
-
-const authService = new AuthService();
-export default authService;
-export { authService, AuthService };
+export default AuthService;

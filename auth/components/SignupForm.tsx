@@ -7,7 +7,7 @@ import {
   getPasswordStrength,
 } from "../utils/authValidation.ts";
 import { getCurrentAppConfig } from "../config/appConfigs";
-import defaultAuthService from "../services/authService.ts";
+import { getAuthService } from "../services";
 import {
   AuthContainer,
   AuthCardContent,
@@ -54,7 +54,7 @@ interface SignupFormErrors {
 }
 
 type SignupPasswordStrength = ReturnType<typeof getPasswordStrength>;
-type AnyAuthService = typeof defaultAuthService | Record<string, unknown>;
+type AnyAuthService = any;
 
 const SignupForm = ({
   onLogin,
@@ -80,11 +80,18 @@ const SignupForm = ({
 
   const [errors, setErrors] = useState<SignupFormErrors>({});
   const [emailChecking, setEmailChecking] = useState(false);
-  const [passwordStrength, setPasswordStrength] = useState<SignupPasswordStrength | null>(null);
+  const [passwordStrength, setPasswordStrength] =
+    useState<SignupPasswordStrength | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [authService, setAuthService] = useState<AnyAuthService>(
-    () => providedAuthService ?? defaultAuthService,
+    () => providedAuthService ?? null,
   );
+  useEffect(() => {
+    if (!providedAuthService && !authService) {
+      getAuthService().then((svc) => setAuthService(svc));
+    }
+  }, [providedAuthService, authService]);
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -137,7 +144,10 @@ const SignupForm = ({
 
     const emailValidation = validateEmail(formData.email);
     if (!emailValidation.isValid) {
-      setErrors((prev) => ({ ...prev, email: emailValidation.errors?.email ?? "Invalid email" }));
+      setErrors((prev) => ({
+        ...prev,
+        email: emailValidation.errors?.email ?? "Invalid email",
+      }));
       return;
     }
     setErrors((prev) => ({ ...prev, email: "" }));
@@ -148,8 +158,7 @@ const SignupForm = ({
       emailCheckAbortRef.current = controller;
       setEmailChecking(true);
       try {
-        const svc = authService as typeof defaultAuthService;
-        const result = await (svc.checkEmailAvailability as (email: string, opts: { signal: AbortSignal }) => Promise<{ available: boolean }>)(
+        const result = await authService.checkEmailAvailability(
           formData.email,
           { signal: controller.signal },
         );
@@ -204,7 +213,13 @@ const SignupForm = ({
   const handleGoogleSignup = async () => {
     if (!authService) return;
     try {
-      const svc = authService as Record<string, ((...args: unknown[]) => Promise<{ success: boolean; requiresVerification?: boolean }>) | undefined>;
+      const svc = authService as Record<
+        string,
+        | ((
+            ...args: unknown[]
+          ) => Promise<{ success: boolean; requiresVerification?: boolean }>)
+        | undefined
+      >;
       if (!svc.googleSignup) return;
       const result = await svc.googleSignup();
       if (result.success) {
@@ -239,7 +254,8 @@ const SignupForm = ({
 
     // Validate email
     const emailValidation = validateEmail(formData.email);
-    if (!emailValidation.isValid) newErrors.email = emailValidation.errors?.email ?? "Invalid email";
+    if (!emailValidation.isValid)
+      newErrors.email = emailValidation.errors?.email ?? "Invalid email";
 
     // Validate password
     const passwordValidation = validatePassword(formData.password);
@@ -271,8 +287,17 @@ const SignupForm = ({
 
     setIsSubmitting(true);
     try {
-      type SignupFn = (data: { firstName: string; lastName: string; email: string; password: string; acceptTerms: boolean }) => Promise<{ success: boolean; requiresVerification?: boolean }>;
-      const svcAny = authService as unknown as Record<string, SignupFn | undefined>;
+      type SignupFn = (data: {
+        firstName: string;
+        lastName: string;
+        email: string;
+        password: string;
+        acceptTerms: boolean;
+      }) => Promise<{ success: boolean; requiresVerification?: boolean }>;
+      const svcAny = authService as unknown as Record<
+        string,
+        SignupFn | undefined
+      >;
       if (!svcAny.signup) throw new Error("signup method not available");
       const result = await svcAny.signup({
         firstName: formData.firstName.trim(),
@@ -317,7 +342,10 @@ const SignupForm = ({
       <AuthCardContent>
         {/* Header */}
         <div className="text-center mb-4 sm:mb-6">
-          <div className="flex justify-center mb-3 sm:mb-4 text-gray-900 dark:text-white" aria-hidden="true">
+          <div
+            className="flex justify-center mb-3 sm:mb-4 text-gray-900 dark:text-white"
+            aria-hidden="true"
+          >
             {appConfig?.ui?.icon ?? <UserIcon size={40} />}
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">

@@ -20,17 +20,7 @@ export default defineConfig({
     environment: "jsdom",
     globals: true,
     setupFiles: ["./testing/setup-simple.js"],
-    include: [
-      "src/**/*.{test,spec}.{js,jsx,ts,tsx}",
-      "tests/**/*.{test,spec}.{js,jsx,ts,tsx}",
-      "auth/**/*.{test,spec}.{js,jsx,ts,tsx}",
-      "components/**/*.{test,spec}.{js,jsx,ts,tsx}",
-      "hooks/**/*.{test,spec}.{js,jsx,ts,tsx}",
-      "services/**/*.{test,spec}.{js,jsx,ts,tsx}",
-      "utils/**/*.{test,spec}.{js,jsx,ts,tsx}",
-      "api/**/*.{test,spec}.{js,jsx,ts,tsx}",
-      "features/**/*.{test,spec}.{js,jsx,ts,tsx}",
-    ],
+    include: ["**/*.{test,spec}.{js,jsx,ts,tsx}"],
     coverage: {
       provider: "v8",
       reporter: ["text", "html"],

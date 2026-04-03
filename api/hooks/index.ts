@@ -5,22 +5,17 @@
  * with React applications across the Uni-Manager ecosystem.
  */
 
-import { useCallback, useContext, useEffect, useState } from "react";
-import { ApiServices } from "../services";
+import { useCallback, useContext, useEffect, useState, useMemo } from "react";
+import { ApiClient } from "../core/ApiClient";
+import { AuthService } from "../../auth/services/AuthService";
 import type { User, LoginRequest, SignupRequest } from "../types";
 
-import { ApiContext } from "../components/ApiProvider";
+import { ApiContext, ApiContextValue } from "../components/ApiProvider";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { syncEngine } from "../syncEngine";
 import { useOnlineStatus } from "../../hooks/useOnlineStatus";
 
 // ==================== TYPES ====================
-
-interface ApiContextValue {
-  apiServices: ApiServices;
-  isInitialized: boolean;
-  error: string | null;
-}
 
 /**
  * Options accepted by `useApiQuery` and passthrough hooks built on top of it.
@@ -37,24 +32,26 @@ export interface ApiQueryOptions {
 // ==================== FUNCTIONS ====================
 
 /**
- * Hook to access API services
+ * Hook to access core API client
  */
-export const useApi = (): ApiServices => {
+export const useApi = (): { apiClient: ApiClient } => {
   const context = useContext(ApiContext);
   if (!context) {
     throw new Error("useApi must be used within an ApiProvider");
   }
-  if (!context.isInitialized) {
+  if (!context.isInitialized || !context.apiClient) {
     throw new Error("API services not yet initialized");
   }
-  return context.apiServices;
+  return { apiClient: context.apiClient };
 };
 
 /**
  * Hook for authentication operations
  */
 export const useAuth = () => {
-  const api = useApi();
+  const { apiClient } = useApi();
+  const authService = useMemo(() => new AuthService(apiClient), [apiClient]);
+
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -65,7 +62,7 @@ export const useAuth = () => {
     const checkAuth = async () => {
       try {
         setIsLoading(true);
-        const authStatus = await api.auth.checkAuthStatus();
+        const authStatus = await authService.checkAuthStatus();
         setIsAuthenticated(authStatus.isAuthenticated);
         setUser(authStatus.user || null);
         setError(null);
@@ -83,14 +80,14 @@ export const useAuth = () => {
     };
 
     checkAuth();
-  }, [api]);
+  }, [authService]);
 
   const login = useCallback(
     async (credentials: LoginRequest) => {
       try {
         setIsLoading(true);
         setError(null);
-        const response = await api.auth.login(credentials);
+        const response = await authService.login(credentials);
         setUser(response.user);
         setIsAuthenticated(true);
         return response;
@@ -101,13 +98,13 @@ export const useAuth = () => {
         setIsLoading(false);
       }
     },
-    [api],
+    [authService],
   );
 
   const logout = useCallback(async () => {
     try {
       setIsLoading(true);
-      await api.auth.logout();
+      await authService.logout();
     } catch (_err) {
       // Intentionally silent — logout should always succeed locally even if network fails.
     } finally {
@@ -116,14 +113,14 @@ export const useAuth = () => {
       setIsLoading(false);
       setError(null);
     }
-  }, [api]);
+  }, [authService]);
 
   const signup = useCallback(
     async (userData: SignupRequest) => {
       try {
         setIsLoading(true);
         setError(null);
-        const response = await api.auth.signup(userData);
+        const response = await authService.signup(userData);
         setUser(response.user);
         setIsAuthenticated(true);
         return response;
@@ -134,7 +131,7 @@ export const useAuth = () => {
         setIsLoading(false);
       }
     },
-    [api],
+    [authService],
   );
 
   return {
@@ -145,7 +142,7 @@ export const useAuth = () => {
     login,
     logout,
     signup,
-    authService: api.auth,
+    authService,
   };
 };
 
@@ -269,8 +266,14 @@ export const useFileUpload = <TResult = unknown>(
 
         if (typeof window !== "undefined") {
           window.addEventListener("avatar-upload-progress", progressHandler);
-          window.addEventListener("church-logo-upload-progress", progressHandler);
-          window.addEventListener("church-cover-upload-progress", progressHandler);
+          window.addEventListener(
+            "church-logo-upload-progress",
+            progressHandler,
+          );
+          window.addEventListener(
+            "church-cover-upload-progress",
+            progressHandler,
+          );
         }
 
         try {
@@ -291,9 +294,18 @@ export const useFileUpload = <TResult = unknown>(
           // Always remove listeners — even on upload failure.
           // Without this, every failed attempt adds a permanent ghost listener.
           if (typeof window !== "undefined") {
-            window.removeEventListener("avatar-upload-progress", progressHandler);
-            window.removeEventListener("church-logo-upload-progress", progressHandler);
-            window.removeEventListener("church-cover-upload-progress", progressHandler);
+            window.removeEventListener(
+              "avatar-upload-progress",
+              progressHandler,
+            );
+            window.removeEventListener(
+              "church-logo-upload-progress",
+              progressHandler,
+            );
+            window.removeEventListener(
+              "church-cover-upload-progress",
+              progressHandler,
+            );
           }
         }
       } finally {

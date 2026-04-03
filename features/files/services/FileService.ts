@@ -19,7 +19,7 @@ import {
   ValidationSchema,
   PaginationParams,
   PaginatedResponse,
-} from "./BaseService";
+} from "../../../api/services/BaseService";
 import {
   FileMetadata,
   Folder,
@@ -30,8 +30,8 @@ import {
   FileShareRequest,
   BulkFileOperation,
   StorageAnalytics,
-} from "../types";
-import { ApiClient } from "../core/ApiClient";
+} from "../../../api/types";
+import { ApiClient } from "../../../api/core/ApiClient";
 import type { AxiosProgressEvent } from "axios";
 
 export class FileService extends BaseService {

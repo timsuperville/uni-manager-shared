@@ -1,6 +1,6 @@
 import { useCallback, useState, useEffect } from "react";
 import { useAuth } from "./useAuth.ts";
-import { authService } from "../services/authService.ts";
+// removed authService import
 import { getApiBaseUrl } from "../../api/config/apiConfig.ts";
 import type { Session, SecurityAlert } from "../types/auth.types.ts";
 
@@ -28,15 +28,21 @@ export function useSessionManagement(): UseSessionManagementReturn {
     () => `device_${Math.random().toString(36).substring(7)}`,
     [],
   );
-  const [deviceFingerprint] = useState<string>(() => generateDeviceFingerprint());
+  const [deviceFingerprint] = useState<string>(() =>
+    generateDeviceFingerprint(),
+  );
 
   const invalidateSession = useCallback(async (): Promise<void> => {
     try {
       setSessionStatus("invalidated");
+      const { getApiClient } = await import("../../api/index.ts");
+      const AuthService = (await import("../services/AuthService.ts")).default;
+      const authService = new AuthService(getApiClient());
       await authService.logout();
       if (logout) await logout();
     } catch (err) {
-      if (import.meta.env.DEV) console.error("Failed to invalidate session:", err);
+      if (import.meta.env.DEV)
+        console.error("Failed to invalidate session:", err);
     }
   }, [logout]);
 
@@ -81,11 +87,14 @@ export function useUserSessions(userId: string | null): UseUserSessionsReturn {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (response.ok) {
-          const data = await response.json() as { sessions?: SessionRecord[] };
+          const data = (await response.json()) as {
+            sessions?: SessionRecord[];
+          };
           setUserSessions(data.sessions ?? []);
         }
       } catch (err) {
-        if (import.meta.env.DEV) console.error("Failed to fetch user sessions:", err);
+        if (import.meta.env.DEV)
+          console.error("Failed to fetch user sessions:", err);
       } finally {
         setLoading(false);
       }
@@ -104,7 +113,8 @@ export function useUserSessions(userId: string | null): UseUserSessionsReturn {
       }
       setUserSessions([]);
     } catch (err) {
-      if (import.meta.env.DEV) console.error("Failed to invalidate all sessions:", err);
+      if (import.meta.env.DEV)
+        console.error("Failed to invalidate all sessions:", err);
     } finally {
       setLoading(false);
     }
@@ -121,7 +131,8 @@ export function useUserSessions(userId: string | null): UseUserSessionsReturn {
         }
         setUserSessions((prev) => prev.filter((s) => s.id !== sessionId));
       } catch (err) {
-        if (import.meta.env.DEV) console.error("Failed to invalidate session:", err);
+        if (import.meta.env.DEV)
+          console.error("Failed to invalidate session:", err);
       }
     },
     [token],
@@ -132,7 +143,8 @@ export function useUserSessions(userId: string | null): UseUserSessionsReturn {
     loading,
     invalidateAllSessions,
     invalidateSpecificSession,
-    activeSessionCount: userSessions.filter((s) => s.status === "active").length,
+    activeSessionCount: userSessions.filter((s) => s.status === "active")
+      .length,
     totalSessionCount: userSessions.length,
   };
 }
@@ -146,7 +158,9 @@ interface UseSessionSecurityReturn {
   clearSecurityAlerts: () => void;
 }
 
-export function useSessionSecurity(sessionId: string | null): UseSessionSecurityReturn {
+export function useSessionSecurity(
+  sessionId: string | null,
+): UseSessionSecurityReturn {
   const { token } = useAuth();
   const [securityStatus, setSecurityStatus] = useState("secure");
   const [securityAlerts, setSecurityAlerts] = useState<SecurityAlert[]>([]);
@@ -155,11 +169,17 @@ export function useSessionSecurity(sessionId: string | null): UseSessionSecurity
     if (!sessionId || !token) return;
     const checkSecurity = async () => {
       try {
-        const response = await fetch(`${API_URL}/auth/sessions/${sessionId}/security`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await fetch(
+          `${API_URL}/auth/sessions/${sessionId}/security`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        );
         if (response.ok) {
-          const data = await response.json() as { status?: string; alerts?: SecurityAlert[] };
+          const data = (await response.json()) as {
+            status?: string;
+            alerts?: SecurityAlert[];
+          };
           setSecurityStatus(data.status ?? "secure");
           setSecurityAlerts(data.alerts ?? []);
         } else {
@@ -176,7 +196,12 @@ export function useSessionSecurity(sessionId: string | null): UseSessionSecurity
 
   const clearSecurityAlerts = useCallback(() => setSecurityAlerts([]), []);
 
-  return { securityStatus, securityAlerts, hasAlerts: securityAlerts.length > 0, clearSecurityAlerts };
+  return {
+    securityStatus,
+    securityAlerts,
+    hasAlerts: securityAlerts.length > 0,
+    clearSecurityAlerts,
+  };
 }
 
 // ── useSessionAnalytics ───────────────────────────────────────────────────────
@@ -215,11 +240,12 @@ export function useSessionAnalytics(
           headers: { Authorization: `Bearer ${token}` },
         });
         if (response.ok) {
-          const data = await response.json() as SessionAnalytics;
+          const data = (await response.json()) as SessionAnalytics;
           setAnalytics(data);
         }
       } catch (err) {
-        if (import.meta.env.DEV) console.error("Failed to fetch analytics:", err);
+        if (import.meta.env.DEV)
+          console.error("Failed to fetch analytics:", err);
       } finally {
         setLoading(false);
       }

@@ -1,18 +1,34 @@
+import { vi, describe, it, expect, beforeEach, afterEach, Mock } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import {
   useSessionManagement,
   useUserSessions,
 } from "../hooks/useSessionManagement";
 import { useAuth } from "../hooks/useAuth";
-import { authService } from "../services/authService";
+
+const mockLogout = vi.fn().mockResolvedValue({ success: true });
 
 vi.mock("../hooks/useAuth");
-vi.mock("../services/authService");
+vi.mock("../../api/index.ts", () => ({
+  getApiClient: vi.fn(),
+}));
+vi.mock("../services/AuthService.ts", () => {
+  class MockAuthService {
+    logout = mockLogout;
+  }
+  return {
+    __esModule: true,
+    default: MockAuthService,
+  };
+});
 
 describe("useSessionManagement", () => {
   beforeEach(() => {
-    useAuth.mockReturnValue({ session: { id: "1" }, logout: vi.fn() });
-    authService.logout = vi.fn().mockResolvedValue({ success: true });
+    (useAuth as Mock).mockReturnValue({
+      session: { id: "1" },
+      logout: vi.fn(),
+    });
+    mockLogout.mockClear();
   });
 
   it("should invalidate session calling authService logout", async () => {
@@ -22,21 +38,21 @@ describe("useSessionManagement", () => {
       await result.current.invalidateSession();
     });
 
-    expect(authService.logout).toHaveBeenCalled();
+    expect(mockLogout).toHaveBeenCalled();
     expect(result.current.sessionStatus).toBe("invalidated");
   });
 });
 
 describe("useUserSessions", () => {
   beforeEach(() => {
-    useAuth.mockReturnValue({ token: "fake-token" });
+    (useAuth as Mock).mockReturnValue({ token: "fake-token" });
     global.fetch = vi.fn(() =>
       Promise.resolve({
         ok: true,
         json: () =>
           Promise.resolve({ sessions: [{ id: "1", status: "active" }] }),
-      }),
-    );
+      } as Response),
+    ) as unknown as typeof fetch;
   });
 
   afterEach(() => {

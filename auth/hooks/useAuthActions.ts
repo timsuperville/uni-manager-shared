@@ -1,6 +1,11 @@
 import { useCallback } from "react";
 import { clearCachedDeviceFingerprint } from "../utils/deviceFingerprintCache.ts";
-import type { User, LoginCredentials, SignupData, AuthServiceLike } from "../types/auth.types.ts";
+import type {
+  User,
+  LoginCredentials,
+  SignupData,
+  AuthServiceLike,
+} from "../types/auth.types.ts";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -63,9 +68,8 @@ export function useAuthActions(
   const initializeAuth = useCallback(async () => {
     try {
       updateState({ isLoading: true, error: null });
-      await authService.initialize();
-      const user = await authService.getCurrentUser();
-      const isAuthenticated = await authService.isAuthenticated();
+      const { isAuthenticated, user = null } =
+        await authService.checkAuthStatus();
       const newState = { user, isAuthenticated, isLoading: false, error: null };
       updateState(newState);
       notifyStateChange(newState);
@@ -89,12 +93,17 @@ export function useAuthActions(
           return result;
         }
 
-        const newState = { user: result["user"], isAuthenticated: true, isLoading: false };
+        const newState = {
+          user: result["user"],
+          isAuthenticated: true,
+          isLoading: false,
+        };
         updateState(newState);
         notifyStateChange(newState);
         return result;
       } catch (error) {
-        const errorMessage = (error as { message?: string })?.message ?? "Login failed";
+        const errorMessage =
+          (error as { message?: string })?.message ?? "Login failed";
         setError(errorMessage);
         updateState({ isLoading: false });
         notifyError(error);
@@ -129,7 +138,8 @@ export function useAuthActions(
         updateState({ isLoading: false });
         return result;
       } catch (error) {
-        const errorMessage = (error as { message?: string })?.message ?? "Signup failed";
+        const errorMessage =
+          (error as { message?: string })?.message ?? "Signup failed";
         setError(errorMessage);
         updateState({ isLoading: false });
         notifyError(error);
@@ -147,7 +157,8 @@ export function useAuthActions(
         updateState({ isLoading: false });
         return result;
       } catch (error) {
-        const errorMessage = (error as { message?: string })?.message ?? "Password reset failed";
+        const errorMessage =
+          (error as { message?: string })?.message ?? "Password reset failed";
         setError(errorMessage);
         updateState({ isLoading: false });
         notifyError(error);
@@ -173,7 +184,8 @@ export function useAuthActions(
         notifyStateChange(newState);
         return result;
       } catch (error) {
-        const errorMessage = (error as { message?: string })?.message ?? "MFA verification failed";
+        const errorMessage =
+          (error as { message?: string })?.message ?? "MFA verification failed";
         setError(errorMessage);
         updateState({ isLoading: false });
         notifyError(error);
@@ -191,7 +203,8 @@ export function useAuthActions(
         updateState({ mfaSetup: true, isLoading: false });
         return result;
       } catch (error) {
-        const errorMessage = (error as { message?: string })?.message ?? "MFA setup failed";
+        const errorMessage =
+          (error as { message?: string })?.message ?? "MFA setup failed";
         setError(errorMessage);
         updateState({ isLoading: false });
         notifyError(error);
@@ -210,9 +223,13 @@ export function useAuthActions(
       }
       return false;
     } catch (error) {
-      const errorMessage = (error as { message?: string })?.message ?? "Token refresh failed";
+      const errorMessage =
+        (error as { message?: string })?.message ?? "Token refresh failed";
       if (import.meta.env.DEV) {
-        console.warn("[useAuthActions] Refresh failed, logging out...", errorMessage);
+        console.warn(
+          "[useAuthActions] Refresh failed, logging out...",
+          errorMessage,
+        );
       }
       resetState();
       try {
@@ -237,7 +254,8 @@ export function useAuthActions(
         }
         return success;
       } catch (error) {
-        const errorMessage = (error as { message?: string })?.message ?? "Update user failed";
+        const errorMessage =
+          (error as { message?: string })?.message ?? "Update user failed";
         setError(errorMessage);
         notifyError(error);
         return false;
@@ -256,7 +274,8 @@ export function useAuthActions(
         notifyStateChange(newState);
         return result;
       } catch (error) {
-        const errorMessage = (error as { message?: string })?.message ?? "Church switch failed";
+        const errorMessage =
+          (error as { message?: string })?.message ?? "Church switch failed";
         setError(errorMessage);
         updateState({ isLoading: false });
         notifyError(error);

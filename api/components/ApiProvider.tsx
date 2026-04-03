@@ -1,18 +1,18 @@
 /**
  * ApiProvider React Component
  *
- * React component that provides the unified API layer to the application tree.
+ * React component that provides the core API client to the application tree.
  */
 
 import React, { useEffect, useState, useMemo } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ApiServices } from "../services";
-import type { ApiServiceConfig } from "../services";
+import { ApiClient } from "../core/ApiClient";
+import type { ApiClientConfig } from "../core/ApiClient";
 
 // ==================== CONTEXT TYPES ====================
 
-interface ApiContextValue {
-  apiServices: ApiServices;
+export interface ApiContextValue {
+  apiClient: ApiClient;
   isInitialized: boolean;
   error: string | null;
 }
@@ -25,18 +25,18 @@ const ApiContext = React.createContext<ApiContextValue | null>(null);
 
 interface ApiProviderProps {
   children: React.ReactNode;
-  config: ApiServiceConfig;
-  services?: ApiServices;
+  config: ApiClientConfig;
+  client?: ApiClient;
   onError?: (error: Error) => void;
 }
 
 export const ApiProvider: React.FC<ApiProviderProps> = ({
   children,
   config,
-  services: existingServices,
+  client: existingClient,
   onError,
 }) => {
-  const [apiServices, setApiServices] = useState<ApiServices | null>(null);
+  const [apiClient, setApiClient] = useState<ApiClient | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -56,34 +56,42 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({
 
   useEffect(() => {
     try {
-      if (existingServices) {
-        setApiServices(existingServices);
+      if (existingClient) {
+        setApiClient(existingClient);
         setIsInitialized(true);
         setError(null);
         return;
       }
-      const services = new ApiServices(config);
-      setApiServices(services);
+
+      const client = new ApiClient({
+        ...config,
+        timeout: config.timeout || 10000,
+        retryAttempts: config.retryAttempts || 3,
+        cacheEnabled: config.cacheEnabled !== false,
+        authEnabled: config.authEnabled !== false,
+      });
+
+      setApiClient(client);
       setIsInitialized(true);
       setError(null);
     } catch (_err) {
       const errorMessage =
         _err instanceof Error
           ? _err.message
-          : "Failed to initialize API services";
+          : "Failed to initialize API client";
       setError(errorMessage);
       onError?.(_err instanceof Error ? _err : new Error(errorMessage));
     }
-  }, [config, existingServices, onError]);
+  }, [config, existingClient, onError]);
 
   const contextValue = useMemo(() => {
-    if (!apiServices) return null;
+    if (!apiClient) return null;
     return {
-      apiServices,
+      apiClient,
       isInitialized,
       error,
     };
-  }, [apiServices, isInitialized, error]);
+  }, [apiClient, isInitialized, error]);
 
   if (!isInitialized && !error) {
     return <div>Initializing API services...</div>;

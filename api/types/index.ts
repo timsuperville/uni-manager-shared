@@ -757,3 +757,96 @@ export interface PushSubscription {
   deviceType?: "desktop" | "mobile" | "tablet";
 }
 
+// ==================== SECURITY & GAMIFICATION ====================
+
+export interface SecurityProfile {
+  currentLevel?: string;
+  tier?: string;
+  totalPoints?: number;
+  securityScore?: number;
+  badges?: unknown[];
+  achievements?: unknown[];
+  celebration?: unknown;
+  [key: string]: unknown;
+}
+
+export interface SecurityJourney {
+  currentStage?: string;
+  progress?: number;
+  stages?: unknown[];
+  nextSteps?: unknown[];
+  [key: string]: unknown;
+}
+
+export interface SecurityAnalyticsData {
+  trends?: unknown[];
+  insights?: unknown[];
+  improvements?: unknown[];
+  [key: string]: unknown;
+}
+
+export interface AccessControlResult {
+  granted: boolean;
+  level: string;
+  reason?: string;
+  recommendations?: unknown[];
+}
+
+export interface SecurityEventData {
+  [key: string]: unknown;
+}
+
+export interface BatchOperation {
+  type: "getProfile" | "awardBadge" | "progressMilestone";
+  userId: string;
+  badgeId?: string;
+  context?: Record<string, unknown>;
+  milestoneId?: string;
+  data?: Record<string, unknown>;
+}
+
+// ==================== DEVELOPER KEYS ====================
+
+export interface ApiKey {
+  _id?: string;
+  id?: string;
+  name: string;
+  prefix: string;
+  roles: string[];
+  createdAt: string;
+  lastUsedAt?: string;
+  usageCount?: number;
+}
+
+export interface ApiKeyCreateResult {
+  /** One-time revealed key value — store it immediately, never re-fetched */
+  key: string;
+  name: string;
+  prefix: string;
+  roles: string[];
+  createdAt: string;
+}
+
+// ==================== REPORTING ====================
+
+export interface ReportFilters {
+  category?: string;
+  type?: string;
+  active?: boolean | string;
+  [key: string]: unknown;
+}
+
+export interface ReportData {
+  [key: string]: unknown;
+}
+
+export interface GenerateOptions extends ReportData {
+  format?: string;
+}
+
+export interface ParameterDefinition {
+  name: string;
+  label?: string;
+  required?: boolean;
+  type?: "date" | "number" | "string";
+}

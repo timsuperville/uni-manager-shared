@@ -5,9 +5,8 @@ import React from "react";
 
 // Create mock auth service instance
 const mockAuthServiceInstance = {
-  initialize: vi.fn().mockResolvedValue(true), // Keep the original mockResolvedValue(true)
+  checkAuthStatus: vi.fn(),
   getCurrentUser: vi.fn(),
-  isAuthenticated: vi.fn(),
   switchChurch: vi.fn(),
   refreshToken: vi.fn(),
   startActivityTracking: vi.fn(),
@@ -72,8 +71,11 @@ describe("AuthContext - switchChurch", () => {
     mockAuthService = new AuthService();
 
     // Setup default mocks
+    mockAuthService.checkAuthStatus.mockResolvedValue({
+      isAuthenticated: true,
+      user: mockUser,
+    });
     mockAuthService.getCurrentUser.mockResolvedValue(mockUser);
-    mockAuthService.isAuthenticated.mockResolvedValue(true);
   });
 
   it("should successfully switch church and update state", async () => {

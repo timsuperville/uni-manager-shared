@@ -204,8 +204,10 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
             value={value === "" ? EMPTY_VALUE : (value as string)}
             onValueChange={handleValueChange}
             disabled={props.disabled}
+            name={name}
           >
             <SelectPrimitive.Trigger
+              id={props.id || name}
               className={`flex items-center justify-between w-full px-3 py-2 text-sm bg-transparent border rounded-md shadow-sm outline-none transition-colors 
                 ${isError ? "border-red-500 text-red-500 hover:border-red-600" : "border-(--glass-outline) text-(--text-primary) hover:border-(--glass-border-hover,rgba(255,255,255,0.2))"}
                 focus:ring-2 focus:ring-(--primary-resonance) disabled:cursor-not-allowed disabled:opacity-50`}

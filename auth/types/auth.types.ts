@@ -454,17 +454,16 @@ export type { LoginResult as AuthResult };
  * and alternative implementations without coupling to the class file.
  */
 export interface AuthServiceLike {
-  initialize(): Promise<void>;
+  checkAuthStatus(): Promise<{ isAuthenticated: boolean; user?: User | null }>;
   getCurrentUser(): Promise<User | null>;
-  isAuthenticated(): Promise<boolean>;
   login(credentials: LoginCredentials): Promise<Record<string, unknown>>;
   logout(): Promise<void>;
   signup(data: SignupData): Promise<unknown>;
   resetPassword(email: string): Promise<unknown>;
   verifyMFA(code: string): Promise<Record<string, unknown>>;
   setupMFA(method: string): Promise<unknown>;
-  refreshToken(): Promise<boolean>;
-  updateUser(userData: Partial<User>): Promise<boolean>;
+  refreshToken(): Promise<any>;
+  updateUser(userData: Partial<User>): Promise<any>;
   switchChurch(churchId: string): Promise<Record<string, unknown>>;
 }
 

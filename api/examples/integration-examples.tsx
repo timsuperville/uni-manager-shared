@@ -19,6 +19,7 @@ import {
   getApiBaseUrl,
 } from "../index";
 import type { UserProfile } from "../types";
+import { AuthService } from "../../auth/services/AuthService";
 
 // ==================== BASIC SETUP ====================
 
@@ -111,14 +112,15 @@ const AuthSection: React.FC = () => {
  * Example: useApiQuery for data fetching
  */
 const QueryExample: React.FC = () => {
-  const api = useApi();
+  const { apiClient } = useApi();
+  const authService = new AuthService(apiClient);
 
   // Example: Fetch current user profile
   const {
     data: userProfile,
     isLoading: profileLoading,
     error: profileError,
-  } = useApiQuery("user-profile", () => api.auth.getCurrentUser());
+  } = useApiQuery("user-profile", () => authService.getCurrentUser());
 
   return (
     <div className="query-section">
@@ -145,7 +147,8 @@ const QueryExample: React.FC = () => {
  * Example: useApiMutation for data modifications
  */
 const MutationExample: React.FC = () => {
-  const api = useApi();
+  const { apiClient } = useApi();
+  const authService = new AuthService(apiClient);
 
   // Example: Update user profile
   const {
@@ -153,7 +156,8 @@ const MutationExample: React.FC = () => {
     isLoading: updateLoading,
     error: updateError,
   } = useApiMutation(
-    (profileData: Partial<UserProfile>) => api.auth.updateProfile(profileData),
+    (profileData: Partial<UserProfile>) =>
+      authService.updateProfile(profileData),
     {
       onSuccess: (_data) => {
         // console.log('Profile updated successfully:', data);
@@ -166,7 +170,7 @@ const MutationExample: React.FC = () => {
 
   const handleUpdateProfile = () => {
     updateProfile({
-      name: "Updated Name",
+      location: "New Location",
       bio: "Updated bio information",
     });
   };
@@ -191,16 +195,17 @@ const MutationExample: React.FC = () => {
  * Example: Direct API service access
  */
 const DirectApiExample: React.FC = () => {
-  const api = useApi();
+  const { apiClient } = useApi();
+  const authService = new AuthService(apiClient);
 
   const handleDirectApiCall = async () => {
     try {
       // Direct access to auth service
-      const authStatus = await api.auth.checkAuthStatus();
+      const authStatus = await authService.checkAuthStatus();
       // console.log('Auth status:', authStatus);
 
       // Access to auth service methods
-      const currentUser = await api.auth.getCurrentUser();
+      const currentUser = await authService.getCurrentUser();
       // console.log('Current user:', currentUser);
     } catch (_error) {
       // console.error('Direct API call failed:', error);
