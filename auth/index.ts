@@ -135,20 +135,14 @@ export const FeatureGuard = React.lazy(() =>
   })),
 );
 
-// ── Services ──────────────────────────────────────────────────────────────────
-
-// Service factory functions — use these for all production code.
-// Dynamic class loaders removed: zero consumers, and Rollup's resolveDynamicImport
-// on Linux CI cannot resolve extensionless relative imports even with plugins/extensions.
+// Service exports — static re-exports (dynamic lazy-loaders removed: zero consumers,
+// and Rollup resolveDynamicImport on Linux CI cannot resolve extensionless relative imports).
 export {
-  getSessionService,
   getAuthService,
-  getMFAService,
-  getRBACService,
-  getSecurityService,
-  getDeviceService,
-  getCacheService,
-  getCrossAppService,
+  RateLimitService,
+  TokenManagementService,
+  EmailPasswordAuthService,
+  OAuthAuthService,
 } from "./services/index";
 
 // ── Types ─────────────────────────────────────────────────────────────────────

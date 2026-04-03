@@ -271,7 +271,7 @@ describe("SecurityService", () => {
     });
 
     it("should maintain event log size limit", () => {
-      const maxEvents = securityService.config.maxEventsToStore;
+      const maxEvents = (securityService as any).config.maxEventsToStore;
 
       // Log more events than the limit
       for (let i = 0; i < maxEvents + 10; i++) {
@@ -316,9 +316,9 @@ describe("SecurityService", () => {
         (e) => e.type === "attempt_recorded",
       );
 
-      expect(highSeverityEvent.severity).toBe("high");
-      expect(mediumSeverityEvent.severity).toBe("medium");
-      expect(lowSeverityEvent.severity).toBe("low");
+      expect(highSeverityEvent?.severity).toBe("high");
+      expect(mediumSeverityEvent?.severity).toBe("medium");
+      expect(lowSeverityEvent?.severity).toBe("low");
     });
   });
 
@@ -379,13 +379,13 @@ describe("SecurityService", () => {
 
       // Mock timestamp on events
       securityService.logSecurityEvent("recent_event", { time: "recent" });
-      securityService.securityEvents[
-        securityService.securityEvents.length - 1
+      (securityService as any).securityEvents[
+        (securityService as any).securityEvents.length - 1
       ].timestamp = oneHourAgo;
 
       securityService.logSecurityEvent("old_event", { time: "old" });
-      securityService.securityEvents[
-        securityService.securityEvents.length - 1
+      (securityService as any).securityEvents[
+        (securityService as any).securityEvents.length - 1
       ].timestamp = twoDaysAgo;
 
       const oneDayStats = securityService.getSecurityStats(24 * 60 * 60 * 1000);
@@ -442,7 +442,7 @@ describe("SecurityService", () => {
         { type: "login_attempt" },
       ];
 
-      const grouped = securityService.groupEventsByType(events);
+      const grouped = securityService.groupEventsByType(events as any);
 
       expect(grouped.login_attempt).toBe(3);
       expect(grouped.mfa_attempt).toBe(1);
@@ -453,7 +453,7 @@ describe("SecurityService", () => {
       const identifier = "192.168.1.1";
 
       // Create rate limit data with expired lock
-      securityService.rateLimits.set(`${identifier}:login`, {
+      (securityService as any).rateLimits.set(`${identifier}:login`, {
         attempts: 5,
         windowStart: now - 25 * 60 * 60 * 1000, // 25 hours ago
         lockedUntil: now - 60 * 1000, // 1 minute ago (expired)
@@ -463,24 +463,28 @@ describe("SecurityService", () => {
       securityService.cleanup();
 
       // Should remove expired data
-      expect(securityService.rateLimits.has(`${identifier}:login`)).toBe(false);
+      expect(
+        (securityService as any).rateLimits.has(`${identifier}:login`),
+      ).toBe(false);
     });
   });
 
   describe("Error Handling", () => {
     it("should handle invalid input gracefully", () => {
       // Test with null/undefined inputs
-      expect(() => securityService.checkRateLimit(null, null)).not.toThrow();
       expect(() =>
-        securityService.recordAttempt(undefined, undefined),
+        securityService.checkRateLimit(null as any, null as any),
       ).not.toThrow();
-      expect(() => securityService.analyzeFraudRisk({})).not.toThrow();
+      expect(() =>
+        securityService.recordAttempt(undefined as any, undefined as any),
+      ).not.toThrow();
+      expect(() => securityService.analyzeFraudRisk({} as any)).not.toThrow();
     });
 
     it("should fail open on critical errors", () => {
       // Mock an error condition
-      const originalMap = securityService.rateLimits;
-      securityService.rateLimits = null;
+      const originalMap = (securityService as any).rateLimits;
+      (securityService as any).rateLimits = null;
 
       const result = securityService.checkRateLimit("192.168.1.1", "login");
 
@@ -488,7 +492,7 @@ describe("SecurityService", () => {
       expect(result.allowed).toBe(true);
 
       // Restore original state
-      securityService.rateLimits = originalMap;
+      (securityService as any).rateLimits = originalMap;
     });
   });
 

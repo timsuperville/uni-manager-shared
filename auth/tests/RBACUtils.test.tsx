@@ -8,12 +8,12 @@ import { RBACUtils, PermissionUtils, RouteUtils } from "../utils/RBACUtils";
 import { PERMISSIONS, ROLES } from "../types/rbacRoles";
 
 describe("RBACUtils", () => {
-  let rbac;
-  let mockUser;
+  let rbac: any;
+  let mockUser: any;
 
   beforeEach(() => {
     mockUser = {
-      id: 1,
+      id: "1",
       name: "Test User",
       email: "test@example.com",
       roles: ["church_user", "business_user"],
@@ -251,27 +251,31 @@ describe("RBACUtils", () => {
 
       expect(filteredItems).toHaveLength(2); // dashboard and members
       expect(
-        filteredItems.find((item) => item.id === "dashboard"),
+        filteredItems.find((item: any) => item.id === "dashboard"),
       ).toBeDefined();
-      expect(filteredItems.find((item) => item.id === "members")).toBeDefined();
-      expect(filteredItems.find((item) => item.id === "admin")).toBeUndefined();
       expect(
-        filteredItems.find((item) => item.id === "manager"),
+        filteredItems.find((item: any) => item.id === "members"),
+      ).toBeDefined();
+      expect(
+        filteredItems.find((item: any) => item.id === "admin"),
+      ).toBeUndefined();
+      expect(
+        filteredItems.find((item: any) => item.id === "manager"),
       ).toBeUndefined();
     });
 
     it("should filter nested menu items", () => {
       const churchAdminUser = { id: "1", roles: ["church_admin"] };
-      const churchAdminRBAC = new RBACUtils(churchAdminUser);
+      const churchAdminRBAC = new RBACUtils(churchAdminUser as any);
 
       const filteredItems = churchAdminRBAC.filterMenuItems(
         mockMenuItems,
         "church",
       );
-      const adminItem = filteredItems.find((item) => item.id === "admin");
+      const adminItem = filteredItems.find((item: any) => item.id === "admin");
 
       expect(adminItem).toBeDefined();
-      expect(adminItem.children).toHaveLength(0); // users item filtered out
+      expect(adminItem?.children).toHaveLength(0); // users item filtered out
     });
   });
 
@@ -310,7 +314,7 @@ describe("RBACUtils", () => {
 
 describe("PermissionUtils", () => {
   const mockUser = {
-    id: 1,
+    id: "1",
     roles: ["church_manager", "business_user"],
   };
 
@@ -450,7 +454,7 @@ describe("RouteUtils", () => {
 
 describe("Edge Cases and Error Handling", () => {
   it("should handle undefined roles gracefully", () => {
-    const userWithoutRoles = { id: 1 };
+    const userWithoutRoles = { id: "1" };
     const rbac = new RBACUtils(userWithoutRoles);
 
     expect(rbac.hasPermission(PERMISSIONS.CHURCH_VIEW)).toBe(false);
@@ -485,6 +489,6 @@ describe("Edge Cases and Error Handling", () => {
     ];
 
     // Should filter out null/undefined items gracefully
-    expect(() => rbac.filterMenuItems(menuWithNulls)).not.toThrow();
+    expect(() => rbac.filterMenuItems(menuWithNulls as any)).not.toThrow();
   });
 });

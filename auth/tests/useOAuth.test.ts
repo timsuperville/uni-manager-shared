@@ -3,8 +3,8 @@ import { useOAuth } from "../hooks/useOAuth";
 import { vi } from "vitest";
 
 describe("useOAuth", () => {
-  let mockWindowOpen;
-  let mockPopup;
+  let mockWindowOpen: ReturnType<typeof vi.fn>;
+  let mockPopup: { closed: boolean; close: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
     // Mock window.open
@@ -13,7 +13,7 @@ describe("useOAuth", () => {
       close: vi.fn(),
     };
     mockWindowOpen = vi.fn(() => mockPopup);
-    global.window.open = mockWindowOpen;
+    global.window.open = mockWindowOpen as any;
 
     // Use fake timers
     vi.useFakeTimers();
@@ -86,7 +86,7 @@ describe("useOAuth", () => {
   });
 
   it("should handle popup block error", () => {
-    global.window.open.mockReturnValue(null);
+    mockWindowOpen.mockReturnValue(null);
     const { result } = renderHook(() => useOAuth());
 
     act(() => {

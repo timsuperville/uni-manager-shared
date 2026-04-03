@@ -1,4 +1,5 @@
 import { renderHook, act } from "@testing-library/react";
+import { vi, describe, it, expect, beforeEach } from "vitest";
 import { useDeviceTrust } from "../hooks/useDeviceTrust";
 import { useAuth } from "../hooks/useAuth";
 import { MFAService } from "../services/mfaService";
@@ -22,9 +23,9 @@ describe("useDeviceTrust", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    useAuth.mockReturnValue({ token: mockToken });
-    generateDeviceFingerprint.mockResolvedValue(mockFingerprint);
-    MFAService.mockImplementation(function () {
+    (useAuth as any).mockReturnValue({ token: mockToken });
+    (generateDeviceFingerprint as any).mockResolvedValue(mockFingerprint);
+    (MFAService as any).mockImplementation(function () {
       return mockServiceMethods;
     });
   });

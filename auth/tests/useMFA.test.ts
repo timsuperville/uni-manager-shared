@@ -1,4 +1,5 @@
 import { renderHook, act } from "@testing-library/react";
+import { vi, describe, it, expect, beforeEach } from "vitest";
 import { useMFA } from "../hooks/useMFA";
 import { useAuth } from "../hooks/useAuth";
 import { MFAService } from "../services/mfaService";
@@ -30,13 +31,13 @@ describe("useMFA", () => {
     vi.clearAllMocks();
 
     // Mock useAuth
-    useAuth.mockReturnValue({
+    (useAuth as any).mockReturnValue({
       user: mockUser,
       token: mockToken,
     });
 
     // Mock MFAService constructor to return instance with our mock methods
-    MFAService.mockImplementation(function () {
+    (MFAService as any).mockImplementation(function () {
       return mockServiceMethods;
     });
   });

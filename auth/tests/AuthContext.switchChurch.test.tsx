@@ -14,7 +14,7 @@ const mockAuthServiceInstance = {
 };
 
 // Mock AuthService
-vi.mock("../services/authService", () => ({
+vi.mock("../services/AuthService", () => ({
   AuthService: class AuthService {
     constructor() {
       return mockAuthServiceInstance;
@@ -33,7 +33,11 @@ vi.mock("../utils/TokenStorage", () => ({
 }));
 
 // Test component that uses the hook
-const TestComponent = ({ onStateChange }) => {
+const TestComponent = ({
+  onStateChange,
+}: {
+  onStateChange?: (auth: any) => void;
+}) => {
   const auth = useAuth();
 
   React.useEffect(() => {
@@ -52,7 +56,7 @@ const TestComponent = ({ onStateChange }) => {
 };
 
 describe("AuthContext - switchChurch", () => {
-  let mockAuthService;
+  let mockAuthService: any;
   const mockUser = {
     _id: "user123",
     email: "test@example.com",
@@ -67,7 +71,7 @@ describe("AuthContext - switchChurch", () => {
     vi.clearAllMocks();
 
     // Get the mock instance
-    const { AuthService } = await import("../services/authService");
+    const { AuthService } = await import("../services/AuthService");
     mockAuthService = new AuthService();
 
     // Setup default mocks
@@ -89,8 +93,8 @@ describe("AuthContext - switchChurch", () => {
       user: updatedUser,
     });
 
-    let authContext;
-    const onStateChange = (auth) => {
+    let authContext: any;
+    const onStateChange = (auth: any) => {
       authContext = auth;
     };
 
@@ -128,15 +132,15 @@ describe("AuthContext - switchChurch", () => {
     };
 
     // Create a promise we can control
-    let resolveSwitch;
+    let resolveSwitch: any;
     const switchPromise = new Promise((resolve) => {
       resolveSwitch = resolve;
     });
 
     mockAuthService.switchChurch.mockReturnValue(switchPromise);
 
-    let authContext;
-    const onStateChange = (auth) => {
+    let authContext: any;
+    const onStateChange = (auth: any) => {
       authContext = auth;
     };
 
@@ -177,8 +181,8 @@ describe("AuthContext - switchChurch", () => {
       new Error("Not a member of this church"),
     );
 
-    let authContext;
-    const onStateChange = (auth) => {
+    let authContext: any;
+    const onStateChange = (auth: any) => {
       authContext = auth;
     };
 
@@ -227,8 +231,8 @@ describe("AuthContext - switchChurch", () => {
 
     const onAuthStateChange = vi.fn();
 
-    let authContext;
-    const onStateChange = (auth) => {
+    let authContext: any;
+    const onStateChange = (auth: any) => {
       authContext = auth;
     };
 
@@ -269,8 +273,8 @@ describe("AuthContext - switchChurch", () => {
       noChange: true,
     });
 
-    let authContext;
-    const onStateChange = (auth) => {
+    let authContext: any;
+    const onStateChange = (auth: any) => {
       authContext = auth;
     };
 

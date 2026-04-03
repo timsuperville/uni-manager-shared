@@ -1,10 +1,11 @@
 import { MFAService } from "../services/mfaService";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 
 // Mock fetch globally
-global.fetch = vi.fn();
+global.fetch = vi.fn() as any;
 
 describe("MFA Service", () => {
-  let mfaService;
+  let mfaService: MFAService;
 
   beforeEach(() => {
     mfaService = new MFAService();
@@ -20,15 +21,15 @@ describe("MFA Service", () => {
         backupCodes: ["123456", "789012"],
       };
 
-      fetch.mockResolvedValueOnce({
+      (global.fetch as any).mockResolvedValueOnce({
         ok: true,
         json: vi.fn().mockResolvedValue(mockResponse),
       });
 
-      const result = await mfaService.setupTOTP("test@example.com");
+      const result: any = await mfaService.setupTOTP("test@example.com");
 
       expect(result).toEqual(mockResponse);
-      expect(fetch).toHaveBeenCalledWith("/api/v1/auth/mfa/totp/setup", {
+      expect(global.fetch).toHaveBeenCalledWith("/api/v1/auth/mfa/totp/setup", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -38,25 +39,28 @@ describe("MFA Service", () => {
     });
 
     it("should verify TOTP token correctly", async () => {
-      fetch.mockResolvedValueOnce({
+      (global.fetch as any).mockResolvedValueOnce({
         ok: true,
         json: vi.fn().mockResolvedValue({ success: true, verified: true }),
       });
 
-      const result = await mfaService.verifyTOTP("123456");
+      const result: any = await mfaService.verifyTOTP("123456");
 
       expect(result.verified).toBe(true);
-      expect(fetch).toHaveBeenCalledWith("/api/v1/auth/mfa/totp/verify", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      expect(global.fetch).toHaveBeenCalledWith(
+        "/api/v1/auth/mfa/totp/verify",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ token: "123456", sessionId: null }),
         },
-        body: JSON.stringify({ token: "123456", sessionId: null }),
-      });
+      );
     });
 
     it("should handle TOTP verification failure", async () => {
-      fetch.mockResolvedValueOnce({
+      (global.fetch as any).mockResolvedValueOnce({
         ok: false,
         json: vi.fn().mockResolvedValue({
           success: false,
@@ -74,15 +78,15 @@ describe("MFA Service", () => {
     it("should setup SMS MFA successfully", async () => {
       const mockResponse = { success: true, message: "SMS setup complete" };
 
-      fetch.mockResolvedValueOnce({
+      (global.fetch as any).mockResolvedValueOnce({
         ok: true,
         json: vi.fn().mockResolvedValue(mockResponse),
       });
 
-      const result = await mfaService.setupSMS("+1234567890");
+      const result: any = await mfaService.setupSMS("+1234567890");
 
       expect(result).toEqual(mockResponse);
-      expect(fetch).toHaveBeenCalledWith("/api/v1/auth/mfa/sms/setup", {
+      expect(global.fetch).toHaveBeenCalledWith("/api/v1/auth/mfa/sms/setup", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -94,15 +98,15 @@ describe("MFA Service", () => {
     it("should send SMS verification code", async () => {
       const mockResponse = { success: true, message: "Code sent" };
 
-      fetch.mockResolvedValueOnce({
+      (global.fetch as any).mockResolvedValueOnce({
         ok: true,
         json: vi.fn().mockResolvedValue(mockResponse),
       });
 
-      const result = await mfaService.sendSMSCode();
+      const result: any = await mfaService.sendSMSCode();
 
       expect(result).toEqual(mockResponse);
-      expect(fetch).toHaveBeenCalledWith("/api/v1/auth/mfa/sms/send", {
+      expect(global.fetch).toHaveBeenCalledWith("/api/v1/auth/mfa/sms/send", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -116,39 +120,45 @@ describe("MFA Service", () => {
     it("should setup email MFA successfully", async () => {
       const mockResponse = { success: true, message: "Email MFA enabled" };
 
-      fetch.mockResolvedValueOnce({
+      (global.fetch as any).mockResolvedValueOnce({
         ok: true,
         json: vi.fn().mockResolvedValue(mockResponse),
       });
 
-      const result = await mfaService.setupEmail("test@example.com");
+      const result: any = await mfaService.setupEmail("test@example.com");
 
       expect(result).toEqual(mockResponse);
-      expect(fetch).toHaveBeenCalledWith("/api/v1/auth/mfa/email/setup", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      expect(global.fetch).toHaveBeenCalledWith(
+        "/api/v1/auth/mfa/email/setup",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email: "test@example.com" }),
         },
-        body: JSON.stringify({ email: "test@example.com" }),
-      });
+      );
     });
 
     it("should verify email code correctly", async () => {
-      fetch.mockResolvedValueOnce({
+      (global.fetch as any).mockResolvedValueOnce({
         ok: true,
         json: vi.fn().mockResolvedValue({ success: true, verified: true }),
       });
 
-      const result = await mfaService.verifyEmail("123456");
+      const result: any = await mfaService.verifyEmail("123456");
 
       expect(result.verified).toBe(true);
-      expect(fetch).toHaveBeenCalledWith("/api/v1/auth/mfa/email/verify", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      expect(global.fetch).toHaveBeenCalledWith(
+        "/api/v1/auth/mfa/email/verify",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ code: "123456", sessionId: null }),
         },
-        body: JSON.stringify({ code: "123456", sessionId: null }),
-      });
+      );
     });
   });
 
@@ -157,15 +167,15 @@ describe("MFA Service", () => {
       const mockCodes = ["123456", "789012", "345678", "901234", "567890"];
       const mockResponse = { success: true, backupCodes: mockCodes };
 
-      fetch.mockResolvedValueOnce({
+      (global.fetch as any).mockResolvedValueOnce({
         ok: true,
         json: vi.fn().mockResolvedValue(mockResponse),
       });
 
-      const result = await mfaService.generateBackupCodes();
+      const result: any = await mfaService.generateBackupCodes();
 
       expect(result.backupCodes).toEqual(mockCodes);
-      expect(fetch).toHaveBeenCalledWith(
+      expect(global.fetch).toHaveBeenCalledWith(
         "/api/v1/auth/mfa/backup-codes/generate",
         {
           method: "POST",
@@ -178,21 +188,24 @@ describe("MFA Service", () => {
     });
 
     it("should use backup code for verification", async () => {
-      fetch.mockResolvedValueOnce({
+      (global.fetch as any).mockResolvedValueOnce({
         ok: true,
         json: vi.fn().mockResolvedValue({ success: true, verified: true }),
       });
 
-      const result = await mfaService.useBackupCode("123456");
+      const result: any = await mfaService.useBackupCode("123456");
 
       expect(result.verified).toBe(true);
-      expect(fetch).toHaveBeenCalledWith("/api/v1/auth/mfa/backup-codes/use", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      expect(global.fetch).toHaveBeenCalledWith(
+        "/api/v1/auth/mfa/backup-codes/use",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ code: "123456", sessionId: null }),
         },
-        body: JSON.stringify({ code: "123456", sessionId: null }),
-      });
+      );
     });
   });
 
@@ -204,15 +217,15 @@ describe("MFA Service", () => {
         recoveryCodesRemaining: 3,
       };
 
-      fetch.mockResolvedValueOnce({
+      (global.fetch as any).mockResolvedValueOnce({
         ok: true,
         json: vi.fn().mockResolvedValue(mockStatus),
       });
 
-      const result = await mfaService.getMFAStatus();
+      const result: any = await mfaService.getMFAStatus();
 
       expect(result).toEqual(mockStatus);
-      expect(fetch).toHaveBeenCalledWith("/api/v1/auth/mfa/status", {
+      expect(global.fetch).toHaveBeenCalledWith("/api/v1/auth/mfa/status", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -221,15 +234,15 @@ describe("MFA Service", () => {
     });
 
     it("should disable MFA method successfully", async () => {
-      fetch.mockResolvedValueOnce({
+      (global.fetch as any).mockResolvedValueOnce({
         ok: true,
         json: vi.fn().mockResolvedValue({ success: true }),
       });
 
-      const result = await mfaService.disableMFA("totp");
+      const result: any = await mfaService.disableMFA("totp");
 
       expect(result.success).toBe(true);
-      expect(fetch).toHaveBeenCalledWith("/api/v1/auth/mfa/disable", {
+      expect(global.fetch).toHaveBeenCalledWith("/api/v1/auth/mfa/disable", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -244,15 +257,15 @@ describe("MFA Service", () => {
         availableMethods: ["totp", "sms"],
       };
 
-      fetch.mockResolvedValueOnce({
+      (global.fetch as any).mockResolvedValueOnce({
         ok: true,
         json: vi.fn().mockResolvedValue(mockChallenge),
       });
 
-      const result = await mfaService.challengeMFA("user123");
+      const result: any = await mfaService.challengeMFA("user123");
 
       expect(result).toEqual(mockChallenge);
-      expect(fetch).toHaveBeenCalledWith("/api/v1/auth/mfa/challenge", {
+      expect(global.fetch).toHaveBeenCalledWith("/api/v1/auth/mfa/challenge", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -264,13 +277,13 @@ describe("MFA Service", () => {
 
   describe("Error Handling", () => {
     it("should handle network errors gracefully", async () => {
-      fetch.mockRejectedValueOnce(new Error("Network error"));
+      (global.fetch as any).mockRejectedValueOnce(new Error("Network error"));
 
       await expect(mfaService.getMFAStatus()).rejects.toThrow("Network error");
     });
 
     it("should handle API errors with proper error messages", async () => {
-      fetch.mockResolvedValueOnce({
+      (global.fetch as any).mockResolvedValueOnce({
         ok: false,
         json: vi.fn().mockResolvedValue({
           success: false,
@@ -284,7 +297,7 @@ describe("MFA Service", () => {
     });
 
     it("should handle invalid JSON responses", async () => {
-      fetch.mockResolvedValueOnce({
+      (global.fetch as any).mockResolvedValueOnce({
         ok: true,
         json: vi.fn().mockRejectedValue(new Error("Invalid JSON")),
       });
@@ -304,14 +317,14 @@ describe("MFA Service", () => {
         writable: true,
       });
 
-      fetch.mockResolvedValueOnce({
+      (global.fetch as any).mockResolvedValueOnce({
         ok: true,
         json: vi.fn().mockResolvedValue({ success: true }),
       });
 
       await serviceWithToken.getMFAStatus();
 
-      expect(fetch).toHaveBeenCalledWith("/api/v1/auth/mfa/status", {
+      expect(global.fetch).toHaveBeenCalledWith("/api/v1/auth/mfa/status", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",

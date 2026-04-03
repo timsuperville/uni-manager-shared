@@ -1,17 +1,35 @@
 /**
  * Authentication Services — Export Hub
  *
- * Services are grouped by import pattern:
- *  - Direct (sync-safe) exports: classes used by callers directly
- *  - Lazy-loaded: heavy services loaded on demand to reduce initial bundle
+ * All services are exported as static re-exports.
+ * Dynamic lazy-loaders (getAuthService, getSessionService, etc.) have been
+ * removed — they had zero consumers and their import() calls caused
+ * Rollup resolveDynamicImport failures on Linux CI (extensionless specifiers
+ * cannot be resolved across directory boundaries in Rollup 4).
  *
  * @example
- * import { authService } from '@shared/auth';
+ * import { AuthService } from '@shared/auth/services';
  * import { RateLimitService, TokenManagementService } from '@shared/auth/services';
  */
 
 // ---------------------------------------------------------------------------
-// Direct exports — lightweight classes, safe to import on every page
+// Core auth service
+// ---------------------------------------------------------------------------
+
+import { AuthService as _AuthService } from "./AuthService";
+import { getApiClient } from "../../api";
+
+/**
+ * Factory — returns a ready AuthService instance using the shared ApiClient.
+ * Returns a resolved Promise to preserve the async API callers expect (.then()).
+ * Uses only static imports — no dynamic import() that Rollup cannot resolve on CI.
+ */
+export function getAuthService(): Promise<InstanceType<typeof _AuthService>> {
+  return Promise.resolve(new _AuthService(getApiClient()));
+}
+
+// ---------------------------------------------------------------------------
+// Supporting services
 // ---------------------------------------------------------------------------
 
 /** Handles login attempt tracking and exponential back-off */
@@ -23,6 +41,9 @@ export { TokenManagementService } from "./TokenManagementService";
 /** Traditional email/password flows (login, signup, forgot/reset password) */
 export { EmailPasswordAuthService } from "./EmailPasswordAuthService";
 
+/** OAuth 2.0 PKCE flows */
+export { OAuthAuthService } from "./OAuthAuthService";
+
 /** MFA utility helpers — phone formatting, code validation, display names */
 export {
   getMFAMethodDisplayName,
@@ -32,49 +53,3 @@ export {
   formatPhoneNumber,
   type MFAMethod,
 } from "../utils/mfaUtils";
-
-/** OAuth 2.0 PKCE flows */
-export { OAuthAuthService } from "./OAuthAuthService";
-
-// ---------------------------------------------------------------------------
-// Lazy-loaded exports — load on demand to keep the auth bundle lean
-// ---------------------------------------------------------------------------
-
-export function getSessionService() {
-  return import("./SessionService").then((m) => m.default);
-}
-
-export async function getAuthService() {
-  const m = await import("./AuthService");
-  const { getApiClient } = await import("../../api");
-  return new m.default(getApiClient());
-}
-
-export function getMFAService() {
-  return import("./mfaService").then((m) => m.default);
-}
-
-/**
- * RBAC service — returns the full implementation when available.
- * Currently backed by a dev-only mock; a production RBAC engine is
- * tracked in BL-xxx.
- */
-export function getRBACService() {
-  return import("./rbacService").then((m) => m.default);
-}
-
-export function getSecurityService() {
-  return import("./securityService").then((m) => m.default);
-}
-
-export function getDeviceService() {
-  return import("./DeviceService").then((m) => m.default);
-}
-
-export function getCacheService() {
-  return import("./sharedDataCache").then((m) => m.default);
-}
-
-export function getCrossAppService() {
-  return import("./CrossAppService").then((m) => m.default);
-}

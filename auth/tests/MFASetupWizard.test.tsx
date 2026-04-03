@@ -1,20 +1,21 @@
-import { MFAService } from "../services/mfaService.ts";
+import { MFAService } from "../services/mfaService";
+import { vi, describe, it, expect, beforeEach } from "vitest";
 
 // Mock fetch globally
-global.fetch = vi.fn();
+global.fetch = vi.fn() as any;
 
 describe("MFA Integration Tests", () => {
-  let mfaService;
+  let mfaService: any;
 
   beforeEach(() => {
-    mfaService = new MFAService();
+    mfaService = new MFAService() as any;
     vi.clearAllMocks();
   });
 
   describe("MFA Setup Flow Integration", () => {
     it("should complete TOTP setup flow successfully", async () => {
       // Mock TOTP setup
-      fetch.mockResolvedValueOnce({
+      (fetch as any).mockResolvedValueOnce({
         ok: true,
         json: vi.fn().mockResolvedValue({
           success: true,
@@ -28,7 +29,7 @@ describe("MFA Integration Tests", () => {
       expect(setupResult.secret).toBeDefined();
 
       // Mock TOTP verification
-      fetch.mockResolvedValueOnce({
+      (fetch as any).mockResolvedValueOnce({
         ok: true,
         json: vi.fn().mockResolvedValue({
           success: true,
@@ -40,7 +41,7 @@ describe("MFA Integration Tests", () => {
       expect(verifyResult.verified).toBe(true);
 
       // Mock backup codes generation
-      fetch.mockResolvedValueOnce({
+      (fetch as any).mockResolvedValueOnce({
         ok: true,
         json: vi.fn().mockResolvedValue({
           success: true,
@@ -54,7 +55,7 @@ describe("MFA Integration Tests", () => {
 
     it("should complete SMS setup flow successfully", async () => {
       // Mock SMS setup
-      fetch.mockResolvedValueOnce({
+      (fetch as any).mockResolvedValueOnce({
         ok: true,
         json: vi.fn().mockResolvedValue({
           success: true,
@@ -66,7 +67,7 @@ describe("MFA Integration Tests", () => {
       expect(setupResult.success).toBe(true);
 
       // Mock SMS code sending
-      fetch.mockResolvedValueOnce({
+      (fetch as any).mockResolvedValueOnce({
         ok: true,
         json: vi.fn().mockResolvedValue({
           success: true,
@@ -78,7 +79,7 @@ describe("MFA Integration Tests", () => {
       expect(sendResult.success).toBe(true);
 
       // Mock SMS verification
-      fetch.mockResolvedValueOnce({
+      (fetch as any).mockResolvedValueOnce({
         ok: true,
         json: vi.fn().mockResolvedValue({
           success: true,
@@ -92,7 +93,7 @@ describe("MFA Integration Tests", () => {
 
     it("should complete email setup flow successfully", async () => {
       // Mock email setup
-      fetch.mockResolvedValueOnce({
+      (fetch as any).mockResolvedValueOnce({
         ok: true,
         json: vi.fn().mockResolvedValue({
           success: true,
@@ -104,7 +105,7 @@ describe("MFA Integration Tests", () => {
       expect(setupResult.success).toBe(true);
 
       // Mock email code sending
-      fetch.mockResolvedValueOnce({
+      (fetch as any).mockResolvedValueOnce({
         ok: true,
         json: vi.fn().mockResolvedValue({
           success: true,
@@ -116,7 +117,7 @@ describe("MFA Integration Tests", () => {
       expect(sendResult.success).toBe(true);
 
       // Mock email verification
-      fetch.mockResolvedValueOnce({
+      (fetch as any).mockResolvedValueOnce({
         ok: true,
         json: vi.fn().mockResolvedValue({
           success: true,
@@ -132,7 +133,7 @@ describe("MFA Integration Tests", () => {
   describe("MFA Login Flow Integration", () => {
     it("should handle MFA challenge and verification during login", async () => {
       // Mock MFA challenge
-      fetch.mockResolvedValueOnce({
+      (fetch as any).mockResolvedValueOnce({
         ok: true,
         json: vi.fn().mockResolvedValue({
           challengeId: "abc123",
@@ -146,7 +147,7 @@ describe("MFA Integration Tests", () => {
       expect(challengeResult.availableMethods).toContain("totp");
 
       // Mock MFA verification
-      fetch.mockResolvedValueOnce({
+      (fetch as any).mockResolvedValueOnce({
         ok: true,
         json: vi.fn().mockResolvedValue({
           success: true,
@@ -166,7 +167,7 @@ describe("MFA Integration Tests", () => {
 
     it("should handle backup code usage during login", async () => {
       // Mock backup code verification
-      fetch.mockResolvedValueOnce({
+      (fetch as any).mockResolvedValueOnce({
         ok: true,
         json: vi.fn().mockResolvedValue({
           success: true,
@@ -183,7 +184,7 @@ describe("MFA Integration Tests", () => {
 
   describe("MFA Management Integration", () => {
     it("should get comprehensive MFA status", async () => {
-      fetch.mockResolvedValueOnce({
+      (fetch as any).mockResolvedValueOnce({
         ok: true,
         json: vi.fn().mockResolvedValue({
           enabled: true,
@@ -201,7 +202,7 @@ describe("MFA Integration Tests", () => {
     });
 
     it("should disable MFA methods correctly", async () => {
-      fetch.mockResolvedValueOnce({
+      (fetch as any).mockResolvedValueOnce({
         ok: true,
         json: vi.fn().mockResolvedValue({
           success: true,
@@ -217,7 +218,7 @@ describe("MFA Integration Tests", () => {
 
   describe("Error Recovery Integration", () => {
     it("should handle MFA setup failures gracefully", async () => {
-      fetch.mockResolvedValueOnce({
+      (fetch as any).mockResolvedValueOnce({
         ok: false,
         json: vi.fn().mockResolvedValue({
           success: false,
@@ -231,7 +232,7 @@ describe("MFA Integration Tests", () => {
     });
 
     it("should handle verification failures with retry information", async () => {
-      fetch.mockResolvedValueOnce({
+      (fetch as any).mockResolvedValueOnce({
         ok: false,
         json: vi.fn().mockResolvedValue({
           success: false,
@@ -246,7 +247,7 @@ describe("MFA Integration Tests", () => {
     });
 
     it("should handle account lockout scenarios", async () => {
-      fetch.mockResolvedValueOnce({
+      (fetch as any).mockResolvedValueOnce({
         ok: false,
         json: vi.fn().mockResolvedValue({
           success: false,

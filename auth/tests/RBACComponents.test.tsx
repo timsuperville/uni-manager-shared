@@ -28,10 +28,10 @@ vi.mock("../hooks/useAuth", () => ({
   useAuth: () => mockUseAuth(),
 }));
 
-const RouterWrapper = ({ children }) =>
+const RouterWrapper = ({ children }: { children: React.ReactNode }) =>
   React.createElement(BrowserRouter, null, children);
 
-const RBACWrapper = ({ children }) =>
+const RBACWrapper = ({ children }: { children: React.ReactNode }) =>
   React.createElement(
     RouterWrapper,
     null,

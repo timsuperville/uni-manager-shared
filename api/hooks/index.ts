@@ -5,7 +5,7 @@
  * with React applications across the Uni-Manager ecosystem.
  */
 
-import { useCallback, useContext } from "react";
+import { useCallback, useContext, useState } from "react";
 import type { ApiClient } from "../core/ApiClient";
 
 import { ApiContext, ApiContextValue } from "../components/ApiProvider";

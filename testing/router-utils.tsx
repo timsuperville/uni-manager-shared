@@ -10,9 +10,9 @@ import type { MemoryRouterProps } from "react-router-dom";
 // Types
 // ---------------------------------------------------------------------------
 
-interface CreateMemoryRouterProps extends Omit<MemoryRouterProps, "future"> {
+interface CreateMemoryRouterProps extends MemoryRouterProps {
   children: React.ReactNode;
-  future?: MemoryRouterProps["future"];
+  future?: any;
 }
 
 interface RouterTestWrapperProps {
@@ -20,16 +20,16 @@ interface RouterTestWrapperProps {
   initialEntries?: string[];
 }
 
-interface MemoryRouterV7Props extends Omit<MemoryRouterProps, "future"> {
+interface MemoryRouterV7Props extends MemoryRouterProps {
   children: React.ReactNode;
-  future?: MemoryRouterProps["future"];
+  future?: any;
 }
 
 // ---------------------------------------------------------------------------
 // Default future flags for React Router v7 compatibility
 // ---------------------------------------------------------------------------
 
-export const routerFutureFlags: MemoryRouterProps["future"] = {
+export const routerFutureFlags: any = {
   v7_startTransition: true,
   v7_relativeSplatPath: true,
 };
@@ -45,11 +45,14 @@ export const createMemoryRouter = ({
   children,
   future = {},
   ...props
-}: CreateMemoryRouterProps): React.ReactElement => (
-  <MemoryRouter future={{ ...routerFutureFlags, ...future }} {...props}>
-    {children}
-  </MemoryRouter>
-);
+}: CreateMemoryRouterProps): React.ReactElement => {
+  const RouterAny = MemoryRouter as any;
+  return (
+    <RouterAny future={{ ...routerFutureFlags, ...future }} {...props}>
+      {children}
+    </RouterAny>
+  );
+};
 
 /**
  * Wrapper component for testing components that use React Router.
@@ -67,8 +70,11 @@ export const MemoryRouterV7: React.FC<MemoryRouterV7Props> = ({
   children,
   future = {},
   ...props
-}) => (
-  <MemoryRouter future={{ ...routerFutureFlags, ...future }} {...props}>
-    {children}
-  </MemoryRouter>
-);
+}) => {
+  const RouterAny = MemoryRouter as any;
+  return (
+    <RouterAny future={{ ...routerFutureFlags, ...future }} {...props}>
+      {children}
+    </RouterAny>
+  );
+};

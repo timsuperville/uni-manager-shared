@@ -138,23 +138,23 @@ const TestComponent = () => {
 };
 
 describe("RealTimeSecurityContext", () => {
-  let eventHandlers;
+  let eventHandlers: any;
 
   beforeEach(() => {
     vi.clearAllMocks();
     eventHandlers = new Map();
 
     // Mock the event system
-    mockSecurityService.on.mockImplementation((event, handler) => {
+    mockSecurityService.on.mockImplementation((event: any, handler: any) => {
       if (!eventHandlers.has(event)) {
         eventHandlers.set(event, []);
       }
       eventHandlers.get(event).push(handler);
     });
 
-    mockSecurityService.emit.mockImplementation((event, data) => {
+    mockSecurityService.emit.mockImplementation((event: any, data: any) => {
       if (eventHandlers.has(event)) {
-        eventHandlers.get(event).forEach((handler) => handler(data));
+        eventHandlers.get(event).forEach((handler: any) => handler(data));
       }
     });
 
@@ -192,7 +192,7 @@ describe("RealTimeSecurityContext", () => {
         try {
           useRealTimeSecurity();
           return React.createElement("div", null, "Should not render");
-        } catch (_error) {
+        } catch (_error: any) {
           return React.createElement(
             "div",
             { "data-testid": "error" },

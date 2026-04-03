@@ -71,7 +71,9 @@ describe("Complete Authentication Flows", () => {
       // Fill in credentials
       const emailInput = screen.getByLabelText(/email/i);
       const passwordInput = screen.getByLabelText(/^Password/i);
-      const submitButton = container.querySelector('button[type="submit"]');
+      const submitButton = container.querySelector(
+        'button[type="submit"]',
+      ) as HTMLButtonElement;
 
       fireEvent.change(emailInput, { target: { value: "test@example.com" } });
       fireEvent.change(passwordInput, { target: { value: "password123" } });
@@ -124,7 +126,9 @@ describe("Complete Authentication Flows", () => {
 
       const emailInput = screen.getByLabelText(/email/i);
       const passwordInput = screen.getByLabelText(/^Password/i);
-      const submitButton = container.querySelector('button[type="submit"]');
+      const submitButton = container.querySelector(
+        'button[type="submit"]',
+      ) as HTMLButtonElement;
 
       // Attempt login 3 times
       for (let i = 0; i < 3; i++) {
@@ -184,7 +188,9 @@ describe("Complete Authentication Flows", () => {
 
       const emailInput = screen.getByLabelText(/email/i);
       const passwordInput = screen.getByLabelText(/^Password/i);
-      const submitButton = container.querySelector('button[type="submit"]');
+      const submitButton = container.querySelector(
+        'button[type="submit"]',
+      ) as HTMLButtonElement;
 
       fireEvent.change(emailInput, { target: { value: "test@example.com" } });
       fireEvent.change(passwordInput, { target: { value: "TestPass1!" } });
@@ -230,7 +236,9 @@ describe("Complete Authentication Flows", () => {
 
       const emailInput = screen.getByLabelText(/email/i);
       const passwordInput = screen.getByLabelText(/^Password/i);
-      const submitButton = container.querySelector('button[type="submit"]');
+      const submitButton = container.querySelector(
+        'button[type="submit"]',
+      ) as HTMLButtonElement;
 
       fireEvent.change(emailInput, { target: { value: "test@example.com" } });
       fireEvent.change(passwordInput, { target: { value: "TestPass1!" } });
