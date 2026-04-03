@@ -48,13 +48,7 @@ export type {
 export * from "./types";
 
 // React integration exports
-export {
-  useApi,
-  useAuth,
-  useApiQuery,
-  useApiMutation,
-  useFileUpload,
-} from "./hooks";
+export { useApi, useApiQuery, useApiMutation, useFileUpload } from "./hooks";
 export type { ApiQueryOptions } from "./hooks";
 
 export { ApiProvider } from "./components/ApiProvider";

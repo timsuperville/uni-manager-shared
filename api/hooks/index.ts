@@ -5,16 +5,8 @@
  * with React applications across the Uni-Manager ecosystem.
  */
 
-import {
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-  useMemo,
-  useRef,
-} from "react";
-import { ApiClient } from "../core/ApiClient";
-import type { User, LoginRequest, SignupRequest } from "../types";
+import { useCallback, useContext } from "react";
+import type { ApiClient } from "../core/ApiClient";
 
 import { ApiContext, ApiContextValue } from "../components/ApiProvider";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -49,120 +41,6 @@ export const useApi = (): { apiClient: ApiClient } => {
     throw new Error("API services not yet initialized");
   }
   return { apiClient: context.apiClient };
-};
-
-/**
- * Hook for authentication operations
- */
-export const useAuth = () => {
-  const { apiClient } = useApi();
-  // Lazy-load AuthService to avoid a circular static-import chain:
-  // shared/api → shared/auth/services/AuthService (cross-package, fails on CI)
-  const authServiceRef = useRef<InstanceType<
-    Awaited<typeof import("../../auth/services/AuthService")>["AuthService"]
-  > | null>(null);
-  const [serviceReady, setServiceReady] = useState(false);
-
-  useEffect(() => {
-    import("../../auth/services/AuthService").then(({ AuthService }) => {
-      authServiceRef.current = new AuthService(apiClient);
-      setServiceReady(true);
-    });
-  }, [apiClient]);
-
-  const [user, setUser] = useState<User | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  // Check authentication status once the service is ready
-  useEffect(() => {
-    if (!serviceReady || !authServiceRef.current) return;
-    const checkAuth = async () => {
-      try {
-        setIsLoading(true);
-        const authStatus = await authServiceRef.current!.checkAuthStatus();
-        setIsAuthenticated(authStatus.isAuthenticated);
-        setUser(authStatus.user || null);
-        setError(null);
-      } catch (error) {
-        setIsAuthenticated(false);
-        setUser(null);
-        setError(
-          error instanceof Error
-            ? error.message
-            : "Authentication check failed",
-        );
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkAuth();
-  }, [serviceReady]);
-
-  const login = useCallback(
-    async (credentials: LoginRequest) => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        const response = await authServiceRef.current!.login(credentials);
-        setUser(response.user);
-        setIsAuthenticated(true);
-        return response;
-      } catch (error) {
-        setError(error instanceof Error ? error.message : "Login failed");
-        throw error;
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [serviceReady],
-  );
-
-  const logout = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      await authServiceRef.current?.logout();
-    } catch (_err) {
-      // Intentionally silent — logout should always succeed locally even if network fails.
-    } finally {
-      setUser(null);
-      setIsAuthenticated(false);
-      setIsLoading(false);
-      setError(null);
-    }
-  }, [serviceReady]);
-
-  const signup = useCallback(
-    async (userData: SignupRequest) => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        const response = await authServiceRef.current!.signup(userData);
-        setUser(response.user);
-        setIsAuthenticated(true);
-        return response;
-      } catch (error) {
-        setError(error instanceof Error ? error.message : "Signup failed");
-        throw error;
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [serviceReady],
-  );
-
-  return {
-    user,
-    isAuthenticated,
-    isLoading,
-    error,
-    login,
-    logout,
-    signup,
-    authService: authServiceRef.current,
-  };
 };
 
 /**
