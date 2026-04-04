@@ -84,7 +84,7 @@ interface EventListener {
 // ── SessionService ────────────────────────────────────────────────────────────
 
 class SessionService {
-  private readonly options: Required<SessionOptions>;
+  private options: Required<SessionOptions>;
   private currentSession: Session | null = null;
   private readonly activeSessions = new Map<string, Session>();
   private readonly deviceSessions = new Map<string, string[]>();
@@ -117,6 +117,31 @@ class SessionService {
       this.initializeCrossTabSync();
       this.initializeAutoRefresh();
       this.setupEventListeners();
+    }
+  }
+
+  // ── Configuration ───────────────────────────────────────────────────────────
+
+  applySecurityProfile(profile: "strict" | "standard" | "relaxed"): void {
+    if (profile === "strict") {
+      this.options.sessionTimeout = 15 * 60 * 1000;
+      this.options.inactivityTimeout = 5 * 60 * 1000;
+      this.options.warningThreshold = 60 * 1000;
+      this.options.autoRefreshInterval = 2 * 60 * 1000;
+    } else if (profile === "relaxed") {
+      this.options.sessionTimeout = 30 * 24 * 60 * 60 * 1000;
+      this.options.inactivityTimeout = 24 * 60 * 60 * 1000;
+      this.options.warningThreshold = 5 * 60 * 1000;
+      this.options.autoRefreshInterval = 1 * 60 * 60 * 1000;
+    } else {
+      this.options.sessionTimeout = SESSION_CONFIG.TIMEOUT;
+      this.options.inactivityTimeout = SESSION_CONFIG.INACTIVITY_TIMEOUT;
+      this.options.warningThreshold = SESSION_CONFIG.WARNING_THRESHOLD;
+      this.options.autoRefreshInterval = 5 * 60 * 1000;
+    }
+
+    if (this.currentSession) {
+      this.resetInactivityTimeout();
     }
   }
 

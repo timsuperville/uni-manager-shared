@@ -61,3 +61,8 @@ export type { SyncEntry, ServiceMap } from "./syncEngine";
 
 export const VERSION = "1.0.0";
 export const API_VERSION = "v1";
+
+export {
+  artNetBridgeService,
+  initArtNetBridge,
+} from "./services/ArtNetBridgeService";

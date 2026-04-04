@@ -354,6 +354,18 @@ export class AuthService extends BaseService {
   }
 
   /**
+   * Switch the active church context
+   */
+  async switchChurch(churchId: string): Promise<User> {
+    const schema: ValidationSchema = {
+      churchId: { type: "string", required: true, minLength: 1 },
+    };
+
+    const validatedData = this.validateRequest({ churchId }, schema);
+    return this.post<User>("/switch-church", validatedData, { cache: false });
+  }
+
+  /**
    * Upload user avatar
    */
   async uploadAvatar(file: File): Promise<User> {

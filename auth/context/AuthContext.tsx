@@ -1,5 +1,13 @@
-import React, { createContext, useContext, useMemo, useRef } from "react";
+import React, {
+  createContext,
+  useContext,
+  useMemo,
+  useRef,
+  useEffect,
+} from "react";
 import { AuthService } from "../services/AuthService";
+import SessionService from "../services/SessionService";
+import { APP_CONFIGS } from "../config/appConfigs";
 import { useAuthState } from "../hooks/useAuthState";
 import { useAuthActions, type AuthServiceLike } from "../hooks/useAuthActions";
 import {
@@ -254,6 +262,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
       typeof useAuthCallbacks
     >[5],
   );
+
+  // Apply Security Profile for session enforcement
+  useEffect(() => {
+    const appName = config?.appName || "personal";
+    const appConfig = APP_CONFIGS[appName as keyof typeof APP_CONFIGS];
+    if (appConfig?.securityProfile) {
+      SessionService.applySecurityProfile(appConfig.securityProfile);
+    } else {
+      SessionService.applySecurityProfile("standard");
+    }
+  }, [config?.appName]);
 
   // Derive RBAC methods from resolved user.rbac (injected by verify-token)
   const rbacMethods = useMemo(() => buildRBACMethods(state.user), [state.user]);

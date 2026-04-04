@@ -25,6 +25,8 @@ export type AppName =
   | "personal"
   | "playback";
 
+export type SecurityProfile = "standard" | "strict" | "relaxed";
+
 export interface SocialLoginConfig {
   enabled: boolean;
   providers: string[];
@@ -85,6 +87,8 @@ export interface AppPermissions {
 
 export interface AppConfig {
   appName: string;
+  appType: AppName;
+  storageNamespace: string;
   brandColor: string;
   logo: string;
   favicon: string;
@@ -94,6 +98,7 @@ export interface AppConfig {
   branding: AppBranding;
   ui: AppUI;
   name?: string; // resolved at runtime by getCurrentAppConfig
+  securityProfile: SecurityProfile;
 }
 
 // ── Configuration ─────────────────────────────────────────────────────────────
@@ -104,9 +109,12 @@ const BASE_API_URL = getApiBaseUrl();
 export const APP_CONFIGS: Record<AppName, AppConfig> = {
   church: {
     appName: "Ecclesia",
+    appType: "church",
+    storageNamespace: "church",
     brandColor: "violet",
     logo: "/favicon.svg",
     favicon: "/favicon.svg",
+    securityProfile: "standard",
     apiEndpoints: {
       login: `${BASE_API_URL}/api/v1/auth/login`,
       signup: `${BASE_API_URL}/api/v1/auth/signup`,
@@ -165,9 +173,12 @@ export const APP_CONFIGS: Record<AppName, AppConfig> = {
 
   admin: {
     appName: "Admin Portal",
+    appType: "admin",
+    storageNamespace: "admin",
     brandColor: "red",
     logo: "/favicon.svg",
     favicon: "/favicon.svg",
+    securityProfile: "strict",
     apiEndpoints: {
       login: `${BASE_API_URL}/api/v1/auth/login`,
       signup: `${BASE_API_URL}/api/v1/auth/signup`,
@@ -223,9 +234,12 @@ export const APP_CONFIGS: Record<AppName, AppConfig> = {
 
   business: {
     appName: "Business Manager",
+    appType: "business",
+    storageNamespace: "business",
     brandColor: "emerald",
     logo: "/favicon.svg",
     favicon: "/favicon.svg",
+    securityProfile: "standard",
     apiEndpoints: {
       login: `${BASE_API_URL}/api/v1/auth/login`,
       signup: `${BASE_API_URL}/api/v1/auth/signup`,
@@ -281,9 +295,12 @@ export const APP_CONFIGS: Record<AppName, AppConfig> = {
 
   home: {
     appName: "Home Hub",
+    appType: "home",
+    storageNamespace: "home",
     brandColor: "amber",
     logo: "/favicon.svg",
     favicon: "/favicon.svg",
+    securityProfile: "standard",
     apiEndpoints: {
       login: `${BASE_API_URL}/api/v1/auth/login`,
       signup: `${BASE_API_URL}/api/v1/auth/signup`,
@@ -330,9 +347,12 @@ export const APP_CONFIGS: Record<AppName, AppConfig> = {
 
   personal: {
     appName: "Personal Dashboard",
+    appType: "personal",
+    storageNamespace: "personal",
     brandColor: "purple",
     logo: "/favicon.svg",
     favicon: "/favicon.svg",
+    securityProfile: "standard",
     apiEndpoints: {
       login: `${BASE_API_URL}/api/v1/auth/login`,
       signup: `${BASE_API_URL}/api/v1/auth/signup`,
@@ -392,9 +412,12 @@ export const APP_CONFIGS: Record<AppName, AppConfig> = {
 
   playback: {
     appName: "Media Player",
+    appType: "playback",
+    storageNamespace: "playback",
     brandColor: "rose",
     logo: "/favicon.svg",
     favicon: "/favicon.svg",
+    securityProfile: "standard",
     apiEndpoints: {
       login: `${BASE_API_URL}/api/v1/auth/login`,
       signup: `${BASE_API_URL}/api/v1/auth/signup`,

@@ -44,6 +44,10 @@ export { useOAuth } from "./hooks/useOAuth";
 export { useDeviceTrust } from "./hooks/useDeviceTrust";
 export { usePermissions } from "./hooks/usePermissions";
 export {
+  useQRSessionDelegation,
+  type QRSessionDelegationOptions,
+} from "./hooks/useQRSessionDelegation";
+export {
   useRateLimit,
   useLoginRateLimit,
   useMFARateLimit,
