@@ -60,9 +60,10 @@ export class AuthInterceptor {
       tokenKey: config.tokenKey || "accessToken",
       refreshTokenKey: config.refreshTokenKey || "refreshToken",
       headerName: config.headerName || "Authorization",
-      tokenPrefix: config.tokenPrefix || "Bearer",
+      tokenPrefix:
+        config.tokenPrefix !== undefined ? config.tokenPrefix : "Bearer ",
       autoRefresh: config.autoRefresh !== false,
-      refreshThreshold: config.refreshThreshold || 10, // 10 minutes
+      refreshThreshold: config.refreshThreshold || 5,
       refreshEndpoint: config.refreshEndpoint || "/api/v1/auth/refresh-token",
       maxRetries: config.maxRetries || 1,
       enableStats: config.enableStats !== false,
@@ -245,7 +246,13 @@ export class AuthInterceptor {
 
   private async performTokenRefresh(): Promise<string> {
     try {
-      const response = await axios.post(this.config.refreshEndpoint, {
+      // Create a clean axios instance for the refresh request to avoid triggering
+      // interceptors (like infinite 401 loops), but inherit the correct baseURL.
+      const refreshAxios = axios.create({
+        baseURL: this.axiosInstance?.defaults?.baseURL,
+      });
+
+      const response = await refreshAxios.post(this.config.refreshEndpoint, {
         refreshToken: this.tokens?.refreshToken,
       });
 

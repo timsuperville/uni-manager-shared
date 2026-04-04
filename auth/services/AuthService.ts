@@ -176,7 +176,7 @@ export class AuthService extends BaseService {
    */
   async refreshToken(refreshToken: string): Promise<AuthResponse> {
     const response = await this.post<AuthResponse>(
-      "/refresh",
+      "/refresh-token",
       { refreshToken },
       { cache: false },
     );
@@ -189,7 +189,31 @@ export class AuthService extends BaseService {
    * Calls GET /api/v1/auth/me
    */
   async getCurrentUser(): Promise<User> {
-    return this.get<User>("/me");
+    const data = await this.get<any>("/me");
+    return data?.user || data;
+  }
+
+  /**
+   * Switch the active church context for the user
+   */
+  async switchChurch(
+    churchId: string,
+  ): Promise<{ success: boolean; user: User; noChange?: boolean }> {
+    const currentUser = await this.getCurrentUser();
+    if (currentUser?.currentChurch === churchId) {
+      return { success: true, user: currentUser, noChange: true };
+    }
+
+    const data = await this.post<any>(
+      "/switch-church",
+      { churchId },
+      { cache: false },
+    );
+
+    // Backend returns the user object directly inside formatSuccess
+    // We optionally wrap it in an object format compatible with our test
+    const user = data?.user || data;
+    return { success: true, user };
   }
 
   /**
@@ -351,18 +375,6 @@ export class AuthService extends BaseService {
     } catch (_error) {
       return { isAuthenticated: false };
     }
-  }
-
-  /**
-   * Switch the active church context
-   */
-  async switchChurch(churchId: string): Promise<User> {
-    const schema: ValidationSchema = {
-      churchId: { type: "string", required: true, minLength: 1 },
-    };
-
-    const validatedData = this.validateRequest({ churchId }, schema);
-    return this.post<User>("/switch-church", validatedData, { cache: false });
   }
 
   /**

@@ -32,6 +32,11 @@ vi.mock("../utils/TokenStorage", () => ({
   },
 }));
 
+// Mock useApi
+vi.mock("../../api/hooks/index", () => ({
+  useApi: () => ({ apiClient: {} }),
+}));
+
 // Test component that uses the hook
 const TestComponent = ({
   onStateChange,
