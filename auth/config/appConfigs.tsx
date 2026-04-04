@@ -99,6 +99,7 @@ export interface AppConfig {
   ui: AppUI;
   name?: string; // resolved at runtime by getCurrentAppConfig
   securityProfile: SecurityProfile;
+  [key: string]: unknown;
 }
 
 // ── Configuration ─────────────────────────────────────────────────────────────
