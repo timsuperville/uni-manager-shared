@@ -41,6 +41,7 @@ export interface AuthInterceptorConfig {
   tokenPrefix?: string;
   autoRefresh?: boolean;
   refreshThreshold?: number; // Minutes before expiry to refresh
+  refreshEndpoint?: string;
   maxRetries?: number;
   enableStats?: boolean;
 }
@@ -62,6 +63,7 @@ export class AuthInterceptor {
       tokenPrefix: config.tokenPrefix || "Bearer",
       autoRefresh: config.autoRefresh !== false,
       refreshThreshold: config.refreshThreshold || 10, // 10 minutes
+      refreshEndpoint: config.refreshEndpoint || "/api/v1/auth/refresh-token",
       maxRetries: config.maxRetries || 1,
       enableStats: config.enableStats !== false,
     };
@@ -88,7 +90,10 @@ export class AuthInterceptor {
       // Use AxiosHeaders.set() — the canonical Axios v1 API.
       // Direct bracket assignment on a plain-object cast can silently fail
       // when Axios merges headers during request dispatch.
-      config.headers.set(this.config.headerName, `${this.config.tokenPrefix} ${token}`);
+      config.headers.set(
+        this.config.headerName,
+        `${this.config.tokenPrefix} ${token}`,
+      );
     }
 
     return config;
@@ -240,12 +245,13 @@ export class AuthInterceptor {
 
   private async performTokenRefresh(): Promise<string> {
     try {
-      const response = await axios.post("/api/v1/auth/refresh-token", {
+      const response = await axios.post(this.config.refreshEndpoint, {
         refreshToken: this.tokens?.refreshToken,
       });
 
       const responseData = response.data.data || response.data;
-      const { accessToken, refreshToken, expiresIn }: TokenRefreshResponse = responseData;
+      const { accessToken, refreshToken, expiresIn }: TokenRefreshResponse =
+        responseData;
 
       this.updateTokens({
         accessToken,
@@ -256,7 +262,11 @@ export class AuthInterceptor {
       return accessToken;
     } catch (error) {
       this.clearTokens();
-      if (import.meta.env?.DEV) console.warn("[AuthInterceptor] Token refresh failed:", (error as Error).message);
+      if (import.meta.env?.DEV)
+        console.warn(
+          "[AuthInterceptor] Token refresh failed:",
+          (error as Error).message,
+        );
       throw new Error("Token refresh failed");
     }
   }
@@ -362,13 +372,15 @@ export class AuthInterceptor {
     } catch (error) {
       // Storage may be unavailable in SSR or restricted private-browsing contexts.
       if (import.meta.env?.DEV) {
-        console.warn("[AuthInterceptor] loadTokensFromStorage failed:", (error as Error).message);
+        console.warn(
+          "[AuthInterceptor] loadTokensFromStorage failed:",
+          (error as Error).message,
+        );
       }
     }
   }
 
   private saveTokensToStorage(): void {
-
     try {
       const storage = this.getStorage();
 
@@ -391,7 +403,10 @@ export class AuthInterceptor {
       }
     } catch (error) {
       if (import.meta.env?.DEV) {
-        console.warn("[AuthInterceptor] saveTokensToStorage failed:", (error as Error).message);
+        console.warn(
+          "[AuthInterceptor] saveTokensToStorage failed:",
+          (error as Error).message,
+        );
       }
     }
   }
@@ -405,7 +420,10 @@ export class AuthInterceptor {
       storage.removeItem(`${this.config.tokenKey}_expires`);
     } catch (error) {
       if (import.meta.env?.DEV) {
-        console.warn("[AuthInterceptor] removeTokensFromStorage failed:", (error as Error).message);
+        console.warn(
+          "[AuthInterceptor] removeTokensFromStorage failed:",
+          (error as Error).message,
+        );
       }
     }
   }
@@ -415,9 +433,9 @@ export class AuthInterceptor {
       // SSR or Node.js environment
       return {
         getItem: () => null,
-        setItem: () => { },
-        removeItem: () => { },
-        clear: () => { },
+        setItem: () => {},
+        removeItem: () => {},
+        clear: () => {},
         length: 0,
         key: () => null,
       };
@@ -444,7 +462,9 @@ export class AuthInterceptor {
       removeItem: (key: string) => store.delete(key),
       clear: () => store.clear(),
       // Getter so length reflects the live map size, not a stale snapshot
-      get length() { return store.size; },
+      get length() {
+        return store.size;
+      },
       key: (index: number) => Array.from(store.keys())[index] || null,
     };
   }
