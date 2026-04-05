@@ -22,18 +22,18 @@ const ProtectedRoute = ({
   redirectTo = "/auth/login",
   showLoading = true,
 }: ProtectedRouteProps) => {
-  const { user, loading, isAuthenticated } = useAuth();
+  const { user, isLoading, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const appConfig = getCurrentAppConfig();
 
   // Redirect unauthenticated users
   useEffect(() => {
-    if (!loading && !isAuthenticated && !fallback) {
+    if (!isLoading && !isAuthenticated && !fallback) {
       navigate(redirectTo, { state: { from: location.pathname } });
     }
   }, [
-    loading,
+    isLoading,
     isAuthenticated,
     navigate,
     redirectTo,
@@ -42,7 +42,7 @@ const ProtectedRoute = ({
   ]);
 
   // Show loading state
-  if (loading && showLoading) {
+  if (isLoading && showLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
         <div className="text-center">

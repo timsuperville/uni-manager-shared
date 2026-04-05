@@ -9,6 +9,7 @@
 export type { ApiConfig } from "./config/apiConfig";
 export {
   getApiBaseUrl,
+  getWebSocketUrl,
   getAbsoluteUrl,
   getDefaultApiConfig,
   createDevApiConfig,

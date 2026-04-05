@@ -212,7 +212,7 @@ function UserMenuPanel({
             {showPreferencesLink && (
               <UserMenuItem
                 icon={SlidersHorizontal}
-                label="Preferences"
+                label="Personal Settings"
                 active={prefsActive}
                 onClick={() => {
                   onClose();

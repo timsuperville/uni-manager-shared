@@ -54,6 +54,48 @@ export const getApiBaseUrl = (): string => {
 };
 
 /**
+ * Get the WebSocket origin.
+ *
+ * Resolves priority:
+ * 1. Explicit VITE_WS_URL
+ * 2. getApiBaseUrl() replacing http/https with ws/wss
+ * 3. window.location.origin converting http to ws
+ * 4. ws://localhost:5000 (Development fallback)
+ */
+export const getWebSocketUrl = (): string => {
+  if (
+    typeof import.meta !== "undefined" &&
+    import.meta.env &&
+    import.meta.env.VITE_WS_URL
+  ) {
+    return import.meta.env.VITE_WS_URL;
+  }
+  if (
+    typeof process !== "undefined" &&
+    process.env &&
+    process.env.VITE_WS_URL
+  ) {
+    return process.env.VITE_WS_URL;
+  }
+
+  const apiBase = getApiBaseUrl();
+  if (apiBase) {
+    return apiBase.replace(/^http/, "ws");
+  }
+
+  if (
+    typeof window !== "undefined" &&
+    window.location.hostname !== "localhost"
+  ) {
+    // If we're deployed on same origin (no explicit VITE_API_URL), use the host URL
+    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    return `${protocol}//${window.location.host}`;
+  }
+
+  return "ws://localhost:5000";
+};
+
+/**
  * Convert a relative API path to an absolute URL.
  *
  * Used for asset src attributes (<img>, <video>) where browsers require full URLs.

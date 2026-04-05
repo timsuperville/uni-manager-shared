@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import * as Y from "yjs";
 import { WebsocketProvider } from "y-websocket";
 import { useAuth } from "@shared/auth/hooks/useAuth";
+import { getWebSocketUrl } from "@shared/api";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -43,22 +44,25 @@ export function useSync(roomName: string | null): UseSyncResult {
   const docRef = useRef<Y.Doc | null>(null);
   const providerRef = useRef<WebsocketProvider | null>(null);
 
+  // Extract primitives to avoid deep-equality teardowns in the dependency array
+  const userId = (user as any)?.id;
+  const userFirstName = (user as any)?.firstName ?? "Unknown";
+  const userColor = (user as any)?.color ?? "#3b82f6";
+
   useEffect(() => {
-    if (!roomName || !user) return;
+    if (!roomName || !userId) return;
 
     const doc = new Y.Doc();
     docRef.current = doc;
 
-    const wsUrl =
-      (import.meta.env.VITE_WS_URL as string | undefined) ??
-      "ws://localhost:1234";
+    const wsUrl = getWebSocketUrl();
     const provider = new WebsocketProvider(wsUrl, roomName, doc);
     providerRef.current = provider;
 
     provider.awareness.setLocalStateField("user", {
-      name: (user as { firstName?: string }).firstName ?? "Unknown",
-      color: (user as { color?: string }).color ?? "#3b82f6",
-      userId: (user as { id?: string }).id,
+      name: userFirstName,
+      color: userColor,
+      userId: userId,
     });
 
     provider.on("status", (event: { status: SyncStatus }) => {
@@ -81,7 +85,7 @@ export function useSync(roomName: string | null): UseSyncResult {
       }
       docRef.current?.destroy();
     };
-  }, [roomName, user]);
+  }, [roomName, userId, userFirstName, userColor]);
 
   return {
     doc: docRef.current,
