@@ -20,14 +20,18 @@ export function useChurchId(): string | null {
 
   if (!user) return null;
 
-  const church = (
+  const currentChurch = (
     user as User & { currentChurch?: string | { id?: string; _id?: string } }
   ).currentChurch;
-  if (!church) return null;
 
-  return typeof church === "object"
-    ? (church.id ?? church._id ?? null)
-    : church;
+  if (currentChurch) {
+    if (typeof currentChurch === "object") {
+      return currentChurch.id ?? currentChurch._id ?? user.churchId ?? null;
+    }
+    return currentChurch;
+  }
+
+  return user.churchId ?? null;
 }
 
 export default useChurchId;

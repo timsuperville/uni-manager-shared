@@ -430,11 +430,19 @@ export abstract class BaseService {
    */
   protected async getList<T>(
     endpoint: string,
-    params?: PaginationParams,
+    params?: PaginationParams | Record<string, any>,
     options?: RequestOptions,
   ): Promise<PaginatedResponse<T>> {
     try {
-      const queryParams = this.buildPaginationParams(params);
+      const queryParams: Record<string, string> = {};
+      if (params) {
+        for (const [key, value] of Object.entries(params)) {
+          if (value !== undefined && value !== null && value !== "") {
+            queryParams[key] = value.toString();
+          }
+        }
+      }
+
       const base = this.buildEndpoint(endpoint);
       const url =
         Object.keys(queryParams).length > 0
