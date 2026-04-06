@@ -374,6 +374,7 @@ function InlineFallback({
   errorInfo,
   errorId,
   onReset,
+  showHomeButton,
 }: FallbackProps) {
   injectAnimations();
   const [showDetail, setShowDetail] = React.useState(false);
