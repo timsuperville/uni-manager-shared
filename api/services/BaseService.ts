@@ -252,10 +252,7 @@ export abstract class BaseService {
    * Handle service-specific errors
    */
   protected handleError(error: ApiError, context?: string): never {
-    // Add service context to error
-    error.message = `[${this.serviceName}${context ? `:${context}` : ""}] ${error.message}`;
-
-    // Log service-specific error
+    // Log service-specific error (preserves developer context in console/telemetry)
     this.logError(error, context);
 
     throw error;

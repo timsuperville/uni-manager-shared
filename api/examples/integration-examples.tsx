@@ -13,11 +13,11 @@ import React from "react";
 import {
   ApiProvider,
   useApi,
-  useAuth,
   useApiQuery,
   useApiMutation,
   getApiBaseUrl,
 } from "../index";
+import { useAuth } from "../../auth";
 import type { UserProfile } from "../types";
 import { AuthService } from "../../auth/services/AuthService";
 
@@ -74,7 +74,6 @@ const AuthSection: React.FC = () => {
         lastName: "User",
         email: "newuser@example.com",
         password: "password123",
-        acceptTerms: true,
       });
     } catch (_err) {
       // console.error('Signup failed:', err);
@@ -86,14 +85,16 @@ const AuthSection: React.FC = () => {
   }
 
   if (error) {
-    return <div>Authentication error: {error}</div>;
+    return <div>Authentication error: {String(error)}</div>;
   }
 
   return (
     <div className="auth-section">
       {isAuthenticated ? (
         <div>
-          <h2>Welcome, {user?.displayName || user?.firstName}!</h2>
+          <h2>
+            Welcome, {String(user?.displayName || user?.firstName || "User")}!
+          </h2>
           <button onClick={logout}>Logout</button>
         </div>
       ) : (
