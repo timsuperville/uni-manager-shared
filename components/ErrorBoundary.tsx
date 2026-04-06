@@ -512,6 +512,34 @@ function InlineFallback({
           <RefreshCw aria-hidden="true" style={{ width: 13, height: 13 }} />
           Try Again
         </button>
+        {showHomeButton && (
+          <button
+            onClick={() => (window.location.href = "/")}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.375rem",
+              padding: "0.375rem 0.875rem",
+              borderRadius: T.radiusSm,
+              background: "transparent",
+              color: T.textMuted,
+              border: `1px solid ${T.outline}`,
+              fontWeight: 600,
+              fontSize: "0.8125rem",
+              cursor: "pointer",
+              transition: "background 0.15s",
+            }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.background = "rgba(255,255,255,0.05)")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.background = "transparent")
+            }
+          >
+            <Home aria-hidden="true" style={{ width: 13, height: 13 }} />
+            Home
+          </button>
+        )}
         {errorId && (
           <span
             title="Reference this ID when reporting the issue"
@@ -519,6 +547,7 @@ function InlineFallback({
               fontSize: "0.6875rem",
               color: T.textMuted,
               fontFamily: "monospace",
+              marginLeft: "auto",
             }}
           >
             {errorId}
