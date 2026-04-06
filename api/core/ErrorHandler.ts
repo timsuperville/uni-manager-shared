@@ -5,7 +5,12 @@
  * and user-friendly error messages across all applications.
  */
 
-import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
+import axios, {
+  AxiosError,
+  AxiosInstance,
+  AxiosRequestConfig,
+  AxiosResponse,
+} from "axios";
 import { reportApiError } from "@shared/utils";
 
 /** Ambient type for optional window-level error tracker (e.g. Sentry, LogRocket). */
@@ -84,7 +89,10 @@ export class ErrorHandler {
     this.logError(apiError, error.config);
 
     // Dispatch a global event so the UI can show a toast or banner
-    if (typeof window !== "undefined" && apiError.type !== ApiErrorType.CANCELLED) {
+    if (
+      typeof window !== "undefined" &&
+      apiError.type !== ApiErrorType.CANCELLED
+    ) {
       window.dispatchEvent(
         new CustomEvent("api:error", {
           detail: {
@@ -208,6 +216,13 @@ export class ErrorHandler {
 
   private extractErrorMessage(responseData: unknown): string {
     if (typeof responseData === "string") {
+      const trimmed = responseData.trim();
+      if (
+        trimmed.toLowerCase().startsWith("<!doctype html") ||
+        trimmed.toLowerCase().includes("<html")
+      ) {
+        return "Received an unexpected HTML response. The server endpoint may be missing or misconfigured.";
+      }
       return responseData;
     }
 

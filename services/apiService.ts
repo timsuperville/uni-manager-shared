@@ -53,6 +53,12 @@ class ApiService {
       headers: { ...this._headers(), ...(options.headers ?? {}) },
     });
     if (!res.ok) {
+      const contentType = res.headers.get("content-type");
+      if (contentType && contentType.includes("text/html")) {
+        throw new Error(
+          `API ${res.status}: Endpoint not found or misconfigured backend routing. Received HTML response.`,
+        );
+      }
       const msg = await res.text().catch(() => res.statusText);
       throw new Error(`API ${res.status}: ${msg}`);
     }
