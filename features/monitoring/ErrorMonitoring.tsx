@@ -279,14 +279,27 @@ export const setupGlobalErrorHandling = () => {
 
   // ── Unhandled promise rejections ──────────────────────────────────────────
   window.addEventListener("unhandledrejection", (event) => {
+    const errMessage = event.reason?.message || String(event.reason) || "";
+
+    // Specific handler for Vite chunk load errors (during background deployments)
+    if (
+      errMessage.includes("Failed to fetch dynamically imported module") ||
+      errMessage.includes("Importing a module script failed")
+    ) {
+      const reloadKey = "dynamic_import_reload";
+      if (!sessionStorage.getItem(reloadKey)) {
+        sessionStorage.setItem(reloadKey, "true");
+        // Only reload after a moment to allow tracking to flush potentially, though it's urgent
+        window.location.reload();
+        return; // Stop processing to avoid spamming the log for this recoverable failure
+      }
+    }
+
     const base = {
       type: "unhandledrejection",
       // Generate a short unique ID so admin can cross-reference FeedbackReport↔↔ErrorLog
       errorId: `ERR-${Date.now().toString(36).toUpperCase().slice(-8)}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`,
-      message:
-        event.reason?.message ||
-        String(event.reason) ||
-        "Unhandled promise rejection",
+      message: errMessage || "Unhandled promise rejection",
       name: event.reason?.name || "UnhandledRejection",
       stack: event.reason?.stack,
       timestamp: new Date().toISOString(),
