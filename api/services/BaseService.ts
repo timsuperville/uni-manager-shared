@@ -64,7 +64,11 @@ export abstract class BaseService {
    * which Axios would interpret as `http://<path-segment-as-host>/...`.
    */
   protected buildEndpoint(path: string = ""): string {
-    const cleanPath = path ? (path.startsWith("/") ? path : `/${path}`) : "";
+    const cleanPath = path
+      ? path.startsWith("/") || path.startsWith("?")
+        ? path
+        : `/${path}`
+      : "";
     const combined = `${this.baseEndpoint}${cleanPath}`;
     // Collapse any accidental leading `//` into a single `/`
     return combined.startsWith("//") ? combined.slice(1) : combined;
@@ -74,7 +78,11 @@ export abstract class BaseService {
    * Build endpoint with ID parameter
    */
   protected buildIdEndpoint(id: string, path: string = ""): string {
-    const cleanPath = path ? (path.startsWith("/") ? path : `/${path}`) : "";
+    const cleanPath = path
+      ? path.startsWith("/") || path.startsWith("?")
+        ? path
+        : `/${path}`
+      : "";
     return `/${id}${cleanPath}`;
   }
 
