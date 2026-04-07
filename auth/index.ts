@@ -59,6 +59,7 @@ export { useAuthForm } from "./hooks/useAuthForm";
 // Church CAHA hooks + types (CAHA_PROTOCOL.md v2.0)
 export {
   useChurchRole,
+  TIER_DEFAULT_TOOLS,
   type UseChurchRoleReturn,
   type CommunityStage,
   type MinistryPosition,

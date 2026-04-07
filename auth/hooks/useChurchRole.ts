@@ -28,7 +28,7 @@ const COMMUNITY_TIER: Record<string, number> = {
  * a ministry membership grant.
  * Reference: docs/product/church/navigation-architecture.md
  */
-const TIER_DEFAULT_TOOLS = new Set<string>([
+export const TIER_DEFAULT_TOOLS = new Set<string>([
   "tool:events-view",
   "tool:giving-personal",
   "tool:giving-recurring",
