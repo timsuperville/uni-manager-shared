@@ -155,25 +155,33 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
               if ("options" in opt) {
                 return (
                   <optgroup key={i} label={opt.label as string}>
-                    {opt.options.map((subOpt) => (
-                      <option
-                        key={subOpt.value}
-                        value={subOpt.value}
-                        disabled={subOpt.disabled}
-                      >
-                        {subOpt.label}
-                      </option>
-                    ))}
+                    {opt.options.map((subOpt) => {
+                      console.log("SELECT_DEBUG: subOpt", subOpt);
+                      return (
+                        <option
+                          key={subOpt.value}
+                          value={subOpt.value}
+                          disabled={subOpt.disabled}
+                        >
+                          {typeof subOpt.label === "object"
+                            ? JSON.stringify(subOpt.label)
+                            : subOpt.label}
+                        </option>
+                      );
+                    })}
                   </optgroup>
                 );
               }
+              console.log("SELECT_DEBUG: opt", opt, "label", opt.label);
               return (
                 <option
                   key={opt.value}
                   value={opt.value}
                   disabled={opt.disabled}
                 >
-                  {opt.label}
+                  {typeof opt.label === "object"
+                    ? JSON.stringify(opt.label)
+                    : opt.label}
                 </option>
               );
             })}
