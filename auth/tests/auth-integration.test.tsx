@@ -10,6 +10,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { AuthProvider } from "../context/AuthContext";
+import { ApiProvider } from "../../api/components/ApiProvider";
 import { LoginForm } from "../components/LoginForm";
 
 // Mock API responses
@@ -62,9 +63,11 @@ describe("Complete Authentication Flows", () => {
 
       const { container } = render(
         <MemoryRouter>
+          <ApiProvider config={{ baseURL: "http://localhost:5000", appName: "test" }}>
           <AuthProvider config={{ appName: "test" }}>
             <LoginForm />
           </AuthProvider>
+        </ApiProvider>
         </MemoryRouter>,
       );
 
@@ -118,9 +121,11 @@ describe("Complete Authentication Flows", () => {
 
       const { container } = render(
         <MemoryRouter>
+          <ApiProvider config={{ baseURL: "http://localhost:5000", appName: "test" }}>
           <AuthProvider config={{ appName: "test", maxLoginAttempts: 3 }}>
             <LoginForm />
           </AuthProvider>
+        </ApiProvider>
         </MemoryRouter>,
       );
 
@@ -180,9 +185,11 @@ describe("Complete Authentication Flows", () => {
 
       const { container } = render(
         <MemoryRouter>
+          <ApiProvider config={{ baseURL: "http://localhost:5000", appName: "test" }}>
           <AuthProvider config={{ appName: "test" }}>
             <LoginForm />
           </AuthProvider>
+        </ApiProvider>
         </MemoryRouter>,
       );
 
@@ -228,9 +235,11 @@ describe("Complete Authentication Flows", () => {
 
       const { container } = render(
         <MemoryRouter>
+          <ApiProvider config={{ baseURL: "http://localhost:5000", appName: "test" }}>
           <AuthProvider config={{ appName: "test" }}>
             <LoginForm />
           </AuthProvider>
+        </ApiProvider>
         </MemoryRouter>,
       );
 
@@ -267,9 +276,11 @@ describe("Complete Authentication Flows", () => {
       // This test verifies the button exists and is clickable.
       render(
         <MemoryRouter>
+          <ApiProvider config={{ baseURL: "http://localhost:5000", appName: "test" }}>
           <AuthProvider config={{ appName: "test" }}>
             <LoginForm />
           </AuthProvider>
+        </ApiProvider>
         </MemoryRouter>,
       );
 
@@ -291,9 +302,11 @@ describe("Complete Authentication Flows", () => {
       expect(() =>
         render(
           <MemoryRouter>
-            <AuthProvider config={{ appName: "test" }}>
+            <ApiProvider config={{ baseURL: "http://localhost:5000", appName: "test" }}>
+          <AuthProvider config={{ appName: "test" }}>
               <div>App Content</div>
             </AuthProvider>
+        </ApiProvider>
           </MemoryRouter>,
         ),
       ).not.toThrow();
@@ -321,11 +334,13 @@ describe("Complete Authentication Flows", () => {
       sessionStorage.setItem("uni_auth_access_token", "mock-access-token");
 
       render(
-        <AuthProvider
+        <ApiProvider config={{ baseURL: "http://localhost:5000", appName: "test" }}>
+          <AuthProvider
           config={{ appName: "test", tokenRefreshInterval: 15 * 60 * 1000 }}
         >
           <div>App Content</div>
-        </AuthProvider>,
+        </AuthProvider>
+        </ApiProvider>,
       );
 
       // Allow initialization to run (verify -> isAuthenticated)
@@ -361,12 +376,14 @@ describe("Complete Authentication Flows", () => {
       const onAuthStateChange = vi.fn();
 
       render(
-        <AuthProvider
+        <ApiProvider config={{ baseURL: "http://localhost:5000", appName: "test" }}>
+          <AuthProvider
           config={{ appName: "test" }}
           onAuthStateChange={onAuthStateChange}
         >
           <div>App Content</div>
-        </AuthProvider>,
+        </AuthProvider>
+        </ApiProvider>,
       );
 
       // Should attempt to verify the token and fail
@@ -393,9 +410,11 @@ describe("Complete Authentication Flows", () => {
   describe("Cross-Tab Synchronization", () => {
     it("should sync logout across tabs", async () => {
       render(
-        <AuthProvider config={{ appName: "test" }}>
+        <ApiProvider config={{ baseURL: "http://localhost:5000", appName: "test" }}>
+          <AuthProvider config={{ appName: "test" }}>
           <div>App Content</div>
-        </AuthProvider>,
+        </AuthProvider>
+        </ApiProvider>,
       );
 
       // Verify the storage-change listener is registered by confirming auth:failure works

@@ -105,23 +105,26 @@ export function LoginForm({
   // returnTo takes priority over redirectPath prop
   const finalRedirect = returnTo || redirectPath || "/dashboard";
 
-  // ─── Device fingerprint ──────────────────────────────────────────────────────
   const generateFingerprint = useCallback((): string | null => {
     if (typeof document === "undefined") return null;
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return null;
-    ctx.textBaseline = "top";
-    ctx.font = "14px Arial";
-    ctx.fillText("Device fingerprint", 2, 2);
-    const raw = [
-      navigator?.userAgent,
-      navigator?.language,
-      screen ? `${screen.width}x${screen.height}` : "",
-      new Date().getTimezoneOffset(),
-      canvas.toDataURL(),
-    ].join("|");
-    return btoa(raw).slice(0, 32);
+    try {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return null;
+      ctx.textBaseline = "top";
+      ctx.font = "14px Arial";
+      ctx.fillText("Device fingerprint", 2, 2);
+      const raw = [
+        navigator?.userAgent,
+        navigator?.language,
+        screen ? `${screen.width}x${screen.height}` : "",
+        new Date().getTimezoneOffset(),
+        canvas.toDataURL(),
+      ].join("|");
+      return btoa(raw).slice(0, 32);
+    } catch {
+      return null;
+    }
   }, []);
 
   useEffect(() => {

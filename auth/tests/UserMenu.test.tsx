@@ -17,10 +17,16 @@ vi.mock("lucide-react", () => ({
   Loader2: () => <span data-testid="icon-loader" />,
 }));
 
+import { CommandProvider } from "../../command/CommandContext";
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 const renderWithProviders = (ui: React.ReactNode) =>
-  render(<BrowserRouter>{ui}</BrowserRouter>);
+  render(
+    <CommandProvider>
+      <BrowserRouter>{ui}</BrowserRouter>
+    </CommandProvider>
+  );
 
 // ── Fixtures ──────────────────────────────────────────────────────────────────
 

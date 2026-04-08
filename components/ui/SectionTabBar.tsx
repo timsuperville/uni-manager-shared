@@ -36,6 +36,16 @@ export function SectionTabBar({ tabs, title, subtitle }: SectionTabBarProps) {
         paddingBottom: '0',
       }}
     >
+      <style>{`
+        .section-tab-rail::-webkit-scrollbar {
+          display: none;
+        }
+        .section-tab-rail {
+          -ms-overflow-style: none; /* IE and Edge */
+          scrollbar-width: none; /* Firefox */
+        }
+      `}</style>
+
       {/* Section header */}
       {(title ?? subtitle) && (
         <div style={{ marginBottom: '16px' }}>
@@ -70,7 +80,26 @@ export function SectionTabBar({ tabs, title, subtitle }: SectionTabBarProps) {
       )}
 
       {/* Tab rail */}
-      <nav style={{ display: 'flex', gap: '0', alignItems: 'flex-end' }}>
+      <div 
+        style={{ 
+          position: 'relative',
+          WebkitMaskImage: 'linear-gradient(to right, black calc(100% - 30px), transparent 100%)',
+          maskImage: 'linear-gradient(to right, black calc(100% - 30px), transparent 100%)'
+        }}
+      >
+        <nav 
+          className="section-tab-rail"
+          style={{ 
+            display: 'flex', 
+            gap: '0', 
+            alignItems: 'flex-end',
+            overflowX: 'auto',
+            overflowY: 'hidden',
+            paddingBottom: '2px', // Slight padding for native scrollbar fallback
+            paddingRight: '30px', // Allow scrolling past the gradient mask
+            WebkitOverflowScrolling: 'touch',
+          }}
+        >
         {tabs.map((tab) => {
           const isActive = pathname === tab.path || pathname.startsWith(tab.path + '/');
           return (
@@ -81,7 +110,7 @@ export function SectionTabBar({ tabs, title, subtitle }: SectionTabBarProps) {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px',
-                padding: '8px 16px',
+                padding: '10px 16px', // Increased touch target for mobile
                 fontSize: '13px',
                 fontWeight: isActive ? '700' : '500',
                 color: isActive ? 'var(--primary-resonance)' : 'var(--text-muted)',
@@ -92,6 +121,7 @@ export function SectionTabBar({ tabs, title, subtitle }: SectionTabBarProps) {
                 marginBottom: '-1px',
                 transition: 'color 150ms ease, border-color 150ms ease',
                 whiteSpace: 'nowrap',
+                flexShrink: 0,
                 fontFamily: 'var(--font-body)',
                 letterSpacing: isActive ? '-0.01em' : '0',
               }}
@@ -115,7 +145,8 @@ export function SectionTabBar({ tabs, title, subtitle }: SectionTabBarProps) {
             </Link>
           );
         })}
-      </nav>
+        </nav>
+      </div>
     </div>
   );
 }

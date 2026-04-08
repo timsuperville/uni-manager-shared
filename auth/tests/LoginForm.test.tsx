@@ -3,6 +3,7 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { LoginForm } from "../components/LoginForm";
 import { AuthProvider } from "../context/AuthContext";
+import { ApiProvider } from "../../api/components/ApiProvider";
 
 // Mock the useNavigate hook
 const mockNavigate = vi.fn();
@@ -22,9 +23,11 @@ describe("LoginForm", () => {
   const renderLoginForm = (props = {}) => {
     return render(
       <MemoryRouter>
-        <AuthProvider>
+        <ApiProvider config={{ baseURL: "http://localhost:5000", appName: "test" }}>
+          <AuthProvider>
           <LoginForm {...props} />
         </AuthProvider>
+        </ApiProvider>
       </MemoryRouter>,
     );
   };
