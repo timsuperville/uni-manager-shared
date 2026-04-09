@@ -21,6 +21,7 @@
 import React from "react";
 import { AlertTriangle, RefreshCw, Home, ChevronDown } from "lucide-react";
 import { getAuthToken } from "../utils/authToken.js";
+import { collectSystemContext } from "../features/feedback/utils/collectSystemContext";
 
 // collectAdvancedErrorContext is imported lazily (dynamic import) to avoid a
 // circular dependency: ErrorMonitoring re-exports ErrorBoundary from this file.
@@ -159,6 +160,9 @@ function collectTelemetry(
     userId: user.userId,
     userEmail: user.userEmail,
     meta: {
+      appVersion: (import.meta as any).env?.VITE_APP_VERSION || "unknown",
+      userRole: user.userRole || "guest",
+      os: n?.platform || "unknown",
       userContext: user,
       viewport: w ? { width: w.innerWidth, height: w.innerHeight } : null,
       screen: s ? { width: s.width, height: s.height } : null,
@@ -228,6 +232,22 @@ function reportError(telemetry: TelemetryPayload, appType: string): void {
   }
 
   const ingestPayload = { ...telemetry, meta: fullMeta };
+
+  const userRole =
+    (telemetry.meta?.userContext as UserContext | undefined)?.userRole || null;
+  const systemCtx = collectSystemContext(
+    telemetry.appType,
+    telemetry.userId
+      ? {
+          id: telemetry.userId,
+          email: telemetry.userEmail,
+          name: null,
+          role: userRole,
+          appRole: userRole,
+        }
+      : null,
+  );
+
   const feedbackPayload = {
     type: "error-report",
     priority: 10,
@@ -250,30 +270,8 @@ function reportError(telemetry: TelemetryPayload, appType: string): void {
       allowContact: false,
     },
     systemContext: {
+      ...systemCtx,
       source: "error-boundary",
-      user: {
-        id: telemetry.userId || undefined,
-        email: telemetry.userEmail || undefined,
-        role:
-          (telemetry.meta?.userContext as UserContext | undefined)?.userRole ||
-          undefined,
-      },
-      page: {
-        url:
-          telemetry.url ||
-          (typeof window !== "undefined" ? window.location.href : ""),
-        path:
-          telemetry.path ||
-          (typeof window !== "undefined" ? window.location.pathname : "/"),
-        timestamp: new Date(telemetry.timestamp || Date.now()),
-      },
-      browser: {
-        userAgent: telemetry.userAgent || "unknown",
-      },
-      application: {
-        name: telemetry.appType || "unknown",
-        environment: telemetry.environment || "development",
-      },
       errors: [
         {
           message: telemetry.message,
@@ -898,6 +896,21 @@ export class ErrorBoundary extends React.Component<
         error,
         componentStack: errorInfo?.componentStack,
       });
+    }
+
+    // Auto-reload for Vite chunk loading errors, preventing infinite loops
+    if (
+      error?.message?.includes("Failed to fetch dynamically imported module") ||
+      error?.message?.includes("dynamically imported module") ||
+      error?.message?.includes("Importing a module script failed")
+    ) {
+      const reloadKey = "vite_chunk_reload";
+      const lastReload = sessionStorage.getItem(reloadKey);
+      if (!lastReload || Date.now() - parseInt(lastReload, 10) > 5000) {
+        sessionStorage.setItem(reloadKey, Date.now().toString());
+        window.location.reload();
+        return; // Return early, do not report chunk loading noise to telemetry
+      }
     }
 
     const telemetry = collectTelemetry(error, errorInfo, appType);

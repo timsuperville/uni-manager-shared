@@ -14,6 +14,7 @@
 
 import { getAuthToken } from "../../utils/authToken";
 import { flushPendingErrorReports } from "../../components/ErrorBoundary";
+import { collectSystemContext } from "../feedback/utils/collectSystemContext";
 
 declare global {
   interface Window {
@@ -121,7 +122,13 @@ export const collectAdvancedErrorContext = (baseError: any): any => {
         pushManager: !!(w && "PushManager" in w),
         notifications: !!(w && "Notification" in w),
         geolocation: !!(n && "geolocation" in n),
-        webgl: !!(d && d.createElement("canvas").getContext("webgl")),
+        webgl: (() => {
+          try {
+            return !!(d && d.createElement("canvas").getContext("webgl"));
+          } catch (e) {
+            return false;
+          }
+        })(),
       },
 
       recentActivity: getRecentUserActivity(),
@@ -193,26 +200,20 @@ const buildGlobalFeedbackPayload = (errorData: any): any => {
 
     // ── System context (matches FeedbackReport schema shape) ──────────────────
     systemContext: {
-      source: "error-boundary",
-      page: {
-        url:
-          errorData.url ||
-          (typeof window !== "undefined" ? window.location.href : ""),
-        path:
-          errorData.path ||
-          (typeof window !== "undefined" ? window.location.pathname : "/"),
-        timestamp: new Date(errorData.timestamp || Date.now()),
-      },
-      browser: {
-        userAgent:
-          errorData.meta?.browserContext?.userAgent ||
-          (typeof navigator !== "undefined" ? navigator.userAgent : "unknown"),
-        language: errorData.meta?.browserContext?.language || "",
-      },
-      application: {
-        name: errorData.appType || "unknown",
-        environment: errorData.environment || "development",
-      },
+      ...(typeof window !== "undefined"
+        ? collectSystemContext(errorData.appType || "unknown")
+        : {}),
+      source: "global-error-handler",
+      errors: [
+        {
+          message: errorData.message || "Unknown error",
+          stack: errorData.stack,
+          timestamp: errorData.timestamp
+            ? new Date(errorData.timestamp)
+            : new Date(),
+          level: "error",
+        },
+      ],
     },
 
     // ── Cross-reference (links FeedbackReport → ErrorLog in the admin UI) ─────
@@ -284,11 +285,13 @@ export const setupGlobalErrorHandling = () => {
     // Specific handler for Vite chunk load errors (during background deployments)
     if (
       errMessage.includes("Failed to fetch dynamically imported module") ||
+      errMessage.includes("dynamically imported module") ||
       errMessage.includes("Importing a module script failed")
     ) {
-      const reloadKey = "dynamic_import_reload";
-      if (!sessionStorage.getItem(reloadKey)) {
-        sessionStorage.setItem(reloadKey, "true");
+      const reloadKey = "vite_chunk_reload";
+      const lastReload = sessionStorage.getItem(reloadKey);
+      if (!lastReload || Date.now() - parseInt(lastReload, 10) > 5000) {
+        sessionStorage.setItem(reloadKey, Date.now().toString());
         // Only reload after a moment to allow tracking to flush potentially, though it's urgent
         window.location.reload();
         return; // Stop processing to avoid spamming the log for this recoverable failure
@@ -330,11 +333,28 @@ export const setupGlobalErrorHandling = () => {
     // and a non-null event.target. Filter them — they're not JS exceptions.
     if (event.target && event.target !== window) return;
 
+    const errMessage = event.message || "Unknown error";
+
+    // Specific handler for Vite chunk load errors (during background deployments)
+    if (
+      errMessage.includes("Failed to fetch dynamically imported module") ||
+      errMessage.includes("dynamically imported module") ||
+      errMessage.includes("Importing a module script failed")
+    ) {
+      const reloadKey = "vite_chunk_reload";
+      const lastReload = sessionStorage.getItem(reloadKey);
+      if (!lastReload || Date.now() - parseInt(lastReload, 10) > 5000) {
+        sessionStorage.setItem(reloadKey, Date.now().toString());
+        window.location.reload();
+        return;
+      }
+    }
+
     const base = {
       type: "uncaught",
       // Generate a short unique ID so admin can cross-reference FeedbackReport↔↔ErrorLog
       errorId: `ERR-${Date.now().toString(36).toUpperCase().slice(-8)}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`,
-      message: event.message || "Unknown error",
+      message: errMessage,
       name: event.error?.name || "Error",
       filename: event.filename,
       lineno: event.lineno,
