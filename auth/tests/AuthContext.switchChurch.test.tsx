@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, waitFor, act } from "@testing-library/react";
 import { AuthProvider, useAuth } from "../context/AuthContext";
 import React from "react";
+import { ApiProvider } from "../../api/components/ApiProvider";
 
 // Create mock auth service instance
 const mockAuthServiceInstance = {

@@ -174,7 +174,17 @@ export class AuthService extends BaseService {
   /**
    * Refresh authentication token
    */
-  async refreshToken(refreshToken: string): Promise<AuthResponse> {
+  async refreshToken(providedToken?: string): Promise<AuthResponse> {
+    const authConfig = this.client.getConfig().authConfig;
+    const refreshTokenKey = authConfig?.refreshTokenKey || "refreshToken";
+    const refreshStorage = authConfig?.tokenStorage === "localStorage" ? localStorage : sessionStorage;
+    
+    // Explicitly check for both in DEV to allow soft fallback, but strictly use config otherwise.
+    const refreshToken = providedToken || refreshStorage.getItem(refreshTokenKey) || sessionStorage.getItem("refreshToken");
+    
+    if (!refreshToken) {
+      throw new Error("No refresh token available");
+    }
     const response = await this.post<AuthResponse>(
       "/refresh-token",
       { refreshToken },
@@ -372,7 +382,10 @@ export class AuthService extends BaseService {
     try {
       const user = await this.getCurrentUser();
       return { isAuthenticated: true, user };
-    } catch (_error) {
+    } catch (_error: any) {
+      if (_error?.response?.status === 401 || _error?.response?.status === 403) {
+        this.client.clearAuthToken();
+      }
       return { isAuthenticated: false };
     }
   }

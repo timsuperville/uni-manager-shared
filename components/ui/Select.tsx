@@ -156,7 +156,6 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
                 return (
                   <optgroup key={i} label={opt.label as string}>
                     {opt.options.map((subOpt) => {
-                      console.log("SELECT_DEBUG: subOpt", subOpt);
                       return (
                         <option
                           key={subOpt.value}
@@ -172,7 +171,6 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
                   </optgroup>
                 );
               }
-              console.log("SELECT_DEBUG: opt", opt, "label", opt.label);
               return (
                 <option
                   key={opt.value}

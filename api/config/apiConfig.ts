@@ -50,6 +50,13 @@ export const getApiBaseUrl = (): string => {
     return process.env.VITE_API_URL;
   }
   // Same origin — browser resolves relative to window.location.origin
+  // If running inside Tauri (native desktop shell), we fallback to localhost backend
+  if (
+    typeof window !== "undefined" &&
+    (window.location.protocol === "tauri:" || window.location.hostname === "tauri.localhost")
+  ) {
+    return "http://127.0.0.1:5000";
+  }
   return "";
 };
 
@@ -85,14 +92,15 @@ export const getWebSocketUrl = (): string => {
 
   if (
     typeof window !== "undefined" &&
-    window.location.hostname !== "localhost"
+    window.location.hostname !== "localhost" &&
+    window.location.hostname !== "127.0.0.1"
   ) {
     // If we're deployed on same origin (no explicit VITE_API_URL), use the host URL
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
     return `${protocol}//${window.location.host}`;
   }
 
-  return "ws://localhost:5000";
+  return "ws://127.0.0.1:5000";
 };
 
 /**

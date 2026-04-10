@@ -109,7 +109,7 @@ describe("UserMenu Component", () => {
     const button = screen.getByLabelText("User menu");
     fireEvent.click(button);
     expect(screen.getByText("View Profile")).toBeInTheDocument();
-    expect(screen.getByText("Preferences")).toBeInTheDocument();
+    expect(screen.getByText("Personal Settings")).toBeInTheDocument();
     expect(screen.getByText("Sign out")).toBeInTheDocument();
   });
 
@@ -126,7 +126,7 @@ describe("UserMenu Component", () => {
     renderWithProviders(<UserMenu showPreferencesLink={false} />);
     const button = screen.getByLabelText("User menu");
     fireEvent.click(button);
-    expect(screen.queryByText("Preferences")).not.toBeInTheDocument();
+    expect(screen.queryByText("Personal Settings")).not.toBeInTheDocument();
   });
 
   it("renders custom header if provided", () => {

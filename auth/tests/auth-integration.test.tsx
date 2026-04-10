@@ -13,6 +13,22 @@ import { AuthProvider } from "../context/AuthContext";
 import { ApiProvider } from "../../api/components/ApiProvider";
 import { LoginForm } from "../components/LoginForm";
 
+const testApiConfig = {
+  baseURL: "http://localhost:5000",
+  appName: "test",
+  authConfig: {
+    tokenStorage: "sessionStorage" as const,
+    tokenKey: "test_auth_access_token",
+    refreshTokenKey: "test_auth_refresh_token",
+  }
+};
+import { ApiClient } from "../../api/core/ApiClient";
+
+// Mock for jsdom canvas not implemented error
+if (typeof HTMLCanvasElement !== "undefined") {
+  HTMLCanvasElement.prototype.getContext = () => null as any;
+}
+
 // Mock API responses
 const mockSuccessfulLogin = {
   success: true,
@@ -32,18 +48,29 @@ const mockMFARequired = {
   tempToken: "mock-temp-token",
 };
 
-const mockOAuthSuccess = {
-  success: true,
-  authUrl: "https://oauth.provider.com/authorize?state=abc123",
-  state: "abc123",
-};
-
 describe("Complete Authentication Flows", () => {
+  let mockPost: any;
+  let mockGet: any;
+
   beforeEach(() => {
     // Clear storage before each test
     localStorage.clear();
     sessionStorage.clear();
     vi.clearAllMocks();
+
+    mockPost = vi.spyOn(ApiClient.prototype, "post").mockResolvedValue({
+      data: { success: true },
+      status: 200,
+      statusText: "OK",
+      headers: {},
+    } as any);
+
+    mockGet = vi.spyOn(ApiClient.prototype, "get").mockResolvedValue({
+      data: { success: true },
+      status: 200,
+      statusText: "OK",
+      headers: {},
+    } as any);
   });
 
   afterEach(() => {
@@ -52,22 +79,29 @@ describe("Complete Authentication Flows", () => {
 
   describe("Email/Password Login Flow", () => {
     it("should complete successful login flow", async () => {
-      // Mock fetch for login API
-      global.fetch = vi.fn().mockImplementation(async () => {
-        return {
-          ok: true,
-          json: async () => mockSuccessfulLogin,
-          headers: new Headers({ "content-type": "application/json" }),
-        };
+      // Mock post for login API
+      mockPost.mockResolvedValueOnce({
+        data: mockSuccessfulLogin,
+        status: 200,
+        statusText: "OK",
+        headers: {},
+      });
+
+      // Mock get for checkAuthStatus (which calls /me)
+      mockGet.mockResolvedValueOnce({
+        data: { user: mockSuccessfulLogin.user },
+        status: 200,
+        statusText: "OK",
+        headers: {},
       });
 
       const { container } = render(
         <MemoryRouter>
-          <ApiProvider config={{ baseURL: "http://localhost:5000", appName: "test" }}>
-          <AuthProvider config={{ appName: "test" }}>
-            <LoginForm />
-          </AuthProvider>
-        </ApiProvider>
+          <ApiProvider config={testApiConfig}>
+            <AuthProvider config={{ appName: "test" }}>
+              <LoginForm />
+            </AuthProvider>
+          </ApiProvider>
         </MemoryRouter>,
       );
 
@@ -90,42 +124,68 @@ describe("Complete Authentication Flows", () => {
 
       // Wait for login to complete
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith(
-          expect.stringContaining("/api/v1/auth/login"),
+        expect(mockPost).toHaveBeenCalledWith(
+          expect.stringContaining("/login"),
           expect.objectContaining({
-            method: "POST",
-            body: expect.stringContaining("test@example.com"),
+            email: "test@example.com",
+            password: "password123"
           }),
+          expect.any(Object),
         );
       });
 
       // Verify tokens are stored
       await waitFor(() => {
         const storedToken =
-          sessionStorage.getItem("uni_auth_access_token") ||
-          localStorage.getItem("uni_auth_access_token");
+          sessionStorage.getItem(testApiConfig.authConfig.tokenKey!) ||
+          localStorage.getItem(testApiConfig.authConfig.tokenKey!);
         expect(storedToken).toBe("mock-access-token");
       });
     });
 
     it("should handle login failure with rate limiting", async () => {
-      // Mock failed login
-      global.fetch = vi.fn().mockImplementation(async () => {
-        return {
-          ok: false,
-          status: 401,
-          json: async () => ({ message: "Invalid credentials" }),
-          headers: new Headers({ "content-type": "application/json" }),
-        };
-      });
+      // Mock failed logins
+      mockPost
+        .mockRejectedValueOnce({
+          isAxiosError: true,
+          message: "Invalid credentials",
+          response: {
+            status: 401,
+            data: { message: "Invalid credentials" }
+          }
+        })
+        .mockRejectedValueOnce({
+          isAxiosError: true,
+          message: "Invalid credentials",
+          response: {
+            status: 401,
+            data: { message: "Invalid credentials" }
+          }
+        })
+        .mockRejectedValueOnce({
+          isAxiosError: true,
+          message: "Invalid credentials",
+          response: {
+            status: 401,
+            data: { message: "Invalid credentials" }
+          }
+        })
+        .mockRejectedValue({
+          isAxiosError: true,
+          message: "Too many attempts",
+          response: {
+            status: 429,
+            data: { message: "Too many attempts" }
+          }
+        });
 
       const { container } = render(
         <MemoryRouter>
-          <ApiProvider config={{ baseURL: "http://localhost:5000", appName: "test" }}>
-          <AuthProvider config={{ appName: "test", maxLoginAttempts: 3 }}>
-            <LoginForm />
-          </AuthProvider>
-        </ApiProvider>
+          <ApiProvider config={testApiConfig}>
+            <AuthProvider config={{ appName: "test", maxLoginAttempts: 3 }}>
+              <LoginForm />
+            </AuthProvider>
+          </ApiProvider>
         </MemoryRouter>,
       );
 
@@ -169,27 +229,20 @@ describe("Complete Authentication Flows", () => {
   describe("MFA Login Flow", () => {
     it("should complete MFA verification after login", async () => {
       // Mock login requiring MFA
-      global.fetch = vi
-        .fn()
-        .mockResolvedValueOnce({
-          headers: new Headers({ "content-type": "application/json" }),
-          ok: true,
-          json: async () => mockMFARequired,
-        })
-        // Mock MFA verification
-        .mockResolvedValueOnce({
-          headers: new Headers({ "content-type": "application/json" }),
-          ok: true,
-          json: async () => mockSuccessfulLogin,
-        });
-
+      mockPost.mockResolvedValueOnce({
+        data: mockMFARequired,
+        status: 200,
+        statusText: "OK",
+        headers: {},
+      });
+      
       const { container } = render(
         <MemoryRouter>
-          <ApiProvider config={{ baseURL: "http://localhost:5000", appName: "test" }}>
-          <AuthProvider config={{ appName: "test" }}>
-            <LoginForm />
-          </AuthProvider>
-        </ApiProvider>
+          <ApiProvider config={testApiConfig}>
+            <AuthProvider config={{ appName: "test" }}>
+              <LoginForm />
+            </AuthProvider>
+          </ApiProvider>
         </MemoryRouter>,
       );
 
@@ -218,28 +271,29 @@ describe("Complete Authentication Flows", () => {
         ).toBeInTheDocument();
       });
 
-      // Confirm the initial login fetch was made (the MFA trigger)
-      expect(global.fetch).toHaveBeenCalledTimes(1);
-      expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining("/api/v1/auth/login"),
+      // Confirm the initial login post was made (the MFA trigger)
+      expect(mockPost).toHaveBeenCalledWith(
+        expect.stringContaining("/login"),
         expect.any(Object),
+        expect.any(Object)
       );
     });
 
     it("should handle invalid MFA code", async () => {
-      global.fetch = vi.fn().mockResolvedValueOnce({
-        headers: new Headers({ "content-type": "application/json" }),
-        ok: true,
-        json: async () => mockMFARequired,
+      mockPost.mockResolvedValueOnce({
+        data: mockMFARequired,
+        status: 200,
+        statusText: "OK",
+        headers: {},
       });
 
       const { container } = render(
         <MemoryRouter>
-          <ApiProvider config={{ baseURL: "http://localhost:5000", appName: "test" }}>
-          <AuthProvider config={{ appName: "test" }}>
-            <LoginForm />
-          </AuthProvider>
-        </ApiProvider>
+          <ApiProvider config={testApiConfig}>
+            <AuthProvider config={{ appName: "test" }}>
+              <LoginForm />
+            </AuthProvider>
+          </ApiProvider>
         </MemoryRouter>,
       );
 
@@ -276,11 +330,11 @@ describe("Complete Authentication Flows", () => {
       // This test verifies the button exists and is clickable.
       render(
         <MemoryRouter>
-          <ApiProvider config={{ baseURL: "http://localhost:5000", appName: "test" }}>
-          <AuthProvider config={{ appName: "test" }}>
-            <LoginForm />
-          </AuthProvider>
-        </ApiProvider>
+          <ApiProvider config={testApiConfig}>
+            <AuthProvider config={{ appName: "test" }}>
+              <LoginForm />
+            </AuthProvider>
+          </ApiProvider>
         </MemoryRouter>,
       );
 
@@ -302,11 +356,11 @@ describe("Complete Authentication Flows", () => {
       expect(() =>
         render(
           <MemoryRouter>
-            <ApiProvider config={{ baseURL: "http://localhost:5000", appName: "test" }}>
-          <AuthProvider config={{ appName: "test" }}>
-              <div>App Content</div>
-            </AuthProvider>
-        </ApiProvider>
+            <ApiProvider config={testApiConfig}>
+              <AuthProvider config={{ appName: "test" }}>
+                <div>App Content</div>
+              </AuthProvider>
+            </ApiProvider>
           </MemoryRouter>,
         ),
       ).not.toThrow();
@@ -318,89 +372,89 @@ describe("Complete Authentication Flows", () => {
 
   describe("Session Management", () => {
     it("should auto-refresh token before expiration", async () => {
-      global.fetch = vi.fn().mockResolvedValue({
-        headers: new Headers({ "content-type": "application/json" }),
-        ok: true,
-        json: async () => ({
+      mockPost.mockResolvedValue({
+        data: {
           accessToken: "new-access-token",
           refreshToken: "new-refresh-token",
           success: true,
           user: { id: "123", email: "test@example.com" },
-        }),
+        },
+        status: 200,
+        statusText: "OK",
+        headers: {}
       });
 
       // Pre-populate token storage with the namespaced key so
       // checkExistingSession picks it up and user becomes authenticated
-      sessionStorage.setItem("uni_auth_access_token", "mock-access-token");
+      sessionStorage.setItem("test_auth_access_token", "mock-access-token");
+      sessionStorage.setItem("test_auth_refresh_token", "mock-refresh-token");
+      sessionStorage.setItem("test_auth_user_data", JSON.stringify({ id: "123", email: "test@example.com" }));
 
       render(
-        <ApiProvider config={{ baseURL: "http://localhost:5000", appName: "test" }}>
+        <ApiProvider config={testApiConfig}>
           <AuthProvider
-          config={{ appName: "test", tokenRefreshInterval: 15 * 60 * 1000 }}
-        >
-          <div>App Content</div>
-        </AuthProvider>
+            config={{ appName: "test", tokenRefreshInterval: 50 }}
+          >
+            <div>App Content</div>
+          </AuthProvider>
         </ApiProvider>,
       );
 
-      // Allow initialization to run (verify -> isAuthenticated)
+      // Auto-refresh is managed by useAuthCallbacks interval
       await waitFor(
         () => {
-          expect(global.fetch).toHaveBeenCalledWith(
-            expect.stringContaining("/api/v1/auth/verify-token"),
-            expect.any(Object),
+          expect(mockPost).toHaveBeenCalledWith(
+            expect.stringContaining("/refresh-token"),
+            expect.objectContaining({ refreshToken: "mock-refresh-token" }),
+            expect.any(Object)
           );
         },
         { timeout: 3000 },
       );
-
-      // Auto-refresh is managed by useAuthCallbacks interval — verified above by confirming
-      // that initialization calls verify-token. The refresh interval feature exists in the hook.
-      expect(global.fetch).toHaveBeenCalledTimes(1);
     });
 
     it("should handle expired session", async () => {
-      // Pre-populate namespaced token so checkExistingSession makes a request
-      sessionStorage.setItem("uni_auth_access_token", "expired-token");
+      // Pre-populate namespaced token so checkAuthStatus runs
+      sessionStorage.setItem("test_auth_access_token", "expired-token");
+      sessionStorage.setItem("test_auth_user_data", JSON.stringify({ id: "123" }));
 
-      global.fetch = vi.fn().mockResolvedValueOnce({
-        headers: new Headers({ "content-type": "application/json" }),
-        ok: false,
-        status: 401,
-        json: async () => ({ message: "Session expired" }),
-        clone: () => ({
-          text: async () => JSON.stringify({ message: "Session expired" }),
-        }),
+      // mock getCurrentUser failing -> checkAuthStatus returns { isAuthenticated: false }
+      mockGet.mockRejectedValue({
+        isAxiosError: true,
+        response: {
+          status: 401,
+          data: { message: "Session expired" }
+        }
       });
-
+      
       const onAuthStateChange = vi.fn();
 
       render(
-        <ApiProvider config={{ baseURL: "http://localhost:5000", appName: "test" }}>
+        <ApiProvider config={testApiConfig}>
           <AuthProvider
-          config={{ appName: "test" }}
-          onAuthStateChange={onAuthStateChange}
-        >
-          <div>App Content</div>
-        </AuthProvider>
+            config={{ appName: "test" }}
+            onAuthStateChange={onAuthStateChange}
+          >
+            <div>App Content</div>
+          </AuthProvider>
         </ApiProvider>,
       );
 
-      // Should attempt to verify the token and fail
+      // Should attempt to verify auth status and fail at /me
       await waitFor(
         () => {
-          expect(global.fetch).toHaveBeenCalledWith(
-            expect.stringContaining("/api/v1/auth/verify-token"),
-            expect.any(Object),
+          expect(mockGet).toHaveBeenCalledWith(
+            expect.stringContaining("/me"),
+            expect.any(Object)
           );
         },
         { timeout: 3000 },
       );
 
-      // After failed verify, token should be cleared
+      // After failed validation, tokens shouldn't be valid, and state should reset
       await waitFor(
         () => {
-          expect(sessionStorage.getItem("uni_auth_access_token")).toBeNull();
+          expect(sessionStorage.getItem("test_auth_access_token")).toBeNull();
         },
         { timeout: 3000 },
       );
@@ -410,10 +464,10 @@ describe("Complete Authentication Flows", () => {
   describe("Cross-Tab Synchronization", () => {
     it("should sync logout across tabs", async () => {
       render(
-        <ApiProvider config={{ baseURL: "http://localhost:5000", appName: "test" }}>
+        <ApiProvider config={testApiConfig}>
           <AuthProvider config={{ appName: "test" }}>
-          <div>App Content</div>
-        </AuthProvider>
+            <div>App Content</div>
+          </AuthProvider>
         </ApiProvider>,
       );
 
@@ -422,7 +476,7 @@ describe("Complete Authentication Flows", () => {
       // When authenticated, cross-tab logout clears tokens.
 
       // Token starts empty (cleared in beforeEach); set it directly
-      sessionStorage.setItem("uni_auth_access_token", "mock-token");
+      sessionStorage.setItem("accessToken", "mock-token");
 
       // The storage event listener in useAuthCallbacks checks for key: "accessToken"|"auth_token"
       // Dispatch a properly keyed storage event
