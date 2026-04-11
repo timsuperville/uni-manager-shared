@@ -40,6 +40,17 @@ export interface SelectProps extends Omit<
 
 const EMPTY_VALUE = "__empty_value__";
 
+const extractStringValue = (label: ReactNode): ReactNode => {
+  if (label && typeof label === "object" && !React.isValidElement(label)) {
+    if ("label" in label && typeof (label as any).label === "string")
+      return (label as any).label;
+    if ("value" in label && typeof (label as any).value === "string")
+      return (label as any).value;
+    return JSON.stringify(label);
+  }
+  return label;
+};
+
 export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
   (
     {
@@ -162,9 +173,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
                           value={subOpt.value}
                           disabled={subOpt.disabled}
                         >
-                          {typeof subOpt.label === "object"
-                            ? JSON.stringify(subOpt.label)
-                            : subOpt.label}
+                          {extractStringValue(subOpt.label) as string}
                         </option>
                       );
                     })}
@@ -177,9 +186,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
                   value={opt.value}
                   disabled={opt.disabled}
                 >
-                  {typeof opt.label === "object"
-                    ? JSON.stringify(opt.label)
-                    : opt.label}
+                  {extractStringValue(opt.label) as string}
                 </option>
               );
             })}
@@ -260,7 +267,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
                                 </SelectPrimitive.ItemIndicator>
                               </span>
                               <SelectPrimitive.ItemText>
-                                {subOpt.label}
+                                {extractStringValue(subOpt.label)}
                               </SelectPrimitive.ItemText>
                             </SelectPrimitive.Item>
                           ))}
@@ -280,7 +287,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
                           </SelectPrimitive.ItemIndicator>
                         </span>
                         <SelectPrimitive.ItemText>
-                          {opt.label}
+                          {extractStringValue(opt.label)}
                         </SelectPrimitive.ItemText>
                       </SelectPrimitive.Item>
                     );
