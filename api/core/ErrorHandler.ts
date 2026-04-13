@@ -325,8 +325,18 @@ export class ErrorHandler {
       attemptNumber: config?._retryCount ?? 1,
     };
 
+    // Temporarily dump all API error structures directly to console.error
+    // regardless of the DEV check so the custom UI overlay captures it.
+    console.error("[API Error Intercepted]", {
+      type: error.type,
+      message: error.message,
+      statusCode: error.statusCode,
+      context,
+      timestamp: error.timestamp,
+    });
+
     if (import.meta.env.DEV) {
-      console.error("[API Error]", {
+      console.error("[API Error DEV]", {
         type: error.type,
         message: error.message,
         statusCode: error.statusCode,

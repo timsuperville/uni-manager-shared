@@ -128,6 +128,7 @@ export interface AuthContextType {
     user: User | null;
     isAuthenticated: boolean;
   }>;
+  initializeAuth?: () => Promise<void>;
   updateActivity?: () => void;
   clearError?: () => void;
 
@@ -348,6 +349,7 @@ export type AppType =
   | "home"
   | "personal"
   | "playback"
+  | "presentation"
   | "default";
 
 export type LoginTheme = "default" | "dark" | "minimal";

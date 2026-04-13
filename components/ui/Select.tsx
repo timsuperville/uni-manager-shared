@@ -159,7 +159,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
                 onChange(vals, e); // Pass value first to appease ParallelReader!
               }
             }}
-            className="w-full bg-(--glass-surface) border border-(--glass-outline) text-(--text-primary) rounded-md p-2 focus:ring-2 focus:ring-(--primary-resonance) outline-none"
+            className="w-full bg-[var(--glass-surface)] border border-[var(--glass-outline)] text-[var(--text-primary)] rounded-md p-2 focus:ring-2 focus:ring-[var(--primary-resonance)] outline-none"
             {...props}
           >
             {parsedOptions.map((opt, i) => {
@@ -193,7 +193,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
           </select>
           {showHelper && (
             <p
-              className={`text-xs mt-1 ${isError ? "text-red-500" : "text-(--text-muted)"}`}
+              className={`text-xs mt-1 ${isError ? "text-red-500" : "text-[var(--text-muted)]"}`}
             >
               {errorMsg || helperText}
             </p>
@@ -222,12 +222,12 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
             <SelectPrimitive.Trigger
               id={props.id || name}
               className={`flex items-center justify-between w-full px-3 py-2 text-sm bg-transparent border rounded-md shadow-sm outline-none transition-colors 
-                ${isError ? "border-red-500 text-red-500 hover:border-red-600" : "border-(--glass-outline) text-(--text-primary) hover:border-(--glass-border-hover,rgba(255,255,255,0.2))"}
-                focus:ring-2 focus:ring-(--primary-resonance) disabled:cursor-not-allowed disabled:opacity-50`}
+                ${isError ? "border-red-500 text-red-500 hover:border-red-600" : "border-[var(--glass-outline)] text-[var(--text-primary)] hover:border-[var(--glass-border-hover,rgba(255,255,255,0.2))]"}
+                focus:ring-2 focus:ring-[var(--primary-resonance)] disabled:cursor-not-allowed disabled:opacity-50`}
             >
               <div className="flex items-center truncate">
                 {icon && (
-                  <span className="mr-2 text-(--text-muted)">{icon}</span>
+                  <span className="mr-2 text-[var(--text-muted)]">{icon}</span>
                 )}
                 <SelectPrimitive.Value placeholder={placeholder} />
               </div>
@@ -238,7 +238,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
 
             <SelectPrimitive.Portal>
               <SelectPrimitive.Content
-                className="z-[9999] min-w-32 overflow-hidden rounded-md border border-(--glass-outline,rgba(255,255,255,0.1)) bg-(--glass-surface-solid,#1c1c1e) shadow-md animate-in fade-in-80 zoom-in-95"
+                className="z-[9999] min-w-32 overflow-hidden rounded-md border border-[var(--glass-outline,rgba(255,255,255,0.1))] bg-[var(--glass-surface-solid,#1c1c1e)] shadow-md animate-in fade-in-80 zoom-in-95"
                 position="popper"
                 sideOffset={4}
               >
@@ -247,7 +247,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
                     if ("options" in opt) {
                       return (
                         <SelectPrimitive.Group key={i}>
-                          <SelectPrimitive.Label className="px-3 py-1.5 text-xs font-semibold text-(--text-muted)">
+                          <SelectPrimitive.Label className="px-3 py-1.5 text-xs font-semibold text-[var(--text-muted)]">
                             {opt.label}
                           </SelectPrimitive.Label>
                           {opt.options.map((subOpt) => (
@@ -259,7 +259,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
                                 subOpt.value === "" ? EMPTY_VALUE : subOpt.value
                               }
                               disabled={subOpt.disabled}
-                              className="relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm text-(--text-primary) outline-none focus:bg-(--primary-resonance) focus:text-white data-disabled:pointer-events-none data-disabled:opacity-50"
+                              className="relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm text-[var(--text-primary)] outline-none focus:bg-[var(--primary-resonance)] focus:text-white data-disabled:pointer-events-none data-disabled:opacity-50"
                             >
                               <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
                                 <SelectPrimitive.ItemIndicator>
@@ -279,7 +279,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
                         key={opt.value === "" ? EMPTY_VALUE : opt.value}
                         value={opt.value === "" ? EMPTY_VALUE : opt.value}
                         disabled={opt.disabled}
-                        className="relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm text-(--text-primary) outline-none focus:bg-(--primary-resonance) focus:text-white data-disabled:pointer-events-none data-disabled:opacity-50"
+                        className="relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm text-[var(--text-primary)] outline-none focus:bg-[var(--primary-resonance)] focus:text-white data-disabled:pointer-events-none data-disabled:opacity-50"
                       >
                         <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
                           <SelectPrimitive.ItemIndicator>
@@ -299,7 +299,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
         </div>
         {showHelper && (
           <p
-            className={`text-xs mt-1 ${isError ? "text-red-500" : "text-(--text-muted)"}`}
+            className={`text-xs mt-1 ${isError ? "text-red-500" : "text-[var(--text-muted)]"}`}
           >
             {errorMsg || helperText}
           </p>

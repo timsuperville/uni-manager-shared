@@ -116,6 +116,7 @@ export function useQRSessionDelegation({
     secondsLeft,
     qrInitError,
     refreshToken,
-    buildQrPayload: () => JSON.stringify({ token, app: appType, v: 1 }),
+    buildQrPayload: () =>
+      `https://church.uni-manager.com/auth/qr-approve?token=${token}&app=${appType}&v=1`,
   };
 }

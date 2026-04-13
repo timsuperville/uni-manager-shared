@@ -183,6 +183,7 @@ export abstract class BaseService {
    */
   protected transformResponse<T>(response: ApiResponse<T>): T {
     const body = response.data as any;
+    let payload = body;
     // Peel the { success, data } envelope produced by responseHelpers.
     if (
       body !== null &&
@@ -190,9 +191,18 @@ export abstract class BaseService {
       "success" in body &&
       "data" in body
     ) {
-      return body.data as T;
+      payload = body.data;
     }
-    return response.data;
+    
+    // Extract ETag capture
+    if (response.headers?.etag && typeof payload === 'object' && payload !== null && !Array.isArray(payload)) {
+      const etagValue = parseInt(response.headers.etag.replace(/"/g, ''), 10);
+      if (!isNaN(etagValue) && payload.__v === undefined) {
+        payload.__v = etagValue;
+      }
+    }
+    
+    return payload as T;
   }
 
   /**

@@ -13,6 +13,7 @@ import {
   HomeAppLogo,
   PersonalAppLogo,
   PlaybackAppLogo,
+  PresentationAppLogo,
 } from "../../components/icons";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -23,7 +24,8 @@ export type AppName =
   | "business"
   | "home"
   | "personal"
-  | "playback";
+  | "playback"
+  | "presentation";
 
 export type SecurityProfile = "standard" | "strict" | "relaxed";
 
@@ -478,6 +480,62 @@ export const APP_CONFIGS: Record<AppName, AppConfig> = {
       registerPath: "/auth/register",
     },
   },
+
+  presentation: {
+    appName: "Presentation Pro",
+    appType: "presentation",
+    storageNamespace: "presentation",
+    brandColor: "violet",
+    logo: "/favicon.svg",
+    favicon: "/favicon.svg",
+    securityProfile: "standard",
+    apiEndpoints: {
+      login: `${BASE_API_URL}/api/v1/auth/login`,
+      signup: `${BASE_API_URL}/api/v1/auth/signup`,
+      logout: `${BASE_API_URL}/api/v1/auth/logout`,
+      refresh: `${BASE_API_URL}/api/v1/auth/refresh`,
+      refreshToken: `${BASE_API_URL}/api/v1/auth/refresh-token`,
+      profile: `${BASE_API_URL}/api/v1/auth/profile`,
+      updateProfile: `${BASE_API_URL}/api/v1/auth/profile`,
+      resetPassword: `${BASE_API_URL}/api/v1/auth/reset-password`,
+      changePassword: `${BASE_API_URL}/api/v1/auth/change-password`,
+    },
+    features: {
+      registration: false,
+      socialLogin: { enabled: false, providers: [] },
+      passwordReset: true,
+      emailVerification: false,
+      rememberMe: true,
+      profileManagement: true,
+      deviceFingerprinting: true,
+      sessionManagement: true,
+      testLogin: import.meta.env.DEV as boolean,
+    },
+    permissions: {
+      roles: ["operator", "admin", "guest"],
+      defaultRole: "guest",
+    },
+    branding: {
+      primaryColor: "rgb(139, 92, 246)",
+      primaryColorHover: "rgb(124, 58, 237)",
+      gradientFrom: "from-violet-500",
+      gradientTo: "to-violet-600",
+      focusRing: "focus:ring-violet-500",
+      accentColor: "accent-violet-500",
+    },
+    ui: {
+      icon: (
+        <PresentationAppLogo
+          size={40}
+          style={{ color: "rgb(139, 92, 246)" }}
+          sw={2}
+        />
+      ),
+      loginTitle: "Presentation Pro",
+      loginDescription: "Service stage management and projection",
+      registerPath: "/auth/register",
+    },
+  },
 };
 
 // ── Utility functions ─────────────────────────────────────────────────────────
@@ -494,6 +552,7 @@ const PORT_MAP: Record<number, AppName> = {
   5176: "business",
   5177: "personal",
   5178: "playback",
+  5179: "presentation",
 };
 
 export function getCurrentAppName(): AppName {
