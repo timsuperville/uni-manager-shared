@@ -137,7 +137,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
 
     if (multiple) {
       return (
-        <div className={`w-full ${className}`}>
+        <div className={className ? className : "w-full"}>
           {label && (
             <label
               className="block text-sm font-medium mb-1"
@@ -203,7 +203,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
     }
 
     return (
-      <div className={`w-full ${className}`}>
+      <div className={className ? className : "w-full"}>
         {label && (
           <label
             className="block text-sm font-medium mb-1"
@@ -225,11 +225,15 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
                 ${isError ? "border-red-500 text-red-500 hover:border-red-600" : "border-[var(--glass-outline)] text-[var(--text-primary)] hover:border-[var(--glass-border-hover,rgba(255,255,255,0.2))]"}
                 focus:ring-2 focus:ring-[var(--primary-resonance)] disabled:cursor-not-allowed disabled:opacity-50`}
             >
-              <div className="flex items-center truncate">
+              <div className="flex-1 min-w-0 flex items-center justify-start text-left pr-2">
                 {icon && (
-                  <span className="mr-2 text-[var(--text-muted)]">{icon}</span>
+                  <span className="mr-2 shrink-0 text-[var(--text-muted)]">
+                    {icon}
+                  </span>
                 )}
-                <SelectPrimitive.Value placeholder={placeholder} />
+                <span className="truncate block w-full">
+                  <SelectPrimitive.Value placeholder={placeholder} />
+                </span>
               </div>
               <SelectPrimitive.Icon asChild>
                 <ChevronDown className="w-4 h-4 opacity-50" />
