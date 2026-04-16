@@ -420,7 +420,7 @@ export const APP_CONFIGS: Record<AppName, AppConfig> = {
     brandColor: "rose",
     logo: "/favicon.svg",
     favicon: "/favicon.svg",
-    securityProfile: "standard",
+    securityProfile: "relaxed",
     apiEndpoints: {
       login: `${BASE_API_URL}/api/v1/auth/login`,
       signup: `${BASE_API_URL}/api/v1/auth/signup`,
@@ -488,7 +488,7 @@ export const APP_CONFIGS: Record<AppName, AppConfig> = {
     brandColor: "violet",
     logo: "/favicon.svg",
     favicon: "/favicon.svg",
-    securityProfile: "standard",
+    securityProfile: "relaxed",
     apiEndpoints: {
       login: `${BASE_API_URL}/api/v1/auth/login`,
       signup: `${BASE_API_URL}/api/v1/auth/signup`,
