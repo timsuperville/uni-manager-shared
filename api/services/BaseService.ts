@@ -271,7 +271,9 @@ export abstract class BaseService {
    */
   protected handleError(error: ApiError, context?: string): never {
     // Log service-specific error (preserves developer context in console/telemetry)
-    this.logError(error, context);
+    if (!error.silent) {
+      this.logError(error, context);
+    }
 
     throw error;
   }

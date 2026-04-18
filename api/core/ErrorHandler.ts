@@ -49,6 +49,7 @@ export interface ApiError extends Error {
   timestamp: string;
   requestId?: string;
   resonanceId?: string;
+  silent?: boolean;
 }
 
 export interface ErrorContext {
@@ -78,6 +79,7 @@ export class ErrorHandler {
     const apiError = this.transformError(error);
     const config = error.config as AxiosRequestConfig & {
       _retryCount?: number;
+      silent?: boolean;
     };
 
     // Check if error is retryable and within retry limits
@@ -86,12 +88,15 @@ export class ErrorHandler {
     }
 
     // Log error for monitoring
-    this.logError(apiError, error.config);
+    if (!config.silent) {
+      this.logError(apiError, error.config);
+    }
 
     // Dispatch a global event so the UI can show a toast or banner
     if (
       typeof window !== "undefined" &&
-      apiError.type !== ApiErrorType.CANCELLED
+      apiError.type !== ApiErrorType.CANCELLED &&
+      !config.silent
     ) {
       window.dispatchEvent(
         new CustomEvent("api:error", {
@@ -112,6 +117,7 @@ export class ErrorHandler {
    */
   transformError(error: AxiosError): ApiError {
     const requestId = error.config?.headers?.["X-Request-ID"] as string;
+    const isSilent = (error.config as any)?.silent;
 
     if (axios.isCancel(error)) {
       return this.createApiError({
@@ -165,6 +171,10 @@ export class ErrorHandler {
       });
     }
 
+    if (isSilent) {
+      apiError.silent = true;
+    }
+
     return apiError;
   }
 
@@ -178,6 +188,7 @@ export class ErrorHandler {
     timestamp: string;
     requestId?: string;
     resonanceId?: string;
+    silent?: boolean;
   }): ApiError {
     const error = new Error(params.message) as ApiError;
     error.name = "ApiError";
@@ -189,6 +200,7 @@ export class ErrorHandler {
     error.timestamp = params.timestamp;
     error.requestId = params.requestId;
     error.resonanceId = params.resonanceId;
+    error.silent = params.silent;
 
     return error;
   }

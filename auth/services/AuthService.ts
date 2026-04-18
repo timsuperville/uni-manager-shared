@@ -198,8 +198,8 @@ export class AuthService extends BaseService {
    * Get current user profile
    * Calls GET /api/v1/auth/me
    */
-  async getCurrentUser(): Promise<User> {
-    const data = await this.get<any>("/me");
+  async getCurrentUser(silent?: boolean): Promise<User> {
+    const data = await this.get<any>("/me", { silent });
     return data?.user || data;
   }
 
@@ -380,11 +380,18 @@ export class AuthService extends BaseService {
     }
 
     try {
-      const user = await this.getCurrentUser();
+      const user = await this.getCurrentUser(true);
       return { isAuthenticated: true, user };
     } catch (_error: any) {
-      if (_error?.response?.status === 401 || _error?.response?.status === 403) {
+      if (_error?.statusCode === 401 || _error?.statusCode === 403) {
         this.client.clearAuthToken();
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(
+            new CustomEvent("auth:failure", {
+              detail: { reason: "session_expired" },
+            }),
+          );
+        }
       }
       return { isAuthenticated: false };
     }

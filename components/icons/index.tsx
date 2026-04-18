@@ -237,6 +237,14 @@ export const ChurchAppLogo = svg(
   1.5
 );
 
+export const BellIcon = svg(
+  <>
+    <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+    <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+  </>,
+  1.5
+);
+
 export const MusicIcon = svg(
   <>
     <path d="M9 18V5l12-2v13" />
@@ -245,12 +253,102 @@ export const MusicIcon = svg(
   </>,
   1.5
 );
+
 export const CoinsIcon = svg(
   <>
     <circle cx="8" cy="8" r="6" />
     <path d="M18.09 10.37A6 6 0 1 1 10.34 18" />
     <path d="M7 6h1v4" />
     <path d="m16.71 13.88.7.71-2.82 2.82" />
+  </>,
+  1.5
+);
+
+export const MegaphoneIcon = svg(
+  <>
+    <path d="m3 11 18-5v12L3 14v-3z" />
+    <path d="M11.6 16.8a3 3 0 1 1-5.8-1.6" />
+  </>,
+  1.5
+);
+
+export const BookIcon = svg(
+  <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />,
+  1.5
+);
+
+export const FlameIcon = svg(
+  <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" />,
+  1.5
+);
+
+export const WineIcon = svg(
+  <>
+    <path d="M8 22h8" />
+    <path d="M7 10h10" />
+    <path d="M12 15v7" />
+    <path d="M12 15a5 5 0 0 0 5-5c0-2-.5-4-2-8H9c-1.5 4-2 6-2 8a5 5 0 0 0 5 5Z" />
+  </>,
+  1.5
+);
+
+export const SmileIcon = svg(
+  <>
+    <circle cx="12" cy="12" r="10" />
+    <path d="M8 14s1.5 2 4 2 4-2 4-2" />
+    <line x1="9" y1="9" x2="9.01" y2="9" />
+    <line x1="15" y1="9" x2="15.01" y2="9" />
+  </>,
+  1.5
+);
+
+export const SendIcon = svg(
+  <>
+    <path d="m22 2-7 20-4-9-9-4Z" />
+    <path d="M22 2 11 13" />
+  </>,
+  1.5
+);
+
+export const LogOutIcon = svg(
+  <>
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+    <polyline points="16 17 21 12 16 7" />
+    <line x1="21" y1="12" x2="9" y2="12" />
+  </>,
+  1.5
+);
+
+export const AnointingIcon = svg(
+  <>
+    {/* The main outline of the downward-facing giving hand */}
+    <path d="M2 10h5c1 0 3-2 5-2h4c2 0 4 1 5 3a2 2 0 0 1-2 4c-2 0-3-2-4-3l-3-2" />
+    {/* Thumb curving under */}
+    <path d="M12 13c-1 2-3 3-5 2" />
+    
+    {/* Additional overlapping fingers for 3D perspective */}
+    <path d="M19.5 10a2 2 0 0 1-2 4" />
+    <path d="M18 9a2 2 0 0 1-2 4" />
+
+    {/* Anointing droplets/sparks falling from the palm */}
+    <path d="M15 16v2" />
+    <path d="M15 21v1" />
+    <path d="M13 20l.5.5" />
+    <path d="M17 20l-.5.5" />
+  </>,
+  1.5
+);
+
+export const StarIcon = svg(
+  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />,
+  1.5
+);
+
+export const LayersIcon = svg(
+  <>
+    <polygon points="12 2 2 7 12 12 22 7 12 2" />
+    <polyline points="2 12 12 17 22 12" />
+    <polyline points="2 17 12 22 22 17" />
   </>,
   1.5
 );
@@ -359,3 +457,250 @@ export const PresentationAppLogo = svg(
   </>,
   1.5
 );
+
+// ── Auto-Migrated App Imports ────────────────────────────────
+export {
+  // Hub icons
+  Home,
+  // Item icons
+  LayoutDashboard,
+  Activity,
+  AlertCircle,
+  AlertTriangle,
+  AlignLeft,
+  Archive,
+  ArchiveIcon,
+  ArrowDown,
+  ArrowDownToLine,
+  ArrowLeft,
+  ArrowLeftRight,
+  ArrowRight,
+  ArrowUp,
+  ArrowUpCircle,
+  ArrowUpDown,
+  ArrowUpRight,
+  Award,
+  Baby,
+  BadgeCheck,
+  BarChart2,
+  BarChart3,
+  Bell,
+  BellOff,
+  BookMarked,
+  BookOpen,
+  Bookmark,
+  BookmarkCheck,
+  BrainCircuit,
+  Briefcase,
+  Brush,
+  Building2,
+  Calendar,
+  Calendar as CalendarIcon,
+  CalendarCheck,
+  CalendarClock,
+  CalendarDays,
+  CalendarPlus,
+  CalendarX,
+  Camera,
+  Car,
+  Check,
+  CheckCircle,
+  CheckCircle2,
+  CheckSquare,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronUp,
+  ChevronsDown,
+  ChevronsUp,
+  ChevronsUpDown,
+  Church,
+  Circle,
+  ClipboardCheck,
+  ClipboardList,
+  Clock,
+  Coffee,
+  Columns,
+  Compass,
+  Copy,
+  CreditCard,
+  Crown,
+  Database,
+  DatabaseZap,
+  Delete,
+  Dna,
+  DollarSign,
+  DoorOpen,
+  Download,
+  DownloadCloud,
+  Droplets,
+  Drum,
+  Edit,
+  Edit2,
+  Edit3,
+  ExternalLink,
+  Eye,
+  EyeOff,
+  File,
+  FileAudio,
+  FileEdit,
+  FileJson,
+  FileText,
+  FileUp,
+  Film,
+  Filter,
+  Flag,
+  Flame,
+  FolderLock,
+  Gavel,
+  Gift,
+  GitBranch,
+  GitMerge,
+  Globe,
+  GraduationCap,
+  Grid3X3,
+  GripVertical,
+  Guitar,
+  HandHeart,
+  Handshake,
+  HardDrive,
+  Hash,
+  Headphones,
+  Heart,
+  HeartHandshake,
+  HeartPulse,
+  Highlighter,
+  History,
+  Hourglass,
+  Image,
+  Image as ImageIcon,
+  Inbox,
+  Info,
+  Key,
+  KeyRound,
+  Laptop,
+  Layers,
+  Layout,
+  LayoutGrid,
+  LayoutList,
+  LayoutTemplate,
+  Leaf,
+  Library,
+  Lightbulb,
+  Link,
+  Link as LinkIcon,
+  Link2,
+  List,
+  ListMusic,
+  Loader2,
+  Lock,
+  LogOut,
+  Mail,
+  Map,
+  Map as MapIcon,
+  MapPin,
+  Maximize2,
+  Megaphone,
+  Menu,
+  MessageCircle,
+  MessageSquare,
+  Mic,
+  Mic2,
+  MicOff,
+  Minimize2,
+  Minus,
+  Monitor,
+  MonitorPlay,
+  MonitorSmartphone,
+  MonitorSpeaker,
+  Moon,
+  MoreVertical,
+  Music,
+  Music2,
+  Navigation,
+  Network,
+  Package,
+  Palette,
+  Pause,
+  PenLine,
+  PenTool,
+  Pencil,
+  Phone,
+  Piano,
+  PieChart,
+  Plane,
+  Play,
+  PlayCircle,
+  Plug,
+  Plus,
+  PlusCircle,
+  Printer,
+  Projector,
+  QrCode,
+  Radio,
+  Receipt,
+  RefreshCw,
+  Repeat,
+  Repeat2,
+  RotateCcw,
+  Rss,
+  Save,
+  Search,
+  SearchX,
+  Send,
+  Server,
+  Settings,
+  Settings as SettingsIcon,
+  Settings2,
+  Share2,
+  Shield,
+  ShieldAlert,
+  ShieldCheck,
+  ShieldHalf,
+  SkipBack,
+  SkipForward,
+  SlidersHorizontal,
+  Smile,
+  Sparkles,
+  Square,
+  Star,
+  StickyNote,
+  Sun,
+  Tag,
+  Tags,
+  Target,
+  ThumbsUp,
+  Timer,
+  ToggleLeft,
+  ToggleRight,
+  Trash,
+  Trash2,
+  TreePine,
+  TrendingDown,
+  TrendingUp,
+  Type,
+  Unlock,
+  Upload,
+  UploadCloud,
+  User,
+  UserCheck,
+  UserCircle2,
+  UserCog,
+  UserPlus,
+  UserX,
+  Users,
+  Users2,
+  UsersRound,
+  Video,
+  Volume2,
+  VolumeX,
+  Wallet,
+  Wifi,
+  WifiOff,
+  Wind,
+  Workflow,
+  Wrench,
+  X,
+  XCircle,
+  Zap
+} from "lucide-react";

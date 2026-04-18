@@ -79,6 +79,7 @@ export interface RequestOptions {
     | "json"
     | "text"
     | "stream";
+  silent?: boolean; // Suppress global error events, console logs, and telemetry
 }
 
 export interface ApiResponse<T = any> {
@@ -196,7 +197,8 @@ export class ApiClient {
       onDownloadProgress: options.onDownloadProgress,
       signal: options.signal,
       responseType: options.responseType as any,
-    };
+      ...((options.silent !== undefined) ? { silent: options.silent } : {}),
+    } as AxiosRequestConfig; // cast since silent is custom
 
     // Check cache for GET requests
     if (

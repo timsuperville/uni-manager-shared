@@ -15,9 +15,9 @@ interface PageHeaderProps {
 }
 
 const IMAGE_HEIGHT: Record<string, string> = {
-  sm: "h-40",
-  md: "h-56",
-  lg: "h-72",
+  sm: "h-24 sm:h-40",
+  md: "h-32 sm:h-56",
+  lg: "h-48 sm:h-72",
 };
 
 /**
@@ -57,14 +57,14 @@ export function PageHeader({
               "linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.2) 60%, transparent 100%)",
           }}
         />
-        <div className="absolute bottom-0 left-0 right-0 p-6">
-          <div className="flex items-end justify-between gap-3">
+        <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 sm:gap-3">
             <div className="text-white min-w-0 flex-1">
               {breadcrumb && (
                 <div className="text-white/70 text-xs mb-1">{breadcrumb}</div>
               )}
               <h1
-                className={`font-bold leading-tight truncate ${compact ? "text-xl sm:text-2xl" : "text-2xl sm:text-3xl"}`}
+                className={`font-bold leading-tight truncate ${compact ? "text-lg sm:text-2xl" : "text-xl sm:text-3xl"}`}
               >
                 {title}
               </h1>
@@ -75,7 +75,7 @@ export function PageHeader({
               )}
             </div>
             {actions && (
-              <div className="flex items-center gap-2 shrink-0">{actions}</div>
+              <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto mt-1 sm:mt-0">{actions}</div>
             )}
           </div>
           {children && <div className="mt-2">{children}</div>}
@@ -87,25 +87,25 @@ export function PageHeader({
   return (
     <div
       className={[
-        "flex flex-col gap-1",
-        compact ? "py-0" : "py-0.5",
+        "flex flex-col gap-0.5 sm:gap-1",
+        compact ? "py-0" : "py-0.5 sm:py-1",
         className,
       ].join(" ")}
     >
       {breadcrumb && (
         <div
-          className="flex items-center gap-1.5 mb-1 text-xs font-medium"
+          className="flex items-center gap-1 mb-0.5 sm:mb-1 text-xs font-medium"
           style={{ color: "var(--text-muted)" }}
         >
           {breadcrumb}
         </div>
       )}
-      <div className="flex items-start sm:items-center justify-between gap-3 min-w-0">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3 min-w-0">
         <div className="min-w-0 flex-1">
           <h1
             className={[
               "font-bold leading-tight truncate",
-              compact ? "text-xl sm:text-2xl" : "text-2xl sm:text-3xl",
+              compact ? "text-lg sm:text-2xl" : "text-xl sm:text-3xl",
             ].join(" ")}
             style={{
               color: "var(--text-primary)",
@@ -124,7 +124,7 @@ export function PageHeader({
           )}
         </div>
         {actions && (
-          <div className="flex items-center gap-2 shrink-0">{actions}</div>
+          <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto mt-1 sm:mt-0">{actions}</div>
         )}
       </div>
     </div>

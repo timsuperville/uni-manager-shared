@@ -51,6 +51,7 @@ export { Sparkline } from "./Sparkline";
 export { SearchInput } from "./SearchInput";
 export { DatePicker } from "./DatePicker";
 export { TimePicker } from "./TimePicker";
+export { Calendar } from "./Calendar";
 
 // Notification-layer primitives
 export { Avatar } from "./Avatar";
