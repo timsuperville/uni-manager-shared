@@ -76,10 +76,10 @@ export const TabsList: React.FC<TabsListProps> = ({
   ...props
 }) => (
   <div
-    className={`border-b border-(--glass-outline,rgba(255,255,255,0.15)) ${className}`}
+    className={`border-b border-(--glass-outline,rgba(255,255,255,0.15)) overflow-x-auto no-scrollbar ${className}`}
     {...props}
   >
-    <nav className="-mb-px flex space-x-8">
+    <nav className="-mb-px flex space-x-4 min-w-max px-1">
       {React.Children.map(children, (child) =>
         React.isValidElement(child)
           ? React.cloneElement(child as React.ReactElement<TabsInternalProps>, {
