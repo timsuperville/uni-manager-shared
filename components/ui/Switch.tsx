@@ -2,7 +2,10 @@ import React from "react";
 
 type SwitchSize = "sm" | "default" | "lg";
 
-interface SwitchProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "size" | "onChange"> {
+interface SwitchProps extends Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  "size" | "onChange"
+> {
   checked?: boolean;
   defaultChecked?: boolean;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -26,7 +29,9 @@ export const Switch: React.FC<SwitchProps> = ({
   className = "",
   ...props
 }) => {
-  const [isChecked, setIsChecked] = React.useState(defaultChecked || checked || false);
+  const [isChecked, setIsChecked] = React.useState(
+    defaultChecked || checked || false,
+  );
 
   React.useEffect(() => {
     if (checked !== undefined) setIsChecked(checked);
@@ -39,7 +44,9 @@ export const Switch: React.FC<SwitchProps> = ({
   };
 
   return (
-    <label className={`relative inline-flex items-center cursor-pointer ${disabled ? "opacity-50 cursor-not-allowed" : ""} ${className}`}>
+    <label
+      className={`relative inline-flex items-center cursor-pointer ${disabled ? "opacity-50 cursor-not-allowed" : ""} ${className}`}
+    >
       <input
         type="checkbox"
         className="sr-only peer"

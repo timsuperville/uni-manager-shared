@@ -1,5 +1,3 @@
-
-
 export interface ProgressRingProps {
   pct: number;
   size?: number;
@@ -20,15 +18,17 @@ export function ProgressRing({
   // Cap percentage between 0 and 100
   const clP = Math.max(0, Math.min(100, isNaN(pct) ? 0 : pct));
   const offset = circ - (clP / 100) * circ;
-  
+
   return (
-    <svg 
-      width={size} 
-      height={size} 
+    <svg
+      width={size}
+      height={size}
       className={className}
-      style={{ 
-        flexShrink: 0, 
-        transform: className?.includes("-rotate-90") ? "none" : "rotate(-90deg)" // Handle legacy Tailind class
+      style={{
+        flexShrink: 0,
+        transform: className?.includes("-rotate-90")
+          ? "none"
+          : "rotate(-90deg)", // Handle legacy Tailind class
       }}
     >
       <circle

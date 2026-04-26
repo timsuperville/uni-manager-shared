@@ -135,7 +135,8 @@ export const glassOverlay: React.CSSProperties = {
 export const inputBase: React.CSSProperties = {
   width: "100%",
   background: "var(--glass-bg, var(--glass-surface, rgba(15,15,35,0.7)))",
-  border: "1px solid var(--glass-border, var(--glass-outline, rgba(255,255,255,0.12)))",
+  border:
+    "1px solid var(--glass-border, var(--glass-outline, rgba(255,255,255,0.12)))",
   borderRadius: "var(--radius-sm, 0.375rem)",
   color: "var(--text-primary, #f1f5f9)",
   fontSize: "var(--text-sm, 0.875rem)",

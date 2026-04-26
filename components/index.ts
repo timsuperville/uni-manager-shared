@@ -7,7 +7,11 @@ export { default as LoadingSpinner } from "./LoadingSpinner";
 export { default as RoleGuard } from "./RoleGuard";
 export { ThemeProvider, useTheme, tokens } from "./ThemeProvider";
 export { default as ThemeToggle } from "./ThemeToggle";
-export { default as ErrorBoundary, withErrorBoundary, flushPendingErrorReports } from "./ErrorBoundary";
+export {
+  default as ErrorBoundary,
+  withErrorBoundary,
+  flushPendingErrorReports,
+} from "./ErrorBoundary";
 // GlobalErrorBoundary merged into ErrorBoundary (variant="full-screen" is now default)
 export { ApiProvider, useApi } from "./ApiProvider";
 
@@ -38,11 +42,7 @@ export {
 } from "../features/monitoring";
 
 // ── Context (canonical: import from @shared/context) ─────────────────────────
-export {
-  PresenceProvider,
-  usePresence,
-  PresenceContext,
-} from "../context";
+export { PresenceProvider, usePresence, PresenceContext } from "../context";
 
 // ── Liquid Glass UI primitives ────────────────────────────────────────────────
 // Source of truth for: Modal, Button, Card, Badge, Input, Select, ProgressBar,

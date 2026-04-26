@@ -56,22 +56,34 @@ export interface ChipProps extends React.HTMLAttributes<HTMLSpanElement> {
 }
 
 export function Chip({
-  variant, bg: bgProp, color: colorProp, border: borderProp,
-  label, children, dot, dotColor, dotGlow = false,
-  onClick, title, size = "sm", className = "", style: styleProp,
+  variant,
+  bg: bgProp,
+  color: colorProp,
+  border: borderProp,
+  label,
+  children,
+  dot,
+  dotColor,
+  dotGlow = false,
+  onClick,
+  title,
+  size = "sm",
+  className = "",
+  style: styleProp,
   ...props
 }: ChipProps) {
-  const preset = variant ? (CHIP_VARIANTS[variant] ?? CHIP_FALLBACK) : CHIP_FALLBACK;
+  const preset = variant
+    ? (CHIP_VARIANTS[variant] ?? CHIP_FALLBACK)
+    : CHIP_FALLBACK;
 
-  const resolvedBg     = bgProp     ?? preset.bg;
-  const resolvedColor  = colorProp  ?? preset.color;
+  const resolvedBg = bgProp ?? preset.bg;
+  const resolvedColor = colorProp ?? preset.color;
   const resolvedBorder = borderProp ?? preset.border;
 
   // Dot visibility: explicit boolean overrides auto-detection
   const resolvedDotColor = dotColor ?? preset.dot;
-  const showDot = dot === undefined
-    ? !!resolvedDotColor
-    : dot && !!resolvedDotColor;
+  const showDot =
+    dot === undefined ? !!resolvedDotColor : dot && !!resolvedDotColor;
 
   const sz = CHIP_SIZE_MAP[size] ?? CHIP_SIZE_MAP.sm;
 
@@ -83,12 +95,22 @@ export function Chip({
       onClick={onClick}
       role={isInteractive ? "button" : undefined}
       tabIndex={isInteractive ? 0 : undefined}
-      onKeyDown={isInteractive ? (e) => { if (e.key === "Enter" || e.key === " ") onClick(e); } : undefined}
+      onKeyDown={
+        isInteractive
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") onClick(e);
+            }
+          : undefined
+      }
       className={className}
       style={{
         display: "inline-flex",
         alignItems: "center",
-        gap: showDot ? "5px" : (React.Children.count(children) > 0 || label) ? "4px" : "0",
+        gap: showDot
+          ? "5px"
+          : React.Children.count(children) > 0 || label
+            ? "4px"
+            : "0",
         padding: sz.padding,
         borderRadius: "100px",
         fontSize: sz.fontSize,
@@ -100,7 +122,9 @@ export function Chip({
         whiteSpace: "nowrap",
         cursor: isInteractive ? "pointer" : "default",
         userSelect: "none",
-        transition: isInteractive ? "opacity 120ms ease, filter 120ms ease" : "none",
+        transition: isInteractive
+          ? "opacity 120ms ease, filter 120ms ease"
+          : "none",
         ...styleProp,
       }}
       {...props}

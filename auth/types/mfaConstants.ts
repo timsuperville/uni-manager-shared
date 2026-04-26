@@ -10,8 +10,8 @@
  * MFA method types
  */
 export const MFA_METHOD = {
-  TOTP: "totp",   // Time-based one-time password
-  SMS: "sms",     // SMS text message
+  TOTP: "totp", // Time-based one-time password
+  SMS: "sms", // SMS text message
   EMAIL: "email", // Email code
   WEBAUTHN: "webauthn", // WebAuthn/FIDO2
 } as const;
@@ -23,11 +23,11 @@ export type MFAMethod = (typeof MFA_METHOD)[keyof typeof MFA_METHOD];
  * MFA status values
  */
 export const MFA_STATUS = {
-  NONE: "none",       // Not enabled
+  NONE: "none", // Not enabled
   ENABLED: "enabled",
   PENDING: "pending", // Waiting for setup completion
-  FAILED: "failed",  // Last attempt failed
-  LOCKED: "locked",  // Too many failed attempts
+  FAILED: "failed", // Last attempt failed
+  LOCKED: "locked", // Too many failed attempts
 } as const;
 
 /** Union of all valid MFA status string values. */

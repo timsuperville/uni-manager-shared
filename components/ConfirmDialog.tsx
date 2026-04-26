@@ -22,29 +22,66 @@ interface ConfirmDialogProps {
 // ── Inline icon SVGs (no dependency) ─────────────────────────────────────────
 
 const InfoIcon = () => (
-  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+  <svg
+    className="w-6 h-6"
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+    />
   </svg>
 );
 
 const WarningIcon = () => (
-  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+  <svg
+    className="w-6 h-6"
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
+    />
   </svg>
 );
 
 const SuccessIcon = () => (
-  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+  <svg
+    className="w-6 h-6"
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+    />
   </svg>
 );
 
 const CloseIcon = () => (
-  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+  <svg
+    className="w-5 h-5"
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M6 18L18 6M6 6l12 12"
+    />
   </svg>
 );
 
@@ -70,12 +107,14 @@ const typeStyleMap: Record<DialogType, TypeStyle> = {
   success: {
     iconColor: "text-green-600 dark:text-green-400",
     iconBg: "bg-green-100 dark:bg-green-900/20",
-    confirmBtn: "bg-green-600 text-white hover:bg-green-700 focus:ring-green-500",
+    confirmBtn:
+      "bg-green-600 text-white hover:bg-green-700 focus:ring-green-500",
   },
   warning: {
     iconColor: "text-yellow-600 dark:text-yellow-400",
     iconBg: "bg-yellow-100 dark:bg-yellow-900/20",
-    confirmBtn: "bg-yellow-600 text-white hover:bg-yellow-700 focus:ring-yellow-500",
+    confirmBtn:
+      "bg-yellow-600 text-white hover:bg-yellow-700 focus:ring-yellow-500",
   },
   danger: {
     iconColor: "text-red-600 dark:text-red-400",
@@ -130,20 +169,32 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           className="fixed inset-0 bg-gray-500/75 dark:bg-gray-900/75 transition-opacity"
           aria-hidden="true"
         />
-        <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">
+        <span
+          className="hidden sm:inline-block sm:align-middle sm:h-screen"
+          aria-hidden="true"
+        >
           &#8203;
         </span>
-        <div className={`inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:p-6 w-full ${sizeClass} ${className}`}>
+        <div
+          className={`inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:p-6 w-full ${sizeClass} ${className}`}
+        >
           <div className="sm:flex sm:items-start">
-            <div className={`mx-auto shrink-0 flex items-center justify-center h-12 w-12 rounded-full ${ts.iconBg} sm:mx-0 sm:h-10 sm:w-10`}>
+            <div
+              className={`mx-auto shrink-0 flex items-center justify-center h-12 w-12 rounded-full ${ts.iconBg} sm:mx-0 sm:h-10 sm:w-10`}
+            >
               <div className={ts.iconColor}>{typeIconMap[type]}</div>
             </div>
             <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left flex-1">
-              <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100" id="modal-title">
+              <h3
+                className="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100"
+                id="modal-title"
+              >
                 {title}
               </h3>
               <div className="mt-2">
-                <p className="text-sm text-gray-500 dark:text-gray-400">{message}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  {message}
+                </p>
               </div>
             </div>
             {showCloseButton && (
@@ -166,14 +217,30 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
             >
               {isLoading ? (
                 <div className="flex items-center">
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  <svg
+                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
                   </svg>
                   Loading...
                 </div>
-              ) : confirmText}
+              ) : (
+                confirmText
+              )}
             </button>
             <button
               type="button"

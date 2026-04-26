@@ -16,8 +16,8 @@ function buildCalendarGrid(year: number, month: number): Date[] {
       new Date(
         gridStart.getFullYear(),
         gridStart.getMonth(),
-        gridStart.getDate() + i
-      )
+        gridStart.getDate() + i,
+      ),
     );
   }
   return days;
@@ -43,15 +43,19 @@ const MONTH_NAMES = [
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export interface CalendarProps {
-  /** 
-   * A render prop for the actual day cell content. 
+  /**
+   * A render prop for the actual day cell content.
    * The Calendar handles rendering the underlying grid boundaries.
    */
-  renderDay: (date: Date, isCurrentMonth: boolean, isToday: boolean) => React.ReactNode;
-  
+  renderDay: (
+    date: Date,
+    isCurrentMonth: boolean,
+    isToday: boolean,
+  ) => React.ReactNode;
+
   /** Widget slot to the right of the month title. Handy for count summaries */
   headerWidget?: React.ReactNode;
-  
+
   /** Content to display below the calendar grid, like a legend */
   bottomLegend?: React.ReactNode;
 
@@ -72,22 +76,22 @@ export function Calendar({
   onMonthChange,
 }: CalendarProps) {
   const today = useMemo(() => new Date(), []);
-  
+
   const [viewYear, setViewYear] = useState(defaultYear ?? today.getFullYear());
   const [viewMonth, setViewMonth] = useState(defaultMonth ?? today.getMonth());
 
   const gridDays = useMemo(
     () => buildCalendarGrid(viewYear, viewMonth),
-    [viewYear, viewMonth]
+    [viewYear, viewMonth],
   );
-  
+
   const handleMonthTransition = useCallback(
     (newYear: number, newMonth: number) => {
       setViewYear(newYear);
       setViewMonth(newMonth);
       onMonthChange?.(newYear, newMonth);
     },
-    [onMonthChange]
+    [onMonthChange],
   );
 
   const goToPrevMonth = useCallback(() => {
@@ -123,7 +127,10 @@ export function Calendar({
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <CalendarDays size={18} style={{ color: "var(--primary-resonance)" }} />
+          <CalendarDays
+            size={18}
+            style={{ color: "var(--primary-resonance)" }}
+          />
           <h2
             style={{
               fontSize: "16px",
@@ -257,7 +264,7 @@ export function Calendar({
             date.getDate() === today.getDate() &&
             date.getMonth() === today.getMonth() &&
             date.getFullYear() === today.getFullYear();
-            
+
           return (
             <div
               key={date.toISOString()}

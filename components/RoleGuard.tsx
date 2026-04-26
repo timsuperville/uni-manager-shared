@@ -64,7 +64,8 @@ const RoleGuard: React.FC<RoleGuardProps> = ({
       : ministryRoles.some((r) => mRoles.includes(r));
   };
 
-  const hasAccess = hasRequiredRoles() && hasRequiredPermissions() && hasMinistryAccess();
+  const hasAccess =
+    hasRequiredRoles() && hasRequiredPermissions() && hasMinistryAccess();
   return hasAccess ? <>{children}</> : <>{fallback}</>;
 };
 

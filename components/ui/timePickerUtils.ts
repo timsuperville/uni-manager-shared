@@ -58,8 +58,8 @@ export const PRESET_ROWS: TimePreset[][] = [
   [
     { label: "10 AM", h: 10, m: 0 },
     { label: "11 AM", h: 11, m: 0 },
-    { label: "Noon",  h: 12, m: 0 },
-    { label: "1 PM",  h: 13, m: 0 },
+    { label: "Noon", h: 12, m: 0 },
+    { label: "1 PM", h: 13, m: 0 },
   ],
   [
     { label: "5 PM", h: 17, m: 0 },

@@ -112,7 +112,9 @@ const MFAVerification = ({
   const [trustDevice, setTrustDevice] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [error, setError] = useState("");
-  const [remainingAttempts, setRemainingAttempts] = useState<number | null>(null);
+  const [remainingAttempts, setRemainingAttempts] = useState<number | null>(
+    null,
+  );
   const [showTrustOption, setShowTrustOption] = useState(!!deviceFingerprint);
 
   const inputRef = useRef<HTMLInputElement>(null);

@@ -1,6 +1,15 @@
 import React from "react";
 
-type BadgeVariant = "default" | "primary" | "success" | "warning" | "danger" | "error" | "info" | "secondary" | "outline";
+type BadgeVariant =
+  | "default"
+  | "primary"
+  | "success"
+  | "warning"
+  | "danger"
+  | "error"
+  | "info"
+  | "secondary"
+  | "outline";
 type BadgeSize = "sm" | "default" | "lg";
 
 interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
@@ -35,7 +44,13 @@ const sizeClasses: Record<BadgeSize, string> = {
   lg: "px-3 py-1 text-sm",
 };
 
-const Badge: React.FC<BadgeProps> = ({ children, variant = "default", size = "default", className = "", ...props }) => (
+const Badge: React.FC<BadgeProps> = ({
+  children,
+  variant = "default",
+  size = "default",
+  className = "",
+  ...props
+}) => (
   <span
     className={`inline-flex items-center rounded-full border font-medium ${sizeClasses[size]} ${getVariantClasses(variant)} ${className}`}
     {...props}

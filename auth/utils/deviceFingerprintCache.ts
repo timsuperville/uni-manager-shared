@@ -43,7 +43,10 @@ export function getCachedDeviceFingerprint(): string | null {
       }
     } catch (error) {
       if (import.meta.env.DEV) {
-        console.warn("[DeviceFingerprintCache] Failed to read from sessionStorage:", error);
+        console.warn(
+          "[DeviceFingerprintCache] Failed to read from sessionStorage:",
+          error,
+        );
       }
     }
   }
@@ -65,7 +68,10 @@ export function setCachedDeviceFingerprint(fingerprint: string): void {
       sessionStorage.setItem(STORAGE_TIME_KEY, now.toString());
     } catch (error) {
       if (import.meta.env.DEV) {
-        console.warn("[DeviceFingerprintCache] Failed to write to sessionStorage:", error);
+        console.warn(
+          "[DeviceFingerprintCache] Failed to write to sessionStorage:",
+          error,
+        );
       }
     }
   }
@@ -85,7 +91,10 @@ export function clearCachedDeviceFingerprint(): void {
       sessionStorage.removeItem(STORAGE_TIME_KEY);
     } catch (error) {
       if (import.meta.env.DEV) {
-        console.warn("[DeviceFingerprintCache] Failed to clear sessionStorage:", error);
+        console.warn(
+          "[DeviceFingerprintCache] Failed to clear sessionStorage:",
+          error,
+        );
       }
     }
   }

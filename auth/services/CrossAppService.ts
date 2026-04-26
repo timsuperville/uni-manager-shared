@@ -321,9 +321,7 @@ class SharedAuthService extends SimpleEventEmitter {
   // Development stubs — replace with real API calls in production
   // ---------------------------------------------------------------------------
 
-  private async mockAuthenticate(
-    credentials: Credentials,
-  ): Promise<{
+  private async mockAuthenticate(credentials: Credentials): Promise<{
     success: boolean;
     user?: User;
     accessToken?: string;

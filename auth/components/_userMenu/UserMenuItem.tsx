@@ -29,7 +29,17 @@ interface UserMenuItemProps {
  */
 const UserMenuItem = memo(
   React.forwardRef<HTMLButtonElement, UserMenuItemProps>(
-    ({ icon: Icon, label, onClick, variant = "default", active = false, disabled = false }, ref) => {
+    (
+      {
+        icon: Icon,
+        label,
+        onClick,
+        variant = "default",
+        active = false,
+        disabled = false,
+      },
+      ref,
+    ) => {
       const [hovered, setHovered] = useState(false);
       const isDanger = variant === "danger";
 
@@ -96,14 +106,22 @@ const UserMenuItem = memo(
                 width: "2px",
                 borderRadius: "0 2px 2px 0",
                 background: "var(--primary-resonance)",
-                boxShadow: "0 0 6px var(--primary-glow, var(--primary-resonance))",
+                boxShadow:
+                  "0 0 6px var(--primary-glow, var(--primary-resonance))",
               }}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
             />
           )}
-          <Icon size={15} style={{ color: iconColor, flexShrink: 0, transition: "color 150ms ease" }} />
+          <Icon
+            size={15}
+            style={{
+              color: iconColor,
+              flexShrink: 0,
+              transition: "color 150ms ease",
+            }}
+          />
           {label}
         </button>
       );

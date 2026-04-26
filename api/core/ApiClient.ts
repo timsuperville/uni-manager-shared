@@ -197,7 +197,7 @@ export class ApiClient {
       onDownloadProgress: options.onDownloadProgress,
       signal: options.signal,
       responseType: options.responseType as any,
-      ...((options.silent !== undefined) ? { silent: options.silent } : {}),
+      ...(options.silent !== undefined ? { silent: options.silent } : {}),
     } as AxiosRequestConfig; // cast since silent is custom
 
     // Check cache for GET requests

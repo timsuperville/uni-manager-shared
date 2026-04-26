@@ -139,9 +139,19 @@ export const NULL_NOTIFICATION_ADAPTER: NotificationAdapter = {
     warn("fetchUnreadCount");
     return 0;
   },
-  markRead: async () => { warn("markRead"); },
-  markAllRead: async () => { warn("markAllRead"); },
-  bulkMarkRead: async () => { warn("bulkMarkRead"); },
-  archive: async () => { warn("archive"); },
-  delete: async () => { warn("delete"); },
+  markRead: async () => {
+    warn("markRead");
+  },
+  markAllRead: async () => {
+    warn("markAllRead");
+  },
+  bulkMarkRead: async () => {
+    warn("bulkMarkRead");
+  },
+  archive: async () => {
+    warn("archive");
+  },
+  delete: async () => {
+    warn("delete");
+  },
 };

@@ -130,7 +130,8 @@ export const useNotifications = ({
         // skip this poll cycle and let the next tick succeed post-refresh.
         const isAuthError =
           !isCancel &&
-          ((err as { response?: { status?: number } })?.response?.status === 401 ||
+          ((err as { response?: { status?: number } })?.response?.status ===
+            401 ||
             typedErr.message.toLowerCase().includes("token expired") ||
             typedErr.message.toLowerCase().includes("unauthorized") ||
             typedErr.message.toLowerCase().includes("401"));

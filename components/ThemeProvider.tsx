@@ -74,12 +74,22 @@ const defaultTokens = {
     light: "#f8fafc",
     dark: "#1e293b",
   },
-  spacing: { xs: "0.25rem", sm: "0.5rem", md: "1rem", lg: "1.5rem", xl: "3rem" },
+  spacing: {
+    xs: "0.25rem",
+    sm: "0.5rem",
+    md: "1rem",
+    lg: "1.5rem",
+    xl: "3rem",
+  },
   typography: {
     fontFamily: "Inter, -apple-system, BlinkMacSystemFont, sans-serif",
     fontSize: {
-      xs: "0.75rem", sm: "0.875rem", md: "1rem",
-      lg: "1.125rem", xl: "1.25rem", xxl: "1.5rem",
+      xs: "0.75rem",
+      sm: "0.875rem",
+      md: "1rem",
+      lg: "1.125rem",
+      xl: "1.25rem",
+      xxl: "1.5rem",
     },
   },
   borderRadius: { sm: "0.25rem", md: "0.375rem", lg: "0.5rem", full: "9999px" },
@@ -100,7 +110,9 @@ function applyTheme(theme: ThemeMode): "dark" | "light" {
   const root = window.document.documentElement;
   root.classList.remove("light", "dark");
   if (theme === "system") {
-    const resolved = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    const resolved = window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
     root.classList.add(resolved);
     return resolved;
   }
@@ -138,14 +150,20 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
         ...(tokens.typography?.fontSize ?? {}),
       },
     },
-    borderRadius: { ...defaultTokens.borderRadius, ...(tokens.borderRadius ?? {}) },
+    borderRadius: {
+      ...defaultTokens.borderRadius,
+      ...(tokens.borderRadius ?? {}),
+    },
   };
 
   const [theme, setThemeState] = useState<ThemeMode>(
-    () => (localStorage.getItem(storageKey) as ThemeMode | null) ?? defaultTheme,
+    () =>
+      (localStorage.getItem(storageKey) as ThemeMode | null) ?? defaultTheme,
   );
   const [resolvedTheme, setResolvedTheme] = useState<"dark" | "light">(() =>
-    applyTheme((localStorage.getItem(storageKey) as ThemeMode | null) ?? defaultTheme),
+    applyTheme(
+      (localStorage.getItem(storageKey) as ThemeMode | null) ?? defaultTheme,
+    ),
   );
 
   useEffect(() => {
@@ -183,7 +201,9 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
     setTheme,
   } as ThemeContextValue;
 
-  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
+  return (
+    <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
+  );
 };
 
 // ── Hook ───────────────────────────────────────────────────────────────────────

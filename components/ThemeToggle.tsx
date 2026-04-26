@@ -25,7 +25,10 @@ export function ThemeToggle({
   const nextTheme: ThemeMode =
     theme === "system" ? "dark" : theme === "dark" ? "light" : "system";
 
-  const STATES: Record<ThemeMode, { icon: React.ReactNode; label: string; ariaLabel: string; tooltip: string }> = {
+  const STATES: Record<
+    ThemeMode,
+    { icon: React.ReactNode; label: string; ariaLabel: string; tooltip: string }
+  > = {
     system: {
       icon: <Monitor size={15} />,
       label: "Auto",
@@ -77,7 +80,8 @@ export function ThemeToggle({
           : "var(--bg-surface-1, rgba(255,255,255,0.06))",
         color: accentColor ?? "var(--text-secondary, #94a3b8)",
         cursor: "pointer",
-        transition: "background 200ms ease, border-color 200ms ease, color 200ms ease",
+        transition:
+          "background 200ms ease, border-color 200ms ease, color 200ms ease",
         flexShrink: 0,
         fontSize: "11px",
         fontWeight: "600",
@@ -85,7 +89,8 @@ export function ThemeToggle({
         ...style,
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.background = "var(--cobalt-glow, rgba(30,100,250,0.10))";
+        e.currentTarget.style.background =
+          "var(--cobalt-glow, rgba(30,100,250,0.10))";
         e.currentTarget.style.borderColor = "var(--cobalt, hsl(213,94%,52%))";
         e.currentTarget.style.color = "var(--cobalt, hsl(213,94%,52%))";
       }}
@@ -96,7 +101,8 @@ export function ThemeToggle({
         e.currentTarget.style.borderColor = isManual
           ? "var(--cobalt, hsl(213,94%,52%))"
           : "var(--glass-outline, rgba(255,255,255,0.1))";
-        e.currentTarget.style.color = accentColor ?? "var(--text-secondary, #94a3b8)";
+        e.currentTarget.style.color =
+          accentColor ?? "var(--text-secondary, #94a3b8)";
       }}
       {...props}
     >

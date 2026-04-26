@@ -21,7 +21,10 @@ import { useEffect, useRef, useCallback } from "react";
 // Types
 // ---------------------------------------------------------------------------
 
-export type FrustrationSignal = "rage-click" | "rapid-navigation" | "consecutive-api-failure";
+export type FrustrationSignal =
+  | "rage-click"
+  | "rapid-navigation"
+  | "consecutive-api-failure";
 
 export interface FrustrationContext {
   signal: FrustrationSignal;
@@ -222,7 +225,9 @@ export function useFrustrationDetector(
     const recordApiFailure = (e: Event) => {
       const customEvent = e as CustomEvent;
       const now = Date.now();
-      apiFailureLog.current = apiFailureLog.current.filter((ts) => now - ts <= apiFailureWindowMs);
+      apiFailureLog.current = apiFailureLog.current.filter(
+        (ts) => now - ts <= apiFailureWindowMs,
+      );
       apiFailureLog.current.push(now);
 
       if (apiFailureLog.current.length >= apiFailureThreshold) {
@@ -237,7 +242,8 @@ export function useFrustrationDetector(
     };
 
     window.addEventListener("api-mutation-failure", recordApiFailure);
-    return () => window.removeEventListener("api-mutation-failure", recordApiFailure);
+    return () =>
+      window.removeEventListener("api-mutation-failure", recordApiFailure);
   }, [effectivelyEnabled, apiFailureThreshold, apiFailureWindowMs, fire]);
 
   // Purely side-effectful hook

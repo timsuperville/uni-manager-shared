@@ -141,9 +141,7 @@ export class EmailPasswordAuthService {
   }
 
   /** Registers a new user account. */
-  async signup(
-    userData: SignupData,
-  ): Promise<{
+  async signup(userData: SignupData): Promise<{
     success: boolean;
     message?: string;
     requiresVerification?: boolean;

@@ -908,9 +908,14 @@ export class ErrorBoundary extends React.Component<
       const lastReload = sessionStorage.getItem(reloadKey);
       if (!lastReload || Date.now() - parseInt(lastReload, 10) > 5000) {
         sessionStorage.setItem(reloadKey, Date.now().toString());
+        if ("serviceWorker" in navigator) {
+          navigator.serviceWorker.getRegistrations().then((registrations) => {
+            registrations.forEach((r) => r.unregister());
+          });
+        }
         window.location.reload();
-        return; // Return early, do not report chunk loading noise to telemetry
       }
+      return; // Return early, ALWAYS do not report chunk loading noise to telemetry
     }
 
     const telemetry = collectTelemetry(error, errorInfo, appType);

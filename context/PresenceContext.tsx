@@ -24,7 +24,11 @@ export const PresenceContext = createContext<PresenceContextValue | null>(null);
 
 // ── Provider ──────────────────────────────────────────────────────────────────
 
-export const PresenceProvider = ({ children }: { children: React.ReactNode }) => {
+export const PresenceProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
   /**
    * Safe auth read — reads context directly instead of going through the
    * throwing useAuth() hook. This prevents an HMR crash where AuthContext.jsx
@@ -42,7 +46,9 @@ export const PresenceProvider = ({ children }: { children: React.ReactNode }) =>
 
   // Refs for socket management and state access inside callbacks
   const wsRef = useRef<WebSocket | null>(null);
-  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
   const reconnectAttemptsRef = useRef(0);
   const isMountedRef = useRef(true);
   const statusRef = useRef(status);
@@ -68,16 +74,18 @@ export const PresenceProvider = ({ children }: { children: React.ReactNode }) =>
     // blocked by authService chain fragility at mount time.
     const token =
       auth?.authService?.getStoredToken?.() ??
-      sessionStorage.getItem('admin_auth_access_token') ??
-      sessionStorage.getItem('church_auth_access_token') ??
-      localStorage.getItem('admin_auth_access_token') ??
-      localStorage.getItem('church_auth_access_token') ??
+      sessionStorage.getItem("admin_auth_access_token") ??
+      sessionStorage.getItem("church_auth_access_token") ??
+      localStorage.getItem("admin_auth_access_token") ??
+      localStorage.getItem("church_auth_access_token") ??
       null;
 
     // Never connect without a token — the server will reject it with 1008
     if (!token) {
       if (import.meta.env.DEV) {
-        console.debug('[PresenceContext] No token available — skipping WS connection');
+        console.debug(
+          "[PresenceContext] No token available — skipping WS connection",
+        );
       }
       return;
     }
@@ -85,7 +93,9 @@ export const PresenceProvider = ({ children }: { children: React.ReactNode }) =>
     // Build the presence WebSocket URL — append /presence path to the API base.
     // PresenceServer is mounted at ws://host/presence?token=<JWT>
     const wsBase = getWebSocketUrl();
-    const presenceBase = wsBase.endsWith('/presence') ? wsBase : wsBase.replace(/\/+$/, '') + '/presence';
+    const presenceBase = wsBase.endsWith("/presence")
+      ? wsBase
+      : wsBase.replace(/\/+$/, "") + "/presence";
     const urlWithAuth = `${presenceBase}?token=${token}`;
 
     try {
@@ -140,8 +150,13 @@ export const PresenceProvider = ({ children }: { children: React.ReactNode }) =>
             reconnectAttemptsRef.current += 1;
             connect();
           }, delay);
-        } else if (reconnectAttemptsRef.current >= MAX_RECONNECT_ATTEMPTS && import.meta.env.DEV) {
-          console.debug("[PresenceContext] WS server unavailable — presence feature inactive until server is running.");
+        } else if (
+          reconnectAttemptsRef.current >= MAX_RECONNECT_ATTEMPTS &&
+          import.meta.env.DEV
+        ) {
+          console.debug(
+            "[PresenceContext] WS server unavailable — presence feature inactive until server is running.",
+          );
         }
       };
 
@@ -160,19 +175,26 @@ export const PresenceProvider = ({ children }: { children: React.ReactNode }) =>
           };
 
           // Heartbeat reply — no action needed
-          if (message.type === 'pong') return;
+          if (message.type === "pong") return;
 
           // Presence events (join, leave, update, roster snapshot) — handled by consumers
           // via the socket ref; context-level state can be extended here if needed
-          if (message.type === 'presence') {
+          if (message.type === "presence") {
             if (import.meta.env.DEV) {
-              console.debug('[PresenceContext] Presence event:', message.action, message.data);
+              console.debug(
+                "[PresenceContext] Presence event:",
+                message.action,
+                message.data,
+              );
             }
             return;
           }
         } catch (e) {
           if (import.meta.env.DEV) {
-            console.error('[PresenceContext] Error parsing WebSocket message:', e);
+            console.error(
+              "[PresenceContext] Error parsing WebSocket message:",
+              e,
+            );
           }
         }
       };

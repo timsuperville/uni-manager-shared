@@ -75,7 +75,9 @@ export function PageHeader({
               )}
             </div>
             {actions && (
-              <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto mt-1 sm:mt-0">{actions}</div>
+              <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto mt-1 sm:mt-0">
+                {actions}
+              </div>
             )}
           </div>
           {children && <div className="mt-2">{children}</div>}
@@ -124,7 +126,9 @@ export function PageHeader({
           )}
         </div>
         {actions && (
-          <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto mt-1 sm:mt-0">{actions}</div>
+          <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto mt-1 sm:mt-0">
+            {actions}
+          </div>
         )}
       </div>
     </div>

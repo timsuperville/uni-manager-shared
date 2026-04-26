@@ -7,7 +7,10 @@ import { Search, X, Loader2 } from "lucide-react";
 // We inject it once per document so the Loader2 icon actually rotates.
 
 const SPIN_STYLE_ID = "um-search-spin-keyframe";
-if (typeof document !== "undefined" && !document.getElementById(SPIN_STYLE_ID)) {
+if (
+  typeof document !== "undefined" &&
+  !document.getElementById(SPIN_STYLE_ID)
+) {
   const style = document.createElement("style");
   style.id = SPIN_STYLE_ID;
   style.textContent = `@keyframes um-spin { to { transform: rotate(360deg); } }`;
@@ -21,7 +24,10 @@ if (typeof document !== "undefined" && !document.getElementById(SPIN_STYLE_ID)) 
 // needed in onFocus/onBlur callbacks.
 
 const INPUT_STYLE_ID = "um-search-input-styles";
-if (typeof document !== "undefined" && !document.getElementById(INPUT_STYLE_ID)) {
+if (
+  typeof document !== "undefined" &&
+  !document.getElementById(INPUT_STYLE_ID)
+) {
   const style = document.createElement("style");
   style.id = INPUT_STYLE_ID;
   style.textContent = `
@@ -73,9 +79,24 @@ const SIZE_TOKENS: Record<
   SearchInputSize,
   { padding: string; fontSize: string; iconSize: number; iconLeft: string }
 > = {
-  sm: { padding: "6px 10px 6px 32px",  fontSize: "13px", iconSize: 14, iconLeft: "8px"  },
-  md: { padding: "9px 12px 9px 38px",  fontSize: "14px", iconSize: 16, iconLeft: "10px" },
-  lg: { padding: "12px 14px 12px 44px", fontSize: "15px", iconSize: 18, iconLeft: "13px" },
+  sm: {
+    padding: "6px 10px 6px 32px",
+    fontSize: "13px",
+    iconSize: 14,
+    iconLeft: "8px",
+  },
+  md: {
+    padding: "9px 12px 9px 38px",
+    fontSize: "14px",
+    iconSize: 16,
+    iconLeft: "10px",
+  },
+  lg: {
+    padding: "12px 14px 12px 44px",
+    fontSize: "15px",
+    iconSize: 18,
+    iconLeft: "13px",
+  },
 };
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -164,7 +185,8 @@ export function SearchInput({
       paddingRight: hasValue ? "36px" : "12px",
       fontSize: sz.fontSize,
       fontFamily: "var(--font-body, inherit)",
-      background: "var(--glass-input, var(--bg-surface-1, rgba(255,255,255,0.05)))",
+      background:
+        "var(--glass-input, var(--bg-surface-1, rgba(255,255,255,0.05)))",
       border: "1px solid var(--glass-outline, rgba(255,255,255,0.12))",
       borderRadius: "var(--radius-lg, 0.5rem)",
       color: "var(--text-primary, inherit)",
@@ -212,23 +234,24 @@ export function SearchInput({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && onSubmit) { e.preventDefault(); onSubmit(e); }
+    if (e.key === "Enter" && onSubmit) {
+      e.preventDefault();
+      onSubmit(e);
+    }
     if (e.key === "Escape") handleClear();
   };
 
   // ── Render ──────────────────────────────────────────────────────────────────
 
   return (
-    <div
-      role="search"
-      className={className}
-      style={wrapperStyle}
-    >
+    <div role="search" className={className} style={wrapperStyle}>
       {/* Search / loader icon */}
       <span aria-hidden="true" style={iconStyle}>
-        {loading
-          ? <Loader2 style={loaderStyle} />
-          : <Search style={searchIconStyle} />}
+        {loading ? (
+          <Loader2 style={loaderStyle} />
+        ) : (
+          <Search style={searchIconStyle} />
+        )}
       </span>
 
       {/* Text field — focus ring handled by .um-search-field CSS class */}
@@ -259,7 +282,8 @@ export function SearchInput({
           style={clearBtnStyle}
           onMouseEnter={(e) => {
             e.currentTarget.style.color = "var(--text-primary)";
-            e.currentTarget.style.background = "var(--glass-surface, rgba(255,255,255,0.08))";
+            e.currentTarget.style.background =
+              "var(--glass-surface, rgba(255,255,255,0.08))";
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.color = "var(--text-muted)";

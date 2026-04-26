@@ -4,7 +4,10 @@
  * @param data - Array of objects to export
  * @param filename - Base name of the file (without extension or date suffix)
  */
-export const exportToCSV = (data: Record<string, unknown>[], filename: string): void => {
+export const exportToCSV = (
+  data: Record<string, unknown>[],
+  filename: string,
+): void => {
   if (!data || !data.length) return;
 
   const headers = Object.keys(data[0]);

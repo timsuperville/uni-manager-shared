@@ -82,7 +82,12 @@ class RealTimeSecurityMonitoringService {
   async initialize(
     userId: string,
     sessionId: string,
-  ): Promise<{ success: boolean; connectionId?: string; monitoringConfig?: MonitoringConfig; error?: string }> {
+  ): Promise<{
+    success: boolean;
+    connectionId?: string;
+    monitoringConfig?: MonitoringConfig;
+    error?: string;
+  }> {
     try {
       this.userId = userId;
       this.sessionId = sessionId;
@@ -144,7 +149,10 @@ class RealTimeSecurityMonitoringService {
         handler(data);
       } catch (error) {
         if (import.meta.env?.DEV) {
-          console.warn(`[RealTimeSecurityMonitoringService] Error in ${event} handler:`, (error as Error).message);
+          console.warn(
+            `[RealTimeSecurityMonitoringService] Error in ${event} handler:`,
+            (error as Error).message,
+          );
         }
       }
     });
@@ -164,20 +172,29 @@ class RealTimeSecurityMonitoringService {
         await this.handleSecurityAlert(event.data);
         break;
       default:
-        if (import.meta.env?.DEV) console.warn("[RealTimeSecurityMonitoringService] Unknown security event type:", (event as SecurityEventPayload).type);
+        if (import.meta.env?.DEV)
+          console.warn(
+            "[RealTimeSecurityMonitoringService] Unknown security event type:",
+            (event as SecurityEventPayload).type,
+          );
     }
   }
 
-  private async handleThreat(threatData: Record<string, unknown>): Promise<void> {
+  private async handleThreat(
+    threatData: Record<string, unknown>,
+  ): Promise<void> {
     const threat: Threat = {
-      threatId: (threatData["threatId"] as string | undefined) ?? `threat_${Date.now()}`,
+      threatId:
+        (threatData["threatId"] as string | undefined) ??
+        `threat_${Date.now()}`,
       threatType: threatData["threatType"] as string,
       severity: (threatData["severity"] as Severity | undefined) ?? "medium",
       confidence: (threatData["confidence"] as number | undefined) ?? 0.5,
       source: threatData["source"] as string,
       target: (threatData["target"] as string | undefined) ?? this.userId,
       timestamp: (threatData["timestamp"] as number | undefined) ?? Date.now(),
-      metadata: (threatData["metadata"] as Record<string, unknown> | undefined) ?? {},
+      metadata:
+        (threatData["metadata"] as Record<string, unknown> | undefined) ?? {},
     };
 
     this.metrics.activeThreats.set(threat.threatId, threat);
@@ -187,25 +204,33 @@ class RealTimeSecurityMonitoringService {
     this.emit("threatDetected", threat);
   }
 
-  private async handleBehaviorAnomaly(anomalyData: Record<string, unknown>): Promise<void> {
+  private async handleBehaviorAnomaly(
+    anomalyData: Record<string, unknown>,
+  ): Promise<void> {
     const anomaly: BehaviorAnomaly = {
       anomalyType: anomalyData["anomalyType"] as string,
       severity: (anomalyData["severity"] as Severity | undefined) ?? "low",
       confidence: (anomalyData["confidence"] as number | undefined) ?? 0.5,
-      behaviorData: (anomalyData["behaviorData"] as Record<string, unknown> | undefined) ?? {},
+      behaviorData:
+        (anomalyData["behaviorData"] as Record<string, unknown> | undefined) ??
+        {},
       timestamp: (anomalyData["timestamp"] as number | undefined) ?? Date.now(),
     };
     this.emit("behaviorAnomaly", anomaly);
   }
 
-  private async handleSecurityAlert(alertData: Record<string, unknown>): Promise<void> {
+  private async handleSecurityAlert(
+    alertData: Record<string, unknown>,
+  ): Promise<void> {
     const alert: SecurityAlert = {
-      alertId: (alertData["alertId"] as string | undefined) ?? `alert_${Date.now()}`,
+      alertId:
+        (alertData["alertId"] as string | undefined) ?? `alert_${Date.now()}`,
       alertType: alertData["alertType"] as string,
       severity: (alertData["severity"] as Severity | undefined) ?? "low",
       message: alertData["message"] as string,
       timestamp: (alertData["timestamp"] as number | undefined) ?? Date.now(),
-      actionRequired: (alertData["actionRequired"] as boolean | undefined) ?? false,
+      actionRequired:
+        (alertData["actionRequired"] as boolean | undefined) ?? false,
     };
     this.emit("securityAlert", alert);
   }
@@ -223,7 +248,8 @@ class RealTimeSecurityMonitoringService {
 
   async sendMessage(message: unknown): Promise<void> {
     if (!this.isConnected) throw new Error("Service not connected");
-    if (import.meta.env?.DEV) console.log("[SecurityMonitor] message:", message);
+    if (import.meta.env?.DEV)
+      console.log("[SecurityMonitor] message:", message);
   }
 }
 

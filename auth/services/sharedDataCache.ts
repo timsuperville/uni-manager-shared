@@ -79,8 +79,14 @@ type AppCacheHandle = {
   delete: (key: string) => boolean;
   clear: (pattern?: string) => number;
   mget: (keys: string[]) => Record<string, unknown>;
-  mset: (entries: Record<string, unknown>, options?: CacheSetOptions) => Record<string, boolean>;
-  subscribe: (pattern: string, callback: (event: SubscriptionEvent) => void) => Unsubscribable | null;
+  mset: (
+    entries: Record<string, unknown>,
+    options?: CacheSetOptions,
+  ) => Record<string, boolean>;
+  subscribe: (
+    pattern: string,
+    callback: (event: SubscriptionEvent) => void,
+  ) => Unsubscribable | null;
   unsubscribe: (pattern: string) => void;
   invalidate: (pattern: string) => string[];
   stats: () => AppStats;
@@ -133,7 +139,10 @@ export class SharedDataCache {
   }
 
   /** Registers an application and returns a namespaced cache handle. */
-  registerApp(appName: string, config: Partial<CacheAppConfig> = {}): AppCacheHandle {
+  registerApp(
+    appName: string,
+    config: Partial<CacheAppConfig> = {},
+  ): AppCacheHandle {
     const appConfig: CacheAppConfig = {
       appName,
       namespace: config.namespace ?? appName,
@@ -148,17 +157,26 @@ export class SharedDataCache {
     this.syncQueues.set(appName, []);
 
     return {
-      get: (key, options) => this.get(this.getNamespacedKey(appName, key), options),
-      set: (key, value, options) => this.set(this.getNamespacedKey(appName, key), value, options),
+      get: (key, options) =>
+        this.get(this.getNamespacedKey(appName, key), options),
+      set: (key, value, options) =>
+        this.set(this.getNamespacedKey(appName, key), value, options),
       delete: (key) => this.delete(this.getNamespacedKey(appName, key)),
       clear: (pattern = "*") => this.clearNamespace(appName, pattern),
-      mget: (keys) => this.mget(keys.map((k) => this.getNamespacedKey(appName, k))),
+      mget: (keys) =>
+        this.mget(keys.map((k) => this.getNamespacedKey(appName, k))),
       mset: (entries, options) =>
         this.mset(
-          Object.fromEntries(Object.entries(entries).map(([k, v]) => [this.getNamespacedKey(appName, k), v])),
+          Object.fromEntries(
+            Object.entries(entries).map(([k, v]) => [
+              this.getNamespacedKey(appName, k),
+              v,
+            ]),
+          ),
           options,
         ),
-      subscribe: (pattern, callback) => this.subscribe(appName, pattern, callback),
+      subscribe: (pattern, callback) =>
+        this.subscribe(appName, pattern, callback),
       unsubscribe: (pattern) => this.unsubscribe(appName, pattern),
       invalidate: (pattern) => this.invalidatePattern(appName, pattern),
       stats: () => this.getAppStats(appName),
@@ -197,7 +215,12 @@ export class SharedDataCache {
   }
 
   set(key: string, value: unknown, options: CacheSetOptions = {}): boolean {
-    const { ttl = this.defaultTTL, persist = true, syncAcrossApps = true, tags = [] } = options;
+    const {
+      ttl = this.defaultTTL,
+      persist = true,
+      syncAcrossApps = true,
+      tags = [],
+    } = options;
 
     if (this.cache.size >= this.maxCacheSize) this.evictLRU();
 
@@ -244,7 +267,10 @@ export class SharedDataCache {
     return results;
   }
 
-  mset(entries: Record<string, unknown>, options: CacheSetOptions = {}): Record<string, boolean> {
+  mset(
+    entries: Record<string, unknown>,
+    options: CacheSetOptions = {},
+  ): Record<string, boolean> {
     const results: Record<string, boolean> = {};
     for (const [key, value] of Object.entries(entries)) {
       results[key] = this.set(key, value, options);
@@ -284,7 +310,11 @@ export class SharedDataCache {
   // Subscription system
   // ---------------------------------------------------------------------------
 
-  subscribe(appName: string, pattern: string, callback: (event: SubscriptionEvent) => void): Unsubscribable | null {
+  subscribe(
+    appName: string,
+    pattern: string,
+    callback: (event: SubscriptionEvent) => void,
+  ): Unsubscribable | null {
     if (!this.subscribers.has(appName)) return null;
 
     const appConfig = this.subscribers.get(appName)!;
@@ -304,13 +334,23 @@ export class SharedDataCache {
     this.subscribers.get(appName)?.subscriptions?.delete(pattern);
   }
 
-  private notifySubscribers(key: string, value: unknown, operation: "set" | "delete"): void {
+  private notifySubscribers(
+    key: string,
+    value: unknown,
+    operation: "set" | "delete",
+  ): void {
     for (const [appName, appConfig] of this.subscribers) {
       if (!appConfig.subscriptions) continue;
       for (const [, subscription] of appConfig.subscriptions) {
         if (subscription.regex.test(key)) {
           try {
-            subscription.callback({ key, value, operation, timestamp: Date.now(), appName });
+            subscription.callback({
+              key,
+              value,
+              operation,
+              timestamp: Date.now(),
+              appName,
+            });
           } catch (_err) {
             // Intentionally silent — one bad subscriber must not break others
           }
@@ -357,7 +397,10 @@ export class SharedDataCache {
     return meta.ttl > 0 && Date.now() - meta.createdAt > meta.ttl;
   }
 
-  private async refreshEntry(key: string, refreshCallback: (key: string) => Promise<unknown>): Promise<void> {
+  private async refreshEntry(
+    key: string,
+    refreshCallback: (key: string) => Promise<unknown>,
+  ): Promise<void> {
     if (this.pendingOperations.has(key)) return;
     this.pendingOperations.set(key, true);
     try {
@@ -380,7 +423,10 @@ export class SharedDataCache {
   private persistEntry(key: string, value: unknown, meta: CacheMetadata): void {
     try {
       if (typeof localStorage === "undefined") return;
-      const data: PersistedEntry = { value, metadata: { ...meta, persistedAt: Date.now() } };
+      const data: PersistedEntry = {
+        value,
+        metadata: { ...meta, persistedAt: Date.now() },
+      };
       localStorage.setItem(`uni_cache_${key}`, JSON.stringify(data));
     } catch (_err) {
       // Intentionally silent — persistence is best-effort
@@ -389,7 +435,8 @@ export class SharedDataCache {
 
   private removePersistedEntry(key: string): void {
     try {
-      if (typeof localStorage !== "undefined") localStorage.removeItem(`uni_cache_${key}`);
+      if (typeof localStorage !== "undefined")
+        localStorage.removeItem(`uni_cache_${key}`);
     } catch (_err) {
       // Intentionally silent
     }
@@ -397,7 +444,9 @@ export class SharedDataCache {
 
   private loadPersistedCache(): void {
     try {
-      const keys = Object.keys(localStorage).filter((k) => k.startsWith("uni_cache_"));
+      const keys = Object.keys(localStorage).filter((k) =>
+        k.startsWith("uni_cache_"),
+      );
       for (const persistKey of keys) {
         try {
           const raw = localStorage.getItem(persistKey);
@@ -506,7 +555,8 @@ export class SharedDataCache {
 
   private calculateHitRate(): number {
     let totalAccesses = 0;
-    for (const meta of this.metadata.values()) totalAccesses += meta.accessCount;
+    for (const meta of this.metadata.values())
+      totalAccesses += meta.accessCount;
     return totalAccesses > 0 ? (this.cache.size / totalAccesses) * 100 : 0;
   }
 

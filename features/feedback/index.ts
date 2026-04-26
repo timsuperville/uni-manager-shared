@@ -3,7 +3,12 @@
 // Usage:
 //   import { FeedbackQuickAction, submitFeedbackSilently, FEEDBACK_SOURCES } from '@shared/features/feedback';
 
-export { FeedbackQuickAction, submitFeedbackSilently, FEEDBACK_SOURCES, default } from "./FeedbackQuickAction";
+export {
+  FeedbackQuickAction,
+  submitFeedbackSilently,
+  FEEDBACK_SOURCES,
+  default,
+} from "./FeedbackQuickAction";
 export { FeedbackModalPortal } from "./FeedbackModal";
 export { collectSystemContext } from "./utils/collectSystemContext";
 export { useOptionalUser } from "./hooks/useOptionalUser";

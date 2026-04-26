@@ -39,7 +39,12 @@ export { FormField } from "./FormField";
 export { WizardStepper } from "./WizardStepper";
 export { RankMedal } from "./RankMedal";
 export { Alert, AlertTitle, AlertDescription } from "./Alert";
-export { WidgetSkeleton, WidgetSkeletonRow, WidgetSkeletonBar, WidgetSkeletonList } from "./WidgetSkeleton";
+export {
+  WidgetSkeleton,
+  WidgetSkeletonRow,
+  WidgetSkeletonBar,
+  WidgetSkeletonList,
+} from "./WidgetSkeleton";
 
 // Liquid Glass form primitives (inline-style, CSS token—based)
 export { Select } from "./Select";

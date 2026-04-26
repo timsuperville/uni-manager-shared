@@ -25,8 +25,16 @@ interface ToastContextValue {
   showError: ShowToastFn;
   showWarning: ShowToastFn;
   showInfo: ShowToastFn;
-  showToast: (message: string, type?: ToastType, options?: ToastOptions) => number;
-  addToast: (message: string, type?: ToastType, options?: ToastOptions) => number;
+  showToast: (
+    message: string,
+    type?: ToastType,
+    options?: ToastOptions,
+  ) => number;
+  addToast: (
+    message: string,
+    type?: ToastType,
+    options?: ToastOptions,
+  ) => number;
   removeToast: (id: number) => void;
   clearAllToasts: () => void;
   toasts: ToastItem[];
@@ -65,10 +73,20 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({
   const [toasts, setToasts] = useState<ToastItem[]>([]);
 
   const addToast = useCallback(
-    (message: string, type: ToastType = "info", options: ToastOptions = {}): number => {
+    (
+      message: string,
+      type: ToastType = "info",
+      options: ToastOptions = {},
+    ): number => {
       const id = Date.now() + Math.random();
       const { duration = 5000, showCloseButton = true } = options;
-      const newToast: ToastItem = { id, message, type, duration, showCloseButton };
+      const newToast: ToastItem = {
+        id,
+        message,
+        type,
+        duration,
+        showCloseButton,
+      };
       setToasts((prev) => [...prev, newToast].slice(-maxToasts));
       return id;
     },
@@ -81,20 +99,41 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({
 
   const clearAllToasts = useCallback(() => setToasts([]), []);
 
-  const showSuccess: ShowToastFn = useCallback((m, o) => addToast(m, "success", o), [addToast]);
-  const showError: ShowToastFn = useCallback((m, o) => addToast(m, "error", o), [addToast]);
-  const showWarning: ShowToastFn = useCallback((m, o) => addToast(m, "warning", o), [addToast]);
-  const showInfo: ShowToastFn = useCallback((m, o) => addToast(m, "info", o), [addToast]);
+  const showSuccess: ShowToastFn = useCallback(
+    (m, o) => addToast(m, "success", o),
+    [addToast],
+  );
+  const showError: ShowToastFn = useCallback(
+    (m, o) => addToast(m, "error", o),
+    [addToast],
+  );
+  const showWarning: ShowToastFn = useCallback(
+    (m, o) => addToast(m, "warning", o),
+    [addToast],
+  );
+  const showInfo: ShowToastFn = useCallback(
+    (m, o) => addToast(m, "info", o),
+    [addToast],
+  );
 
   const value: ToastContextValue = {
-    showSuccess, showError, showWarning, showInfo,
-    showToast: addToast, addToast, removeToast, clearAllToasts, toasts,
+    showSuccess,
+    showError,
+    showWarning,
+    showInfo,
+    showToast: addToast,
+    addToast,
+    removeToast,
+    clearAllToasts,
+    toasts,
   };
 
   return (
     <ToastContext.Provider value={value}>
       {children}
-      <div className={`${positionClasses[position]} space-y-2 max-w-sm ${className}`}>
+      <div
+        className={`${positionClasses[position]} space-y-2 max-w-sm ${className}`}
+      >
         {toasts.map((toast) => (
           <Toast
             key={toast.id}
@@ -115,5 +154,10 @@ export { ToastProvider as default };
 // Hook for convenient toast usage
 export const useToastNotification = () => {
   const { showSuccess, showError, showWarning, showInfo } = useToast();
-  return { success: showSuccess, error: showError, warning: showWarning, info: showInfo };
+  return {
+    success: showSuccess,
+    error: showError,
+    warning: showWarning,
+    info: showInfo,
+  };
 };

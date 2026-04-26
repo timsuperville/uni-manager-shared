@@ -181,9 +181,24 @@ export const CHIP_FALLBACK: ChipColorSet = {
 
 /** Size token map — maps size prop to CSS primitives. */
 export const CHIP_SIZE_MAP = {
-  xs: { fontSize: "10px", fontWeight: "700", padding: "2px 7px", dotSize: "5px" },
-  sm: { fontSize: "11px", fontWeight: "700", padding: "2px 9px", dotSize: "6px" },
-  md: { fontSize: "12px", fontWeight: "700", padding: "3px 11px", dotSize: "7px" },
+  xs: {
+    fontSize: "10px",
+    fontWeight: "700",
+    padding: "2px 7px",
+    dotSize: "5px",
+  },
+  sm: {
+    fontSize: "11px",
+    fontWeight: "700",
+    padding: "2px 9px",
+    dotSize: "6px",
+  },
+  md: {
+    fontSize: "12px",
+    fontWeight: "700",
+    padding: "3px 11px",
+    dotSize: "7px",
+  },
 } as const;
 
 export type ChipVariant = keyof typeof CHIP_VARIANTS;

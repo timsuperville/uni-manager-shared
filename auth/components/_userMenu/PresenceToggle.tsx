@@ -61,7 +61,10 @@ const PresenceToggle = memo(function PresenceToggle({
           }}
         />
       ) : (
-        <WifiOff size={10} style={{ color: "var(--color-warning, hsl(38,95%,54%))" }} />
+        <WifiOff
+          size={10}
+          style={{ color: "var(--color-warning, hsl(38,95%,54%))" }}
+        />
       )}
       {!isConnected
         ? "Offline"

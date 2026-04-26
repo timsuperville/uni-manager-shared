@@ -45,7 +45,9 @@ const SecurityDashboard = ({
   className = "",
   onSecurityAlert = null,
 }: SecurityDashboardProps) => {
-  const [securityStats, setSecurityStats] = useState<SecurityStats | null>(null);
+  const [securityStats, setSecurityStats] = useState<SecurityStats | null>(
+    null,
+  );
   const [securityEvents, setSecurityEvents] = useState<SecurityEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -79,7 +81,8 @@ const SecurityDashboard = ({
         });
       }
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Failed to load security data";
+      const msg =
+        err instanceof Error ? err.message : "Failed to load security data";
       setError(msg);
     } finally {
       setLoading(false);

@@ -27,9 +27,11 @@ interface UseRateLimitReturn {
   clientIP: string | null;
   checkRateLimit: () => Promise<RateLimitStatus>;
   recordAttempt: (success?: boolean) => Promise<boolean>;
-  executeWithRateLimit: <T>(actionFn: () => Promise<T>) => Promise<
-    { success: true; data: T; rateLimitStatus: RateLimitStatus } |
-    { success: false; error: string; rateLimitStatus: RateLimitStatus }
+  executeWithRateLimit: <T>(
+    actionFn: () => Promise<T>,
+  ) => Promise<
+    | { success: true; data: T; rateLimitStatus: RateLimitStatus }
+    | { success: false; error: string; rateLimitStatus: RateLimitStatus }
   >;
   resetRateLimit: () => Promise<boolean>;
   getFormattedRemainingTime: () => string;
@@ -40,7 +42,9 @@ interface UseRateLimitReturn {
 
 // ── Hook ──────────────────────────────────────────────────────────────────────
 
-export const useRateLimit = (options: RateLimitOptions = {}): UseRateLimitReturn => {
+export const useRateLimit = (
+  options: RateLimitOptions = {},
+): UseRateLimitReturn => {
   const {
     identifier = null,
     action = "default",
@@ -69,7 +73,7 @@ export const useRateLimit = (options: RateLimitOptions = {}): UseRateLimitReturn
         return defaultIP;
       }
       const response = await fetch("/api/auth/client-ip");
-      const data = await response.json() as { ip?: string };
+      const data = (await response.json()) as { ip?: string };
       const detected = data.ip ?? "127.0.0.1";
       setClientIP(detected);
       return detected;
@@ -84,9 +88,16 @@ export const useRateLimit = (options: RateLimitOptions = {}): UseRateLimitReturn
     try {
       setIsLoading(true);
       const targetIdentifier = identifier ?? (await detectClientIP());
-      const status = (securityService as {
-        checkRateLimit(id: string, action: string, max: number, window: number): RateLimitStatus;
-      }).checkRateLimit(targetIdentifier, action, maxAttempts, windowMs);
+      const status = (
+        securityService as {
+          checkRateLimit(
+            id: string,
+            action: string,
+            max: number,
+            window: number,
+          ): RateLimitStatus;
+        }
+      ).checkRateLimit(targetIdentifier, action, maxAttempts, windowMs);
       setRateLimitStatus(status);
       return status;
     } catch (e) {
@@ -108,9 +119,11 @@ export const useRateLimit = (options: RateLimitOptions = {}): UseRateLimitReturn
     async (success = false): Promise<boolean> => {
       try {
         const targetIdentifier = identifier ?? (await detectClientIP());
-        (securityService as unknown as {
-          recordAttempt(id: string, action: string, success: boolean): void;
-        }).recordAttempt(targetIdentifier, action, success);
+        (
+          securityService as unknown as {
+            recordAttempt(id: string, action: string, success: boolean): void;
+          }
+        ).recordAttempt(targetIdentifier, action, success);
         await checkRateLimit();
         return true;
       } catch (_err) {
@@ -151,9 +164,11 @@ export const useRateLimit = (options: RateLimitOptions = {}): UseRateLimitReturn
   const resetRateLimit = useCallback(async (): Promise<boolean> => {
     try {
       const targetIdentifier = identifier ?? (await detectClientIP());
-      (securityService as unknown as {
-        rateLimits: Map<string, unknown>;
-      }).rateLimits.delete(`${targetIdentifier}:${action}`);
+      (
+        securityService as unknown as {
+          rateLimits: Map<string, unknown>;
+        }
+      ).rateLimits.delete(`${targetIdentifier}:${action}`);
       await checkRateLimit();
       return true;
     } catch (_err) {
@@ -169,9 +184,12 @@ export const useRateLimit = (options: RateLimitOptions = {}): UseRateLimitReturn
   }, [rateLimitStatus.remainingTime]);
 
   const isBlocked = !rateLimitStatus.allowed;
-  const isNearLimit = rateLimitStatus.attemptsRemaining <= 1 && rateLimitStatus.allowed;
+  const isNearLimit =
+    rateLimitStatus.attemptsRemaining <= 1 && rateLimitStatus.allowed;
 
-  useEffect(() => { checkRateLimit(); }, [checkRateLimit]);
+  useEffect(() => {
+    checkRateLimit();
+  }, [checkRateLimit]);
 
   useEffect(() => {
     if (!isBlocked) return;
@@ -197,15 +215,32 @@ export const useRateLimit = (options: RateLimitOptions = {}): UseRateLimitReturn
 };
 
 export const useLoginRateLimit = (userIdentifier: string | null = null) =>
-  useRateLimit({ identifier: userIdentifier, action: "login", maxAttempts: 5, windowMs: 15 * 60 * 1000 });
+  useRateLimit({
+    identifier: userIdentifier,
+    action: "login",
+    maxAttempts: 5,
+    windowMs: 15 * 60 * 1000,
+  });
 
 export const useMFARateLimit = (userIdentifier: string | null = null) =>
-  useRateLimit({ identifier: userIdentifier, action: "mfa", maxAttempts: 3, windowMs: 5 * 60 * 1000 });
+  useRateLimit({
+    identifier: userIdentifier,
+    action: "mfa",
+    maxAttempts: 3,
+    windowMs: 5 * 60 * 1000,
+  });
 
 export const useAPIRateLimit = (endpoint = "api") =>
   useRateLimit({ action: endpoint, maxAttempts: 60, windowMs: 60 * 1000 });
 
-export const usePasswordResetRateLimit = (userIdentifier: string | null = null) =>
-  useRateLimit({ identifier: userIdentifier, action: "password_reset", maxAttempts: 3, windowMs: 60 * 60 * 1000 });
+export const usePasswordResetRateLimit = (
+  userIdentifier: string | null = null,
+) =>
+  useRateLimit({
+    identifier: userIdentifier,
+    action: "password_reset",
+    maxAttempts: 3,
+    windowMs: 60 * 60 * 1000,
+  });
 
 export default useRateLimit;

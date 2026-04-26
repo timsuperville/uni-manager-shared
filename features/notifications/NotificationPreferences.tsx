@@ -14,7 +14,15 @@ import {
 } from "react-icons/fi";
 import { useNotificationPreferences } from "../../hooks/useNotificationPreferences";
 import type { NotificationPreferences as StoredPreferences } from "../../hooks/useNotificationPreferences";
-import { Button, Card, Switch, Select, TimePicker, LoadingSpinner, Modal } from "@shared/components/ui";
+import {
+  Button,
+  Card,
+  Switch,
+  Select,
+  TimePicker,
+  LoadingSpinner,
+  Modal,
+} from "@shared/components/ui";
 import { Slider } from "@shared/components/ui/Slider";
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -465,9 +473,7 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
               className="p-5 glass-card rounded-2xl border border-()"
             >
               <div className="flex items-center justify-between mb-4">
-                <span className="font-semibold text-() capitalize">
-                  {type}
-                </span>
+                <span className="font-semibold text-() capitalize">{type}</span>
                 <Switch
                   checked={settings.enabled}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
@@ -516,9 +522,7 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
               <div className="p-2.5 rounded-xl bg-() border border-() border-opacity-30">
                 <FiVolumeX className="w-5 h-5 text-()" />
               </div>
-              <span className="font-semibold text-()">
-                Enable Quiet Hours
-              </span>
+              <span className="font-semibold text-()">Enable Quiet Hours</span>
             </div>
             <Switch
               checked={localPreferences.quietHours.enabled}
@@ -586,9 +590,7 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
         <div className="space-y-4">
           <div className="p-5 glass-card rounded-2xl border border-()">
             <div className="flex items-center justify-between mb-4">
-              <span className="font-semibold text-()">
-                Batch Notifications
-              </span>
+              <span className="font-semibold text-()">Batch Notifications</span>
               <Switch
                 checked={localPreferences.delivery.batching}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
@@ -649,9 +651,7 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
           <div className="p-5 glass-card rounded-2xl border border-()">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="font-semibold text-()">
-                  Smart Timing
-                </span>
+                <span className="font-semibold text-()">Smart Timing</span>
                 <Switch
                   checked={localPreferences.delivery.smartTiming}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
@@ -695,9 +695,7 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
         </h3>
         <div className="space-y-4">
           <div className="p-5 glass-card rounded-2xl border border-()">
-            <h4 className="font-semibold text-() mb-4">
-              Sound & Alerts
-            </h4>
+            <h4 className="font-semibold text-() mb-4">Sound & Alerts</h4>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-700">Enable Sound</span>
@@ -762,9 +760,7 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
             </div>
           </div>
           <div className="p-5 glass-card rounded-2xl border border-()">
-            <h4 className="font-semibold text-() mb-4">
-              Display Options
-            </h4>
+            <h4 className="font-semibold text-() mb-4">Display Options</h4>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-700">Show Previews</span>
@@ -849,9 +845,7 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
         </h3>
         <div className="space-y-4">
           <div className="p-5 glass-card rounded-2xl border border-()">
-            <h4 className="font-semibold text-() mb-4">
-              Localization
-            </h4>
+            <h4 className="font-semibold text-() mb-4">Localization</h4>
             <div className="space-y-3">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -892,9 +886,7 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
             </div>
           </div>
           <div className="p-5 glass-card rounded-2xl border border-()">
-            <h4 className="font-semibold text-() mb-4">
-              Email Settings
-            </h4>
+            <h4 className="font-semibold text-() mb-4">Email Settings</h4>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Email Template
@@ -920,9 +912,7 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
             </div>
           </div>
           <div className="p-5 glass-card rounded-2xl border border-()">
-            <h4 className="font-semibold text-() mb-4">
-              System Options
-            </h4>
+            <h4 className="font-semibold text-() mb-4">System Options</h4>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-700">

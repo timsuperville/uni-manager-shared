@@ -45,15 +45,17 @@ const svg = (children: React.ReactNode, defaultSw = 2): React.FC<IconProps> =>
 
 // ── Navigation / Layout ────────────────────────────────────────────────────────
 
-export const ChevronDownIcon  = svg(<path d="M6 9l6 6 6-6" />);
-export const ChevronUpIcon    = svg(<path d="M6 15l6-6 6 6" />);
+export const ChevronDownIcon = svg(<path d="M6 9l6 6 6-6" />);
+export const ChevronUpIcon = svg(<path d="M6 15l6-6 6 6" />);
 export const ChevronRightIcon = svg(<path d="M9 5l7 7-7 7" />);
-export const XIcon            = svg(<path d="M6 18L18 6M6 6l12 12" />);
-export const PlusIcon         = svg(<path d="M12 4v16m8-8H4" />);
+export const XIcon = svg(<path d="M6 18L18 6M6 6l12 12" />);
+export const PlusIcon = svg(<path d="M12 4v16m8-8H4" />);
 
 // ── Data / Files ───────────────────────────────────────────────────────────────
 
-export const SearchIcon = svg(<path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />);
+export const SearchIcon = svg(
+  <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />,
+);
 
 export const DownloadIcon = svg(
   <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />,
@@ -90,7 +92,7 @@ export const AlertCircleIcon = svg(
   1.5,
 );
 
-export const CheckIcon    = svg(<path d="M20 6L9 17l-5-5" />);
+export const CheckIcon = svg(<path d="M20 6L9 17l-5-5" />);
 
 export const BanIcon = svg(
   <>
@@ -100,7 +102,7 @@ export const BanIcon = svg(
   1.5,
 );
 
-export const TrendUpIcon   = svg(<path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />);
+export const TrendUpIcon = svg(<path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />);
 export const TrendDownIcon = svg(<path d="M13 17h8m0 0v-8m0 8l-8-8-4 4-6-6" />);
 
 // ── Users / Auth ───────────────────────────────────────────────────────────────
@@ -222,7 +224,10 @@ export const BarChartIcon = svg(
 // ── Domains & Ecosystem ────────────────────────────────────────────────────────
 
 // Church
-export const ChurchIcon = svg(<path d="M18 7v4h-6v4M6 7v4h6M12 2v20M3 21h18" />, 1.5);
+export const ChurchIcon = svg(
+  <path d="M18 7v4h-6v4M6 7v4h6M12 2v20M3 21h18" />,
+  1.5,
+);
 
 export const ChurchAppLogo = svg(
   <>
@@ -234,7 +239,7 @@ export const ChurchAppLogo = svg(
     <path d="M3 22h18" />
     <path d="M10 16a2 2 0 0 1 4 0v6h-4v-6Z" />
   </>,
-  1.5
+  1.5,
 );
 
 export const BellIcon = svg(
@@ -242,7 +247,7 @@ export const BellIcon = svg(
     <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
     <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
   </>,
-  1.5
+  1.5,
 );
 
 export const MusicIcon = svg(
@@ -251,7 +256,7 @@ export const MusicIcon = svg(
     <circle cx="6" cy="18" r="3" />
     <circle cx="18" cy="16" r="3" />
   </>,
-  1.5
+  1.5,
 );
 
 export const CoinsIcon = svg(
@@ -261,7 +266,7 @@ export const CoinsIcon = svg(
     <path d="M7 6h1v4" />
     <path d="m16.71 13.88.7.71-2.82 2.82" />
   </>,
-  1.5
+  1.5,
 );
 
 export const MegaphoneIcon = svg(
@@ -269,17 +274,17 @@ export const MegaphoneIcon = svg(
     <path d="m3 11 18-5v12L3 14v-3z" />
     <path d="M11.6 16.8a3 3 0 1 1-5.8-1.6" />
   </>,
-  1.5
+  1.5,
 );
 
 export const BookIcon = svg(
   <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />,
-  1.5
+  1.5,
 );
 
 export const FlameIcon = svg(
   <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" />,
-  1.5
+  1.5,
 );
 
 export const WineIcon = svg(
@@ -289,7 +294,7 @@ export const WineIcon = svg(
     <path d="M12 15v7" />
     <path d="M12 15a5 5 0 0 0 5-5c0-2-.5-4-2-8H9c-1.5 4-2 6-2 8a5 5 0 0 0 5 5Z" />
   </>,
-  1.5
+  1.5,
 );
 
 export const SmileIcon = svg(
@@ -299,7 +304,7 @@ export const SmileIcon = svg(
     <line x1="9" y1="9" x2="9.01" y2="9" />
     <line x1="15" y1="9" x2="15.01" y2="9" />
   </>,
-  1.5
+  1.5,
 );
 
 export const SendIcon = svg(
@@ -307,7 +312,7 @@ export const SendIcon = svg(
     <path d="m22 2-7 20-4-9-9-4Z" />
     <path d="M22 2 11 13" />
   </>,
-  1.5
+  1.5,
 );
 
 export const LogOutIcon = svg(
@@ -316,7 +321,7 @@ export const LogOutIcon = svg(
     <polyline points="16 17 21 12 16 7" />
     <line x1="21" y1="12" x2="9" y2="12" />
   </>,
-  1.5
+  1.5,
 );
 
 export const AnointingIcon = svg(
@@ -325,7 +330,7 @@ export const AnointingIcon = svg(
     <path d="M2 10h5c1 0 3-2 5-2h4c2 0 4 1 5 3a2 2 0 0 1-2 4c-2 0-3-2-4-3l-3-2" />
     {/* Thumb curving under */}
     <path d="M12 13c-1 2-3 3-5 2" />
-    
+
     {/* Additional overlapping fingers for 3D perspective */}
     <path d="M19.5 10a2 2 0 0 1-2 4" />
     <path d="M18 9a2 2 0 0 1-2 4" />
@@ -336,12 +341,12 @@ export const AnointingIcon = svg(
     <path d="M13 20l.5.5" />
     <path d="M17 20l-.5.5" />
   </>,
-  1.5
+  1.5,
 );
 
 export const StarIcon = svg(
   <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />,
-  1.5
+  1.5,
 );
 
 export const LayersIcon = svg(
@@ -350,18 +355,21 @@ export const LayersIcon = svg(
     <polyline points="2 12 12 17 22 12" />
     <polyline points="2 17 12 22 22 17" />
   </>,
-  1.5
+  1.5,
 );
 
 // Home
-export const HomeIcon = svg(<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />, 1.5);
+export const HomeIcon = svg(
+  <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />,
+  1.5,
+);
 export const ShoppingCartIcon = svg(
   <>
     <circle cx="9" cy="21" r="1" />
     <circle cx="20" cy="21" r="1" />
     <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
   </>,
-  1.5
+  1.5,
 );
 
 // Personal
@@ -377,7 +385,7 @@ export const BrainIcon = svg(
     <path d="M12 20v2" />
     <path d="M12 18v-2" />
   </>,
-  1.5
+  1.5,
 );
 export const TargetIcon = svg(
   <>
@@ -385,7 +393,7 @@ export const TargetIcon = svg(
     <circle cx="12" cy="12" r="6" />
     <circle cx="12" cy="12" r="2" />
   </>,
-  1.5
+  1.5,
 );
 export const DiamondIcon = svg(<path d="M6 3h12l4 6-10 13L2 9z" />, 1.5);
 
@@ -397,14 +405,14 @@ export const PackageIcon = svg(
     <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
     <line x1="12" y1="22.08" x2="12" y2="12" />
   </>,
-  1.5
+  1.5,
 );
 export const BriefcaseIcon = svg(
   <>
     <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
     <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
   </>,
-  1.5
+  1.5,
 );
 
 // Playback
@@ -414,21 +422,21 @@ export const MicIcon = svg(
     <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
     <line x1="12" y1="19" x2="12" y2="22" />
   </>,
-  1.5
+  1.5,
 );
 export const KeyboardIcon = svg(
   <>
     <rect x="2" y="6" width="20" height="12" rx="2" />
     <path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M6 14h.01M10 14h.01M14 14h.01M18 14h.01M10 18h4" />
   </>,
-  1.5
+  1.5,
 );
 export const SpeakerIcon = svg(
   <>
     <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
     <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
   </>,
-  1.5
+  1.5,
 );
 
 // Default
@@ -438,9 +446,12 @@ export const GlobeIcon = svg(
     <line x1="2" y1="12" x2="22" y2="12" />
     <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
   </>,
-  1.5
+  1.5,
 );
-export const LightningIcon = svg(<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />, 1.5);
+export const LightningIcon = svg(
+  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />,
+  1.5,
+);
 
 // ── App Logos (Source of Truth) ────────────────────────────────────────────────
 
@@ -455,7 +466,7 @@ export const PresentationAppLogo = svg(
     <line x1="8" y1="21" x2="16" y2="21" />
     <line x1="12" y1="17" x2="12" y2="21" />
   </>,
-  1.5
+  1.5,
 );
 
 // ── Auto-Migrated App Imports ────────────────────────────────
@@ -702,5 +713,5 @@ export {
   Wrench,
   X,
   XCircle,
-  Zap
+  Zap,
 } from "lucide-react";

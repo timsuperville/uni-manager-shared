@@ -140,10 +140,7 @@ import { useApi, useApiQuery } from "@shared/api";
 
 function UserProfile() {
   const api = useApi();
-  const { data: user, isLoading, error } = useApiQuery(
-    "current-user",
-    () => api.auth.getCurrentUser(),
-  );
+  const { data: user, isLoading, error } = useApiQuery("current-user", () => api.auth.getCurrentUser());
 
   if (isLoading) return <Spinner />;
   if (error) return <ErrorMessage error={error} />;
@@ -169,11 +166,7 @@ const { data } = useApiQuery(
 ```typescript
 const [page, setPage] = useState(1);
 
-const { data } = useApiQuery(
-  ["churches", page],
-  () => api.church.getChurches({}, { page, limit: 10 }),
-  { staleTime: 300_000 },
-);
+const { data } = useApiQuery(["churches", page], () => api.church.getChurches({}, { page, limit: 10 }), { staleTime: 300_000 });
 
 // data.items — current page
 // data.pagination.totalPages
@@ -185,11 +178,7 @@ const { data } = useApiQuery(
 ```typescript
 const [search, setSearch] = useState("");
 
-const { data: results } = useApiQuery(
-  ["notifications", search],
-  () => api.notifications.getUserNotifications({ search }),
-  { enabled: search.length > 2 },
-);
+const { data: results } = useApiQuery(["notifications", search], () => api.notifications.getUserNotifications({ search }), { enabled: search.length > 2 });
 ```
 
 ---
@@ -224,30 +213,23 @@ function SendNotificationForm() {
 ### Update
 
 ```typescript
-const { mutate: updatePrefs } = useApiMutation(
-  (prefs: Partial<NotificationPreferences>) =>
-    api.notifications.updateUserPreferences(prefs),
-  {
-    onSuccess: () => {
-      // Invalidate the cached preferences so they refetch
-      refetchPreferences();
-    },
+const { mutate: updatePrefs } = useApiMutation((prefs: Partial<NotificationPreferences>) => api.notifications.updateUserPreferences(prefs), {
+  onSuccess: () => {
+    // Invalidate the cached preferences so they refetch
+    refetchPreferences();
   },
-);
+});
 ```
 
 ### Delete
 
 ```typescript
-const { mutate: deleteFile, isLoading: isDeleting } = useApiMutation(
-  (id: string) => api.files.deleteFile(id),
-  {
-    onSuccess: () => {
-      setFiles((prev) => prev.filter((f) => f.id !== id));
-      toast.success("File deleted");
-    },
+const { mutate: deleteFile, isLoading: isDeleting } = useApiMutation((id: string) => api.files.deleteFile(id), {
+  onSuccess: () => {
+    setFiles((prev) => prev.filter((f) => f.id !== id));
+    toast.success("File deleted");
   },
-);
+});
 ```
 
 ---
@@ -270,12 +252,7 @@ function AvatarUpload() {
 
   return (
     <div>
-      <input
-        type="file"
-        accept="image/*"
-        disabled={isUploading}
-        onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])}
-      />
+      <input type="file" accept="image/*" disabled={isUploading} onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
       {isUploading && <ProgressBar value={progress} max={100} />}
       {error && <p className="error">{error}</p>}
     </div>
@@ -289,14 +266,11 @@ function AvatarUpload() {
 import type { AxiosProgressEvent } from "axios";
 
 const handleUpload = async (file: File) => {
-  const result = await api.files.uploadFile(
-    { file, category: "documents" },
-    (event: AxiosProgressEvent) => {
-      // event.total can be undefined if the server omits Content-Length
-      const pct = Math.round((event.loaded * 100) / (event.total ?? event.loaded));
-      setProgress(pct);
-    },
-  );
+  const result = await api.files.uploadFile({ file, category: "documents" }, (event: AxiosProgressEvent) => {
+    // event.total can be undefined if the server omits Content-Length
+    const pct = Math.round((event.loaded * 100) / (event.total ?? event.loaded));
+    setProgress(pct);
+  });
   setFileUrl(result.url);
 };
 ```
@@ -334,10 +308,7 @@ if (error) {
 ### Mutation Error Handling
 
 ```typescript
-const { mutate, error, reset } = useApiMutation(
-  (data) => api.notifications.createNotification(data),
-  { onError: (err) => Sentry.captureException(err) },
-);
+const { mutate, error, reset } = useApiMutation((data) => api.notifications.createNotification(data), { onError: (err) => Sentry.captureException(err) });
 
 // Clear error state after user fixes input
 reset();
@@ -350,14 +321,10 @@ reset();
 ### Custom TTL per Query
 
 ```typescript
-const { data } = useApiQuery(
-  "notification-prefs",
-  () => api.notifications.getUserPreferences(),
-  {
-    staleTime: 600_000,   // serve from cache for 10 minutes
-    retry: 1,
-  },
-);
+const { data } = useApiQuery("notification-prefs", () => api.notifications.getUserPreferences(), {
+  staleTime: 600_000, // serve from cache for 10 minutes
+  retry: 1,
+});
 ```
 
 ### Manual Cache Control (DEV)
@@ -365,10 +332,10 @@ const { data } = useApiQuery(
 Available in browser console when `enableDebugLogging: true`:
 
 ```javascript
-window.apiCacheStats();    // { size, hits, misses, hitRate }
-window.clearApiCache();    // Wipe everything
-window.apiHealthCheck();   // Ping auth service
-window.apiServices;        // Direct access to ApiServices instance
+window.apiCacheStats(); // { size, hits, misses, hitRate }
+window.clearApiCache(); // Wipe everything
+window.apiHealthCheck(); // Ping auth service
+window.apiServices; // Direct access to ApiServices instance
 ```
 
 ---
@@ -380,25 +347,20 @@ window.apiServices;        // Direct access to ApiServices instance
 ```typescript
 const queryClient = useQueryClient();
 
-const { mutate: markRead } = useApiMutation(
-  (id: string) => api.notifications.markAsRead(id),
-  {
-    onMutate: async (id) => {
-      await queryClient.cancelQueries(["notifications"]);
-      const previous = queryClient.getQueryData(["notifications"]);
-      queryClient.setQueryData(["notifications"], (old: Notification[]) =>
-        old.map((n) => (n.id === id ? { ...n, status: "read" } : n)),
-      );
-      return { previous };
-    },
-    onError: (_err, _id, context) => {
-      queryClient.setQueryData(["notifications"], context?.previous);
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries(["notifications"]);
-    },
+const { mutate: markRead } = useApiMutation((id: string) => api.notifications.markAsRead(id), {
+  onMutate: async (id) => {
+    await queryClient.cancelQueries(["notifications"]);
+    const previous = queryClient.getQueryData(["notifications"]);
+    queryClient.setQueryData(["notifications"], (old: Notification[]) => old.map((n) => (n.id === id ? { ...n, status: "read" } : n)));
+    return { previous };
   },
-);
+  onError: (_err, _id, context) => {
+    queryClient.setQueryData(["notifications"], context?.previous);
+  },
+  onSettled: () => {
+    queryClient.invalidateQueries(["notifications"]);
+  },
+});
 ```
 
 ### Parallel Requests
@@ -423,11 +385,7 @@ import { syncEngine, getApiServices } from "@shared/api";
 
 // Queue when offline
 const handleOfflineAction = async (data: CreateNotificationRequest) => {
-  await syncEngine.queueMutation(
-    "notification-create",
-    [data],
-    "notifications.createNotification",
-  );
+  await syncEngine.queueMutation("notification-create", [data], "notifications.createNotification");
   toast.info("Saved offline — will sync when reconnected");
 };
 

@@ -21,23 +21,23 @@ describe("Select Component", () => {
         value={["ESV"]}
         onChange={handleChange}
         data-testid="multi-select"
-      />
+      />,
     );
 
     const select = screen.getByTestId("multi-select") as HTMLSelectElement;
     expect(select.multiple).toBe(true);
-    
-    // Simulate selecting NIV (in addition to ESV which is the current value, 
+
+    // Simulate selecting NIV (in addition to ESV which is the current value,
     // actually userEvent.selectOptions adds to selection if it's multiple)
     await user.selectOptions(select, ["NIV"]);
 
-    // The onChange handler should be called 
+    // The onChange handler should be called
     expect(handleChange).toHaveBeenCalled();
     const firstCallArgs = handleChange.mock.calls[0];
-    
+
     // Check that the first argument is exactly an array of strings
     expect(firstCallArgs[0]).toEqual(["ESV", "NIV"]);
-    
+
     // Check that the second argument is the event object
     expect(firstCallArgs[1]).toBeDefined();
     expect(firstCallArgs[1].target).toBeDefined();

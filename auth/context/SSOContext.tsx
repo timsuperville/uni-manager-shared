@@ -11,7 +11,7 @@ import {
   BriefcaseIcon,
   HomeIcon,
   UserIcon,
-  SpeakerIcon
+  SpeakerIcon,
 } from "../../components/icons";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -94,7 +94,10 @@ function ssoReducer(state: SSOState, action: SSOAction): SSOState {
     case "SET_APP_SESSION":
       return {
         ...state,
-        appSessions: { ...state.appSessions, [action.payload.appId]: action.payload.session },
+        appSessions: {
+          ...state.appSessions,
+          [action.payload.appId]: action.payload.session,
+        },
       };
     case "SET_LOADING":
       return { ...state, ssoLoading: action.payload };
@@ -116,7 +119,10 @@ interface SSOProviderProps {
   config?: SSOConfig;
 }
 
-export const SSOProvider: React.FC<SSOProviderProps> = ({ children, config = {} }) => {
+export const SSOProvider: React.FC<SSOProviderProps> = ({
+  children,
+  config = {},
+}) => {
   const [state, dispatch] = useReducer(ssoReducer, initialState);
 
   useEffect(() => {
@@ -125,11 +131,18 @@ export const SSOProvider: React.FC<SSOProviderProps> = ({ children, config = {} 
         dispatch({ type: "SET_LOADING", payload: true });
         const apps = config.availableApps ?? DEFAULT_APPS;
         dispatch({ type: "SET_AVAILABLE_APPS", payload: apps });
-        dispatch({ type: "SET_CURRENT_APP", payload: config.initialApp ?? "church" });
-        dispatch({ type: "SET_USER_PERMISSIONS", payload: config.userPermissions ?? {} });
+        dispatch({
+          type: "SET_CURRENT_APP",
+          payload: config.initialApp ?? "church",
+        });
+        dispatch({
+          type: "SET_USER_PERMISSIONS",
+          payload: config.userPermissions ?? {},
+        });
         dispatch({ type: "SET_LOADING", payload: false });
       } catch (error) {
-        if (import.meta.env.DEV) console.error("SSO initialization failed:", error);
+        if (import.meta.env.DEV)
+          console.error("SSO initialization failed:", error);
         dispatch({ type: "SET_ERROR", payload: (error as Error).message });
         dispatch({ type: "SET_LOADING", payload: false });
       }
@@ -160,7 +173,11 @@ export const SSOProvider: React.FC<SSOProviderProps> = ({ children, config = {} 
           type: "SET_APP_SESSION",
           payload: {
             appId,
-            session: { appId, timestamp: new Date().toISOString(), status: "active" },
+            session: {
+              appId,
+              timestamp: new Date().toISOString(),
+              status: "active",
+            },
           },
         });
       } catch (error) {

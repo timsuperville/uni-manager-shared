@@ -91,7 +91,7 @@ import { getApiBaseUrl } from "@shared/api";
 const App: React.FC = () => (
   <ApiProvider
     config={{
-      baseURL: getApiBaseUrl(),  // reads VITE_API_URL or defaults to /api
+      baseURL: getApiBaseUrl(), // reads VITE_API_URL or defaults to /api
       timeout: 10000,
       cacheEnabled: true,
       authEnabled: true,
@@ -117,10 +117,7 @@ const Dashboard: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
   const api = useApi();
 
-  const { data: profile, isLoading } = useApiQuery(
-    "user-profile",
-    () => api.auth.getCurrentUser(),
-  );
+  const { data: profile, isLoading } = useApiQuery("user-profile", () => api.auth.getCurrentUser());
 
   if (isLoading) return <Spinner />;
   return <div>Welcome, {profile?.displayName}</div>;
@@ -147,7 +144,7 @@ Always use this helper instead of reading `import.meta.See [SERVICE_AUTHOR_GUIDE
 ```typescript
 import { getApiBaseUrl, getAbsoluteUrl } from "@shared/api";
 
-const base = getApiBaseUrl();             // "/api" or "http://localhost:5000/api"
+const base = getApiBaseUrl(); // "/api" or "http://localhost:5000/api"
 const avatarUrl = getAbsoluteUrl("/uploads/avatar.jpg");
 ```
 
@@ -155,17 +152,17 @@ const avatarUrl = getAbsoluteUrl("/uploads/avatar.jpg");
 
 ```typescript
 interface ApiClientConfig {
-  baseURL: string;              // Required — use getApiBaseUrl()
-  timeout?: number;             // Default: 10000ms
-  retryAttempts?: number;       // Default: 3
-  cacheEnabled?: boolean;       // Default: true
-  authEnabled?: boolean;        // Default: true
+  baseURL: string; // Required — use getApiBaseUrl()
+  timeout?: number; // Default: 10000ms
+  retryAttempts?: number; // Default: 3
+  cacheEnabled?: boolean; // Default: true
+  authEnabled?: boolean; // Default: true
   defaultHeaders?: Record<string, string>;
   authConfig?: {
-    tokenKey: string;                           // localStorage/sessionStorage key
+    tokenKey: string; // localStorage/sessionStorage key
     refreshTokenKey: string;
     tokenStorage: "localStorage" | "sessionStorage" | "memory";
-    refreshEndpoint?: string;                   // Default: "/auth/refresh"
+    refreshEndpoint?: string; // Default: "/auth/refresh"
     onTokenRefreshFailure?: () => void;
   };
 }
@@ -193,37 +190,37 @@ const api = getApiServices();
 
 ### AuthService (`api.auth`)
 
-| Method | Description |
-|--------|-------------|
-| `login(credentials)` | Authenticate user, store tokens |
-| `signup(userData)` | Register new user |
-| `logout()` | Clear tokens, invalidate session |
-| `getCurrentUser()` | `GET /auth/me` |
-| `updateProfile(updates)` | `PATCH /profile` |
-| `changePassword(data)` | `POST /auth/change-password` |
-| `uploadAvatar(file)` | `POST /avatar` — emits `avatar-upload-progress` CustomEvent |
-| `checkAuthStatus()` | Lightweight session check |
-| `refreshToken()` | Force token refresh |
-| `requestPasswordReset(email)` | Send reset email |
-| `resetPassword(token, password)` | Complete reset flow |
+| Method                           | Description                                                 |
+| -------------------------------- | ----------------------------------------------------------- |
+| `login(credentials)`             | Authenticate user, store tokens                             |
+| `signup(userData)`               | Register new user                                           |
+| `logout()`                       | Clear tokens, invalidate session                            |
+| `getCurrentUser()`               | `GET /auth/me`                                              |
+| `updateProfile(updates)`         | `PATCH /profile`                                            |
+| `changePassword(data)`           | `POST /auth/change-password`                                |
+| `uploadAvatar(file)`             | `POST /avatar` — emits `avatar-upload-progress` CustomEvent |
+| `checkAuthStatus()`              | Lightweight session check                                   |
+| `refreshToken()`                 | Force token refresh                                         |
+| `requestPasswordReset(email)`    | Send reset email                                            |
+| `resetPassword(token, password)` | Complete reset flow                                         |
 
 ### FileService (`api.files`)
 
-| Method | Description |
-|--------|-------------|
-| `uploadFile(request, onProgress?)` | Upload with `AxiosProgressEvent` progress |
-| `getFile(id)` | Get file metadata |
-| `downloadFile(id)` | Download file |
-| `updateFile(id, updates)` | Update metadata |
-| `deleteFile(id)` | Delete file |
-| `searchFiles(params?, pagination?)` | Search with filters |
-| `createFolder(data)` | Create folder |
-| `getFolder(id, pagination?)` | Get folder contents |
-| `updateFolder(id, updates)` | Rename / update folder |
-| `deleteFolder(id, options?)` | Delete (with recursive option) |
-| `shareFile(shareRequest)` | Share with users |
-| `bulkFileOperation(operation)` | Move / copy / delete / tag in bulk |
-| `getStorageAnalytics(folderId?)` | Usage statistics |
+| Method                              | Description                               |
+| ----------------------------------- | ----------------------------------------- |
+| `uploadFile(request, onProgress?)`  | Upload with `AxiosProgressEvent` progress |
+| `getFile(id)`                       | Get file metadata                         |
+| `downloadFile(id)`                  | Download file                             |
+| `updateFile(id, updates)`           | Update metadata                           |
+| `deleteFile(id)`                    | Delete file                               |
+| `searchFiles(params?, pagination?)` | Search with filters                       |
+| `createFolder(data)`                | Create folder                             |
+| `getFolder(id, pagination?)`        | Get folder contents                       |
+| `updateFolder(id, updates)`         | Rename / update folder                    |
+| `deleteFolder(id, options?)`        | Delete (with recursive option)            |
+| `shareFile(shareRequest)`           | Share with users                          |
+| `bulkFileOperation(operation)`      | Move / copy / delete / tag in bulk        |
+| `getStorageAnalytics(folderId?)`    | Usage statistics                          |
 
 **Progress tracking:**
 
@@ -238,23 +235,23 @@ await api.files.uploadFile(request, (event: AxiosProgressEvent) => {
 
 ### NotificationService (`api.notifications`)
 
-| Method | Description |
-|--------|-------------|
-| `createNotification(data)` | Create notification |
-| `getNotification(id)` | Get by ID |
-| `getUserNotifications(filters?, pagination?)` | Paginated list |
-| `markAsRead(id)` | Mark single read |
-| `markMultipleAsRead(ids)` | Bulk read |
-| `getUnreadCount()` | Unread badge count |
-| `createTemplate(data)` | Create template |
-| `getTemplate(id)` | Get template |
-| `getTemplates(filters?, pagination?)` | List templates |
-| `sendBulkNotifications(request)` | Batch send |
-| `getUserPreferences()` | Fetch user preferences |
-| `updateUserPreferences(prefs)` | Update preferences |
-| `subscribeToPush(subscription)` | Register push endpoint |
-| `unsubscribeFromPush(endpoint)` | Deregister push endpoint |
-| `getNotificationStats(filters?)` | Delivery statistics |
+| Method                                        | Description              |
+| --------------------------------------------- | ------------------------ |
+| `createNotification(data)`                    | Create notification      |
+| `getNotification(id)`                         | Get by ID                |
+| `getUserNotifications(filters?, pagination?)` | Paginated list           |
+| `markAsRead(id)`                              | Mark single read         |
+| `markMultipleAsRead(ids)`                     | Bulk read                |
+| `getUnreadCount()`                            | Unread badge count       |
+| `createTemplate(data)`                        | Create template          |
+| `getTemplate(id)`                             | Get template             |
+| `getTemplates(filters?, pagination?)`         | List templates           |
+| `sendBulkNotifications(request)`              | Batch send               |
+| `getUserPreferences()`                        | Fetch user preferences   |
+| `updateUserPreferences(prefs)`                | Update preferences       |
+| `subscribeToPush(subscription)`               | Register push endpoint   |
+| `unsubscribeFromPush(endpoint)`               | Deregister push endpoint |
+| `getNotificationStats(filters?)`              | Delivery statistics      |
 
 ### Building Custom Feature Services
 
@@ -296,13 +293,13 @@ const api = useApi();
 
 ```typescript
 const {
-  user,             // User | null
-  isAuthenticated,  // boolean
-  isLoading,        // boolean
-  error,            // string | null
-  login,            // (credentials: LoginRequest) => Promise<void>
-  logout,           // () => Promise<void>
-  signup,           // (data: SignupRequest) => Promise<void>
+  user, // User | null
+  isAuthenticated, // boolean
+  isLoading, // boolean
+  error, // string | null
+  login, // (credentials: LoginRequest) => Promise<void>
+  logout, // () => Promise<void>
+  signup, // (data: SignupRequest) => Promise<void>
 } = useAuth();
 ```
 
@@ -325,13 +322,10 @@ const { data, isLoading, error, refetch } = useApiQuery(
 ### `useApiMutation` — Data Modifications
 
 ```typescript
-const { mutate, isLoading, error, reset } = useApiMutation(
-  (data: CreateNotificationRequest) => api.notifications.createNotification(data),
-  {
-    onSuccess: (result) => toast.success("Sent!"),
-    onError: (error) => toast.error(error.message),
-  },
-);
+const { mutate, isLoading, error, reset } = useApiMutation((data: CreateNotificationRequest) => api.notifications.createNotification(data), {
+  onSuccess: (result) => toast.success("Sent!"),
+  onError: (error) => toast.error(error.message),
+});
 
 // Call it:
 mutate({ title: "Hello", message: "World", type: "info", recipients: [userId] });
@@ -341,11 +335,11 @@ mutate({ title: "Hello", message: "World", type: "info", recipients: [userId] })
 
 ```typescript
 const {
-  upload,       // (file: File) => Promise<T>
-  progress,     // number (0–100)
-  isUploading,  // boolean
-  error,        // string | null
-  result,       // T | null
+  upload, // (file: File) => Promise<T>
+  progress, // number (0–100)
+  isUploading, // boolean
+  error, // string | null
+  result, // T | null
 } = useFileUpload({
   uploadFn: (file) => api.auth.uploadAvatar(file),
   onSuccess: (result) => setAvatarUrl(result.avatar),
@@ -355,6 +349,7 @@ const {
 ```
 
 Progress is tracked via `CustomEvent` dispatched by the service:
+
 - Avatar uploads emit `"avatar-upload-progress"`
 - File uploads emit `"file-upload-progress"`
 
@@ -392,12 +387,12 @@ try {
   await api.auth.login(credentials);
 } catch (error) {
   switch (error.type) {
-    case ApiErrorType.UNAUTHORIZED:    // 401
-    case ApiErrorType.FORBIDDEN:       // 403
-    case ApiErrorType.NOT_FOUND:       // 404
-    case ApiErrorType.VALIDATION:      // 422 / 400
-    case ApiErrorType.NETWORK_ERROR:   // No response
-    case ApiErrorType.SERVER_ERROR:    // 5xx
+    case ApiErrorType.UNAUTHORIZED: // 401
+    case ApiErrorType.FORBIDDEN: // 403
+    case ApiErrorType.NOT_FOUND: // 404
+    case ApiErrorType.VALIDATION: // 422 / 400
+    case ApiErrorType.NETWORK_ERROR: // No response
+    case ApiErrorType.SERVER_ERROR: // 5xx
   }
 }
 ```
@@ -421,8 +416,8 @@ Responses are cached in memory by `CacheManager` using the request URL + params 
 
 ```typescript
 // Check cache stats (DEV only)
-window.apiCacheStats();   // { size, hits, misses, hitRate }
-window.clearApiCache();   // Wipe all cached entries
+window.apiCacheStats(); // { size, hits, misses, hitRate }
+window.clearApiCache(); // Wipe all cached entries
 ```
 
 Cache TTL is configured per-service or per-request via `RequestOptions.cacheTTL`. The default TTL is **5 minutes**.
@@ -479,15 +474,15 @@ await artNetBridgeService.triggerPreset(ip, id);
 
 ## Troubleshooting
 
-| Symptom | Cause | Fix |
-|---------|-------|-----|
-| API calls hit `localhost:5000` in production | `getApiBaseUrl()` not used; hardcoded URL | Replace with `getApiBaseUrl()` |
-| Endpoints doubling (`/notifications/notifications`) | `this.baseEndpoint` prepended manually in a service | Use relative paths in `this.post()` / `this.get()` — `buildEndpoint()` handles the prefix |
-| Upload progress is `NaN%` | `event.total` is `undefined` (server didn't send `Content-Length`) | Use `event.total ?? event.loaded` as divisor |
-| Ghost listeners on repeated failed uploads | `removeEventListener` only ran on success | Fixed — listeners are removed in a `finally` block |
-| `ArtNetBridgeService not initialized` error | `initArtNetBridge()` not called | `ApiServices` constructor calls it automatically; only call manually if using `ApiClient` directly |
-| `auth:failure` event fires but app doesn't redirect | No listener on `window` | Add `window.addEventListener("auth:failure", ...)` in your Auth error boundary |
-| TypeScript error: no `useChurch` / `setupDevApi` | These were removed; they were phantom helpers | Use `useApi()` and `createApiServices()` |
+| Symptom                                             | Cause                                                              | Fix                                                                                                |
+| --------------------------------------------------- | ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------- |
+| API calls hit `localhost:5000` in production        | `getApiBaseUrl()` not used; hardcoded URL                          | Replace with `getApiBaseUrl()`                                                                     |
+| Endpoints doubling (`/notifications/notifications`) | `this.baseEndpoint` prepended manually in a service                | Use relative paths in `this.post()` / `this.get()` — `buildEndpoint()` handles the prefix          |
+| Upload progress is `NaN%`                           | `event.total` is `undefined` (server didn't send `Content-Length`) | Use `event.total ?? event.loaded` as divisor                                                       |
+| Ghost listeners on repeated failed uploads          | `removeEventListener` only ran on success                          | Fixed — listeners are removed in a `finally` block                                                 |
+| `ArtNetBridgeService not initialized` error         | `initArtNetBridge()` not called                                    | `ApiServices` constructor calls it automatically; only call manually if using `ApiClient` directly |
+| `auth:failure` event fires but app doesn't redirect | No listener on `window`                                            | Add `window.addEventListener("auth:failure", ...)` in your Auth error boundary                     |
+| TypeScript error: no `useChurch` / `setupDevApi`    | These were removed; they were phantom helpers                      | Use `useApi()` and `createApiServices()`                                                           |
 
 ---
 

@@ -129,12 +129,12 @@ var(--success)         var(--warning)         var(--danger)
 
 The following paths still work but point to their new canonical location in `components/`:
 
-| Old import path                            | Canonical location   |
-| ------------------------------------------ | -------------------- |
-| `@shared/monitoring/ErrorMonitoring`       | `@shared/components` |
+| Old import path                            | Canonical location                      |
+| ------------------------------------------ | --------------------------------------- |
+| `@shared/monitoring/ErrorMonitoring`       | `@shared/components`                    |
 | `@shared/context` (PresenceProvider)       | `@shared/context` (PresenceContext.tsx) |
-| `@shared/performance/PerformanceDashboard` | `@shared/components` |
-| `@shared/services/ApiProvider`             | `@shared/components` |
+| `@shared/performance/PerformanceDashboard` | `@shared/components`                    |
+| `@shared/services/ApiProvider`             | `@shared/components`                    |
 
 ---
 

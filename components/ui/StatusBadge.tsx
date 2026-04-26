@@ -1,4 +1,3 @@
-
 import { Chip, CHIP_VARIANTS } from "./Chip";
 
 type ChipVariantKey = keyof typeof CHIP_VARIANTS;

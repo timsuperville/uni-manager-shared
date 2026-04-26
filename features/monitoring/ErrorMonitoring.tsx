@@ -292,10 +292,14 @@ export const setupGlobalErrorHandling = () => {
       const lastReload = sessionStorage.getItem(reloadKey);
       if (!lastReload || Date.now() - parseInt(lastReload, 10) > 5000) {
         sessionStorage.setItem(reloadKey, Date.now().toString());
-        // Only reload after a moment to allow tracking to flush potentially, though it's urgent
+        if ("serviceWorker" in navigator) {
+          navigator.serviceWorker.getRegistrations().then((registrations) => {
+            registrations.forEach((r) => r.unregister());
+          });
+        }
         window.location.reload();
-        return; // Stop processing to avoid spamming the log for this recoverable failure
       }
+      return; // Always stop processing to avoid spamming the log for this noise
     }
 
     const base = {
@@ -345,9 +349,14 @@ export const setupGlobalErrorHandling = () => {
       const lastReload = sessionStorage.getItem(reloadKey);
       if (!lastReload || Date.now() - parseInt(lastReload, 10) > 5000) {
         sessionStorage.setItem(reloadKey, Date.now().toString());
+        if ("serviceWorker" in navigator) {
+          navigator.serviceWorker.getRegistrations().then((registrations) => {
+            registrations.forEach((r) => r.unregister());
+          });
+        }
         window.location.reload();
-        return;
       }
+      return; // Always stop processing to avoid spamming the log for this noise
     }
 
     const base = {
@@ -568,6 +577,18 @@ export const setupHealthCheck = () => {
   ) => {
     // Still within startup grace period — silently skip.
     if (Date.now() < startupDeadline) return;
+
+    // Do not report if the browser is offline or tab is backgrounded
+    if (typeof navigator !== "undefined" && !navigator.onLine) {
+      consecutiveFailures = 0; // reset to avoid instant alert when coming online
+      return;
+    }
+    if (
+      typeof document !== "undefined" &&
+      document.visibilityState === "hidden"
+    ) {
+      return; // pause checks essentially while hidden
+    }
 
     consecutiveFailures++;
     if (consecutiveFailures < FAILURE_THRESHOLD) return;

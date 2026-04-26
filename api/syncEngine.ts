@@ -11,7 +11,10 @@ export interface SyncEntry {
   retries: number;
 }
 
-export type ServiceMap = Record<string, Record<string, (...args: unknown[]) => Promise<unknown>>>;
+export type ServiceMap = Record<
+  string,
+  Record<string, (...args: unknown[]) => Promise<unknown>>
+>;
 
 /**
  * Sync Engine — offline mutation queue backed by IndexedDB.
@@ -73,7 +76,9 @@ export const syncEngine = {
     if (queue.length === 0) return;
 
     if (import.meta.env.DEV) {
-      console.log(`[SyncEngine] Processing ${queue.length} queued mutations...`);
+      console.log(
+        `[SyncEngine] Processing ${queue.length} queued mutations...`,
+      );
     }
 
     for (const entry of queue) {
@@ -89,7 +94,9 @@ export const syncEngine = {
           }
         } else {
           if (import.meta.env.DEV) {
-            console.warn(`[SyncEngine] Service or method not found for ${entry.mutationFnName}`);
+            console.warn(
+              `[SyncEngine] Service or method not found for ${entry.mutationFnName}`,
+            );
           }
         }
       } catch (error) {
@@ -100,7 +107,9 @@ export const syncEngine = {
         if (entry.retries > 5) {
           await this.dequeueMutation(entry.id);
           if (import.meta.env.DEV) {
-            console.error(`[SyncEngine] Max retries reached for ${entry.id}. Dropping.`);
+            console.error(
+              `[SyncEngine] Max retries reached for ${entry.id}. Dropping.`,
+            );
           }
         } else {
           // Persist the incremented retry count back to IndexedDB.

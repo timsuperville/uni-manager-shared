@@ -3,7 +3,9 @@
  * Renders a polyline + translucent area fill over a zero-dependency SVG canvas.
  */
 
-interface SparklineProps<T extends Record<string, unknown> = Record<string, number>> {
+interface SparklineProps<
+  T extends Record<string, unknown> = Record<string, number>,
+> {
   data?: T[];
   dataKey: keyof T;
   color?: string;
@@ -34,9 +36,26 @@ export function Sparkline<T extends Record<string, number>>({
   });
 
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height }} preserveAspectRatio="none" aria-hidden="true" className={className}>
-      <polyline fill="none" stroke={color} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" points={pts.join(" ")} />
-      <polygon points={`0,${H} ${pts.join(" ")} ${W},${H}`} fill={color} fillOpacity={0.08} />
+    <svg
+      viewBox={`0 0 ${W} ${H}`}
+      style={{ width: "100%", height }}
+      preserveAspectRatio="none"
+      aria-hidden="true"
+      className={className}
+    >
+      <polyline
+        fill="none"
+        stroke={color}
+        strokeWidth={1.5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        points={pts.join(" ")}
+      />
+      <polygon
+        points={`0,${H} ${pts.join(" ")} ${W},${H}`}
+        fill={color}
+        fillOpacity={0.08}
+      />
     </svg>
   );
 }

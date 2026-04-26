@@ -1,8 +1,17 @@
 import React from "react";
 
 type ButtonVariant =
-  | "default" | "destructive" | "outline" | "ghost" | "link"
-  | "primary" | "secondary" | "danger" | "success" | "warning" | "church";
+  | "default"
+  | "destructive"
+  | "outline"
+  | "ghost"
+  | "link"
+  | "primary"
+  | "secondary"
+  | "danger"
+  | "success"
+  | "warning"
+  | "church";
 type ButtonSize = "default" | "sm" | "xs" | "lg" | "icon" | "md";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -19,17 +28,27 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantMap: Record<ButtonVariant, string> = {
-  default: "[background:var(--primary-resonance,#4f46e5)] text-white hover:[background:var(--primary-resonance-dark,#4338ca)] focus:ring-(--primary-resonance,#4f46e5)/50",
-  destructive: "[background:var(--danger,#ef4444)] text-white hover:[background:var(--danger-dark,#dc2626)] focus:ring-(--danger,#ef4444)/50",
-  outline: "border border-(--glass-outline,rgba(255,255,255,0.18)) [background:var(--glass-surface,rgba(255,255,255,0.05))] text-(--text-primary,inherit) hover:[background:var(--glass-surface-hover,rgba(255,255,255,0.1))] focus:ring-(--primary-resonance,#4f46e5)/50",
-  ghost: "text-(--text-primary,inherit) hover:[background:var(--glass-surface-hover,rgba(255,255,255,0.08))] focus:ring-(--glass-outline,rgba(255,255,255,0.12))/50",
+  default:
+    "[background:var(--primary-resonance,#4f46e5)] text-white hover:[background:var(--primary-resonance-dark,#4338ca)] focus:ring-(--primary-resonance,#4f46e5)/50",
+  destructive:
+    "[background:var(--danger,#ef4444)] text-white hover:[background:var(--danger-dark,#dc2626)] focus:ring-(--danger,#ef4444)/50",
+  outline:
+    "border border-(--glass-outline,rgba(255,255,255,0.18)) [background:var(--glass-surface,rgba(255,255,255,0.05))] text-(--text-primary,inherit) hover:[background:var(--glass-surface-hover,rgba(255,255,255,0.1))] focus:ring-(--primary-resonance,#4f46e5)/50",
+  ghost:
+    "text-(--text-primary,inherit) hover:[background:var(--glass-surface-hover,rgba(255,255,255,0.08))] focus:ring-(--glass-outline,rgba(255,255,255,0.12))/50",
   link: "text-(--primary-resonance,#4f46e5) underline-offset-4 hover:underline focus:ring-(--primary-resonance,#4f46e5)/50",
-  primary: "[background:var(--primary-resonance,#4f46e5)] text-white hover:[background:var(--primary-resonance-dark,#4338ca)] focus:ring-(--primary-resonance,#4f46e5)/50",
-  secondary: "[background:var(--glass-surface,rgba(255,255,255,0.08))] text-(--text-primary,inherit) hover:[background:var(--glass-surface-hover,rgba(255,255,255,0.13))] focus:ring-(--glass-outline,rgba(255,255,255,0.12))/50",
-  danger: "[background:var(--danger,#ef4444)] text-white hover:[background:var(--danger-dark,#dc2626)] focus:ring-(--danger,#ef4444)/50",
-  success: "[background:var(--accent-emerald,#22c55e)] text-white hover:[background:var(--accent-emerald-dark,#16a34a)] focus:ring-(--accent-emerald,#22c55e)/50",
-  warning: "[background:hsla(38,92%,50%,0.15)] text-(--warning,#f59e0b) border border-(--warning,#f59e0b)/30 hover:[background:hsla(38,92%,50%,0.25)] focus:ring-(--warning,#f59e0b)/40",
-  church: "[background:var(--accent-amber,#f59e0b)] text-white hover:[background:var(--accent-amber-dark,#d97706)] focus:ring-(--accent-amber,#f59e0b)/50",
+  primary:
+    "[background:var(--primary-resonance,#4f46e5)] text-white hover:[background:var(--primary-resonance-dark,#4338ca)] focus:ring-(--primary-resonance,#4f46e5)/50",
+  secondary:
+    "[background:var(--glass-surface,rgba(255,255,255,0.08))] text-(--text-primary,inherit) hover:[background:var(--glass-surface-hover,rgba(255,255,255,0.13))] focus:ring-(--glass-outline,rgba(255,255,255,0.12))/50",
+  danger:
+    "[background:var(--danger,#ef4444)] text-white hover:[background:var(--danger-dark,#dc2626)] focus:ring-(--danger,#ef4444)/50",
+  success:
+    "[background:var(--accent-emerald,#22c55e)] text-white hover:[background:var(--accent-emerald-dark,#16a34a)] focus:ring-(--accent-emerald,#22c55e)/50",
+  warning:
+    "[background:hsla(38,92%,50%,0.15)] text-(--warning,#f59e0b) border border-(--warning,#f59e0b)/30 hover:[background:hsla(38,92%,50%,0.25)] focus:ring-(--warning,#f59e0b)/40",
+  church:
+    "[background:var(--accent-amber,#f59e0b)] text-white hover:[background:var(--accent-amber-dark,#d97706)] focus:ring-(--accent-amber,#f59e0b)/50",
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
@@ -42,14 +61,24 @@ const sizeStyles: Record<ButtonSize, string> = {
 };
 
 export function Button({
-  children, variant = "default", size = "default", className = "",
-  disabled = false, loading = false, fullWidth = false,
-  icon, onClick, type = "button",
-  isLoading, leftIcon, rightIcon,
+  children,
+  variant = "default",
+  size = "default",
+  className = "",
+  disabled = false,
+  loading = false,
+  fullWidth = false,
+  icon,
+  onClick,
+  type = "button",
+  isLoading,
+  leftIcon,
+  rightIcon,
   ...props
 }: ButtonProps) {
   const effectiveLoading = loading || isLoading || false;
-  const base = "inline-flex items-center justify-center rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none";
+  const base =
+    "inline-flex items-center justify-center rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none";
 
   return (
     <button
@@ -60,9 +89,25 @@ export function Button({
       {...props}
     >
       {effectiveLoading && (
-        <svg className="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+        <svg
+          className="animate-spin -ml-1 mr-2 h-4 w-4"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          />
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          />
         </svg>
       )}
       {(icon || leftIcon) && !effectiveLoading && (

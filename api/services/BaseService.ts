@@ -193,15 +193,20 @@ export abstract class BaseService {
     ) {
       payload = body.data;
     }
-    
+
     // Extract ETag capture
-    if (response.headers?.etag && typeof payload === 'object' && payload !== null && !Array.isArray(payload)) {
-      const etagValue = parseInt(response.headers.etag.replace(/"/g, ''), 10);
+    if (
+      response.headers?.etag &&
+      typeof payload === "object" &&
+      payload !== null &&
+      !Array.isArray(payload)
+    ) {
+      const etagValue = parseInt(response.headers.etag.replace(/"/g, ""), 10);
       if (!isNaN(etagValue) && payload.__v === undefined) {
         payload.__v = etagValue;
       }
     }
-    
+
     return payload as T;
   }
 

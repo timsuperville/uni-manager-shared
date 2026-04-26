@@ -7,6 +7,7 @@ Guide for teams migrating from legacy service patterns to the unified `@shared/a
 The migration is **complete** for core infrastructure. The old `auth/services/authService.js`, `LocationService.js`, and `analyticsService.js` have been retired. Everything now flows through `frontend/shared/api/`.
 
 This guide documents:
+
 1. The current correct patterns to use going forward
 2. How to build new feature services that plug into the shared layer
 3. Known pitfalls discovered and fixed during the migration
@@ -117,15 +118,15 @@ export { ChurchService } from "./services/ChurchService";
 
 ## Import Path Reference
 
-| What you need | Correct import |
-|---------------|----------------|
-| Services via hooks | `import { useApi } from "@shared/api"` |
-| Services outside React | `import { getApiServices } from "@shared/api"` |
-| Types | `import type { User, Church } from "@shared/api"` |
-| Base URL | `import { getApiBaseUrl } from "@shared/api"` |
-| Absolute URL (for images) | `import { getAbsoluteUrl } from "@shared/api"` |
-| Error types | `import { ApiErrorType } from "@shared/api"` |
-| Hooks | `import { useAuth, useApiQuery, useApiMutation, useFileUpload } from "@shared/api"` |
+| What you need             | Correct import                                                                      |
+| ------------------------- | ----------------------------------------------------------------------------------- |
+| Services via hooks        | `import { useApi } from "@shared/api"`                                              |
+| Services outside React    | `import { getApiServices } from "@shared/api"`                                      |
+| Types                     | `import type { User, Church } from "@shared/api"`                                   |
+| Base URL                  | `import { getApiBaseUrl } from "@shared/api"`                                       |
+| Absolute URL (for images) | `import { getAbsoluteUrl } from "@shared/api"`                                      |
+| Error types               | `import { ApiErrorType } from "@shared/api"`                                        |
+| Hooks                     | `import { useAuth, useApiQuery, useApiMutation, useFileUpload } from "@shared/api"` |
 
 ---
 
@@ -189,10 +190,7 @@ useEffect(() => {
 
 ```typescript
 const api = useApi();
-const { data: churches, isLoading } = useApiQuery(
-  "churches",
-  () => api.church.getAll(),
-);
+const { data: churches, isLoading } = useApiQuery("churches", () => api.church.getAll());
 ```
 
 ### URL Construction
@@ -281,12 +279,12 @@ try {
 
 ```typescript
 // WRONG
-this.post(this.baseEndpoint, data);              // → /notifications/notifications
-this.post(this.baseEndpoint + "/bulk", data);    // → /notifications/notifications/bulk
+this.post(this.baseEndpoint, data); // → /notifications/notifications
+this.post(this.baseEndpoint + "/bulk", data); // → /notifications/notifications/bulk
 
 // CORRECT
-this.post("", data);                             // → /notifications
-this.post("/bulk", data);                        // → /notifications/bulk
+this.post("", data); // → /notifications
+this.post("/bulk", data); // → /notifications/bulk
 ```
 
 ---
@@ -336,10 +334,8 @@ constructor(config) {
 **Fix:** After incrementing, write the full updated queue back:
 
 ```typescript
-const currentQueue = await get(SYNC_STORE_NAME) ?? [];
-const updated = currentQueue.map((item) =>
-  item.id === entry.id ? { ...item, retries: entry.retries } : item,
-);
+const currentQueue = (await get(SYNC_STORE_NAME)) ?? [];
+const updated = currentQueue.map((item) => (item.id === entry.id ? { ...item, retries: entry.retries } : item));
 await set(SYNC_STORE_NAME, updated);
 ```
 

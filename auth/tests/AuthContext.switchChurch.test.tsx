@@ -105,11 +105,13 @@ describe("AuthContext - switchChurch", () => {
     };
 
     render(
-      <ApiProvider config={{ baseURL: "http://localhost:5000", appName: "test" }}>
-          <AuthProvider config={{ appType: "church" }}>
-        <TestComponent onStateChange={onStateChange} />
-      </AuthProvider>
-        </ApiProvider>,
+      <ApiProvider
+        config={{ baseURL: "http://localhost:5000", appName: "test" }}
+      >
+        <AuthProvider config={{ appType: "church" }}>
+          <TestComponent onStateChange={onStateChange} />
+        </AuthProvider>
+      </ApiProvider>,
     );
 
     // Wait for initialization
@@ -153,11 +155,13 @@ describe("AuthContext - switchChurch", () => {
     };
 
     render(
-      <ApiProvider config={{ baseURL: "http://localhost:5000", appName: "test" }}>
-          <AuthProvider config={{ appType: "church" }}>
-        <TestComponent onStateChange={onStateChange} />
-      </AuthProvider>
-        </ApiProvider>,
+      <ApiProvider
+        config={{ baseURL: "http://localhost:5000", appName: "test" }}
+      >
+        <AuthProvider config={{ appType: "church" }}>
+          <TestComponent onStateChange={onStateChange} />
+        </AuthProvider>
+      </ApiProvider>,
     );
 
     // Wait for initialization
@@ -199,11 +203,13 @@ describe("AuthContext - switchChurch", () => {
     const onError = vi.fn();
 
     render(
-      <ApiProvider config={{ baseURL: "http://localhost:5000", appName: "test" }}>
-          <AuthProvider config={{ appType: "church" }} onError={onError}>
-        <TestComponent onStateChange={onStateChange} />
-      </AuthProvider>
-        </ApiProvider>,
+      <ApiProvider
+        config={{ baseURL: "http://localhost:5000", appName: "test" }}
+      >
+        <AuthProvider config={{ appType: "church" }} onError={onError}>
+          <TestComponent onStateChange={onStateChange} />
+        </AuthProvider>
+      </ApiProvider>,
     );
 
     // Wait for initialization
@@ -249,14 +255,16 @@ describe("AuthContext - switchChurch", () => {
     };
 
     render(
-      <ApiProvider config={{ baseURL: "http://localhost:5000", appName: "test" }}>
-          <AuthProvider
-        config={{ appType: "church" }}
-        onAuthStateChange={onAuthStateChange}
+      <ApiProvider
+        config={{ baseURL: "http://localhost:5000", appName: "test" }}
       >
-        <TestComponent onStateChange={onStateChange} />
-      </AuthProvider>
-        </ApiProvider>,
+        <AuthProvider
+          config={{ appType: "church" }}
+          onAuthStateChange={onAuthStateChange}
+        >
+          <TestComponent onStateChange={onStateChange} />
+        </AuthProvider>
+      </ApiProvider>,
     );
 
     // Wait for initialization
@@ -293,11 +301,13 @@ describe("AuthContext - switchChurch", () => {
     };
 
     render(
-      <ApiProvider config={{ baseURL: "http://localhost:5000", appName: "test" }}>
-          <AuthProvider config={{ appType: "church" }}>
-        <TestComponent onStateChange={onStateChange} />
-      </AuthProvider>
-        </ApiProvider>,
+      <ApiProvider
+        config={{ baseURL: "http://localhost:5000", appName: "test" }}
+      >
+        <AuthProvider config={{ appType: "church" }}>
+          <TestComponent onStateChange={onStateChange} />
+        </AuthProvider>
+      </ApiProvider>,
     );
 
     // Wait for initialization

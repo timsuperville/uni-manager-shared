@@ -10,7 +10,14 @@
  * up its own token over a stale "church" token from a previous tab.
  */
 
-const TOKEN_NAMESPACES = ["admin", "home", "church", "personal", "business", "uni"] as const;
+const TOKEN_NAMESPACES = [
+  "admin",
+  "home",
+  "church",
+  "personal",
+  "business",
+  "uni",
+] as const;
 type TokenNamespace = (typeof TOKEN_NAMESPACES)[number];
 
 export function getAuthToken(appType?: string): string | null {

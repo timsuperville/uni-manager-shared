@@ -108,14 +108,23 @@ const getMockAppConfig = (appType: string): MockAppConfig => {
     },
   };
 
-  return configs[appType] ?? { features: { socialLogin: { enabled: false, providers: [] } } };
+  return (
+    configs[appType] ?? {
+      features: { socialLogin: { enabled: false, providers: [] } },
+    }
+  );
 };
 
-const getEnabledProvidersForApp = (appConfig: MockAppConfig): ProviderResult[] => {
+const getEnabledProvidersForApp = (
+  appConfig: MockAppConfig,
+): ProviderResult[] => {
   const socialLogin = appConfig.features?.socialLogin;
   if (!socialLogin?.enabled) return [];
 
-  const oauthProviders = OAUTH_PROVIDERS as unknown as Record<string, Record<string, unknown>>;
+  const oauthProviders = OAUTH_PROVIDERS as unknown as Record<
+    string,
+    Record<string, unknown>
+  >;
 
   return socialLogin.providers
     .map((providerId) => ({
@@ -135,7 +144,14 @@ export const testOAuthConfigurations = () => {
   let appsWithOAuth = 0;
   let totalEnabledProviders = 0;
 
-  const appTypes = ["church", "admin", "business", "home", "personal", "playback"];
+  const appTypes = [
+    "church",
+    "admin",
+    "business",
+    "home",
+    "personal",
+    "playback",
+  ];
 
   for (const appType of appTypes) {
     try {
@@ -177,7 +193,10 @@ export const testOAuthConfigurations = () => {
 };
 
 export const validateOAuthProvider = (providerId: string) => {
-  const oauthProviders = OAUTH_PROVIDERS as unknown as Record<string, Record<string, unknown> | undefined>;
+  const oauthProviders = OAUTH_PROVIDERS as unknown as Record<
+    string,
+    Record<string, unknown> | undefined
+  >;
   const provider = oauthProviders[providerId];
 
   if (!provider) {
@@ -211,7 +230,9 @@ export const generateOAuthReport = () => {
   }
 
   if (testResults.issues.length > 0) {
-    recommendations.push("Fix configuration errors before deploying OAuth functionality");
+    recommendations.push(
+      "Fix configuration errors before deploying OAuth functionality",
+    );
   }
 
   if (testResults.summary.uniqueProviders.length < 3) {
@@ -227,4 +248,8 @@ export const generateOAuthReport = () => {
   };
 };
 
-export default { testOAuthConfigurations, validateOAuthProvider, generateOAuthReport };
+export default {
+  testOAuthConfigurations,
+  validateOAuthProvider,
+  generateOAuthReport,
+};

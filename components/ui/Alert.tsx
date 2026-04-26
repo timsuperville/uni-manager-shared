@@ -17,15 +17,27 @@ const variantStyles: Record<AlertVariant, string> = {
     "[background:rgba(34,197,94,0.1)] [border-color:rgba(34,197,94,0.3)] [color:var(--accent-emerald,#4ade80)]",
 };
 
-export function Alert({ children, variant = "default", className = "", ...props }: AlertProps) {
+export function Alert({
+  children,
+  variant = "default",
+  className = "",
+  ...props
+}: AlertProps) {
   return (
-    <div className={`p-4 rounded-md border ${variantStyles[variant]} ${className}`} {...props}>
+    <div
+      className={`p-4 rounded-md border ${variantStyles[variant]} ${className}`}
+      {...props}
+    >
       {children}
     </div>
   );
 }
 
-export function AlertDescription({ children, className = "", ...props }: React.HTMLAttributes<HTMLDivElement>) {
+export function AlertDescription({
+  children,
+  className = "",
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div className={`text-sm ${className}`} {...props}>
       {children}
@@ -33,7 +45,11 @@ export function AlertDescription({ children, className = "", ...props }: React.H
   );
 }
 
-export function AlertTitle({ children, className = "", ...props }: React.HTMLAttributes<HTMLHeadingElement>) {
+export function AlertTitle({
+  children,
+  className = "",
+  ...props
+}: React.HTMLAttributes<HTMLHeadingElement>) {
   return (
     <h4 className={`font-medium mb-1 ${className}`} {...props}>
       {children}

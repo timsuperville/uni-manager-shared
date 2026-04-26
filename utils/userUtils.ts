@@ -17,7 +17,9 @@ interface UserWithMedia {
  * Get user's avatar URL with fallback.
  * Checks both avatarUrl (immediate upload response) and avatar (persisted DB field).
  */
-export const getUserAvatar = (user: UserWithMedia | null | undefined): string | null => {
+export const getUserAvatar = (
+  user: UserWithMedia | null | undefined,
+): string | null => {
   if (!user) return null;
   const url = user.avatarUrl || user.avatar || null;
   return getAbsoluteUploadUrl(url);
@@ -27,7 +29,9 @@ export const getUserAvatar = (user: UserWithMedia | null | undefined): string | 
  * Get user's cover image URL with fallback.
  * Checks both coverImageUrl (immediate upload response) and coverImage (persisted DB field).
  */
-export const getUserCoverImage = (user: UserWithMedia | null | undefined): string | null => {
+export const getUserCoverImage = (
+  user: UserWithMedia | null | undefined,
+): string | null => {
   if (!user) return null;
   const url = user.coverImageUrl || user.coverImage || null;
   return getAbsoluteUploadUrl(url);
@@ -39,6 +43,8 @@ export const hasAvatar = (user: UserWithMedia | null | undefined): boolean => {
 };
 
 /** Check if user has a cover image set. */
-export const hasCoverImage = (user: UserWithMedia | null | undefined): boolean => {
+export const hasCoverImage = (
+  user: UserWithMedia | null | undefined,
+): boolean => {
   return !!getUserCoverImage(user);
 };

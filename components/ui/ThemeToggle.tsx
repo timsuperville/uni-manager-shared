@@ -77,7 +77,10 @@ export const ThemeToggle: React.FC = () => {
         {!hasOverride && (
           <span
             className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-[var(--bg-surface)]"
-            style={{ backgroundColor: "var(--primary-resonance)", borderColor: "var(--bg-surface)" }}
+            style={{
+              backgroundColor: "var(--primary-resonance)",
+              borderColor: "var(--bg-surface)",
+            }}
             title="Following system theme"
           />
         )}

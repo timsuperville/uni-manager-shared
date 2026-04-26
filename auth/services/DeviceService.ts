@@ -67,13 +67,16 @@ class DeviceService {
         navigator.userAgent || "unknown",
         navigator.language || "unknown",
         new Date().getTimezoneOffset(),
-        (navigator as Navigator & { hardwareConcurrency?: number }).hardwareConcurrency ?? "unknown",
-        (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? "unknown",
+        (navigator as Navigator & { hardwareConcurrency?: number })
+          .hardwareConcurrency ?? "unknown",
+        (navigator as Navigator & { deviceMemory?: number }).deviceMemory ??
+          "unknown",
       ];
 
       this.deviceFingerprint = this.hashString(components.join("|"));
     } catch (err) {
-      if (import.meta.env.DEV) console.error("Failed to generate fingerprint:", err);
+      if (import.meta.env.DEV)
+        console.error("Failed to generate fingerprint:", err);
       this.deviceFingerprint = this.generateDeviceId();
     }
   }
@@ -90,8 +93,12 @@ class DeviceService {
         timestamp: new Date().toISOString(),
       };
     } catch (err) {
-      if (import.meta.env.DEV) console.error("Failed to collect device info:", err);
-      this.deviceInfo = { deviceId: this.deviceId, timestamp: new Date().toISOString() };
+      if (import.meta.env.DEV)
+        console.error("Failed to collect device info:", err);
+      this.deviceInfo = {
+        deviceId: this.deviceId,
+        timestamp: new Date().toISOString(),
+      };
     }
   }
 
@@ -135,18 +142,22 @@ class DeviceService {
     try {
       localStorage.removeItem(`uni_manager_trusted_${this.deviceId}`);
     } catch (err) {
-      if (import.meta.env.DEV) console.error("Failed to revoke device trust:", err);
+      if (import.meta.env.DEV)
+        console.error("Failed to revoke device trust:", err);
     }
   }
 
   /** Checks whether the device is currently trusted. */
   isTrustedDevice(): boolean {
     try {
-      const trusted = localStorage.getItem(`uni_manager_trusted_${this.deviceId}`);
+      const trusted = localStorage.getItem(
+        `uni_manager_trusted_${this.deviceId}`,
+      );
       this.isTrustedState = trusted !== null;
       return this.isTrustedState;
     } catch (err) {
-      if (import.meta.env.DEV) console.error("Failed to check device trust:", err);
+      if (import.meta.env.DEV)
+        console.error("Failed to check device trust:", err);
       return false;
     }
   }
@@ -157,7 +168,8 @@ class DeviceService {
     try {
       localStorage.removeItem(`uni_manager_trusted_${this.deviceId}`);
     } catch (err) {
-      if (import.meta.env.DEV) console.error("Failed to clear device info:", err);
+      if (import.meta.env.DEV)
+        console.error("Failed to clear device info:", err);
     }
   }
 }

@@ -9,8 +9,18 @@ import type React from "react";
 // ── Constants ─────────────────────────────────────────────────────────────────
 
 export const MONTHS = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
 
 export const DAYS_SHORT = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
@@ -43,7 +53,8 @@ export function firstDayOfMonth(year: number, month: number): number {
 /** Parse a yyyy-mm-dd string or Date into ParsedDate | null. */
 export function parseValue(value?: string | Date | null): ParsedDate | null {
   if (!value) return null;
-  const d = typeof value === "string" ? new Date(value + "T00:00:00") : new Date(value);
+  const d =
+    typeof value === "string" ? new Date(value + "T00:00:00") : new Date(value);
   if (isNaN(d.getTime())) return null;
   return { year: d.getFullYear(), month: d.getMonth(), day: d.getDate() };
 }

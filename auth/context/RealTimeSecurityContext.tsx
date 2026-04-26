@@ -56,15 +56,21 @@ interface RealTimeSecurityContextValue {
   recentAlerts: SecurityAlert[];
   pendingNotifications: SecurityAlert[];
   monitoringConfig: MonitoringConfig;
-  initializeSecurityMonitoring: (userId: string, sessionId: string) => Promise<void>;
+  initializeSecurityMonitoring: (
+    userId: string,
+    sessionId: string,
+  ) => Promise<void>;
   reportSecurityEvent: (event: unknown) => Promise<void>;
   dismissNotification: (notificationId: string) => void;
-  updateMonitoringConfiguration: (config: Partial<MonitoringConfig>) => Promise<void>;
+  updateMonitoringConfiguration: (
+    config: Partial<MonitoringConfig>,
+  ) => Promise<void>;
 }
 
 // ── Context ───────────────────────────────────────────────────────────────────
 
-const RealTimeSecurityContext = createContext<RealTimeSecurityContextValue | null>(null);
+const RealTimeSecurityContext =
+  createContext<RealTimeSecurityContextValue | null>(null);
 
 // ── RealTimeSecurityProvider ──────────────────────────────────────────────────
 
@@ -72,15 +78,22 @@ interface RealTimeSecurityProviderProps {
   children: React.ReactNode;
 }
 
-export function RealTimeSecurityProvider({ children }: RealTimeSecurityProviderProps) {
+export function RealTimeSecurityProvider({
+  children,
+}: RealTimeSecurityProviderProps) {
   const [isInitialized, setIsInitialized] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [systemHealth, setSystemHealth] = useState<SystemHealth>("initializing");
+  const [systemHealth, setSystemHealth] =
+    useState<SystemHealth>("initializing");
   const [riskScore, setRiskScore] = useState(0);
-  const [activeThreats, setActiveThreats] = useState(new Map<string, ThreatRecord>());
+  const [activeThreats, setActiveThreats] = useState(
+    new Map<string, ThreatRecord>(),
+  );
   const [recentAlerts, setRecentAlerts] = useState<SecurityAlert[]>([]);
-  const [pendingNotifications, setPendingNotifications] = useState<SecurityAlert[]>([]);
+  const [pendingNotifications, setPendingNotifications] = useState<
+    SecurityAlert[]
+  >([]);
   const [monitoringConfig, setMonitoringConfig] = useState<MonitoringConfig>({
     threatDetection: true,
     behaviorAnalysis: true,
@@ -92,7 +105,11 @@ export function RealTimeSecurityProvider({ children }: RealTimeSecurityProviderP
 
   const addAlert = useCallback((alert: SecurityAlert) => {
     setRecentAlerts((prev) => [alert, ...prev].slice(0, 20));
-    if (alert.actionRequired || alert.severity === "critical" || alert.severity === "high") {
+    if (
+      alert.actionRequired ||
+      alert.severity === "critical" ||
+      alert.severity === "high"
+    ) {
       setPendingNotifications((prev) => [alert, ...prev].slice(0, 20));
     }
   }, []);
@@ -139,7 +156,11 @@ export function RealTimeSecurityProvider({ children }: RealTimeSecurityProviderP
     });
 
     service.on("behaviorAnomaly", (raw) => {
-      const anomaly = raw as { severity: AlertSeverity; anomalyType: string; timestamp: string };
+      const anomaly = raw as {
+        severity: AlertSeverity;
+        anomalyType: string;
+        timestamp: string;
+      };
       addAlert({
         id: `anomaly_${Date.now()}`,
         type: "anomaly",
@@ -150,8 +171,14 @@ export function RealTimeSecurityProvider({ children }: RealTimeSecurityProviderP
       });
     });
 
-    service.on("connected", () => { setIsConnected(true); setSystemHealth("healthy"); });
-    service.on("disconnected", () => { setIsConnected(false); setSystemHealth("disconnected"); });
+    service.on("connected", () => {
+      setIsConnected(true);
+      setSystemHealth("healthy");
+    });
+    service.on("disconnected", () => {
+      setIsConnected(false);
+      setSystemHealth("disconnected");
+    });
     service.on("error", (raw) => {
       const err = raw as Error;
       setError(err.message);
@@ -171,7 +198,10 @@ export function RealTimeSecurityProvider({ children }: RealTimeSecurityProviderP
           )();
         }
 
-        const result = await securityServiceRef.current.initialize(userId, sessionId);
+        const result = await securityServiceRef.current.initialize(
+          userId,
+          sessionId,
+        );
         if (result.success) {
           setIsInitialized(true);
           setIsConnected(true);
@@ -181,10 +211,12 @@ export function RealTimeSecurityProvider({ children }: RealTimeSecurityProviderP
           throw new Error("Failed to initialize security monitoring");
         }
       } catch (err) {
-        const message = err instanceof Error ? err.message : "Initialization failed";
+        const message =
+          err instanceof Error ? err.message : "Initialization failed";
         setError(message);
         setSystemHealth("error");
-        if (import.meta.env.DEV) console.error("Security monitoring initialization failed:", err);
+        if (import.meta.env.DEV)
+          console.error("Security monitoring initialization failed:", err);
       }
     },
     [setupEventHandlers],
@@ -193,20 +225,24 @@ export function RealTimeSecurityProvider({ children }: RealTimeSecurityProviderP
   const reportSecurityEvent = useCallback(
     async (event: unknown): Promise<void> => {
       if (!isConnected || !securityServiceRef.current) {
-        if (import.meta.env.DEV) console.warn("Cannot report security event: service not connected");
+        if (import.meta.env.DEV)
+          console.warn("Cannot report security event: service not connected");
         return;
       }
       try {
         await securityServiceRef.current.processSecurityEvent(event);
       } catch (err) {
-        if (import.meta.env.DEV) console.error("Failed to report security event:", err);
+        if (import.meta.env.DEV)
+          console.error("Failed to report security event:", err);
       }
     },
     [isConnected],
   );
 
   const dismissNotification = useCallback((notificationId: string): void => {
-    setPendingNotifications((prev) => prev.filter((n) => n.id !== notificationId));
+    setPendingNotifications((prev) =>
+      prev.filter((n) => n.id !== notificationId),
+    );
   }, []);
 
   const updateMonitoringConfiguration = useCallback(
@@ -216,7 +252,8 @@ export function RealTimeSecurityProvider({ children }: RealTimeSecurityProviderP
         await securityServiceRef.current.updateConfiguration(config);
         setMonitoringConfig((prev) => ({ ...prev, ...config }));
       } catch (err) {
-        if (import.meta.env.DEV) console.error("Failed to update monitoring configuration:", err);
+        if (import.meta.env.DEV)
+          console.error("Failed to update monitoring configuration:", err);
       }
     },
     [],
@@ -256,7 +293,9 @@ export function RealTimeSecurityProvider({ children }: RealTimeSecurityProviderP
 export function useRealTimeSecurity(): RealTimeSecurityContextValue {
   const context = useContext(RealTimeSecurityContext);
   if (!context) {
-    throw new Error("useRealTimeSecurity must be used within a RealTimeSecurityProvider");
+    throw new Error(
+      "useRealTimeSecurity must be used within a RealTimeSecurityProvider",
+    );
   }
   return context;
 }

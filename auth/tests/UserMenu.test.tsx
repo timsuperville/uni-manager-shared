@@ -25,7 +25,7 @@ const renderWithProviders = (ui: React.ReactNode) =>
   render(
     <CommandProvider>
       <BrowserRouter>{ui}</BrowserRouter>
-    </CommandProvider>
+    </CommandProvider>,
   );
 
 // ── Fixtures ──────────────────────────────────────────────────────────────────
@@ -101,7 +101,9 @@ describe("UserMenu Component", () => {
       isLoading: true,
     } as unknown as AuthContextType);
     const { container } = renderWithProviders(<UserMenu />);
-    expect(container.getElementsByClassName("animate-pulse").length).toBeGreaterThan(0);
+    expect(
+      container.getElementsByClassName("animate-pulse").length,
+    ).toBeGreaterThan(0);
   });
 
   it("opens menu on click", () => {

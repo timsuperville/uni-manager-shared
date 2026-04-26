@@ -9,8 +9,20 @@ interface AvatarProps {
   className?: string;
 }
 
-const SIZES: Record<AvatarSize, number> = { xs: 20, sm: 28, md: 36, lg: 44, xl: 56 };
-const FONT_SIZES: Record<AvatarSize, number> = { xs: 9, sm: 11, md: 13, lg: 15, xl: 18 };
+const SIZES: Record<AvatarSize, number> = {
+  xs: 20,
+  sm: 28,
+  md: 36,
+  lg: 44,
+  xl: 56,
+};
+const FONT_SIZES: Record<AvatarSize, number> = {
+  xs: 9,
+  sm: 11,
+  md: 13,
+  lg: 15,
+  xl: 18,
+};
 
 function getInitials(alt = ""): string {
   return alt
@@ -22,17 +34,29 @@ function getInitials(alt = ""): string {
 }
 
 /** Avatar — image-first circular avatar with initials fallback. */
-export function Avatar({ src, alt = "", size = "md", className = "" }: AvatarProps) {
+export function Avatar({
+  src,
+  alt = "",
+  size = "md",
+  className = "",
+}: AvatarProps) {
   const dim = SIZES[size] ?? SIZES.md;
   const fs = FONT_SIZES[size] ?? FONT_SIZES.md;
 
   const baseStyle: React.CSSProperties = {
-    width: dim, height: dim, minWidth: dim,
-    borderRadius: "50%", overflow: "hidden", flexShrink: 0,
-    display: "flex", alignItems: "center", justifyContent: "center",
+    width: dim,
+    height: dim,
+    minWidth: dim,
+    borderRadius: "50%",
+    overflow: "hidden",
+    flexShrink: 0,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
     border: "1px solid var(--glass-outline, rgba(128,128,128,0.25))",
     boxShadow: "0 1px 3px rgba(0,0,0,0.15)",
-    fontSize: fs, fontWeight: 600,
+    fontSize: fs,
+    fontWeight: 600,
     background: "var(--primary-resonance, #6366f1)",
     color: "#fff",
     userSelect: "none",
@@ -47,7 +71,10 @@ export function Avatar({ src, alt = "", size = "md", className = "" }: AvatarPro
         style={{ ...baseStyle, objectFit: "cover" }}
         onError={(e) => {
           (e.target as HTMLImageElement).style.display = "none";
-          (e.target as HTMLImageElement).parentElement?.setAttribute("data-fallback", "true");
+          (e.target as HTMLImageElement).parentElement?.setAttribute(
+            "data-fallback",
+            "true",
+          );
         }}
       />
     );

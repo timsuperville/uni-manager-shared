@@ -62,20 +62,40 @@ export const oauthProviders: Record<string, OAuthProvider> = {
     includeGrantedScopes: true,
     accessType: "offline",
     state: true,
-    security: { pkce: true, nonce: true, deviceFingerprinting: true, sessionTracking: true },
+    security: {
+      pkce: true,
+      nonce: true,
+      deviceFingerprinting: true,
+      sessionTracking: true,
+    },
     configs: {
       church: {
-        scope: "openid email profile https://www.googleapis.com/auth/userinfo.email",
+        scope:
+          "openid email profile https://www.googleapis.com/auth/userinfo.email",
         additionalParams: { prompt: "consent", access_type: "offline" },
       },
       admin: {
         scope: "openid email profile",
-        additionalParams: { hd: import.meta.env.VITE_GOOGLE_HOSTED_DOMAIN as string | undefined },
+        additionalParams: {
+          hd: import.meta.env.VITE_GOOGLE_HOSTED_DOMAIN as string | undefined,
+        },
       },
-      business: { scope: "openid email profile", additionalParams: { prompt: "select_account" } },
-      personal: { scope: "openid email profile", additionalParams: { prompt: "select_account" } },
-      home: { scope: "openid email profile", additionalParams: { prompt: "select_account" } },
-      playback: { scope: "openid email profile", additionalParams: { prompt: "select_account" } },
+      business: {
+        scope: "openid email profile",
+        additionalParams: { prompt: "select_account" },
+      },
+      personal: {
+        scope: "openid email profile",
+        additionalParams: { prompt: "select_account" },
+      },
+      home: {
+        scope: "openid email profile",
+        additionalParams: { prompt: "select_account" },
+      },
+      playback: {
+        scope: "openid email profile",
+        additionalParams: { prompt: "select_account" },
+      },
     },
   },
 
@@ -86,7 +106,12 @@ export const oauthProviders: Record<string, OAuthProvider> = {
     scope: "openid email profile User.Read",
     responseType: "code",
     state: true,
-    security: { pkce: true, nonce: true, deviceFingerprinting: true, sessionTracking: true },
+    security: {
+      pkce: true,
+      nonce: true,
+      deviceFingerprinting: true,
+      sessionTracking: true,
+    },
     configs: {
       admin: {
         scope: "openid email profile User.Read Directory.Read.All",
@@ -106,9 +131,17 @@ export const oauthProviders: Record<string, OAuthProvider> = {
     scope: "r_liteprofile r_emailaddress",
     responseType: "code",
     state: true,
-    security: { pkce: false, nonce: false, deviceFingerprinting: true, sessionTracking: true },
+    security: {
+      pkce: false,
+      nonce: false,
+      deviceFingerprinting: true,
+      sessionTracking: true,
+    },
     configs: {
-      business: { scope: "r_liteprofile r_emailaddress w_member_social", additionalParams: {} },
+      business: {
+        scope: "r_liteprofile r_emailaddress w_member_social",
+        additionalParams: {},
+      },
     },
   },
 
@@ -119,7 +152,12 @@ export const oauthProviders: Record<string, OAuthProvider> = {
     scope: "user:email read:user",
     responseType: "code",
     state: true,
-    security: { pkce: false, nonce: false, deviceFingerprinting: true, sessionTracking: true },
+    security: {
+      pkce: false,
+      nonce: false,
+      deviceFingerprinting: true,
+      sessionTracking: true,
+    },
     configs: {
       personal: {
         scope: "user:email read:user repo",
@@ -135,10 +173,16 @@ export const oauthProviders: Record<string, OAuthProvider> = {
     scope: "user-read-email user-read-private",
     responseType: "code",
     state: true,
-    security: { pkce: true, nonce: false, deviceFingerprinting: true, sessionTracking: true },
+    security: {
+      pkce: true,
+      nonce: false,
+      deviceFingerprinting: true,
+      sessionTracking: true,
+    },
     configs: {
       playback: {
-        scope: "user-read-email user-read-private user-read-playback-state user-modify-playback-state",
+        scope:
+          "user-read-email user-read-private user-read-playback-state user-modify-playback-state",
         additionalParams: { show_dialog: "true" },
       },
     },
@@ -152,9 +196,17 @@ export const oauthProviders: Record<string, OAuthProvider> = {
     responseType: "code",
     responseMode: "form_post",
     state: true,
-    security: { pkce: true, nonce: true, deviceFingerprinting: true, sessionTracking: true },
+    security: {
+      pkce: true,
+      nonce: true,
+      deviceFingerprinting: true,
+      sessionTracking: true,
+    },
     configs: {
-      playback: { scope: "email name", additionalParams: { response_mode: "form_post" } },
+      playback: {
+        scope: "email name",
+        additionalParams: { response_mode: "form_post" },
+      },
     },
   },
 };
@@ -162,7 +214,8 @@ export const oauthProviders: Record<string, OAuthProvider> = {
 // ── PKCE ──────────────────────────────────────────────────────────────────────
 
 function generateRandomString(length: number): string {
-  const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~";
+  const charset =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~";
   let result = "";
   for (let i = 0; i < length; i++) {
     result += charset.charAt(Math.floor(Math.random() * charset.length));
@@ -179,7 +232,10 @@ function base64URLEncode(buffer: ArrayBuffer): string {
   return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
 }
 
-export async function generatePKCE(): Promise<{ codeVerifier: string; codeChallenge: string }> {
+export async function generatePKCE(): Promise<{
+  codeVerifier: string;
+  codeChallenge: string;
+}> {
   const hasSubtle = typeof window !== "undefined" && window.crypto?.subtle;
 
   if (!hasSubtle) {
@@ -204,7 +260,8 @@ export async function generatePKCE(): Promise<{ codeVerifier: string; codeChalle
 
 export function generateNonce(): string {
   return (
-    Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
+    Math.random().toString(36).substring(2, 15) +
+    Math.random().toString(36).substring(2, 15)
   );
 }
 
@@ -231,15 +288,21 @@ export function getProviderConfig(
   // Read env vars — these may be undefined in environments that don't configure
   // all providers. Callers that reach OAuth flows should always have them set.
   const clientId =
-    (import.meta.env[`VITE_${providerId.toUpperCase()}_CLIENT_ID`] as string | undefined) ?? "";
+    (import.meta.env[`VITE_${providerId.toUpperCase()}_CLIENT_ID`] as
+      | string
+      | undefined) ?? "";
   const redirectUri =
-    (import.meta.env[`VITE_${providerId.toUpperCase()}_REDIRECT_URI`] as string | undefined) ?? "";
+    (import.meta.env[`VITE_${providerId.toUpperCase()}_REDIRECT_URI`] as
+      | string
+      | undefined) ?? "";
   const tokenEndpoint =
-    (import.meta.env[`VITE_${providerId.toUpperCase()}_TOKEN_ENDPOINT`] as string | undefined) ??
-    `https://${providerId}.auth.default/token`;
+    (import.meta.env[`VITE_${providerId.toUpperCase()}_TOKEN_ENDPOINT`] as
+      | string
+      | undefined) ?? `https://${providerId}.auth.default/token`;
   const userInfoEndpoint =
-    (import.meta.env[`VITE_${providerId.toUpperCase()}_USERINFO_ENDPOINT`] as string | undefined) ??
-    `https://${providerId}.auth.default/userinfo`;
+    (import.meta.env[`VITE_${providerId.toUpperCase()}_USERINFO_ENDPOINT`] as
+      | string
+      | undefined) ?? `https://${providerId}.auth.default/userinfo`;
 
   return {
     ...provider,
@@ -254,14 +317,19 @@ export function getProviderConfig(
   };
 }
 
-export function isProviderSupportedForApp(providerId: string, appName: string): boolean {
+export function isProviderSupportedForApp(
+  providerId: string,
+  appName: string,
+): boolean {
   const provider = oauthProviders[providerId];
   if (!provider) return false;
   return Object.prototype.hasOwnProperty.call(provider.configs, appName);
 }
 
 export function getSupportedProvidersForApp(appName: string): string[] {
-  return Object.keys(oauthProviders).filter((id) => isProviderSupportedForApp(id, appName));
+  return Object.keys(oauthProviders).filter((id) =>
+    isProviderSupportedForApp(id, appName),
+  );
 }
 
 /** Alias for getProviderConfig — backward compatibility */

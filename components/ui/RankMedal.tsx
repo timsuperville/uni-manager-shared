@@ -1,5 +1,3 @@
-
-
 type RankMedalSize = "sm" | "md";
 
 interface RankMedalProps {
@@ -23,7 +21,11 @@ const SIZE: Record<RankMedalSize, { outer: string; text: string }> = {
   md: { outer: "w-8 h-8", text: "text-sm" },
 };
 
-export function RankMedal({ rank, size = "md", className = "" }: RankMedalProps) {
+export function RankMedal({
+  rank,
+  size = "md",
+  className = "",
+}: RankMedalProps) {
   const { outer, text } = SIZE[size] ?? SIZE.md;
   const bg = MEDAL_COLOURS[rank] ?? NEUTRAL;
 

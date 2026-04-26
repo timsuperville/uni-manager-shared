@@ -53,7 +53,8 @@ export const getApiBaseUrl = (): string => {
   // If running inside Tauri (native desktop shell), we fallback to localhost backend
   if (
     typeof window !== "undefined" &&
-    (window.location.protocol === "tauri:" || window.location.hostname === "tauri.localhost")
+    (window.location.protocol === "tauri:" ||
+      window.location.hostname === "tauri.localhost")
   ) {
     return "http://127.0.0.1:5000";
   }

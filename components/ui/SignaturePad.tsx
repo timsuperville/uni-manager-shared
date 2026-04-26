@@ -1,6 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
 
-
 export interface SignaturePadProps {
   value?: string;
   onChange: (dataUrl: string) => void;

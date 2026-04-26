@@ -23,20 +23,13 @@
     "jsx": "react-jsx",
     "baseUrl": "../..",
     "paths": {
-      "@shared/auth":       ["./auth"],
-      "@shared/auth/*":     ["./auth/*"],
+      "@shared/auth": ["./auth"],
+      "@shared/auth/*": ["./auth/*"],
       "@shared/components": ["./components"],
       "@shared/components/*": ["./components/*"],
       "@shared/features/*": ["./features/*"]
     }
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "**/*.d.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist"
-  ]
+  "include": ["**/*.ts", "**/*.tsx", "**/*.d.ts"],
+  "exclude": ["node_modules", "dist"]
 }

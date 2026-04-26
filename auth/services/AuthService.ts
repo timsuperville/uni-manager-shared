@@ -420,7 +420,12 @@ export class AuthService extends BaseService {
         };
       }
 
-      if (_error?.statusCode === 401 || _error?.statusCode === 403) {
+      if (
+        _error?.statusCode === 401 ||
+        _error?.statusCode === 403 ||
+        _error?.response?.status === 401 ||
+        _error?.response?.status === 403
+      ) {
         this.client.clearAuthToken();
         if (typeof window !== "undefined") {
           window.dispatchEvent(

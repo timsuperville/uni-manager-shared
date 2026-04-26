@@ -20,7 +20,7 @@ const testApiConfig = {
     tokenStorage: "sessionStorage" as const,
     tokenKey: "test_auth_access_token",
     refreshTokenKey: "test_auth_refresh_token",
-  }
+  },
 };
 import { ApiClient } from "../../api/core/ApiClient";
 
@@ -128,7 +128,7 @@ describe("Complete Authentication Flows", () => {
           expect.stringContaining("/login"),
           expect.objectContaining({
             email: "test@example.com",
-            password: "password123"
+            password: "password123",
           }),
           expect.any(Object),
         );
@@ -151,32 +151,32 @@ describe("Complete Authentication Flows", () => {
           message: "Invalid credentials",
           response: {
             status: 401,
-            data: { message: "Invalid credentials" }
-          }
+            data: { message: "Invalid credentials" },
+          },
         })
         .mockRejectedValueOnce({
           isAxiosError: true,
           message: "Invalid credentials",
           response: {
             status: 401,
-            data: { message: "Invalid credentials" }
-          }
+            data: { message: "Invalid credentials" },
+          },
         })
         .mockRejectedValueOnce({
           isAxiosError: true,
           message: "Invalid credentials",
           response: {
             status: 401,
-            data: { message: "Invalid credentials" }
-          }
+            data: { message: "Invalid credentials" },
+          },
         })
         .mockRejectedValue({
           isAxiosError: true,
           message: "Too many attempts",
           response: {
             status: 429,
-            data: { message: "Too many attempts" }
-          }
+            data: { message: "Too many attempts" },
+          },
         });
 
       const { container } = render(
@@ -235,7 +235,7 @@ describe("Complete Authentication Flows", () => {
         statusText: "OK",
         headers: {},
       });
-      
+
       const { container } = render(
         <MemoryRouter>
           <ApiProvider config={testApiConfig}>
@@ -275,7 +275,7 @@ describe("Complete Authentication Flows", () => {
       expect(mockPost).toHaveBeenCalledWith(
         expect.stringContaining("/login"),
         expect.any(Object),
-        expect.any(Object)
+        expect.any(Object),
       );
     });
 
@@ -381,20 +381,21 @@ describe("Complete Authentication Flows", () => {
         },
         status: 200,
         statusText: "OK",
-        headers: {}
+        headers: {},
       });
 
       // Pre-populate token storage with the namespaced key so
       // checkExistingSession picks it up and user becomes authenticated
       sessionStorage.setItem("test_auth_access_token", "mock-access-token");
       sessionStorage.setItem("test_auth_refresh_token", "mock-refresh-token");
-      sessionStorage.setItem("test_auth_user_data", JSON.stringify({ id: "123", email: "test@example.com" }));
+      sessionStorage.setItem(
+        "test_auth_user_data",
+        JSON.stringify({ id: "123", email: "test@example.com" }),
+      );
 
       render(
         <ApiProvider config={testApiConfig}>
-          <AuthProvider
-            config={{ appName: "test", tokenRefreshInterval: 50 }}
-          >
+          <AuthProvider config={{ appName: "test", tokenRefreshInterval: 50 }}>
             <div>App Content</div>
           </AuthProvider>
         </ApiProvider>,
@@ -406,7 +407,7 @@ describe("Complete Authentication Flows", () => {
           expect(mockPost).toHaveBeenCalledWith(
             expect.stringContaining("/refresh-token"),
             expect.objectContaining({ refreshToken: "mock-refresh-token" }),
-            expect.any(Object)
+            expect.any(Object),
           );
         },
         { timeout: 3000 },
@@ -416,17 +417,20 @@ describe("Complete Authentication Flows", () => {
     it("should handle expired session", async () => {
       // Pre-populate namespaced token so checkAuthStatus runs
       sessionStorage.setItem("test_auth_access_token", "expired-token");
-      sessionStorage.setItem("test_auth_user_data", JSON.stringify({ id: "123" }));
+      sessionStorage.setItem(
+        "test_auth_user_data",
+        JSON.stringify({ id: "123" }),
+      );
 
       // mock getCurrentUser failing -> checkAuthStatus returns { isAuthenticated: false }
       mockGet.mockRejectedValue({
         isAxiosError: true,
         response: {
           status: 401,
-          data: { message: "Session expired" }
-        }
+          data: { message: "Session expired" },
+        },
       });
-      
+
       const onAuthStateChange = vi.fn();
 
       render(
@@ -445,7 +449,7 @@ describe("Complete Authentication Flows", () => {
         () => {
           expect(mockGet).toHaveBeenCalledWith(
             expect.stringContaining("/me"),
-            expect.any(Object)
+            expect.any(Object),
           );
         },
         { timeout: 3000 },

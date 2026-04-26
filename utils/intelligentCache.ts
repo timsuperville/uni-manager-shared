@@ -465,7 +465,8 @@ const CACHE_DEPENDENCIES: Partial<Record<CacheType, CacheType[]>> = {
 
 export class CacheManager {
   private readonly caches: Map<CacheType, IntelligentCache>;
-  private cleanupInterval: number | ReturnType<typeof setInterval> | null = null;
+  private cleanupInterval: number | ReturnType<typeof setInterval> | null =
+    null;
 
   constructor() {
     this.caches = new Map();
@@ -596,7 +597,9 @@ export function useCacheManager() {
   const [cacheStats, setCacheStats] = useState<Record<CacheType, CacheStats>>(
     {} as Record<CacheType, CacheStats>,
   );
-  const statsInterval = useRef<number | ReturnType<typeof setInterval> | null>(null);
+  const statsInterval = useRef<number | ReturnType<typeof setInterval> | null>(
+    null,
+  );
 
   useEffect(() => {
     const updateStats = () => setCacheStats(cacheManager.getAllStats());
