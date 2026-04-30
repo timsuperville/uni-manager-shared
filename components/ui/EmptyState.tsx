@@ -5,6 +5,7 @@ interface EmptyStateProps extends React.HTMLAttributes<HTMLDivElement> {
   title?: string;
   description?: string;
   action?: React.ReactNode;
+  actionableGuidance?: React.ReactNode;
   className?: string;
 }
 
@@ -14,6 +15,7 @@ export function EmptyState({
   title,
   description,
   action,
+  actionableGuidance,
   className = "",
   ...props
 }: EmptyStateProps) {
@@ -67,7 +69,28 @@ export function EmptyState({
           {description}
         </p>
       )}
-      {action && <div style={{ marginTop: "0.5rem" }}>{action}</div>}
+      {actionableGuidance && (
+        <div
+          style={{
+            marginTop: "1rem",
+            padding: "0.75rem 1rem",
+            background: "var(--bg-surface-2, rgba(255,255,255,0.05))",
+            border: "1px solid var(--border-subtle, rgba(255,255,255,0.1))",
+            borderRadius: "var(--radius-md, 6px)",
+            fontSize: "var(--text-sm, 0.875rem)",
+            color: "var(--text-secondary, rgba(255,255,255,0.7))",
+            maxWidth: "400px",
+            textAlign: "left",
+            display: "flex",
+            alignItems: "flex-start",
+            gap: "0.5rem",
+          }}
+        >
+          <span style={{ color: "var(--primary-resonance, #0ea5e9)" }}>💡</span>
+          <div>{actionableGuidance}</div>
+        </div>
+      )}
+      {action && <div style={{ marginTop: "1.5rem" }}>{action}</div>}
     </div>
   );
 }
