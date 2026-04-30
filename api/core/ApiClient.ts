@@ -59,6 +59,7 @@ export interface ApiClientConfig {
   authEnabled?: boolean;
   defaultHeaders?: Record<string, string>;
   authConfig?: AuthInterceptorConfig;
+  storageNamespace?: string;
 }
 
 export interface RequestOptions {

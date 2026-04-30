@@ -143,13 +143,10 @@ export class AuthService extends BaseService {
     options?: { signal?: AbortSignal },
   ): Promise<{ available: boolean }> {
     try {
-      const response = await this.get<{ available: boolean }>(
-        "/check-email",
-        {
-          params: { email },
-          signal: options?.signal,
-        },
-      );
+      const response = await this.get<{ available: boolean }>("/check-email", {
+        params: { email },
+        signal: options?.signal,
+      });
       return response;
     } catch (e: any) {
       if (e.name === "AbortError" || e.name === "CanceledError") {
@@ -391,7 +388,8 @@ export class AuthService extends BaseService {
     } catch (_error: any) {
       // [QA BYPASS]: If using the mock token, do not clear auth or trigger failure
       // when the real backend rejects the mock token.
-      const authConfig = this.client.getConfig().authConfig;
+      const clientConfig = this.client.getConfig();
+      const authConfig = clientConfig.authConfig;
       const tokenKey = authConfig?.tokenKey || "accessToken";
       let isMock = false;
 
@@ -407,8 +405,8 @@ export class AuthService extends BaseService {
       if (isMock) {
         let userRaw = null;
         if (typeof window !== "undefined") {
-          const userKey = authConfig?.storageNamespace
-            ? `${authConfig.storageNamespace}_auth_user_data`
+          const userKey = clientConfig?.storageNamespace
+            ? `${clientConfig.storageNamespace}_auth_user_data`
             : "uni_auth_user_data";
           userRaw =
             window.sessionStorage.getItem(userKey) ||
