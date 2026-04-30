@@ -131,7 +131,7 @@ export const getAbsoluteUrl = (
  * "<VITE_API_URL>/api/v1" if an explicit origin is configured.
  */
 export const getDefaultApiConfig = (): ApiConfig => ({
-  baseURL: `${getApiBaseUrl()}/api/v1`,
+  baseURL: `${getApiBaseUrl()}`,
   timeout: 10000,
   retryAttempts: 3,
   cacheEnabled: true,

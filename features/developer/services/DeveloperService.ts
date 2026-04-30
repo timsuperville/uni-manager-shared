@@ -36,6 +36,6 @@ export class DeveloperService extends BaseService {
    * @param keyId - ID of the key to revoke
    */
   async revokeApiKey(keyId: string): Promise<void> {
-    return this.client.delete<void>(`/developer/keys/${keyId}`).then(() => {});
+    return this.delete<void>(`/keys/${keyId}`).then(() => {});
   }
 }

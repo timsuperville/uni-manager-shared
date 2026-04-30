@@ -11,7 +11,7 @@ import axios, {
   AxiosRequestConfig,
   AxiosResponse,
 } from "axios";
-import { reportApiError } from "@shared/utils";
+import { reportApiError, isDev } from "../../utils";
 
 /** Ambient type for optional window-level error tracker (e.g. Sentry, LogRocket). */
 interface ErrorTracker {
@@ -347,7 +347,7 @@ export class ErrorHandler {
       timestamp: error.timestamp,
     });
 
-    if (import.meta.env.DEV) {
+    if (isDev()) {
       console.error("[API Error DEV]", {
         type: error.type,
         message: error.message,

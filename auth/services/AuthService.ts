@@ -47,8 +47,8 @@ export interface ResendVerificationRequest {
 
 export class AuthService extends BaseService {
   constructor(client: ApiClient) {
-    // baseEndpoint = "/api/v1/auth"  →  all paths are absolute: "/login", "/me", etc.
-    super(client, "/api/v1/auth", "AuthService");
+    // baseEndpoint = "/auth"  →  all paths are absolute relative to baseURL: "/login", "/me", etc.
+    super(client, "/auth", "AuthService");
   }
 
   /**
@@ -143,14 +143,14 @@ export class AuthService extends BaseService {
     options?: { signal?: AbortSignal },
   ): Promise<{ available: boolean }> {
     try {
-      const response = await this.client.get<{ available: boolean }>(
-        "/api/v1/auth/check-email",
+      const response = await this.get<{ available: boolean }>(
+        "/check-email",
         {
           params: { email },
           signal: options?.signal,
         },
       );
-      return response.data;
+      return response;
     } catch (e: any) {
       if (e.name === "AbortError" || e.name === "CanceledError") {
         throw e;

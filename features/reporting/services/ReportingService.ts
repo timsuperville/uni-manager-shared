@@ -63,7 +63,7 @@ export class ReportingService extends BaseService {
 
   async downloadReport(reportId: string, format = "pdf"): Promise<Blob> {
     try {
-      const blob = await this.client.download(
+      const blob = await this.download(
         `/reporting/reports/${reportId}/download`,
         { params: { format } },
       );
@@ -200,7 +200,7 @@ export class ReportingService extends BaseService {
 
   async exportReportConfig(reportId: string): Promise<Blob> {
     try {
-      const blob = await this.client.download(
+      const blob = await this.download(
         `/reporting/reports/${reportId}/export`,
       );
       return new Blob([blob], {
@@ -216,14 +216,14 @@ export class ReportingService extends BaseService {
     try {
       const formData = new FormData();
       formData.append("config", configFile);
-      const response = await this.client.post(
+      const response = await this.post<unknown>(
         "/shared/reports/import",
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
         },
       );
-      return response.data;
+      return response;
     } catch (error) {
       this.handleError(error as ApiError, "importReportConfig");
       throw error;

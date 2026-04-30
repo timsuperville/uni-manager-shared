@@ -64,7 +64,7 @@ export class AuthInterceptor {
         config.tokenPrefix !== undefined ? config.tokenPrefix : "Bearer ",
       autoRefresh: config.autoRefresh !== false,
       refreshThreshold: config.refreshThreshold || 5,
-      refreshEndpoint: config.refreshEndpoint || "/api/v1/auth/refresh-token",
+      refreshEndpoint: config.refreshEndpoint || "/auth/refresh-token",
       maxRetries: config.maxRetries || 1,
       enableStats: config.enableStats !== false,
     };

@@ -7,7 +7,7 @@
 
 import { ApiClient, ApiResponse, RequestOptions } from "../core/ApiClient";
 import { ApiError, ApiErrorType } from "../core/ErrorHandler";
-import { reportApiError } from "@shared/utils";
+import { reportApiError, isDev } from "../../utils";
 
 export interface ValidationSchema {
   [key: string]: {
@@ -71,7 +71,11 @@ export abstract class BaseService {
       : "";
     const combined = `${this.baseEndpoint}${cleanPath}`;
     // Collapse any accidental leading `//` into a single `/`
-    return combined.startsWith("//") ? combined.slice(1) : combined;
+    const finalPath = combined.startsWith("//") ? combined.slice(1) : combined;
+    
+    // Ensure all endpoints are routed to the /api/v1 backend namespace
+    if (finalPath.startsWith("/api/v1")) return finalPath;
+    return finalPath.startsWith("/") ? `/api/v1${finalPath}` : `/api/v1/${finalPath}`;
   }
 
   /**
@@ -301,7 +305,7 @@ export abstract class BaseService {
    * Always reports to ErrorLog in production; console.error is dev-only.
    */
   protected logError(error: ApiError, context?: string): void {
-    if (import.meta.env.DEV) {
+    if (isDev()) {
       console.error(`[${this.serviceName}${context ? `:${context}` : ""}]`, {
         type: error.type,
         message: error.message,
