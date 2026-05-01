@@ -35,7 +35,8 @@ export function useAnalyserLevel(
       // Peak value across all bins (0–255)
       let peak = 0;
       for (let i = 0; i < bufLen; i++) {
-        if (buf[i] > peak) peak = buf[i];
+        const sample = buf[i] ?? 0;
+        if (sample > peak) peak = sample;
       }
 
       // Normalize to 0–1 then smooth

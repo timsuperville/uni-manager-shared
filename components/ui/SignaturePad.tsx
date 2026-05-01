@@ -96,8 +96,9 @@ export function SignaturePad({ value, onChange, required }: SignaturePadProps) {
     let clientX, clientY;
 
     if ("touches" in e) {
-      clientX = e.touches[0].clientX;
-      clientY = e.touches[0].clientY;
+      const touch = e.touches[0];
+      clientX = touch?.clientX ?? 0;
+      clientY = touch?.clientY ?? 0;
     } else {
       clientX = (e as React.MouseEvent).clientX;
       clientY = (e as React.MouseEvent).clientY;

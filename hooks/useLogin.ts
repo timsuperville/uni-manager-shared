@@ -99,7 +99,7 @@ export function useLogin(): UseLoginResult {
           user: {
             id: "1",
             email: formData.email,
-            name: formData.email.split("@")[0],
+            name: formData.email.split("@")[0] ?? formData.email,
             appType,
           },
         };

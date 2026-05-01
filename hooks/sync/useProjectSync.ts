@@ -99,8 +99,10 @@ export function useProjectSync(
         const arr = yTasks.toArray();
         const idx = arr.findIndex((t) => t.id === taskId);
         if (idx === -1) return;
+        const existing = arr[idx];
+        if (!existing) return;
         yTasks.delete(idx, 1);
-        yTasks.insert(idx, [{ ...arr[idx], status: newStatus }]);
+        yTasks.insert(idx, [{ ...existing, status: newStatus }]);
       });
     },
     [doc],

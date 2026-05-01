@@ -70,10 +70,14 @@ export class NotificationService extends BaseService {
       type: {
         type: "string" as const,
         required: true,
-        validator: (value: string) =>
-          ["info", "success", "warning", "error", "announcement"].includes(
-            value,
-          ) || "Invalid notification type",
+        validator: (value: unknown) => {
+          const v = value as string;
+          return (
+            ["info", "success", "warning", "error", "announcement"].includes(
+              v,
+            ) || "Invalid notification type"
+          );
+        },
       },
       recipients: { type: "array" as const, required: true },
       scheduledFor: { type: "string" as const },
@@ -93,9 +97,13 @@ export class NotificationService extends BaseService {
       },
       status: {
         type: "string" as const,
-        validator: (value: string) =>
-          ["draft", "scheduled", "sent", "cancelled"].includes(value) ||
-          "Invalid notification status",
+        validator: (value: unknown) => {
+          const v = value as string;
+          return (
+            ["draft", "scheduled", "sent", "cancelled"].includes(v) ||
+            "Invalid notification status"
+          );
+        },
       },
       scheduledFor: { type: "string" as const },
     },
@@ -129,9 +137,13 @@ export class NotificationService extends BaseService {
       type: {
         type: "string" as const,
         required: true,
-        validator: (value: string) =>
-          ["email", "push", "sms", "in-app"].includes(value) ||
-          "Invalid template type",
+        validator: (value: unknown) => {
+          const v = value as string;
+          return (
+            ["email", "push", "sms", "in-app"].includes(v) ||
+            "Invalid template type"
+          );
+        },
       },
     },
 
@@ -157,8 +169,10 @@ export class NotificationService extends BaseService {
       notifications: {
         type: "array" as const,
         required: true,
-        validator: (value: any[]) =>
-          value.length > 0 || "At least one notification is required",
+        validator: (value: unknown) => {
+          const arr = value as unknown[];
+          return arr.length > 0 || "At least one notification is required";
+        },
       },
       templateId: { type: "string" as const },
       scheduledFor: { type: "string" as const },

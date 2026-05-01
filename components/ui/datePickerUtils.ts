@@ -68,7 +68,7 @@ export function formatISO({ year, month, day }: ParsedDate): string {
 
 /** Format ParsedDate → "Mon D, YYYY". */
 export function formatDisplay({ year, month, day }: ParsedDate): string {
-  return `${MONTHS[month].slice(0, 3)} ${day}, ${year}`;
+  return `${(MONTHS[month] ?? "").slice(0, 3)} ${day}, ${year}`;
 }
 
 // ── Inline style tokens ───────────────────────────────────────────────────────

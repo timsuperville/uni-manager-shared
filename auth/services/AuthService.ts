@@ -61,7 +61,8 @@ export class AuthService extends BaseService {
         required: true,
         pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
         validator: (value) =>
-          value.length >= 3 || "Email must be at least 3 characters",
+          (value as string).length >= 3 ||
+          "Email must be at least 3 characters",
       },
       password: {
         type: "string",
@@ -101,10 +102,11 @@ export class AuthService extends BaseService {
         required: true,
         minLength: 8,
         validator: (value) => {
-          const hasUpper = /[A-Z]/.test(value);
-          const hasLower = /[a-z]/.test(value);
-          const hasNumber = /\d/.test(value);
-          const hasSpecial = /[!@#$%^&*(),.?':{}|<>]/.test(value);
+          const str = value as string;
+          const hasUpper = /[A-Z]/.test(str);
+          const hasLower = /[a-z]/.test(str);
+          const hasNumber = /\d/.test(str);
+          const hasSpecial = /[!@#$%^&*(),.?':{}|<>]/.test(str);
           if (!hasUpper || !hasLower || !hasNumber || !hasSpecial) {
             return "Password must contain uppercase, lowercase, number, and special character";
           }
@@ -202,8 +204,8 @@ export class AuthService extends BaseService {
    * Calls GET /api/v1/auth/me
    */
   async getCurrentUser(silent?: boolean): Promise<User> {
-    const data = await this.get<any>("/me", { silent });
-    return data?.user || data;
+    const data = await this.get<User & { user?: User }>("/me", { silent });
+    return (data as { user?: User }).user || data;
   }
 
   /**
@@ -217,7 +219,7 @@ export class AuthService extends BaseService {
       return { success: true, user: currentUser, noChange: true };
     }
 
-    const data = await this.post<any>(
+    const data = await this.post<{ user?: User } & User>(
       "/switch-church",
       { churchId },
       { cache: false },
@@ -225,7 +227,7 @@ export class AuthService extends BaseService {
 
     // Backend returns the user object directly inside formatSuccess
     // We optionally wrap it in an object format compatible with our test
-    const user = data?.user || data;
+    const user = (data as { user?: User }).user || data;
     return { success: true, user };
   }
 
@@ -272,10 +274,11 @@ export class AuthService extends BaseService {
         required: true,
         minLength: 8,
         validator: (value) => {
-          const hasUpper = /[A-Z]/.test(value);
-          const hasLower = /[a-z]/.test(value);
-          const hasNumber = /\d/.test(value);
-          const hasSpecial = /[!@#$%^&*(),.?':{}|<>]/.test(value);
+          const str = value as string;
+          const hasUpper = /[A-Z]/.test(str);
+          const hasLower = /[a-z]/.test(str);
+          const hasNumber = /\d/.test(str);
+          const hasSpecial = /[!@#$%^&*(),.?':{}|<>]/.test(str);
           if (!hasUpper || !hasLower || !hasNumber || !hasSpecial) {
             return "Password must contain uppercase, lowercase, number, and special character";
           }
@@ -286,7 +289,8 @@ export class AuthService extends BaseService {
         type: "string",
         required: true,
         validator: (value, data) => {
-          if (value !== data?.["newPassword"]) return "Passwords do not match";
+          if (value !== (data as Record<string, unknown>)?.["newPassword"])
+            return "Passwords do not match";
           return true;
         },
       },
@@ -322,10 +326,11 @@ export class AuthService extends BaseService {
         required: true,
         minLength: 8,
         validator: (value) => {
-          const hasUpper = /[A-Z]/.test(value);
-          const hasLower = /[a-z]/.test(value);
-          const hasNumber = /\d/.test(value);
-          const hasSpecial = /[!@#$%^&*(),.?':{}|<>]/.test(value);
+          const str = value as string;
+          const hasUpper = /[A-Z]/.test(str);
+          const hasLower = /[a-z]/.test(str);
+          const hasNumber = /\d/.test(str);
+          const hasSpecial = /[!@#$%^&*(),.?':{}|<>]/.test(str);
           if (!hasUpper || !hasLower || !hasNumber || !hasSpecial) {
             return "Password must contain uppercase, lowercase, number, and special character";
           }
@@ -336,7 +341,8 @@ export class AuthService extends BaseService {
         type: "string",
         required: true,
         validator: (value, data) => {
-          if (value !== data?.["newPassword"]) return "Passwords do not match";
+          if (value !== (data as Record<string, unknown>)?.["newPassword"])
+            return "Passwords do not match";
           return true;
         },
       },

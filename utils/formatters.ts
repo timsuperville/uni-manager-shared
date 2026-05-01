@@ -85,7 +85,9 @@ export const parseDuration = (value: string): number | undefined => {
   const trimmed = value.trim();
   if (!trimmed) return undefined;
   if (/^\d+:\d{1,2}$/.test(trimmed)) {
-    const [m, s] = trimmed.split(":").map(Number);
+    const parts = trimmed.split(":").map(Number);
+    const m = parts[0] as number;
+    const s = parts[1] as number;
     return m * 60 + s;
   }
   const n = Number(trimmed);

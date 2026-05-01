@@ -121,7 +121,7 @@ export class AuthInterceptor {
   /**
    * Error interceptor - handles authentication errors and token refresh
    */
-  async onError(error: AxiosError): Promise<AxiosError | any> {
+  async onError(error: AxiosError): Promise<AxiosError | unknown> {
     const originalRequest = error.config as AxiosRequestConfig & {
       _retry?: boolean;
     };

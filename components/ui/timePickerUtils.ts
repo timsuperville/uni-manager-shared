@@ -24,7 +24,9 @@ export interface TimePreset {
 /** Parse a "HH:MM" 24h string into ParsedTime | null. */
 export function parse24(value?: string): ParsedTime | null {
   if (!value) return null;
-  const [h, m] = value.split(":").map(Number);
+  const parts = value.split(":").map(Number);
+  const h = parts[0] as number;
+  const m = parts[1] as number;
   if (isNaN(h) || isNaN(m)) return null;
   return { hours: h, minutes: m };
 }

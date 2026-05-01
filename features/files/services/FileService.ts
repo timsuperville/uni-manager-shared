@@ -94,15 +94,21 @@ export class FileService extends BaseService {
       fileIds: {
         type: "array" as const,
         required: true,
-        validator: (value: any[]) =>
-          value.length > 0 || "At least one file ID is required",
+        validator: (value: unknown) => {
+          const arr = value as unknown[];
+          return arr.length > 0 || "At least one file ID is required";
+        },
       },
       operation: {
         type: "string" as const,
         required: true,
-        validator: (value: string) =>
-          ["move", "copy", "delete", "share", "tag"].includes(value) ||
-          "Invalid operation type",
+        validator: (value: unknown) => {
+          const v = value as string;
+          return (
+            ["move", "copy", "delete", "share", "tag"].includes(v) ||
+            "Invalid operation type"
+          );
+        },
       },
     },
 
@@ -116,9 +122,12 @@ export class FileService extends BaseService {
       permissions: {
         type: "string" as const,
         required: true,
-        validator: (value: string) =>
-          ["read", "write", "admin"].includes(value) ||
-          "Invalid permission level",
+        validator: (value: unknown) => {
+          const v = value as string;
+          return (
+            ["read", "write", "admin"].includes(v) || "Invalid permission level"
+          );
+        },
       },
       expiresAt: { type: "string" as const },
     },

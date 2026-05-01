@@ -83,7 +83,7 @@ export interface RequestOptions {
   silent?: boolean; // Suppress global error events, console logs, and telemetry
 }
 
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   data: T;
   status: number;
   statusText: string;
@@ -184,7 +184,7 @@ export class ApiClient {
   private async executeRequest<T>(
     method: string,
     endpoint: string,
-    data?: any,
+    data?: unknown,
     options: RequestOptions = {},
   ): Promise<ApiResponse<T>> {
     const requestConfig: AxiosRequestConfig = {
@@ -197,7 +197,8 @@ export class ApiClient {
       onUploadProgress: options.onUploadProgress,
       onDownloadProgress: options.onDownloadProgress,
       signal: options.signal,
-      responseType: options.responseType as any,
+      responseType:
+        options.responseType as unknown as XMLHttpRequestResponseType,
       ...(options.silent !== undefined ? { silent: options.silent } : {}),
     } as AxiosRequestConfig; // cast since silent is custom
 
@@ -248,7 +249,7 @@ export class ApiClient {
   /**
    * GET request
    */
-  async get<T = any>(
+  async get<T = unknown>(
     endpoint: string,
     options?: RequestOptions,
   ): Promise<ApiResponse<T>> {
@@ -258,9 +259,9 @@ export class ApiClient {
   /**
    * POST request
    */
-  async post<T = any>(
+  async post<T = unknown>(
     endpoint: string,
-    data?: any,
+    data?: unknown,
     options?: RequestOptions,
   ): Promise<ApiResponse<T>> {
     return this.executeRequest<T>("POST", endpoint, data, options);
@@ -269,9 +270,9 @@ export class ApiClient {
   /**
    * PUT request
    */
-  async put<T = any>(
+  async put<T = unknown>(
     endpoint: string,
-    data?: any,
+    data?: unknown,
     options?: RequestOptions,
   ): Promise<ApiResponse<T>> {
     return this.executeRequest<T>("PUT", endpoint, data, options);
@@ -280,9 +281,9 @@ export class ApiClient {
   /**
    * PATCH request
    */
-  async patch<T = any>(
+  async patch<T = unknown>(
     endpoint: string,
-    data?: any,
+    data?: unknown,
     options?: RequestOptions,
   ): Promise<ApiResponse<T>> {
     return this.executeRequest<T>("PATCH", endpoint, data, options);
@@ -291,7 +292,7 @@ export class ApiClient {
   /**
    * DELETE request
    */
-  async delete<T = any>(
+  async delete<T = unknown>(
     endpoint: string,
     options?: RequestOptions,
   ): Promise<ApiResponse<T>> {
@@ -301,7 +302,7 @@ export class ApiClient {
   /**
    * Upload file with progress tracking
    */
-  async upload<T = any>(
+  async upload<T = unknown>(
     endpoint: string,
     file: File | FormData,
     options?: RequestOptions & { fieldName?: string },

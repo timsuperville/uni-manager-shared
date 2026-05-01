@@ -47,7 +47,7 @@ export const useApi = (): { apiClient: ApiClient } => {
  * Generic hook for API queries with caching and loading states
  */
 export function useApiQuery<T>(
-  queryKey: string | any[],
+  queryKey: string | unknown[],
   queryFn: () => Promise<T>,
   options?: {
     enabled?: boolean;
@@ -103,7 +103,7 @@ export function useApiMutation<TData, TVariables>(
       return mutationFn(variables);
     },
     ...options,
-    onError: (err: any, variables: TVariables, context: unknown) => {
+    onError: (err: Error, variables: TVariables, context: unknown) => {
       if (typeof window !== "undefined") {
         window.dispatchEvent(
           new CustomEvent("api-mutation-failure", {

@@ -556,13 +556,15 @@ function generatePersonalizations(
       return acc;
     }, {});
     const topActivity = Object.keys(countByType).sort(
-      (a, b) => countByType[b] - countByType[a],
+      (a, b) => (countByType[b] ?? 0) - (countByType[a] ?? 0),
     )[0];
-    personalizations.push({
-      type: "activity-focus",
-      value: topActivity,
-      message: `Based on your recent ${topActivity} activity`,
-    });
+    if (topActivity) {
+      personalizations.push({
+        type: "activity-focus",
+        value: topActivity,
+        message: `Based on your recent ${topActivity} activity`,
+      });
+    }
   }
 
   if (seasonalContext?.currentSeason) {

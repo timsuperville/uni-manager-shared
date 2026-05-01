@@ -105,16 +105,20 @@ export const useTouchGestures = (
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     setTouchEnd(null);
+    const touch = e.targetTouches[0];
+    if (!touch) return;
     setTouchStart({
-      x: e.targetTouches[0].clientX,
-      y: e.targetTouches[0].clientY,
+      x: touch.clientX,
+      y: touch.clientY,
     });
   }, []);
 
   const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    const touch = e.targetTouches[0];
+    if (!touch) return;
     setTouchEnd({
-      x: e.targetTouches[0].clientX,
-      y: e.targetTouches[0].clientY,
+      x: touch.clientX,
+      y: touch.clientY,
     });
   }, []);
 

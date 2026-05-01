@@ -5,7 +5,7 @@
  * pattern-based invalidation, and memory management.
  */
 
-export interface CacheEntry<T = any> {
+export interface CacheEntry<T = unknown> {
   data: T;
   timestamp: number;
   ttl: number;
@@ -60,7 +60,7 @@ export class CacheManager {
   /**
    * Get cached value
    */
-  get<T = any>(key: string): T | null {
+  get<T = unknown>(key: string): T | null {
     const entry = this.cache.get(key);
 
     if (!entry) {
@@ -82,7 +82,7 @@ export class CacheManager {
   /**
    * Set cached value
    */
-  set<T = any>(key: string, data: T, ttl?: number): void {
+  set<T = unknown>(key: string, data: T, ttl?: number): void {
     const entryTTL = ttl || this.options.defaultTTL;
     const size = this.calculateSize(data);
 
@@ -154,7 +154,7 @@ export class CacheManager {
   /**
    * Generate cache key from endpoint and parameters
    */
-  generateKey(endpoint: string, params?: any): string {
+  generateKey(endpoint: string, params?: unknown): string {
     const baseKey = endpoint.replace(/[^a-zA-Z0-9]/g, "_");
 
     if (!params) {
@@ -243,7 +243,7 @@ export class CacheManager {
     return Date.now() - entry.timestamp > entry.ttl;
   }
 
-  private calculateSize(data: any): number {
+  private calculateSize(data: unknown): number {
     // Rough size calculation in bytes
     const jsonString = JSON.stringify(data);
     return new Blob([jsonString]).size;
@@ -297,7 +297,7 @@ export class CacheManager {
     return new RegExp(`^${escapedPattern}$`, "i");
   }
 
-  private sortObject(obj: any): any {
+  private sortObject(obj: unknown): unknown {
     if (obj === null || typeof obj !== "object") {
       return obj;
     }
@@ -306,11 +306,11 @@ export class CacheManager {
       return obj.map((item) => this.sortObject(item));
     }
 
-    const sortedKeys = Object.keys(obj).sort();
-    const sortedObj: any = {};
+    const sortedKeys = Object.keys(obj as Record<string, unknown>).sort();
+    const sortedObj: Record<string, unknown> = {};
 
     for (const key of sortedKeys) {
-      sortedObj[key] = this.sortObject(obj[key]);
+      sortedObj[key] = this.sortObject((obj as Record<string, unknown>)[key]);
     }
 
     return sortedObj;

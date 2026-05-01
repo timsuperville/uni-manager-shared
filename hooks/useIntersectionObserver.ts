@@ -23,7 +23,7 @@ export function useIntersectionObserver<T extends Element>({
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        setIntersecting(entry.isIntersecting);
+        if (entry) setIntersecting(entry.isIntersecting);
       },
       { threshold, root, rootMargin },
     );

@@ -117,7 +117,8 @@ export class ErrorHandler {
    */
   transformError(error: AxiosError): ApiError {
     const requestId = error.config?.headers?.["X-Request-ID"] as string;
-    const isSilent = (error.config as any)?.silent;
+    const isSilent = (error.config as AxiosRequestConfig & { silent?: boolean })
+      ?.silent;
 
     if (axios.isCancel(error)) {
       return this.createApiError({
@@ -134,7 +135,7 @@ export class ErrorHandler {
 
     if (error.response) {
       // Server responded with error status
-      const responseData = error.response.data as Record<string, any>;
+      const responseData = error.response.data as Record<string, unknown>;
       apiError = this.createApiError({
         type: this.mapStatusToErrorType(error.response.status),
         message: this.extractErrorMessage(responseData),
@@ -145,8 +146,10 @@ export class ErrorHandler {
         timestamp: new Date().toISOString(),
         requestId,
         resonanceId:
-          responseData?.resonanceId ||
-          (error.response.headers as any)?.["x-correlation-id"],
+          (responseData?.["resonanceId"] as string) ||
+          (error.response.headers as Record<string, string>)?.[
+            "x-correlation-id"
+          ],
       });
     } else if (error.request) {
       // Request was made but no response received
@@ -303,7 +306,7 @@ export class ErrorHandler {
   private async retryRequest(
     config: AxiosRequestConfig & { _retryCount?: number },
     axiosInstance: AxiosInstance,
-  ): Promise<any> {
+  ): Promise<AxiosResponse> {
     const retryCount = (config._retryCount || 0) + 1;
     const delay =
       this.retryDelays[Math.min(retryCount - 1, this.retryDelays.length - 1)];

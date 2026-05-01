@@ -69,7 +69,7 @@ const AuthSection: React.FC = () => {
 
   const handleSignup = async () => {
     try {
-      await signup({
+      await signup?.({
         firstName: "New",
         lastName: "User",
         email: "newuser@example.com",

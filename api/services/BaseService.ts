@@ -16,7 +16,7 @@ export interface ValidationSchema {
     minLength?: number;
     maxLength?: number;
     pattern?: RegExp;
-    validator?: (value: any, data?: any) => boolean | string;
+    validator?: (value: unknown, data?: unknown) => boolean | string;
   };
 }
 
@@ -37,6 +37,16 @@ export interface PaginatedResponse<T> {
     hasNextPage: boolean;
     hasPrevPage: boolean;
   };
+}
+
+/** Shape of the raw pagination object returned by backend responses. */
+interface RawPagination {
+  page?: number;
+  limit?: number;
+  total?: number;
+  totalPages?: number;
+  hasNextPage?: boolean;
+  hasPrevPage?: boolean;
 }
 
 export abstract class BaseService {
@@ -155,7 +165,7 @@ export abstract class BaseService {
     return validatedData;
   }
 
-  private validateType(value: any, type: string): boolean {
+  private validateType(value: unknown, type: string): boolean {
     switch (type) {
       case "string":
         return typeof value === "string";
@@ -182,8 +192,8 @@ export abstract class BaseService {
    * We peel it here once so every service consumer receives the inner payload.
    */
   protected transformResponse<T>(response: ApiResponse<T>): T {
-    const body = response.data as any;
-    let payload = body;
+    const body = response.data as Record<string, unknown>;
+    let payload: unknown = body;
     // Peel the { success, data } envelope produced by responseHelpers.
     if (
       body !== null &&
@@ -191,7 +201,7 @@ export abstract class BaseService {
       "success" in body &&
       "data" in body
     ) {
-      payload = body.data;
+      payload = (body as { success: boolean; data: unknown }).data;
     }
 
     // Extract ETag capture
@@ -202,8 +212,11 @@ export abstract class BaseService {
       !Array.isArray(payload)
     ) {
       const etagValue = parseInt(response.headers.etag.replace(/"/g, ""), 10);
-      if (!isNaN(etagValue) && payload.__v === undefined) {
-        payload.__v = etagValue;
+      if (
+        !isNaN(etagValue) &&
+        (payload as Record<string, unknown>).__v === undefined
+      ) {
+        (payload as Record<string, unknown>).__v = etagValue;
       }
     }
 
@@ -219,39 +232,40 @@ export abstract class BaseService {
    *   3. Named-collection object:  { services: [...], total: N }
    */
   protected transformListResponse<T>(
-    response: ApiResponse<any>,
+    response: ApiResponse<unknown>,
   ): PaginatedResponse<T> {
-    const body = response.data as any;
+    const body = response.data as Record<string, unknown>;
 
     // Step 1 — peel the { success, data } envelope if present
-    const payload =
+    const payload: unknown =
       body !== null &&
       typeof body === "object" &&
       "success" in body &&
       "data" in body
-        ? body.data
+        ? (body as { success: boolean; data: unknown }).data
         : body;
 
     // Step 2 — extract the items array and pagination from the payload
     let items: T[];
-    let pagination: any;
+    let pagination: RawPagination | undefined;
 
     if (Array.isArray(payload)) {
       // Shape 1: bare array
-      items = payload;
+      items = payload as T[];
       pagination = undefined;
     } else if (payload !== null && typeof payload === "object") {
-      if (Array.isArray(payload.data)) {
+      const payloadObj = payload as Record<string, unknown>;
+      if (Array.isArray(payloadObj.data)) {
         // Shape 2: { data: [...], pagination?: {} }
-        items = payload.data;
-        pagination = payload.pagination;
+        items = payloadObj.data as T[];
+        pagination = payloadObj.pagination as RawPagination | undefined;
       } else {
         // Shape 3: { services/items/records: [...], total?: N }
-        const arrayKey = Object.keys(payload).find((k) =>
-          Array.isArray(payload[k]),
+        const arrayKey = Object.keys(payloadObj).find((k) =>
+          Array.isArray(payloadObj[k]),
         );
-        items = arrayKey ? payload[arrayKey] : [];
-        pagination = payload.pagination;
+        items = arrayKey ? (payloadObj[arrayKey] as T[]) : [];
+        pagination = payloadObj.pagination as RawPagination | undefined;
       }
     } else {
       items = [];
@@ -261,12 +275,12 @@ export abstract class BaseService {
     return {
       data: items,
       pagination: {
-        page: pagination?.page || 1,
-        limit: pagination?.limit || 10,
-        total: pagination?.total || items.length,
-        totalPages: pagination?.totalPages || 0,
-        hasNextPage: pagination?.hasNextPage || false,
-        hasPrevPage: pagination?.hasPrevPage || false,
+        page: pagination?.page ?? 1,
+        limit: pagination?.limit ?? 10,
+        total: pagination?.total ?? items.length,
+        totalPages: pagination?.totalPages ?? 0,
+        hasNextPage: pagination?.hasNextPage ?? false,
+        hasPrevPage: pagination?.hasPrevPage ?? false,
       },
     };
   }
@@ -377,7 +391,7 @@ export abstract class BaseService {
    */
   protected async post<T>(
     endpoint: string,
-    data?: any,
+    data?: unknown,
     options?: RequestOptions,
   ): Promise<T> {
     try {
@@ -397,7 +411,7 @@ export abstract class BaseService {
    */
   protected async put<T>(
     endpoint: string,
-    data?: any,
+    data?: unknown,
     options?: RequestOptions,
   ): Promise<T> {
     try {
@@ -417,7 +431,7 @@ export abstract class BaseService {
    */
   protected async patch<T>(
     endpoint: string,
-    data?: any,
+    data?: unknown,
     options?: RequestOptions,
   ): Promise<T> {
     try {
@@ -455,7 +469,7 @@ export abstract class BaseService {
    */
   protected async getList<T>(
     endpoint: string,
-    params?: PaginationParams | Record<string, any>,
+    params?: PaginationParams | Record<string, unknown>,
     options?: RequestOptions,
   ): Promise<PaginatedResponse<T>> {
     try {
