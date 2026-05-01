@@ -6,18 +6,18 @@
 import { useState, useEffect } from "react";
 
 // ---------------------------------------------------------------------------
-// Types
+// Types (exported for consumption by app-level hooks)
 // ---------------------------------------------------------------------------
 
-type VitalName = "LCP" | "FID" | "CLS" | "FCP" | "TTFB" | string;
-type VitalRating = "good" | "needs-improvement" | "poor" | "unknown";
+export type VitalName = "LCP" | "FID" | "CLS" | "FCP" | "TTFB" | string;
+export type VitalRating = "good" | "needs-improvement" | "poor" | "unknown";
 
 interface VitalThreshold {
   good: number;
   poor: number;
 }
 
-interface VitalMetric {
+export interface VitalMetric {
   value: number;
   rating: VitalRating;
   timestamp: number;
@@ -42,9 +42,19 @@ interface AppWindow extends Window {
   ENV?: { VITE_APP_NAME?: string };
 }
 
-interface UseWebVitalsResult {
+export interface UseWebVitalsResult {
   metrics: Record<VitalName, VitalMetric>;
   score: number;
+}
+
+/**
+ * Canonical return type for all app-level `usePerformance` hooks.
+ * Extends `UseWebVitalsResult` with performance mark/measure helpers.
+ */
+export interface UsePerformanceReturn extends UseWebVitalsResult {
+  isLoading: boolean;
+  markFeatureUsed: (featureName: string) => void;
+  measureFeatureTime: (featureName: string) => void;
 }
 
 // ---------------------------------------------------------------------------
