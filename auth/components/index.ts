@@ -29,6 +29,8 @@ export { default as OAuthCallback } from "./OAuthCallback";
 // ── Authorization & Access Control ────────────────────────────────────────────
 
 export { default as ProtectedRoute } from "./ProtectedRoute";
+export { default as CahaGate, CAHA_TIER } from "./CahaGate";
+export type { CahaRole, CahaGateProps } from "./CahaGate";
 
 // ── Security Components ───────────────────────────────────────────────────────
 
