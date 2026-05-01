@@ -41,13 +41,7 @@ import {
 
 // ─── Per-app Visual Identity Fencing ──────────────────────────────────────────
 
-type AppType =
-  | "church"
-  | "home"
-  | "personal"
-  | "business"
-  | "playback"
-  | "default";
+type AppType = "church" | "home" | "personal" | "work" | "playback" | "default";
 
 interface PillarItem {
   icon: React.ReactNode;
@@ -112,7 +106,7 @@ const APP_IDENTITY: Record<AppType, AppIdentity> = {
       { icon: <DiamondIcon size={22} />, label: "Personal Finance & Identity" },
     ],
   },
-  business: {
+  work: {
     tagline: "Professional Velocity, Mastered.",
     description:
       "Strategic toolset for high-performance SMB operations — CRM, inventory, and margin-focused fiduciary velocity.",

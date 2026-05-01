@@ -80,7 +80,7 @@ export const oauthProviders: Record<string, OAuthProvider> = {
           hd: import.meta.env.VITE_GOOGLE_HOSTED_DOMAIN as string | undefined,
         },
       },
-      business: {
+      work: {
         scope: "openid email profile",
         additionalParams: { prompt: "select_account" },
       },
@@ -117,7 +117,7 @@ export const oauthProviders: Record<string, OAuthProvider> = {
         scope: "openid email profile User.Read Directory.Read.All",
         additionalParams: { prompt: "select_account" },
       },
-      business: {
+      work: {
         scope: "openid email profile User.Read",
         additionalParams: { prompt: "select_account" },
       },
@@ -138,7 +138,7 @@ export const oauthProviders: Record<string, OAuthProvider> = {
       sessionTracking: true,
     },
     configs: {
-      business: {
+      work: {
         scope: "r_liteprofile r_emailaddress w_member_social",
         additionalParams: {},
       },

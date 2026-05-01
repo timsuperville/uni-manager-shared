@@ -345,7 +345,7 @@ export interface AuthError {
 export type AppType =
   | "admin"
   | "church"
-  | "business"
+  | "work"
   | "home"
   | "personal"
   | "playback"

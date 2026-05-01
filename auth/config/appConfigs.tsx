@@ -21,7 +21,7 @@ import {
 export type AppName =
   | "church"
   | "admin"
-  | "business"
+  | "work"
   | "home"
   | "personal"
   | "playback"
@@ -235,10 +235,10 @@ export const APP_CONFIGS: Record<AppName, AppConfig> = {
     },
   },
 
-  business: {
-    appName: "Business Manager",
-    appType: "business",
-    storageNamespace: "business",
+  work: {
+    appName: "Work Manager",
+    appType: "work",
+    storageNamespace: "work",
     brandColor: "emerald",
     logo: "/favicon.svg",
     favicon: "/favicon.svg",
@@ -290,8 +290,8 @@ export const APP_CONFIGS: Record<AppName, AppConfig> = {
       icon: (
         <WorkAppLogo size={40} style={{ color: "rgb(16, 185, 129)" }} sw={2} />
       ),
-      loginTitle: "Business Portal",
-      loginDescription: "Access your business management tools",
+      loginTitle: "Work Portal",
+      loginDescription: "Access your work management tools",
       registerPath: "/auth/register",
     },
   },
@@ -549,7 +549,7 @@ const PORT_MAP: Record<number, AppName> = {
   5173: "church",
   5174: "admin",
   5175: "home",
-  5176: "business",
+  5176: "work",
   5177: "personal",
   5178: "playback",
   5179: "presentation",
