@@ -7,11 +7,9 @@ export { default as LoadingSpinner } from "./LoadingSpinner";
 export { default as RoleGuard } from "./RoleGuard";
 export { ThemeProvider, useTheme, tokens } from "./ThemeProvider";
 export { default as ThemeToggle } from "./ThemeToggle";
-export {
-  default as ErrorBoundary,
-  withErrorBoundary,
-  flushPendingErrorReports,
-} from "./ErrorBoundary";
+export { ErrorBoundary } from "./error-boundary";
+export { withErrorBoundary } from "./error-boundary";
+export { flushPendingErrorReports } from "./error-boundary";
 // GlobalErrorBoundary merged into ErrorBoundary (variant="full-screen" is now default)
 export { ApiProvider, useApi } from "./ApiProvider";
 

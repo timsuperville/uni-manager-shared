@@ -13,7 +13,7 @@
 //   createMonitoredQueryClient    (wraps QueryClient with onError→INGEST_ERRORS)
 
 import { getAuthToken } from "../../utils/authToken";
-import { flushPendingErrorReports } from "../../components/ErrorBoundary";
+import { flushPendingErrorReports } from "../../components/error-boundary";
 import { collectSystemContext } from "../feedback/utils/collectSystemContext";
 
 declare global {
@@ -38,7 +38,7 @@ const INGEST_FEEDBACK = `${getApiBaseUrl()}/api/v1/integrations/feedback`;
 
 // ErrorBoundary — canonical unified component. Re-exported here so any code
 // that still imports from this module continues to work.
-export { ErrorBoundary } from "../../components/ErrorBoundary";
+export { ErrorBoundary } from "../../components/error-boundary";
 
 // ── Recent user activity ──────────────────────────────────────────────────────
 const getRecentUserActivity = () => {

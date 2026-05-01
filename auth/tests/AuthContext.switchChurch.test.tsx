@@ -78,7 +78,7 @@ describe("AuthContext - switchChurch", () => {
 
     // Get the mock instance
     const { AuthService } = await import("../services/AuthService");
-    mockAuthService = new AuthService();
+    mockAuthService = new AuthService({} as any);
 
     // Setup default mocks
     mockAuthService.checkAuthStatus.mockResolvedValue({
@@ -106,7 +106,7 @@ describe("AuthContext - switchChurch", () => {
 
     render(
       <ApiProvider
-        config={{ baseURL: "http://localhost:5000", appName: "test" }}
+        config={{ baseURL: "http://localhost:5000" }}
       >
         <AuthProvider config={{ appType: "church" }}>
           <TestComponent onStateChange={onStateChange} />
@@ -156,7 +156,7 @@ describe("AuthContext - switchChurch", () => {
 
     render(
       <ApiProvider
-        config={{ baseURL: "http://localhost:5000", appName: "test" }}
+        config={{ baseURL: "http://localhost:5000" }}
       >
         <AuthProvider config={{ appType: "church" }}>
           <TestComponent onStateChange={onStateChange} />
@@ -204,7 +204,7 @@ describe("AuthContext - switchChurch", () => {
 
     render(
       <ApiProvider
-        config={{ baseURL: "http://localhost:5000", appName: "test" }}
+        config={{ baseURL: "http://localhost:5000" }}
       >
         <AuthProvider config={{ appType: "church" }} onError={onError}>
           <TestComponent onStateChange={onStateChange} />
@@ -256,7 +256,7 @@ describe("AuthContext - switchChurch", () => {
 
     render(
       <ApiProvider
-        config={{ baseURL: "http://localhost:5000", appName: "test" }}
+        config={{ baseURL: "http://localhost:5000" }}
       >
         <AuthProvider
           config={{ appType: "church" }}
@@ -302,7 +302,7 @@ describe("AuthContext - switchChurch", () => {
 
     render(
       <ApiProvider
-        config={{ baseURL: "http://localhost:5000", appName: "test" }}
+        config={{ baseURL: "http://localhost:5000" }}
       >
         <AuthProvider config={{ appType: "church" }}>
           <TestComponent onStateChange={onStateChange} />

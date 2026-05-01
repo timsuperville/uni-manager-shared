@@ -24,7 +24,7 @@ describe("LoginForm", () => {
     return render(
       <MemoryRouter>
         <ApiProvider
-          config={{ baseURL: "http://localhost:5000", appName: "test" }}
+          config={{ baseURL: "http://localhost:5000" }}
         >
           <AuthProvider>
             <LoginForm {...props} />
