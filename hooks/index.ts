@@ -13,6 +13,7 @@ export { useDebounce } from "./useDebounce";
 export { useLocalStorage } from "./useLocalStorage";
 export { useDarkMode } from "./useDarkMode";
 export { useIntersectionObserver } from "./useIntersectionObserver";
+export { useOnboardingOverlay } from "./useOnboardingOverlay";
 
 // Engagement / feedback hooks
 export { useNpsPulse } from "./useNpsPulse";
