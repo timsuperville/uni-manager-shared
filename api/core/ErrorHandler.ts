@@ -144,7 +144,9 @@ export class ErrorHandler {
         details: responseData,
         timestamp: new Date().toISOString(),
         requestId,
-        resonanceId: responseData?.resonanceId,
+        resonanceId:
+          responseData?.resonanceId ||
+          (error.response.headers as any)?.["x-correlation-id"],
       });
     } else if (error.request) {
       // Request was made but no response received

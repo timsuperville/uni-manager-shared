@@ -40,6 +40,7 @@ export interface FallbackProps {
   error: Error | null;
   errorInfo: React.ErrorInfo | null;
   errorId: string | null;
+  resonanceId?: string | null;
   onReset: () => void;
   showHomeButton?: boolean;
 }
@@ -51,6 +52,7 @@ export function InlineFallback({
   error,
   errorInfo,
   errorId,
+  resonanceId,
   onReset,
   showHomeButton,
 }: FallbackProps) {
@@ -232,6 +234,21 @@ export function InlineFallback({
             {errorId}
           </span>
         )}
+        {resonanceId && (
+          <span
+            title="Reference this Resonance ID for backend tracing"
+            style={{
+              fontSize: "0.6875rem",
+              color: T.textMuted,
+              fontFamily: "monospace",
+              marginLeft: errorId ? "0.5rem" : "auto",
+              paddingLeft: errorId ? "0.5rem" : 0,
+              borderLeft: errorId ? `1px solid ${T.outline}` : "none",
+            }}
+          >
+            Resonance ID: {resonanceId}
+          </span>
+        )}
       </div>
     </div>
   );
@@ -244,6 +261,7 @@ export function FullScreenFallback({
   error,
   errorInfo,
   errorId,
+  resonanceId,
   onReset,
   showHomeButton,
 }: FallbackProps) {
@@ -362,6 +380,43 @@ export function FullScreenFallback({
               }}
             >
               {errorId}
+            </span>
+          </div>
+        )}
+        {resonanceId && (
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.375rem",
+              marginBottom: "1.25rem",
+              padding: "0.375rem 0.75rem",
+              background: "rgba(16,185,129,0.08)",
+              border: "1px solid rgba(16,185,129,0.2)",
+              borderRadius: T.radiusSm,
+              marginLeft: errorId ? "0.5rem" : 0,
+            }}
+          >
+            <span
+              style={{
+                fontSize: "0.6875rem",
+                color: T.textMuted,
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+              }}
+            >
+              Resonance
+            </span>
+            <span
+              title="Quote this ID when contacting support for API failures"
+              style={{
+                fontSize: "0.75rem",
+                fontFamily: "JetBrains Mono, monospace",
+                color: "hsl(160,84%,72%)",
+                letterSpacing: "0.02em",
+              }}
+            >
+              {resonanceId}
             </span>
           </div>
         )}

@@ -36,6 +36,7 @@ export interface ErrorBoundaryState {
   error: Error | null;
   errorInfo: React.ErrorInfo | null;
   errorId: string | null;
+  resonanceId?: string | null;
 }
 
 // ── Unified ErrorBoundary ─────────────────────────────────────────────────────
@@ -50,12 +51,14 @@ export class ErrorBoundary extends React.Component<
       error: null,
       errorInfo: null,
       errorId: null,
+      resonanceId: null,
     };
     this.handleReset = this.handleReset.bind(this);
   }
 
   static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
-    return { hasError: true, error };
+    const resonanceId = (error as any)?.resonanceId || null;
+    return { hasError: true, error, resonanceId };
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
@@ -110,6 +113,7 @@ export class ErrorBoundary extends React.Component<
       error: null,
       errorInfo: null,
       errorId: null,
+      resonanceId: null,
     });
     this.props.onReset?.();
   }
@@ -132,6 +136,7 @@ export class ErrorBoundary extends React.Component<
       error: this.state.error,
       errorInfo: this.state.errorInfo,
       errorId: this.state.errorId,
+      resonanceId: this.state.resonanceId,
       onReset: this.handleReset,
       showHomeButton:
         this.props.showHomeButton ?? this.props.variant !== "inline",
