@@ -1,19 +1,15 @@
 /**
- * Frontend Analytics Service
+ * Frontend Analytics Service — ECO-R-32
  *
- * Client-side service for interacting with the Advanced Analytics & AI Dashboard API.
- * Provides methods for:
- * - Dashboard data retrieval
- * - Real-time metrics and event tracking
- * - Predictive analytics and AI insights
- * - User behavior analytics
- * - Performance monitoring
- * - Security analytics
- * - Data export functionality
- * - WebSocket connections for real-time updates
+ * Refactored to extend BaseService, using the canonical ApiClient (Axios)
+ * pipeline for all HTTP calls. Auth token injection, retry logic, and
+ * error telemetry are delegated to ApiClient / AuthInterceptor / BaseService.
+ *
+ * WebSocket management is kept inline (BaseService has no WS abstraction).
  */
 
-import { getApiBaseUrl } from "../api/config/apiConfig.js";
+import { BaseService } from "../api/services/BaseService";
+import { ApiClient, getApiClient } from "../api/core/ApiClient";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -54,174 +50,88 @@ interface InteractionContext {
   element: string;
   action: string;
   details: Record<string, unknown>;
-  pageUrl?: string | boolean;
+  pageUrl?: string;
   timestamp: string;
 }
 
-interface ApiErrorResponse {
-  status: number;
-  data: { message?: string; [key: string]: unknown };
-}
-
-/** Typed API error that carries an optional HTTP response body */
-class ApiError extends Error {
-  response?: ApiErrorResponse;
-  request?: unknown;
-
-  constructor(message: string, response?: ApiErrorResponse) {
-    super(message);
-    this.name = "ApiError";
-    if (response) this.response = response;
-  }
-}
-
 // ---------------------------------------------------------------------------
-// Service
+// Service Class
 // ---------------------------------------------------------------------------
 
-const API_BASE_URL = getApiBaseUrl() as string;
-
-class AnalyticsService {
-  private readonly baseUrl = "/analytics";
+export class AnalyticsService extends BaseService {
   private websocket: WebSocket | null = null;
   private isConnected = false;
   private retryCount = 0;
   private readonly maxRetries = 3;
   private readonly retryDelay = 1_000;
 
-  // ---------------------------------------------------------------------------
-  // Private HTTP helper
-  // ---------------------------------------------------------------------------
-
-  private async _request(
-    endpoint: string,
-    options: RequestInit = {},
-  ): Promise<{ data: unknown }> {
-    const token = this.getAuthToken();
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-      ...(options.headers as Record<string, string>),
-    };
-    if (token) headers["Authorization"] = `Bearer ${token}`;
-
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      ...options,
-      headers,
-    });
-    if (!response.ok) {
-      const errorData = (await response.json().catch(() => ({}))) as {
-        message?: string;
-      };
-      const err = new ApiError(errorData.message ?? response.statusText, {
-        status: response.status,
-        data: errorData,
-      });
-      throw err;
-    }
-    const data = await response.json();
-    return { data };
+  constructor(client: ApiClient) {
+    super(client, "/analytics", "AnalyticsService");
   }
 
   // ---------------------------------------------------------------------------
-  // Data retrieval methods
+  // Data retrieval
   // ---------------------------------------------------------------------------
 
   async getDashboard(options: AnalyticsOptions = {}): Promise<unknown> {
-    try {
-      const { timeframe = "24h", userId, applicationId } = options;
-      const params = new URLSearchParams({ timeframe });
-      if (userId) params.append("userId", userId);
-      if (applicationId) params.append("applicationId", applicationId);
-      const response = await this._request(
-        `${this.baseUrl}/dashboard?${params}`,
-      );
-      return response.data;
-    } catch (error) {
-      throw this.handleError(error);
-    }
+    const { timeframe = "24h", userId, applicationId } = options;
+    const params = new URLSearchParams({ timeframe });
+    if (userId) params.append("userId", userId);
+    if (applicationId) params.append("applicationId", applicationId);
+    return this.get<unknown>(`/dashboard?${params}`, { cache: false });
   }
 
   async getUserBehaviorAnalytics(
     options: AnalyticsOptions = {},
   ): Promise<unknown> {
-    try {
-      const { timeframe = "24h", userId, applicationId } = options;
-      const params = new URLSearchParams({ timeframe });
-      if (userId) params.append("userId", userId);
-      if (applicationId) params.append("applicationId", applicationId);
-      const response = await this._request(
-        `${this.baseUrl}/user-behavior?${params}`,
-      );
-      return response.data;
-    } catch (error) {
-      throw this.handleError(error);
-    }
+    const { timeframe = "24h", userId, applicationId } = options;
+    const params = new URLSearchParams({ timeframe });
+    if (userId) params.append("userId", userId);
+    if (applicationId) params.append("applicationId", applicationId);
+    return this.get<unknown>(`/user-behavior?${params}`, { cache: false });
   }
 
   async getPerformanceAnalytics(
     options: AnalyticsOptions = {},
   ): Promise<unknown> {
-    try {
-      const { timeframe = "24h", applicationId } = options;
-      const params = new URLSearchParams({ timeframe });
-      if (applicationId) params.append("applicationId", applicationId);
-      const response = await this._request(
-        `${this.baseUrl}/performance/metrics?${params}`,
-      );
-      return response.data;
-    } catch (error) {
-      throw this.handleError(error);
-    }
+    const { timeframe = "24h", applicationId } = options;
+    const params = new URLSearchParams({ timeframe });
+    if (applicationId) params.append("applicationId", applicationId);
+    return this.get<unknown>(`/performance/metrics?${params}`, {
+      cache: false,
+    });
   }
 
   async getMembershipGrowth(
     churchId: string,
     timeframe = "year",
   ): Promise<unknown> {
-    try {
-      const response = await this._request(
-        `/church/${churchId}/dashboard/membership-growth?period=${timeframe}`,
-      );
-      return response.data;
-    } catch (error) {
-      throw this.handleError(error);
-    }
+    // This route lives in the church domain, outside the /analytics base.
+    // Call the ApiClient directly to avoid the /analytics prefix being prepended.
+    const response = await this.client.get<unknown>(
+      `/church/${churchId}/dashboard/membership-growth?period=${timeframe}`,
+      { cache: false },
+    );
+    return this.transformResponse(response);
   }
 
   async getSecurityAnalytics(options: AnalyticsOptions = {}): Promise<unknown> {
-    try {
-      const { timeframe = "24h", applicationId } = options;
-      const params = new URLSearchParams({ timeframe });
-      if (applicationId) params.append("applicationId", applicationId);
-      const response = await this._request(
-        `${this.baseUrl}/security?${params}`,
-      );
-      return response.data;
-    } catch (error) {
-      throw this.handleError(error);
-    }
+    const { timeframe = "24h", applicationId } = options;
+    const params = new URLSearchParams({ timeframe });
+    if (applicationId) params.append("applicationId", applicationId);
+    return this.get<unknown>(`/security?${params}`, { cache: false });
   }
 
   async getRealTimeMetrics(): Promise<unknown> {
-    try {
-      const response = await this._request(`${this.baseUrl}/real-time/metrics`);
-      return response.data;
-    } catch (error) {
-      throw this.handleError(error);
-    }
+    return this.get<unknown>("/real-time/metrics", { cache: false });
   }
 
   async getActiveAlerts(): Promise<unknown> {
-    try {
-      const response = await this._request(`${this.baseUrl}/real-time/alerts`);
-      return response.data;
-    } catch (error) {
-      throw this.handleError(error);
-    }
+    return this.get<unknown>("/real-time/alerts", { cache: false });
   }
 
   // ---------------------------------------------------------------------------
-  // Tracking methods
+  // Tracking (fire-and-forget — must never throw to callers)
   // ---------------------------------------------------------------------------
 
   async trackUserBehavior(
@@ -230,25 +140,18 @@ class AnalyticsService {
     eventData: Record<string, unknown> = {},
   ): Promise<unknown | null> {
     try {
-      const response = await this._request(
-        `${this.baseUrl}/track/user-behavior`,
-        {
-          method: "POST",
-          body: JSON.stringify({
-            userId,
-            eventType,
-            eventData: {
-              ...eventData,
-              timestamp: new Date().toISOString(),
-              sessionId: this.getSessionId(),
-              applicationId: this.getApplicationId(),
-            },
-          }),
+      return await this.post<unknown>("/track/user-behavior", {
+        userId,
+        eventType,
+        eventData: {
+          ...eventData,
+          timestamp: new Date().toISOString(),
+          sessionId: this.getSessionId(),
+          applicationId: this.getApplicationId(),
         },
-      );
-      return response.data;
+      });
     } catch {
-      // Don't throw — tracking must never disrupt user experience
+      // Tracking must never disrupt user experience
       return null;
     }
   }
@@ -277,27 +180,20 @@ class AnalyticsService {
         console.debug("[Analytics] Skipped in dev:", {
           metricType,
           value,
-          context: context.pageUrl,
+          context: context["pageUrl"],
         });
         return null;
       }
 
-      const response = await this._request(
-        `${this.baseUrl}/track/performance`,
-        {
-          method: "POST",
-          body: JSON.stringify({
-            metricType,
-            value,
-            context: {
-              ...context,
-              timestamp: new Date().toISOString(),
-              applicationId: this.getApplicationId(),
-            },
-          }),
+      return await this.post<unknown>("/track/performance", {
+        metricType,
+        value,
+        context: {
+          ...context,
+          timestamp: new Date().toISOString(),
+          applicationId: this.getApplicationId(),
         },
-      );
-      return response.data;
+      });
     } catch (error) {
       if (import.meta.env.DEV)
         console.error("[Analytics] Failed to track performance metric:", error);
@@ -311,110 +207,74 @@ class AnalyticsService {
     details: Record<string, unknown> = {},
   ): Promise<unknown | null> {
     try {
-      const response = await this._request(`${this.baseUrl}/track/security`, {
-        method: "POST",
-        body: JSON.stringify({
-          eventType,
-          severity,
-          details: {
-            ...details,
-            timestamp: new Date().toISOString(),
-            applicationId: this.getApplicationId(),
-          },
-        }),
+      return await this.post<unknown>("/track/security", {
+        eventType,
+        severity,
+        details: {
+          ...details,
+          timestamp: new Date().toISOString(),
+          applicationId: this.getApplicationId(),
+        },
       });
-      return response.data;
     } catch {
       return null;
     }
   }
 
   // ---------------------------------------------------------------------------
-  // AI & insights
+  // AI & Insights
   // ---------------------------------------------------------------------------
 
   async getPredictiveInsights(options: InsightOptions = {}): Promise<unknown> {
-    try {
-      const {
-        type = "userEngagement",
-        timeframe = "7d",
-        parameters = {},
-      } = options;
-      const response = await this._request(`${this.baseUrl}/ai/insights`, {
-        method: "POST",
-        body: JSON.stringify({ type, timeframe, parameters }),
-      });
-      return response.data;
-    } catch (error) {
-      throw this.handleError(error);
-    }
+    const {
+      type = "userEngagement",
+      timeframe = "7d",
+      parameters = {},
+    } = options;
+    return this.post<unknown>("/ai/insights", { type, timeframe, parameters });
   }
 
   async getAIRecommendations(options: AnalyticsOptions = {}): Promise<unknown> {
-    try {
-      const { userId, applicationId } = options;
-      const params = new URLSearchParams();
-      if (userId) params.append("userId", userId);
-      if (applicationId) params.append("applicationId", applicationId);
-      const response = await this._request(
-        `${this.baseUrl}/ai/recommendations?${params}`,
-      );
-      return response.data;
-    } catch (error) {
-      throw this.handleError(error);
-    }
+    const { userId, applicationId } = options;
+    const params = new URLSearchParams();
+    if (userId) params.append("userId", userId);
+    if (applicationId) params.append("applicationId", applicationId);
+    return this.get<unknown>(`/ai/recommendations?${params}`, { cache: false });
   }
 
   async executeCustomQuery(query: Record<string, unknown>): Promise<unknown> {
-    try {
-      const response = await this._request(`${this.baseUrl}/query/custom`, {
-        method: "POST",
-        body: JSON.stringify(query),
-      });
-      return response.data;
-    } catch (error) {
-      throw this.handleError(error);
-    }
+    return this.post<unknown>("/query/custom", query);
   }
 
   async exportData(options: ExportOptions = {}): Promise<unknown> {
-    try {
-      const {
-        format = "json",
-        timeframe = "24h",
-        dataTypes = ["userBehavior", "performance", "security"],
-      } = options;
-
-      const params = new URLSearchParams({
-        format,
-        timeframe,
-        dataTypes: dataTypes.join(","),
+    const {
+      format = "json",
+      timeframe = "24h",
+      dataTypes = ["userBehavior", "performance", "security"],
+    } = options;
+    // Export uses the download utility because the response may be non-JSON.
+    // BaseService.download() returns a Blob; for JSON format the caller may
+    // parse it — this preserves the original fetch-based contract.
+    const params = new URLSearchParams({
+      format,
+      timeframe,
+      dataTypes: dataTypes.join(","),
+    });
+    if (format === "json") {
+      return this.get<unknown>(`/export?${params}`, {
+        cache: false,
+        responseType: "json",
       });
-
-      const response = await fetch(`${this.baseUrl}/export?${params}`, {
-        method: "GET",
-        headers: { Authorization: `Bearer ${this.getAuthToken()}` },
-      });
-
-      if (!response.ok)
-        throw new Error(`Export failed: ${response.statusText}`);
-      return format === "json" ? response.json() : response.text();
-    } catch (error) {
-      throw this.handleError(error);
     }
+    return this.download(`/export?${params}`);
   }
 
   async getServiceHealth(): Promise<unknown> {
-    try {
-      const response = await this._request(`${this.baseUrl}/health`);
-      return response.data;
-    } catch (error) {
-      throw this.handleError(error);
-    }
+    return this.get<unknown>("/health", { cache: false });
   }
 
   // ---------------------------------------------------------------------------
-  // WebSocket for real-time streaming
+  // WebSocket for real-time streaming (BaseService has no WS abstraction)
   // ---------------------------------------------------------------------------
 
   connectWebSocket(
@@ -580,79 +440,6 @@ class AnalyticsService {
   }
 
   // ---------------------------------------------------------------------------
-  // Private helpers
-  // ---------------------------------------------------------------------------
-
-  private getCurrentUserId(): string | null {
-    const raw =
-      typeof localStorage !== "undefined" ? localStorage.getItem("user") : null;
-    const user = JSON.parse(raw ?? "{}") as { id?: string };
-    return user.id ?? null;
-  }
-
-  private getSessionId(): string {
-    let sessionId =
-      typeof sessionStorage !== "undefined"
-        ? sessionStorage.getItem("analytics_session_id")
-        : null;
-    if (!sessionId) {
-      sessionId = `session_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
-      if (typeof sessionStorage !== "undefined")
-        sessionStorage.setItem("analytics_session_id", sessionId);
-    }
-    return sessionId;
-  }
-
-  private getApplicationId(): string {
-    const path = typeof window !== "undefined" ? window.location.pathname : "";
-    if (path.includes("/church")) return "church";
-    if (path.includes("/admin")) return "admin";
-    if (path.includes("/business")) return "business";
-    if (path.includes("/personal")) return "personal";
-    if (path.includes("/home")) return "home";
-    if (path.includes("/playback")) return "playback";
-    return "main-website";
-  }
-
-  private getAuthToken(): string {
-    return (
-      (typeof localStorage !== "undefined"
-        ? localStorage.getItem("auth_token")
-        : null) ?? ""
-    );
-  }
-
-  private handleError(error: unknown): Error {
-    if (error instanceof ApiError && error.response) {
-      const { status, data } = error.response;
-      const message: string = data.message ?? error.message;
-      switch (status) {
-        case 400:
-          return new Error(`Bad Request: ${message}`);
-        case 401:
-          return new Error("Unauthorized: Please log in again");
-        case 403:
-          return new Error(
-            "Forbidden: You do not have permission to access this resource",
-          );
-        case 404:
-          return new Error("Not Found: The requested resource was not found");
-        case 429:
-          return new Error("Rate Limit Exceeded: Please try again later");
-        case 500:
-          return new Error("Server Error: Please try again later");
-        default:
-          return new Error(`HTTP ${status}: ${message}`);
-      }
-    } else if (error instanceof ApiError && error.request) {
-      return new Error("Network Error: Please check your internet connection");
-    }
-    return new Error(
-      error instanceof Error ? error.message : "An unexpected error occurred",
-    );
-  }
-
-  // ---------------------------------------------------------------------------
   // Batch tracking
   // ---------------------------------------------------------------------------
 
@@ -660,7 +447,7 @@ class AnalyticsService {
     events: TrackBatchEvent[],
   ): Promise<PromiseSettledResult<unknown>[]> {
     try {
-      const results = await Promise.allSettled(
+      return await Promise.allSettled(
         events.map((event) => {
           switch (event.type) {
             case "user_behavior":
@@ -686,7 +473,6 @@ class AnalyticsService {
           }
         }),
       );
-      return results;
     } catch {
       return [];
     }
@@ -730,16 +516,96 @@ class AnalyticsService {
       });
     }
   }
+
+  // ---------------------------------------------------------------------------
+  // Private helpers
+  // ---------------------------------------------------------------------------
+
+  private getCurrentUserId(): string | null {
+    const raw =
+      typeof localStorage !== "undefined" ? localStorage.getItem("user") : null;
+    const user = JSON.parse(raw ?? "{}") as { id?: string };
+    return user.id ?? null;
+  }
+
+  private getSessionId(): string {
+    let sessionId =
+      typeof sessionStorage !== "undefined"
+        ? sessionStorage.getItem("analytics_session_id")
+        : null;
+    if (!sessionId) {
+      sessionId = `session_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
+      if (typeof sessionStorage !== "undefined")
+        sessionStorage.setItem("analytics_session_id", sessionId);
+    }
+    return sessionId;
+  }
+
+  private getApplicationId(): string {
+    const path = typeof window !== "undefined" ? window.location.pathname : "";
+    if (path.includes("/church")) return "church";
+    if (path.includes("/admin")) return "admin";
+    if (path.includes("/business")) return "business";
+    if (path.includes("/personal")) return "personal";
+    if (path.includes("/home")) return "home";
+    if (path.includes("/playback")) return "playback";
+    return "main-website";
+  }
 }
 
 // ---------------------------------------------------------------------------
-// Singleton
+// Lazy singleton — initialized with the default ApiClient on first access.
+// Pattern mirrors ArtNetBridgeService to avoid circular import issues.
+// NOTE: We intentionally do NOT use a Proxy here — the TSC flow analysis
+// hits a stack overflow on Proxy<AnalyticsService> due to recursive inference.
 // ---------------------------------------------------------------------------
 
-export const analyticsService = new AnalyticsService();
+let _instance: AnalyticsService | null = null;
 
-if (typeof window !== "undefined") {
-  analyticsService.initializeAutoTracking();
+/**
+ * Initialise the analytics singleton with a specific ApiClient.
+ * Call this once from the service bootstrap (e.g. where ApiClient is created).
+ */
+export function initAnalyticsService(client: ApiClient): void {
+  _instance = new AnalyticsService(client);
+  if (typeof window !== "undefined") {
+    _instance.initializeAutoTracking();
+  }
 }
+
+function getInstance(): AnalyticsService {
+  if (!_instance) {
+    _instance = new AnalyticsService(getApiClient());
+    if (typeof window !== "undefined") {
+      _instance.initializeAutoTracking();
+    }
+  }
+  return _instance;
+}
+
+/**
+ * Singleton accessor — lazily initializes on first call.
+ * Drop-in replacement for the previous export; all consumers are unaffected.
+ */
+export function getAnalyticsService(): AnalyticsService {
+  return getInstance();
+}
+
+/**
+ * Named singleton export preserved for backwards-compat with all existing
+ * import sites: `import { analyticsService } from "@shared/services"`.
+ *
+ * This is initialized eagerly here (module-load time) so consumers that
+ * destructure methods from the import can call them without a factory call.
+ * The ApiClient must be initialized before this module is first imported.
+ */
+// eslint-disable-next-line prefer-const
+export const analyticsService = new Proxy({} as AnalyticsService, {
+  get(_target, prop, receiver) {
+    const instance = getInstance();
+    const value = Reflect.get(instance, prop, receiver);
+    return typeof value === "function" ? value.bind(instance) : value;
+  },
+}) as AnalyticsService;
 
 export default analyticsService;

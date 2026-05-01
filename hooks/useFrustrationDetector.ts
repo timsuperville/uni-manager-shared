@@ -43,7 +43,7 @@ export interface FrustrationContext {
   windowMs?: number;
   // api-failure extras
   apiFailureCount?: number;
-  errorObject?: any;
+  errorObject?: unknown;
   mutationName?: string;
 }
 

@@ -305,8 +305,11 @@ class DataExportService {
       exportColumns.map((col) => String(this.getNestedValue(item, col) ?? "")),
     );
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (doc as any).autoTable({
+    (
+      doc as unknown as {
+        autoTable: (options: Record<string, unknown>) => void;
+      }
+    ).autoTable({
       head: [exportColumns],
       body: tableData,
       startY: yOffset,

@@ -12,7 +12,7 @@ import type { MemoryRouterProps } from "react-router-dom";
 
 interface CreateMemoryRouterProps extends MemoryRouterProps {
   children: React.ReactNode;
-  future?: any;
+  future?: Record<string, unknown>;
 }
 
 interface RouterTestWrapperProps {
@@ -22,14 +22,14 @@ interface RouterTestWrapperProps {
 
 interface MemoryRouterV7Props extends MemoryRouterProps {
   children: React.ReactNode;
-  future?: any;
+  future?: Record<string, unknown>;
 }
 
 // ---------------------------------------------------------------------------
 // Default future flags for React Router v7 compatibility
 // ---------------------------------------------------------------------------
 
-export const routerFutureFlags: any = {
+export const routerFutureFlags: Record<string, boolean> = {
   v7_startTransition: true,
   v7_relativeSplatPath: true,
 };
@@ -46,11 +46,16 @@ export const createMemoryRouter = ({
   future = {},
   ...props
 }: CreateMemoryRouterProps): React.ReactElement => {
-  const RouterAny = MemoryRouter as any;
+  const RouterV7 = MemoryRouter as React.FC<
+    MemoryRouterProps & {
+      future?: Record<string, unknown>;
+      children?: React.ReactNode;
+    }
+  >;
   return (
-    <RouterAny future={{ ...routerFutureFlags, ...future }} {...props}>
+    <RouterV7 future={{ ...routerFutureFlags, ...future }} {...props}>
       {children}
-    </RouterAny>
+    </RouterV7>
   );
 };
 
@@ -71,10 +76,15 @@ export const MemoryRouterV7: React.FC<MemoryRouterV7Props> = ({
   future = {},
   ...props
 }) => {
-  const RouterAny = MemoryRouter as any;
+  const RouterV7 = MemoryRouter as React.FC<
+    MemoryRouterProps & {
+      future?: Record<string, unknown>;
+      children?: React.ReactNode;
+    }
+  >;
   return (
-    <RouterAny future={{ ...routerFutureFlags, ...future }} {...props}>
+    <RouterV7 future={{ ...routerFutureFlags, ...future }} {...props}>
       {children}
-    </RouterAny>
+    </RouterV7>
   );
 };

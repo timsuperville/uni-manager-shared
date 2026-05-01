@@ -15,13 +15,23 @@ export interface SelectOptionGroup {
 
 export type SelectItemType = SelectOption | SelectOptionGroup;
 
+export interface SelectChangeEvent {
+  target: { name: string; value: string };
+  currentTarget: { name: string; value: string };
+  preventDefault: () => void;
+  stopPropagation: () => void;
+}
+
 export interface SelectProps extends Omit<
   React.SelectHTMLAttributes<HTMLSelectElement>,
   "onChange" | "value" | "size"
 > {
   options?: SelectItemType[];
   value?: string | string[];
-  onChange?: any;
+  onChange?: (
+    e: SelectChangeEvent | React.ChangeEvent<HTMLSelectElement> | string[],
+    val?: string | React.ChangeEvent<HTMLSelectElement>,
+  ) => void;
   placeholder?: string;
   label?: string;
   helperText?: string;
@@ -41,11 +51,15 @@ export interface SelectProps extends Omit<
 const EMPTY_VALUE = "__empty_value__";
 
 const extractStringValue = (label: ReactNode): ReactNode => {
-  if (label && typeof label === "object" && !React.isValidElement(label)) {
-    if ("label" in label && typeof (label as any).label === "string")
-      return (label as any).label;
-    if ("value" in label && typeof (label as any).value === "string")
-      return (label as any).value;
+  if (
+    label &&
+    typeof label === "object" &&
+    !React.isValidElement(label) &&
+    !Array.isArray(label)
+  ) {
+    const obj = label as unknown as Record<string, unknown>;
+    if ("label" in obj && typeof obj.label === "string") return obj.label;
+    if ("value" in obj && typeof obj.value === "string") return obj.value;
     return JSON.stringify(label);
   }
   return label;
@@ -86,20 +100,25 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
     const parsedOptions: SelectItemType[] = options ? [...options] : [];
     if (!options && children) {
       React.Children.forEach(children, (child) => {
-        if (!React.isValidElement<any>(child)) return;
+        if (!React.isValidElement(child)) return;
 
         // Handle <optgroup>
         if (child.type === "optgroup") {
           const groupOptions: SelectOption[] = [];
           React.Children.forEach(child.props.children, (groupChild) => {
             if (
-              React.isValidElement<any>(groupChild) &&
+              React.isValidElement(groupChild) &&
               groupChild.type === "option"
             ) {
+              const element = groupChild as React.ReactElement<{
+                value?: string;
+                disabled?: boolean;
+                children?: ReactNode;
+              }>;
               groupOptions.push({
-                value: groupChild.props.value as string,
-                label: groupChild.props.children,
-                disabled: groupChild.props.disabled,
+                value: element.props.value as string,
+                label: element.props.children,
+                disabled: element.props.disabled,
               });
             }
           });
@@ -112,10 +131,15 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
         }
         // Handle <option>
         else if (child.type === "option") {
+          const element = child as React.ReactElement<{
+            value?: string;
+            disabled?: boolean;
+            children?: ReactNode;
+          }>;
           parsedOptions.push({
-            value: child.props.value as string,
-            label: child.props.children,
-            disabled: child.props.disabled,
+            value: element.props.value as string,
+            label: element.props.children,
+            disabled: element.props.disabled,
           });
         }
       });

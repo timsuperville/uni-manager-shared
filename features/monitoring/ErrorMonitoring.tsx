@@ -60,9 +60,31 @@ const getRecentUserActivity = () => {
 // We use `browserContext` for the browser-environment object instead.
 //
 // All property accesses are typeof-guarded for SSR/jsdom/Worker safety.
-export const collectAdvancedErrorContext = (baseError: any): any => {
-  const p = typeof performance !== "undefined" ? (performance as any) : null;
-  const n = typeof navigator !== "undefined" ? (navigator as any) : null;
+interface ExtendedPerformance extends Performance {
+  memory?: {
+    usedJSHeapSize: number;
+    totalJSHeapSize: number;
+    jsHeapSizeLimit: number;
+  };
+}
+
+interface ExtendedNavigator extends Navigator {
+  connection?: {
+    effectiveType: string;
+    downlink: number;
+    rtt: number;
+  };
+}
+
+export const collectAdvancedErrorContext = (
+  baseError: Record<string, unknown>,
+): Record<string, unknown> => {
+  const p =
+    typeof performance !== "undefined"
+      ? (performance as ExtendedPerformance)
+      : null;
+  const n =
+    typeof navigator !== "undefined" ? (navigator as ExtendedNavigator) : null;
   const w = typeof window !== "undefined" ? window : null;
   const s = typeof screen !== "undefined" ? screen : null;
   const d = typeof document !== "undefined" ? document : null;
@@ -74,7 +96,7 @@ export const collectAdvancedErrorContext = (baseError: any): any => {
     // Do NOT spread these at the top level — the backend service destructures
     // only known schema keys; anything extra at root is silently dropped.
     meta: {
-      ...(baseError.meta || {}),
+      ...(baseError.meta ? (baseError.meta as Record<string, unknown>) : {}),
 
       performanceInfo: {
         memory: p?.memory
@@ -157,7 +179,23 @@ const trunc = (str: string, max: number): string => {
   return str.slice(0, max - 1) + "\u2026"; // … (1 char)
 };
 
-const buildGlobalFeedbackPayload = (errorData: any): any => {
+interface GlobalErrorData {
+  type?: string;
+  message?: string;
+  url?: string;
+  timestamp?: string | number;
+  filename?: string;
+  lineno?: number;
+  colno?: number;
+  stack?: string;
+  name?: string;
+  appType?: string;
+  errorId?: string;
+}
+
+const buildGlobalFeedbackPayload = (
+  errorData: GlobalErrorData,
+): Record<string, unknown> => {
   const rawTitle = `Global Error: ${errorData.message || "Unknown error"}`;
   const rawStack = errorData.stack || "No stack trace available";
 
@@ -405,8 +443,12 @@ export const installFetchInterceptor = () => {
     (import.meta.env && import.meta.env.VITE_APP_TYPE) || "unknown";
   const env = normaliseEnvironment(import.meta.env?.MODE);
 
-  window.fetch = async function interceptedFetch(...args: any[]) {
-    const url = typeof args[0] === "string" ? args[0] : (args[0]?.url ?? "");
+  window.fetch = async function interceptedFetch(
+    ...args: Parameters<typeof fetch>
+  ) {
+    const arg = args[0];
+    const url =
+      typeof arg === "string" ? arg : "url" in arg ? arg.url : arg.href || "";
     // Monitoring + health endpoints excluded to prevent feedback loops.
     // /health failures are owned exclusively by setupHealthCheck (which applies
     // grace periods and consecutive-failure thresholds before logging).
@@ -496,7 +538,7 @@ export const setupOfflineFlush = () => {
 };
 
 // ── Performance monitoring ────────────────────────────────────────────────────
-const sendToAnalytics = (metric: any) => {
+const sendToAnalytics = (metric: unknown) => {
   // NOTE: No backend ingest endpoint exists for web-vitals —
   //       metrics are retained in-memory and logged DEV-only (Rule 9.8/§451).
   // This suppresses the 404 (Not Found) errors in production.
@@ -606,8 +648,8 @@ export const setupHealthCheck = () => {
         appType,
         environment: env,
         timestamp: new Date().toISOString(),
-        url: window.location.href,
-        path: window.location.pathname,
+        url: typeof window !== "undefined" ? window.location.href : "",
+        path: typeof window !== "undefined" ? window.location.pathname : "",
         meta: { statusCode, reason, consecutiveFailures },
       }),
     }).catch(() => {
@@ -667,14 +709,20 @@ export const initializeMonitoring = () => {
 //     { QueryClient, QueryCache, MutationCache },
 //     { appType: "church", defaultOptions: { queries: { staleTime: 5 * 60_000 } } }
 //   );
+interface ReactQueryExports {
+  QueryClient: new (config: any) => any;
+  QueryCache: new (config: any) => any;
+  MutationCache: new (config: any) => any;
+}
+
 export const createMonitoredQueryClient = (
-  reactQuery: any,
-  options: Record<string, any> = {},
-) => {
+  reactQuery: ReactQueryExports,
+  options: any = {},
+): any => {
   const { QueryClient, QueryCache, MutationCache } = reactQuery;
 
   const appType =
-    options.appType ||
+    (options.appType as string) ||
     (import.meta.env && import.meta.env.VITE_APP_TYPE) ||
     "unknown";
   const env =
@@ -682,7 +730,11 @@ export const createMonitoredQueryClient = (
       ? "development"
       : "production";
 
-  const reportQueryError = (error: any, context: any) => {
+  const reportQueryError = (
+    error: unknown,
+    context: Record<string, unknown>,
+  ) => {
+    const err = error as Error;
     const token = getAuthToken(appType);
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
@@ -693,8 +745,8 @@ export const createMonitoredQueryClient = (
       method: "POST",
       headers,
       body: JSON.stringify({
-        message: error?.message || "Unknown query error",
-        stack: error?.stack || "",
+        message: err?.message || "Unknown query error",
+        stack: err?.stack || "",
         severity: "high",
         category: "data-layer",
         appType,
@@ -705,7 +757,7 @@ export const createMonitoredQueryClient = (
         meta: {
           queryKey: context?.queryKey || null,
           mutationKey: context?.mutationKey || null,
-          errorName: error?.name || "Error",
+          errorName: err?.name || "Error",
         },
       }),
     }).catch(() => {
@@ -718,11 +770,16 @@ export const createMonitoredQueryClient = (
 
   return new QueryClient({
     queryCache: new QueryCache({
-      onError: (error: any, query: any) =>
+      onError: (error: unknown, query: { queryKey: unknown }) =>
         reportQueryError(error, { queryKey: query.queryKey }),
     }),
     mutationCache: new MutationCache({
-      onError: (error: any, _vars: any, _ctx: any, mutation: any) =>
+      onError: (
+        error: unknown,
+        _vars: unknown,
+        _ctx: unknown,
+        mutation: { options: { mutationKey: unknown } },
+      ) =>
         reportQueryError(error, { mutationKey: mutation.options.mutationKey }),
     }),
     ...userOptions,
