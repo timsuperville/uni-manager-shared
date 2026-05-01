@@ -27,6 +27,27 @@ export interface AuthUser {
   appType: AppType;
 }
 
+export type CahaRole =
+  | "tier_8_sovereign"
+  | "tier_7_architect"
+  | "tier_6_apostolic"
+  | "tier_5_pastoral"
+  | "tier_4_elder_deacon"
+  | "tier_3_ministry_leader"
+  | "tier_2_volunteer"
+  | "tier_1_member";
+
+export const CAHA_TIER: Record<CahaRole, number> = {
+  tier_8_sovereign: 8,
+  tier_7_architect: 7,
+  tier_6_apostolic: 6,
+  tier_5_pastoral: 5,
+  tier_4_elder_deacon: 4,
+  tier_3_ministry_leader: 3,
+  tier_2_volunteer: 2,
+  tier_1_member: 1,
+};
+
 export interface AuthTokens {
   accessToken: string;
   refreshToken?: string;

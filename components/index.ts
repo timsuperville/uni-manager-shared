@@ -12,6 +12,7 @@ export { withErrorBoundary } from "./error-boundary";
 export { flushPendingErrorReports } from "./error-boundary";
 // GlobalErrorBoundary merged into ErrorBoundary (variant="full-screen" is now default)
 export { ApiProvider, useApi } from "./ApiProvider";
+export { BioAdaptiveWrapper } from "./wrappers/BioAdaptiveWrapper";
 
 // ── Feedback / Notifications ──────────────────────────────────────────────────
 export { default as Toast } from "./Toast";

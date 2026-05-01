@@ -24,6 +24,12 @@ export type {
   ApiResponse,
 } from "./core/ApiClient";
 
+export {
+  SovereignApiGuard,
+  isShutdownLocked,
+  setShutdownLocked,
+} from "./core/SovereignApiGuard";
+
 export { ErrorHandler, ApiErrorType } from "./core/ErrorHandler";
 export type { ApiError, ErrorContext } from "./core/ErrorHandler";
 

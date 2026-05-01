@@ -50,6 +50,7 @@ import axios, {
 import { ErrorHandler } from "./ErrorHandler";
 import { CacheManager, CacheStats } from "./CacheManager";
 import { AuthInterceptor, AuthInterceptorConfig } from "./AuthInterceptor";
+import { SovereignApiGuard } from "./SovereignApiGuard";
 
 export interface ApiClientConfig {
   baseURL: string;
@@ -136,6 +137,12 @@ export class ApiClient {
     // Request interceptors
     this.axios.interceptors.request.use(
       (config) => {
+        // Evaluate Sovereign Shutdown Boundary
+        if (SovereignApiGuard.shouldBlockRequest(config)) {
+          // Reject with a specific cancellation message so the error handler knows it was the firewall
+          return Promise.reject(new axios.Cancel("SOVEREIGN_SHUTDOWN_LOCKED"));
+        }
+
         // Add authentication if enabled
         if (this.config.authEnabled) {
           config = this.authInterceptor.onRequest(config);
