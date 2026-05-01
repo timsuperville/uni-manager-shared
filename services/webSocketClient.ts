@@ -23,7 +23,7 @@ export interface WsStatusResult {
   queuedMessages: number;
 }
 
-type WsEventHandler = (data?: unknown) => void;
+type WsEventHandler = (data?: any) => void;
 
 interface QueuedMessage {
   event: string;

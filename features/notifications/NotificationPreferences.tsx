@@ -437,7 +437,7 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                       </label>
                       <Select
                         value={settings.frequency}
-                        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                        onChange={(e: any) => {
                           const frequency = e.target.value;
                           updateNestedPreference(
                             "channels",
@@ -489,7 +489,7 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                   </label>
                   <Select
                     value={settings.priority}
-                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                    onChange={(e: any) => {
                       const priority = e.target.value;
                       updateNestedPreference(
                         "types",
@@ -733,7 +733,7 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                     </label>
                     <Select
                       value={localPreferences.interface.soundTheme}
-                      onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                      onChange={(e: any) => {
                         const soundTheme = e.target.value;
                         updateLocalPreference(
                           "interface",
@@ -853,7 +853,7 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                 </label>
                 <Select
                   value={localPreferences.advanced.language}
-                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                  onChange={(e: any) => {
                     const language = e.target.value;
                     updateLocalPreference("advanced", "language", language);
                   }}
@@ -893,7 +893,7 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
               </label>
               <Select
                 value={localPreferences.advanced.emailTemplate}
-                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                onChange={(e: any) => {
                   const emailTemplate = e.target.value;
                   updateLocalPreference(
                     "advanced",

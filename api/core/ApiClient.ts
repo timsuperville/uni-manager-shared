@@ -48,7 +48,6 @@ import axios, {
   RawAxiosRequestHeaders,
 } from "axios";
 import { ErrorHandler } from "./ErrorHandler";
-import { CacheManager, CacheStats } from "./CacheManager";
 import { AuthInterceptor, AuthInterceptorConfig } from "./AuthInterceptor";
 import { SovereignApiGuard } from "./SovereignApiGuard";
 
@@ -96,7 +95,6 @@ export interface ApiResponse<T = unknown> {
 export class ApiClient {
   private axios!: AxiosInstance;
   private errorHandler: ErrorHandler;
-  private cacheManager: CacheManager;
   private authInterceptor: AuthInterceptor;
   private config: ApiClientConfig;
 
@@ -104,14 +102,12 @@ export class ApiClient {
     this.config = {
       timeout: 10000,
       retryAttempts: 3,
-      cacheEnabled: true,
       authEnabled: true,
       ...config,
     };
 
     this.setupAxiosInstance();
     this.errorHandler = new ErrorHandler(this.config.retryAttempts || 3);
-    this.cacheManager = new CacheManager();
     this.authInterceptor = new AuthInterceptor(this.config.authConfig);
 
     this.setupInterceptors();
@@ -209,20 +205,6 @@ export class ApiClient {
       ...(options.silent !== undefined ? { silent: options.silent } : {}),
     } as AxiosRequestConfig; // cast since silent is custom
 
-    // Check cache for GET requests
-    if (
-      method === "GET" &&
-      options.cache !== false &&
-      this.config.cacheEnabled
-    ) {
-      const cacheKey = this.cacheManager.generateKey(endpoint, data);
-      const cachedResponse = this.cacheManager.get<ApiResponse<T>>(cacheKey);
-
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-    }
-
     try {
       const response: AxiosResponse<T> =
         await this.axios.request(requestConfig);
@@ -235,17 +217,6 @@ export class ApiClient {
         message: response.headers["x-response-message"],
         timestamp: response.headers["x-response-timestamp"],
       };
-
-      // Cache GET responses if caching is enabled
-      if (
-        method === "GET" &&
-        options.cache !== false &&
-        this.config.cacheEnabled
-      ) {
-        const cacheKey = this.cacheManager.generateKey(endpoint, data);
-        const cacheTTL = options.cacheTTL || 300000; // 5 minutes default
-        this.cacheManager.set(cacheKey, apiResponse, cacheTTL);
-      }
 
       return apiResponse;
     } catch (_error) {
@@ -354,17 +325,17 @@ export class ApiClient {
   }
 
   /**
-   * Clear cache
+   * Clear cache (Legacy no-op)
    */
   clearCache(pattern?: string): void {
-    this.cacheManager.clear(pattern);
+    // No-op: caching is now handled by TanStack Query
   }
 
   /**
-   * Get cache statistics
+   * Get cache statistics (Legacy no-op)
    */
-  getCacheStats(): CacheStats {
-    return this.cacheManager.getStats();
+  getCacheStats(): any {
+    return { hits: 0, misses: 0, keys: 0, size: 0 };
   }
 
   /**

@@ -1,0 +1,12 @@
+{
+  "common": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "dashboard": "Panel",
+    "settings": "Configuración",
+    "loading": "Cargando...",
+    "error": "Ocurrió un error."
+  }
+}

@@ -205,10 +205,10 @@ const buildGlobalFeedbackPayload = (
 
   const description = trunc(
     `**Automatic Global Error Report**\n\n` +
-      `**Error Type:** ${errorData.type}\n` +
-      `**Message:** ${trunc(errorData.message, 200)}\n` +
-      `**Location:** ${errorData.url}\n` +
-      `**Time:** ${new Date(errorData.timestamp).toLocaleString()}\n\n` +
+      `**Error Type:** ${errorData.type || "Unknown"}\n` +
+      `**Message:** ${trunc(errorData.message || "Unknown error", 200)}\n` +
+      `**Location:** ${errorData.url || "Unknown"}\n` +
+      `**Time:** ${errorData.timestamp ? new Date(errorData.timestamp).toLocaleString() : new Date().toLocaleString()}\n\n` +
       `**Technical Details:**\n` +
       `- File: ${errorData.filename || "Unknown"}\n` +
       `- Line: ${errorData.lineno || "Unknown"}\n` +

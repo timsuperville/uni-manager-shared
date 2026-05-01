@@ -246,7 +246,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
             <SelectPrimitive.Trigger
               id={props.id || name}
               className={`flex items-center justify-between w-full px-3 py-2 text-sm bg-transparent border rounded-md shadow-sm outline-none transition-colors 
-                ${isError ? "border-red-500 text-red-500 hover:border-red-600" : "border-[var(--glass-outline)] text-[var(--text-primary)] hover:border-[var(--glass-border-hover,rgba(255,255,255,0.2))]"}
+                ${isError ? "border-red-500 text-red-500 hover:border-red-600" : "border-[var(--glass-outline)] text-[var(--text-primary)] hover:border-[var(--glass-outline-active)]"}
                 focus:ring-2 focus:ring-[var(--primary-resonance)] disabled:cursor-not-allowed disabled:opacity-50`}
             >
               <div className="flex-1 min-w-0 flex items-center justify-start text-left pr-2">
@@ -266,7 +266,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
 
             <SelectPrimitive.Portal>
               <SelectPrimitive.Content
-                className="z-[9999] min-w-32 overflow-hidden rounded-md border border-[var(--glass-outline,rgba(255,255,255,0.1))] bg-[var(--glass-surface-solid,#1c1c1e)] shadow-md animate-in fade-in-80 zoom-in-95"
+                className="z-[9999] min-w-32 overflow-hidden rounded-md border border-[var(--glass-outline)] bg-[var(--surface-primary)] shadow-md animate-in fade-in-80 zoom-in-95"
                 position="popper"
                 sideOffset={4}
               >

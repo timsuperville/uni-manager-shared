@@ -4,19 +4,11 @@
  *
  * NOTE: useCachedUserPreferences, useCachedMinistryContext, useCachedSeasonalContext,
  * useCachedActivityContext and useCachedDashboardState each wrap their corresponding
- * context hooks + the IntelligentCache layer. The underlying context hooks are
- * currently lightweight stubs; the cache layer is ready for when they expose richer
- * server-synced data.
- *
- * Bug fixes applied during TS migration:
- *  1. cache.delete() → cache.clearByTag() (IntelligentCache has no .delete())
- *  2. throw error → throw _error (variable was shadowed, original threw ReferenceError)
+ * context hooks. Migrated from IntelligentCache to TanStack Query (ECO-R-10).
  */
 
-import { useCallback, useMemo } from "react";
-import { useCacheManager } from "../utils/intelligentCache.ts";
-import type { IntelligentCache } from "../utils/intelligentCache.ts";
-type CacheEntryOptions = any;
+import { useCallback } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useUserPreferences } from "./useUserPreferences.ts";
 import { useMinistryContext } from "./useMinistryContext.ts";
 import { useSeasonalContext } from "./useSeasonalContext.ts";
@@ -103,86 +95,43 @@ interface RecommendationItem {
 }
 
 // ---------------------------------------------------------------------------
-// Helper: invalidate entries by tag prefix when .delete() is unavailable
-// ---------------------------------------------------------------------------
-
-function evictCacheKey(cache: IntelligentCache, cacheKey: string): void {
-  // IntelligentCache exposes clearByTag() but not delete(key). We use tag-based
-  // eviction — all entries set via setCached* are tagged with the cacheKey.
-  cache.clearByTag(cacheKey);
-}
-
-// ---------------------------------------------------------------------------
 // useCachedUserPreferences
 // ---------------------------------------------------------------------------
 
 export const useCachedUserPreferences = (userId: string) => {
-  const cacheManager = useCacheManager();
+  const queryClient = useQueryClient();
   const originalPrefs = useUserPreferences();
+  const cacheKey = ["user-preferences", userId];
 
-  const cacheKey = `user-preferences-${userId}`;
-  const cache = cacheManager.cacheManager.getCache("userPreferences");
-
-  const getCachedPreferences = useCallback((): VersionedRecord | null => {
-    return (cache?.get(cacheKey) as VersionedRecord | null) ?? null;
-  }, [cache, cacheKey]);
-
-  const setCachedPreferences = useCallback(
-    (preferences: VersionedRecord, options: CacheEntryOptions = {}): void => {
-      cache?.set(cacheKey, preferences, {
-        ttl: 15 * 60 * 1_000,
-        priority: "high",
-        tags: ["user-data", `user-${userId}`, cacheKey],
-        ...options,
-      });
+  const { data: preferences } = useQuery<VersionedRecord>({
+    queryKey: cacheKey,
+    queryFn: async () => {
+      return (originalPrefs.preferences as VersionedRecord) ?? {};
     },
-    [cache, cacheKey, userId],
-  );
+    initialData: (originalPrefs.preferences as VersionedRecord) || undefined,
+    staleTime: 15 * 60 * 1000, // 15 mins TTL
+  });
 
-  const preferences = useMemo((): VersionedRecord | null => {
-    const cached = getCachedPreferences();
-    if (
-      cached &&
-      (cached.version ?? 0) >=
-        ((originalPrefs.preferences.version as number) ?? 0)
-    ) {
-      return cached;
-    }
-    if (originalPrefs)
-      setCachedPreferences(originalPrefs.preferences as VersionedRecord);
-    return originalPrefs.preferences as VersionedRecord;
-  }, [originalPrefs, getCachedPreferences, setCachedPreferences]);
-
-  const updatePreferences = useCallback(
-    async (updates: Record<string, unknown>): Promise<VersionedRecord> => {
-      try {
-        // updatePreferences is not yet exposed by the stub — call when available
-        const newPreferences: VersionedRecord = {
-          ...preferences,
-          ...updates,
-          version: Date.now(),
-          lastUpdated: new Date().toISOString(),
-        };
-        setCachedPreferences(newPreferences);
-        cacheManager.cacheManager.invalidateRelated(
-          "userPreferences",
-          cacheKey,
-        );
-        return newPreferences;
-      } catch (_error) {
-        if (cache) evictCacheKey(cache, cacheKey); // Bug fix: was cache.delete() + throw error
-        throw _error;
-      }
+  const { mutateAsync: updatePreferences } = useMutation({
+    mutationFn: async (updates: Record<string, unknown>) => {
+      const newPreferences: VersionedRecord = {
+        ...(preferences ?? {}),
+        ...updates,
+        version: Date.now(),
+        lastUpdated: new Date().toISOString(),
+      };
+      return newPreferences;
     },
-    [preferences, setCachedPreferences, cacheManager, cache, cacheKey],
-  );
+    onSuccess: (newPreferences) => {
+      queryClient.setQueryData(cacheKey, newPreferences);
+      queryClient.invalidateQueries({ queryKey: ["dashboard-state", userId] });
+    },
+  });
 
   return {
-    ...preferences,
+    ...(preferences ?? {}),
     updatePreferences,
-    clearCache: () => {
-      if (cache) evictCacheKey(cache, cacheKey);
-    },
+    clearCache: () => queryClient.removeQueries({ queryKey: cacheKey }),
   };
 };
 
@@ -191,49 +140,23 @@ export const useCachedUserPreferences = (userId: string) => {
 // ---------------------------------------------------------------------------
 
 export const useCachedMinistryContext = (churchId: string) => {
-  const cacheManager = useCacheManager();
+  const queryClient = useQueryClient();
   const originalContext = useMinistryContext();
+  const cacheKey = ["ministry-context", churchId];
 
-  const cacheKey = `ministry-context-${churchId}`;
-  const cache = cacheManager.cacheManager.getCache("ministryData");
-
-  const getCachedContext = useCallback((): MinistryRecord | null => {
-    return (cache?.get(cacheKey) as MinistryRecord | null) ?? null;
-  }, [cache, cacheKey]);
-
-  const setCachedContext = useCallback(
-    (context: MinistryRecord, options: CacheEntryOptions = {}): void => {
-      cache?.set(cacheKey, context, {
-        ttl: 30 * 60 * 1_000,
-        priority: "normal",
-        tags: ["ministry-data", `church-${churchId}`, cacheKey],
-        ...options,
-      });
+  const { data: context } = useQuery<MinistryRecord>({
+    queryKey: cacheKey,
+    queryFn: async () => {
+      return (originalContext.ministry as MinistryRecord) ?? {};
     },
-    [cache, cacheKey, churchId],
-  );
-
-  const context = useMemo((): MinistryRecord | null => {
-    const cached = getCachedContext();
-    const origUpdated =
-      (originalContext.ministry?.["lastUpdated"] as number) ?? 0;
-    if (cached && (Number(cached.lastUpdated) ?? 0) >= origUpdated)
-      return cached;
-    if (originalContext.ministry)
-      setCachedContext(originalContext.ministry as MinistryRecord);
-    return originalContext.ministry as MinistryRecord | null;
-  }, [originalContext, getCachedContext, setCachedContext]);
+    initialData: (originalContext.ministry as MinistryRecord) || undefined,
+    staleTime: 30 * 60 * 1000, // 30 mins TTL
+  });
 
   return {
-    ...context,
-    clearCache: () => {
-      if (cache) evictCacheKey(cache, cacheKey);
-    },
-    refreshCache: () => {
-      if (cache) evictCacheKey(cache, cacheKey);
-      if (originalContext.ministry)
-        setCachedContext(originalContext.ministry as MinistryRecord);
-    },
+    ...(context ?? {}),
+    clearCache: () => queryClient.removeQueries({ queryKey: cacheKey }),
+    refreshCache: () => queryClient.invalidateQueries({ queryKey: cacheKey }),
   };
 };
 
@@ -242,46 +165,23 @@ export const useCachedMinistryContext = (churchId: string) => {
 // ---------------------------------------------------------------------------
 
 export const useCachedSeasonalContext = () => {
-  const cacheManager = useCacheManager();
+  const queryClient = useQueryClient();
   const originalContext = useSeasonalContext();
+  const cacheKey = ["seasonal-context"];
 
-  const cacheKey = `seasonal-context-${new Date().toDateString()}`;
-  const cache = cacheManager.cacheManager.getCache("seasonalContent");
-
-  const getCachedContext = useCallback((): SeasonalRecord | null => {
-    return (cache?.get(cacheKey) as SeasonalRecord | null) ?? null;
-  }, [cache, cacheKey]);
-
-  const setCachedContext = useCallback(
-    (context: SeasonalRecord, options: CacheEntryOptions = {}): void => {
-      cache?.set(cacheKey, context, {
-        ttl: 6 * 60 * 60 * 1_000,
-        priority: "normal",
-        tags: ["seasonal-data", cacheKey],
-        ...options,
-      });
+  const { data: context } = useQuery<SeasonalRecord>({
+    queryKey: cacheKey,
+    queryFn: async () => {
+      return (originalContext.season as SeasonalRecord) ?? {};
     },
-    [cache, cacheKey],
-  );
-
-  const context = useMemo((): SeasonalRecord | null => {
-    const cached = getCachedContext();
-    if (cached) return cached;
-    if (originalContext.season)
-      setCachedContext(originalContext.season as SeasonalRecord);
-    return originalContext.season as SeasonalRecord | null;
-  }, [originalContext, getCachedContext, setCachedContext]);
+    initialData: (originalContext.season as SeasonalRecord) || undefined,
+    staleTime: 6 * 60 * 60 * 1000, // 6 hours TTL
+  });
 
   return {
-    ...context,
-    clearCache: () => {
-      if (cache) evictCacheKey(cache, cacheKey);
-    },
-    refreshCache: () => {
-      if (cache) evictCacheKey(cache, cacheKey);
-      if (originalContext.season)
-        setCachedContext(originalContext.season as SeasonalRecord);
-    },
+    ...(context ?? {}),
+    clearCache: () => queryClient.removeQueries({ queryKey: cacheKey }),
+    refreshCache: () => queryClient.invalidateQueries({ queryKey: cacheKey }),
   };
 };
 
@@ -290,72 +190,41 @@ export const useCachedSeasonalContext = () => {
 // ---------------------------------------------------------------------------
 
 export const useCachedActivityContext = (userId: string) => {
-  const cacheManager = useCacheManager();
+  const queryClient = useQueryClient();
   const originalContext = useActivityContext();
+  const cacheKey = ["activity-context", userId];
 
-  const cacheKey = `activity-context-${userId}`;
-  const cache = cacheManager.cacheManager.getCache("recommendations");
-
-  const getCachedContext = useCallback((): ActivityRecord | null => {
-    return (cache?.get(cacheKey) as ActivityRecord | null) ?? null;
-  }, [cache, cacheKey]);
-
-  const setCachedContext = useCallback(
-    (context: ActivityRecord, options: CacheEntryOptions = {}): void => {
-      cache?.set(cacheKey, context, {
-        ttl: 10 * 60 * 1_000,
-        priority: "high",
-        tags: ["activity-data", `user-${userId}`, cacheKey],
-        ...options,
-      });
+  const { data: context } = useQuery<ActivityRecord>({
+    queryKey: cacheKey,
+    queryFn: async () => {
+      return (originalContext.activity as ActivityRecord) ?? {};
     },
-    [cache, cacheKey, userId],
-  );
+    initialData: (originalContext.activity as ActivityRecord) || undefined,
+    staleTime: 10 * 60 * 1000, // 10 mins TTL
+  });
 
-  const context = useMemo((): ActivityRecord | null => {
-    const cached = getCachedContext();
-    const origActivity =
-      (originalContext.activity?.["lastActivity"] as number) ?? 0;
-    if (cached && (cached.lastActivity ?? 0) >= origActivity) return cached;
-    if (originalContext.activity)
-      setCachedContext(originalContext.activity as ActivityRecord);
-    return originalContext.activity as ActivityRecord | null;
-  }, [originalContext, getCachedContext, setCachedContext]);
-
-  const trackActivity = useCallback(
-    async (activity: {
-      type: string;
-      [key: string]: unknown;
-    }): Promise<ActivityRecord> => {
-      try {
-        const updatedContext: ActivityRecord = {
-          ...context,
-          lastActivity: Date.now(),
-          recentActivities: [
-            activity,
-            ...(context?.recentActivities ?? []).slice(0, 49),
-          ],
-        };
-        setCachedContext(updatedContext);
-        cacheManager.cacheManager.invalidateRelated(
-          "recommendations",
-          cacheKey,
-        );
-        return updatedContext;
-      } catch (_error) {
-        if (cache) evictCacheKey(cache, cacheKey); // Bug fix: was cache.delete() + throw error
-        throw _error;
-      }
+  const { mutateAsync: trackActivity } = useMutation({
+    mutationFn: async (activity: { type: string; [key: string]: unknown }) => {
+      const updatedContext: ActivityRecord = {
+        ...(context ?? {}),
+        lastActivity: Date.now(),
+        recentActivities: [
+          activity,
+          ...(context?.recentActivities ?? []).slice(0, 49),
+        ],
+      };
+      return updatedContext;
     },
-    [context, setCachedContext, cacheManager, cache, cacheKey],
-  );
+    onSuccess: (updatedContext) => {
+      queryClient.setQueryData(cacheKey, updatedContext);
+      queryClient.invalidateQueries({ queryKey: ["dashboard-state", userId] });
+    },
+  });
 
   return {
-    ...context,
+    ...(context ?? {}),
     trackActivity,
-    clearCache: () => {
-      if (cache) evictCacheKey(cache, cacheKey);
-    },
+    clearCache: () => queryClient.removeQueries({ queryKey: cacheKey }),
   };
 };
 
@@ -368,105 +237,56 @@ export const useCachedDashboardState = (userId: string, churchId: string) => {
   const ministryContext = useCachedMinistryContext(churchId);
   const seasonalContext = useCachedSeasonalContext();
   const activityContext = useCachedActivityContext(userId);
-  const cacheManager = useCacheManager();
+  const queryClient = useQueryClient();
 
-  const dashboardCacheKey = `dashboard-state-${userId}-${churchId}`;
-  const dashboardCache = cacheManager.cacheManager.getCache("dashboardConfig");
+  const dashboardCacheKey = ["dashboard-state", userId, churchId];
 
-  const dashboardConfig = useMemo((): DashboardConfig | null => {
-    if (
-      !preferences ||
-      !ministryContext ||
-      !seasonalContext ||
-      !activityContext
-    ) {
-      return null;
-    }
+  const { data: dashboardConfig, isLoading } = useQuery<DashboardConfig>({
+    queryKey: dashboardCacheKey,
+    queryFn: async () => {
+      const prefs = preferences as VersionedRecord;
+      const minCtx = ministryContext as MinistryRecord | null;
+      const seaCtx = seasonalContext as SeasonalRecord | null;
+      const actCtx = activityContext as ActivityRecord | null;
 
-    const cached =
-      (dashboardCache?.get(dashboardCacheKey) as DashboardConfig | null) ??
-      null;
-    if (cached && cached.generatedAt > Date.now() - 5 * 60 * 1_000)
-      return cached;
-
-    const config: DashboardConfig = {
-      layout: ((preferences as any).layout as string) ?? "default",
-      widgets: generateWidgetConfiguration(
-        preferences,
-        ministryContext,
-        seasonalContext,
-        activityContext,
-      ),
-      theme: ((preferences as any).theme as string) ?? "light",
-      personalizations: generatePersonalizations(
-        activityContext,
-        seasonalContext,
-      ),
-      recommendations: generateRecommendations(
-        activityContext,
-        ministryContext,
-        seasonalContext,
-      ),
-      generatedAt: Date.now(),
-      version: `${String(preferences.version ?? 0)}-${Date.now()}`,
-    };
-
-    dashboardCache?.set(dashboardCacheKey, config, {
-      ttl: 5 * 60 * 1_000,
-      priority: "high",
-      tags: [
-        "dashboard-config",
-        `user-${userId}`,
-        `church-${churchId}`,
-        dashboardCacheKey,
-      ],
-    });
-
-    return config;
-  }, [
-    preferences,
-    ministryContext,
-    seasonalContext,
-    activityContext,
-    dashboardCache,
-    dashboardCacheKey,
-    userId,
-    churchId,
-  ]);
-
-  const updateDashboardConfig = useCallback(
-    async (updates: {
-      preferences?: Record<string, unknown>;
-    }): Promise<boolean> => {
-      try {
-        if (updates.preferences) {
-          await preferences.updatePreferences(updates.preferences);
-        }
-        if (dashboardCache) evictCacheKey(dashboardCache, dashboardCacheKey);
-        cacheManager.cacheManager.invalidateRelated(
-          "dashboardConfig",
-          dashboardCacheKey,
-        );
-        return true;
-      } catch {
-        return false;
-      }
+      return {
+        layout: (prefs.layout as string) ?? "default",
+        widgets: generateWidgetConfiguration(prefs, minCtx, seaCtx, actCtx),
+        theme: (prefs.theme as string) ?? "light",
+        personalizations: generatePersonalizations(actCtx, seaCtx),
+        recommendations: generateRecommendations(actCtx, minCtx, seaCtx),
+        generatedAt: Date.now(),
+        version: `${String(prefs.version ?? 0)}-${Date.now()}`,
+      };
     },
-    [preferences, dashboardCache, dashboardCacheKey, cacheManager],
-  );
+    enabled: !!preferences && !!ministryContext && !!seasonalContext && !!activityContext,
+    staleTime: 5 * 60 * 1000, // 5 mins TTL
+  });
 
-  const clearAllCaches = useCallback((): void => {
+  const { mutateAsync: updateDashboardConfig } = useMutation({
+    mutationFn: async (updates: { preferences?: Record<string, unknown> }) => {
+      if (updates.preferences) {
+        await preferences.updatePreferences(updates.preferences);
+      }
+      return true;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: dashboardCacheKey });
+    },
+  });
+
+  const clearAllCaches = useCallback(() => {
     preferences.clearCache();
     ministryContext.clearCache();
     seasonalContext.clearCache();
     activityContext.clearCache();
-    if (dashboardCache) evictCacheKey(dashboardCache, dashboardCacheKey);
+    queryClient.removeQueries({ queryKey: dashboardCacheKey });
   }, [
     preferences,
     ministryContext,
     seasonalContext,
     activityContext,
-    dashboardCache,
+    queryClient,
     dashboardCacheKey,
   ]);
 
@@ -475,10 +295,10 @@ export const useCachedDashboardState = (userId: string, churchId: string) => {
     ministryContext,
     seasonalContext,
     activityContext,
-    dashboardConfig,
+    dashboardConfig: dashboardConfig ?? null,
     updateDashboardConfig,
     clearAllCaches,
-    isLoading: !dashboardConfig,
+    isLoading: isLoading || !dashboardConfig,
   };
 };
 
@@ -627,3 +447,4 @@ function generateRecommendations(
       (priorityOrder[a.priority] ?? 3) - (priorityOrder[b.priority] ?? 3),
   );
 }
+

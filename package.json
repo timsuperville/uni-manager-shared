@@ -51,6 +51,11 @@
       "import": "./command/index.ts",
       "default": "./command/index.ts"
     },
+    "./i18n": {
+      "types": "./i18n/index.ts",
+      "import": "./i18n/index.ts",
+      "default": "./i18n/index.ts"
+    },
     "./tailwind.preset": "./tailwind.preset.js"
   },
   "scripts": {
@@ -85,9 +90,11 @@
     "@vitest/ui": "^4.0.16",
     "axios": "^1.9.0",
     "date-fns": "^4.1.0",
+    "i18next": "^26.0.8",
     "idb-keyval": "^6.2.2",
     "lerna": "9.0.3",
     "lucide-react": "^1.7.0",
+    "react-i18next": "^17.0.6",
     "socket.io-client": "^4.8.3",
     "swagger-jsdoc": "6.2.8",
     "y-websocket": "^3.0.0",

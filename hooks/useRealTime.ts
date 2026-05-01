@@ -655,14 +655,16 @@ export const useRealTimeRoom = (
   useEffect(() => {
     if (!room || subscribedRef.current) return;
 
-    const handleInitialData = (roomData: RoomItemsData): void => {
+    const handleInitialData = (data: unknown): void => {
+      const roomData = data as RoomItemsData;
       if (roomData.room === room) {
         setData(roomData.data.items ?? []);
         setLoading(false);
       }
     };
 
-    const handleDataError = (roomData: RoomItemsData): void => {
+    const handleDataError = (data: unknown): void => {
+      const roomData = data as RoomItemsData;
       if (roomData.room === room) {
         setError(roomData.error ?? "Unknown room error");
         setLoading(false);

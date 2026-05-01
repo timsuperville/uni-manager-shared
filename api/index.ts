@@ -33,8 +33,6 @@ export {
 export { ErrorHandler, ApiErrorType } from "./core/ErrorHandler";
 export type { ApiError, ErrorContext } from "./core/ErrorHandler";
 
-export { CacheManager } from "./core/CacheManager";
-export type { CacheOptions, CacheStats, CacheEntry } from "./core/CacheManager";
 
 export { AuthInterceptor } from "./core/AuthInterceptor";
 export type {

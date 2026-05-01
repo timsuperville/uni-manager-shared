@@ -6,3 +6,4 @@ export * from "./services/index";
 export * from "./utils/index.js";
 export * from "./types/index";
 export * from "./performance/index";
+export * from "./i18n/index";
