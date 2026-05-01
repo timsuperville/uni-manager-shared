@@ -411,7 +411,9 @@ export const installFetchInterceptor = () => {
     // /health failures are owned exclusively by setupHealthCheck (which applies
     // grace periods and consecutive-failure thresholds before logging).
     const isMonitoringCall =
-      /\/api\/v1\/(errors|feedback)\//.test(url) || /\/health(\?|$)/.test(url);
+      /\/api\/v1\/(infra\/errors|integrations\/feedback)\//.test(url) ||
+      /\/analytics(\/|$)/.test(url) ||
+      /\/health(\?|$)/.test(url);
 
     let response;
     try {
