@@ -49,10 +49,24 @@ export interface AuthInterceptorConfig {
 export class AuthInterceptor {
   private config: Required<AuthInterceptorConfig>;
   private tokens: AuthTokens | null = null;
-  private refreshPromise: Promise<string> | null = null;
-  private refreshInProgress = false;
+  private isRefreshing = false;
+  private refreshQueue: Array<{
+    resolve: (token: string) => void;
+    reject: (error: any) => void;
+  }> = [];
   /** The axios instance from ApiClient — used to retry requests on token refresh. */
   private axiosInstance: AxiosInstance | null = null;
+
+  private processQueue(error: any, token: string | null = null): void {
+    this.refreshQueue.forEach((prom) => {
+      if (error) {
+        prom.reject(error);
+      } else {
+        prom.resolve(token as string);
+      }
+    });
+    this.refreshQueue = [];
+  }
 
   constructor(config: AuthInterceptorConfig = {}) {
     this.config = {
@@ -128,6 +142,23 @@ export class AuthInterceptor {
 
     // Handle 401 unauthorized errors — but only attempt refresh once per request
     if (error.response?.status === 401 && !originalRequest._retry) {
+      if (this.isRefreshing) {
+        try {
+          const token = await new Promise<string>((resolve, reject) => {
+            this.refreshQueue.push({ resolve, reject });
+          });
+          
+          originalRequest._retry = true;
+          if (originalRequest.headers) {
+            originalRequest.headers[this.config.headerName] =
+              `${this.config.tokenPrefix} ${token}`;
+          }
+          return (this.axiosInstance ?? axios).request(originalRequest);
+        } catch (err) {
+          return Promise.reject(err);
+        }
+      }
+
       originalRequest._retry = true;
 
       // Only attempt refresh if we have a refresh token. A 401 can mean
@@ -135,8 +166,10 @@ export class AuthInterceptor {
       // tokens unconditionally — only clear them when we confirm the token
       // itself is unrecoverable (refresh fails or no refresh token exists).
       if (this.config.autoRefresh && this.tokens?.refreshToken) {
+        this.isRefreshing = true;
         try {
-          const newToken = await this.refreshToken();
+          const newToken = await this.performTokenRefresh();
+          this.processQueue(null, newToken);
 
           if (newToken && originalRequest.headers) {
             originalRequest.headers[this.config.headerName] =
@@ -149,8 +182,12 @@ export class AuthInterceptor {
           }
         } catch (refreshError) {
           // Refresh definitively failed — the token is unrecoverable.
+          this.processQueue(refreshError, null);
           this.clearTokens();
           this.notifyAuthFailure();
+          return Promise.reject(refreshError);
+        } finally {
+          this.isRefreshing = false;
         }
       }
       // No refresh token, or autoRefresh disabled: do NOT clear tokens here.
@@ -224,23 +261,27 @@ export class AuthInterceptor {
    * Manually refresh token
    */
   async refreshToken(): Promise<string | null> {
-    if (this.refreshInProgress && this.refreshPromise) {
-      return this.refreshPromise;
+    if (this.isRefreshing) {
+      return new Promise<string>((resolve, reject) => {
+        this.refreshQueue.push({ resolve, reject });
+      });
     }
 
     if (!this.tokens?.refreshToken) {
       throw new Error("No refresh token available");
     }
 
-    this.refreshInProgress = true;
-    this.refreshPromise = this.performTokenRefresh();
+    this.isRefreshing = true;
 
     try {
-      const newToken = await this.refreshPromise;
+      const newToken = await this.performTokenRefresh();
+      this.processQueue(null, newToken);
       return newToken;
+    } catch (err) {
+      this.processQueue(err, null);
+      throw err;
     } finally {
-      this.refreshInProgress = false;
-      this.refreshPromise = null;
+      this.isRefreshing = false;
     }
   }
 
@@ -298,11 +339,13 @@ export class AuthInterceptor {
       this.tokens.refreshToken
     ) {
       // Start refresh in background (don't wait for it)
-      this.refreshToken().catch(() => {
-        this.clearTokens();
-        // Notify the UI so it doesn't enter a silent partial-auth state
-        this.notifyAuthFailure();
-      });
+      if (!this.isRefreshing) {
+        this.refreshToken().catch(() => {
+          this.clearTokens();
+          // Notify the UI so it doesn't enter a silent partial-auth state
+          this.notifyAuthFailure();
+        });
+      }
     }
 
     return this.tokens.accessToken;
