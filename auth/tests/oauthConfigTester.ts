@@ -68,7 +68,7 @@ const getMockAppConfig = (appType: string): MockAppConfig => {
       },
       apiEndpoints: { login: `${baseApiUrl}/admin/auth/login` },
     },
-    business: {
+    work: {
       features: {
         socialLogin: {
           enabled: true,
@@ -144,14 +144,7 @@ export const testOAuthConfigurations = () => {
   let appsWithOAuth = 0;
   let totalEnabledProviders = 0;
 
-  const appTypes = [
-    "church",
-    "admin",
-    "business",
-    "home",
-    "personal",
-    "playback",
-  ];
+  const appTypes = ["church", "admin", "work", "home", "personal", "playback"];
 
   for (const appType of appTypes) {
     try {

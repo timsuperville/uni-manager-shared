@@ -15,7 +15,7 @@ const TOKEN_NAMESPACES = [
   "home",
   "church",
   "personal",
-  "business",
+  "work",
   "uni",
 ] as const;
 type TokenNamespace = (typeof TOKEN_NAMESPACES)[number];

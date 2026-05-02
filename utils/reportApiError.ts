@@ -33,7 +33,7 @@ const EXPECTED_STATUS_CODES = new Set([
  * Mirrors the same namespace scan used by GlobalErrorBoundary.
  */
 function resolveAuthToken(): string | null {
-  const namespaces = ["church", "admin", "home", "personal", "business", "uni"];
+  const namespaces = ["church", "admin", "home", "personal", "work", "uni"];
   for (const ns of namespaces) {
     const token =
       window.sessionStorage?.getItem(`${ns}_auth_access_token`) ??

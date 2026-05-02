@@ -8,7 +8,7 @@
   "theme_color": "#2563eb",
   "background_color": "#ffffff",
   "scope": "/",
-  "categories": ["productivity", "lifestyle", "business"],
+  "categories": ["productivity", "lifestyle", "work"],
   "lang": "en-US",
   "dir": "ltr",
   "icons": [
@@ -128,7 +128,7 @@
       "name": "Business Dashboard",
       "short_name": "Business",
       "description": "Access business management features",
-      "url": "/business",
+      "url": "/work",
       "icons": [
         {
           "src": "/icons/business-icon-96x96.png",

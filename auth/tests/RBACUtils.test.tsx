@@ -166,7 +166,7 @@ describe("RBACUtils", () => {
   describe("Application Access Control", () => {
     it("should allow access to applications with valid roles", () => {
       expect(rbac.canAccessApplication("church")).toBe(true);
-      expect(rbac.canAccessApplication("business")).toBe(true);
+      expect(rbac.canAccessApplication("work")).toBe(true);
     });
 
     it("should deny access to applications without valid roles", () => {
@@ -176,7 +176,7 @@ describe("RBACUtils", () => {
     it("should get accessible applications", () => {
       const accessibleApps = rbac.getAccessibleApplications();
       expect(accessibleApps).toContain("church");
-      expect(accessibleApps).toContain("business");
+      expect(accessibleApps).toContain("work");
       expect(accessibleApps).not.toContain("admin");
     });
 
@@ -207,7 +207,7 @@ describe("RBACUtils", () => {
 
       expect(churchAdminRBAC.isAnyAdmin()).toBe(true);
       expect(churchAdminRBAC.isApplicationAdmin("church")).toBe(true);
-      expect(churchAdminRBAC.isApplicationAdmin("business")).toBe(false);
+      expect(churchAdminRBAC.isApplicationAdmin("work")).toBe(false);
     });
   });
 
@@ -291,7 +291,7 @@ describe("RBACUtils", () => {
       expect(summary).toHaveProperty("isAnyAdmin", false);
 
       expect(summary.accessibleApps).toContain("church");
-      expect(summary.accessibleApps).toContain("business");
+      expect(summary.accessibleApps).toContain("work");
     });
   });
 
@@ -386,7 +386,7 @@ describe("PermissionUtils", () => {
       );
       const businessRoles = PermissionUtils.getAssignableRoles(
         superAdminRoles,
-        "business",
+        "work",
       );
 
       expect(

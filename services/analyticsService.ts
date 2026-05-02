@@ -537,7 +537,7 @@ export class AnalyticsService extends BaseService {
     const path = typeof window !== "undefined" ? window.location.pathname : "";
     if (path.includes("/church")) return "church";
     if (path.includes("/admin")) return "admin";
-    if (path.includes("/business")) return "business";
+    if (path.includes("/work")) return "work";
     if (path.includes("/personal")) return "personal";
     if (path.includes("/home")) return "home";
     if (path.includes("/playback")) return "playback";

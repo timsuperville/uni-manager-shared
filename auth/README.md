@@ -116,7 +116,7 @@ function LoginPage() {
     toast.error("Please check your credentials");
   };
 
-  return <LoginForm appType="business" onSuccess={handleSuccess} onError={handleError} />;
+  return <LoginForm appType="work" onSuccess={handleSuccess} onError={handleError} />;
 }
 ```
 

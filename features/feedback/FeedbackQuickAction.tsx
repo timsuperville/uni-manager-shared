@@ -88,7 +88,7 @@ export async function submitFeedbackSilently({
       "church",
       "personal",
       "home",
-      "business",
+      "work",
       "uni",
     ].filter(Boolean);
     let authToken: string | null = null;

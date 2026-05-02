@@ -66,10 +66,10 @@ const ROLE_LEVELS: Record<string, number> = {
   admin: 3,
   super_admin: 4,
   // Business
-  business_guest: 1,
+  work_guest: 1,
   client: 2,
   employee: 3,
-  business_manager: 3,
+  work_manager: 3,
   business_owner: 5,
   // Home
   child: 1,
@@ -87,7 +87,7 @@ const ROLE_LEVELS: Record<string, number> = {
 const ADMIN_ROLES: Record<string, string> = {
   church: "admin",
   admin: "super_admin",
-  business: "owner",
+  work: "owner",
   home: "head",
   personal: "user",
   playback: "premium",

@@ -65,7 +65,7 @@ function getStoredToken(appName: string): string | null {
     "church",
     "personal",
     "home",
-    "business",
+    "work",
     "uni",
   ].filter(Boolean);
   for (const ns of namespaces) {

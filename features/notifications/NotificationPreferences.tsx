@@ -123,7 +123,7 @@ const DEFAULT_PREFERENCES: LocalPreferences = {
     user: { enabled: true, priority: "all" },
     system: { enabled: true, priority: "high" },
     church: { enabled: true, priority: "all" },
-    business: { enabled: true, priority: "normal" },
+    work: { enabled: true, priority: "normal" },
     security: { enabled: true, priority: "all" },
     workflow: { enabled: true, priority: "high" },
   },

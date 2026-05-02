@@ -45,7 +45,7 @@ export function ChurchLoginPage() {
 export function BusinessLoginPage() {
   return (
     <LoginForm
-      appType="business"
+      appType="work"
       redirectPath="/overview"
       showRememberMe={true}
       showRegistration={true}

@@ -75,7 +75,7 @@ const TYPE_ICON: Record<string, React.ComponentType<{ className?: string }>> = {
   user: FiUser,
   system: FiSettings,
   church: FiMessageSquare,
-  business: FiMail,
+  work: FiMail,
   security: FiAlertCircle,
 };
 

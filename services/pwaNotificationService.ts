@@ -15,7 +15,7 @@ export interface PwaNotificationPreferences {
   eventNotifications: boolean;
   adminAlerts: boolean;
   familyUpdates: boolean;
-  businessNotifications: boolean;
+  workNotifications: boolean;
   systemUpdates: boolean;
   marketingMessages: boolean;
   [key: string]: boolean;
@@ -59,7 +59,7 @@ type NotificationCategory =
   | "event"
   | "admin"
   | "family"
-  | "business"
+  | "work"
   | "system"
   | "marketing";
 
@@ -83,7 +83,7 @@ class PWANotificationService {
       eventNotifications: true,
       adminAlerts: true,
       familyUpdates: true,
-      businessNotifications: true,
+      workNotifications: true,
       systemUpdates: false,
       marketingMessages: false,
     };
@@ -372,7 +372,7 @@ class PWANotificationService {
       event: "eventNotifications",
       admin: "adminAlerts",
       family: "familyUpdates",
-      business: "businessNotifications",
+      work: "workNotifications",
       system: "systemUpdates",
       marketing: "marketingMessages",
     };

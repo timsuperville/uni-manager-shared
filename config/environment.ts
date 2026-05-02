@@ -11,7 +11,7 @@ export const getSharedEnvironmentConfig = () => ({
     church: import.meta.env.VITE_CHURCH_APP_URL || "http://localhost:5173",
     admin: import.meta.env.VITE_ADMIN_APP_URL || "http://localhost:5174",
     home: import.meta.env.VITE_HOME_APP_URL || "http://localhost:5175",
-    business: import.meta.env.VITE_BUSINESS_APP_URL || "http://localhost:5176",
+    work: import.meta.env.VITE_WORK_APP_URL || "http://localhost:5176",
     personal: import.meta.env.VITE_PERSONAL_APP_URL || "http://localhost:5177",
     playback: import.meta.env.VITE_PLAYBACK_APP_URL || "http://localhost:5178",
     mainWebsite:

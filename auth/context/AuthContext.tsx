@@ -77,10 +77,10 @@ const DOMAIN_ROLE_MAP: Record<string, Record<string, string>> = {
     child: "home_user",
     guest: "guest",
   },
-  business: {
+  work: {
     owner: "business_admin",
-    manager: "business_manager",
-    accountant: "business_manager",
+    manager: "work_manager",
+    accountant: "work_manager",
     employee: "business_user",
     viewer: "guest",
   },

@@ -53,7 +53,7 @@ const TYPE_ICON_MAP: Record<string, IconComponent> = {
   user: FiUser,
   system: FiSettings,
   church: FiMessageSquare,
-  business: FiMail,
+  work: FiMail,
   security: FiAlertCircle,
   workflow: FiSettings,
 };

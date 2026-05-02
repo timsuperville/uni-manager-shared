@@ -90,10 +90,10 @@ afterEach(() => {
 });
 
 // ---------------------------------------------------------------------------
-// 1. Null guard — no room when businessId / projectId missing
+// 1. Null guard — no room when workId / projectId missing
 // ---------------------------------------------------------------------------
 describe("useProjectSync — null guard", () => {
-  it("returns empty state when businessId is null", () => {
+  it("returns empty state when workId is null", () => {
     const { result } = renderHook(() => useProjectSync(null, "p1"));
     expect(result.current.tasks).toEqual([]);
     expect(result.current.status).toBe("disconnected");
@@ -105,7 +105,7 @@ describe("useProjectSync — null guard", () => {
     expect(result.current.tasks).toEqual([]);
   });
 
-  it("passes null roomName to useSync when businessId is null", () => {
+  it("passes null roomName to useSync when workId is null", () => {
     renderHook(() => useProjectSync(null, "p1"));
     expect(useSync).toHaveBeenCalledWith(null);
   });
@@ -265,7 +265,7 @@ describe("useProjectSync — updateMeta", () => {
 // 5. Multi-tenant isolation — room name encoding
 // ---------------------------------------------------------------------------
 describe("useProjectSync — tenant scope (room name)", () => {
-  it("encodes businessId into room name", () => {
+  it("encodes workId into room name", () => {
     renderHook(() => useProjectSync("biz-A", "p1"));
     expect(useSync).toHaveBeenCalledWith("work-project-biz-A-p1");
   });
@@ -279,7 +279,7 @@ describe("useProjectSync — tenant scope (room name)", () => {
     expect(calls).toContain("work-project-biz-B-p1");
   });
 
-  it("produces null room when businessId is null (sovereign guarantee)", () => {
+  it("produces null room when workId is null (sovereign guarantee)", () => {
     renderHook(() => useProjectSync(null, "p1"));
     expect(useSync).toHaveBeenCalledWith(null);
   });

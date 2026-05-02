@@ -45,8 +45,8 @@ export const PERMISSIONS = {
   ANALYTICS_VIEW: "analytics:view",
 
   // Business App
-  BUSINESS_VIEW: "business:view",
-  BUSINESS_MANAGE: "business:manage",
+  BUSINESS_VIEW: "work:view",
+  BUSINESS_MANAGE: "work:manage",
   FINANCE_VIEW: "finance:view",
   FINANCE_MANAGE: "finance:manage",
   INVENTORY_VIEW: "inventory:view",
@@ -218,11 +218,11 @@ export const ROLES: Record<string, RoleDefinition> = {
       PERMISSIONS.INVENTORY_VIEW,
       PERMISSIONS.INVENTORY_MANAGE,
     ],
-    inherits: ["business_manager"],
-    applicationScope: ["business"],
+    inherits: ["work_manager"],
+    applicationScope: ["work"],
   },
   BUSINESS_MANAGER: {
-    id: "business_manager",
+    id: "work_manager",
     name: "Business Manager",
     description: "Management access to business operations",
     level: 70,
@@ -233,7 +233,7 @@ export const ROLES: Record<string, RoleDefinition> = {
       PERMISSIONS.INVENTORY_MANAGE,
     ],
     inherits: ["business_user"],
-    applicationScope: ["business"],
+    applicationScope: ["work"],
   },
   BUSINESS_USER: {
     id: "business_user",
@@ -242,7 +242,7 @@ export const ROLES: Record<string, RoleDefinition> = {
     level: 50,
     permissions: [PERMISSIONS.BUSINESS_VIEW, PERMISSIONS.INVENTORY_VIEW],
     inherits: [],
-    applicationScope: ["business"],
+    applicationScope: ["work"],
   },
   PERSONAL_USER: {
     id: "personal_user",
@@ -328,7 +328,7 @@ export const ROLES: Record<string, RoleDefinition> = {
 export const APPLICATION_ROLES: Record<string, string[]> = {
   church: ["church_admin", "church_manager", "church_user"],
   admin: ["super_admin", "system_admin"],
-  business: ["business_admin", "business_manager", "business_user"],
+  work: ["business_admin", "work_manager", "business_user"],
   home: ["home_admin", "home_user"],
   personal: ["personal_user"],
   playback: ["playback_admin", "playback_user"],
@@ -336,7 +336,7 @@ export const APPLICATION_ROLES: Record<string, string[]> = {
 
 export const DEFAULT_ROLES: Record<string, string> = {
   church: "church_user",
-  business: "business_user",
+  work: "business_user",
   home: "home_user",
   personal: "personal_user",
   playback: "playback_user",
@@ -348,8 +348,8 @@ export const ROLE_HIERARCHY: Record<string, string[]> = {
   church_admin: ["church_manager"],
   church_manager: ["church_user"],
   church_user: [],
-  business_admin: ["business_manager"],
-  business_manager: ["business_user"],
+  business_admin: ["work_manager"],
+  work_manager: ["business_user"],
   business_user: [],
   home_admin: ["home_user"],
   home_user: [],
@@ -379,7 +379,7 @@ export const PROTECTED_ROUTES: Record<string, Record<string, Permission[]>> = {
     "/audit": [PERMISSIONS.AUDIT_VIEW],
     "/analytics": [PERMISSIONS.ANALYTICS_VIEW],
   },
-  business: {
+  work: {
     "/admin": [PERMISSIONS.BUSINESS_MANAGE],
     "/finance": [PERMISSIONS.FINANCE_VIEW],
     "/finance/manage": [PERMISSIONS.FINANCE_MANAGE],
