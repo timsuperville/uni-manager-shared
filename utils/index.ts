@@ -9,3 +9,4 @@ export * from "./userUtils";
 export * from "./reportApiError";
 export * from "./authToken";
 export * from "./env";
+export * from "./parseChordPro";
