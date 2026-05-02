@@ -64,6 +64,10 @@ export interface ParsedChordPro {
    * Suggested themes based on keyword frequency analysis of the parsed lyrics.
    */
   themes: string[];
+  /**
+   * Deterministic timeline sections calculated by AI/backend enrichment.
+   */
+  timeline?: { label: string; startTime: number }[];
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -108,7 +112,10 @@ function stripChords(line: string): string {
       // Remove chord markers [Chord] — e.g. [Ab], [Eb/G], [Bb/D]
       // We only remove brackets that are NOT obviously structural headers.
       // (Structural headers shouldn't be here since they are handled before stripChords, but just in case)
-      .replace(/\[(?!(?:Verse|Chorus|Bridge|Pre-Chorus|Tag|Outro|Intro|Interlude|Ending)\b)[^\]]+\]/gi, "")
+      .replace(
+        /\[(?!(?:Verse|Chorus|Bridge|Pre-Chorus|Tag|Outro|Intro|Interlude|Ending)\b)[^\]]+\]/gi,
+        "",
+      )
       // Remove bare pipe characters (tab/intro bar notation)
       .replace(/\|/g, "")
       // Remove syllable-extension dashes: one or more hyphens surrounded by
@@ -363,19 +370,27 @@ export function parseChordPro(content: string): ParsedChordPro {
 
     // ── Plain text header block parsing (.txt exports) ───────────────────────
     // Sometimes .txt exports include "Key - Eb | Tempo - 72 | Time - 4/4"
-    if (trimmed.includes("Key -") || trimmed.includes("Tempo -") || trimmed.includes("Time -")) {
+    if (
+      trimmed.includes("Key -") ||
+      trimmed.includes("Tempo -") ||
+      trimmed.includes("Time -")
+    ) {
       const parts = trimmed.split("|");
       for (const part of parts) {
         const p = part.trim();
         if (p.startsWith("Key -")) result.key = p.replace("Key -", "").trim();
-        else if (p.startsWith("Tempo -")) result.tempo = parseInt(p.replace("Tempo -", "").trim(), 10);
-        else if (p.startsWith("Time -")) result.timeSignature = p.replace("Time -", "").trim();
+        else if (p.startsWith("Tempo -"))
+          result.tempo = parseInt(p.replace("Tempo -", "").trim(), 10);
+        else if (p.startsWith("Time -"))
+          result.timeSignature = p.replace("Time -", "").trim();
       }
       continue;
     }
 
     // Bracketed section headers like [Verse 1]
-    const bracketSectionMatch = trimmed.match(/^\[(Verse|Chorus|Bridge|Pre-Chorus|Tag|Outro|Intro|Interlude|Ending)[^\]]*\]$/i);
+    const bracketSectionMatch = trimmed.match(
+      /^\[(Verse|Chorus|Bridge|Pre-Chorus|Tag|Outro|Intro|Interlude|Ending)[^\]]*\]$/i,
+    );
     if (bracketSectionMatch) {
       flushSection();
       const sectionName = trimmed.slice(1, -1).trim();

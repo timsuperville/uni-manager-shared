@@ -18,6 +18,7 @@
  */
 
 import { useState, useCallback } from "react";
+import { getApiClient } from "../api/core/ApiClient";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -127,14 +128,13 @@ export function useHospitalityBridge(): UseHospitalityBridgeResult {
       setError(null);
 
       try {
-        const res = await fetch("/api/v1/home/hospitality/events", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify(sanitizedPayload),
-        });
+        const apiClient = getApiClient();
+        const res = await apiClient.post<HospitalityApiResponse>(
+          "/api/v1/home/hospitality/events",
+          sanitizedPayload,
+        );
 
-        const json = (await res.json()) as HospitalityApiResponse;
+        const json = res.data;
         if (!json.success)
           throw new Error(json.message ?? "Hospitality push failed");
 

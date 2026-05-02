@@ -1,6 +1,6 @@
 /* eslint-env browser */
 import { useState, useEffect, useCallback } from "react";
-import { getApiBaseUrl } from "../api/config/apiConfig";
+import { getApiClient } from "../api/core/ApiClient";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -59,8 +59,6 @@ interface ApiRequestOptions extends RequestInit {}
 
 // ── Hook ─────────────────────────────────────────────────────────────────────
 
-const _API_BASE = getApiBaseUrl();
-
 /**
  * useNotificationPreferences - Custom hook for notification preference management
  *
@@ -83,25 +81,36 @@ export const useNotificationPreferences = (
   const [lastUpdated, setLastUpdated] = useState<number | null>(null);
 
   const buildApiUrl = useCallback((endpoint: string) => {
-    return `${_API_BASE}/api/notifications/preferences${endpoint}`;
+    return `/api/notifications/preferences${endpoint}`;
   }, []);
 
   const apiRequest = useCallback(
     async (url: string, options: ApiRequestOptions = {}): Promise<unknown> => {
-      const response = await fetch(url, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${typeof localStorage !== "undefined" && localStorage.getItem("authToken")}`,
-          ...options.headers,
-        },
-        ...options,
-      });
-      if (!response.ok) {
-        throw new Error(
-          `API request failed: ${response.status} ${response.statusText}`,
+      const apiClient = getApiClient();
+      const method = options.method || "GET";
+      const reqOptions = {
+        headers: options.headers as Record<string, string>,
+      };
+
+      let res;
+      if (method === "GET") {
+        res = await apiClient.get(url, reqOptions);
+      } else if (method === "POST") {
+        res = await apiClient.post(
+          url,
+          options.body ? JSON.parse(options.body as string) : undefined,
+          reqOptions,
         );
+      } else if (method === "PUT") {
+        res = await apiClient.put(
+          url,
+          options.body ? JSON.parse(options.body as string) : undefined,
+          reqOptions,
+        );
+      } else {
+        throw new Error(`Unsupported method: ${method}`);
       }
-      return response.json();
+      return res.data;
     },
     [],
   );

@@ -14,6 +14,7 @@
  */
 
 import { useState, useEffect, useRef } from "react";
+import { getApiClient } from "../api/core/ApiClient";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -89,13 +90,13 @@ export function useCapacityBridge(userId: string | null): CapacityBridgeState {
 
     setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
-    fetch(`/api/v1/personal/capacity-status/${userId}`, {
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      signal: abortRef.current.signal,
-    })
-      .then((res) => res.json() as Promise<CapacityApiResponse>)
-      .then((json) => {
+    const apiClient = getApiClient();
+    apiClient
+      .get<CapacityApiResponse>(`/api/v1/personal/capacity-status/${userId}`, {
+        signal: abortRef.current.signal,
+      })
+      .then((res) => {
+        const json = res.data;
         if (!json.success) {
           throw new Error(json.message ?? "Capacity query failed");
         }
