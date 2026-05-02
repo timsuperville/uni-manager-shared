@@ -10,6 +10,7 @@
 
 import { BaseService } from "../api/services/BaseService";
 import { ApiClient, getApiClient } from "../api/core/ApiClient";
+import { onCLS, onFCP, onINP, onLCP, onTTFB, Metric } from "web-vitals";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -408,35 +409,28 @@ export class AnalyticsService extends BaseService {
   }
 
   trackPerformanceTiming(): void {
-    if (typeof window === "undefined" || !window.performance?.timing) return;
-    const { timing } = window.performance;
-    const navigationStart = timing.navigationStart;
+    if (typeof window === "undefined") return;
 
-    const metrics: Record<string, number> = {
-      dns_lookup: timing.domainLookupEnd - timing.domainLookupStart,
-      tcp_connection: timing.connectEnd - timing.connectStart,
-      server_response: timing.responseEnd - timing.requestStart,
-      dom_processing: timing.domComplete - timing.domLoading,
-      page_load: timing.loadEventEnd - navigationStart,
+    const reportMetric = (metric: Metric) => {
+      this.trackPerformanceMetric(metric.name, metric.value, {
+        pageUrl: window.location.pathname,
+        userAgent: navigator.userAgent,
+        rating: metric.rating,
+        id: metric.id,
+      });
     };
 
-    Object.entries(metrics).forEach(([metric, value]) => {
-      if (
-        typeof value === "number" &&
-        !Number.isNaN(value) &&
-        Number.isFinite(value) &&
-        value > 0
-      ) {
-        this.trackPerformanceMetric(metric, value, {
-          pageUrl:
-            typeof window !== "undefined"
-              ? window.location.pathname
-              : undefined,
-          userAgent:
-            typeof navigator !== "undefined" ? navigator.userAgent : undefined,
-        });
+    try {
+      onCLS(reportMetric);
+      onFCP(reportMetric);
+      onINP(reportMetric);
+      onLCP(reportMetric);
+      onTTFB(reportMetric);
+    } catch (e) {
+      if (import.meta.env.DEV) {
+        console.warn("[Analytics] Failed to initialize web-vitals", e);
       }
-    });
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -484,9 +478,7 @@ export class AnalyticsService extends BaseService {
 
   initializeAutoTracking(): void {
     if (typeof window !== "undefined") {
-      window.addEventListener("load", () => {
-        setTimeout(() => this.trackPerformanceTiming(), 100);
-      });
+      this.trackPerformanceTiming();
     }
 
     if (typeof document !== "undefined") {

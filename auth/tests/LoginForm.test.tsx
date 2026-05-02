@@ -23,9 +23,7 @@ describe("LoginForm", () => {
   const renderLoginForm = (props = {}) => {
     return render(
       <MemoryRouter>
-        <ApiProvider
-          config={{ baseURL: "http://localhost:5000" }}
-        >
+        <ApiProvider config={{ baseURL: "http://localhost:5000" }}>
           <AuthProvider>
             <LoginForm {...props} />
           </AuthProvider>
@@ -95,9 +93,9 @@ describe("LoginForm", () => {
       expect(screen.getByText(/ecclesia/i)).toBeInTheDocument();
     });
 
-    it("renders business app configuration", () => {
-      renderLoginForm({ appType: "business" });
-      expect(screen.getByText(/business portal/i)).toBeInTheDocument();
+    it("renders work app configuration", () => {
+      renderLoginForm({ appType: "work" });
+      expect(screen.getByText(/work portal/i)).toBeInTheDocument();
     });
 
     it("renders home app configuration", () => {
