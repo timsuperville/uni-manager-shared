@@ -72,3 +72,9 @@ export {
   artNetBridgeService,
   initArtNetBridge,
 } from "./services/ArtNetBridgeService";
+
+export {
+  CapacityService,
+  capacityService,
+  initCapacityService,
+} from "./services/CapacityService";

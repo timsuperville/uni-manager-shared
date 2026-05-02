@@ -11,7 +11,6 @@ import {
   to24String,
   toDisplay,
   clamp,
-  PRESET_ROWS,
   TIME_PICKER_STYLES as S,
 } from "./timePickerUtils";
 export type { ParsedTime } from "./timePickerUtils";

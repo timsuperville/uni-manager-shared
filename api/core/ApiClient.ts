@@ -332,7 +332,7 @@ export class ApiClient {
   /**
    * Clear cache (Legacy no-op)
    */
-  clearCache(pattern?: string): void {
+  clearCache(_pattern?: string): void {
     // No-op: caching is now handled by TanStack Query
   }
 

@@ -103,7 +103,7 @@ export function useApiMutation<TData, TVariables>(
       return mutationFn(variables);
     },
     ...options,
-    onError: (err: Error, variables: TVariables, context: unknown) => {
+    onError: (err: Error, variables: TVariables) => {
       if (typeof window !== "undefined") {
         window.dispatchEvent(
           new CustomEvent("api-mutation-failure", {
