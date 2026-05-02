@@ -24,6 +24,8 @@ export type {
   ApiResponse,
 } from "./core/ApiClient";
 
+export { GlobalContextManager, contextManager } from "./core/ContextManager";
+
 export {
   SovereignApiGuard,
   isShutdownLocked,
@@ -32,7 +34,6 @@ export {
 
 export { ErrorHandler, ApiErrorType } from "./core/ErrorHandler";
 export type { ApiError, ErrorContext } from "./core/ErrorHandler";
-
 
 export { AuthInterceptor } from "./core/AuthInterceptor";
 export type {

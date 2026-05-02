@@ -50,6 +50,7 @@ import axios, {
 import { ErrorHandler } from "./ErrorHandler";
 import { AuthInterceptor, AuthInterceptorConfig } from "./AuthInterceptor";
 import { SovereignApiGuard } from "./SovereignApiGuard";
+import { contextManager } from "./ContextManager";
 
 export interface ApiClientConfig {
   baseURL: string;
@@ -143,6 +144,10 @@ export class ApiClient {
         if (this.config.authEnabled) {
           config = this.authInterceptor.onRequest(config);
         }
+
+        // Inject ContextManager headers (Active App / Tenant)
+        const contextHeaders = contextManager.getHeaders();
+        Object.assign(config.headers, contextHeaders);
 
         // Add request ID for tracking
         config.headers["X-Request-ID"] = this.generateRequestId();
