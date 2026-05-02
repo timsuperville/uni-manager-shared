@@ -27,7 +27,7 @@ export interface User {
    */
   currentChurch?:
     | string
-    | { _id?: string; id?: string; name?: string; logo?: string };
+    | { _id?: string; id?: string; name?: string; logo?: string; addons?: string[] };
   /** Convenience scalar — mirrors currentChurch._id when populated as object */
   churchId?: string;
   /** Convenience scalar — mirrors currentChurch.name when populated as object */
@@ -36,11 +36,12 @@ export interface User {
     | Array<{
         church:
           | string
-          | { _id?: string; id?: string; name?: string; logo?: string };
+          | { _id?: string; id?: string; name?: string; logo?: string; addons?: string[] };
         role: string;
       }>
     | string[];
   organizations?: string[];
+  addons?: string[];
   status?: "active" | "suspended" | "pending" | "inactive";
   mfaEnabled?: boolean;
   preferences?: UserPreferences;
@@ -138,6 +139,9 @@ export interface AuthContextType {
     deviceFingerprint?: string | null,
     trustDevice?: boolean,
   ) => Promise<any>;
+
+  // Entitlements
+  isEntitled?: (entitlement: string) => boolean;
 
   // OAuth
   /** handleOAuthCallback — forwarded from authService via AuthProvider */

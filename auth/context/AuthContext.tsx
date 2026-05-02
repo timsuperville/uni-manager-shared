@@ -66,6 +66,7 @@ interface RBACMethods {
   isAnyAdmin: () => boolean;
   getApplicationRoles: (app: string) => string[];
   getPermissionSummary: () => Record<string, unknown>;
+  isEntitled: (entitlement: string) => boolean;
 }
 
 // ── Domain → RBAC role map ────────────────────────────────────────────────────
@@ -165,6 +166,7 @@ function buildRBACMethods(user: User | null): RBACMethods {
       isAnyAdmin: noop,
       getApplicationRoles: noopArr,
       getPermissionSummary: noopObj,
+      isEntitled: noop,
     };
   }
 
@@ -213,6 +215,14 @@ function buildRBACMethods(user: User | null): RBACMethods {
     getApplicationRoles: (app) => rbac.getApplicationRoles(app),
     getPermissionSummary: () =>
       rbac.getPermissionSummary() as unknown as Record<string, unknown>,
+    isEntitled: (entitlement: string) => {
+      const currentChurch = user.currentChurch as Record<string, unknown> | undefined;
+      const churchAddons = (currentChurch?.addons as string[]) || [];
+      const userAddons = (user.addons as string[]) || [];
+      
+      const allAddons = new Set([...churchAddons, ...userAddons]);
+      return allAddons.has(entitlement);
+    },
   };
 }
 

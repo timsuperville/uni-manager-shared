@@ -10,3 +10,4 @@ export * from "./reportApiError";
 export * from "./authToken";
 export * from "./env";
 export * from "./parseChordPro";
+export * from "./transposeChordPro";

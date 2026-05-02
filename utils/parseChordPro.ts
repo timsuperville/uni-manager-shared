@@ -106,7 +106,9 @@ function stripChords(line: string): string {
   return (
     line
       // Remove chord markers [Chord] — e.g. [Ab], [Eb/G], [Bb/D]
-      .replace(/\[[^\]]*\]/g, "")
+      // We only remove brackets that are NOT obviously structural headers.
+      // (Structural headers shouldn't be here since they are handled before stripChords, but just in case)
+      .replace(/\[(?!(?:Verse|Chorus|Bridge|Pre-Chorus|Tag|Outro|Intro|Interlude|Ending)\b)[^\]]+\]/gi, "")
       // Remove bare pipe characters (tab/intro bar notation)
       .replace(/\|/g, "")
       // Remove syllable-extension dashes: one or more hyphens surrounded by
@@ -171,8 +173,8 @@ function suggestThemes(lyrics: string): string[] {
         matchCount += wordCount[kw];
       }
     }
-    // If we have at least 2 matches of keywords related to this theme, suggest it
-    if (matchCount >= 2) {
+    // If we have at least 1 match of keywords related to this theme, suggest it
+    if (matchCount >= 1) {
       suggested.add(theme);
     }
   }
@@ -223,7 +225,7 @@ export function parseChordPro(content: string): ParsedChordPro {
     }
 
     // artist / a — may contain multiple artists separated by ", "
-    const artistVal = matchDirective(trimmed, "artist", "a");
+    const artistVal = matchDirective(trimmed, "artist", "a", "author");
     if (artistVal !== null) {
       result.artist = artistVal
         .split(",")
@@ -274,7 +276,7 @@ export function parseChordPro(content: string): ParsedChordPro {
     }
 
     // ccli song number ({ccli:} or {ccli_song:})
-    const ccliVal = matchDirective(trimmed, "ccli", "ccli_song");
+    const ccliVal = matchDirective(trimmed, "ccli", "ccli_song", "song_ccli");
     if (ccliVal !== null) {
       result.ccliNumber = ccliVal;
       continue;
@@ -359,6 +361,30 @@ export function parseChordPro(content: string): ParsedChordPro {
     // ── All other directives — skip ───────────────────────────────────────────
     if (trimmed.startsWith("{") && trimmed.endsWith("}")) continue;
 
+    // ── Plain text header block parsing (.txt exports) ───────────────────────
+    // Sometimes .txt exports include "Key - Eb | Tempo - 72 | Time - 4/4"
+    if (trimmed.includes("Key -") || trimmed.includes("Tempo -") || trimmed.includes("Time -")) {
+      const parts = trimmed.split("|");
+      for (const part of parts) {
+        const p = part.trim();
+        if (p.startsWith("Key -")) result.key = p.replace("Key -", "").trim();
+        else if (p.startsWith("Tempo -")) result.tempo = parseInt(p.replace("Tempo -", "").trim(), 10);
+        else if (p.startsWith("Time -")) result.timeSignature = p.replace("Time -", "").trim();
+      }
+      continue;
+    }
+
+    // Bracketed section headers like [Verse 1]
+    const bracketSectionMatch = trimmed.match(/^\[(Verse|Chorus|Bridge|Pre-Chorus|Tag|Outro|Intro|Interlude|Ending)[^\]]*\]$/i);
+    if (bracketSectionMatch) {
+      flushSection();
+      const sectionName = trimmed.slice(1, -1).trim();
+      result.sections.push(sectionName);
+      lyricLines.push(trimmed);
+      inSection = true;
+      continue;
+    }
+
     // ── Trailing CCLI block lines (plain text footer at EOF) ─────────────────
     // SongSelect appends plain-text attribution lines at the end of the file
     // after the directives. These start with "CCLI Song #" or "©" or
@@ -374,6 +400,10 @@ export function parseChordPro(content: string): ParsedChordPro {
       const ccliMatch = trimmed.match(/^CCLI Song #\s*(\d+)/);
       if (ccliMatch && !result.ccliNumber) {
         result.ccliNumber = ccliMatch[1];
+      }
+      // Capture copyright from the trailing block if not already set
+      if (/^©/.test(trimmed) && !result.copyright) {
+        result.copyright = trimmed;
       }
       continue;
     }
