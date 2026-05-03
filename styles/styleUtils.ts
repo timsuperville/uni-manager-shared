@@ -91,6 +91,26 @@ export const glassPanel: React.CSSProperties = {
   borderRadius: "var(--radius-lg, 0.75rem)",
 };
 
+/** Base glass surface background without blur or border */
+export const glassBackground: React.CSSProperties = {
+  background: "var(--glass-surface, rgba(15,15,35,0.85))",
+};
+
+/** Hover state for glass background */
+export const glassBackgroundHover: React.CSSProperties = {
+  background: "var(--glass-surface-hover, rgba(20,20,40,0.95))",
+};
+
+/** Glass outline/border only */
+export const glassBorder: React.CSSProperties = {
+  border: "1px solid var(--glass-outline, rgba(255,255,255,0.12))",
+};
+
+/** Flex layout utilities */
+export const flex1: React.CSSProperties = {
+  flex: 1,
+};
+
 /**
  * Lighter glass card surface — blur(16px) saturate(160%).
  * Use for secondary cards, list items, and nested surfaces.

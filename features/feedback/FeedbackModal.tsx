@@ -12,6 +12,7 @@ import ReactDOM from "react-dom";
 import { collectSystemContext } from "./utils/collectSystemContext";
 import type { FeedbackUser, SystemContext } from "./utils/collectSystemContext";
 import { getApiBaseUrl } from "../../api/config/apiConfig";
+import { glassBorder, textAccent } from "@shared/styles/styleUtils";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -236,7 +237,6 @@ function FeedbackModal({
           background: "var(--glass-surface, hsla(265,28%,14%,0.96))",
           backdropFilter: "blur(32px) saturate(200%)",
           WebkitBackdropFilter: "blur(32px) saturate(200%)",
-          border: "1px solid var(--glass-outline)",
           boxShadow: isMobile
             ? "0 -12px 48px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.06)"
             : "0 32px 72px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06)",
@@ -246,6 +246,7 @@ function FeedbackModal({
           animation: isMobile
             ? "feedback-sheet-up 0.28s cubic-bezier(0.32,0.72,0,1) both"
             : "feedback-slide-in 0.2s ease both",
+          ...glassBorder,
         }}
       >
         {/* Header */}
@@ -284,10 +285,10 @@ function FeedbackModal({
                 padding: "2px 6px",
                 borderRadius: "4px",
                 background: "var(--primary-subtle, rgba(99,102,241,0.09))",
-                color: "var(--primary-resonance)",
                 fontWeight: "600",
                 letterSpacing: "0.05em",
                 textTransform: "uppercase",
+                ...textAccent,
               }}
             >
               {appName === "unknown" ? "APP" : appName}
@@ -640,7 +641,6 @@ function FeedbackModal({
                     padding: "10px",
                     borderRadius: "8px",
                     background: "rgba(0,0,0,0.35)",
-                    border: "1px solid var(--glass-outline)",
                     fontSize: "11px",
                     fontFamily: "var(--font-mono, monospace)",
                     color: "var(--text-muted, #94a3b8)",
@@ -648,6 +648,7 @@ function FeedbackModal({
                     overflowY: "auto",
                     whiteSpace: "pre-wrap",
                     wordBreak: "break-all",
+                    ...glassBorder,
                   }}
                 >
                   {JSON.stringify(ctx, null, 2)}

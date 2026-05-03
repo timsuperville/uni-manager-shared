@@ -1,5 +1,6 @@
 import React from "react";
 import { CheckCircle } from "lucide-react";
+import { flex1 } from "@shared/styles/styleUtils";
 
 interface WizardStep {
   label?: string;
@@ -100,7 +101,6 @@ export function WizardStepper({
             {i < steps.length - 1 && (
               <div
                 style={{
-                  flex: 1,
                   height: 2,
                   minWidth: 16,
                   background: isDone
@@ -110,6 +110,7 @@ export function WizardStepper({
                   alignSelf: "flex-start",
                   marginTop: 15,
                   transition: "background 0.2s ease",
+                  ...flex1,
                 }}
               />
             )}

@@ -59,6 +59,7 @@ import {
 import { NotificationModal } from "./NotificationModal";
 import NotificationToast from "./NotificationToast";
 import { NotificationPreferences } from "./NotificationPreferences";
+import { glassBorder } from "@shared/styles/styleUtils";
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 
@@ -703,8 +704,8 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
         className="shrink-0"
         style={{
           padding: "14px 16px 0",
-          borderBottom: "1px solid var(--glass-outline)",
           background: "hsla(0,0%,100%,0.02)",
+          ...glassBorder,
         }}
       >
         {/* Title row */}

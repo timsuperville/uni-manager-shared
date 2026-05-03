@@ -18,6 +18,7 @@ import {
 } from "./_authUI";
 import { textAccent, textSecondary, textMuted } from "../../styles/styleUtils";
 import { KeyIcon } from "../../components/icons";
+import { glassBorder } from "@shared/styles/styleUtils";
 
 // Default UI config for unknown/unregistered appTypes
 const DEFAULT_UI = {
@@ -379,7 +380,7 @@ export function LoginForm({
                 className="h-4 w-4 rounded cursor-pointer"
                 style={{
                   accentColor: "var(--primary-resonance, hsl(272,65%,62%))",
-                  borderColor: "var(--glass-outline)",
+                  ...glassBorder,
                 }}
               />
               <label

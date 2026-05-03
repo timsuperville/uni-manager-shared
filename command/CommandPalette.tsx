@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useCommandContext } from "./CommandContext";
 import type { Command, CommandNamespace } from "./CommandContext";
+import { flex1 } from "@shared/styles/styleUtils";
 
 /**
  * CommandPalette — Universal Command Core Omnibox
@@ -224,7 +225,7 @@ function ResultRow({ command, isActive, onHover, onExecute }: ResultRowProps) {
       )}
 
       {/* Text */}
-      <div style={{ flex: 1, minWidth: 0 }}>
+      <div style={{ minWidth: 0, ...flex1 }}>
         <div
           style={{
             fontSize: "13px",
@@ -568,7 +569,6 @@ export function CommandPalette() {
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
             style={{
-              flex: 1,
               background: "transparent",
               border: "none",
               outline: "none",
@@ -577,6 +577,7 @@ export function CommandPalette() {
               fontFamily: "var(--font-body, sans-serif)",
               color: "var(--text-primary, #f1f5f9)",
               caretColor: "var(--primary-resonance, hsl(187,84%,44%))",
+              ...flex1,
             }}
             autoComplete="off"
             spellCheck={false}
@@ -592,11 +593,11 @@ export function CommandPalette() {
           role="listbox"
           aria-label="Command results"
           style={{
-            flex: 1,
             overflowY: "auto",
             padding: "6px 0",
             scrollbarWidth: "thin",
             scrollbarColor: "hsla(220,20%,30%,0.5) transparent",
+            ...flex1,
           }}
         >
           {flatResults.length === 0 && query.trim() !== "" && (

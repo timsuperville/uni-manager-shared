@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback, useId } from "react";
+import { flex1 } from "@shared/styles/styleUtils";
 
 type DropdownSize = "sm" | "md" | "lg";
 
@@ -111,7 +112,7 @@ export function Dropdown({
         {selected?.icon && (
           <selected.icon style={{ width: 14, height: 14, flexShrink: 0 }} />
         )}
-        <span style={{ flex: 1 }}>
+        <span style={{ ...flex1 }}>
           {selected ? selected.label : placeholder}
         </span>
         <svg

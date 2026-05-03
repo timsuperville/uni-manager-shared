@@ -16,6 +16,7 @@ import type { DropdownCoords } from "./positionUtils";
 import { getUserDisplayName } from "../../../utils";
 import type { User } from "../../types/auth.types";
 import type { AppConfig } from "../../config/appConfigs";
+import { glassBorder, flex1, textAccent } from "@shared/styles/styleUtils";
 
 interface UserMenuPanelProps {
   panelRef: React.RefObject<HTMLDivElement>;
@@ -103,27 +104,27 @@ function UserMenuPanel({
             zIndex: 99000,
             width: `${DROPDOWN_W}px`,
             borderRadius: "var(--radius-lg, 14px)",
-            border: "1px solid var(--glass-outline)",
             background: "var(--bg-sidebar)",
             backdropFilter: "blur(24px) saturate(180%)",
             WebkitBackdropFilter: "blur(24px) saturate(180%)",
             boxShadow:
               "0 16px 48px hsla(222,47%,4%,0.55), 0 0 0 1px var(--glass-outline)",
             overflow: "hidden",
+            ...glassBorder,
           }}
         >
           {/* ── Identity header ── */}
           <div
             style={{
               padding: "14px 16px",
-              borderBottom: "1px solid var(--glass-outline)",
               background: "hsla(0,0%,100%,0.02)",
+              ...glassBorder,
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
               <UserAvatar user={user} appConfig={appConfig} size="md" />
 
-              <div style={{ minWidth: 0, flex: 1 }}>
+              <div style={{ minWidth: 0, ...flex1 }}>
                 <p
                   style={{
                     margin: 0,
@@ -144,12 +145,12 @@ function UserMenuPanel({
                       margin: "1px 0 0",
                       fontSize: "11px",
                       fontWeight: "500",
-                      color: "var(--primary-resonance)",
                       overflow: "hidden",
                       textOverflow: "ellipsis",
                       whiteSpace: "nowrap",
                       textTransform: "capitalize",
                       letterSpacing: "0.02em",
+                      ...textAccent,
                     }}
                   >
                     {roleLabel}
@@ -186,7 +187,7 @@ function UserMenuPanel({
             <div
               style={{
                 padding: "8px 12px",
-                borderBottom: "1px solid var(--glass-outline)",
+                ...glassBorder,
               }}
             >
               {customHeader}

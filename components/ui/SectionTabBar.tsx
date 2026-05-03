@@ -1,5 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
+import { glassBorder } from "@shared/styles/styleUtils";
 
 export interface SectionTab {
   /** Display label */
@@ -31,9 +32,9 @@ export function SectionTabBar({ tabs, title, subtitle }: SectionTabBarProps) {
   return (
     <div
       style={{
-        borderBottom: "1px solid var(--glass-outline)",
         marginBottom: "24px",
         paddingBottom: "0",
+        ...glassBorder,
       }}
     >
       <style>{`

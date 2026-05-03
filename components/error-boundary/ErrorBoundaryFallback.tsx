@@ -1,5 +1,6 @@
 import React from "react";
 import { AlertTriangle, RefreshCw, Home, ChevronDown } from "lucide-react";
+import { flex1 } from "@shared/styles/styleUtils";
 
 // ── Animations ────────────────────────────────────────────────────────────────
 let _animationsInjected = false;
@@ -325,12 +326,12 @@ export function FullScreenFallback({
           <h1
             style={{
               margin: 0,
-              flex: 1,
               fontSize: "clamp(1rem, 3vw, 1.25rem)",
               fontWeight: 700,
               color: T.textPrimary,
               lineHeight: 1.3,
               fontFamily: "Outfit, Inter, system-ui, sans-serif",
+              ...flex1,
             }}
           >
             {title || "Something went wrong"}

@@ -1,3 +1,5 @@
+import { glassBackground, glassBorder } from "@shared/styles/styleUtils";
+
 interface StatsStripItem {
   key: string;
   label: string;
@@ -24,8 +26,8 @@ export function StatsStrip({
     <div
       className="flex items-center rounded-xl overflow-hidden w-full"
       style={{
-        background: "var(--glass-surface)",
-        border: "1px solid var(--glass-outline)",
+        ...glassBackground,
+        ...glassBorder,
       }}
       role="list"
       aria-label="Statistics"

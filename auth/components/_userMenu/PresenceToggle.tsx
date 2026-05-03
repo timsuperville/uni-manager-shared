@@ -1,5 +1,6 @@
 import React, { memo } from "react";
 import { WifiOff } from "lucide-react";
+import { glassBorder } from "@shared/styles/styleUtils";
 
 type PresenceStatus = "available" | "unavailable";
 
@@ -41,13 +42,13 @@ const PresenceToggle = memo(function PresenceToggle({
         padding: "2px 8px",
         borderRadius: "100px",
         background: "var(--bg-surface-1, hsla(0,0%,100%,0.04))",
-        border: "1px solid var(--glass-outline)",
         cursor: isConnected ? "pointer" : "not-allowed",
         opacity: isConnected ? 1 : 0.6,
         fontSize: "11px",
         fontWeight: "500",
         color: "var(--text-secondary)",
         transition: "all 150ms ease",
+        ...glassBorder,
       }}
     >
       {isConnected ? (

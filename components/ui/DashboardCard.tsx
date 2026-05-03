@@ -1,5 +1,6 @@
 import React from "react";
 import { Card, CardContent } from "./Card";
+import { glassBackground } from "@shared/styles/styleUtils";
 
 type TrendDirection = "up" | "down" | "neutral";
 
@@ -237,10 +238,10 @@ const StatCard: React.FC<StatCardProps> = ({
       onClick={onClick}
       className={`flex flex-col items-start gap-2 px-4 py-3.5 rounded-xl transition-all w-full text-left ${className}`}
       style={{
-        background: "var(--glass-surface)",
         border: `1px solid ${variantBorder}`,
         backdropFilter: "var(--glass-blur)",
         cursor: onClick ? "pointer" : "default",
+        ...glassBackground,
       }}
       {...props}
     >

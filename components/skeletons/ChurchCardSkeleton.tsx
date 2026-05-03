@@ -1,4 +1,5 @@
 import React from "react";
+import { glassBorder } from "@shared/styles/styleUtils";
 
 /**
  * ChurchCardSkeleton — Liquid Glass shimmer placeholder.
@@ -15,7 +16,7 @@ const ChurchCardSkeleton: React.FC = () => (
     {/* Header */}
     <div
       className="px-5 pt-5 pb-4 flex items-start gap-4"
-      style={{ borderBottom: "1px solid var(--glass-outline)" }}
+      style={{ ...glassBorder }}
     >
       {/* Avatar */}
       <div
@@ -60,10 +61,7 @@ const ChurchCardSkeleton: React.FC = () => (
     </div>
 
     {/* Actions */}
-    <div
-      className="px-5 pb-5 pt-3 flex gap-2"
-      style={{ borderTop: "1px solid var(--glass-outline)" }}
-    >
+    <div className="px-5 pb-5 pt-3 flex gap-2" style={{ ...glassBorder }}>
       <div
         className="h-9 rounded-lg flex-1"
         style={{ background: "var(--glass-outline, rgba(255,255,255,0.07))" }}

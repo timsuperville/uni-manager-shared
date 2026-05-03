@@ -24,6 +24,7 @@ interface ModalProps {
 }
 
 import React from "react";
+import { glassBackground, glassBorder, flex1 } from "@shared/styles/styleUtils";
 
 /** Modal — Liquid Glass full-screen backdrop modal. */
 export function Modal({
@@ -67,8 +68,6 @@ export function Modal({
       <div
         className={className}
         style={{
-          background: "var(--glass-surface)",
-          border: "1px solid var(--glass-outline)",
           backdropFilter: "blur(24px) saturate(180%)",
           WebkitBackdropFilter: "blur(24px) saturate(180%)",
           maxWidth: resolvedMaxWidth,
@@ -79,6 +78,8 @@ export function Modal({
           overflow: "hidden",
           boxShadow: "0 24px 64px rgba(0,0,0,0.45)",
           borderRadius: "var(--modal-radius, var(--radius-lg))",
+          ...glassBackground,
+          ...glassBorder,
         }}
       >
         <style>
@@ -96,10 +97,10 @@ export function Modal({
         <div
           style={{
             padding: "1rem 1.5rem",
-            borderBottom: "1px solid var(--glass-outline)",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
+            ...glassBorder,
           }}
         >
           <h3
@@ -130,17 +131,17 @@ export function Modal({
             ✕
           </button>
         </div>
-        <div style={{ padding: "1.5rem", overflowY: "auto", flex: 1 }}>
+        <div style={{ padding: "1.5rem", overflowY: "auto", ...flex1 }}>
           {children}
         </div>
         {footer && (
           <div
             style={{
               padding: "1rem 1.5rem",
-              borderTop: "1px solid var(--glass-outline)",
               display: "flex",
               justifyContent: "flex-end",
               gap: "0.5rem",
+              ...glassBorder,
             }}
           >
             {footer}

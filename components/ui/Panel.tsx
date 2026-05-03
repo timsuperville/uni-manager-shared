@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { glassBackground, glassBorder, flex1 } from "@shared/styles/styleUtils";
 
 interface PanelProps {
   open: boolean;
@@ -71,21 +72,21 @@ export function Panel({
           height: "100%",
           display: "flex",
           flexDirection: "column",
-          background: "var(--glass-surface)",
-          borderLeft: "1px solid var(--glass-outline)",
           backdropFilter: "blur(32px) saturate(200%)",
           WebkitBackdropFilter: "blur(32px) saturate(200%)",
           boxShadow: "-12px 0 48px rgba(0,0,0,0.45)",
           animation: "slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+          ...glassBackground,
+          ...glassBorder,
         }}
       >
         <div
           style={{
             padding: "1.25rem 1.5rem",
-            borderBottom: "1px solid var(--glass-outline)",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
+            ...glassBorder,
           }}
         >
           {title ? (
@@ -141,9 +142,9 @@ export function Panel({
         </div>
         <div
           style={{
-            flex: 1,
             overflowY: "auto",
             padding: padded ? "1.5rem" : "0",
+            ...flex1,
           }}
         >
           {children}
@@ -152,8 +153,8 @@ export function Panel({
           <div
             style={{
               padding: "1.25rem 1.5rem",
-              borderTop: "1px solid var(--glass-outline)",
               background: "rgba(0,0,0,0.2)",
+              ...glassBorder,
             }}
           >
             {footer}

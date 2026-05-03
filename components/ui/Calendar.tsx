@@ -1,6 +1,11 @@
 import React, { useState, useCallback, useMemo } from "react";
 import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 import { textMuted, textPrimary, textSecondary } from "../../styles/styleUtils";
+import {
+  glassBorder,
+  glassBackgroundHover,
+  textAccent,
+} from "@shared/styles/styleUtils";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -123,14 +128,11 @@ export function Calendar({
           alignItems: "center",
           justifyContent: "space-between",
           padding: "1rem 1.25rem",
-          borderBottom: "1px solid var(--glass-outline)",
+          ...glassBorder,
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <CalendarDays
-            size={18}
-            style={{ color: "var(--primary-resonance)" }}
-          />
+          <CalendarDays size={18} style={{ ...textAccent }} />
           <h2
             style={{
               fontSize: "16px",
@@ -153,10 +155,10 @@ export function Calendar({
               fontSize: "12px",
               fontWeight: 600,
               ...textSecondary,
-              background: "var(--glass-surface-hover)",
-              border: "1px solid var(--glass-outline)",
               cursor: "pointer",
               transition: "background 0.15s",
+              ...glassBackgroundHover,
+              ...glassBorder,
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.background = "hsla(272,65%,62%,0.12)";
@@ -180,10 +182,10 @@ export function Calendar({
               height: "32px",
               borderRadius: "8px",
               ...textMuted,
-              background: "var(--glass-surface-hover)",
-              border: "1px solid var(--glass-outline)",
               cursor: "pointer",
               transition: "background 0.15s",
+              ...glassBackgroundHover,
+              ...glassBorder,
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.background = "hsla(272,65%,62%,0.12)";
@@ -205,10 +207,10 @@ export function Calendar({
               height: "32px",
               borderRadius: "8px",
               ...textMuted,
-              background: "var(--glass-surface-hover)",
-              border: "1px solid var(--glass-outline)",
               cursor: "pointer",
               transition: "background 0.15s",
+              ...glassBackgroundHover,
+              ...glassBorder,
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.background = "hsla(272,65%,62%,0.12)";
@@ -227,7 +229,7 @@ export function Calendar({
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(7, 1fr)",
-          borderBottom: "1px solid var(--glass-outline)",
+          ...glassBorder,
         }}
       >
         {DOW_LABELS.map((label) => (
@@ -281,10 +283,10 @@ export function Calendar({
         <div
           style={{
             padding: "10px 1.25rem",
-            borderTop: "1px solid var(--glass-outline)",
             display: "flex",
             flexWrap: "wrap",
             gap: "12px",
+            ...glassBorder,
           }}
         >
           {bottomLegend}

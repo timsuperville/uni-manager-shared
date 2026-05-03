@@ -11,6 +11,7 @@ type SelectSize = "small" | "medium" | "large" | "chip";
 type SelectVariant = "default" | "outlined" | "filled";
 
 import type { SelectOption, SelectValue } from "./useSelectState";
+import { glassBorder } from "@shared/styles/styleUtils";
 
 interface SelectProps extends Omit<
   React.HTMLAttributes<HTMLDivElement>,
@@ -454,7 +455,7 @@ const Autocomplete: React.FC<SelectProps> = ({
               <div
                 style={{
                   padding: "8px",
-                  borderBottom: "1px solid var(--glass-outline)",
+                  ...glassBorder,
                 }}
               >
                 <input
@@ -470,10 +471,10 @@ const Autocomplete: React.FC<SelectProps> = ({
                     fontSize: "12px",
                     fontFamily: "var(--font-body)",
                     background: "var(--glass-input, rgba(255,255,255,0.06))",
-                    border: "1px solid var(--glass-outline)",
                     borderRadius: "var()",
                     color: "var(--text-primary)",
                     outline: "none",
+                    ...glassBorder,
                   }}
                 />
               </div>
@@ -503,12 +504,12 @@ const Autocomplete: React.FC<SelectProps> = ({
                         fontSize: "12px",
                         color: "var(--accent-rose)",
                         cursor: "pointer",
-                        borderBottom: "1px solid var(--glass-outline)",
                         background:
                           highlightedIndex === idx
                             ? "hsla(0,72%,50%,0.08)"
                             : "transparent",
                         transition: "background 0.12s",
+                        ...glassBorder,
                       }}
                     >
                       Clear selection

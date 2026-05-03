@@ -13,6 +13,8 @@ import {
   clamp,
   TIME_PICKER_STYLES as S,
 } from "./timePickerUtils";
+import { glassBorder, glassBackgroundHover } from "@shared/styles/styleUtils";
+
 export type { ParsedTime } from "./timePickerUtils";
 
 /**
@@ -434,7 +436,6 @@ export function TimePicker({
                 height: "40px",
                 marginLeft: 4,
                 borderRadius: "8px",
-                border: "1px solid var(--glass-outline)",
                 background: "var(--bg-surface-2, rgba(255,255,255,0.06))",
                 color: "var(--text-primary)",
                 fontSize: "14px",
@@ -452,6 +453,7 @@ export function TimePicker({
                         "0 0 0 3px var(--primary-glow, rgba(99,102,241,0.2))",
                     }
                   : {}),
+                ...glassBorder,
               }}
             >
               {isAM ? "AM" : "PM"}
@@ -469,8 +471,6 @@ export function TimePicker({
                 width: 32,
                 height: 32,
                 borderRadius: "8px",
-                border: "1px solid var(--glass-outline)",
-                background: "var(--glass-surface-hover)",
                 color: "var(--text-muted)",
                 cursor: "pointer",
                 display: "flex",
@@ -478,6 +478,8 @@ export function TimePicker({
                 justifyContent: "center",
                 flexShrink: 0,
                 transition: "all 0.15s",
+                ...glassBorder,
+                ...glassBackgroundHover,
               }}
             >
               <Check style={{ width: 14, height: 14 }} />

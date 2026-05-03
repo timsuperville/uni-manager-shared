@@ -1,4 +1,5 @@
 import React from "react";
+import { glassBorder } from "@shared/styles/styleUtils";
 
 interface ToggleProps extends Omit<
   React.LabelHTMLAttributes<HTMLLabelElement>,
@@ -55,7 +56,7 @@ export function Toggle({
           cursor: disabled ? "not-allowed" : "pointer",
           flexShrink: 0,
           outline: "none",
-          border: "1px solid var(--glass-outline)",
+          ...glassBorder,
         }}
       >
         <span
