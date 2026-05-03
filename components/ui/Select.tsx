@@ -266,11 +266,11 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
 
             <SelectPrimitive.Portal>
               <SelectPrimitive.Content
-                className="z-[9999] min-w-32 overflow-hidden rounded-md border border-[var(--glass-outline)] bg-[var(--glass-surface)] backdrop-blur-xl shadow-xl animate-in fade-in-80 zoom-in-95"
+                className="z-[9999] min-w-32 max-h-[300px] overflow-hidden rounded-md border border-[var(--glass-outline)] bg-[var(--glass-surface)] backdrop-blur-xl shadow-xl animate-in fade-in-80 zoom-in-95"
                 position="popper"
                 sideOffset={4}
               >
-                <SelectPrimitive.Viewport className="p-1">
+                <SelectPrimitive.Viewport className="p-1 max-h-[300px] overflow-y-auto">
                   {parsedOptions.map((opt, i) => {
                     if ("options" in opt) {
                       return (
