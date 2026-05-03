@@ -131,63 +131,6 @@ function stripChords(line: string): string {
 
 // ── Parser ────────────────────────────────────────────────────────────────────
 
-const THEME_TAXONOMY: Record<string, string[]> = {
-  Grace: ["grace", "forgive", "forgiven", "mercy", "undeserved", "saved"],
-  Praise: [
-    "praise",
-    "glory",
-    "honor",
-    "worship",
-    "hallelujah",
-    "magnify",
-    "exalt",
-  ],
-  Salvation: [
-    "save",
-    "saved",
-    "salvation",
-    "redeem",
-    "redeemed",
-    "blood",
-    "cross",
-    "calvary",
-  ],
-  "Holy Spirit": ["spirit", "ghost", "breath", "fire", "wind", "presence"],
-  Love: ["love", "loved", "heart", "affection"],
-  Faith: ["faith", "believe", "trust", "hope"],
-  Victory: ["victory", "overcome", "conquer", "won", "triumph"],
-  Peace: ["peace", "rest", "still", "quiet"],
-  Joy: ["joy", "gladness", "rejoice", "happy"],
-  Healing: ["heal", "healed", "restore", "whole"],
-};
-
-function suggestThemes(lyrics: string): string[] {
-  if (!lyrics) return [];
-  const words = lyrics
-    .toLowerCase()
-    .split(/\W+/)
-    .filter((w) => w.length > 2);
-  const wordCount: Record<string, number> = {};
-  for (const w of words) {
-    wordCount[w] = (wordCount[w] || 0) + 1;
-  }
-
-  const suggested = new Set<string>();
-  for (const [theme, keywords] of Object.entries(THEME_TAXONOMY)) {
-    let matchCount = 0;
-    for (const kw of keywords) {
-      if (wordCount[kw]) {
-        matchCount += wordCount[kw];
-      }
-    }
-    // If we have at least 1 match of keywords related to this theme, suggest it
-    if (matchCount >= 1) {
-      suggested.add(theme);
-    }
-  }
-  return Array.from(suggested);
-}
-
 /**
  * Parse a ChordPro file string and extract structured song data.
  *
@@ -308,6 +251,18 @@ export function parseChordPro(content: string): ParsedChordPro {
     const footerVal = matchDirective(trimmed, "footer");
     if (footerVal !== null) {
       result.footer = footerVal;
+      continue;
+    }
+
+    // themes / theme
+    const themesVal = matchDirective(trimmed, "themes", "theme");
+    if (themesVal !== null) {
+      result.themes.push(
+        ...themesVal
+          .split(",")
+          .map((t) => t.trim())
+          .filter(Boolean),
+      );
       continue;
     }
 
@@ -459,7 +414,8 @@ export function parseChordPro(content: string): ParsedChordPro {
     .replace(/\n{3,}/g, "\n\n")
     .trim();
 
-  result.themes = suggestThemes(result.lyrics);
+  // Deduplicate any explicit themes
+  result.themes = Array.from(new Set(result.themes));
 
   return result;
 }
