@@ -111,6 +111,10 @@ export interface UseChurchRoleReturn {
   /** true if User.roles[] includes 'admin' or 'org_admin' (platform override). */
   isPlatformAdmin: boolean;
 
+  // ── Forensics ──────────────────────────────────────────────────────────────
+  /** true if the current session is an active Ghost Mode impersonation session. */
+  isGhostMode: boolean;
+
   // ── Ministry ───────────────────────────────────────────────────────────────
   /** true if user is an active member of at least one ministry (computed, never stored). */
   isVolunteer: boolean;
@@ -307,6 +311,9 @@ function buildResult(
 
     // ── Platform ─────────────────────────────────────────────────────────────
     isPlatformAdmin: effectivePlatformAdmin,
+
+    // ── Forensics ────────────────────────────────────────────────────────────
+    isGhostMode: !!extUser?.isGhost,
 
     // ── Ministry ─────────────────────────────────────────────────────────────
     isVolunteer,

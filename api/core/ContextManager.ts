@@ -2,6 +2,7 @@ export class GlobalContextManager {
   private static instance: GlobalContextManager;
   private activeApp: string | null = null;
   private activeTenantId: string | null = null;
+  private impersonatorId: string | null = null;
   private listeners: Set<() => void> = new Set();
 
   private constructor() {}
@@ -31,6 +32,15 @@ export class GlobalContextManager {
     return this.activeTenantId;
   }
 
+  public setImpersonatorId(impersonatorId: string | null): void {
+    this.impersonatorId = impersonatorId;
+    this.notifyListeners();
+  }
+
+  public getImpersonatorId(): string | null {
+    return this.impersonatorId;
+  }
+
   public subscribe(listener: () => void): () => void {
     this.listeners.add(listener);
     return () => this.listeners.delete(listener);
@@ -47,6 +57,9 @@ export class GlobalContextManager {
     }
     if (this.activeTenantId) {
       headers["X-Tenant-ID"] = this.activeTenantId;
+    }
+    if (this.impersonatorId) {
+      headers["X-Impersonator-Id"] = this.impersonatorId;
     }
     return headers;
   }

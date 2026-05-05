@@ -1,5 +1,5 @@
 import React from "react";
-import { ChevronDown, WifiOff } from "lucide-react";
+import { ChevronDown, WifiOff, Ghost } from "lucide-react";
 
 import { UserAvatar } from "../../../components/ui";
 import { getUserDisplayName } from "../../../utils";
@@ -124,15 +124,29 @@ function UserMenuTrigger({
             style={{
               margin: 0,
               fontSize: "10px",
-              color: "var(--text-muted)",
+              color: user.isGhost ? "hsla(0,80%,68%,1)" : "var(--text-muted)",
               maxWidth: "110px",
               overflow: "hidden",
               textOverflow: "ellipsis",
               whiteSpace: "nowrap",
               lineHeight: 1.2,
               textTransform: "capitalize",
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
             }}
+            title={
+              user.isGhost
+                ? `Ghost: ${user.impersonatorEmail || "Admin"}`
+                : undefined
+            }
           >
+            {user.isGhost && (
+              <Ghost
+                size={10}
+                style={{ animation: "status-pulse 2s ease-in-out infinite" }}
+              />
+            )}
             {roleLabel}
           </p>
         )}

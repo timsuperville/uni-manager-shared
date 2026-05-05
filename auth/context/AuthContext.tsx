@@ -17,7 +17,7 @@ import {
 import { RBACUtils } from "../utils/RBACUtils";
 import type { Permission } from "../types/rbacRoles";
 import { useApi } from "../../api/hooks/index";
-
+import { contextManager } from "../../api/core/ContextManager";
 import type { AuthContextType, User } from "../types/auth.types";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -216,10 +216,12 @@ function buildRBACMethods(user: User | null): RBACMethods {
     getPermissionSummary: () =>
       rbac.getPermissionSummary() as unknown as Record<string, unknown>,
     isEntitled: (entitlement: string) => {
-      const currentChurch = user.currentChurch as Record<string, unknown> | undefined;
+      const currentChurch = user.currentChurch as
+        | Record<string, unknown>
+        | undefined;
       const churchAddons = (currentChurch?.addons as string[]) || [];
       const userAddons = (user.addons as string[]) || [];
-      
+
       const allAddons = new Set([...churchAddons, ...userAddons]);
       return allAddons.has(entitlement);
     },
@@ -283,6 +285,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
       SessionService.applySecurityProfile("standard");
     }
   }, [config?.appName]);
+
+  // Synchronize impersonatorId with API Client Context Manager for Forensic Logging
+  useEffect(() => {
+    if (state.user?.isGhost && state.user?.impersonatorId) {
+      contextManager.setImpersonatorId(state.user.impersonatorId);
+    } else {
+      contextManager.setImpersonatorId(null);
+    }
+  }, [state.user]);
 
   // Derive RBAC methods from resolved user.rbac (injected by verify-token)
   const rbacMethods = useMemo(() => buildRBACMethods(state.user), [state.user]);

@@ -27,7 +27,13 @@ export interface User {
    */
   currentChurch?:
     | string
-    | { _id?: string; id?: string; name?: string; logo?: string; addons?: string[] };
+    | {
+        _id?: string;
+        id?: string;
+        name?: string;
+        logo?: string;
+        addons?: string[];
+      };
   /** Convenience scalar — mirrors currentChurch._id when populated as object */
   churchId?: string;
   /** Convenience scalar — mirrors currentChurch.name when populated as object */
@@ -36,7 +42,13 @@ export interface User {
     | Array<{
         church:
           | string
-          | { _id?: string; id?: string; name?: string; logo?: string; addons?: string[] };
+          | {
+              _id?: string;
+              id?: string;
+              name?: string;
+              logo?: string;
+              addons?: string[];
+            };
         role: string;
       }>
     | string[];
@@ -44,6 +56,9 @@ export interface User {
   addons?: string[];
   status?: "active" | "suspended" | "pending" | "inactive";
   mfaEnabled?: boolean;
+  isGhost?: boolean;
+  impersonatorId?: string;
+  impersonatorEmail?: string;
   preferences?: UserPreferences;
   createdAt?: Date | string;
   updatedAt?: Date | string;
