@@ -68,6 +68,10 @@ export interface ParsedChordPro {
    * Deterministic timeline sections calculated by AI/backend enrichment.
    */
   timeline?: { label: string; startTime: number }[];
+  /**
+   * Associated media items (e.g. YouTube tracks) found during enrichment.
+   */
+  media?: { id: string; type: string; role: string; url: string; title: string; thumbnail?: string }[];
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
