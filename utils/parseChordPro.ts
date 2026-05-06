@@ -71,7 +71,14 @@ export interface ParsedChordPro {
   /**
    * Associated media items (e.g. YouTube tracks) found during enrichment.
    */
-  media?: { id: string; type: string; role: string; url: string; title: string; thumbnail?: string }[];
+  media?: {
+    id: string;
+    type: string;
+    role: string;
+    url: string;
+    title: string;
+    thumbnail?: string;
+  }[];
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -157,6 +164,7 @@ export function parseChordPro(content: string): ParsedChordPro {
   const lyricLines: string[] = [];
   let currentSectionLines: string[] = [];
   let inSection = false;
+  let inTrailingBlock = false;
 
   const flushSection = () => {
     if (currentSectionLines.length > 0) {
@@ -327,7 +335,36 @@ export function parseChordPro(content: string): ParsedChordPro {
     // ── All other directives — skip ───────────────────────────────────────────
     if (trimmed.startsWith("{") && trimmed.endsWith("}")) continue;
 
-    // ── Plain text header block parsing (.txt exports) ───────────────────────
+    // ── Plain text header parsing (.txt exports or loose ChordPro) ───────────
+    // Some files use plain text headers before lyrics, e.g. "Title: My Song"
+    const headerMatch = trimmed.match(
+      /^(Title|Artist|Author|Key|Tempo|Time(?: Signature)?|CCLI(?: Song #)?|Copyright)[\s:-]+(.*)$/i,
+    );
+    // Only capture these if we haven't hit a section/lyrics yet to avoid false positives inside lyrics
+    if (headerMatch && !inSection && lyricLines.length < 5) {
+      const key = headerMatch[1].toLowerCase();
+      const val = headerMatch[2].trim();
+      if (key === "title" && !result.title) result.title = val;
+      else if (
+        (key === "artist" || key === "author") &&
+        result.artist.length === 0
+      ) {
+        result.artist = val
+          .split(",")
+          .map((a) => a.trim())
+          .filter(Boolean);
+      } else if (key === "key" && !result.key) result.key = val;
+      else if (key === "tempo" && !result.tempo) {
+        const bpm = parseInt(val, 10);
+        if (!isNaN(bpm)) result.tempo = bpm;
+      } else if (key.startsWith("time") && !result.timeSignature)
+        result.timeSignature = val;
+      else if (key.startsWith("ccli") && !result.ccliNumber)
+        result.ccliNumber = val;
+      else if (key === "copyright" && !result.copyright) result.copyright = val;
+      continue;
+    }
+
     // Sometimes .txt exports include "Key - Eb | Tempo - 72 | Time - 4/4"
     if (
       trimmed.includes("Key -") ||
@@ -370,6 +407,7 @@ export function parseChordPro(content: string): ParsedChordPro {
       /^For use solely/.test(trimmed) ||
       /^www\.ccli\.com/.test(trimmed)
     ) {
+      inTrailingBlock = true;
       // Capture the song number from the trailing block if not already set
       const ccliMatch = trimmed.match(/^CCLI Song #\s*(\d+)/);
       if (ccliMatch && !result.ccliNumber) {
@@ -380,6 +418,21 @@ export function parseChordPro(content: string): ParsedChordPro {
         result.copyright = trimmed;
       }
       continue;
+    }
+
+    // If we are in the trailing block, keep consuming non-empty lines
+    if (inTrailingBlock) {
+      if (trimmed !== "") {
+        // Catch wrapped copyright continuations
+        if (!trimmed.includes("[")) {
+          if (result.copyright && !result.copyright.includes(trimmed)) {
+            result.copyright += " " + trimmed;
+          }
+        }
+        continue;
+      } else {
+        inTrailingBlock = false;
+      }
     }
 
     // ── Lyric / chord lines ───────────────────────────────────────────────────
