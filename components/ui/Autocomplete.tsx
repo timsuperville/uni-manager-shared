@@ -620,7 +620,13 @@ const Autocomplete: React.FC<SelectProps> = ({
       {/* Hidden native select for form semantics */}
       <select
         name={name}
-        value={multiple ? "" : (value as string) || ""}
+        value={
+          multiple
+            ? Array.isArray(value)
+              ? value.map(String)
+              : []
+            : (value as string) || ""
+        }
         onChange={() => {}}
         required={required}
         multiple={multiple}
@@ -628,7 +634,15 @@ const Autocomplete: React.FC<SelectProps> = ({
         tabIndex={-1}
         aria-hidden="true"
       >
-        <option value={(value as string) || ""}>{placeholder}</option>
+        {multiple ? (
+          (Array.isArray(value) ? value : []).map((v) => (
+            <option key={v} value={v}>
+              {v}
+            </option>
+          ))
+        ) : (
+          <option value={(value as string) || ""}>{placeholder}</option>
+        )}
       </select>
     </div>
   );
