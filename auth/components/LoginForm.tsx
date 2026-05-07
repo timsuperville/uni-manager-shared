@@ -63,6 +63,7 @@ export function LoginForm({
 }: LoginFormProps) {
   const {
     login,
+    loginWithGoogle,
     verifyMFALogin,
     isLoading,
     error,
@@ -97,6 +98,7 @@ export function LoginForm({
     null,
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [localError, setLocalError] = useState<string | null>(null);
 
   // Pull ui branding from the single source of truth — appConfigs.js
   const appConfig = getCurrentAppConfig(appType);
@@ -304,11 +306,23 @@ export function LoginForm({
         {/* Google OAuth */}
         <OAuthButton
           provider="Google"
-          onClick={() => {
-            if (process.env.NODE_ENV === "development") {
-              console.log(
-                "[LoginForm] Google OAuth clicked — not yet implemented",
+          onClick={async () => {
+            try {
+              if (loginWithGoogle) {
+                const result = await loginWithGoogle();
+                const res = result as any;
+                if (res.success || res.user) {
+                  onSuccess?.(result as any);
+                  if (redirectPath) navigate(redirectPath, { replace: true });
+                }
+              } else {
+                console.warn("Google OAuth login method is not available.");
+              }
+            } catch (err: any) {
+              setLocalError(
+                err.message || "An error occurred during Google sign in.",
               );
+              onError?.(err);
             }
           }}
           icon={<GoogleIcon className="w-5 h-5 sm:w-6 sm:h-6" />}
@@ -321,7 +335,9 @@ export function LoginForm({
         {/* Email + password form */}
         <form className="space-y-5 sm:space-y-6" onSubmit={handleLoginSubmit}>
           {/* Error banner */}
-          {error && <Alert type="error" message={error} />}
+          {(error || localError) && (
+            <Alert type="error" message={error || localError} />
+          )}
 
           {/* Email */}
           <AuthInput

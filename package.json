@@ -90,6 +90,7 @@
     "@vitest/ui": "^4.0.16",
     "axios": "^1.9.0",
     "date-fns": "^4.1.0",
+    "firebase": "^12.12.1",
     "i18next": "^26.0.8",
     "idb-keyval": "^6.2.2",
     "lerna": "9.0.3",

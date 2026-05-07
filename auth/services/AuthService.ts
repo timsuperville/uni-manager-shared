@@ -88,6 +88,24 @@ export class AuthService extends BaseService {
   }
 
   /**
+   * Google OAuth login via Firebase token
+   */
+  async loginWithGoogle(idToken: string): Promise<AuthResponse> {
+    const response = await this.post<AuthResponse>(
+      "/google",
+      { idToken },
+      {
+        cache: false,
+      },
+    );
+
+    // Store token in interceptor so subsequent requests carry the Bearer header
+    this.client.setAuthToken(response.accessToken);
+
+    return response;
+  }
+
+  /**
    * User signup
    */
   async signup(userData: SignupRequest): Promise<AuthResponse> {

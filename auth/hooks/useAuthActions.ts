@@ -1,4 +1,5 @@
 import { useCallback } from "react";
+import { auth, googleProvider, signInWithPopup } from "../utils/firebase";
 import { clearCachedDeviceFingerprint } from "../utils/deviceFingerprintCache";
 import type {
   User,
@@ -112,6 +113,39 @@ export function useAuthActions(
     },
     [authService, updateState, setError, notifyStateChange, notifyError],
   );
+
+  const loginWithGoogle = useCallback(async () => {
+    try {
+      updateState({ isLoading: true, error: null });
+
+      const userCredential = await signInWithPopup(auth, googleProvider);
+      const idToken = await userCredential.user.getIdToken();
+
+      const result = await authService.loginWithGoogle(idToken);
+
+      if (result["requiresMFA"] || result["mfaRequired"]) {
+        updateState({ isLoading: false, mfaRequired: true });
+        return result;
+      }
+
+      const newState = {
+        user: result["user"],
+        isAuthenticated: true,
+        isLoading: false,
+      };
+
+      updateState(newState);
+      notifyStateChange(newState);
+      return result;
+    } catch (error) {
+      const errorMessage =
+        (error as { message?: string })?.message ?? "Google Login failed";
+      setError(errorMessage);
+      updateState({ isLoading: false });
+      notifyError(error);
+      throw error;
+    }
+  }, [authService, updateState, setError, notifyStateChange, notifyError]);
 
   const logout = useCallback(async () => {
     try {
@@ -288,6 +322,7 @@ export function useAuthActions(
   return {
     initializeAuth,
     login,
+    loginWithGoogle,
     logout,
     signup,
     resetPassword,

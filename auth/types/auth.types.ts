@@ -115,6 +115,7 @@ export interface AuthContextType {
   login: (
     credentials: LoginCredentials,
   ) => Promise<LoginResult | LoginResponse>;
+  loginWithGoogle?: () => Promise<LoginResult | LoginResponse>;
   logout: () => Promise<void | { success: boolean }>;
   signup?: (data: SignupData) => Promise<LoginResult>;
 
@@ -478,6 +479,7 @@ export interface AuthServiceLike {
   checkAuthStatus(): Promise<{ isAuthenticated: boolean; user?: User | null }>;
   getCurrentUser(): Promise<User | null>;
   login(credentials: LoginCredentials): Promise<Record<string, unknown>>;
+  loginWithGoogle(idToken: string): Promise<Record<string, unknown>>;
   logout(): Promise<void>;
   signup(data: SignupData): Promise<unknown>;
   resetPassword(email: string): Promise<unknown>;
