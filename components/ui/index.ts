@@ -45,6 +45,7 @@ export {
   WidgetSkeletonBar,
   WidgetSkeletonList,
 } from "./WidgetSkeleton";
+export { Tooltip } from "./Tooltip";
 
 // Liquid Glass form primitives (inline-style, CSS token—based)
 export { Select } from "./Select";

@@ -18,6 +18,9 @@ interface ModalProps {
   footer?: React.ReactNode;
   maxWidth?: number | string;
   className?: string;
+  hideHeader?: boolean;
+  hidePadding?: boolean;
+  noScroll?: boolean;
   /** Backward-compat aliases */
   isOpen?: boolean;
   size?: ModalSize;
@@ -35,6 +38,9 @@ export function Modal({
   footer,
   maxWidth,
   className = "",
+  hideHeader = false,
+  hidePadding = false,
+  noScroll = false,
   isOpen,
   size,
 }: ModalProps) {
@@ -94,44 +100,55 @@ export function Modal({
             }
           `}
         </style>
+        {!hideHeader && (
+          <div
+            style={{
+              padding: "1rem 1.5rem",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              ...glassBorder,
+            }}
+          >
+            <h3
+              style={{
+                margin: 0,
+                fontSize: "var(--text-lg)",
+                fontWeight: 600,
+                color: "var(--text-primary)",
+              }}
+            >
+              {title}
+            </h3>
+            <button
+              onClick={onClose}
+              aria-label="Close dialog"
+              style={{
+                background: "none",
+                border: "none",
+                color: "var(--text-secondary)",
+                cursor: "pointer",
+                fontSize: "1.1rem",
+                padding: "2px 6px",
+                borderRadius: "4px",
+                lineHeight: 1,
+                transition: "color 0.15s",
+              }}
+            >
+              ✕
+            </button>
+          </div>
+        )}
         <div
           style={{
-            padding: "1rem 1.5rem",
+            padding: hidePadding ? "0" : "1.5rem",
+            overflowY: noScroll ? "hidden" : "auto",
             display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            ...glassBorder,
+            flexDirection: "column",
+            minHeight: 0,
+            ...flex1,
           }}
         >
-          <h3
-            style={{
-              margin: 0,
-              fontSize: "var(--text-lg)",
-              fontWeight: 600,
-              color: "var(--text-primary)",
-            }}
-          >
-            {title}
-          </h3>
-          <button
-            onClick={onClose}
-            aria-label="Close dialog"
-            style={{
-              background: "none",
-              border: "none",
-              color: "var(--text-secondary)",
-              cursor: "pointer",
-              fontSize: "1.1rem",
-              padding: "2px 6px",
-              borderRadius: "4px",
-              lineHeight: 1,
-              transition: "color 0.15s",
-            }}
-          >
-            ✕
-          </button>
-        </div>
-        <div style={{ padding: "1.5rem", overflowY: "auto", ...flex1 }}>
           {children}
         </div>
         {footer && (
