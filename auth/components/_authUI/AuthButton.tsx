@@ -12,6 +12,8 @@ interface AuthButtonProps {
   fullWidth?: boolean;
   loading?: boolean;
   className?: string;
+  "aria-label"?: string;
+  "aria-describedby"?: string;
 }
 
 /**
@@ -34,6 +36,8 @@ export const AuthButton = ({
   fullWidth = true,
   loading = false,
   className = "",
+  "aria-label": ariaLabel,
+  "aria-describedby": ariaDescribedby,
 }: AuthButtonProps) => {
   const base =
     "inline-flex items-center justify-center px-4 py-3 sm:py-3.5 border border-transparent text-sm sm:text-base font-semibold rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-200 disabled:opacity-60 transform active:scale-[0.98] cursor-pointer disabled:cursor-not-allowed";
@@ -65,6 +69,9 @@ export const AuthButton = ({
       type={type}
       onClick={onClick}
       disabled={disabled || loading}
+      aria-busy={loading}
+      aria-label={ariaLabel}
+      aria-describedby={ariaDescribedby}
       className={`${base} ${variants[variant]} ${primaryClasses} ${fullWidth ? "w-full" : ""} ${className}`}
       style={primaryStyle}
     >
@@ -74,6 +81,7 @@ export const AuthButton = ({
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
+          aria-hidden="true"
         >
           <circle
             className="opacity-25"

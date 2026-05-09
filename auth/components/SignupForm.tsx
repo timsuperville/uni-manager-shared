@@ -465,7 +465,10 @@ const SignupForm = ({
             />
             {passwordStrength && formData.password && (
               <div className="mt-3 bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg border border-gray-100 dark:border-gray-700">
-                <div className="flex items-center justify-between mb-2">
+                <div
+                  className="flex items-center justify-between mb-2"
+                  aria-live="polite"
+                >
                   <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
                     Password strength
                   </span>
@@ -539,7 +542,14 @@ const SignupForm = ({
                 type="checkbox"
                 checked={formData.agreeToTerms}
                 onChange={handleChange}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mt-1"
+                aria-invalid={!!errors.agreeToTerms}
+                aria-describedby={
+                  errors.agreeToTerms ? "agreeToTerms-error" : undefined
+                }
+                className="h-4 w-4 rounded cursor-pointer border-gray-300 dark:border-gray-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--primary-resonance,hsl(272,65%,62%))] mt-1"
+                style={{
+                  accentColor: "var(--primary-resonance, hsl(272,65%,62%))",
+                }}
               />
               <label
                 htmlFor="agreeToTerms"
@@ -548,7 +558,7 @@ const SignupForm = ({
                 I agree to the{" "}
                 <a
                   href="/terms"
-                  className="text-blue-600 hover:text-blue-500 dark:text-blue-400 font-medium"
+                  className="text-blue-600 hover:text-blue-500 dark:text-blue-400 font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--primary-resonance,hsl(272,65%,62%))] rounded"
                   onClick={onTermsClick}
                 >
                   Terms of Service
@@ -556,7 +566,7 @@ const SignupForm = ({
                 and{" "}
                 <a
                   href="/privacy"
-                  className="text-blue-600 hover:text-blue-500 dark:text-blue-400 font-medium"
+                  className="text-blue-600 hover:text-blue-500 dark:text-blue-400 font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--primary-resonance,hsl(272,65%,62%))] rounded"
                   onClick={onPrivacyClick}
                 >
                   Privacy Policy
@@ -564,7 +574,11 @@ const SignupForm = ({
               </label>
             </div>
             {errors.agreeToTerms && (
-              <p className="mt-1.5 text-xs sm:text-sm text-red-600 dark:text-red-400 font-medium">
+              <p
+                id="agreeToTerms-error"
+                className="mt-1.5 text-xs sm:text-sm text-red-600 dark:text-red-400 font-medium"
+                role="alert"
+              >
                 {errors.agreeToTerms}
               </p>
             )}
@@ -588,7 +602,7 @@ const SignupForm = ({
               Already have an account?{" "}
               <button
                 type="button"
-                className="font-semibold text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 underline underline-offset-2 cursor-pointer"
+                className="font-semibold text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 underline underline-offset-2 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--primary-resonance,hsl(272,65%,62%))] rounded"
                 onClick={() => {
                   if (onLogin) {
                     onLogin();

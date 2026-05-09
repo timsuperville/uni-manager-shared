@@ -261,18 +261,24 @@ const MFAVerification = ({
           onChange={(e) => handleTokenChange(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="000000"
-          className="text-center text-2xl font-mono tracking-widest w-48 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className={`text-center text-2xl font-mono tracking-widest w-48 px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent ${
+            error
+              ? "border-red-300 focus:ring-red-500"
+              : "border-gray-300 focus:ring-blue-500"
+          }`}
           maxLength={6}
           autoComplete="off"
           inputMode="numeric"
           pattern="[0-9]*"
+          aria-invalid={!!error}
+          aria-describedby={error ? "mfa-error" : undefined}
         />
       </div>
 
       <div className="text-center">
         <button
           onClick={switchToBackupMode}
-          className="text-sm text-blue-600 hover:text-blue-800 underline cursor-pointer"
+          className="text-sm text-blue-600 hover:text-blue-800 underline cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 rounded"
         >
           Use backup code instead
         </button>
@@ -302,16 +308,22 @@ const MFAVerification = ({
           onChange={(e) => handleTokenChange(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="XXXXXXXX"
-          className="text-center text-xl font-mono tracking-wider w-64 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className={`text-center text-xl font-mono tracking-wider w-64 px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent ${
+            error
+              ? "border-red-300 focus:ring-red-500"
+              : "border-gray-300 focus:ring-blue-500"
+          }`}
           maxLength={12}
           autoComplete="off"
+          aria-invalid={!!error}
+          aria-describedby={error ? "mfa-error" : undefined}
         />
       </div>
 
       <div className="text-center space-y-2">
         <button
           onClick={switchToTOTPMode}
-          className="text-sm text-blue-600 hover:text-blue-800 underline cursor-pointer"
+          className="text-sm text-blue-600 hover:text-blue-800 underline cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 rounded"
         >
           Use authenticator app instead
         </button>
@@ -393,7 +405,12 @@ const MFAVerification = ({
 
           {/* Error Display */}
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div
+              id="mfa-error"
+              className="bg-red-50 border border-red-200 rounded-lg p-4"
+              role="alert"
+              aria-live="assertive"
+            >
               <div className="flex items-start space-x-2">
                 <AlertCircleIcon />
                 <div className="text-sm">
@@ -419,7 +436,8 @@ const MFAVerification = ({
             <button
               onClick={handleVerification}
               disabled={!canSubmit() || remainingAttempts === 0}
-              className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed transition-colors font-medium"
+              className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed transition-colors font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
+              aria-busy={isVerifying}
             >
               {isVerifying ? (
                 <div className="flex items-center justify-center space-x-2">
@@ -437,7 +455,7 @@ const MFAVerification = ({
 
             <button
               onClick={onCancel}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer disabled:cursor-not-allowed"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
               disabled={isVerifying}
             >
               Cancel

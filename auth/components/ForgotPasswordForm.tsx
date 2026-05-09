@@ -96,7 +96,7 @@ const ForgotPasswordForm = ({
         <button
           type="button"
           onClick={handleBack}
-          className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium transition-colors -mt-1 mb-1 cursor-pointer"
+          className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium transition-colors -mt-1 mb-1 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--primary-resonance,hsl(272,65%,62%))] rounded"
         >
           <svg
             className="w-4 h-4 shrink-0"
@@ -200,7 +200,7 @@ const ForgotPasswordForm = ({
           <button
             type="button"
             onClick={handleBack}
-            className="font-semibold text-blue-600 dark:text-blue-400 hover:underline focus:outline-none cursor-pointer"
+            className="font-semibold text-blue-600 dark:text-blue-400 hover:underline focus:outline-none cursor-pointer focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--primary-resonance,hsl(272,65%,62%))] rounded"
           >
             Sign in
           </button>
