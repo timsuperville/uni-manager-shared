@@ -195,6 +195,7 @@ export interface LoginCredentials {
   password: string;
   rememberMe?: boolean;
   appType?: AppType;
+  deviceInfo?: { fingerprint?: string };
 }
 
 export interface LoginFormData {
