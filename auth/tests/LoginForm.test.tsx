@@ -23,7 +23,7 @@ describe("LoginForm", () => {
   const renderLoginForm = (props = {}) => {
     return render(
       <MemoryRouter>
-        <ApiProvider config={{ baseURL: "http://localhost:5000" }}>
+        <ApiProvider config={{ baseURL: "http://127.0.0.1:5000" }}>
           <AuthProvider>
             <LoginForm {...props} />
           </AuthProvider>

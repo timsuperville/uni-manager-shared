@@ -44,7 +44,7 @@ interface ConfigIssue {
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 const getMockAppConfig = (appType: string): MockAppConfig => {
-  const baseApiUrl = "http://localhost:5000";
+  const baseApiUrl = "http://127.0.0.1:5000";
 
   const configs: Record<string, MockAppConfig> = {
     church: {

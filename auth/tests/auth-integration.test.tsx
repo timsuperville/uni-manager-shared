@@ -14,7 +14,7 @@ import { ApiProvider } from "../../api/components/ApiProvider";
 import { LoginForm } from "../components/LoginForm";
 
 const testApiConfig = {
-  baseURL: "http://localhost:5000",
+  baseURL: "http://127.0.0.1:5000",
   appName: "test",
   authConfig: {
     tokenStorage: "sessionStorage" as const,

@@ -6,7 +6,7 @@
  * KEY DESIGN DECISION: baseURL is a RELATIVE path ("/api/v1").
  *
  * Why relative?
- *   - In dev, Vite proxies /api/v1 → http://localhost:5000/api/v1
+ *   - In dev, Vite proxies /api/v1 → http://127.0.0.1:5000/api/v1
  *   - In prod, nginx proxies /api/v1 → the backend
  *   - No hardcoded hosts anywhere in the frontend bundle
  *   - One proxy rule per vite.config, not ten different baseURLs
@@ -68,7 +68,7 @@ export const getApiBaseUrl = (): string => {
  * 1. Explicit VITE_WS_URL
  * 2. getApiBaseUrl() replacing http/https with ws/wss
  * 3. window.location.origin converting http to ws
- * 4. ws://localhost:5000 (Development fallback)
+ * 4. ws://127.0.0.1:5000 (Development fallback)
  */
 export const getWebSocketUrl = (): string => {
   if (

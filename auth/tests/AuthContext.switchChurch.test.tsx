@@ -105,9 +105,7 @@ describe("AuthContext - switchChurch", () => {
     };
 
     render(
-      <ApiProvider
-        config={{ baseURL: "http://localhost:5000" }}
-      >
+      <ApiProvider config={{ baseURL: "http://127.0.0.1:5000" }}>
         <AuthProvider config={{ appType: "church" }}>
           <TestComponent onStateChange={onStateChange} />
         </AuthProvider>
@@ -155,9 +153,7 @@ describe("AuthContext - switchChurch", () => {
     };
 
     render(
-      <ApiProvider
-        config={{ baseURL: "http://localhost:5000" }}
-      >
+      <ApiProvider config={{ baseURL: "http://127.0.0.1:5000" }}>
         <AuthProvider config={{ appType: "church" }}>
           <TestComponent onStateChange={onStateChange} />
         </AuthProvider>
@@ -203,9 +199,7 @@ describe("AuthContext - switchChurch", () => {
     const onError = vi.fn();
 
     render(
-      <ApiProvider
-        config={{ baseURL: "http://localhost:5000" }}
-      >
+      <ApiProvider config={{ baseURL: "http://127.0.0.1:5000" }}>
         <AuthProvider config={{ appType: "church" }} onError={onError}>
           <TestComponent onStateChange={onStateChange} />
         </AuthProvider>
@@ -255,9 +249,7 @@ describe("AuthContext - switchChurch", () => {
     };
 
     render(
-      <ApiProvider
-        config={{ baseURL: "http://localhost:5000" }}
-      >
+      <ApiProvider config={{ baseURL: "http://127.0.0.1:5000" }}>
         <AuthProvider
           config={{ appType: "church" }}
           onAuthStateChange={onAuthStateChange}
@@ -301,9 +293,7 @@ describe("AuthContext - switchChurch", () => {
     };
 
     render(
-      <ApiProvider
-        config={{ baseURL: "http://localhost:5000" }}
-      >
+      <ApiProvider config={{ baseURL: "http://127.0.0.1:5000" }}>
         <AuthProvider config={{ appType: "church" }}>
           <TestComponent onStateChange={onStateChange} />
         </AuthProvider>
