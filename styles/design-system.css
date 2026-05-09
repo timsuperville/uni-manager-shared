@@ -20,7 +20,7 @@
   --spacing-xl: 3rem;
 
   /* Typography */
-  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
   --font-size-md: 1rem;
@@ -37,7 +37,8 @@
   /* Shadows */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-lg:
+    0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 }
 
 /* Button Components */
@@ -58,9 +59,11 @@
     overflow: hidden;
   }
 
-  .btn-base:focus {
+  .btn-base:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 2px rgb(59 130 246 / 0.4), 0 0 0 4px rgb(255 255 255);
+    box-shadow:
+      0 0 0 2px rgb(59 130 246 / 0.4),
+      0 0 0 4px rgb(255 255 255);
   }
 
   .btn-base:disabled {
@@ -185,24 +188,60 @@
 
 /* Utility Classes */
 @layer utilities {
-  .text-primary { color: var(--color-primary); }
-  .text-secondary { color: var(--color-secondary); }
-  .text-success { color: var(--color-success); }
-  .text-danger { color: var(--color-danger); }
-  .text-warning { color: var(--color-warning); }
-  .text-info { color: var(--color-info); }
+  .text-primary {
+    color: var(--color-primary);
+  }
+  .text-secondary {
+    color: var(--color-secondary);
+  }
+  .text-success {
+    color: var(--color-success);
+  }
+  .text-danger {
+    color: var(--color-danger);
+  }
+  .text-warning {
+    color: var(--color-warning);
+  }
+  .text-info {
+    color: var(--color-info);
+  }
 
-  .bg-primary { background-color: var(--color-primary); }
-  .bg-secondary { background-color: var(--color-secondary); }
-  .bg-success { background-color: var(--color-success); }
-  .bg-danger { background-color: var(--color-danger); }
-  .bg-warning { background-color: var(--color-warning); }
-  .bg-info { background-color: var(--color-info); }
+  .bg-primary {
+    background-color: var(--color-primary);
+  }
+  .bg-secondary {
+    background-color: var(--color-secondary);
+  }
+  .bg-success {
+    background-color: var(--color-success);
+  }
+  .bg-danger {
+    background-color: var(--color-danger);
+  }
+  .bg-warning {
+    background-color: var(--color-warning);
+  }
+  .bg-info {
+    background-color: var(--color-info);
+  }
 
-  .border-primary { border-color: var(--color-primary); }
-  .border-secondary { border-color: var(--color-secondary); }
-  .border-success { border-color: var(--color-success); }
-  .border-danger { border-color: var(--color-danger); }
-  .border-warning { border-color: var(--color-warning); }
-  .border-info { border-color: var(--color-info); }
+  .border-primary {
+    border-color: var(--color-primary);
+  }
+  .border-secondary {
+    border-color: var(--color-secondary);
+  }
+  .border-success {
+    border-color: var(--color-success);
+  }
+  .border-danger {
+    border-color: var(--color-danger);
+  }
+  .border-warning {
+    border-color: var(--color-warning);
+  }
+  .border-info {
+    border-color: var(--color-info);
+  }
 }

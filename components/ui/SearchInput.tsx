@@ -32,7 +32,7 @@ if (
   style.id = INPUT_STYLE_ID;
   style.textContent = `
     /* Focus ring — uses canonical LG spec tokens (§6) */
-    .um-search-field:focus {
+    .um-search-field:focus-visible {
       border-color: var(--glass-outline-active, rgba(255,255,255,0.25)) !important;
       box-shadow: 0 0 0 3px var(--primary-glow, hsla(272,65%,62%,0.2)) !important;
     }
@@ -44,7 +44,7 @@ if (
     /* Suppress browser-forced autofill background */
     .um-search-field:-webkit-autofill,
     .um-search-field:-webkit-autofill:hover,
-    .um-search-field:-webkit-autofill:focus {
+    .um-search-field:-webkit-autofill:focus-visible {
       -webkit-box-shadow: 0 0 0 1000px var(--glass-input, rgba(255,255,255,0.05)) inset !important;
       -webkit-text-fill-color: var(--text-primary) !important;
     }
