@@ -68,6 +68,9 @@ export interface LoginRequest {
   password: string;
   rememberMe?: boolean;
   deviceInfo?: DeviceInfo;
+  mfaCode?: string;
+  mfaBackupCode?: string;
+  tempToken?: string;
 }
 
 export interface SignupRequest {
@@ -80,11 +83,15 @@ export interface SignupRequest {
 }
 
 export interface AuthResponse {
-  user: User;
-  accessToken: string;
+  user?: User;
+  accessToken?: string;
   refreshToken?: string;
-  expiresIn: number;
-  tokenType: string;
+  expiresIn?: number;
+  tokenType?: string;
+  mfaRequired?: boolean;
+  tempToken?: string;
+  success?: boolean;
+  message?: string;
 }
 
 export interface DeviceInfo {

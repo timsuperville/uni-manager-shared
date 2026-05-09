@@ -98,7 +98,10 @@ const MFASetup = ({
       });
       const data = await response.json();
       if (data.success) {
-        setSetupData(data.data as SetupData);
+        setSetupData({
+          qrCode: data.data.qrCode,
+          manualEntryKey: data.data.secret,
+        });
         setCurrentStep(2);
       } else {
         throw new Error(data.message || "Failed to initialize MFA setup");
@@ -132,6 +135,9 @@ const MFASetup = ({
       });
       const data = await response.json();
       if (data.success) {
+        setSetupData((prev) => 
+          prev ? { ...prev, backupCodes: data.data?.backupCodes || data.backupCodes } : prev
+        );
         setCurrentStep(3);
       } else {
         throw new Error(data.message || "Invalid verification code");
@@ -405,38 +411,42 @@ const MFASetup = ({
         {setupData?.backupCodes && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-medium text-gray-900">
+              <h3 className="text-lg font-medium text-gray-900" id="backup-codes-title">
                 Backup Recovery Codes
               </h3>
               <button
                 onClick={() => setShowBackupCodes(!showBackupCodes)}
                 className="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-800 cursor-pointer"
+                aria-label={showBackupCodes ? "Hide backup codes" : "Show backup codes"}
+                aria-expanded={showBackupCodes}
+                aria-controls="backup-codes-list"
               >
-                {showBackupCodes ? <EyeOff size={16} /> : <Eye size={16} />}
+                {showBackupCodes ? <EyeOff size={16} aria-hidden="true" /> : <Eye size={16} aria-hidden="true" />}
                 <span>{showBackupCodes ? "Hide" : "Show"} Codes</span>
               </button>
             </div>
 
             {showBackupCodes && (
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
+              <div id="backup-codes-list" className="bg-gray-50 border border-gray-200 rounded-lg p-6" aria-labelledby="backup-codes-title">
                 <div className="grid grid-cols-2 gap-4">
                   {setupData.backupCodes.map((code, index) => (
                     <div
                       key={index}
                       className="flex items-center justify-between bg-white border border-gray-200 rounded px-3 py-2"
                     >
-                      <code className="font-mono text-sm">{code}</code>
+                      <code className="font-mono text-sm" aria-label={`Backup code ${index + 1}`}>{code}</code>
                       <button
                         onClick={() =>
                           handleCopyToClipboard(code, `code-${index}`)
                         }
                         className="p-1 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
                         title="Copy code"
+                        aria-label={`Copy backup code ${index + 1}`}
                       >
                         {copiedStates[`code-${index}`] ? (
-                          <Check size={14} className="text-green-600" />
+                          <Check size={14} className="text-green-600" aria-hidden="true" />
                         ) : (
-                          <Copy size={14} />
+                          <Copy size={14} aria-hidden="true" />
                         )}
                       </button>
                     </div>
@@ -451,20 +461,22 @@ const MFASetup = ({
                         "all-codes",
                       )
                     }
-                    className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
+                    className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    aria-label="Copy all backup codes to clipboard"
                   >
                     {copiedStates["all-codes"] ? (
-                      <Check size={16} />
+                      <Check size={16} aria-hidden="true" />
                     ) : (
-                      <Copy size={16} />
+                      <Copy size={16} aria-hidden="true" />
                     )}
                     <span>Copy All</span>
                   </button>
                   <button
                     onClick={downloadBackupCodes}
-                    className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors cursor-pointer"
+                    className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors cursor-pointer focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    aria-label="Download backup codes as text file"
                   >
-                    <Download size={16} />
+                    <Download size={16} aria-hidden="true" />
                     <span>Download</span>
                   </button>
                 </div>

@@ -159,6 +159,7 @@ export function LoginForm({
         email: formData.email.trim(),
         password: formData.password,
         rememberMe: formData.rememberMe,
+        deviceInfo: { fingerprint: deviceFingerprint || undefined },
         appType: appType as Parameters<typeof login>[0]["appType"],
       });
       const loginResult = result as unknown as Record<string, unknown>;
