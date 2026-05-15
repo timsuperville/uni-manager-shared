@@ -106,18 +106,15 @@ const ThemeContext = createContext<ThemeContextValue>({
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
-function applyTheme(theme: ThemeMode): "dark" | "light" {
-  const root = window.document.documentElement;
-  root.classList.remove("light", "dark");
-  if (theme === "system") {
-    const resolved = window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? "dark"
-      : "light";
-    root.classList.add(resolved);
-    return resolved;
-  }
-  root.classList.add(theme);
-  return theme;
+function getSystemTheme(): "dark" | "light" {
+  if (typeof window === "undefined") return "dark";
+  return window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
+}
+
+function resolveTheme(theme: ThemeMode): "dark" | "light" {
+  return theme === "system" ? getSystemTheme() : theme;
 }
 
 // ── Provider ───────────────────────────────────────────────────────────────────
@@ -156,29 +153,40 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
     },
   };
 
-  const [theme, setThemeState] = useState<ThemeMode>(
-    () =>
-      (localStorage.getItem(storageKey) as ThemeMode | null) ?? defaultTheme,
-  );
+  const [theme, setThemeState] = useState<ThemeMode>(() => {
+    if (typeof window === "undefined") return defaultTheme;
+    return (
+      (localStorage.getItem(storageKey) as ThemeMode | null) ?? defaultTheme
+    );
+  });
+
   const [resolvedTheme, setResolvedTheme] = useState<"dark" | "light">(() =>
-    applyTheme(
-      (localStorage.getItem(storageKey) as ThemeMode | null) ?? defaultTheme,
-    ),
+    resolveTheme(theme),
   );
 
   useEffect(() => {
-    const resolved = applyTheme(theme);
+    const root = window.document.documentElement;
+    root.classList.remove("light", "dark");
+    root.classList.add(resolvedTheme);
+  }, [resolvedTheme]);
+
+  useEffect(() => {
+    const resolved = resolveTheme(theme);
     setResolvedTheme(resolved);
+
     if (theme !== "system") return;
 
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    const onOsChange = () => setResolvedTheme(applyTheme("system"));
+    const onOsChange = (e: MediaQueryListEvent) => {
+      setResolvedTheme(e.matches ? "dark" : "light");
+    };
 
     if (mq.addEventListener) {
       mq.addEventListener("change", onOsChange);
     } else {
       mq.addListener(onOsChange); // Safari < 14 fallback
     }
+
     return () => {
       if (mq.removeEventListener) {
         mq.removeEventListener("change", onOsChange);
@@ -189,7 +197,9 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
   }, [theme]);
 
   const setTheme = (newTheme: ThemeMode) => {
-    localStorage.setItem(storageKey, newTheme);
+    if (typeof window !== "undefined") {
+      localStorage.setItem(storageKey, newTheme);
+    }
     setThemeState(newTheme);
     onThemeChange?.(newTheme);
   };
