@@ -63,6 +63,7 @@ export interface User {
   createdAt?: Date | string;
   updatedAt?: Date | string;
   lastLoginAt?: Date | string;
+  hasBiometricAnchor?: boolean;
   /** Allow app-specific fields (churchRole, title, position, etc.) at runtime */
   [key: string]: unknown;
 }

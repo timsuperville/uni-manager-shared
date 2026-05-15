@@ -44,6 +44,9 @@ export { EmailPasswordAuthService } from "./EmailPasswordAuthService";
 /** OAuth 2.0 PKCE flows */
 export { OAuthAuthService } from "./OAuthAuthService";
 
+/** WebAuthn (Biometric Anchor) */
+export { webAuthnService, WebAuthnService } from "./webAuthnService";
+
 /** MFA utility helpers — phone formatting, code validation, display names */
 export {
   getMFAMethodDisplayName,

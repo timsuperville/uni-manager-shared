@@ -46,3 +46,6 @@ export { useAnalyserLevel } from "./useAnalyserLevel";
 
 // Live cue safety
 export { useArmConfirm } from "./useArmConfirm";
+
+// Privacy / Security hooks
+export { useDuressProtocol } from "./useDuressProtocol";
