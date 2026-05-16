@@ -335,6 +335,24 @@ export function parseChordPro(content: string): ParsedChordPro {
     // ── All other directives — skip ───────────────────────────────────────────
     if (trimmed.startsWith("{") && trimmed.endsWith("}")) continue;
 
+    // Sometimes .txt exports include "Key - Eb | Tempo - 72 | Time - 4/4"
+    if (
+      trimmed.includes("Key -") ||
+      trimmed.includes("Tempo -") ||
+      trimmed.includes("Time -")
+    ) {
+      const parts = trimmed.split("|");
+      for (const part of parts) {
+        const p = part.trim();
+        if (p.startsWith("Key -")) result.key = p.replace("Key -", "").trim();
+        else if (p.startsWith("Tempo -"))
+          result.tempo = parseInt(p.replace("Tempo -", "").trim(), 10);
+        else if (p.startsWith("Time -"))
+          result.timeSignature = p.replace("Time -", "").trim();
+      }
+      continue;
+    }
+
     // ── Plain text header parsing (.txt exports or loose ChordPro) ───────────
     // Some files use plain text headers before lyrics, e.g. "Title: My Song"
     const headerMatch = trimmed.match(
@@ -362,24 +380,6 @@ export function parseChordPro(content: string): ParsedChordPro {
       else if (key.startsWith("ccli") && !result.ccliNumber)
         result.ccliNumber = val;
       else if (key === "copyright" && !result.copyright) result.copyright = val;
-      continue;
-    }
-
-    // Sometimes .txt exports include "Key - Eb | Tempo - 72 | Time - 4/4"
-    if (
-      trimmed.includes("Key -") ||
-      trimmed.includes("Tempo -") ||
-      trimmed.includes("Time -")
-    ) {
-      const parts = trimmed.split("|");
-      for (const part of parts) {
-        const p = part.trim();
-        if (p.startsWith("Key -")) result.key = p.replace("Key -", "").trim();
-        else if (p.startsWith("Tempo -"))
-          result.tempo = parseInt(p.replace("Tempo -", "").trim(), 10);
-        else if (p.startsWith("Time -"))
-          result.timeSignature = p.replace("Time -", "").trim();
-      }
       continue;
     }
 

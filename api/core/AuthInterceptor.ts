@@ -147,7 +147,7 @@ export class AuthInterceptor {
           const token = await new Promise<string>((resolve, reject) => {
             this.refreshQueue.push({ resolve, reject });
           });
-          
+
           originalRequest._retry = true;
           if (originalRequest.headers) {
             originalRequest.headers[this.config.headerName] =
@@ -181,10 +181,21 @@ export class AuthInterceptor {
             return (this.axiosInstance ?? axios).request(originalRequest);
           }
         } catch (refreshError) {
-          // Refresh definitively failed — the token is unrecoverable.
+          // Refresh explicitly failed
           this.processQueue(refreshError, null);
-          this.clearTokens();
-          this.notifyAuthFailure();
+
+          const isAxiosError = axios.isAxiosError(refreshError);
+          const status =
+            isAxiosError && refreshError.response
+              ? refreshError.response.status
+              : null;
+          const isRejectedToken = status && status >= 400 && status < 500;
+
+          if (isRejectedToken) {
+            this.clearTokens();
+            this.notifyAuthFailure();
+          }
+
           return Promise.reject(refreshError);
         } finally {
           this.isRefreshing = false;
@@ -309,13 +320,22 @@ export class AuthInterceptor {
 
       return accessToken;
     } catch (error) {
-      this.clearTokens();
+      const isAxiosError = axios.isAxiosError(error);
+      const status =
+        isAxiosError && error.response ? error.response.status : null;
+      // Only clear tokens if explicitly rejected by server (e.g. 400, 401, 403)
+      const isRejectedToken = status && status >= 400 && status < 500;
+
+      if (isRejectedToken) {
+        this.clearTokens();
+      }
+
       if (import.meta.env?.DEV)
         console.warn(
           "[AuthInterceptor] Token refresh failed:",
           (error as Error).message,
         );
-      throw new Error("Token refresh failed");
+      throw error;
     }
   }
 

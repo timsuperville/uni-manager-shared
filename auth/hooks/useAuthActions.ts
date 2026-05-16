@@ -259,20 +259,27 @@ export function useAuthActions(
     } catch (error) {
       const errorMessage =
         (error as { message?: string })?.message ?? "Token refresh failed";
+
+      const apiError = error as any;
+      const status = apiError.statusCode;
+      // Only force logout if the token is explicitly rejected (4xx)
+      const isRejectedToken = status && status >= 400 && status < 500;
+
       if (import.meta.env.DEV) {
-        console.warn(
-          "[useAuthActions] Refresh failed, logging out...",
-          errorMessage,
-        );
+        console.warn("[useAuthActions] Refresh failed...", errorMessage);
       }
-      resetState();
-      try {
-        await authService.logout();
-      } catch (_e) {
-        // Intentionally silent — best-effort server logout after refresh failure
+
+      if (isRejectedToken) {
+        resetState();
+        try {
+          await authService.logout();
+        } catch (_e) {
+          // Intentionally silent — best-effort server logout after refresh failure
+        }
+        notifyStateChange({ user: null, isAuthenticated: false });
       }
+
       notifyError(error);
-      notifyStateChange({ user: null, isAuthenticated: false });
       return false;
     }
   }, [authService, initializeAuth, resetState, notifyError, notifyStateChange]);
