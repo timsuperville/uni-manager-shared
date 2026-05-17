@@ -19,6 +19,8 @@
 // returning data to the hook. Never let backend field-name differences
 // (e.g. `body` vs `message`, `read` vs `status`) leak into the UI layer.
 
+import { logger } from "@shared/utils/logger";
+
 export interface AppNotification {
   /** Unified ID — adapter maps _id → id when needed */
   id: string;
@@ -125,7 +127,7 @@ export interface NotificationAdapter {
 
 const warn = (method: string) =>
   import.meta.env?.DEV &&
-  console.warn(
+  logger.warn(
     `[NotificationCenter] ${method} called without a NotificationProvider. ` +
       "Wrap the notification bell with a <NotificationProvider adapter={...}>.",
   );

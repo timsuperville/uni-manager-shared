@@ -21,6 +21,7 @@
  */
 
 import type { User } from "../types/auth.types";
+import { logger } from "../../utils/logger";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -97,7 +98,7 @@ export class TokenStorage {
       return true;
     } catch (error) {
       if (import.meta.env.DEV)
-        console.warn(
+        logger.warn(
           "[TokenStorage] setTokens failed:",
           (error as Error).message,
         );
@@ -115,7 +116,7 @@ export class TokenStorage {
       );
     } catch (error) {
       if (import.meta.env.DEV)
-        console.warn(
+        logger.warn(
           "[TokenStorage] getAccessToken failed:",
           (error as Error).message,
         );
@@ -133,7 +134,7 @@ export class TokenStorage {
       );
     } catch (error) {
       if (import.meta.env.DEV)
-        console.warn(
+        logger.warn(
           "[TokenStorage] getRefreshToken failed:",
           (error as Error).message,
         );
@@ -150,7 +151,7 @@ export class TokenStorage {
       return raw ? (JSON.parse(raw) as User) : null;
     } catch (error) {
       if (import.meta.env.DEV)
-        console.warn(
+        logger.warn(
           "[TokenStorage] getUser failed:",
           (error as Error).message,
         );
@@ -168,7 +169,7 @@ export class TokenStorage {
       );
     } catch (error) {
       if (import.meta.env.DEV)
-        console.warn(
+        logger.warn(
           "[TokenStorage] getSessionId failed:",
           (error as Error).message,
         );
@@ -186,7 +187,7 @@ export class TokenStorage {
       return true;
     } catch (error) {
       if (import.meta.env.DEV)
-        console.warn(
+        logger.warn(
           "[TokenStorage] clearTokens failed:",
           (error as Error).message,
         );
@@ -219,7 +220,7 @@ export class TokenStorage {
       };
     } catch (error) {
       if (import.meta.env.DEV)
-        console.warn(
+        logger.warn(
           "[TokenStorage] getAuthData failed:",
           (error as Error).message,
         );
@@ -251,7 +252,7 @@ export class TokenStorage {
       return true;
     } catch (error) {
       if (import.meta.env.DEV)
-        console.warn(
+        logger.warn(
           "[TokenStorage] updateUser failed:",
           (error as Error).message,
         );

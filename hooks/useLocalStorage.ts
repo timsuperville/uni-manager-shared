@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { logger } from "@shared/utils/logger";
 
 /**
  * A hook to persist state in localStorage.
@@ -19,7 +20,7 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
       const item = window.localStorage.getItem(key);
       return item ? (JSON.parse(item) as T) : initialValue;
     } catch (error) {
-      console.warn(`Error reading localStorage key "${key}":`, error);
+      logger.warn(`Error reading localStorage key "${key}":`, error);
       return initialValue;
     }
   };
@@ -46,7 +47,7 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
         window.dispatchEvent(new Event("local-storage"));
       }
     } catch (error) {
-      console.warn(`Error setting localStorage key "${key}":`, error);
+      logger.warn(`Error setting localStorage key "${key}":`, error);
     }
   };
 

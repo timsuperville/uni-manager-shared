@@ -13,6 +13,7 @@ import {
   UserIcon,
   SpeakerIcon,
 } from "../../components/icons";
+import { logger } from "@shared/utils/logger";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -142,7 +143,7 @@ export const SSOProvider: React.FC<SSOProviderProps> = ({
         dispatch({ type: "SET_LOADING", payload: false });
       } catch (error) {
         if (import.meta.env.DEV)
-          console.error("SSO initialization failed:", error);
+          logger.error("SSO initialization failed:", error);
         dispatch({ type: "SET_ERROR", payload: (error as Error).message });
         dispatch({ type: "SET_LOADING", payload: false });
       }
@@ -181,7 +182,7 @@ export const SSOProvider: React.FC<SSOProviderProps> = ({
           },
         });
       } catch (error) {
-        if (import.meta.env.DEV) console.error("App switch failed:", error);
+        if (import.meta.env.DEV) logger.error("App switch failed:", error);
         dispatch({ type: "SET_ERROR", payload: (error as Error).message });
         throw error;
       }

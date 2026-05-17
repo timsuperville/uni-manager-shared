@@ -5,6 +5,7 @@ import type {
   AppNotification,
   FetchNotificationsParams,
 } from "../features/notifications/NotificationAdapter";
+import { logger } from "@shared/utils/logger";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -139,7 +140,7 @@ export const useNotifications = ({
         if (!isCancel && !isAuthError) {
           setError(typedErr.message);
           if (import.meta.env?.DEV) {
-            console.warn(
+            logger.warn(
               "[useNotifications] fetchNotifications failed:",
               typedErr.message,
             );
@@ -177,7 +178,7 @@ export const useNotifications = ({
         );
         setUnreadCount((prev) => prev + 1);
         if (import.meta.env?.DEV) {
-          console.warn("[useNotifications] markRead failed:", err);
+          logger.warn("[useNotifications] markRead failed:", err);
         }
         throw err;
       }
@@ -206,7 +207,7 @@ export const useNotifications = ({
         setNotifications(snapshot);
         setUnreadCount(snapshotUnread);
         if (import.meta.env?.DEV) {
-          console.warn("[useNotifications] bulkMarkRead failed:", err);
+          logger.warn("[useNotifications] bulkMarkRead failed:", err);
         }
         throw err;
       }
@@ -229,7 +230,7 @@ export const useNotifications = ({
       setNotifications(snapshot);
       setUnreadCount(snapshotUnread);
       if (import.meta.env?.DEV) {
-        console.warn("[useNotifications] markAllRead failed:", err);
+        logger.warn("[useNotifications] markAllRead failed:", err);
       }
       throw err;
     }
@@ -244,7 +245,7 @@ export const useNotifications = ({
         // Refetch to restore consistent state
         await loadNotifications(true);
         if (import.meta.env?.DEV) {
-          console.warn("[useNotifications] archive failed:", err);
+          logger.warn("[useNotifications] archive failed:", err);
         }
         throw err;
       }
@@ -264,7 +265,7 @@ export const useNotifications = ({
       } catch (err) {
         await loadNotifications(true);
         if (import.meta.env?.DEV) {
-          console.warn("[useNotifications] delete failed:", err);
+          logger.warn("[useNotifications] delete failed:", err);
         }
         throw err;
       }

@@ -6,6 +6,8 @@
  * Instantiated as a singleton — one device identity per page load.
  */
 
+import { logger } from "../../utils/logger";
+
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
@@ -50,7 +52,7 @@ class DeviceService {
         localStorage.setItem("uni_manager_device_id", this.deviceId);
       }
     } catch (err) {
-      if (import.meta.env.DEV) console.error("Failed to load device ID:", err);
+      if (import.meta.env.DEV) logger.error("Failed to load device ID:", err as Error);
       this.deviceId = this.generateDeviceId();
     }
   }
@@ -76,7 +78,7 @@ class DeviceService {
       this.deviceFingerprint = this.hashString(components.join("|"));
     } catch (err) {
       if (import.meta.env.DEV)
-        console.error("Failed to generate fingerprint:", err);
+        logger.error("Failed to generate fingerprint:", err as Error);
       this.deviceFingerprint = this.generateDeviceId();
     }
   }
@@ -94,7 +96,7 @@ class DeviceService {
       };
     } catch (err) {
       if (import.meta.env.DEV)
-        console.error("Failed to collect device info:", err);
+        logger.error("Failed to collect device info:", err as Error);
       this.deviceInfo = {
         deviceId: this.deviceId,
         timestamp: new Date().toISOString(),
@@ -132,7 +134,7 @@ class DeviceService {
     try {
       localStorage.setItem(`uni_manager_trusted_${this.deviceId}`, "true");
     } catch (err) {
-      if (import.meta.env.DEV) console.error("Failed to trust device:", err);
+      if (import.meta.env.DEV) logger.error("Failed to trust device:", err as Error);
     }
   }
 
@@ -143,7 +145,7 @@ class DeviceService {
       localStorage.removeItem(`uni_manager_trusted_${this.deviceId}`);
     } catch (err) {
       if (import.meta.env.DEV)
-        console.error("Failed to revoke device trust:", err);
+        logger.error("Failed to revoke device trust:", err as Error);
     }
   }
 
@@ -157,7 +159,7 @@ class DeviceService {
       return this.isTrustedState;
     } catch (err) {
       if (import.meta.env.DEV)
-        console.error("Failed to check device trust:", err);
+        logger.error("Failed to check device trust:", err as Error);
       return false;
     }
   }
@@ -169,7 +171,7 @@ class DeviceService {
       localStorage.removeItem(`uni_manager_trusted_${this.deviceId}`);
     } catch (err) {
       if (import.meta.env.DEV)
-        console.error("Failed to clear device info:", err);
+        logger.error("Failed to clear device info:", err as Error);
     }
   }
 }

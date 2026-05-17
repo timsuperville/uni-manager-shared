@@ -15,6 +15,7 @@
 import { getAuthToken } from "../../utils/authToken";
 import { flushPendingErrorReports } from "../../components/error-boundary";
 import { collectSystemContext } from "../feedback/utils/collectSystemContext";
+import { logger } from "../../utils/logger";
 
 declare global {
   interface Window {
@@ -573,7 +574,7 @@ const sendToAnalytics = (metric: unknown) => {
   //       metrics are retained in-memory and logged DEV-only (Rule 9.8/§451).
   // This suppresses the 404 (Not Found) errors in production.
   if (import.meta.env?.DEV) {
-    console.info("[ErrorMonitoring] Web Vitals Metric:", metric);
+    logger.info("[ErrorMonitoring] Web Vitals Metric:", metric);
   }
 };
 
@@ -592,7 +593,7 @@ export const setupPerformanceMonitoring = () => {
     .catch(() => {
       if (import.meta.env?.DEV) {
         // eslint-disable-next-line no-console
-        console.warn(
+        logger.warn(
           "[ErrorMonitoring] web-vitals package not found — Core Web Vitals reporting disabled. Install with: npm install web-vitals",
         );
       }

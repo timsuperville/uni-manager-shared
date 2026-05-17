@@ -1,4 +1,5 @@
 import { useEffect, useCallback, useState } from "react";
+import { logger } from "@shared/utils/logger";
 
 const DURESS_CHANNEL_NAME = "uni-manager:duress-protocol";
 const GHOST_MODE_KEY = "uni-manager:ghost-mode:active";
@@ -26,7 +27,7 @@ export function useDuressProtocol() {
 
     channel.onmessage = (event) => {
       if (event.data.type === "TRIGGER_DURESS") {
-        console.warn(
+        logger.warn(
           "DURESS PROTOCOL ACTIVATED FROM ANOTHER TAB/APP. PURGING DATA.",
         );
         purgeData();
@@ -39,7 +40,7 @@ export function useDuressProtocol() {
   }, [purgeData]);
 
   const triggerDuress = useCallback(() => {
-    console.warn("DURESS PROTOCOL ACTIVATED. PURGING DATA AND BROADCASTING.");
+    logger.warn("DURESS PROTOCOL ACTIVATED. PURGING DATA AND BROADCASTING.");
     const channel = new BroadcastChannel(DURESS_CHANNEL_NAME);
     channel.postMessage({ type: "TRIGGER_DURESS", timestamp: Date.now() });
     purgeData();

@@ -8,6 +8,7 @@ import React, {
 } from "react";
 import { AuthContext } from "../auth/context/AuthContext";
 import { getWebSocketUrl } from "../config/environment";
+import { logger } from "@shared/utils/logger";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -83,7 +84,7 @@ export const PresenceProvider = ({
     // Never connect without a token — the server will reject it with 1008
     if (!token) {
       if (import.meta.env.DEV) {
-        console.debug(
+        logger.debug(
           "[PresenceContext] No token available — skipping WS connection",
         );
       }
@@ -122,7 +123,7 @@ export const PresenceProvider = ({
       ws.onclose = (event) => {
         if (!isMountedRef.current) return;
         if (import.meta.env.DEV) {
-          console.debug("WebSocket disconnected:", event.code, event.reason);
+          logger.debug("WebSocket disconnected:", event.code, event.reason);
         }
         setIsConnected(false);
         setSocket(null);
@@ -142,7 +143,7 @@ export const PresenceProvider = ({
             30000,
           );
           if (import.meta.env.DEV) {
-            console.debug(
+            logger.debug(
               `Reconnecting in ${delay}ms... (Attempt ${reconnectAttemptsRef.current + 1}/${MAX_RECONNECT_ATTEMPTS})`,
             );
           }
@@ -154,7 +155,7 @@ export const PresenceProvider = ({
           reconnectAttemptsRef.current >= MAX_RECONNECT_ATTEMPTS &&
           import.meta.env.DEV
         ) {
-          console.debug(
+          logger.debug(
             "[PresenceContext] WS server unavailable — presence feature inactive until server is running.",
           );
         }
@@ -162,7 +163,7 @@ export const PresenceProvider = ({
 
       ws.onerror = (error) => {
         if (import.meta.env.DEV) {
-          console.error("WebSocket error:", error);
+          logger.error("WebSocket error:", error);
         }
       };
 
@@ -181,7 +182,7 @@ export const PresenceProvider = ({
           // via the socket ref; context-level state can be extended here if needed
           if (message.type === "presence") {
             if (import.meta.env.DEV) {
-              console.debug(
+              logger.debug(
                 "[PresenceContext] Presence event:",
                 message.action,
                 message.data,
@@ -191,7 +192,7 @@ export const PresenceProvider = ({
           }
         } catch (e) {
           if (import.meta.env.DEV) {
-            console.error(
+            logger.error(
               "[PresenceContext] Error parsing WebSocket message:",
               e,
             );
@@ -200,7 +201,7 @@ export const PresenceProvider = ({
       };
     } catch (error) {
       if (import.meta.env.DEV) {
-        console.error("Failed to create WebSocket connection:", error);
+        logger.error("Failed to create WebSocket connection:", error);
       }
     }
   }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps

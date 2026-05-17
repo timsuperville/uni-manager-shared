@@ -7,6 +7,8 @@
  * Uses both memory cache (fast) and sessionStorage (persistent across page reloads).
  */
 
+import { logger } from "@shared/utils/logger";
+
 // Memory cache — null means no value cached
 let cachedFingerprint: string | null = null;
 let cacheTimestamp: number | null = null;
@@ -43,7 +45,7 @@ export function getCachedDeviceFingerprint(): string | null {
       }
     } catch (error) {
       if (import.meta.env.DEV) {
-        console.warn(
+        logger.warn(
           "[DeviceFingerprintCache] Failed to read from sessionStorage:",
           error,
         );
@@ -68,7 +70,7 @@ export function setCachedDeviceFingerprint(fingerprint: string): void {
       sessionStorage.setItem(STORAGE_TIME_KEY, now.toString());
     } catch (error) {
       if (import.meta.env.DEV) {
-        console.warn(
+        logger.warn(
           "[DeviceFingerprintCache] Failed to write to sessionStorage:",
           error,
         );
@@ -91,7 +93,7 @@ export function clearCachedDeviceFingerprint(): void {
       sessionStorage.removeItem(STORAGE_TIME_KEY);
     } catch (error) {
       if (import.meta.env.DEV) {
-        console.warn(
+        logger.warn(
           "[DeviceFingerprintCache] Failed to clear sessionStorage:",
           error,
         );

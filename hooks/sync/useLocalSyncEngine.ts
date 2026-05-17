@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { localDB, SyncQueueEntry } from "../../database/LocalDatabase";
 import { getApiClient } from "../../api/core/ApiClient";
+import { logger } from "../../utils/logger";
 
 export function useLocalSyncEngine() {
   useEffect(() => {
@@ -20,12 +21,12 @@ export function useLocalSyncEngine() {
             await localDB.syncQueue.delete(entry.id);
           } catch (e) {
             // If the server rejects due to conflict or offline, stop queue processing
-            console.error("[LocalSync] Failed to push mutation", entry, e);
+            logger.error("[LocalSync] Failed to push mutation", entry, e);
             break;
           }
         }
       } catch (err) {
-        console.error("[LocalSync] Error reading sync queue", err);
+        logger.error("[LocalSync] Error reading sync queue", err);
       }
     };
 
@@ -68,7 +69,7 @@ export function useLocalSyncEngine() {
         await api.post("/api/v1/sync/push", { mutations: [entry] });
         await localDB.syncQueue.delete(entry.id);
       } catch (e) {
-        console.warn("[LocalSync] Immediate push failed, kept in queue", e);
+        logger.warn("[LocalSync] Immediate push failed, kept in queue", e);
       }
     }
   };

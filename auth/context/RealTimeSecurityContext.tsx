@@ -7,6 +7,7 @@ import React, {
   useRef,
 } from "react";
 import realTimeSecurityMonitoringService from "../services/realTimeSecurityMonitoringService";
+import { logger } from "@shared/utils/logger";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -216,7 +217,7 @@ export function RealTimeSecurityProvider({
         setError(message);
         setSystemHealth("error");
         if (import.meta.env.DEV)
-          console.error("Security monitoring initialization failed:", err);
+          logger.error("Security monitoring initialization failed:", err);
       }
     },
     [setupEventHandlers],
@@ -226,14 +227,14 @@ export function RealTimeSecurityProvider({
     async (event: unknown): Promise<void> => {
       if (!isConnected || !securityServiceRef.current) {
         if (import.meta.env.DEV)
-          console.warn("Cannot report security event: service not connected");
+          logger.warn("Cannot report security event: service not connected");
         return;
       }
       try {
         await securityServiceRef.current.processSecurityEvent(event);
       } catch (err) {
         if (import.meta.env.DEV)
-          console.error("Failed to report security event:", err);
+          logger.error("Failed to report security event:", err);
       }
     },
     [isConnected],
@@ -253,7 +254,7 @@ export function RealTimeSecurityProvider({
         setMonitoringConfig((prev) => ({ ...prev, ...config }));
       } catch (err) {
         if (import.meta.env.DEV)
-          console.error("Failed to update monitoring configuration:", err);
+          logger.error("Failed to update monitoring configuration:", err);
       }
     },
     [],

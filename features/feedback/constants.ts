@@ -1,5 +1,6 @@
 // Canonical feedback source identifiers.
 // Use these constants everywhere — never raw strings.
+import { logger } from "@shared/utils/logger";
 
 export type FeedbackSource =
   | "frustration-detector"
@@ -29,7 +30,7 @@ export function resolveSource(
   if (VALID_SOURCES.has(source as FeedbackSource))
     return source as FeedbackSource;
   if (import.meta.env?.DEV) {
-    console.warn(
+    logger.warn(
       `[Feedback] Unknown source "${source}". ` +
         `Valid values: ${[...VALID_SOURCES].join(", ")}. Defaulting to null.`,
     );

@@ -11,6 +11,7 @@ import {
   FiArchive,
 } from "react-icons/fi";
 import { Button, Avatar } from "@shared/components/ui";
+import { logger } from "@shared/utils/logger";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -210,7 +211,7 @@ const NotificationToast: React.FC<NotificationToastProps> = ({
         const audio = new Audio("/sounds/notification.mp3");
         audio.volume = 0.3;
         audio.play().catch((e) => {
-          if (import.meta.env.DEV) console.warn(e);
+          if (import.meta.env.DEV) logger.warn(e);
         });
       } catch {
         // Silently ignore

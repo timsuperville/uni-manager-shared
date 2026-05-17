@@ -11,6 +11,7 @@
 import { BaseService } from "../api/services/BaseService";
 import { ApiClient, getApiClient } from "../api/core/ApiClient";
 import { onCLS, onFCP, onINP, onLCP, onTTFB, Metric } from "web-vitals";
+import { logger } from "@shared/utils/logger";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -165,7 +166,7 @@ export class AnalyticsService extends BaseService {
     try {
       if (!metricType || typeof metricType !== "string") {
         if (import.meta.env.DEV)
-          console.warn("[Analytics] Invalid metricType:", metricType);
+          logger.warn("[Analytics] Invalid metricType:", metricType);
         return null;
       }
       if (
@@ -174,11 +175,11 @@ export class AnalyticsService extends BaseService {
         !Number.isFinite(value)
       ) {
         if (import.meta.env.DEV)
-          console.warn("[Analytics] Invalid value:", { metricType, value });
+          logger.warn("[Analytics] Invalid value:", { metricType, value });
         return null;
       }
       if (import.meta.env.DEV) {
-        console.debug("[Analytics] Skipped in dev:", {
+        logger.debug("[Analytics] Skipped in dev:", {
           metricType,
           value,
           context: context["pageUrl"],
@@ -197,7 +198,7 @@ export class AnalyticsService extends BaseService {
       });
     } catch (error) {
       if (import.meta.env.DEV)
-        console.error("[Analytics] Failed to track performance metric:", error);
+        logger.error("[Analytics] Failed to track performance metric:", error);
       return null;
     }
   }
@@ -428,7 +429,7 @@ export class AnalyticsService extends BaseService {
       onTTFB(reportMetric);
     } catch (e) {
       if (import.meta.env.DEV) {
-        console.warn("[Analytics] Failed to initialize web-vitals", e);
+        logger.warn("[Analytics] Failed to initialize web-vitals", e);
       }
     }
   }

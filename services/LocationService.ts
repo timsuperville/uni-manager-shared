@@ -1,4 +1,5 @@
 import { getApiBaseUrl } from "../api/config/apiConfig.js";
+import { logger } from "@shared/utils/logger";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -108,7 +109,7 @@ export const LocationService = {
       return data;
     } catch (error) {
       if (import.meta.env.DEV)
-        console.error("[LocationService] Failed to fetch countries:", error);
+        logger.error("[LocationService] Failed to fetch countries:", error);
       throw error;
     }
   },
@@ -132,7 +133,7 @@ export const LocationService = {
       return data;
     } catch (error) {
       if (import.meta.env.DEV)
-        console.error(
+        logger.error(
           `[LocationService] Failed to fetch states for ${countryCode}:`,
           error,
         );
@@ -172,7 +173,7 @@ export const LocationService = {
       return result;
     } catch (error) {
       if (import.meta.env.DEV)
-        console.error(
+        logger.error(
           `[LocationService] Failed to fetch subdivisions for ${countryCode}:`,
           error,
         );
@@ -195,7 +196,7 @@ export const LocationService = {
       return data;
     } catch (error) {
       if (import.meta.env.DEV)
-        console.error(
+        logger.error(
           `[LocationService] Failed to fetch country ${code}:`,
           error,
         );
@@ -226,7 +227,7 @@ export const LocationService = {
       return data;
     } catch (error) {
       if (import.meta.env.DEV)
-        console.error(
+        logger.error(
           `[LocationService] Failed to fetch cities for ${countryCode}/${stateCode}:`,
           error,
         );
@@ -313,7 +314,7 @@ export const LocationService = {
       return data;
     } catch (error) {
       if (import.meta.env.DEV)
-        console.error("[LocationService] Failed to search locations:", error);
+        logger.error("[LocationService] Failed to search locations:", error);
       throw error;
     }
   },

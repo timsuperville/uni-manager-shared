@@ -9,6 +9,7 @@ import {
   FullScreenFallback,
   FallbackProps,
 } from "./ErrorBoundaryFallback";
+import { logger } from "../../utils/logger";
 
 export interface ErrorBoundaryProps {
   children: React.ReactNode;
@@ -74,8 +75,7 @@ export class ErrorBoundary extends React.Component<
     this.setState({ error, errorInfo, errorId });
 
     if ((import.meta as any).env?.DEV) {
-      // eslint-disable-next-line no-console
-      console.error("[ErrorBoundary]", {
+      logger.error("[ErrorBoundary]", {
         errorId,
         error,
         componentStack: errorInfo?.componentStack,
