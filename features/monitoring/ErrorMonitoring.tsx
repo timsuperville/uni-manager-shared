@@ -476,7 +476,8 @@ export const installFetchInterceptor = () => {
     const isMonitoringCall =
       /\/api\/v1\/(infra\/errors|integrations\/feedback)\//.test(url) ||
       /\/analytics(\/|$)/.test(url) ||
-      /\/health(\?|$)/.test(url);
+      /\/health(\?|$)/.test(url) ||
+      /\/admin\/system\/init\/status(\?|$)/.test(url);
 
     let response;
     try {
