@@ -320,6 +320,16 @@ export const setupGlobalErrorHandling = () => {
   window.addEventListener("unhandledrejection", (event) => {
     const errMessage = event.reason?.message || String(event.reason) || "";
 
+    // Filter expected third-party noise (YouTube Iframe API & AdBlockers)
+    if (
+      errMessage.includes("Failed to execute 'postMessage' on 'DOMWindow'") ||
+      errMessage.includes("target origin provided") ||
+      errMessage.includes("youtube-nocookie.com") ||
+      errMessage.includes("doubleclick.net")
+    ) {
+      return;
+    }
+
     // Specific handler for Vite chunk load errors (during background deployments)
     if (
       errMessage.includes("Failed to fetch dynamically imported module") ||
@@ -376,6 +386,16 @@ export const setupGlobalErrorHandling = () => {
     if (event.target && event.target !== window) return;
 
     const errMessage = event.message || "Unknown error";
+
+    // Filter expected third-party noise (YouTube Iframe API & AdBlockers)
+    if (
+      errMessage.includes("Failed to execute 'postMessage' on 'DOMWindow'") ||
+      errMessage.includes("target origin provided") ||
+      errMessage.includes("youtube-nocookie.com") ||
+      errMessage.includes("doubleclick.net")
+    ) {
+      return;
+    }
 
     // Specific handler for Vite chunk load errors (during background deployments)
     if (
@@ -462,8 +482,18 @@ export const installFetchInterceptor = () => {
       response = await _originalFetch(args[0], args[1]);
     } catch (err: unknown) {
       const networkError = err as Error;
+      const urlStr = String(url);
+
+      // Filter expected third-party noise (AdBlockers blocking YouTube/DoubleClick)
+      const isExpectedNoise =
+        urlStr.includes("doubleclick.net") ||
+        urlStr.includes("googleads") ||
+        urlStr.includes("youtube-nocookie.com") ||
+        networkError.message.includes("doubleclick.net") ||
+        networkError.message.includes("youtube");
+
       // True network failure (DNS, CORS, offline) — report if not monitoring call
-      if (!isMonitoringCall) {
+      if (!isMonitoringCall && !isExpectedNoise) {
         _originalFetch(INGEST_ERRORS, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
