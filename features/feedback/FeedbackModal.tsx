@@ -1,5 +1,5 @@
-/**
- * FeedbackModal — Centered dialog (bottom sheet on mobile).
+﻿/**
+ * FeedbackModal â€” Centered dialog (bottom sheet on mobile).
  * Rendered exclusively via FeedbackModalPortal to document.body so that
  * position:fixed inset:0 always resolves to the full viewport, even when the
  * trigger lives inside a CSS-transform parent (e.g. sidebar slide animations).
@@ -14,7 +14,7 @@ import type { FeedbackUser, SystemContext } from './utils/collectSystemContext';
 import { getApiBaseUrl } from '../../api/config/apiConfig';
 import { glassBorder, textAccent } from '@shared/styles/styleUtils';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 type FeedbackType = 'bug_report' | 'feature_request' | 'general';
 
@@ -36,7 +36,7 @@ interface FeedbackModalProps {
 
 export type FeedbackModalPortalProps = FeedbackModalProps;
 
-// ─── Constants ────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Constants â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const TYPE_MAP: Record<FeedbackType, string> = {
   general: 'user-feedback',
@@ -56,7 +56,7 @@ const SEVERITY_FROM_TYPE: Record<FeedbackType, string> = {
   general: 'low'
 };
 
-// ─── Internal helpers ─────────────────────────────────────────────────────────
+// â”€â”€â”€ Internal helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function getStoredToken(appName: string): string | null {
   if (typeof window === 'undefined') return null;
@@ -78,7 +78,7 @@ function getStoredToken(appName: string): string | null {
   return null;
 }
 
-// ─── FeedbackModal ────────────────────────────────────────────────────────────
+// â”€â”€â”€ FeedbackModal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function FeedbackModal({
   onClose,
@@ -118,7 +118,7 @@ function FeedbackModal({
     []
   );
 
-  // Stable appName — derived once from props, not inside handleSubmit, to keep the
+  // Stable appName â€” derived once from props, not inside handleSubmit, to keep the
   // systemContext consistent between the preview (ctx below) and the submission payload.
   const appName =
     appType ??
@@ -154,14 +154,11 @@ function FeedbackModal({
       };
       if (authToken) reqHeaders['Authorization'] = `Bearer ${authToken}`;
 
-      const response = await fetch(
-        `${getApiBaseUrl()}/api/v1/integrations/feedback`,
-        {
-          method: 'POST',
-          headers: reqHeaders,
-          body: JSON.stringify(payload)
-        }
-      );
+      const response = await fetch(`${getApiBaseUrl()}/api/v1/feedback`, {
+        method: 'POST',
+        headers: reqHeaders,
+        body: JSON.stringify(payload)
+      });
 
       if (response.ok) {
         setSubmitted(true);
@@ -223,7 +220,7 @@ function FeedbackModal({
         padding: isMobile ? '0' : '16px'
       }}
     >
-      {/* Panel — bottom sheet on mobile, centered dialog on desktop */}
+      {/* Panel â€” bottom sheet on mobile, centered dialog on desktop */}
       <div
         role="dialog"
         aria-modal="true"
@@ -386,11 +383,15 @@ function FeedbackModal({
               >
                 {(
                   [
-                    { value: 'positive' as const, emoji: '😊', label: 'Great' },
-                    { value: 'neutral' as const, emoji: '😐', label: 'Okay' },
+                    {
+                      value: 'positive' as const,
+                      emoji: 'ðŸ˜Š',
+                      label: 'Great'
+                    },
+                    { value: 'neutral' as const, emoji: 'ðŸ˜', label: 'Okay' },
                     {
                       value: 'negative' as const,
-                      emoji: '😤',
+                      emoji: 'ðŸ˜¤',
                       label: 'Frustrated'
                     }
                   ] as const
@@ -464,17 +465,17 @@ function FeedbackModal({
                   [
                     {
                       value: 'bug_report' as FeedbackType,
-                      emoji: '🐛',
+                      emoji: 'ðŸ›',
                       label: 'Bug'
                     },
                     {
                       value: 'feature_request' as FeedbackType,
-                      emoji: '💡',
+                      emoji: 'ðŸ’¡',
                       label: 'Feature'
                     },
                     {
                       value: 'general' as FeedbackType,
-                      emoji: '💬',
+                      emoji: 'ðŸ’¬',
                       label: 'Other'
                     }
                   ] as const
@@ -587,7 +588,7 @@ function FeedbackModal({
                     description: e.target.value.slice(0, 1000)
                   })
                 }
-                placeholder="Describe your feedback — steps to reproduce, expected vs actual behavior, etc."
+                placeholder="Describe your feedback â€” steps to reproduce, expected vs actual behavior, etc."
                 rows={4}
                 required={!feedback.sentiment}
                 maxLength={1000}
@@ -727,7 +728,7 @@ function FeedbackModal({
                   flexShrink: 0
                 }}
               >
-                {isSubmitting ? 'Sending…' : 'Send Feedback'}
+                {isSubmitting ? 'Sendingâ€¦' : 'Send Feedback'}
               </button>
             </div>
           </form>
@@ -749,7 +750,7 @@ function FeedbackModal({
   );
 }
 
-// Portal wrapper — breaks FeedbackModal out of any CSS-transform stacking
+// Portal wrapper â€” breaks FeedbackModal out of any CSS-transform stacking
 // context (e.g. sidebar translate-x-* animations) so that position:fixed
 // resolves to the true viewport and inset:0 covers the full screen.
 export function FeedbackModalPortal(props: FeedbackModalPortalProps) {

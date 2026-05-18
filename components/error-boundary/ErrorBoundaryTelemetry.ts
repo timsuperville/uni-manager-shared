@@ -1,4 +1,4 @@
-import { getAuthToken } from '../../utils/authToken.js';
+﻿import { getAuthToken } from '../../utils/authToken.js';
 import { collectSystemContext } from '../../features/feedback/utils/collectSystemContext';
 
 type CollectAdvancedFn =
@@ -10,17 +10,17 @@ import('../../features/monitoring/ErrorMonitoring.jsx')
     _collectAdvanced = m.collectAdvancedErrorContext as CollectAdvancedFn;
   })
   .catch(() => {
-    /* monitoring module unavailable — degrade gracefully */
+    /* monitoring module unavailable â€” degrade gracefully */
   });
 
-// ── Ingest endpoints ──────────────────────────────────────────────────────────
+// â”€â”€ Ingest endpoints â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const _apiOrigin: string =
   (typeof import.meta !== 'undefined' &&
     import.meta.env &&
     import.meta.env.VITE_API_URL) ??
   '';
 const INGEST_ERRORS = `${_apiOrigin}/api/v1/infra/errors/log`;
-const INGEST_FEEDBACK = `${_apiOrigin}/api/v1/integrations/feedback`;
+const INGEST_FEEDBACK = `${_apiOrigin}/api/v1/feedback`;
 
 function normaliseEnvironment(
   mode: string | undefined
@@ -169,7 +169,7 @@ export function flushPendingErrorReports(appType?: string): void {
         headers,
         body: JSON.stringify({ ...report, _retried: true })
       }).catch(() => {
-        /* still failing — drop silently */
+        /* still failing â€” drop silently */
       });
     });
   } catch (_) {

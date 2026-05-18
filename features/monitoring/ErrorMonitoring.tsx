@@ -1,4 +1,4 @@
-// Production Error Monitoring — utility functions only.
+﻿// Production Error Monitoring â€” utility functions only.
 // The ErrorBoundary class has been consolidated into @shared/components/ErrorBoundary.jsx.
 //
 // Exports from this file:
@@ -10,7 +10,7 @@
 //   setupOfflineFlush
 //   setupHealthCheck
 //   initializeMonitoring
-//   createMonitoredQueryClient    (wraps QueryClient with onError→INGEST_ERRORS)
+//   createMonitoredQueryClient    (wraps QueryClient with onErrorâ†’INGEST_ERRORS)
 
 import { getAuthToken } from '../../utils/authToken';
 import { flushPendingErrorReports } from '../../components/error-boundary';
@@ -32,16 +32,16 @@ const isStaging = (import.meta.env?.MODE || 'development') === 'staging';
 
 import { getApiBaseUrl } from '../../api/config/apiConfig';
 
-// ── Ingest endpoints ──────────────────────────────────────────────────────────
+// â”€â”€ Ingest endpoints â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Support remote hosts explicitly if VITE_API_URL is configured
 const INGEST_ERRORS = `${getApiBaseUrl()}/api/v1/infra/errors/log`;
-const INGEST_FEEDBACK = `${getApiBaseUrl()}/api/v1/integrations/feedback`;
+const INGEST_FEEDBACK = `${getApiBaseUrl()}/api/v1/feedback`;
 
-// ErrorBoundary — canonical unified component. Re-exported here so any code
+// ErrorBoundary â€” canonical unified component. Re-exported here so any code
 // that still imports from this module continues to work.
 export { ErrorBoundary } from '../../components/error-boundary';
 
-// ── Recent user activity ──────────────────────────────────────────────────────
+// â”€â”€ Recent user activity â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const getRecentUserActivity = () => {
   try {
     return JSON.parse(sessionStorage.getItem('userActivities') || '[]').slice(
@@ -52,11 +52,11 @@ const getRecentUserActivity = () => {
   }
 };
 
-// ── Advanced telemetry ────────────────────────────────────────────────────────
+// â”€â”€ Advanced telemetry â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Called by global window handlers (unhandledrejection, error) and merged into
 // `meta` by ErrorBoundary.reportError() for render-crash payloads.
 //
-// IMPORTANT: this function must NOT return a field named `environment` — the
+// IMPORTANT: this function must NOT return a field named `environment` â€” the
 // ErrorLog schema uses that as a top-level String enum ('development'|'production').
 // We use `browserContext` for the browser-environment object instead.
 //
@@ -93,8 +93,8 @@ export const collectAdvancedErrorContext = (
   return {
     ...baseError,
 
-    // ── Advanced context goes into meta so Mongoose stores it (Mixed field) ──
-    // Do NOT spread these at the top level — the backend service destructures
+    // â”€â”€ Advanced context goes into meta so Mongoose stores it (Mixed field) â”€â”€
+    // Do NOT spread these at the top level â€” the backend service destructures
     // only known schema keys; anything extra at root is silently dropped.
     meta: {
       ...(baseError.meta ? (baseError.meta as Record<string, unknown>) : {}),
@@ -159,13 +159,13 @@ export const collectAdvancedErrorContext = (
   };
 };
 
-// ── Environment normalisation ─────────────────────────────────────────────────
+// â”€â”€ Environment normalisation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // ErrorLog.environment enum only accepts 'development' | 'production'.
 // Staging and any other environments must map to one of those two values.
 const normaliseEnvironment = (mode?: string): 'development' | 'production' =>
   mode === 'development' ? 'development' : 'production';
 
-// ── Feedback payload builder ──────────────────────────────────────────────────
+// â”€â”€ Feedback payload builder â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Builds the FeedbackReport payload for auto-submitted global errors.
 // Schema constraints enforced here (never rely on Mongoose to catch them):
 //   type      enum: 'user-feedback' | 'error-report' | 'broken-link' | 'performance-issue'
@@ -177,7 +177,7 @@ const normaliseEnvironment = (mode?: string): 'development' | 'production' =>
 /** Truncate a string to `max` chars, appending an ellipsis if clipped. */
 const trunc = (str: string, max: number): string => {
   if (!str || str.length <= max) return str || '';
-  return str.slice(0, max - 1) + '\u2026'; // … (1 char)
+  return str.slice(0, max - 1) + '\u2026'; // â€¦ (1 char)
 };
 
 interface GlobalErrorData {
@@ -225,19 +225,19 @@ const buildGlobalFeedbackPayload = (
   );
 
   return {
-    // ── Enum-safe values ──────────────────────────────────────────────────────
+    // â”€â”€ Enum-safe values â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     type: 'error-report', // was: "automatic_global_error" (invalid enum)
     category: 'bug', // was: "runtime_error" (invalid enum)
     severity: errorData.type === 'uncaught' ? 'critical' : 'high',
 
-    // ── User-input fields (schema maxlengths respected) ───────────────────────
+    // â”€â”€ User-input fields (schema maxlengths respected) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     userInput: {
       title: trunc(rawTitle, 200),
       description,
       actualBehavior
     },
 
-    // ── System context (matches FeedbackReport schema shape) ──────────────────
+    // â”€â”€ System context (matches FeedbackReport schema shape) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     systemContext: {
       ...(typeof window !== 'undefined'
         ? collectSystemContext(errorData.appType || 'unknown')
@@ -255,21 +255,21 @@ const buildGlobalFeedbackPayload = (
       ]
     },
 
-    // ── Cross-reference (links FeedbackReport → ErrorLog in the admin UI) ─────
+    // â”€â”€ Cross-reference (links FeedbackReport â†’ ErrorLog in the admin UI) â”€â”€â”€â”€â”€
     linkedErrorId: errorData.errorId || null
   };
 };
 
-// ── Global window error handlers ──────────────────────────────────────────────
+// â”€â”€ Global window error handlers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 // Layer 2 of the three-layer monitoring stack:
-//   Layer 1 — React ErrorBoundary     (render errors inside React tree)
-//   Layer 2 — window error handlers   (this file — unhandled promises, uncaught)
-//   Layer 3 — installFetchInterceptor (5xx and network-fail responses)
+//   Layer 1 â€” React ErrorBoundary     (render errors inside React tree)
+//   Layer 2 â€” window error handlers   (this file â€” unhandled promises, uncaught)
+//   Layer 3 â€” installFetchInterceptor (5xx and network-fail responses)
 export const setupGlobalErrorHandling = () => {
   if (typeof window === 'undefined') return; // SSR guard
 
-  // Idempotency guard — prevents duplicate listeners on HMR / double-mount
+  // Idempotency guard â€” prevents duplicate listeners on HMR / double-mount
   if (window.__errorHandlersInstalled) return;
   window.__errorHandlersInstalled = true;
 
@@ -277,7 +277,7 @@ export const setupGlobalErrorHandling = () => {
     (import.meta.env && import.meta.env.VITE_APP_TYPE) || 'unknown';
   const env = normaliseEnvironment(import.meta.env?.MODE);
 
-  // ── Activity breadcrumb tracker ───────────────────────────────────────────
+  // â”€â”€ Activity breadcrumb tracker â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const trackActivity = (activity: string) => {
     try {
       const activities = JSON.parse(
@@ -309,7 +309,7 @@ export const setupGlobalErrorHandling = () => {
     );
   });
 
-  // Helper — build auth headers so global errors also get user attribution
+  // Helper â€” build auth headers so global errors also get user attribution
   const makeHeaders = (): HeadersInit => {
     const token = getAuthToken(appType);
     const h: Record<string, string> = { 'Content-Type': 'application/json' };
@@ -317,7 +317,7 @@ export const setupGlobalErrorHandling = () => {
     return h;
   };
 
-  // ── Unhandled promise rejections ──────────────────────────────────────────
+  // â”€â”€ Unhandled promise rejections â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   window.addEventListener('unhandledrejection', event => {
     const errMessage = event.reason?.message || String(event.reason) || '';
 
@@ -353,7 +353,7 @@ export const setupGlobalErrorHandling = () => {
 
     const base = {
       type: 'unhandledrejection',
-      // Generate a short unique ID so admin can cross-reference FeedbackReport↔↔ErrorLog
+      // Generate a short unique ID so admin can cross-reference FeedbackReportâ†”â†”ErrorLog
       errorId: `ERR-${Date.now().toString(36).toUpperCase().slice(-8)}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`,
       message: errMessage || 'Unhandled promise rejection',
       name: event.reason?.name || 'UnhandledRejection',
@@ -376,14 +376,14 @@ export const setupGlobalErrorHandling = () => {
       headers,
       body: JSON.stringify(enhanced)
     }).catch(() => {
-      /* swallow — don't loop on monitor failure */
+      /* swallow â€” don't loop on monitor failure */
     });
   });
 
-  // ── Uncaught synchronous errors ───────────────────────────────────────────
+  // â”€â”€ Uncaught synchronous errors â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   window.addEventListener('error', (event: ErrorEvent) => {
     // Resource load errors (img, script) fire window.error with a null event.message
-    // and a non-null event.target. Filter them — they're not JS exceptions.
+    // and a non-null event.target. Filter them â€” they're not JS exceptions.
     if (event.target && event.target !== window) return;
 
     const errMessage = event.message || 'Unknown error';
@@ -420,7 +420,7 @@ export const setupGlobalErrorHandling = () => {
 
     const base = {
       type: 'uncaught',
-      // Generate a short unique ID so admin can cross-reference FeedbackReport↔↔ErrorLog
+      // Generate a short unique ID so admin can cross-reference FeedbackReportâ†”â†”ErrorLog
       errorId: `ERR-${Date.now().toString(36).toUpperCase().slice(-8)}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`,
       message: errMessage,
       name: event.error?.name || 'Error',
@@ -451,8 +451,8 @@ export const setupGlobalErrorHandling = () => {
   });
 };
 
-// ── Fetch interceptor ─────────────────────────────────────────────────────────
-// Layer 3 — reports 5xx and true network failures without per-call instrumentation.
+// â”€â”€ Fetch interceptor â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Layer 3 â€” reports 5xx and true network failures without per-call instrumentation.
 // Uses _originalFetch to bypass the interceptor itself (no reporting loops).
 export const installFetchInterceptor = () => {
   if (typeof window === 'undefined' || window.__fetchInterceptorInstalled)
@@ -494,7 +494,7 @@ export const installFetchInterceptor = () => {
         networkError.message.includes('doubleclick.net') ||
         networkError.message.includes('youtube');
 
-      // True network failure (DNS, CORS, offline) — report if not monitoring call
+      // True network failure (DNS, CORS, offline) â€” report if not monitoring call
       if (!isMonitoringCall && !isExpectedNoise) {
         _originalFetch(INGEST_ERRORS, {
           method: 'POST',
@@ -545,7 +545,7 @@ export const installFetchInterceptor = () => {
   };
 };
 
-// ── Offline report flush ──────────────────────────────────────────────────────
+// â”€â”€ Offline report flush â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Registers listeners so pending error reports are retried when connectivity
 // or page visibility is restored. Must be called once from initializeMonitoring.
 export const setupOfflineFlush = () => {
@@ -569,10 +569,10 @@ export const setupOfflineFlush = () => {
   flushPendingErrorReports(appType);
 };
 
-// ── Performance monitoring ────────────────────────────────────────────────────
+// â”€â”€ Performance monitoring â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const sendToAnalytics = (metric: unknown) => {
-  // NOTE: No backend ingest endpoint exists for web-vitals —
-  //       metrics are retained in-memory and logged DEV-only (Rule 9.8/§451).
+  // NOTE: No backend ingest endpoint exists for web-vitals â€”
+  //       metrics are retained in-memory and logged DEV-only (Rule 9.8/Â§451).
   // This suppresses the 404 (Not Found) errors in production.
   if (import.meta.env?.DEV) {
     logger.info('[ErrorMonitoring] Web Vitals Metric:', metric);
@@ -595,7 +595,7 @@ export const setupPerformanceMonitoring = () => {
       if (import.meta.env?.DEV) {
         // eslint-disable-next-line no-console
         logger.warn(
-          '[ErrorMonitoring] web-vitals package not found — Core Web Vitals reporting disabled. Install with: npm install web-vitals'
+          '[ErrorMonitoring] web-vitals package not found â€” Core Web Vitals reporting disabled. Install with: npm install web-vitals'
         );
       }
     });
@@ -620,7 +620,7 @@ export const setupPerformanceMonitoring = () => {
   }
 };
 
-// ── Health check ──────────────────────────────────────────────────────────────
+// â”€â”€ Health check â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Pings /health every 30s in prod/staging. When /health returns non-200 OR
 // the network rejects the request, reports a critical error to INGEST_ERRORS
 // so the admin dashboard registers the outage even before any user hits a 5xx.
@@ -651,7 +651,7 @@ export const setupHealthCheck = () => {
     reason: string,
     statusCode: number | null = null
   ) => {
-    // Still within startup grace period — silently skip.
+    // Still within startup grace period â€” silently skip.
     if (Date.now() < startupDeadline) return;
 
     // Do not report if the browser is offline or tab is backgrounded
@@ -685,7 +685,7 @@ export const setupHealthCheck = () => {
         meta: { statusCode, reason, consecutiveFailures }
       })
     }).catch(() => {
-      /* still failing — don't loop */
+      /* still failing â€” don't loop */
     });
   };
 
@@ -709,7 +709,7 @@ export const setupHealthCheck = () => {
   return () => clearInterval(intervalId);
 };
 
-// ── initializeMonitoring ──────────────────────────────────────────────────────
+// â”€â”€ initializeMonitoring â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Call once from each app's main.jsx, before ReactDOM.createRoot().
 // All three layers of monitoring are wired here.
 export const initializeMonitoring = () => {
@@ -722,9 +722,9 @@ export const initializeMonitoring = () => {
   }
 };
 
-// ── createMonitoredQueryClient ────────────────────────────────────────────────
+// â”€â”€ createMonitoredQueryClient â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Drop-in factory for TanStack Query clients that routes data-layer errors to
-// INGEST_ERRORS. TanStack Query catches all query/mutation errors internally —
+// INGEST_ERRORS. TanStack Query catches all query/mutation errors internally â€”
 // they do NOT propagate to the React ErrorBoundary unless the component
 // explicitly re-throws. This QueryCache/MutationCache onError hook gives us
 // visibility into data-layer failures without any per-query instrumentation.
@@ -733,7 +733,7 @@ export const initializeMonitoring = () => {
 // module reference. Keeps this monitoring module decoupled from React Query so
 // apps that don't use it don't pull in the dependency.
 //
-// Usage — in App.jsx (replaces `new QueryClient({...})`):
+// Usage â€” in App.jsx (replaces `new QueryClient({...})`):
 //   import { QueryClient, QueryCache, MutationCache } from "@tanstack/react-query";
 //   import { createMonitoredQueryClient } from "@shared/features/monitoring/ErrorMonitoring";
 //
@@ -793,7 +793,7 @@ export const createMonitoredQueryClient = (
         }
       })
     }).catch(() => {
-      /* swallow — don't loop if ingest is down */
+      /* swallow â€” don't loop if ingest is down */
     });
   };
 

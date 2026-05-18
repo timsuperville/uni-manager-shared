@@ -1,4 +1,4 @@
-/**
+﻿/**
  * FeedbackQuickAction.test.jsx
  *
  * Tests for the shared FeedbackQuickAction component focusing on:
@@ -27,7 +27,7 @@ import {
 } from './FeedbackQuickAction.tsx';
 import { AuthContext } from '../../auth/context/AuthContext.tsx';
 
-// ─── Mocks ────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Mocks â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 // Suppress console noise during tests
 beforeEach(() => {
@@ -52,7 +52,7 @@ vi.mock('../hooks/useFrustrationDetector', () => ({
   useFrustrationDetector: vi.fn()
 }));
 
-// ─── Test Helpers ─────────────────────────────────────────────────────────────
+// â”€â”€â”€ Test Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const MOCK_AUTH_USER = {
   _id: 'user-test-123',
@@ -92,9 +92,9 @@ function renderFeedback(
   );
 }
 
-// ─── 1. useOptionalUser — identity extraction ─────────────────────────────────
+// â”€â”€â”€ 1. useOptionalUser â€” identity extraction â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-describe('useOptionalUser — automatic identity collection', () => {
+describe('useOptionalUser â€” automatic identity collection', () => {
   it('extracts user id, email, name, and role from AuthContext when authenticated', () => {
     // Test that the component renders successfully with an auth context without throwing.
     // (The actual identity flow is verified more thoroughly in submitFeedbackSilently tests
@@ -109,7 +109,7 @@ describe('useOptionalUser — automatic identity collection', () => {
   });
 
   it('sets user to null when rendered outside AuthProvider (public/marketing page)', () => {
-    // No AuthProvider — should not throw (useOptionalUser returns null gracefully)
+    // No AuthProvider â€” should not throw (useOptionalUser returns null gracefully)
     expect(() => renderFeedback({ variant: 'floating' }, null)).not.toThrow();
 
     // FAB should still render
@@ -117,9 +117,9 @@ describe('useOptionalUser — automatic identity collection', () => {
   });
 });
 
-// ─── 2. collectSystemContext — device & OS detection ─────────────────────────
+// â”€â”€â”€ 2. collectSystemContext â€” device & OS detection â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-describe('submitFeedbackSilently — context shape and device detection', () => {
+describe('submitFeedbackSilently â€” context shape and device detection', () => {
   it('sends systemContext with user, device, browser, page, and application', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
@@ -147,7 +147,7 @@ describe('submitFeedbackSilently — context shape and device detection', () => 
       RequestInit
     ];
     const [url, opts] = callArgs;
-    expect(url).toBe('/api/v1/integrations/feedback');
+    expect(url).toBe('/api/v1/feedback');
     expect(opts.method).toBe('POST');
 
     const body = JSON.parse(opts.body as string);
@@ -157,11 +157,11 @@ describe('submitFeedbackSilently — context shape and device detection', () => 
     expect(body.category).toBe('bug');
     expect(body.severity).toBe('medium');
 
-    // userInput — no manual entry expected from user
+    // userInput â€” no manual entry expected from user
     expect(body.userInput.title).toBe('Auto-reported frustration');
     expect(body.userInput.description).toBe('Rage click detected');
 
-    // systemContext.user — identity auto-collected
+    // systemContext.user â€” identity auto-collected
     expect(body.systemContext.user).toEqual(
       expect.objectContaining({
         id: 'u-99',
@@ -170,7 +170,7 @@ describe('submitFeedbackSilently — context shape and device detection', () => 
       })
     );
 
-    // systemContext.device — new device detection fields
+    // systemContext.device â€” new device detection fields
     expect(body.systemContext.device).toEqual(
       expect.objectContaining({
         type: expect.stringMatching(/desktop|mobile|tablet/),
@@ -239,9 +239,9 @@ describe('submitFeedbackSilently — context shape and device detection', () => 
   });
 });
 
-// ─── 3. Variant rendering ─────────────────────────────────────────────────────
+// â”€â”€â”€ 3. Variant rendering â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-describe('FeedbackQuickAction — variant rendering', () => {
+describe('FeedbackQuickAction â€” variant rendering', () => {
   it('renders sidebar-item button with correct accessible label', () => {
     renderFeedback({ variant: 'sidebar-item' });
     expect(
@@ -266,9 +266,9 @@ describe('FeedbackQuickAction — variant rendering', () => {
   });
 });
 
-// ─── 4. Modal lifecycle ───────────────────────────────────────────────────────
+// â”€â”€â”€ 4. Modal lifecycle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-describe('FeedbackQuickAction — modal lifecycle', () => {
+describe('FeedbackQuickAction â€” modal lifecycle', () => {
   it('opens modal when sidebar-item button is clicked', async () => {
     renderFeedback({ variant: 'sidebar-item' }, MOCK_AUTH_USER);
 

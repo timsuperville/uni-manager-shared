@@ -1,13 +1,13 @@
-/**
- * FeedbackQuickAction — Shared Feedback Submission Component
+﻿/**
+ * FeedbackQuickAction â€” Shared Feedback Submission Component
  *
  * Variants:
- *   "sidebar-item"    — pinned nav row for sidebar footer (preferred for sidebar apps)
- *   "sidebar-icon"    — collapsed icon-only mode
- *   "button"          — inline button for header placement
- *   "bottom-nav-item" — icon + label for mobile bottom nav
- *   "quick-react"     — 3-emoji inline strip
- *   "floating"        — FAB, only for apps without a persistent sidebar (e.g. playback)
+ *   "sidebar-item"    â€” pinned nav row for sidebar footer (preferred for sidebar apps)
+ *   "sidebar-icon"    â€” collapsed icon-only mode
+ *   "button"          â€” inline button for header placement
+ *   "bottom-nav-item" â€” icon + label for mobile bottom nav
+ *   "quick-react"     â€” 3-emoji inline strip
+ *   "floating"        â€” FAB, only for apps without a persistent sidebar (e.g. playback)
  *
  * Uses inline styles throughout to avoid Tailwind JIT scanning gaps in shared/.
  */
@@ -21,7 +21,7 @@ import type { FeedbackUser } from './utils/collectSystemContext';
 import { useFrustrationDetector } from '../../hooks/useFrustrationDetector.js';
 import { getApiBaseUrl } from '../../api/config/apiConfig';
 
-// ─── Schema field limits (must match FeedbackReport Mongoose schema) ──────────
+// â”€â”€â”€ Schema field limits (must match FeedbackReport Mongoose schema) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Enforced here at the network boundary so no caller can overflow regardless
 // of what string they pass in.
 const TITLE_MAX = 200;
@@ -32,7 +32,7 @@ function trunc(str: string | null | undefined, max: number): string {
   return str.slice(0, max - 1) + '\u2026';
 }
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 type FabPosition = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
 type Variant =
@@ -64,8 +64,8 @@ export interface FeedbackQuickActionProps {
   onSubmitSuccess?: () => void;
 }
 
-// ─── Silent auto-submit (used by ErrorBoundary, no UI) ───────────────────────
-// Fire-and-forget — never throws, never alerts the user.
+// â”€â”€â”€ Silent auto-submit (used by ErrorBoundary, no UI) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Fire-and-forget â€” never throws, never alerts the user.
 export async function submitFeedbackSilently({
   title,
   description,
@@ -108,7 +108,7 @@ export async function submitFeedbackSilently({
     const systemCtx = collectSystemContext(appName, user ?? null);
     systemCtx.source = resolveSource(source);
 
-    await fetch(`${getApiBaseUrl()}/api/v1/integrations/feedback`, {
+    await fetch(`${getApiBaseUrl()}/api/v1/feedback`, {
       method: 'POST',
       headers,
       body: JSON.stringify({
@@ -124,11 +124,11 @@ export async function submitFeedbackSilently({
       })
     });
   } catch {
-    // Intentionally silent — never surface auto-report errors to users
+    // Intentionally silent â€” never surface auto-report errors to users
   }
 }
 
-// ─── Shared trigger icon ──────────────────────────────────────────────────────
+// â”€â”€â”€ Shared trigger icon â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 interface ChatBubbleIconProps {
   size?: number;
   strokeWidth?: number;
@@ -155,7 +155,7 @@ const ChatBubbleIcon: React.FC<ChatBubbleIconProps> = ({
   </svg>
 );
 
-// ─── Public Component ─────────────────────────────────────────────────────────
+// â”€â”€â”€ Public Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export const FeedbackQuickAction: React.FC<FeedbackQuickActionProps> = ({
   variant = 'sidebar-item',
   position = 'bottom-right',
@@ -166,7 +166,7 @@ export const FeedbackQuickAction: React.FC<FeedbackQuickActionProps> = ({
   const user = useOptionalUser();
   const [isOpen, setIsOpen] = useState(false);
   const [prefill, setPrefill] = useState({ title: '', description: '' });
-  // R4 — 'reacted' declared here so hooks are never called inside a conditional branch
+  // R4 â€” 'reacted' declared here so hooks are never called inside a conditional branch
   const [reacted, setReacted] = useState(false);
 
   const appName =
@@ -210,7 +210,7 @@ export const FeedbackQuickAction: React.FC<FeedbackQuickActionProps> = ({
     initialDescription: prefill.description
   };
 
-  // ── VARIANT: sidebar-item ───────────────────────────────────────────────────
+  // â”€â”€ VARIANT: sidebar-item â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   if (variant === 'sidebar-item') {
     const accent = accentColor || 'var(--primary-resonance, #22d3ee)';
     return (
@@ -256,7 +256,7 @@ export const FeedbackQuickAction: React.FC<FeedbackQuickActionProps> = ({
     );
   }
 
-  // ── VARIANT: sidebar-icon ───────────────────────────────────────────────────
+  // â”€â”€ VARIANT: sidebar-icon â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   if (variant === 'sidebar-icon') {
     const accent = accentColor || 'var(--primary-resonance, #22d3ee)';
     return (
@@ -295,7 +295,7 @@ export const FeedbackQuickAction: React.FC<FeedbackQuickActionProps> = ({
     );
   }
 
-  // ── VARIANT: button ─────────────────────────────────────────────────────────
+  // â”€â”€ VARIANT: button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   if (variant === 'button') {
     return (
       <>
@@ -334,7 +334,7 @@ export const FeedbackQuickAction: React.FC<FeedbackQuickActionProps> = ({
     );
   }
 
-  // ── VARIANT: bottom-nav-item ────────────────────────────────────────────────
+  // â”€â”€ VARIANT: bottom-nav-item â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   if (variant === 'bottom-nav-item') {
     const accent = accentColor || 'var(--primary-resonance, #22d3ee)';
     return (
@@ -403,7 +403,7 @@ export const FeedbackQuickAction: React.FC<FeedbackQuickActionProps> = ({
     );
   }
 
-  // ── VARIANT: quick-react ────────────────────────────────────────────────────
+  // â”€â”€ VARIANT: quick-react â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   if (variant === 'quick-react') {
     const handleReact = (emoji: string, sentiment: Sentiment) => {
       if (reacted) return;
@@ -431,7 +431,7 @@ export const FeedbackQuickAction: React.FC<FeedbackQuickActionProps> = ({
               padding: '4px 8px'
             }}
           >
-            Thanks! 🙌
+            Thanks! ðŸ™Œ
           </span>
         ) : (
           <div
@@ -448,17 +448,17 @@ export const FeedbackQuickAction: React.FC<FeedbackQuickActionProps> = ({
             {(
               [
                 {
-                  emoji: '😊',
+                  emoji: 'ðŸ˜Š',
                   label: 'Great',
                   sentiment: 'positive' as Sentiment
                 },
                 {
-                  emoji: '😐',
+                  emoji: 'ðŸ˜',
                   label: 'Okay',
                   sentiment: 'neutral' as Sentiment
                 },
                 {
-                  emoji: '😤',
+                  emoji: 'ðŸ˜¤',
                   label: 'Frustrating',
                   sentiment: 'negative' as Sentiment
                 }
@@ -502,7 +502,7 @@ export const FeedbackQuickAction: React.FC<FeedbackQuickActionProps> = ({
     );
   }
 
-  // ── VARIANT: floating (FAB) ─────────────────────────────────────────────────
+  // â”€â”€ VARIANT: floating (FAB) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const positionMap: Record<FabPosition, React.CSSProperties> = {
     'bottom-right': { bottom: '24px', right: '24px' },
     'bottom-left': { bottom: '24px', left: '24px' },
