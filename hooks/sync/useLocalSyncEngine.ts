@@ -1,11 +1,11 @@
-import { useEffect } from "react";
-import { localDB, SyncQueueEntry } from "../../database/LocalDatabase";
-import { getApiClient } from "../../api/core/ApiClient";
-import { logger } from "../../utils/logger";
+import { useEffect } from 'react';
+import { localDB, SyncQueueEntry } from '../../database/LocalDatabase';
+import { getApiClient } from '../../api/core/ApiClient';
+import { logger } from '../../utils/logger';
 
 export function useLocalSyncEngine() {
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === 'undefined') return;
 
     const pushOfflineQueue = async () => {
       try {
@@ -17,16 +17,16 @@ export function useLocalSyncEngine() {
         // Push mutations to backend in order
         for (const entry of queue) {
           try {
-            await api.post("/api/v1/sync/push", { mutations: [entry] });
+            await api.post('/api/v1/sync/push', { mutations: [entry] });
             await localDB.syncQueue.delete(entry.id);
           } catch (e) {
             // If the server rejects due to conflict or offline, stop queue processing
-            logger.error("[LocalSync] Failed to push mutation", entry, e);
+            logger.error('[LocalSync] Failed to push mutation', entry, e);
             break;
           }
         }
       } catch (err) {
-        logger.error("[LocalSync] Error reading sync queue", err);
+        logger.error('[LocalSync] Error reading sync queue', err);
       }
     };
 
@@ -34,7 +34,7 @@ export function useLocalSyncEngine() {
       pushOfflineQueue();
     };
 
-    window.addEventListener("online", handleOnline);
+    window.addEventListener('online', handleOnline);
 
     // Initial sync push attempt if we are online at mount
     if (navigator.onLine) {
@@ -42,15 +42,15 @@ export function useLocalSyncEngine() {
     }
 
     return () => {
-      window.removeEventListener("online", handleOnline);
+      window.removeEventListener('online', handleOnline);
     };
   }, []);
 
   const queueMutation = async (
     collection: string,
-    action: SyncQueueEntry["action"],
+    action: SyncQueueEntry['action'],
     documentId: string,
-    payload: Record<string, unknown>,
+    payload: Record<string, unknown>
   ) => {
     const entry: SyncQueueEntry = {
       id: crypto.randomUUID(),
@@ -58,7 +58,7 @@ export function useLocalSyncEngine() {
       collection,
       documentId,
       payload,
-      timestamp: new Date().toISOString(),
+      timestamp: new Date().toISOString()
     };
     await localDB.syncQueue.put(entry);
 
@@ -66,10 +66,10 @@ export function useLocalSyncEngine() {
     if (navigator.onLine) {
       const api = getApiClient();
       try {
-        await api.post("/api/v1/sync/push", { mutations: [entry] });
+        await api.post('/api/v1/sync/push', { mutations: [entry] });
         await localDB.syncQueue.delete(entry.id);
       } catch (e) {
-        logger.warn("[LocalSync] Immediate push failed, kept in queue", e);
+        logger.warn('[LocalSync] Immediate push failed, kept in queue', e);
       }
     }
   };

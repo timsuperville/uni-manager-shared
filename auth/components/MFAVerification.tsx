@@ -16,7 +16,7 @@
  * - Accessibility support
  */
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from 'react';
 
 // Inline SVG components — consistent with _authUI, no lucide-react dep (AUTH-10)
 const ShieldIcon = () => (
@@ -103,17 +103,17 @@ const MFAVerification = ({
   userId,
   onVerificationSuccess,
   onCancel,
-  className = "",
+  className = '',
   deviceFingerprint = null,
-  apiService = null,
+  apiService = null
 }: MFAVerificationProps) => {
-  const [verificationMode, setVerificationMode] = useState("totp"); // 'totp' or 'backup'
-  const [token, setToken] = useState("");
+  const [verificationMode, setVerificationMode] = useState('totp'); // 'totp' or 'backup'
+  const [token, setToken] = useState('');
   const [trustDevice, setTrustDevice] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [remainingAttempts, setRemainingAttempts] = useState<number | null>(
-    null,
+    null
   );
   const [showTrustOption, setShowTrustOption] = useState(!!deviceFingerprint);
 
@@ -127,31 +127,31 @@ const MFAVerification = ({
   }, [verificationMode]);
 
   const handleTokenChange = (value: string) => {
-    setError("");
+    setError('');
 
-    if (verificationMode === "totp") {
+    if (verificationMode === 'totp') {
       // Format TOTP token (6 digits only)
-      const formatted = value.replace(/\D/g, "").slice(0, 6);
+      const formatted = value.replace(/\D/g, '').slice(0, 6);
       setToken(formatted);
     } else {
       // Format backup code (alphanumeric, up to 12 chars)
       const formatted = value
         .toUpperCase()
-        .replace(/[^A-Z0-9]/g, "")
+        .replace(/[^A-Z0-9]/g, '')
         .slice(0, 12);
       setToken(formatted);
     }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
+    if (e.key === 'Enter') {
       e.preventDefault();
       if (canSubmit()) handleVerification();
     }
   };
 
   const canSubmit = () => {
-    if (verificationMode === "totp") {
+    if (verificationMode === 'totp') {
       return token.length === 6 && !isVerifying;
     } else {
       return token.length >= 6 && !isVerifying;
@@ -161,7 +161,7 @@ const MFAVerification = ({
   const handleVerification = async () => {
     if (!canSubmit()) return;
     setIsVerifying(true);
-    setError("");
+    setError('');
     try {
       let data;
       if (apiService?.verifyMFA) {
@@ -170,25 +170,25 @@ const MFAVerification = ({
           userId,
           token,
           deviceFingerprint: trustDevice ? deviceFingerprint : null,
-          trustDevice,
+          trustDevice
         });
       } else {
         // Fallback: direct fetch — only if no service injected
         if (import.meta.env?.DEV) {
           console.warn(
-            "[MFAVerification] No apiService provided — falling back to raw fetch. " +
-              "Pass apiService prop for proper API layer separation.",
+            '[MFAVerification] No apiService provided — falling back to raw fetch. ' +
+              'Pass apiService prop for proper API layer separation.'
           );
         }
-        const response = await fetch("/api/auth/mfa/verify", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+        const response = await fetch('/api/auth/mfa/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             userId,
             token,
             deviceFingerprint: trustDevice ? deviceFingerprint : null,
-            trustDevice,
-          }),
+            trustDevice
+          })
         });
         data = await response.json();
       }
@@ -198,14 +198,14 @@ const MFAVerification = ({
           verified: true,
           deviceTrusted: data.data.deviceTrusted,
           usedBackupCode: data.data.usedBackupCode,
-          bypassedDueToTrust: data.data.bypassedDueToTrust,
+          bypassedDueToTrust: data.data.bypassedDueToTrust
         });
       } else {
-        const errorMessage = data?.message || "Invalid verification code";
+        const errorMessage = data?.message || 'Invalid verification code';
         setError(errorMessage);
         if (
-          errorMessage.includes("too many") ||
-          errorMessage.includes("rate limit")
+          errorMessage.includes('too many') ||
+          errorMessage.includes('rate limit')
         ) {
           setRemainingAttempts(0);
         } else {
@@ -213,12 +213,12 @@ const MFAVerification = ({
             remainingAttempts !== null ? remainingAttempts - 1 : 4;
           setRemainingAttempts(Math.max(0, currentAttempts));
         }
-        setToken("");
+        setToken('');
         inputRef.current?.focus();
       }
     } catch (_err) {
       setError(
-        "Verification failed. Please check your connection and try again.",
+        'Verification failed. Please check your connection and try again.'
       );
     } finally {
       setIsVerifying(false);
@@ -226,16 +226,16 @@ const MFAVerification = ({
   };
 
   const switchToBackupMode = () => {
-    setVerificationMode("backup");
-    setToken("");
-    setError("");
+    setVerificationMode('backup');
+    setToken('');
+    setError('');
     setRemainingAttempts(null);
   };
 
   const switchToTOTPMode = () => {
-    setVerificationMode("totp");
-    setToken("");
-    setError("");
+    setVerificationMode('totp');
+    setToken('');
+    setError('');
     setRemainingAttempts(null);
   };
 
@@ -258,20 +258,20 @@ const MFAVerification = ({
           ref={inputRef}
           type="text"
           value={token}
-          onChange={(e) => handleTokenChange(e.target.value)}
+          onChange={e => handleTokenChange(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="000000"
           className={`text-center text-2xl font-mono tracking-widest w-48 px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent ${
             error
-              ? "border-red-300 focus:ring-red-500"
-              : "border-gray-300 focus:ring-blue-500"
+              ? 'border-red-300 focus:ring-red-500'
+              : 'border-gray-300 focus:ring-blue-500'
           }`}
           maxLength={6}
           autoComplete="off"
           inputMode="numeric"
           pattern="[0-9]*"
           aria-invalid={!!error}
-          aria-describedby={error ? "mfa-error" : undefined}
+          aria-describedby={error ? 'mfa-error' : undefined}
         />
       </div>
 
@@ -305,18 +305,18 @@ const MFAVerification = ({
           ref={inputRef}
           type="text"
           value={token}
-          onChange={(e) => handleTokenChange(e.target.value)}
+          onChange={e => handleTokenChange(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="XXXXXXXX"
           className={`text-center text-xl font-mono tracking-wider w-64 px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent ${
             error
-              ? "border-red-300 focus:ring-red-500"
-              : "border-gray-300 focus:ring-blue-500"
+              ? 'border-red-300 focus:ring-red-500'
+              : 'border-gray-300 focus:ring-blue-500'
           }`}
           maxLength={12}
           autoComplete="off"
           aria-invalid={!!error}
-          aria-describedby={error ? "mfa-error" : undefined}
+          aria-describedby={error ? 'mfa-error' : undefined}
         />
       </div>
 
@@ -346,7 +346,7 @@ const MFAVerification = ({
           <input
             type="checkbox"
             checked={trustDevice}
-            onChange={(e) => setTrustDevice(e.target.checked)}
+            onChange={e => setTrustDevice(e.target.checked)}
             className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
           />
           <div className="text-sm">
@@ -396,7 +396,7 @@ const MFAVerification = ({
 
         {/* Input Section */}
         <div className="space-y-6">
-          {verificationMode === "totp"
+          {verificationMode === 'totp'
             ? renderTOTPInput()
             : renderBackupInput()}
 
@@ -418,7 +418,7 @@ const MFAVerification = ({
                   {remainingAttempts !== null && remainingAttempts > 0 && (
                     <p className="text-red-600 mt-1">
                       {remainingAttempts} attempt
-                      {remainingAttempts !== 1 ? "s" : ""} remaining
+                      {remainingAttempts !== 1 ? 's' : ''} remaining
                     </p>
                   )}
                   {remainingAttempts === 0 && (
@@ -446,9 +446,9 @@ const MFAVerification = ({
                 </div>
               ) : (
                 <>
-                  {verificationMode === "totp"
-                    ? "Verify Code"
-                    : "Verify Backup Code"}
+                  {verificationMode === 'totp'
+                    ? 'Verify Code'
+                    : 'Verify Backup Code'}
                 </>
               )}
             </button>

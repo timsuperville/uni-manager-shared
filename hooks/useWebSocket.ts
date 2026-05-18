@@ -1,18 +1,18 @@
 /* eslint-env browser */
-import { useState, useEffect, useCallback, useRef } from "react";
-import { getWebSocketUrl } from "../config/environment";
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { getWebSocketUrl } from '../config/environment';
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
 export type WsConnectionStatus =
-  | "disconnected"
-  | "connecting"
-  | "connected"
-  | "reconnecting"
-  | "failed"
-  | "error";
+  | 'disconnected'
+  | 'connecting'
+  | 'connected'
+  | 'reconnecting'
+  | 'failed'
+  | 'error';
 
 type WsMessage = Record<string, unknown>;
 type WsEventCallback = (data: WsMessage) => void;
@@ -50,18 +50,18 @@ const HEARTBEAT_INTERVAL_MS = 30_000;
  * - Error handling and retry logic
  * - Heartbeat/ping-pong support
  */
-export const useWebSocket = (endpoint = ""): UseWebSocketResult => {
+export const useWebSocket = (endpoint = ''): UseWebSocketResult => {
   const [isConnected, setIsConnected] = useState(false);
   const [connectionStatus, setConnectionStatus] =
-    useState<WsConnectionStatus>("disconnected");
+    useState<WsConnectionStatus>('disconnected');
   const [error, setError] = useState<string | null>(null);
 
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
-    null,
+    null
   );
   const heartbeatIntervalRef = useRef<ReturnType<typeof setInterval> | null>(
-    null,
+    null
   );
   const subscribersRef = useRef<Map<string, WsEventCallback>>(new Map());
   const reconnectAttemptsRef = useRef(0);
@@ -78,15 +78,15 @@ export const useWebSocket = (endpoint = ""): UseWebSocketResult => {
     try {
       const data = JSON.parse(event.data as string) as WsMessage;
 
-      if (data["type"] === "ping") {
+      if (data['type'] === 'ping') {
         if (wsRef.current?.readyState === WebSocket.OPEN) {
-          wsRef.current.send(JSON.stringify({ type: "pong" }));
+          wsRef.current.send(JSON.stringify({ type: 'pong' }));
         }
         return;
       }
 
       subscribersRef.current.forEach((callback, eventType) => {
-        if (data["event"] === eventType || eventType === "*") {
+        if (data['event'] === eventType || eventType === '*') {
           try {
             callback(data);
           } catch {
@@ -101,7 +101,7 @@ export const useWebSocket = (endpoint = ""): UseWebSocketResult => {
 
   const handleOpen = useCallback((): void => {
     setIsConnected(true);
-    setConnectionStatus("connected");
+    setConnectionStatus('connected');
     setError(null);
     reconnectAttemptsRef.current = 0;
 
@@ -110,14 +110,14 @@ export const useWebSocket = (endpoint = ""): UseWebSocketResult => {
 
     heartbeatIntervalRef.current = setInterval(() => {
       if (wsRef.current?.readyState === WebSocket.OPEN) {
-        wsRef.current.send(JSON.stringify({ type: "ping" }));
+        wsRef.current.send(JSON.stringify({ type: 'ping' }));
       }
     }, HEARTBEAT_INTERVAL_MS);
   }, []);
 
   const handleClose = useCallback((event: CloseEvent): void => {
     setIsConnected(false);
-    setConnectionStatus("disconnected");
+    setConnectionStatus('disconnected');
 
     if (heartbeatIntervalRef.current) {
       clearInterval(heartbeatIntervalRef.current);
@@ -131,7 +131,7 @@ export const useWebSocket = (endpoint = ""): UseWebSocketResult => {
       event.code !== 1000 &&
       reconnectAttemptsRef.current < MAX_RECONNECT_ATTEMPTS
     ) {
-      setConnectionStatus("reconnecting");
+      setConnectionStatus('reconnecting');
       reconnectAttemptsRef.current += 1;
 
       reconnectTimeoutRef.current = setTimeout(
@@ -139,20 +139,20 @@ export const useWebSocket = (endpoint = ""): UseWebSocketResult => {
           connect();
         },
         RECONNECT_INTERVAL_MS *
-          Math.pow(2, Math.min(reconnectAttemptsRef.current - 1, 5)),
+          Math.pow(2, Math.min(reconnectAttemptsRef.current - 1, 5))
       );
     } else if (!isMountedRef.current || event.code === 1000) {
       // Intentional close — stay silent.
-      setConnectionStatus("disconnected");
+      setConnectionStatus('disconnected');
     } else {
-      setConnectionStatus("failed");
+      setConnectionStatus('failed');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleError = useCallback((): void => {
-    setError("WebSocket connection error");
-    setConnectionStatus("error");
+    setError('WebSocket connection error');
+    setConnectionStatus('error');
   }, []);
 
   const connect = useCallback((): void => {
@@ -162,15 +162,15 @@ export const useWebSocket = (endpoint = ""): UseWebSocketResult => {
       const wsUrl = buildWebSocketUrl();
       wsRef.current = new WebSocket(wsUrl);
 
-      wsRef.current.addEventListener("open", handleOpen);
-      wsRef.current.addEventListener("close", handleClose);
-      wsRef.current.addEventListener("error", handleError);
-      wsRef.current.addEventListener("message", handleMessage);
+      wsRef.current.addEventListener('open', handleOpen);
+      wsRef.current.addEventListener('close', handleClose);
+      wsRef.current.addEventListener('error', handleError);
+      wsRef.current.addEventListener('message', handleMessage);
 
-      setConnectionStatus("connecting");
+      setConnectionStatus('connecting');
     } catch {
-      setError("Failed to create WebSocket connection");
-      setConnectionStatus("failed");
+      setError('Failed to create WebSocket connection');
+      setConnectionStatus('failed');
     }
   }, [buildWebSocketUrl, handleOpen, handleClose, handleError, handleMessage]);
 
@@ -184,11 +184,11 @@ export const useWebSocket = (endpoint = ""): UseWebSocketResult => {
       heartbeatIntervalRef.current = null;
     }
     if (wsRef.current) {
-      wsRef.current.close(1000, "Manual disconnect");
+      wsRef.current.close(1000, 'Manual disconnect');
       wsRef.current = null;
     }
     setIsConnected(false);
-    setConnectionStatus("disconnected");
+    setConnectionStatus('disconnected');
     reconnectAttemptsRef.current = 0;
   }, []);
 
@@ -199,7 +199,7 @@ export const useWebSocket = (endpoint = ""): UseWebSocketResult => {
         subscribersRef.current.delete(eventType);
       };
     },
-    [],
+    []
   );
 
   const unsubscribe = useCallback((eventType: string): void => {
@@ -210,7 +210,7 @@ export const useWebSocket = (endpoint = ""): UseWebSocketResult => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       try {
         const messageString =
-          typeof message === "string" ? message : JSON.stringify(message);
+          typeof message === 'string' ? message : JSON.stringify(message);
         wsRef.current.send(messageString);
         return true;
       } catch {
@@ -237,7 +237,7 @@ export const useWebSocket = (endpoint = ""): UseWebSocketResult => {
     disconnect,
     subscribe,
     unsubscribe,
-    send,
+    send
   };
 };
 

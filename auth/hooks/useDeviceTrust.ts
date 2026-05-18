@@ -1,7 +1,7 @@
-import { useCallback, useState, useEffect, useMemo } from "react";
-import { useAuth } from "./useAuth";
-import { MFAService } from "../services/mfaService";
-import { generateDeviceFingerprint, getDeviceInfo } from "../utils/socialAuth";
+import { useCallback, useState, useEffect, useMemo } from 'react';
+import { useAuth } from './useAuth';
+import { MFAService } from '../services/mfaService';
+import { generateDeviceFingerprint, getDeviceInfo } from '../utils/socialAuth';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -22,7 +22,7 @@ interface UseDeviceTrustReturn {
 export function useDeviceTrust(): UseDeviceTrustReturn {
   const { token } = useAuth();
   const [deviceFingerprint, setDeviceFingerprint] = useState<string | null>(
-    null,
+    null
   );
   const [isTrusted, setIsTrusted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -37,9 +37,9 @@ export function useDeviceTrust(): UseDeviceTrustReturn {
         setDeviceFingerprint(fingerprint as string);
       } catch (err) {
         if (import.meta.env.DEV) {
-          console.error("Failed to generate fingerprint:", err);
+          console.error('Failed to generate fingerprint:', err);
         }
-        setError("Failed to generate device ID");
+        setError('Failed to generate device ID');
       }
     };
     initFingerprint();
@@ -54,12 +54,12 @@ export function useDeviceTrust(): UseDeviceTrustReturn {
     const checkTrust = async () => {
       try {
         const result = (await mfaService.checkDeviceTrust(
-          deviceFingerprint,
+          deviceFingerprint
         )) as { isTrusted: boolean };
         setIsTrusted(result.isTrusted);
       } catch (err) {
         if (import.meta.env.DEV) {
-          console.error("Failed to check device trust:", err);
+          console.error('Failed to check device trust:', err);
         }
         // Don't set error to avoid blocking UI — just assume untrusted
         setIsTrusted(false);
@@ -79,16 +79,16 @@ export function useDeviceTrust(): UseDeviceTrustReturn {
     try {
       const deviceInfo = {
         fingerprint: deviceFingerprint,
-        ...(getDeviceInfo() as object),
+        ...(getDeviceInfo() as object)
       };
       await mfaService.addTrustedDevice(deviceInfo);
       setIsTrusted(true);
     } catch (err) {
       if (import.meta.env.DEV) {
-        console.error("Failed to trust device:", err);
+        console.error('Failed to trust device:', err);
       }
       const message =
-        err instanceof Error ? err.message : "Failed to trust device";
+        err instanceof Error ? err.message : 'Failed to trust device';
       setError(message);
       throw err;
     } finally {
@@ -106,10 +106,10 @@ export function useDeviceTrust(): UseDeviceTrustReturn {
       setIsTrusted(false);
     } catch (err) {
       if (import.meta.env.DEV) {
-        console.error("Failed to untrust device:", err);
+        console.error('Failed to untrust device:', err);
       }
       const message =
-        err instanceof Error ? err.message : "Failed to untrust device";
+        err instanceof Error ? err.message : 'Failed to untrust device';
       setError(message);
       throw err;
     } finally {
@@ -123,7 +123,7 @@ export function useDeviceTrust(): UseDeviceTrustReturn {
     isLoading,
     error,
     trustDevice,
-    untrustDevice,
+    untrustDevice
   };
 }
 

@@ -36,14 +36,14 @@ export interface ApiConfig {
 export const getApiBaseUrl = (): string => {
   // Explicit origin override (e.g. cross-origin staging / production API)
   if (
-    typeof import.meta !== "undefined" &&
+    typeof import.meta !== 'undefined' &&
     import.meta.env &&
     import.meta.env.VITE_API_URL
   ) {
     return import.meta.env.VITE_API_URL;
   }
   if (
-    typeof process !== "undefined" &&
+    typeof process !== 'undefined' &&
     process.env &&
     process.env.VITE_API_URL
   ) {
@@ -52,13 +52,13 @@ export const getApiBaseUrl = (): string => {
   // Same origin — browser resolves relative to window.location.origin
   // If running inside Tauri (native desktop shell), we fallback to localhost backend
   if (
-    typeof window !== "undefined" &&
-    (window.location.protocol === "tauri:" ||
-      window.location.hostname === "tauri.localhost")
+    typeof window !== 'undefined' &&
+    (window.location.protocol === 'tauri:' ||
+      window.location.hostname === 'tauri.localhost')
   ) {
-    return "http://127.0.0.1:5000";
+    return 'http://127.0.0.1:5000';
   }
-  return "";
+  return '';
 };
 
 /**
@@ -72,14 +72,14 @@ export const getApiBaseUrl = (): string => {
  */
 export const getWebSocketUrl = (): string => {
   if (
-    typeof import.meta !== "undefined" &&
+    typeof import.meta !== 'undefined' &&
     import.meta.env &&
     import.meta.env.VITE_WS_URL
   ) {
     return import.meta.env.VITE_WS_URL;
   }
   if (
-    typeof process !== "undefined" &&
+    typeof process !== 'undefined' &&
     process.env &&
     process.env.VITE_WS_URL
   ) {
@@ -88,20 +88,20 @@ export const getWebSocketUrl = (): string => {
 
   const apiBase = getApiBaseUrl();
   if (apiBase) {
-    return apiBase.replace(/^http/, "ws");
+    return apiBase.replace(/^http/, 'ws');
   }
 
   if (
-    typeof window !== "undefined" &&
-    window.location.hostname !== "localhost" &&
-    window.location.hostname !== "127.0.0.1"
+    typeof window !== 'undefined' &&
+    window.location.hostname !== 'localhost' &&
+    window.location.hostname !== '127.0.0.1'
   ) {
     // If we're deployed on same origin (no explicit VITE_API_URL), use the host URL
-    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     return `${protocol}//${window.location.host}`;
   }
 
-  return "ws://127.0.0.1:5000";
+  return 'ws://127.0.0.1:5000';
 };
 
 /**
@@ -111,14 +111,14 @@ export const getWebSocketUrl = (): string => {
  * Not needed for Axios requests — those use relative baseURL automatically.
  */
 export const getAbsoluteUrl = (
-  path: string | null | undefined,
+  path: string | null | undefined
 ): string | null => {
   if (!path) return null;
-  if (path.startsWith("http://") || path.startsWith("https://")) return path;
-  if (path.startsWith("/")) {
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  if (path.startsWith('/')) {
     const origin =
       getApiBaseUrl() ||
-      (typeof window !== "undefined" ? window.location.origin : "");
+      (typeof window !== 'undefined' ? window.location.origin : '');
     return `${origin}${path}`;
   }
   return path;
@@ -135,31 +135,31 @@ export const getDefaultApiConfig = (): ApiConfig => ({
   timeout: 10000,
   retryAttempts: 3,
   cacheEnabled: true,
-  authEnabled: true,
+  authEnabled: true
 });
 
 /**
  * Create API configuration for development (shorter timeout, 1 retry).
  */
 export const createDevApiConfig = (
-  overrides?: Partial<ApiConfig>,
+  overrides?: Partial<ApiConfig>
 ): ApiConfig => ({
   ...getDefaultApiConfig(),
   timeout: 15000,
   retryAttempts: 1,
-  ...overrides,
+  ...overrides
 });
 
 /**
  * Create API configuration for production.
  */
 export const createProdApiConfig = (
-  overrides?: Partial<ApiConfig>,
+  overrides?: Partial<ApiConfig>
 ): ApiConfig => ({
   ...getDefaultApiConfig(),
   timeout: 10000,
   retryAttempts: 3,
-  ...overrides,
+  ...overrides
 });
 
 // Export as default for convenience
@@ -168,5 +168,5 @@ export default {
   getAbsoluteUrl,
   getDefaultApiConfig,
   createDevApiConfig,
-  createProdApiConfig,
+  createProdApiConfig
 };

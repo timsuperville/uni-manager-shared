@@ -1,13 +1,13 @@
-import { BaseService } from "../../../api/services/BaseService";
-import type { ApiClient } from "../../../api/core/ApiClient";
+import { BaseService } from '../../../api/services/BaseService';
+import type { ApiClient } from '../../../api/core/ApiClient';
 import type {
   SecurityProfile,
   SecurityJourney,
   SecurityAnalyticsData,
   AccessControlResult,
   SecurityEventData,
-  BatchOperation,
-} from "../../../api/types";
+  BatchOperation
+} from '../../../api/types';
 
 type EventCallback = (data: unknown) => void;
 
@@ -22,7 +22,7 @@ export class SecurityService extends BaseService {
 
   constructor(client: ApiClient) {
     // We map to the /security base path. BaseService handles prefixing.
-    super(client, "/security", "SecurityService");
+    super(client, '/security', 'SecurityService');
   }
 
   // ──────────────────────────────────────────────────────────────────────────
@@ -31,40 +31,40 @@ export class SecurityService extends BaseService {
 
   async getSecurityProfile(
     userId: string,
-    useCache = true,
+    useCache = true
   ): Promise<SecurityProfile> {
     try {
       const profile = await this.get<SecurityProfile>(`/profile/${userId}`, {
-        cache: useCache,
+        cache: useCache
       });
       if (profile) {
-        this.emit("profileUpdated", profile);
+        this.emit('profileUpdated', profile);
       }
       return profile || this.getProfileFallback();
     } catch {
       return this.handleErrorWithFallback(
-        "getSecurityProfile",
-        this.getProfileFallback(),
+        'getSecurityProfile',
+        this.getProfileFallback()
       );
     }
   }
 
   async updateSecurityProfile(
     userId: string,
-    updateData: Partial<SecurityProfile>,
+    updateData: Partial<SecurityProfile>
   ): Promise<SecurityProfile> {
     const updatedProfile = await this.patch<SecurityProfile>(
       `/profile/${userId}`,
-      updateData,
+      updateData
     );
 
     // BaseService and ApiClient automatically handle general cache invalidation on mutations (like patch, post),
     // but if we needed granular cache busting, we would use this.client.clearCache().
 
     if (updatedProfile.celebration) {
-      this.emit("celebration", updatedProfile.celebration);
+      this.emit('celebration', updatedProfile.celebration);
     }
-    this.emit("profileUpdated", updatedProfile);
+    this.emit('profileUpdated', updatedProfile);
 
     return updatedProfile;
   }
@@ -77,20 +77,20 @@ export class SecurityService extends BaseService {
     try {
       return (
         (await this.get<SecurityJourney>(`/journey/${userId}`, {
-          cache: true,
+          cache: true
         })) || {
-          currentStage: "newcomer",
+          currentStage: 'newcomer',
           progress: 0,
           stages: [],
-          nextSteps: [],
+          nextSteps: []
         }
       );
     } catch {
-      return this.handleErrorWithFallback("getSecurityJourney", {
-        currentStage: "newcomer",
+      return this.handleErrorWithFallback('getSecurityJourney', {
+        currentStage: 'newcomer',
         progress: 0,
         stages: [],
-        nextSteps: [],
+        nextSteps: []
       });
     }
   }
@@ -98,36 +98,36 @@ export class SecurityService extends BaseService {
   async progressMilestone(
     userId: string,
     milestoneId: string,
-    progressData: Record<string, unknown> = {},
+    progressData: Record<string, unknown> = {}
   ): Promise<Record<string, unknown>> {
     const result = await this.post<Record<string, unknown>>(
       `/journey/${userId}/milestone`,
       {
         milestoneId,
-        ...progressData,
-      },
+        ...progressData
+      }
     );
 
     if (result.celebration) {
-      this.emit("milestoneCompleted", result);
+      this.emit('milestoneCompleted', result);
     }
     return result;
   }
 
   async getSecurityRecommendations(
     userId: string,
-    limit = 5,
+    limit = 5
   ): Promise<unknown[]> {
     try {
       // Pass cache: true implicitly or let user handle via react-query
       return (
         (await this.get<unknown[]>(
           `/recommendations/${userId}?limit=${limit}`,
-          { cache: true },
+          { cache: true }
         )) || []
       );
     } catch {
-      return this.handleErrorWithFallback("getSecurityRecommendations", []);
+      return this.handleErrorWithFallback('getSecurityRecommendations', []);
     }
   }
 
@@ -137,15 +137,15 @@ export class SecurityService extends BaseService {
 
   async getBadgesAndAchievements(
     userId: string,
-    filters: Record<string, unknown> = {},
+    filters: Record<string, unknown> = {}
   ): Promise<unknown> {
     try {
       const qs = Object.keys(filters).length
-        ? "?" +
+        ? '?' +
           new URLSearchParams(
-            Object.entries(filters).map(([k, v]) => [k, String(v)]),
+            Object.entries(filters).map(([k, v]) => [k, String(v)])
           ).toString()
-        : "";
+        : '';
 
       return (
         (await this.get<unknown>(`/badges/${userId}${qs}`, { cache: true })) ||
@@ -153,8 +153,8 @@ export class SecurityService extends BaseService {
       );
     } catch {
       return this.handleErrorWithFallback(
-        "getBadgesAndAchievements",
-        this.getBadgesFallback(),
+        'getBadgesAndAchievements',
+        this.getBadgesFallback()
       );
     }
   }
@@ -162,19 +162,19 @@ export class SecurityService extends BaseService {
   async awardBadge(
     userId: string,
     badgeId: string,
-    context: Record<string, unknown> = {},
+    context: Record<string, unknown> = {}
   ): Promise<unknown> {
     const result = await this.post<Record<string, unknown>>(
       `/badges/${userId}/award`,
       {
         badgeId,
         context,
-        timestamp: new Date().toISOString(),
-      },
+        timestamp: new Date().toISOString()
+      }
     );
 
     if (result.celebration) {
-      this.emit("badgeEarned", result);
+      this.emit('badgeEarned', result);
     }
     return result;
   }
@@ -185,32 +185,32 @@ export class SecurityService extends BaseService {
 
   async checkAccessControl(
     userId: string,
-    context: Record<string, unknown>,
+    context: Record<string, unknown>
   ): Promise<AccessControlResult> {
     try {
       return await this.post<AccessControlResult>(
         `/access-control/${userId}`,
-        context,
+        context
       );
     } catch {
       return {
         granted: false,
-        level: "restricted",
-        reason: "Security check failed",
-        recommendations: [],
+        level: 'restricted',
+        reason: 'Security check failed',
+        recommendations: []
       };
     }
   }
 
   async updateSecurityContext(
     userId: string,
-    contextUpdate: Record<string, unknown>,
+    contextUpdate: Record<string, unknown>
   ): Promise<unknown> {
     const result = await this.patch<unknown>(
       `/context/${userId}`,
-      contextUpdate,
+      contextUpdate
     );
-    this.emit("contextUpdated", result);
+    this.emit('contextUpdated', result);
     return result;
   }
 
@@ -220,42 +220,42 @@ export class SecurityService extends BaseService {
 
   async getSecurityAnalytics(
     userId: string,
-    timeRange = "month",
+    timeRange = 'month'
   ): Promise<SecurityAnalyticsData> {
     try {
       return (
         (await this.get<SecurityAnalyticsData>(
           `/analytics/${userId}?timeRange=${timeRange}`,
-          { cache: true },
+          { cache: true }
         )) || {
           trends: [],
           insights: [],
-          improvements: [],
+          improvements: []
         }
       );
     } catch {
       return this.handleErrorWithFallback<SecurityAnalyticsData>(
-        "getSecurityAnalytics",
+        'getSecurityAnalytics',
         {
           trends: [],
           insights: [],
-          improvements: [],
-        },
+          improvements: []
+        }
       );
     }
   }
 
   async reportSecurityEvent(
     userId: string,
-    eventData: SecurityEventData,
+    eventData: SecurityEventData
   ): Promise<boolean> {
     try {
       await this.post(`/events/${userId}`, {
         ...eventData,
         timestamp: new Date().toISOString(),
         userAgent:
-          typeof navigator !== "undefined" ? navigator.userAgent : null,
-        sessionId: this.getSessionId(),
+          typeof navigator !== 'undefined' ? navigator.userAgent : null,
+        sessionId: this.getSessionId()
       });
       return true;
     } catch {
@@ -269,10 +269,10 @@ export class SecurityService extends BaseService {
 
   async batchOperations(operations: BatchOperation[]): Promise<unknown> {
     try {
-      return await this.post("/batch", { operations });
+      return await this.post('/batch', { operations });
     } catch {
       return Promise.allSettled(
-        operations.map((op) => this.processSingleOperation(op)),
+        operations.map(op => this.processSingleOperation(op))
       );
     }
   }
@@ -288,7 +288,7 @@ export class SecurityService extends BaseService {
         this.getSecurityProfile(userId, false),
         this.getSecurityJourney(userId),
         this.getBadgesAndAchievements(userId),
-        this.getSecurityRecommendations(userId, 3),
+        this.getSecurityRecommendations(userId, 3)
       ]);
       return { profile, journey, badges, recommendations };
     } catch (error) {
@@ -311,7 +311,7 @@ export class SecurityService extends BaseService {
   }
 
   emit(event: string, data: unknown): void {
-    this.eventListeners.get(event)?.forEach((callback) => {
+    this.eventListeners.get(event)?.forEach(callback => {
       try {
         callback(data);
       } catch {
@@ -326,30 +326,30 @@ export class SecurityService extends BaseService {
 
   async getHealthStatus(): Promise<unknown> {
     try {
-      return await this.get("/health");
+      return await this.get('/health');
     } catch {
       return {
-        status: "error",
-        message: "Security service unavailable",
-        timestamp: new Date().toISOString(),
+        status: 'error',
+        message: 'Security service unavailable',
+        timestamp: new Date().toISOString()
       };
     }
   }
 
   async resetSecurityData(
     userId: string,
-    resetOptions: Record<string, unknown> = {},
+    resetOptions: Record<string, unknown> = {}
   ): Promise<boolean> {
     await this.post(`/reset/${userId}`, resetOptions);
     return true;
   }
 
   getSessionId(): string {
-    if (typeof sessionStorage === "undefined") return `sec_${Date.now()}`;
-    let sessionId = sessionStorage.getItem("securitySessionId");
+    if (typeof sessionStorage === 'undefined') return `sec_${Date.now()}`;
+    let sessionId = sessionStorage.getItem('securitySessionId');
     if (!sessionId) {
       sessionId = `sec_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
-      sessionStorage.setItem("securitySessionId", sessionId);
+      sessionStorage.setItem('securitySessionId', sessionId);
     }
     return sessionId;
   }
@@ -361,12 +361,12 @@ export class SecurityService extends BaseService {
 
   private getProfileFallback(): SecurityProfile {
     return {
-      currentLevel: "newcomer",
-      tier: "bronze",
+      currentLevel: 'newcomer',
+      tier: 'bronze',
       totalPoints: 0,
       securityScore: 50,
       badges: [],
-      achievements: [],
+      achievements: []
     };
   }
 
@@ -375,31 +375,31 @@ export class SecurityService extends BaseService {
       badges: [],
       achievements: [],
       categories: [],
-      progress: {},
+      progress: {}
     };
   }
 
   private async processSingleOperation(
-    operation: BatchOperation,
+    operation: BatchOperation
   ): Promise<unknown> {
     switch (operation.type) {
-      case "getProfile":
+      case 'getProfile':
         return this.getSecurityProfile(operation.userId);
-      case "awardBadge":
+      case 'awardBadge':
         return this.awardBadge(
           operation.userId,
           operation.badgeId!,
-          operation.context,
+          operation.context
         );
-      case "progressMilestone":
+      case 'progressMilestone':
         return this.progressMilestone(
           operation.userId,
           operation.milestoneId!,
-          operation.data,
+          operation.data
         );
       default:
         throw new Error(
-          `Unknown operation type: ${String((operation as BatchOperation).type)}`,
+          `Unknown operation type: ${String((operation as BatchOperation).type)}`
         );
     }
   }

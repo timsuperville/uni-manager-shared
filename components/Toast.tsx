@@ -1,8 +1,8 @@
 // Unified Toast component for all Uni-Manager applications
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 
-type ToastType = "info" | "success" | "warning" | "error";
-type ToastPosition = "top-left" | "top-right" | "bottom-left" | "bottom-right";
+type ToastType = 'info' | 'success' | 'warning' | 'error';
+type ToastPosition = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 
 interface ToastProps {
   message: string;
@@ -14,7 +14,7 @@ interface ToastProps {
   className?: string;
 }
 
-const icons: Record<ToastType | "close", React.ReactElement> = {
+const icons: Record<ToastType | 'close', React.ReactElement> = {
   info: (
     <svg
       className="w-5 h-5"
@@ -89,33 +89,33 @@ const icons: Record<ToastType | "close", React.ReactElement> = {
         d="M6 18L18 6M6 6l12 12"
       />
     </svg>
-  ),
+  )
 };
 
 const typeStyles: Record<ToastType, string> = {
   success:
-    "bg-green-50 dark:bg-green-900/20 border-green-400 text-green-800 dark:text-green-200",
+    'bg-green-50 dark:bg-green-900/20 border-green-400 text-green-800 dark:text-green-200',
   error:
-    "bg-red-50 dark:bg-red-900/20 border-red-400 text-red-800 dark:text-red-200",
+    'bg-red-50 dark:bg-red-900/20 border-red-400 text-red-800 dark:text-red-200',
   warning:
-    "bg-yellow-50 dark:bg-yellow-900/20 border-yellow-400 text-yellow-800 dark:text-yellow-200",
-  info: "bg-blue-50 dark:bg-blue-900/20 border-blue-400 text-blue-800 dark:text-blue-200",
+    'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-400 text-yellow-800 dark:text-yellow-200',
+  info: 'bg-blue-50 dark:bg-blue-900/20 border-blue-400 text-blue-800 dark:text-blue-200'
 };
 
 const iconColors: Record<ToastType, string> = {
-  success: "text-green-500",
-  error: "text-red-500",
-  warning: "text-yellow-500",
-  info: "text-blue-500",
+  success: 'text-green-500',
+  error: 'text-red-500',
+  warning: 'text-yellow-500',
+  info: 'text-blue-500'
 };
 
 const Toast: React.FC<ToastProps> = ({
   message,
-  type = "info",
+  type = 'info',
   duration = 5000,
   onClose,
   showCloseButton = true,
-  className = "",
+  className = ''
 }) => {
   const [isVisible, setIsVisible] = useState(true);
   const [isExiting, setIsExiting] = useState(false);
@@ -139,11 +139,11 @@ const Toast: React.FC<ToastProps> = ({
   if (!isVisible) return null;
 
   const baseStyles = [
-    "flex items-start p-4 rounded-lg shadow-lg border-l-4",
-    "transition-all duration-300 ease-in-out transform max-w-sm w-full",
-    isExiting ? "translate-x-full opacity-0" : "translate-x-0 opacity-100",
-    className,
-  ].join(" ");
+    'flex items-start p-4 rounded-lg shadow-lg border-l-4',
+    'transition-all duration-300 ease-in-out transform max-w-sm w-full',
+    isExiting ? 'translate-x-full opacity-0' : 'translate-x-0 opacity-100',
+    className
+  ].join(' ');
 
   return (
     <div className={`${baseStyles} ${typeStyles[type]}`}>

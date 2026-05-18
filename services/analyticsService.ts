@@ -8,10 +8,10 @@
  * WebSocket management is kept inline (BaseService has no WS abstraction).
  */
 
-import { BaseService } from "../api/services/BaseService";
-import { ApiClient, getApiClient } from "../api/core/ApiClient";
-import { onCLS, onFCP, onINP, onLCP, onTTFB, Metric } from "web-vitals";
-import { logger } from "@shared/utils/logger";
+import { BaseService } from '../api/services/BaseService';
+import { ApiClient, getApiClient } from '../api/core/ApiClient';
+import { onCLS, onFCP, onINP, onLCP, onTTFB, Metric } from 'web-vitals';
+import { logger } from '@shared/utils/logger';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -31,13 +31,13 @@ export interface InsightOptions {
 }
 
 export interface ExportOptions {
-  format?: "json" | "csv" | "xlsx";
+  format?: 'json' | 'csv' | 'xlsx';
   timeframe?: string;
   dataTypes?: string[];
 }
 
 interface TrackBatchEvent {
-  type: "user_behavior" | "performance" | "security";
+  type: 'user_behavior' | 'performance' | 'security';
   userId?: string;
   eventType?: string;
   eventData?: Record<string, unknown>;
@@ -68,7 +68,7 @@ export class AnalyticsService extends BaseService {
   private readonly retryDelay = 1_000;
 
   constructor(client: ApiClient) {
-    super(client, "/analytics", "AnalyticsService");
+    super(client, '/analytics', 'AnalyticsService');
   }
 
   // ---------------------------------------------------------------------------
@@ -76,60 +76,60 @@ export class AnalyticsService extends BaseService {
   // ---------------------------------------------------------------------------
 
   async getDashboard(options: AnalyticsOptions = {}): Promise<unknown> {
-    const { timeframe = "24h", userId, applicationId } = options;
+    const { timeframe = '24h', userId, applicationId } = options;
     const params = new URLSearchParams({ timeframe });
-    if (userId) params.append("userId", userId);
-    if (applicationId) params.append("applicationId", applicationId);
+    if (userId) params.append('userId', userId);
+    if (applicationId) params.append('applicationId', applicationId);
     return this.get<unknown>(`/dashboard?${params}`, { cache: false });
   }
 
   async getUserBehaviorAnalytics(
-    options: AnalyticsOptions = {},
+    options: AnalyticsOptions = {}
   ): Promise<unknown> {
-    const { timeframe = "24h", userId, applicationId } = options;
+    const { timeframe = '24h', userId, applicationId } = options;
     const params = new URLSearchParams({ timeframe });
-    if (userId) params.append("userId", userId);
-    if (applicationId) params.append("applicationId", applicationId);
+    if (userId) params.append('userId', userId);
+    if (applicationId) params.append('applicationId', applicationId);
     return this.get<unknown>(`/user-behavior?${params}`, { cache: false });
   }
 
   async getPerformanceAnalytics(
-    options: AnalyticsOptions = {},
+    options: AnalyticsOptions = {}
   ): Promise<unknown> {
-    const { timeframe = "24h", applicationId } = options;
+    const { timeframe = '24h', applicationId } = options;
     const params = new URLSearchParams({ timeframe });
-    if (applicationId) params.append("applicationId", applicationId);
+    if (applicationId) params.append('applicationId', applicationId);
     return this.get<unknown>(`/performance/metrics?${params}`, {
-      cache: false,
+      cache: false
     });
   }
 
   async getMembershipGrowth(
     churchId: string,
-    timeframe = "year",
+    timeframe = 'year'
   ): Promise<unknown> {
     // This route lives in the church domain, outside the /analytics base.
     // Call the ApiClient directly to avoid the /analytics prefix being prepended.
     const response = await this.client.get<unknown>(
       `/church/${churchId}/dashboard/membership-growth?period=${timeframe}`,
-      { cache: false },
+      { cache: false }
     );
     return this.transformResponse(response);
   }
 
   async getSecurityAnalytics(options: AnalyticsOptions = {}): Promise<unknown> {
-    const { timeframe = "24h", applicationId } = options;
+    const { timeframe = '24h', applicationId } = options;
     const params = new URLSearchParams({ timeframe });
-    if (applicationId) params.append("applicationId", applicationId);
+    if (applicationId) params.append('applicationId', applicationId);
     return this.get<unknown>(`/security?${params}`, { cache: false });
   }
 
   async getRealTimeMetrics(): Promise<unknown> {
-    return this.get<unknown>("/real-time/metrics", { cache: false });
+    return this.get<unknown>('/real-time/metrics', { cache: false });
   }
 
   async getActiveAlerts(): Promise<unknown> {
-    return this.get<unknown>("/real-time/alerts", { cache: false });
+    return this.get<unknown>('/real-time/alerts', { cache: false });
   }
 
   // ---------------------------------------------------------------------------
@@ -139,18 +139,18 @@ export class AnalyticsService extends BaseService {
   async trackUserBehavior(
     userId: string,
     eventType: string,
-    eventData: Record<string, unknown> = {},
+    eventData: Record<string, unknown> = {}
   ): Promise<unknown | null> {
     try {
-      return await this.post<unknown>("/track/user-behavior", {
+      return await this.post<unknown>('/track/user-behavior', {
         userId,
         eventType,
         eventData: {
           ...eventData,
           timestamp: new Date().toISOString(),
           sessionId: this.getSessionId(),
-          applicationId: this.getApplicationId(),
-        },
+          applicationId: this.getApplicationId()
+        }
       });
     } catch {
       // Tracking must never disrupt user experience
@@ -161,44 +161,44 @@ export class AnalyticsService extends BaseService {
   async trackPerformanceMetric(
     metricType: string,
     value: number,
-    context: Record<string, unknown> = {},
+    context: Record<string, unknown> = {}
   ): Promise<unknown | null> {
     try {
-      if (!metricType || typeof metricType !== "string") {
+      if (!metricType || typeof metricType !== 'string') {
         if (import.meta.env.DEV)
-          logger.warn("[Analytics] Invalid metricType:", metricType);
+          logger.warn('[Analytics] Invalid metricType:', metricType);
         return null;
       }
       if (
-        typeof value !== "number" ||
+        typeof value !== 'number' ||
         Number.isNaN(value) ||
         !Number.isFinite(value)
       ) {
         if (import.meta.env.DEV)
-          logger.warn("[Analytics] Invalid value:", { metricType, value });
+          logger.warn('[Analytics] Invalid value:', { metricType, value });
         return null;
       }
       if (import.meta.env.DEV) {
-        logger.debug("[Analytics] Skipped in dev:", {
+        logger.debug('[Analytics] Skipped in dev:', {
           metricType,
           value,
-          context: context["pageUrl"],
+          context: context['pageUrl']
         });
         return null;
       }
 
-      return await this.post<unknown>("/track/performance", {
+      return await this.post<unknown>('/track/performance', {
         metricType,
         value,
         context: {
           ...context,
           timestamp: new Date().toISOString(),
-          applicationId: this.getApplicationId(),
-        },
+          applicationId: this.getApplicationId()
+        }
       });
     } catch (error) {
       if (import.meta.env.DEV)
-        logger.error("[Analytics] Failed to track performance metric:", error);
+        logger.error('[Analytics] Failed to track performance metric:', error);
       return null;
     }
   }
@@ -206,17 +206,17 @@ export class AnalyticsService extends BaseService {
   async trackSecurityEvent(
     eventType: string,
     severity: string,
-    details: Record<string, unknown> = {},
+    details: Record<string, unknown> = {}
   ): Promise<unknown | null> {
     try {
-      return await this.post<unknown>("/track/security", {
+      return await this.post<unknown>('/track/security', {
         eventType,
         severity,
         details: {
           ...details,
           timestamp: new Date().toISOString(),
-          applicationId: this.getApplicationId(),
-        },
+          applicationId: this.getApplicationId()
+        }
       });
     } catch {
       return null;
@@ -229,30 +229,30 @@ export class AnalyticsService extends BaseService {
 
   async getPredictiveInsights(options: InsightOptions = {}): Promise<unknown> {
     const {
-      type = "userEngagement",
-      timeframe = "7d",
-      parameters = {},
+      type = 'userEngagement',
+      timeframe = '7d',
+      parameters = {}
     } = options;
-    return this.post<unknown>("/ai/insights", { type, timeframe, parameters });
+    return this.post<unknown>('/ai/insights', { type, timeframe, parameters });
   }
 
   async getAIRecommendations(options: AnalyticsOptions = {}): Promise<unknown> {
     const { userId, applicationId } = options;
     const params = new URLSearchParams();
-    if (userId) params.append("userId", userId);
-    if (applicationId) params.append("applicationId", applicationId);
+    if (userId) params.append('userId', userId);
+    if (applicationId) params.append('applicationId', applicationId);
     return this.get<unknown>(`/ai/recommendations?${params}`, { cache: false });
   }
 
   async executeCustomQuery(query: Record<string, unknown>): Promise<unknown> {
-    return this.post<unknown>("/query/custom", query);
+    return this.post<unknown>('/query/custom', query);
   }
 
   async exportData(options: ExportOptions = {}): Promise<unknown> {
     const {
-      format = "json",
-      timeframe = "24h",
-      dataTypes = ["userBehavior", "performance", "security"],
+      format = 'json',
+      timeframe = '24h',
+      dataTypes = ['userBehavior', 'performance', 'security']
     } = options;
     // Export uses the download utility because the response may be non-JSON.
     // BaseService.download() returns a Blob; for JSON format the caller may
@@ -260,19 +260,19 @@ export class AnalyticsService extends BaseService {
     const params = new URLSearchParams({
       format,
       timeframe,
-      dataTypes: dataTypes.join(","),
+      dataTypes: dataTypes.join(',')
     });
-    if (format === "json") {
+    if (format === 'json') {
       return this.get<unknown>(`/export?${params}`, {
         cache: false,
-        responseType: "json",
+        responseType: 'json'
       });
     }
     return this.download(`/export?${params}`);
   }
 
   async getServiceHealth(): Promise<unknown> {
-    return this.get<unknown>("/health", { cache: false });
+    return this.get<unknown>('/health', { cache: false });
   }
 
   // ---------------------------------------------------------------------------
@@ -282,17 +282,17 @@ export class AnalyticsService extends BaseService {
   connectWebSocket(
     onMessage?: (data: unknown) => void,
     onError?: (error: Event) => void,
-    onClose?: (event: CloseEvent) => void,
+    onClose?: (event: CloseEvent) => void
   ): WebSocket | null {
     try {
       if (this.websocket?.readyState === WebSocket.OPEN) return this.websocket;
 
       const protocol =
-        typeof window !== "undefined" && window.location.protocol === "https:"
-          ? "wss:"
-          : "ws:";
+        typeof window !== 'undefined' && window.location.protocol === 'https:'
+          ? 'wss:'
+          : 'ws:';
       const host =
-        typeof window !== "undefined" ? window.location.host : "localhost";
+        typeof window !== 'undefined' ? window.location.host : 'localhost';
       const wsUrl = `${protocol}//${host}/analytics/stream`;
 
       this.websocket = new WebSocket(wsUrl);
@@ -302,15 +302,15 @@ export class AnalyticsService extends BaseService {
         this.retryCount = 0;
         this.websocket!.send(
           JSON.stringify({
-            type: "subscribe",
+            type: 'subscribe',
             channels: [
-              "metrics",
-              "alerts",
-              "user-behavior",
-              "performance",
-              "security",
-            ],
-          }),
+              'metrics',
+              'alerts',
+              'user-behavior',
+              'performance',
+              'security'
+            ]
+          })
         );
       };
 
@@ -346,7 +346,7 @@ export class AnalyticsService extends BaseService {
   private retryConnection(
     onMessage?: (data: unknown) => void,
     onError?: (error: Event) => void,
-    onClose?: (event: CloseEvent) => void,
+    onClose?: (event: CloseEvent) => void
   ): void {
     this.retryCount++;
     const delay = this.retryDelay * Math.pow(2, this.retryCount - 1);
@@ -355,7 +355,7 @@ export class AnalyticsService extends BaseService {
 
   disconnectWebSocket(): void {
     if (this.websocket) {
-      this.websocket.close(1000, "Manual disconnect");
+      this.websocket.close(1000, 'Manual disconnect');
       this.websocket = null;
       this.isConnected = false;
     }
@@ -376,12 +376,12 @@ export class AnalyticsService extends BaseService {
   trackPageView(path: string, title: string): void {
     const userId = this.getCurrentUserId();
     if (userId) {
-      this.trackUserBehavior(userId, "page_view", {
+      this.trackUserBehavior(userId, 'page_view', {
         pageUrl: path,
         pageTitle: title,
         referrer:
-          typeof document !== "undefined" ? document.referrer : undefined,
-        timestamp: new Date().toISOString(),
+          typeof document !== 'undefined' ? document.referrer : undefined,
+        timestamp: new Date().toISOString()
       });
     }
   }
@@ -389,7 +389,7 @@ export class AnalyticsService extends BaseService {
   trackInteraction(
     element: string,
     action: string,
-    details: Record<string, unknown> = {},
+    details: Record<string, unknown> = {}
   ): void {
     const userId = this.getCurrentUserId();
     if (userId) {
@@ -398,26 +398,26 @@ export class AnalyticsService extends BaseService {
         action,
         details,
         pageUrl:
-          typeof window !== "undefined" ? window.location.pathname : undefined,
-        timestamp: new Date().toISOString(),
+          typeof window !== 'undefined' ? window.location.pathname : undefined,
+        timestamp: new Date().toISOString()
       };
       this.trackUserBehavior(
         userId,
-        "interaction",
-        context as unknown as Record<string, unknown>,
+        'interaction',
+        context as unknown as Record<string, unknown>
       );
     }
   }
 
   trackPerformanceTiming(): void {
-    if (typeof window === "undefined") return;
+    if (typeof window === 'undefined') return;
 
     const reportMetric = (metric: Metric) => {
       this.trackPerformanceMetric(metric.name, metric.value, {
         pageUrl: window.location.pathname,
         userAgent: navigator.userAgent,
         rating: metric.rating,
-        id: metric.id,
+        id: metric.id
       });
     };
 
@@ -429,7 +429,7 @@ export class AnalyticsService extends BaseService {
       onTTFB(reportMetric);
     } catch (e) {
       if (import.meta.env.DEV) {
-        logger.warn("[Analytics] Failed to initialize web-vitals", e);
+        logger.warn('[Analytics] Failed to initialize web-vitals', e);
       }
     }
   }
@@ -439,34 +439,34 @@ export class AnalyticsService extends BaseService {
   // ---------------------------------------------------------------------------
 
   async batchTrackEvents(
-    events: TrackBatchEvent[],
+    events: TrackBatchEvent[]
   ): Promise<PromiseSettledResult<unknown>[]> {
     try {
       return await Promise.allSettled(
-        events.map((event) => {
+        events.map(event => {
           switch (event.type) {
-            case "user_behavior":
+            case 'user_behavior':
               return this.trackUserBehavior(
                 event.userId!,
                 event.eventType!,
-                event.eventData,
+                event.eventData
               );
-            case "performance":
+            case 'performance':
               return this.trackPerformanceMetric(
                 event.metricType!,
                 event.value!,
-                event.context,
+                event.context
               );
-            case "security":
+            case 'security':
               return this.trackSecurityEvent(
                 event.eventType!,
                 event.severity!,
-                event.details,
+                event.details
               );
             default:
               throw new Error(`Unknown event type: ${String(event.type)}`);
           }
-        }),
+        })
       );
     } catch {
       return [];
@@ -478,32 +478,32 @@ export class AnalyticsService extends BaseService {
   // ---------------------------------------------------------------------------
 
   initializeAutoTracking(): void {
-    if (typeof window !== "undefined") {
+    if (typeof window !== 'undefined') {
       this.trackPerformanceTiming();
     }
 
-    if (typeof document !== "undefined") {
-      document.addEventListener("visibilitychange", () => {
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', () => {
         const userId = this.getCurrentUserId();
         if (userId) {
-          this.trackUserBehavior(userId, "page_visibility_change", {
+          this.trackUserBehavior(userId, 'page_visibility_change', {
             hidden: document.hidden,
-            timestamp: new Date().toISOString(),
+            timestamp: new Date().toISOString()
           });
         }
       });
 
-      document.addEventListener("click", (event: MouseEvent) => {
+      document.addEventListener('click', (event: MouseEvent) => {
         const target = event.target as HTMLElement;
         if (
-          target.tagName === "BUTTON" ||
-          target.tagName === "A" ||
-          target.hasAttribute("data-track")
+          target.tagName === 'BUTTON' ||
+          target.tagName === 'A' ||
+          target.hasAttribute('data-track')
         ) {
-          this.trackInteraction(target.tagName.toLowerCase(), "click", {
+          this.trackInteraction(target.tagName.toLowerCase(), 'click', {
             text: target.textContent?.trim(),
             className: target.className,
-            id: target.id,
+            id: target.id
           });
         }
       });
@@ -516,33 +516,33 @@ export class AnalyticsService extends BaseService {
 
   private getCurrentUserId(): string | null {
     const raw =
-      typeof localStorage !== "undefined" ? localStorage.getItem("user") : null;
-    const user = JSON.parse(raw ?? "{}") as { id?: string };
+      typeof localStorage !== 'undefined' ? localStorage.getItem('user') : null;
+    const user = JSON.parse(raw ?? '{}') as { id?: string };
     return user.id ?? null;
   }
 
   private getSessionId(): string {
     let sessionId =
-      typeof sessionStorage !== "undefined"
-        ? sessionStorage.getItem("analytics_session_id")
+      typeof sessionStorage !== 'undefined'
+        ? sessionStorage.getItem('analytics_session_id')
         : null;
     if (!sessionId) {
       sessionId = `session_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
-      if (typeof sessionStorage !== "undefined")
-        sessionStorage.setItem("analytics_session_id", sessionId);
+      if (typeof sessionStorage !== 'undefined')
+        sessionStorage.setItem('analytics_session_id', sessionId);
     }
     return sessionId;
   }
 
   private getApplicationId(): string {
-    const path = typeof window !== "undefined" ? window.location.pathname : "";
-    if (path.includes("/church")) return "church";
-    if (path.includes("/admin")) return "admin";
-    if (path.includes("/work")) return "work";
-    if (path.includes("/personal")) return "personal";
-    if (path.includes("/home")) return "home";
-    if (path.includes("/playback")) return "playback";
-    return "main-website";
+    const path = typeof window !== 'undefined' ? window.location.pathname : '';
+    if (path.includes('/church')) return 'church';
+    if (path.includes('/admin')) return 'admin';
+    if (path.includes('/work')) return 'work';
+    if (path.includes('/personal')) return 'personal';
+    if (path.includes('/home')) return 'home';
+    if (path.includes('/playback')) return 'playback';
+    return 'main-website';
   }
 }
 
@@ -561,7 +561,7 @@ let _instance: AnalyticsService | null = null;
  */
 export function initAnalyticsService(client: ApiClient): void {
   _instance = new AnalyticsService(client);
-  if (typeof window !== "undefined") {
+  if (typeof window !== 'undefined') {
     _instance.initializeAutoTracking();
   }
 }
@@ -569,7 +569,7 @@ export function initAnalyticsService(client: ApiClient): void {
 function getInstance(): AnalyticsService {
   if (!_instance) {
     _instance = new AnalyticsService(getApiClient());
-    if (typeof window !== "undefined") {
+    if (typeof window !== 'undefined') {
       _instance.initializeAutoTracking();
     }
   }
@@ -597,8 +597,8 @@ export const analyticsService = new Proxy({} as AnalyticsService, {
   get(_target, prop, receiver) {
     const instance = getInstance();
     const value = Reflect.get(instance, prop, receiver);
-    return typeof value === "function" ? value.bind(instance) : value;
-  },
+    return typeof value === 'function' ? value.bind(instance) : value;
+  }
 }) as AnalyticsService;
 
 export default analyticsService;

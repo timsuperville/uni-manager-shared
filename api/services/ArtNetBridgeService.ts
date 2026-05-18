@@ -1,10 +1,10 @@
-import { BaseService } from "./BaseService";
-import { ApiClient } from "../core/ApiClient";
+import { BaseService } from './BaseService';
+import { ApiClient } from '../core/ApiClient';
 
 export class ArtNetBridgeService extends BaseService {
   constructor(client: ApiClient) {
     // baseEndpoint is relative — ApiClient.baseURL (/api/v1) is prepended automatically.
-    super(client, "/presentation/hardware/artnet", "ArtNetBridgeService");
+    super(client, '/presentation/hardware/artnet', 'ArtNetBridgeService');
   }
 
   /**
@@ -13,10 +13,10 @@ export class ArtNetBridgeService extends BaseService {
   public async triggerPreset(
     targetIp: string,
     presetId: number,
-    universe: number = 0,
+    universe: number = 0
   ): Promise<void> {
     // "/trigger" → buildEndpoint → /presentation/hardware/artnet/trigger
-    await this.post("/trigger", { targetIp, presetId, universe });
+    await this.post('/trigger', { targetIp, presetId, universe });
   }
 }
 
@@ -42,13 +42,13 @@ export const artNetBridgeService = {
   triggerPreset: async (
     targetIp: string,
     presetId: number,
-    universe: number = 0,
+    universe: number = 0
   ): Promise<void> => {
     if (!instance) {
       throw new Error(
-        "ArtNetBridgeService not initialized. Call initArtNetBridge(apiClient) first.",
+        'ArtNetBridgeService not initialized. Call initArtNetBridge(apiClient) first.'
       );
     }
     return instance.triggerPreset(targetIp, presetId, universe);
-  },
+  }
 } as unknown as ArtNetBridgeService;

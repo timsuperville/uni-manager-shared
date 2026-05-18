@@ -1,8 +1,8 @@
-import { useEffect, useRef } from "react";
-import type { AuthStateShape } from "../types/auth.types";
+import { useEffect, useRef } from 'react';
+import type { AuthStateShape } from '../types/auth.types';
 
 // Re-export so existing callers who import AuthStateShape from this module keep working.
-export type { AuthStateShape } from "../types/auth.types";
+export type { AuthStateShape } from '../types/auth.types';
 
 interface AuthActions {
   initializeAuth?: () => Promise<void>;
@@ -38,7 +38,7 @@ export function useAuthCallbacks(
   onAuthStateChange: ((state: Record<string, unknown>) => void) | undefined,
   onError: ((error: unknown) => void) | undefined,
   config: AuthConfig = {},
-  externalCallbackRefs: ExternalCallbackRefs | null = null,
+  externalCallbackRefs: ExternalCallbackRefs | null = null
 ): void {
   const onAuthStateChangeRef = useRef(onAuthStateChange);
   const onErrorRef = useRef(onError);
@@ -76,7 +76,7 @@ export function useAuthCallbacks(
         await actions.refreshAuth?.();
       } catch (error) {
         if (import.meta.env.DEV) {
-          console.warn("[useAuthCallbacks] Auto-refresh failed:", error);
+          console.warn('[useAuthCallbacks] Auto-refresh failed:', error);
         }
       }
     }, refreshInterval);
@@ -90,12 +90,12 @@ export function useAuthCallbacks(
       actions?.logout?.();
     };
 
-    if (typeof window !== "undefined") {
-      window.addEventListener("auth:failure", handleAuthFailure);
+    if (typeof window !== 'undefined') {
+      window.addEventListener('auth:failure', handleAuthFailure);
     }
     return () => {
-      if (typeof window !== "undefined") {
-        window.removeEventListener("auth:failure", handleAuthFailure);
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('auth:failure', handleAuthFailure);
       }
     };
   }, [actions]);
@@ -109,22 +109,22 @@ export function useAuthCallbacks(
     };
 
     const events = [
-      "mousedown",
-      "mousemove",
-      "keypress",
-      "scroll",
-      "touchstart",
+      'mousedown',
+      'mousemove',
+      'keypress',
+      'scroll',
+      'touchstart'
     ] as const;
 
-    events.forEach((event) => {
-      if (typeof document !== "undefined") {
+    events.forEach(event => {
+      if (typeof document !== 'undefined') {
         document.addEventListener(event, handleActivity, true);
       }
     });
 
     return () => {
-      events.forEach((event) => {
-        if (typeof document !== "undefined") {
+      events.forEach(event => {
+        if (typeof document !== 'undefined') {
           document.removeEventListener(event, handleActivity, true);
         }
       });
@@ -133,10 +133,10 @@ export function useAuthCallbacks(
 
   // Cross-tab synchronization via storage events
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === 'undefined') return;
 
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === "accessToken" || e.key === "auth_token") {
+      if (e.key === 'accessToken' || e.key === 'auth_token') {
         if (e.newValue === null && state.isAuthenticated) {
           actions?.logout?.();
         } else if (e.newValue && !state.isAuthenticated) {
@@ -145,8 +145,8 @@ export function useAuthCallbacks(
       }
     };
 
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, [state.isAuthenticated, actions]);
 
   // Session expiry monitoring
@@ -157,7 +157,7 @@ export function useAuthCallbacks(
       const now = Date.now();
       if (state.sessionExpiry && now >= state.sessionExpiry) {
         if (import.meta.env.DEV) {
-          console.warn("[useAuthCallbacks] Session expired");
+          console.warn('[useAuthCallbacks] Session expired');
         }
         actions?.logout?.();
       }

@@ -1,13 +1,13 @@
-import { useEffect, useRef } from "react";
-import { useCommandContext } from "./CommandContext.tsx";
-import type { Command, CommandNamespace } from "./CommandContext.tsx";
+import { useEffect, useRef } from 'react';
+import { useCommandContext } from './CommandContext.tsx';
+import type { Command, CommandNamespace } from './CommandContext.tsx';
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
 /** Partial command shape accepted by useRegisterCommands (namespace will be stamped automatically). */
-export type CommandInput = Omit<Command, "namespace"> & {
+export type CommandInput = Omit<Command, 'namespace'> & {
   namespace?: CommandNamespace;
 };
 
@@ -51,13 +51,13 @@ export function useRegisterCommands(
   namespace: string,
   commands: CommandInput[],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  deps: any[] = [],
+  deps: any[] = []
 ): void {
   const { registerCommands } = useCommandContext();
 
   // Stamp namespace onto every command so the context doesn't need it separately
   const stamped: Command[] = commands.map(
-    (cmd) => ({ namespace, ...cmd }) as Command,
+    cmd => ({ namespace, ...cmd }) as Command
   );
 
   const stampedRef = useRef<Command[]>(stamped);

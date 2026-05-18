@@ -14,13 +14,13 @@
  * Ref: .agent/plans/cross-app-resonance-map.md
  */
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from 'react';
 
-const CHANNEL_NAME = "uni-manager:focus-mode";
-const STORAGE_KEY = "personal:focus-mode-active";
+const CHANNEL_NAME = 'uni-manager:focus-mode';
+const STORAGE_KEY = 'personal:focus-mode-active';
 
 interface FocusModeMessage {
-  type: "FOCUS_MODE_ON" | "FOCUS_MODE_OFF";
+  type: 'FOCUS_MODE_ON' | 'FOCUS_MODE_OFF';
   activatedAt?: string;
   deactivatedAt?: string;
   source: string;
@@ -43,7 +43,7 @@ export function useFocusModeListener(): UseFocusModeListenerResult {
   // on mount (e.g., if Personal App toggled focus mode before this tab opened).
   const [isFocusModeActive, setIsFocusModeActive] = useState<boolean>(() => {
     try {
-      return localStorage.getItem(STORAGE_KEY) === "true";
+      return localStorage.getItem(STORAGE_KEY) === 'true';
     } catch {
       return false;
     }
@@ -53,15 +53,15 @@ export function useFocusModeListener(): UseFocusModeListenerResult {
 
   useEffect(() => {
     // Guard: BroadcastChannel is not available in Node / SSR / older browsers
-    if (typeof BroadcastChannel === "undefined") return;
+    if (typeof BroadcastChannel === 'undefined') return;
 
     channelRef.current = new BroadcastChannel(CHANNEL_NAME);
 
     channelRef.current.onmessage = (event: MessageEvent<FocusModeMessage>) => {
       const { type } = event.data ?? {};
-      if (type === "FOCUS_MODE_ON") {
+      if (type === 'FOCUS_MODE_ON') {
         setIsFocusModeActive(true);
-      } else if (type === "FOCUS_MODE_OFF") {
+      } else if (type === 'FOCUS_MODE_OFF') {
         setIsFocusModeActive(false);
       }
     };

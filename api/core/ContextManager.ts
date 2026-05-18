@@ -47,19 +47,19 @@ export class GlobalContextManager {
   }
 
   private notifyListeners(): void {
-    this.listeners.forEach((listener) => listener());
+    this.listeners.forEach(listener => listener());
   }
 
   public getHeaders(): Record<string, string> {
     const headers: Record<string, string> = {};
     if (this.activeApp) {
-      headers["X-Active-App"] = this.activeApp;
+      headers['X-Active-App'] = this.activeApp;
     }
     if (this.activeTenantId) {
-      headers["X-Tenant-ID"] = this.activeTenantId;
+      headers['X-Tenant-ID'] = this.activeTenantId;
     }
     if (this.impersonatorId) {
-      headers["X-Impersonator-Id"] = this.impersonatorId;
+      headers['X-Impersonator-Id'] = this.impersonatorId;
     }
     return headers;
   }

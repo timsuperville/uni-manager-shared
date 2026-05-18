@@ -1,6 +1,6 @@
 /* eslint-env browser */
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -28,22 +28,22 @@ export interface UseAuthResult {
 // Helpers
 // ---------------------------------------------------------------------------
 
-const LS_AUTH_KEY = "isAuthenticated";
-const LS_USER_KEY = "user";
+const LS_AUTH_KEY = 'isAuthenticated';
+const LS_USER_KEY = 'user';
 
 function safeLocalStorage<T>(
-  action: "get" | "set" | "remove",
+  action: 'get' | 'set' | 'remove',
   key: string,
-  value?: string,
+  value?: string
 ): T | null {
   try {
-    if (typeof localStorage === "undefined") return null;
-    if (action === "get") return localStorage.getItem(key) as unknown as T;
-    if (action === "set" && value !== undefined) {
+    if (typeof localStorage === 'undefined') return null;
+    if (action === 'get') return localStorage.getItem(key) as unknown as T;
+    if (action === 'set' && value !== undefined) {
       localStorage.setItem(key, value);
       return null;
     }
-    if (action === "remove") {
+    if (action === 'remove') {
       localStorage.removeItem(key);
       return null;
     }
@@ -81,10 +81,10 @@ export function useAuth(): UseAuthResult {
   useEffect(() => {
     const checkAuthStatus = (): void => {
       try {
-        const authStatus = safeLocalStorage<string>("get", LS_AUTH_KEY);
-        const userData = safeLocalStorage<string>("get", LS_USER_KEY);
+        const authStatus = safeLocalStorage<string>('get', LS_AUTH_KEY);
+        const userData = safeLocalStorage<string>('get', LS_USER_KEY);
 
-        if (authStatus === "true" && userData) {
+        if (authStatus === 'true' && userData) {
           setIsAuthenticated(true);
           setUser(JSON.parse(userData as string) as AuthUser);
         } else {
@@ -104,23 +104,23 @@ export function useAuth(): UseAuthResult {
 
   const login = (userData: AuthUser): void => {
     try {
-      safeLocalStorage("set", LS_AUTH_KEY, "true");
-      safeLocalStorage("set", LS_USER_KEY, JSON.stringify(userData));
+      safeLocalStorage('set', LS_AUTH_KEY, 'true');
+      safeLocalStorage('set', LS_USER_KEY, JSON.stringify(userData));
       setIsAuthenticated(true);
       setUser(userData);
-      navigate("/dashboard");
+      navigate('/dashboard');
     } catch {
-      throw new Error("Failed to save authentication data");
+      throw new Error('Failed to save authentication data');
     }
   };
 
   const logout = (): void => {
     try {
-      safeLocalStorage("remove", LS_AUTH_KEY);
-      safeLocalStorage("remove", LS_USER_KEY);
+      safeLocalStorage('remove', LS_AUTH_KEY);
+      safeLocalStorage('remove', LS_USER_KEY);
       setIsAuthenticated(false);
       setUser(null);
-      navigate("/login");
+      navigate('/login');
     } catch {
       // Fail silently — clear local state regardless
     }
@@ -129,10 +129,10 @@ export function useAuth(): UseAuthResult {
   const updateUser = (updatedUserData: Partial<AuthUser>): void => {
     try {
       const newUserData: AuthUser = { ...user, ...updatedUserData };
-      safeLocalStorage("set", LS_USER_KEY, JSON.stringify(newUserData));
+      safeLocalStorage('set', LS_USER_KEY, JSON.stringify(newUserData));
       setUser(newUserData);
     } catch {
-      throw new Error("Failed to update user data");
+      throw new Error('Failed to update user data');
     }
   };
 

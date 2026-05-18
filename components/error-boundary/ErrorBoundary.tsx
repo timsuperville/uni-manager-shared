@@ -1,20 +1,20 @@
-import React from "react";
+import React from 'react';
 import {
   buildErrorId,
   collectTelemetry,
-  reportError,
-} from "./ErrorBoundaryTelemetry";
+  reportError
+} from './ErrorBoundaryTelemetry';
 import {
   InlineFallback,
   FullScreenFallback,
-  FallbackProps,
-} from "./ErrorBoundaryFallback";
-import { logger } from "../../utils/logger";
+  FallbackProps
+} from './ErrorBoundaryFallback';
+import { logger } from '../../utils/logger';
 
 export interface ErrorBoundaryProps {
   children: React.ReactNode;
   /** "full-screen" (default) for app roots; "inline" for feature sections */
-  variant?: "full-screen" | "inline";
+  variant?: 'full-screen' | 'inline';
   /** Custom render prop — receives { error, errorInfo, errorId, reset } */
   fallback?: (ctx: {
     error: Error | null;
@@ -52,7 +52,7 @@ export class ErrorBoundary extends React.Component<
       error: null,
       errorInfo: null,
       errorId: null,
-      resonanceId: null,
+      resonanceId: null
     };
     this.handleReset = this.handleReset.bind(this);
   }
@@ -66,35 +66,35 @@ export class ErrorBoundary extends React.Component<
     const appType =
       this.props.appType ||
       (import.meta as any).env?.VITE_APP_TYPE ||
-      "unknown";
+      'unknown';
     const errorId = buildErrorId(
       error?.message,
       window?.location?.pathname,
-      appType,
+      appType
     );
     this.setState({ error, errorInfo, errorId });
 
     if ((import.meta as any).env?.DEV) {
-      logger.error("[ErrorBoundary]", {
+      logger.error('[ErrorBoundary]', {
         errorId,
         error,
-        componentStack: errorInfo?.componentStack,
+        componentStack: errorInfo?.componentStack
       });
     }
 
     // Auto-reload for Vite chunk loading errors, preventing infinite loops
     if (
-      error?.message?.includes("Failed to fetch dynamically imported module") ||
-      error?.message?.includes("dynamically imported module") ||
-      error?.message?.includes("Importing a module script failed")
+      error?.message?.includes('Failed to fetch dynamically imported module') ||
+      error?.message?.includes('dynamically imported module') ||
+      error?.message?.includes('Importing a module script failed')
     ) {
-      const reloadKey = "vite_chunk_reload";
+      const reloadKey = 'vite_chunk_reload';
       const lastReload = sessionStorage.getItem(reloadKey);
       if (!lastReload || Date.now() - parseInt(lastReload, 10) > 5000) {
         sessionStorage.setItem(reloadKey, Date.now().toString());
-        if ("serviceWorker" in navigator) {
-          navigator.serviceWorker.getRegistrations().then((registrations) => {
-            registrations.forEach((r) => r.unregister());
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then(registrations => {
+            registrations.forEach(r => r.unregister());
           });
         }
         window.location.reload();
@@ -113,7 +113,7 @@ export class ErrorBoundary extends React.Component<
       error: null,
       errorInfo: null,
       errorId: null,
-      resonanceId: null,
+      resonanceId: null
     });
     this.props.onReset?.();
   }
@@ -126,7 +126,7 @@ export class ErrorBoundary extends React.Component<
         error: this.state.error,
         errorInfo: this.state.errorInfo,
         errorId: this.state.errorId,
-        reset: this.handleReset,
+        reset: this.handleReset
       });
     }
 
@@ -139,10 +139,10 @@ export class ErrorBoundary extends React.Component<
       resonanceId: this.state.resonanceId,
       onReset: this.handleReset,
       showHomeButton:
-        this.props.showHomeButton ?? this.props.variant !== "inline",
+        this.props.showHomeButton ?? this.props.variant !== 'inline'
     };
 
-    return this.props.variant === "inline" ? (
+    return this.props.variant === 'inline' ? (
       <InlineFallback {...shared} />
     ) : (
       <FullScreenFallback {...shared} />
@@ -153,9 +153,9 @@ export class ErrorBoundary extends React.Component<
 // ── withErrorBoundary HOC ─────────────────────────────────────────────────────
 export function withErrorBoundary<P extends object>(
   Component: React.ComponentType<P>,
-  boundaryProps: Omit<ErrorBoundaryProps, "children"> = {},
+  boundaryProps: Omit<ErrorBoundaryProps, 'children'> = {}
 ): React.FC<P> {
-  const displayName = Component.displayName || Component.name || "Component";
+  const displayName = Component.displayName || Component.name || 'Component';
 
   function WithBoundary(props: P) {
     return (

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   FiX,
   FiCheck,
@@ -8,30 +8,30 @@ import {
   FiBell,
   FiEye,
   FiTrash2,
-  FiArchive,
-} from "react-icons/fi";
-import { Button, Avatar } from "@shared/components/ui";
-import { logger } from "@shared/utils/logger";
+  FiArchive
+} from 'react-icons/fi';
+import { Button, Avatar } from '@shared/components/ui';
+import { logger } from '@shared/utils/logger';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
 export type ToastType =
-  | "success"
-  | "error"
-  | "warning"
-  | "info"
-  | "notification";
+  | 'success'
+  | 'error'
+  | 'warning'
+  | 'info'
+  | 'notification';
 export type ToastPosition =
-  | "top-right"
-  | "top-left"
-  | "bottom-right"
-  | "bottom-left"
-  | "top-center"
-  | "bottom-center";
-export type NotificationPriority = "low" | "normal" | "high" | "urgent";
+  | 'top-right'
+  | 'top-left'
+  | 'bottom-right'
+  | 'bottom-left'
+  | 'top-center'
+  | 'bottom-center';
+export type NotificationPriority = 'low' | 'normal' | 'high' | 'urgent';
 
 export interface ToastAction {
-  type?: "view" | "archive" | string;
+  type?: 'view' | 'archive' | string;
   icon?: React.ComponentType<{ className?: string }>;
   label: string;
   variant?: string;
@@ -44,7 +44,7 @@ export interface ToastAction {
  * All notification data in the UI layer must use this type.
  * The source of truth is NotificationAdapter.ts.
  */
-export type { AppNotification as Notification } from "./NotificationAdapter";
+export type { AppNotification as Notification } from './NotificationAdapter';
 
 export interface Attachment {
   url: string;
@@ -80,7 +80,7 @@ interface NotificationToastProps {
   onArchive?: (notification: Notification | null | undefined) => void;
   onAction?: (
     action: ToastAction,
-    notification: Notification | null | undefined,
+    notification: Notification | null | undefined
   ) => void;
   className?: string;
   resonanceId?: string;
@@ -95,12 +95,12 @@ interface ToastContainerProps {
 // ── Component ────────────────────────────────────────────────────────────────
 
 const NotificationToast: React.FC<NotificationToastProps> = ({
-  type = "info",
-  title = "",
-  message = "",
+  type = 'info',
+  title = '',
+  message = '',
   duration = 5000,
-  position = "top-right",
-  priority = "normal",
+  position = 'top-right',
+  priority = 'normal',
   avatar = null,
   actions = [],
   notification = null,
@@ -112,8 +112,8 @@ const NotificationToast: React.FC<NotificationToastProps> = ({
   onView,
   onArchive,
   onAction = () => {},
-  className = "",
-  resonanceId = "",
+  className = '',
+  resonanceId = ''
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
@@ -168,7 +168,7 @@ const NotificationToast: React.FC<NotificationToastProps> = ({
       cancelAnimationFrame(timerRef.current);
       remainingTimeRef.current = Math.max(
         0,
-        remainingTimeRef.current - (Date.now() - startTimeRef.current),
+        remainingTimeRef.current - (Date.now() - startTimeRef.current)
       );
     }
   }, [autoClose]);
@@ -190,9 +190,9 @@ const NotificationToast: React.FC<NotificationToastProps> = ({
 
   const handleActionClick = useCallback(
     (action: ToastAction) => {
-      if (action.type === "view") {
+      if (action.type === 'view') {
         onView?.(notification);
-      } else if (action.type === "archive") {
+      } else if (action.type === 'archive') {
         onArchive?.(notification);
       } else if (action.callback) {
         action.callback(notification);
@@ -201,16 +201,16 @@ const NotificationToast: React.FC<NotificationToastProps> = ({
       }
       if (action.closeOnClick !== false) handleClose();
     },
-    [notification, onView, onArchive, onAction, handleClose],
+    [notification, onView, onArchive, onAction, handleClose]
   );
 
   // Sound & vibration
   useEffect(() => {
-    if (sound && typeof Audio !== "undefined") {
+    if (sound && typeof Audio !== 'undefined') {
       try {
-        const audio = new Audio("/sounds/notification.mp3");
+        const audio = new Audio('/sounds/notification.mp3');
         audio.volume = 0.3;
-        audio.play().catch((e) => {
+        audio.play().catch(e => {
           if (import.meta.env.DEV) logger.warn(e);
         });
       } catch {
@@ -218,12 +218,12 @@ const NotificationToast: React.FC<NotificationToastProps> = ({
       }
     }
 
-    if (vibration && typeof navigator !== "undefined" && navigator.vibrate) {
+    if (vibration && typeof navigator !== 'undefined' && navigator.vibrate) {
       const vibrationPattern: Record<NotificationPriority, number[]> = {
         low: [100],
         normal: [200],
         high: [100, 50, 100],
-        urgent: [200, 100, 200, 100, 200],
+        urgent: [200, 100, 200, 100, 200]
       };
       navigator.vibrate(vibrationPattern[priority] ?? vibrationPattern.normal);
     }
@@ -233,15 +233,15 @@ const NotificationToast: React.FC<NotificationToastProps> = ({
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (!isVisible || isClosing) return;
-      if (event.key === "Escape") {
+      if (event.key === 'Escape') {
         handleClose();
-      } else if (event.key === "Enter" || event.key === " ") {
+      } else if (event.key === 'Enter' || event.key === ' ') {
         if (actions.length > 0) handleActionClick(actions[0]);
         else onView?.(notification);
       }
     };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
   }, [
     isVisible,
     isClosing,
@@ -249,7 +249,7 @@ const NotificationToast: React.FC<NotificationToastProps> = ({
     handleClose,
     handleActionClick,
     onView,
-    notification,
+    notification
   ]);
 
   const getIcon = useCallback(() => {
@@ -263,29 +263,29 @@ const NotificationToast: React.FC<NotificationToastProps> = ({
     > = {
       success: {
         icon: FiCheck,
-        color: "text-green-400",
-        bg: "bg-green-500 bg-opacity-10",
+        color: 'text-green-400',
+        bg: 'bg-green-500 bg-opacity-10'
       },
       error: {
         icon: FiAlertCircle,
-        color: "text-red-400",
-        bg: "bg-red-500 bg-opacity-10",
+        color: 'text-red-400',
+        bg: 'bg-red-500 bg-opacity-10'
       },
       warning: {
         icon: FiAlertTriangle,
-        color: "text-orange-400",
-        bg: "bg-orange-500 bg-opacity-10",
+        color: 'text-orange-400',
+        bg: 'bg-orange-500 bg-opacity-10'
       },
       info: {
         icon: FiInfo,
-        color: "text-blue-400",
-        bg: "bg-blue-500 bg-opacity-10",
+        color: 'text-blue-400',
+        bg: 'bg-blue-500 bg-opacity-10'
       },
       notification: {
         icon: FiBell,
-        color: "text-()",
-        bg: "bg-()",
-      },
+        color: 'text-()',
+        bg: 'bg-()'
+      }
     };
     const config = iconMap[type] ?? iconMap.info;
     const Icon = config.icon;
@@ -300,51 +300,51 @@ const NotificationToast: React.FC<NotificationToastProps> = ({
 
   const getToastStyles = useCallback(() => {
     const base =
-      "relative flex items-start space-x-3 p-4 rounded-xl glass-card border transition-all duration-300 ease-in-out max-w-sm overflow-hidden";
+      'relative flex items-start space-x-3 p-4 rounded-xl glass-card border transition-all duration-300 ease-in-out max-w-sm overflow-hidden';
     const typeStyles: Record<ToastType, string> = {
-      success: "border-() text-() shadow-[0_8px_32px_rgba(16,185,129,0.15)]",
-      error: "border-() text-() shadow-[0_8px_32px_rgba(239,68,68,0.2)]",
-      warning: "border-() text-() shadow-[0_8px_32px_rgba(245,158,11,0.15)]",
-      info: "border-() text-() shadow-[0_8px_32px_rgba(59,130,246,0.15)]",
-      notification: "border-() text-()",
+      success: 'border-() text-() shadow-[0_8px_32px_rgba(16,185,129,0.15)]',
+      error: 'border-() text-() shadow-[0_8px_32px_rgba(239,68,68,0.2)]',
+      warning: 'border-() text-() shadow-[0_8px_32px_rgba(245,158,11,0.15)]',
+      info: 'border-() text-() shadow-[0_8px_32px_rgba(59,130,246,0.15)]',
+      notification: 'border-() text-()'
     };
     const priorityStyles: Record<NotificationPriority, string> = {
-      low: "",
-      normal: "",
-      high: "border-() border-opacity-50 shadow-[0_0_16px_var(--accent-amber-glow)]",
+      low: '',
+      normal: '',
+      high: 'border-() border-opacity-50 shadow-[0_0_16px_var(--accent-amber-glow)]',
       urgent:
-        "border-red-500 border-opacity-70 shadow-[0_0_24px_rgba(239,68,68,0.4)] animate-pulse",
+        'border-red-500 border-opacity-70 shadow-[0_0_24px_rgba(239,68,68,0.4)] animate-pulse'
     };
     const positionStyles: Record<ToastPosition, string> = {
-      "top-right": "top-4 right-4",
-      "top-left": "top-4 left-4",
-      "bottom-right": "bottom-4 right-4",
-      "bottom-left": "bottom-4 left-4",
-      "top-center": "top-4 left-1/2 transform -translate-x-1/2",
-      "bottom-center": "bottom-4 left-1/2 transform -translate-x-1/2",
+      'top-right': 'top-4 right-4',
+      'top-left': 'top-4 left-4',
+      'bottom-right': 'bottom-4 right-4',
+      'bottom-left': 'bottom-4 left-4',
+      'top-center': 'top-4 left-1/2 transform -translate-x-1/2',
+      'bottom-center': 'bottom-4 left-1/2 transform -translate-x-1/2'
     };
     const animation = isVisible
-      ? "opacity-100 translate-y-0 scale-100"
-      : "opacity-0 translate-y-2 scale-95";
+      ? 'opacity-100 translate-y-0 scale-100'
+      : 'opacity-0 translate-y-2 scale-95';
 
-    return `${base} ${typeStyles[type] ?? typeStyles.info} ${priorityStyles[priority] ?? ""} ${positionStyles[position] ?? positionStyles["top-right"]} ${animation} fixed z-50 ${className}`;
+    return `${base} ${typeStyles[type] ?? typeStyles.info} ${priorityStyles[priority] ?? ''} ${positionStyles[position] ?? positionStyles['top-right']} ${animation} fixed z-50 ${className}`;
   }, [type, priority, position, isVisible, className]);
 
   const renderDefaultActions = useCallback(() => {
     const defaults: ToastAction[] = [];
     if (onView && notification)
       defaults.push({
-        type: "view",
+        type: 'view',
         icon: FiEye,
-        label: "View",
-        variant: "ghost",
+        label: 'View',
+        variant: 'ghost'
       });
     if (onArchive && notification)
       defaults.push({
-        type: "archive",
+        type: 'archive',
         icon: FiArchive,
-        label: "Archive",
-        variant: "ghost",
+        label: 'Archive',
+        variant: 'ghost'
       });
     return [...defaults, ...actions];
   }, [onView, onArchive, notification, actions]);
@@ -370,15 +370,15 @@ const NotificationToast: React.FC<NotificationToastProps> = ({
           <div
             ref={progressRef}
             className={`h-full transition-all duration-100 ease-linear ${
-              type === "success"
-                ? "bg-green-500 shadow-[0_0_8px_currentColor]"
-                : type === "error"
-                  ? "bg-red-500 shadow-[0_0_8px_currentColor]"
-                  : type === "warning"
-                    ? "bg-orange-400 shadow-[0_0_8px_currentColor]"
-                    : type === "info"
-                      ? "bg-blue-400 shadow-[0_0_8px_currentColor]"
-                      : "bg-() shadow-[0_0_8px_var(--primary-glow)]"
+              type === 'success'
+                ? 'bg-green-500 shadow-[0_0_8px_currentColor]'
+                : type === 'error'
+                  ? 'bg-red-500 shadow-[0_0_8px_currentColor]'
+                  : type === 'warning'
+                    ? 'bg-orange-400 shadow-[0_0_8px_currentColor]'
+                    : type === 'info'
+                      ? 'bg-blue-400 shadow-[0_0_8px_currentColor]'
+                      : 'bg-() shadow-[0_0_8px_var(--primary-glow)]'
             }`}
             style={{ width: `${progress}%` }}
           />
@@ -408,7 +408,7 @@ const NotificationToast: React.FC<NotificationToastProps> = ({
           <div className="mt-1.5 font-mono text-[10px] text-() opacity-70 break-all select-all flex items-center bg-black/20 px-1.5 py-0.5 rounded w-fit">
             <span className="mr-1 text-[8px] uppercase tracking-widest font-bold">
               Ref
-            </span>{" "}
+            </span>{' '}
             {resonanceId}
           </div>
         )}
@@ -423,7 +423,7 @@ const NotificationToast: React.FC<NotificationToastProps> = ({
                   onClick={() => handleActionClick(action)}
                   className={`
                     flex items-center text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-all
-                    ${action.variant === "primary" ? "bg-() text-white shadow-md hover:brightness-110" : "bg-() border border-() text-() hover:text-() hover:bg-()"}
+                    ${action.variant === 'primary' ? 'bg-() text-white shadow-md hover:brightness-110' : 'bg-() border border-() text-() hover:text-() hover:bg-()'}
                   `}
                 >
                   {Icon && <Icon className="w-3.5 h-3.5 mr-1.5" />}
@@ -452,21 +452,21 @@ const NotificationToast: React.FC<NotificationToastProps> = ({
 
 export const ToastContainer: React.FC<ToastContainerProps> = ({
   toasts = [],
-  position = "top-right",
-  maxToasts = 5,
+  position = 'top-right',
+  maxToasts = 5
 }) => {
   const visibleToasts = toasts.slice(0, maxToasts);
 
   return (
     <div
       className={`fixed z-50 pointer-events-none ${
-        position.includes("top") ? "top-4" : "bottom-4"
+        position.includes('top') ? 'top-4' : 'bottom-4'
       } ${
-        position.includes("right")
-          ? "right-4"
-          : position.includes("left")
-            ? "left-4"
-            : "left-1/2 transform -translate-x-1/2"
+        position.includes('right')
+          ? 'right-4'
+          : position.includes('left')
+            ? 'left-4'
+            : 'left-1/2 transform -translate-x-1/2'
       }`}
       aria-live="polite"
       aria-label="Notifications"

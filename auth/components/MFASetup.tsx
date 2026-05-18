@@ -16,7 +16,7 @@
  * - Error handling and user guidance
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   AlertCircle,
   Shield,
@@ -25,8 +25,8 @@ import {
   Copy,
   Check,
   Eye,
-  EyeOff,
-} from "lucide-react";
+  EyeOff
+} from 'lucide-react';
 
 interface SetupData {
   qrCode: string;
@@ -49,13 +49,13 @@ interface MFASetupProps {
 const MFASetup = ({
   onSetupComplete,
   onCancel,
-  className = "",
+  className = ''
 }: MFASetupProps) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [setupData, setSetupData] = useState<SetupData | null>(null);
-  const [verificationToken, setVerificationToken] = useState("");
+  const [verificationToken, setVerificationToken] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [showBackupCodes, setShowBackupCodes] = useState(false);
   const [copiedStates, setCopiedStates] = useState<Record<string, boolean>>({});
   const [isVerifying, setIsVerifying] = useState(false);
@@ -63,20 +63,20 @@ const MFASetup = ({
   const steps: StepConfig[] = [
     {
       id: 1,
-      title: "Setup Authenticator",
-      description: "Scan QR code or enter manual key",
+      title: 'Setup Authenticator',
+      description: 'Scan QR code or enter manual key'
     },
     {
       id: 2,
-      title: "Verify Setup",
-      description: "Enter code from your authenticator app",
+      title: 'Verify Setup',
+      description: 'Enter code from your authenticator app'
     },
     {
       id: 3,
-      title: "Backup Codes",
-      description: "Save your backup recovery codes",
+      title: 'Backup Codes',
+      description: 'Save your backup recovery codes'
     },
-    { id: 4, title: "Complete", description: "MFA is now enabled" },
+    { id: 4, title: 'Complete', description: 'MFA is now enabled' }
   ];
 
   useEffect(() => {
@@ -87,30 +87,30 @@ const MFASetup = ({
 
   const initializeMFASetup = async () => {
     setIsLoading(true);
-    setError("");
+    setError('');
     try {
-      const response = await fetch("/api/auth/mfa/setup", {
-        method: "POST",
+      const response = await fetch('/api/auth/mfa/setup', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${typeof localStorage !== "undefined" && localStorage.getItem("token")}`,
-        },
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${typeof localStorage !== 'undefined' && localStorage.getItem('token')}`
+        }
       });
       const data = await response.json();
       if (data.success) {
         setSetupData({
           qrCode: data.data.qrCode,
-          manualEntryKey: data.data.secret,
+          manualEntryKey: data.data.secret
         });
         setCurrentStep(2);
       } else {
-        throw new Error(data.message || "Failed to initialize MFA setup");
+        throw new Error(data.message || 'Failed to initialize MFA setup');
       }
     } catch (err) {
       setError(
         err instanceof Error
           ? err.message
-          : "Failed to setup MFA. Please try again.",
+          : 'Failed to setup MFA. Please try again.'
       );
     } finally {
       setIsLoading(false);
@@ -119,34 +119,39 @@ const MFASetup = ({
 
   const verifyAndEnableMFA = async () => {
     if (!verificationToken || verificationToken.length !== 6) {
-      setError("Please enter a valid 6-digit code");
+      setError('Please enter a valid 6-digit code');
       return;
     }
     setIsVerifying(true);
-    setError("");
+    setError('');
     try {
-      const response = await fetch("/api/auth/mfa/verify-setup", {
-        method: "POST",
+      const response = await fetch('/api/auth/mfa/verify-setup', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${typeof localStorage !== "undefined" && localStorage.getItem("token")}`,
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${typeof localStorage !== 'undefined' && localStorage.getItem('token')}`
         },
-        body: JSON.stringify({ token: verificationToken }),
+        body: JSON.stringify({ token: verificationToken })
       });
       const data = await response.json();
       if (data.success) {
-        setSetupData((prev) => 
-          prev ? { ...prev, backupCodes: data.data?.backupCodes || data.backupCodes } : prev
+        setSetupData(prev =>
+          prev
+            ? {
+                ...prev,
+                backupCodes: data.data?.backupCodes || data.backupCodes
+              }
+            : prev
         );
         setCurrentStep(3);
       } else {
-        throw new Error(data.message || "Invalid verification code");
+        throw new Error(data.message || 'Invalid verification code');
       }
     } catch (err) {
       setError(
         err instanceof Error
           ? err.message
-          : "Verification failed. Please try again.",
+          : 'Verification failed. Please try again.'
       );
     } finally {
       setIsVerifying(false);
@@ -155,46 +160,46 @@ const MFASetup = ({
 
   const handleCopyToClipboard = async (text: string, key: string) => {
     try {
-      if (typeof navigator !== "undefined") {
+      if (typeof navigator !== 'undefined') {
         await navigator.clipboard.writeText(text);
       }
-      setCopiedStates((prev) => ({ ...prev, [key]: true }));
+      setCopiedStates(prev => ({ ...prev, [key]: true }));
       setTimeout(
-        () => setCopiedStates((prev) => ({ ...prev, [key]: false })),
-        2000,
+        () => setCopiedStates(prev => ({ ...prev, [key]: false })),
+        2000
       );
     } catch (_err) {
       // Fallback for browsers without clipboard API
-      if (typeof document !== "undefined") {
-        const textArea = document.createElement("textarea");
+      if (typeof document !== 'undefined') {
+        const textArea = document.createElement('textarea');
         textArea.value = text;
         document.body.appendChild(textArea);
         textArea.select();
-        document.execCommand("copy");
+        document.execCommand('copy');
         document.body.removeChild(textArea);
       }
-      setCopiedStates((prev) => ({ ...prev, [key]: true }));
+      setCopiedStates(prev => ({ ...prev, [key]: true }));
       setTimeout(
-        () => setCopiedStates((prev) => ({ ...prev, [key]: false })),
-        2000,
+        () => setCopiedStates(prev => ({ ...prev, [key]: false })),
+        2000
       );
     }
   };
 
   const downloadBackupCodes = () => {
     if (!setupData?.backupCodes) return;
-    const codesText = setupData.backupCodes.join("\n");
+    const codesText = setupData.backupCodes.join('\n');
     const blob = new Blob(
       [
-        `Uni-Manager MFA Backup Codes\n\nSave these codes in a secure location.\nEach code can only be used once.\n\n${codesText}\n\nGenerated: ${new Date().toISOString()}`,
+        `Uni-Manager MFA Backup Codes\n\nSave these codes in a secure location.\nEach code can only be used once.\n\n${codesText}\n\nGenerated: ${new Date().toISOString()}`
       ],
-      { type: "text/plain" },
+      { type: 'text/plain' }
     );
     const url = URL.createObjectURL(blob);
-    if (typeof document !== "undefined") {
-      const a = document.createElement("a");
+    if (typeof document !== 'undefined') {
+      const a = document.createElement('a');
       a.href = url;
-      a.download = `uni-manager-backup-codes-${new Date().toISOString().split("T")[0]}.txt`;
+      a.download = `uni-manager-backup-codes-${new Date().toISOString().split('T')[0]}.txt`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -214,8 +219,8 @@ const MFASetup = ({
           <div
             className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${
               currentStep >= step.id
-                ? "bg-blue-600 border-blue-600 text-white"
-                : "border-gray-300 text-gray-500"
+                ? 'bg-blue-600 border-blue-600 text-white'
+                : 'border-gray-300 text-gray-500'
             }`}
           >
             {currentStep > step.id ? (
@@ -226,7 +231,7 @@ const MFASetup = ({
           </div>
           {index < steps.length - 1 && (
             <div
-              className={`w-16 h-1 mx-2 ${currentStep > step.id ? "bg-blue-600" : "bg-gray-300"}`}
+              className={`w-16 h-1 mx-2 ${currentStep > step.id ? 'bg-blue-600' : 'bg-gray-300'}`}
             />
           )}
         </div>
@@ -295,13 +300,13 @@ const MFASetup = ({
                       onClick={() =>
                         handleCopyToClipboard(
                           setupData.manualEntryKey,
-                          "manual-key",
+                          'manual-key'
                         )
                       }
                       className="ml-2 p-2 text-gray-500 hover:text-gray-700 transition-colors cursor-pointer"
                       title="Copy to clipboard"
                     >
-                      {copiedStates["manual-key"] ? (
+                      {copiedStates['manual-key'] ? (
                         <Check size={16} className="text-green-600" />
                       ) : (
                         <Copy size={16} />
@@ -335,10 +340,10 @@ const MFASetup = ({
             <input
               type="text"
               value={verificationToken}
-              onChange={(e) => {
-                const value = e.target.value.replace(/\D/g, "").slice(0, 6);
+              onChange={e => {
+                const value = e.target.value.replace(/\D/g, '').slice(0, 6);
                 setVerificationToken(value);
-                setError("");
+                setError('');
               }}
               placeholder="000000"
               className="text-center text-2xl font-mono tracking-widest w-48 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -375,7 +380,7 @@ const MFASetup = ({
                   <span>Verifying...</span>
                 </div>
               ) : (
-                "Verify & Enable MFA"
+                'Verify & Enable MFA'
               )}
             </button>
           </div>
@@ -411,30 +416,48 @@ const MFASetup = ({
         {setupData?.backupCodes && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-medium text-gray-900" id="backup-codes-title">
+              <h3
+                className="text-lg font-medium text-gray-900"
+                id="backup-codes-title"
+              >
                 Backup Recovery Codes
               </h3>
               <button
                 onClick={() => setShowBackupCodes(!showBackupCodes)}
                 className="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-800 cursor-pointer"
-                aria-label={showBackupCodes ? "Hide backup codes" : "Show backup codes"}
+                aria-label={
+                  showBackupCodes ? 'Hide backup codes' : 'Show backup codes'
+                }
                 aria-expanded={showBackupCodes}
                 aria-controls="backup-codes-list"
               >
-                {showBackupCodes ? <EyeOff size={16} aria-hidden="true" /> : <Eye size={16} aria-hidden="true" />}
-                <span>{showBackupCodes ? "Hide" : "Show"} Codes</span>
+                {showBackupCodes ? (
+                  <EyeOff size={16} aria-hidden="true" />
+                ) : (
+                  <Eye size={16} aria-hidden="true" />
+                )}
+                <span>{showBackupCodes ? 'Hide' : 'Show'} Codes</span>
               </button>
             </div>
 
             {showBackupCodes && (
-              <div id="backup-codes-list" className="bg-gray-50 border border-gray-200 rounded-lg p-6" aria-labelledby="backup-codes-title">
+              <div
+                id="backup-codes-list"
+                className="bg-gray-50 border border-gray-200 rounded-lg p-6"
+                aria-labelledby="backup-codes-title"
+              >
                 <div className="grid grid-cols-2 gap-4">
                   {setupData.backupCodes.map((code, index) => (
                     <div
                       key={index}
                       className="flex items-center justify-between bg-white border border-gray-200 rounded px-3 py-2"
                     >
-                      <code className="font-mono text-sm" aria-label={`Backup code ${index + 1}`}>{code}</code>
+                      <code
+                        className="font-mono text-sm"
+                        aria-label={`Backup code ${index + 1}`}
+                      >
+                        {code}
+                      </code>
                       <button
                         onClick={() =>
                           handleCopyToClipboard(code, `code-${index}`)
@@ -444,7 +467,11 @@ const MFASetup = ({
                         aria-label={`Copy backup code ${index + 1}`}
                       >
                         {copiedStates[`code-${index}`] ? (
-                          <Check size={14} className="text-green-600" aria-hidden="true" />
+                          <Check
+                            size={14}
+                            className="text-green-600"
+                            aria-hidden="true"
+                          />
                         ) : (
                           <Copy size={14} aria-hidden="true" />
                         )}
@@ -457,14 +484,14 @@ const MFASetup = ({
                   <button
                     onClick={() =>
                       handleCopyToClipboard(
-                        setupData.backupCodes!.join("\n"),
-                        "all-codes",
+                        setupData.backupCodes!.join('\n'),
+                        'all-codes'
                       )
                     }
                     className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer focus:ring-2 focus:ring-blue-500 focus:outline-none"
                     aria-label="Copy all backup codes to clipboard"
                   >
-                    {copiedStates["all-codes"] ? (
+                    {copiedStates['all-codes'] ? (
                       <Check size={16} aria-hidden="true" />
                     ) : (
                       <Copy size={16} aria-hidden="true" />

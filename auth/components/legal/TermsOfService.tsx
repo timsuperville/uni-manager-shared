@@ -1,8 +1,8 @@
-import React from "react";
-import { AuthContainer } from "../_authUI/AuthContainer";
-import { AuthCardContent } from "../_authUI/AuthCardContent";
-import { getCurrentAppConfig } from "../../config/appConfigs";
-import { useNavigate } from "react-router-dom";
+import React from 'react';
+import { AuthContainer } from '../_authUI/AuthContainer';
+import { AuthCardContent } from '../_authUI/AuthCardContent';
+import { getCurrentAppConfig } from '../../config/appConfigs';
+import { useNavigate } from 'react-router-dom';
 
 const TermsOfService: React.FC = () => {
   const config = getCurrentAppConfig();
@@ -16,7 +16,7 @@ const TermsOfService: React.FC = () => {
             className="w-16 h-16 rounded-2xl flex items-center justify-center text-white mb-6 animate-float"
             style={{
               background: `linear-gradient(135deg, ${config.branding.gradientFrom}, ${config.branding.gradientTo})`,
-              boxShadow: `0 10px 30px -10px ${config.branding.primaryColor}`,
+              boxShadow: `0 10px 30px -10px ${config.branding.primaryColor}`
             }}
           >
             {config.ui.icon}

@@ -1,48 +1,48 @@
 export const SHARPS = [
-  "C",
-  "C#",
-  "D",
-  "D#",
-  "E",
-  "F",
-  "F#",
-  "G",
-  "G#",
-  "A",
-  "A#",
-  "B",
+  'C',
+  'C#',
+  'D',
+  'D#',
+  'E',
+  'F',
+  'F#',
+  'G',
+  'G#',
+  'A',
+  'A#',
+  'B'
 ];
 export const FLATS = [
-  "C",
-  "Db",
-  "D",
-  "Eb",
-  "E",
-  "F",
-  "Gb",
-  "G",
-  "Ab",
-  "A",
-  "Bb",
-  "B",
+  'C',
+  'Db',
+  'D',
+  'Eb',
+  'E',
+  'F',
+  'Gb',
+  'G',
+  'Ab',
+  'A',
+  'Bb',
+  'B'
 ];
 
 export function getNotesArray(key: string): string[] {
   // Common keys that typically use flats
   const flatKeys = [
-    "F",
-    "Bb",
-    "Eb",
-    "Ab",
-    "Db",
-    "Gb",
-    "Cb",
-    "Dm",
-    "Gm",
-    "Cm",
-    "Fm",
-    "Bbm",
-    "Ebm",
+    'F',
+    'Bb',
+    'Eb',
+    'Ab',
+    'Db',
+    'Gb',
+    'Cb',
+    'Dm',
+    'Gm',
+    'Cm',
+    'Fm',
+    'Bbm',
+    'Ebm'
   ];
   return flatKeys.includes(key) ? FLATS : SHARPS;
 }
@@ -72,7 +72,7 @@ export function transposeChord(
   if (!match) return chord; // If it doesn't parse, return as-is
 
   const root = match[1];
-  const mod = match[2] || "";
+  const mod = match[2] || '';
   const bass = match[3];
 
   const rootIdx = getNoteIndex(root);
@@ -111,8 +111,8 @@ export function transposeChordPro(
   }
 
   // Normalize keys to strip major/minor for index lookup (e.g. "Ab minor" -> "Ab")
-  const normOriginal = originalKey.replace(/ minor| major|m|M/g, "").trim();
-  const normTarget = targetKey.replace(/ minor| major|m|M/g, "").trim();
+  const normOriginal = originalKey.replace(/ minor| major|m|M/g, '').trim();
+  const normTarget = targetKey.replace(/ minor| major|m|M/g, '').trim();
 
   const origIdx = getNoteIndex(normOriginal);
   const targetIdx = getNoteIndex(normTarget);

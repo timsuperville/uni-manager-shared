@@ -15,20 +15,20 @@
  * never apply the patch twice.
  */
 
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback } from 'react';
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
 export type FrustrationSignal =
-  | "rage-click"
-  | "rapid-navigation"
-  | "consecutive-api-failure";
+  | 'rage-click'
+  | 'rapid-navigation'
+  | 'consecutive-api-failure';
 
 export interface FrustrationContext {
   signal: FrustrationSignal;
-  source: "frustration-detector";
+  source: 'frustration-detector';
   path: string;
   url: string;
   appType: string;
@@ -75,21 +75,21 @@ const _navListeners = new Set<NavListener>();
 let _historyPatched = false;
 
 function _ensureHistoryPatched(): void {
-  if (_historyPatched || typeof history === "undefined") return;
+  if (_historyPatched || typeof history === 'undefined') return;
   _historyPatched = true;
 
   const _origPush = history.pushState.bind(history) as typeof history.pushState;
   const _origReplace = history.replaceState.bind(
-    history,
+    history
   ) as typeof history.replaceState;
 
   history.pushState = (...args: Parameters<typeof history.pushState>) => {
     _origPush(...args);
-    _navListeners.forEach((fn) => fn());
+    _navListeners.forEach(fn => fn());
   };
   history.replaceState = (...args: Parameters<typeof history.replaceState>) => {
     _origReplace(...args);
-    _navListeners.forEach((fn) => fn());
+    _navListeners.forEach(fn => fn());
   };
   // The patch is additive (calls originals); listener set empties as instances
   // unmount, making it a no-op with zero listeners.
@@ -100,10 +100,10 @@ function _ensureHistoryPatched(): void {
 // ---------------------------------------------------------------------------
 
 export function useFrustrationDetector(
-  options: UseFrustrationDetectorOptions = {},
+  options: UseFrustrationDetectorOptions = {}
 ): null {
   const {
-    appType = "unknown",
+    appType = 'unknown',
     onFrustrated,
     enabled = true,
     disableInDev = true,
@@ -113,7 +113,7 @@ export function useFrustrationDetector(
     navWindowMs = 4_000,
     apiFailureThreshold = 2,
     apiFailureWindowMs = 15_000,
-    cooldownMs = 30_000,
+    cooldownMs = 30_000
   } = options;
 
   const clickLog = useRef<ClickLogEntry[]>([]);
@@ -123,16 +123,16 @@ export function useFrustrationDetector(
 
   // Resolve effective enabled state — suppress in development when disableInDev is set.
   const isDev: boolean =
-    typeof import.meta !== "undefined"
-      ? import.meta.env?.MODE === "development" || import.meta.env?.DEV === true
-      : process.env.NODE_ENV === "development";
+    typeof import.meta !== 'undefined'
+      ? import.meta.env?.MODE === 'development' || import.meta.env?.DEV === true
+      : process.env.NODE_ENV === 'development';
 
   const effectivelyEnabled = enabled && !(disableInDev && isDev);
 
   const fire = useCallback(
     (
       signal: FrustrationSignal,
-      context: Partial<FrustrationContext> = {},
+      context: Partial<FrustrationContext> = {}
     ): void => {
       if (!onFrustrated) return;
       const now = Date.now();
@@ -141,12 +141,12 @@ export function useFrustrationDetector(
 
       const fullContext: FrustrationContext = {
         signal,
-        source: "frustration-detector",
-        path: typeof window !== "undefined" ? window.location.pathname : "/",
-        url: typeof window !== "undefined" ? window.location.href : "",
+        source: 'frustration-detector',
+        path: typeof window !== 'undefined' ? window.location.pathname : '/',
+        url: typeof window !== 'undefined' ? window.location.href : '',
         appType,
         timestamp: new Date().toISOString(),
-        ...context,
+        ...context
       };
 
       try {
@@ -155,54 +155,52 @@ export function useFrustrationDetector(
         // Absorb any error in the caller so detection never crashes the UI
       }
     },
-    [onFrustrated, cooldownMs, appType],
+    [onFrustrated, cooldownMs, appType]
   );
 
   // ── Rage-click detector ────────────────────────────────────────────────────
   useEffect(() => {
-    if (!effectivelyEnabled || typeof window === "undefined") return;
+    if (!effectivelyEnabled || typeof window === 'undefined') return;
 
     const handleClick = (e: MouseEvent): void => {
       const now = Date.now();
       const target = e.target;
 
       clickLog.current = clickLog.current.filter(
-        (entry) =>
-          now - entry.ts <= rageClickWindowMs && entry.target === target,
+        entry => now - entry.ts <= rageClickWindowMs && entry.target === target
       );
       clickLog.current.push({ target, ts: now });
 
       if (clickLog.current.length >= rageClickThreshold) {
         clickLog.current = [];
-        fire("rage-click", {
+        fire('rage-click', {
           element: (target as Element | null)?.tagName?.toLowerCase() ?? null,
           elementId: (target as Element | null)?.id || null,
           elementText:
-            (target as Element | null)?.textContent?.trim().slice(0, 80) ??
-            null,
+            (target as Element | null)?.textContent?.trim().slice(0, 80) ?? null
         });
       }
     };
 
-    window.addEventListener("click", handleClick, { capture: true });
+    window.addEventListener('click', handleClick, { capture: true });
     return () =>
-      window.removeEventListener("click", handleClick, { capture: true });
+      window.removeEventListener('click', handleClick, { capture: true });
   }, [effectivelyEnabled, rageClickThreshold, rageClickWindowMs, fire]);
 
   // ── Rapid-navigation detector ──────────────────────────────────────────────
   useEffect(() => {
-    if (!effectivelyEnabled || typeof window === "undefined") return;
+    if (!effectivelyEnabled || typeof window === 'undefined') return;
 
     const recordNav: NavListener = () => {
       const now = Date.now();
-      navLog.current = navLog.current.filter((ts) => now - ts <= navWindowMs);
+      navLog.current = navLog.current.filter(ts => now - ts <= navWindowMs);
       navLog.current.push(now);
 
       if (navLog.current.length >= navThreshold) {
         navLog.current = [];
-        fire("rapid-navigation", {
+        fire('rapid-navigation', {
           navCount: navThreshold,
-          windowMs: navWindowMs,
+          windowMs: navWindowMs
         });
       }
     };
@@ -210,40 +208,40 @@ export function useFrustrationDetector(
     // P4 — Register as a subscriber to the shared module-level history patch
     _ensureHistoryPatched();
     _navListeners.add(recordNav);
-    window.addEventListener("popstate", recordNav);
+    window.addEventListener('popstate', recordNav);
 
     return () => {
-      window.removeEventListener("popstate", recordNav);
+      window.removeEventListener('popstate', recordNav);
       _navListeners.delete(recordNav);
     };
   }, [effectivelyEnabled, navThreshold, navWindowMs, fire]);
 
   // ── Consecutive API failure detector ─────────────────────────────────────
   useEffect(() => {
-    if (!effectivelyEnabled || typeof window === "undefined") return;
+    if (!effectivelyEnabled || typeof window === 'undefined') return;
 
     const recordApiFailure = (e: Event) => {
       const customEvent = e as CustomEvent;
       const now = Date.now();
       apiFailureLog.current = apiFailureLog.current.filter(
-        (ts) => now - ts <= apiFailureWindowMs,
+        ts => now - ts <= apiFailureWindowMs
       );
       apiFailureLog.current.push(now);
 
       if (apiFailureLog.current.length >= apiFailureThreshold) {
         apiFailureLog.current = [];
-        fire("consecutive-api-failure", {
+        fire('consecutive-api-failure', {
           apiFailureCount: apiFailureThreshold,
           windowMs: apiFailureWindowMs,
           errorObject: customEvent.detail?.error,
-          mutationName: customEvent.detail?.mutationName,
+          mutationName: customEvent.detail?.mutationName
         });
       }
     };
 
-    window.addEventListener("api-mutation-failure", recordApiFailure);
+    window.addEventListener('api-mutation-failure', recordApiFailure);
     return () =>
-      window.removeEventListener("api-mutation-failure", recordApiFailure);
+      window.removeEventListener('api-mutation-failure', recordApiFailure);
   }, [effectivelyEnabled, apiFailureThreshold, apiFailureWindowMs, fire]);
 
   // Purely side-effectful hook

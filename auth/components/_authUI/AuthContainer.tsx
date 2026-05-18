@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from "react";
+import React, { createContext, useContext } from 'react';
 
 /**
  * AuthShellContext — set to `true` by AuthLayout so nested AuthContainer
@@ -8,7 +8,7 @@ import React, { createContext, useContext } from "react";
 export const AuthShellContext = createContext(false);
 export const useAuthShell = () => useContext(AuthShellContext);
 
-type MaxWidth = "sm" | "md" | "lg" | "xl";
+type MaxWidth = 'sm' | 'md' | 'lg' | 'xl';
 
 interface AuthContainerProps {
   children: React.ReactNode;
@@ -29,15 +29,15 @@ interface AuthContainerProps {
  */
 export const AuthContainer = ({
   children,
-  maxWidth = "md",
+  maxWidth = 'md'
 }: AuthContainerProps) => {
   const isNested = useAuthShell();
 
   const maxWidths: Record<MaxWidth, string> = {
-    sm: "sm:max-w-sm",
-    md: "sm:max-w-md",
-    lg: "sm:max-w-lg",
-    xl: "sm:max-w-xl",
+    sm: 'sm:max-w-sm',
+    md: 'sm:max-w-md',
+    lg: 'sm:max-w-lg',
+    xl: 'sm:max-w-xl'
   };
 
   const card = (
@@ -47,8 +47,8 @@ export const AuthContainer = ({
       <div
         className="backdrop-blur-xl rounded-3xl overflow-hidden mx-auto bg-white/70 dark:bg-[#151125]/80 border border-gray-200/50 dark:border-white/10 shadow-[0_8px_40px_rgba(0,0,0,0.1)] dark:shadow-[0_8px_40px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.04)]"
         style={{
-          background: "var(--glass-surface-auto)",
-          borderColor: "var(--glass-outline-auto)",
+          background: 'var(--glass-surface-auto)',
+          borderColor: 'var(--glass-outline-auto)'
         }}
       >
         {children}
@@ -63,17 +63,17 @@ export const AuthContainer = ({
   return (
     <div
       className="min-h-screen w-full flex items-center justify-center p-4 sm:p-6 lg:p-8 relative overflow-hidden"
-      style={{ background: "var(--bg-ecclesia, hsl(268,35%,5%))" }}
+      style={{ background: 'var(--bg-ecclesia, hsl(268,35%,5%))' }}
     >
       {/* Ambient blobs */}
       <div
         className="absolute top-[-10%] right-[-5%] w-96 h-96 rounded-full blur-3xl"
-        style={{ background: "var(--primary-glow, hsla(272,65%,62%,0.15))" }}
+        style={{ background: 'var(--primary-glow, hsla(272,65%,62%,0.15))' }}
       />
       <div
         className="absolute bottom-[-10%] left-[-5%] w-96 h-96 rounded-full blur-3xl"
         style={{
-          background: "var(--accent-amber-glow, hsla(38,90%,58%,0.08))",
+          background: 'var(--accent-amber-glow, hsla(38,90%,58%,0.08))'
         }}
       />
       {card}

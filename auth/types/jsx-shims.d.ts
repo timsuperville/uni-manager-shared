@@ -12,109 +12,109 @@
  * TACTICAL: BL-TS-MIGRATE-AUTH-JSX — remove these shims as each file is migrated.
  */
 
-import type { ComponentType } from "react";
+import type { ComponentType } from 'react';
 
-declare module "*/LoginForm.jsx" {
+declare module '*/LoginForm.jsx' {
   const LoginForm: ComponentType<Record<string, unknown>>;
   export default LoginForm;
 }
 
-declare module "*/SignupForm.jsx" {
+declare module '*/SignupForm.jsx' {
   const SignupForm: ComponentType<Record<string, unknown>>;
   export default SignupForm;
 }
 
-declare module "*/ForgotPasswordForm.jsx" {
+declare module '*/ForgotPasswordForm.jsx' {
   const ForgotPasswordForm: ComponentType<Record<string, unknown>>;
   export default ForgotPasswordForm;
 }
 
-declare module "*/MFAVerification.jsx" {
+declare module '*/MFAVerification.jsx' {
   const MFAVerification: ComponentType<Record<string, unknown>>;
   export default MFAVerification;
 }
 
-declare module "*/MFASetup.jsx" {
+declare module '*/MFASetup.jsx' {
   const MFASetup: ComponentType<Record<string, unknown>>;
   export default MFASetup;
 }
 
-declare module "*/OAuthProviderComponents.jsx" {
+declare module '*/OAuthProviderComponents.jsx' {
   const OAuthProviderComponents: ComponentType<Record<string, unknown>>;
   export default OAuthProviderComponents;
 }
 
-declare module "*/OAuthCallback.jsx" {
+declare module '*/OAuthCallback.jsx' {
   const OAuthCallback: ComponentType<Record<string, unknown>>;
   export default OAuthCallback;
 }
 
-declare module "*/ProtectedRoute.jsx" {
+declare module '*/ProtectedRoute.jsx' {
   const ProtectedRoute: ComponentType<Record<string, unknown>>;
   export default ProtectedRoute;
 }
 
-declare module "*/SecurityDashboard.jsx" {
+declare module '*/SecurityDashboard.jsx' {
   const SecurityDashboard: ComponentType<Record<string, unknown>>;
   export default SecurityDashboard;
 }
 
-declare module "*/AuthLayout.jsx" {
+declare module '*/AuthLayout.jsx' {
   const AuthLayout: ComponentType<Record<string, unknown>>;
   export default AuthLayout;
 }
 
-declare module "*/UserMenu.jsx" {
+declare module '*/UserMenu.jsx' {
   const UserMenu: ComponentType<Record<string, unknown>>;
   export default UserMenu;
 }
 
-declare module "*/AuthButton.jsx" {
+declare module '*/AuthButton.jsx' {
   const AuthButton: ComponentType<Record<string, unknown>>;
   export default AuthButton;
 }
 
-declare module "*/OAuthButton.jsx" {
+declare module '*/OAuthButton.jsx' {
   const OAuthButton: ComponentType<Record<string, unknown>>;
   export default OAuthButton;
 }
 
-declare module "*/AuthInput.jsx" {
+declare module '*/AuthInput.jsx' {
   const AuthInput: ComponentType<Record<string, unknown>>;
   export default AuthInput;
 }
 
-declare module "*/AuthContainer.jsx" {
+declare module '*/AuthContainer.jsx' {
   const AuthContainer: ComponentType<Record<string, unknown>>;
   export default AuthContainer;
 }
 
-declare module "*/AuthCardContent.jsx" {
+declare module '*/AuthCardContent.jsx' {
   const AuthCardContent: ComponentType<Record<string, unknown>>;
   export default AuthCardContent;
 }
 
-declare module "*/AuthDivider.jsx" {
+declare module '*/AuthDivider.jsx' {
   const AuthDivider: ComponentType<Record<string, unknown>>;
   export default AuthDivider;
 }
 
-declare module "*/Alert.jsx" {
+declare module '*/Alert.jsx' {
   const Alert: ComponentType<Record<string, unknown>>;
   export default Alert;
 }
 
-declare module "*/GoogleIcon.jsx" {
+declare module '*/GoogleIcon.jsx' {
   const GoogleIcon: ComponentType<Record<string, unknown>>;
   export default GoogleIcon;
 }
 
-declare module "*/PasswordToggle.jsx" {
+declare module '*/PasswordToggle.jsx' {
   const PasswordToggle: ComponentType<Record<string, unknown>>;
   export default PasswordToggle;
 }
 
-declare module "*/RBACComponents.jsx" {
+declare module '*/RBACComponents.jsx' {
   export const PermissionGuard: ComponentType<Record<string, unknown>>;
   export const RoleGuard: ComponentType<Record<string, unknown>>;
   export const FeatureGuard: ComponentType<Record<string, unknown>>;

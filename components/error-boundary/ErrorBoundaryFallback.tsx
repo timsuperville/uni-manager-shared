@@ -1,13 +1,13 @@
-import React from "react";
-import { AlertTriangle, RefreshCw, Home, ChevronDown } from "lucide-react";
-import { flex1 } from "@shared/styles/styleUtils";
+import React from 'react';
+import { AlertTriangle, RefreshCw, Home, ChevronDown } from 'lucide-react';
+import { flex1 } from '@shared/styles/styleUtils';
 
 // ── Animations ────────────────────────────────────────────────────────────────
 let _animationsInjected = false;
 function injectAnimations(): void {
-  if (_animationsInjected || typeof document === "undefined") return;
+  if (_animationsInjected || typeof document === 'undefined') return;
   _animationsInjected = true;
-  const style = document.createElement("style");
+  const style = document.createElement('style');
   style.textContent = `
     @keyframes eb-fade-up { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
     @keyframes eb-scale-in { from { opacity:0; transform:scale(0.92); } to { opacity:1; transform:scale(1); } }
@@ -21,17 +21,17 @@ function injectAnimations(): void {
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
 const T = {
-  primary: "var(--primary-resonance, hsl(160,84%,39%))",
-  error: "var(--color-error, hsl(0,70%,60%))",
-  errorSurface: "var(--color-error-surface, rgba(220,38,38,0.08))",
-  errorBorder: "var(--color-error-border, rgba(220,38,38,0.3))",
-  surface: "var(--glass-surface, hsla(222,47%,11%,0.85))",
-  outline: "var(--glass-outline, hsla(0,0%,100%,0.1))",
-  pageBg: "var(--bg-obsidian, hsl(222,47%,4%))",
-  textPrimary: "var(--text-primary, #f1f5f9)",
-  textMuted: "var(--text-muted, #94a3b8)",
-  radiusSm: "var(--radius-sm, 0.375rem)",
-  radiusLg: "var(--radius-lg, 0.75rem)",
+  primary: 'var(--primary-resonance, hsl(160,84%,39%))',
+  error: 'var(--color-error, hsl(0,70%,60%))',
+  errorSurface: 'var(--color-error-surface, rgba(220,38,38,0.08))',
+  errorBorder: 'var(--color-error-border, rgba(220,38,38,0.3))',
+  surface: 'var(--glass-surface, hsla(222,47%,11%,0.85))',
+  outline: 'var(--glass-outline, hsla(0,0%,100%,0.1))',
+  pageBg: 'var(--bg-obsidian, hsl(222,47%,4%))',
+  textPrimary: 'var(--text-primary, #f1f5f9)',
+  textMuted: 'var(--text-muted, #94a3b8)',
+  radiusSm: 'var(--radius-sm, 0.375rem)',
+  radiusLg: 'var(--radius-lg, 0.75rem)'
 };
 
 // ── Fallback prop shapes ───────────────────────────────────────────────────────
@@ -55,7 +55,7 @@ export function InlineFallback({
   errorId,
   resonanceId,
   onReset,
-  showHomeButton,
+  showHomeButton
 }: FallbackProps) {
   injectAnimations();
   const [showDetail, setShowDetail] = React.useState(false);
@@ -67,18 +67,18 @@ export function InlineFallback({
       role="alert"
       aria-live="assertive"
       style={{
-        padding: "1.25rem 1.5rem",
+        padding: '1.25rem 1.5rem',
         borderRadius: T.radiusLg,
         background: T.errorSurface,
-        border: `1px solid ${T.errorBorder}`,
+        border: `1px solid ${T.errorBorder}`
       }}
     >
       <div
         style={{
-          display: "flex",
-          alignItems: "flex-start",
-          gap: "0.625rem",
-          marginBottom: "0.625rem",
+          display: 'flex',
+          alignItems: 'flex-start',
+          gap: '0.625rem',
+          marginBottom: '0.625rem'
         }}
       >
         <AlertTriangle
@@ -88,46 +88,46 @@ export function InlineFallback({
             height: 18,
             color: T.error,
             flexShrink: 0,
-            marginTop: 2,
+            marginTop: 2
           }}
         />
         <p
           style={{
             margin: 0,
-            fontSize: "0.9375rem",
+            fontSize: '0.9375rem',
             fontWeight: 600,
             color: T.textPrimary,
-            lineHeight: 1.4,
+            lineHeight: 1.4
           }}
         >
-          {title || "Something went wrong"}
+          {title || 'Something went wrong'}
         </p>
       </div>
       <p
         style={{
-          margin: "0 0 1rem 1.625rem",
-          fontSize: "0.875rem",
+          margin: '0 0 1rem 1.625rem',
+          fontSize: '0.875rem',
           color: T.textMuted,
-          lineHeight: 1.6,
+          lineHeight: 1.6
         }}
       >
-        {message || "An unexpected error occurred in this section."}
+        {message || 'An unexpected error occurred in this section.'}
       </p>
       {hasDev && (
-        <div style={{ marginBottom: "1rem", marginLeft: "1.625rem" }}>
+        <div style={{ marginBottom: '1rem', marginLeft: '1.625rem' }}>
           <button
-            onClick={() => setShowDetail((v) => !v)}
+            onClick={() => setShowDetail(v => !v)}
             style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "0.25rem",
-              background: "none",
-              border: "none",
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.25rem',
+              background: 'none',
+              border: 'none',
               padding: 0,
-              cursor: "pointer",
-              fontSize: "0.75rem",
+              cursor: 'pointer',
+              fontSize: '0.75rem',
               color: T.textMuted,
-              fontWeight: 500,
+              fontWeight: 500
             }}
             aria-expanded={showDetail}
           >
@@ -136,8 +136,8 @@ export function InlineFallback({
               style={{
                 width: 14,
                 height: 14,
-                transform: showDetail ? "rotate(180deg)" : "none",
-                transition: "transform 0.15s",
+                transform: showDetail ? 'rotate(180deg)' : 'none',
+                transition: 'transform 0.15s'
               }}
             />
             Error details (dev only)
@@ -145,77 +145,77 @@ export function InlineFallback({
           {showDetail && (
             <pre
               style={{
-                marginTop: "0.5rem",
-                padding: "0.75rem",
-                background: "rgba(0,0,0,0.3)",
+                marginTop: '0.5rem',
+                padding: '0.75rem',
+                background: 'rgba(0,0,0,0.3)',
                 borderRadius: T.radiusSm,
-                fontSize: "0.6875rem",
+                fontSize: '0.6875rem',
                 color: T.error,
-                overflowX: "auto",
-                whiteSpace: "pre-wrap",
-                wordBreak: "break-all",
-                maxHeight: 240,
+                overflowX: 'auto',
+                whiteSpace: 'pre-wrap',
+                wordBreak: 'break-all',
+                maxHeight: 240
               }}
             >
               {[error?.toString?.(), errorInfo?.componentStack]
                 .filter(Boolean)
-                .join("\\n\\n")}
+                .join('\\n\\n')}
             </pre>
           )}
         </div>
       )}
       <div
         style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "0.5rem",
-          marginLeft: "1.625rem",
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+          marginLeft: '1.625rem'
         }}
       >
         <button
           onClick={onReset}
           style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "0.375rem",
-            padding: "0.375rem 0.875rem",
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.375rem',
+            padding: '0.375rem 0.875rem',
             borderRadius: T.radiusSm,
             background: T.primary,
-            color: "#fff",
-            border: "none",
+            color: '#fff',
+            border: 'none',
             fontWeight: 600,
-            fontSize: "0.8125rem",
-            cursor: "pointer",
-            transition: "opacity 0.15s",
+            fontSize: '0.8125rem',
+            cursor: 'pointer',
+            transition: 'opacity 0.15s'
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
-          onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+          onMouseEnter={e => (e.currentTarget.style.opacity = '0.85')}
+          onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
         >
           <RefreshCw aria-hidden="true" style={{ width: 13, height: 13 }} />
           Try Again
         </button>
         {showHomeButton && (
           <button
-            onClick={() => (window.location.href = "/")}
+            onClick={() => (window.location.href = '/')}
             style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "0.375rem",
-              padding: "0.375rem 0.875rem",
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.375rem',
+              padding: '0.375rem 0.875rem',
               borderRadius: T.radiusSm,
-              background: "transparent",
+              background: 'transparent',
               color: T.textMuted,
               border: `1px solid ${T.outline}`,
               fontWeight: 600,
-              fontSize: "0.8125rem",
-              cursor: "pointer",
-              transition: "background 0.15s",
+              fontSize: '0.8125rem',
+              cursor: 'pointer',
+              transition: 'background 0.15s'
             }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.background = "rgba(255,255,255,0.05)")
+            onMouseEnter={e =>
+              (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')
             }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.background = "transparent")
+            onMouseLeave={e =>
+              (e.currentTarget.style.background = 'transparent')
             }
           >
             <Home aria-hidden="true" style={{ width: 13, height: 13 }} />
@@ -226,10 +226,10 @@ export function InlineFallback({
           <span
             title="Reference this ID when reporting the issue"
             style={{
-              fontSize: "0.6875rem",
+              fontSize: '0.6875rem',
               color: T.textMuted,
-              fontFamily: "monospace",
-              marginLeft: "auto",
+              fontFamily: 'monospace',
+              marginLeft: 'auto'
             }}
           >
             {errorId}
@@ -239,12 +239,12 @@ export function InlineFallback({
           <span
             title="Reference this Resonance ID for backend tracing"
             style={{
-              fontSize: "0.6875rem",
+              fontSize: '0.6875rem',
               color: T.textMuted,
-              fontFamily: "monospace",
-              marginLeft: errorId ? "0.5rem" : "auto",
-              paddingLeft: errorId ? "0.5rem" : 0,
-              borderLeft: errorId ? `1px solid ${T.outline}` : "none",
+              fontFamily: 'monospace',
+              marginLeft: errorId ? '0.5rem' : 'auto',
+              paddingLeft: errorId ? '0.5rem' : 0,
+              borderLeft: errorId ? `1px solid ${T.outline}` : 'none'
             }}
           >
             Resonance ID: {resonanceId}
@@ -264,7 +264,7 @@ export function FullScreenFallback({
   errorId,
   resonanceId,
   onReset,
-  showHomeButton,
+  showHomeButton
 }: FallbackProps) {
   injectAnimations();
   const [showDetail, setShowDetail] = React.useState(false);
@@ -275,35 +275,35 @@ export function FullScreenFallback({
       role="alert"
       aria-live="assertive"
       style={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
         background: T.pageBg,
-        padding: "1rem",
+        padding: '1rem'
       }}
     >
       <div
         className="eb-card"
         style={{
           maxWidth: 460,
-          width: "100%",
+          width: '100%',
           background: T.surface,
           border: `1px solid ${T.outline}`,
-          backdropFilter: "blur(24px) saturate(180%)",
-          WebkitBackdropFilter: "blur(24px) saturate(180%)",
-          boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
+          backdropFilter: 'blur(24px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
           borderRadius: T.radiusLg,
-          padding: "2rem",
-          boxSizing: "border-box",
+          padding: '2rem',
+          boxSizing: 'border-box'
         }}
       >
         <div
           style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "0.875rem",
-            marginBottom: "1.125rem",
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.875rem',
+            marginBottom: '1.125rem'
           }}
         >
           <div
@@ -313,12 +313,12 @@ export function FullScreenFallback({
               flexShrink: 0,
               width: 44,
               height: 44,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              background: "rgba(239,68,68,0.12)",
-              borderRadius: "50%",
-              border: "1px solid rgba(239,68,68,0.25)",
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'rgba(239,68,68,0.12)',
+              borderRadius: '50%',
+              border: '1px solid rgba(239,68,68,0.25)'
             }}
           >
             <AlertTriangle style={{ width: 22, height: 22, color: T.error }} />
@@ -326,47 +326,47 @@ export function FullScreenFallback({
           <h1
             style={{
               margin: 0,
-              fontSize: "clamp(1rem, 3vw, 1.25rem)",
+              fontSize: 'clamp(1rem, 3vw, 1.25rem)',
               fontWeight: 700,
               color: T.textPrimary,
               lineHeight: 1.3,
-              fontFamily: "Outfit, Inter, system-ui, sans-serif",
-              ...flex1,
+              fontFamily: 'Outfit, Inter, system-ui, sans-serif',
+              ...flex1
             }}
           >
-            {title || "Something went wrong"}
+            {title || 'Something went wrong'}
           </h1>
         </div>
         <p
           style={{
-            margin: "0 0 1.25rem",
+            margin: '0 0 1.25rem',
             color: T.textMuted,
-            fontSize: "0.9375rem",
-            lineHeight: 1.65,
+            fontSize: '0.9375rem',
+            lineHeight: 1.65
           }}
         >
           {message ||
-            "The application encountered an unexpected error. An error report has been sent to our team automatically."}
+            'The application encountered an unexpected error. An error report has been sent to our team automatically.'}
         </p>
         {errorId && (
           <div
             style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.375rem",
-              marginBottom: "1.25rem",
-              padding: "0.375rem 0.75rem",
-              background: "rgba(99,102,241,0.08)",
-              border: "1px solid rgba(99,102,241,0.2)",
-              borderRadius: T.radiusSm,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.375rem',
+              marginBottom: '1.25rem',
+              padding: '0.375rem 0.75rem',
+              background: 'rgba(99,102,241,0.08)',
+              border: '1px solid rgba(99,102,241,0.2)',
+              borderRadius: T.radiusSm
             }}
           >
             <span
               style={{
-                fontSize: "0.6875rem",
+                fontSize: '0.6875rem',
                 color: T.textMuted,
-                textTransform: "uppercase",
-                letterSpacing: "0.05em",
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em'
               }}
             >
               Ref
@@ -374,10 +374,10 @@ export function FullScreenFallback({
             <span
               title="Quote this ID when contacting support"
               style={{
-                fontSize: "0.75rem",
-                fontFamily: "JetBrains Mono, monospace",
-                color: "hsl(239,84%,72%)",
-                letterSpacing: "0.02em",
+                fontSize: '0.75rem',
+                fontFamily: 'JetBrains Mono, monospace',
+                color: 'hsl(239,84%,72%)',
+                letterSpacing: '0.02em'
               }}
             >
               {errorId}
@@ -387,23 +387,23 @@ export function FullScreenFallback({
         {resonanceId && (
           <div
             style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.375rem",
-              marginBottom: "1.25rem",
-              padding: "0.375rem 0.75rem",
-              background: "rgba(16,185,129,0.08)",
-              border: "1px solid rgba(16,185,129,0.2)",
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.375rem',
+              marginBottom: '1.25rem',
+              padding: '0.375rem 0.75rem',
+              background: 'rgba(16,185,129,0.08)',
+              border: '1px solid rgba(16,185,129,0.2)',
               borderRadius: T.radiusSm,
-              marginLeft: errorId ? "0.5rem" : 0,
+              marginLeft: errorId ? '0.5rem' : 0
             }}
           >
             <span
               style={{
-                fontSize: "0.6875rem",
+                fontSize: '0.6875rem',
                 color: T.textMuted,
-                textTransform: "uppercase",
-                letterSpacing: "0.05em",
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em'
               }}
             >
               Resonance
@@ -411,10 +411,10 @@ export function FullScreenFallback({
             <span
               title="Quote this ID when contacting support for API failures"
               style={{
-                fontSize: "0.75rem",
-                fontFamily: "JetBrains Mono, monospace",
-                color: "hsl(160,84%,72%)",
-                letterSpacing: "0.02em",
+                fontSize: '0.75rem',
+                fontFamily: 'JetBrains Mono, monospace',
+                color: 'hsl(160,84%,72%)',
+                letterSpacing: '0.02em'
               }}
             >
               {resonanceId}
@@ -422,21 +422,21 @@ export function FullScreenFallback({
           </div>
         )}
         {hasDev && (
-          <div style={{ marginBottom: "1.25rem" }}>
+          <div style={{ marginBottom: '1.25rem' }}>
             <button
-              onClick={() => setShowDetail((v) => !v)}
+              onClick={() => setShowDetail(v => !v)}
               style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "0.375rem",
-                background: "none",
-                border: "none",
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.375rem',
+                background: 'none',
+                border: 'none',
                 padding: 0,
-                cursor: "pointer",
-                fontSize: "0.8125rem",
+                cursor: 'pointer',
+                fontSize: '0.8125rem',
                 color: T.textMuted,
                 fontWeight: 500,
-                marginBottom: showDetail ? "0.5rem" : 0,
+                marginBottom: showDetail ? '0.5rem' : 0
               }}
               aria-expanded={showDetail}
             >
@@ -445,61 +445,61 @@ export function FullScreenFallback({
                 style={{
                   width: 15,
                   height: 15,
-                  transform: showDetail ? "rotate(180deg)" : "none",
-                  transition: "transform 0.18s",
+                  transform: showDetail ? 'rotate(180deg)' : 'none',
+                  transition: 'transform 0.18s'
                 }}
               />
-              Error details{" "}
-              <span style={{ fontSize: "0.6875rem", opacity: 0.6 }}>
+              Error details{' '}
+              <span style={{ fontSize: '0.6875rem', opacity: 0.6 }}>
                 (dev only)
               </span>
             </button>
             {showDetail && (
               <pre
                 style={{
-                  padding: "0.875rem",
-                  background: "rgba(0,0,0,0.45)",
+                  padding: '0.875rem',
+                  background: 'rgba(0,0,0,0.45)',
                   borderRadius: T.radiusSm,
                   border: `1px solid ${T.errorBorder}`,
-                  fontSize: "0.6875rem",
+                  fontSize: '0.6875rem',
                   color: T.error,
-                  overflowX: "auto",
-                  whiteSpace: "pre-wrap",
-                  wordBreak: "break-all",
+                  overflowX: 'auto',
+                  whiteSpace: 'pre-wrap',
+                  wordBreak: 'break-all',
                   maxHeight: 280,
-                  overflowY: "auto",
+                  overflowY: 'auto'
                 }}
               >
                 {[error?.toString?.(), errorInfo?.componentStack]
                   .filter(Boolean)
-                  .join("\\n\\n")}
+                  .join('\\n\\n')}
               </pre>
             )}
           </div>
         )}
         <div
-          style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}
+          style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}
         >
           {onReset && (
             <button
               onClick={onReset}
               style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "0.5rem",
-                padding: "0.65rem 1rem",
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem',
+                padding: '0.65rem 1rem',
                 borderRadius: T.radiusSm,
                 background: T.primary,
-                color: "#fff",
-                border: "none",
+                color: '#fff',
+                border: 'none',
                 fontWeight: 600,
-                fontSize: "0.9375rem",
-                cursor: "pointer",
-                transition: "opacity 0.15s",
+                fontSize: '0.9375rem',
+                cursor: 'pointer',
+                transition: 'opacity 0.15s'
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
-              onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+              onMouseEnter={e => (e.currentTarget.style.opacity = '0.85')}
+              onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
             >
               <RefreshCw aria-hidden="true" style={{ width: 16, height: 16 }} />
               Try Again
@@ -508,25 +508,25 @@ export function FullScreenFallback({
           <button
             onClick={() => window.location.reload()}
             style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "0.5rem",
-              padding: "0.65rem 1rem",
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.5rem',
+              padding: '0.65rem 1rem',
               borderRadius: T.radiusSm,
-              background: "rgba(255,255,255,0.05)",
+              background: 'rgba(255,255,255,0.05)',
               border: `1px solid ${T.outline}`,
               color: T.textMuted,
               fontWeight: 600,
-              fontSize: "0.9375rem",
-              cursor: "pointer",
-              transition: "background 0.15s",
+              fontSize: '0.9375rem',
+              cursor: 'pointer',
+              transition: 'background 0.15s'
             }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.background = "rgba(255,255,255,0.09)")
+            onMouseEnter={e =>
+              (e.currentTarget.style.background = 'rgba(255,255,255,0.09)')
             }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.background = "rgba(255,255,255,0.05)")
+            onMouseLeave={e =>
+              (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')
             }
           >
             <RefreshCw aria-hidden="true" style={{ width: 16, height: 16 }} />
@@ -534,24 +534,24 @@ export function FullScreenFallback({
           </button>
           {showHomeButton && (
             <button
-              onClick={() => (window.location.href = "/")}
+              onClick={() => (window.location.href = '/')}
               style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "0.375rem",
-                padding: "0.5rem 1rem",
-                background: "transparent",
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.375rem',
+                padding: '0.5rem 1rem',
+                background: 'transparent',
                 color: T.textMuted,
-                border: "none",
+                border: 'none',
                 fontWeight: 500,
-                fontSize: "0.875rem",
-                cursor: "pointer",
+                fontSize: '0.875rem',
+                cursor: 'pointer',
                 opacity: 0.75,
-                transition: "opacity 0.15s",
+                transition: 'opacity 0.15s'
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
-              onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.75")}
+              onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
+              onMouseLeave={e => (e.currentTarget.style.opacity = '0.75')}
             >
               <Home aria-hidden="true" style={{ width: 14, height: 14 }} />
               Go to Home

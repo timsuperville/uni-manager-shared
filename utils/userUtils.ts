@@ -3,7 +3,7 @@
  * Provides standardized access to user data fields.
  */
 
-import { getAbsoluteUrl as getAbsoluteUploadUrl } from "../api/config/apiConfig";
+import { getAbsoluteUrl as getAbsoluteUploadUrl } from '../api/config/apiConfig';
 
 /** Minimal user shape expected by avatar/cover helpers. */
 interface UserWithMedia {
@@ -18,7 +18,7 @@ interface UserWithMedia {
  * Checks both avatarUrl (immediate upload response) and avatar (persisted DB field).
  */
 export const getUserAvatar = (
-  user: UserWithMedia | null | undefined,
+  user: UserWithMedia | null | undefined
 ): string | null => {
   if (!user) return null;
   const url = user.avatarUrl || user.avatar || null;
@@ -30,7 +30,7 @@ export const getUserAvatar = (
  * Checks both coverImageUrl (immediate upload response) and coverImage (persisted DB field).
  */
 export const getUserCoverImage = (
-  user: UserWithMedia | null | undefined,
+  user: UserWithMedia | null | undefined
 ): string | null => {
   if (!user) return null;
   const url = user.coverImageUrl || user.coverImage || null;
@@ -44,7 +44,7 @@ export const hasAvatar = (user: UserWithMedia | null | undefined): boolean => {
 
 /** Check if user has a cover image set. */
 export const hasCoverImage = (
-  user: UserWithMedia | null | undefined,
+  user: UserWithMedia | null | undefined
 ): boolean => {
   return !!getUserCoverImage(user);
 };

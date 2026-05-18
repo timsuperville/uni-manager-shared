@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 interface AuthDividerProps {
   text?: string;
@@ -8,7 +8,7 @@ interface AuthDividerProps {
  * Auth Divider — Horizontal rule with centred label (e.g. "Or", "Or continue
  * with email") used to separate OAuth and email/password sections.
  */
-export const AuthDivider = ({ text = "Or" }: AuthDividerProps) => (
+export const AuthDivider = ({ text = 'Or' }: AuthDividerProps) => (
   <div className="relative my-4 sm:my-5 text-center">
     <div className="absolute inset-0 flex items-center">
       <div className="w-full border-t border-gray-200 dark:border-gray-700" />

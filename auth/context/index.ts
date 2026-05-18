@@ -6,16 +6,16 @@
  * or '@shared/auth/hooks' directly.
  */
 
-import React from "react";
-import { AuthProvider, useAuth, AuthContext } from "./AuthContext";
+import React from 'react';
+import { AuthProvider, useAuth, AuthContext } from './AuthContext';
 
 // Core exports
 export { AuthProvider, useAuth, AuthContext };
-export { SSOContext, SSOProvider, useSSO, withSSO } from "./SSOContext";
+export { SSOContext, SSOProvider, useSSO, withSSO } from './SSOContext';
 export {
   RealTimeSecurityProvider,
-  useRealTimeSecurity,
-} from "./RealTimeSecurityContext";
+  useRealTimeSecurity
+} from './RealTimeSecurityContext';
 
 /**
  * withAuth HOC — for class-component callers only.
@@ -24,7 +24,7 @@ export {
 export const withAuth = <P extends object>(
   WrappedComponent: React.ComponentType<
     P & { auth: ReturnType<typeof useAuth> }
-  >,
+  >
 ): React.FC<P> => {
   return function ProtectedComponent(props: P) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -37,4 +37,4 @@ export const withAuth = <P extends object>(
  * Deprecated — use AuthProvider directly.
  * Kept for backward compatibility.
  */
-export { AuthProvider as AuthContextProvider } from "./AuthContext";
+export { AuthProvider as AuthContextProvider } from './AuthContext';

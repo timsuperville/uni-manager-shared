@@ -4,10 +4,10 @@
  * React component that provides the core API client to the application tree.
  */
 
-import React, { useEffect, useState, useMemo } from "react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ApiClient } from "../core/ApiClient";
-import type { ApiClientConfig } from "../core/ApiClient";
+import React, { useEffect, useState, useMemo } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ApiClient } from '../core/ApiClient';
+import type { ApiClientConfig } from '../core/ApiClient';
 
 // ==================== CONTEXT TYPES ====================
 
@@ -34,7 +34,7 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({
   children,
   config,
   client: existingClient,
-  onError,
+  onError
 }) => {
   const [apiClient, setApiClient] = useState<ApiClient | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -48,10 +48,10 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({
           queries: {
             refetchOnWindowFocus: false,
             retry: 1,
-            staleTime: 60 * 1000, // 1 minute default stale time
-          },
-        },
-      }),
+            staleTime: 60 * 1000 // 1 minute default stale time
+          }
+        }
+      })
   );
 
   useEffect(() => {
@@ -68,7 +68,7 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({
         timeout: config.timeout || 10000,
         retryAttempts: config.retryAttempts || 3,
         cacheEnabled: config.cacheEnabled !== false,
-        authEnabled: config.authEnabled !== false,
+        authEnabled: config.authEnabled !== false
       });
 
       setApiClient(client);
@@ -78,7 +78,7 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({
       const errorMessage =
         _err instanceof Error
           ? _err.message
-          : "Failed to initialize API client";
+          : 'Failed to initialize API client';
       setError(errorMessage);
       onError?.(_err instanceof Error ? _err : new Error(errorMessage));
     }
@@ -89,7 +89,7 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({
     return {
       apiClient,
       isInitialized,
-      error,
+      error
     };
   }, [apiClient, isInitialized, error]);
 

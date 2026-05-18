@@ -1,5 +1,5 @@
-import { useState, useCallback, useRef, useEffect } from "react";
-import { getApiBaseUrl } from "../../api/config/apiConfig";
+import { useState, useCallback, useRef, useEffect } from 'react';
+import { getApiBaseUrl } from '../../api/config/apiConfig';
 
 export interface QRSessionDelegationOptions {
   ttlMs?: number;
@@ -12,14 +12,14 @@ export interface QRSessionDelegationOptions {
 export function useQRSessionDelegation({
   ttlMs = 3 * 60 * 1000,
   pollIntervalMs = 2000,
-  appType = "presentation-pro",
+  appType = 'presentation-pro',
   onApprove,
-  apiBaseUrl = getApiBaseUrl(),
+  apiBaseUrl = getApiBaseUrl()
 }: QRSessionDelegationOptions = {}) {
   const [token, setToken] = useState(() => crypto.randomUUID());
   const [qrStatus, setQrStatus] = useState<
-    "pending" | "approved" | "expired" | "backend-offline"
-  >("pending");
+    'pending' | 'approved' | 'expired' | 'backend-offline'
+  >('pending');
   const [secondsLeft, setSecondsLeft] = useState(Math.floor(ttlMs / 1000));
   const [qrInitError, setQrInitError] = useState(false);
 
@@ -30,18 +30,18 @@ export function useQRSessionDelegation({
     async (tok: string) => {
       try {
         const res = await fetch(`${apiBaseUrl}/api/v1/auth/qr-session/init`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ qrToken: tok }),
-          signal: AbortSignal.timeout(4000),
+          signal: AbortSignal.timeout(4000)
         });
-        if (!res.ok && res.status !== 409) throw new Error("init failed");
+        if (!res.ok && res.status !== 409) throw new Error('init failed');
         setQrInitError(false);
       } catch (_err) {
         setQrInitError(true);
       }
     },
-    [apiBaseUrl],
+    [apiBaseUrl]
   );
 
   const startPolling = useCallback(
@@ -53,7 +53,7 @@ export function useQRSessionDelegation({
 
         if (remaining === 0) {
           if (pollRef.current) clearInterval(pollRef.current);
-          setQrStatus("expired");
+          setQrStatus('expired');
           return;
         }
 
@@ -62,31 +62,31 @@ export function useQRSessionDelegation({
         try {
           const res = await fetch(
             `${apiBaseUrl}/api/v1/auth/qr-session/status?token=${tok}`,
-            { signal: AbortSignal.timeout(2000) },
+            { signal: AbortSignal.timeout(2000) }
           );
           if (!res.ok) return;
           const json = await res.json();
           const data = json.data || json;
 
-          if (data.status === "approved" && data.sessionToken) {
+          if (data.status === 'approved' && data.sessionToken) {
             if (pollRef.current) clearInterval(pollRef.current);
-            setQrStatus("approved");
+            setQrStatus('approved');
             onApprove?.(data.sessionToken);
-          } else if (data.status === "expired") {
+          } else if (data.status === 'expired') {
             if (pollRef.current) clearInterval(pollRef.current);
-            setQrStatus("expired");
+            setQrStatus('expired');
           }
         } catch (_err) {}
       }, pollIntervalMs);
     },
-    [apiBaseUrl, qrInitError, pollIntervalMs, onApprove],
+    [apiBaseUrl, qrInitError, pollIntervalMs, onApprove]
   );
 
   const refreshToken = useCallback(() => {
     const newToken = crypto.randomUUID();
     expiryRef.current = Date.now() + ttlMs;
     setToken(newToken);
-    setQrStatus("pending");
+    setQrStatus('pending');
     setSecondsLeft(Math.floor(ttlMs / 1000));
     registerToken(newToken);
     startPolling(newToken);
@@ -117,6 +117,6 @@ export function useQRSessionDelegation({
     qrInitError,
     refreshToken,
     buildQrPayload: () =>
-      `https://church.uni-manager.com/auth/qr-approve?token=${token}&app=${appType}&v=1`,
+      `https://church.uni-manager.com/auth/qr-approve?token=${token}&app=${appType}&v=1`
   };
 }

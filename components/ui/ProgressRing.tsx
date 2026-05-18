@@ -10,8 +10,8 @@ export function ProgressRing({
   pct,
   size = 56,
   stroke = 5,
-  color = "var(--primary-resonance)",
-  className,
+  color = 'var(--primary-resonance)',
+  className
 }: ProgressRingProps) {
   const r = (size - stroke) / 2;
   const circ = 2 * Math.PI * r;
@@ -26,9 +26,7 @@ export function ProgressRing({
       className={className}
       style={{
         flexShrink: 0,
-        transform: className?.includes("-rotate-90")
-          ? "none"
-          : "rotate(-90deg)", // Handle legacy Tailind class
+        transform: className?.includes('-rotate-90') ? 'none' : 'rotate(-90deg)' // Handle legacy Tailind class
       }}
     >
       <circle
@@ -49,7 +47,7 @@ export function ProgressRing({
         strokeDasharray={circ}
         strokeDashoffset={offset}
         strokeLinecap="round"
-        style={{ transition: "stroke-dashoffset 0.6s ease" }}
+        style={{ transition: 'stroke-dashoffset 0.6s ease' }}
       />
     </svg>
   );

@@ -1,6 +1,6 @@
-import { useEffect, useCallback } from "react";
-import { useCommandContext } from "./CommandContext.tsx";
-import type { Command } from "./CommandContext.tsx";
+import { useEffect, useCallback } from 'react';
+import { useCommandContext } from './CommandContext.tsx';
+import type { Command } from './CommandContext.tsx';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -42,7 +42,7 @@ export interface UseCommandPaletteResult {
  *   useCommandPalette({ bindHotkey: true });
  */
 export function useCommandPalette({
-  bindHotkey = false,
+  bindHotkey = false
 }: UseCommandPaletteOptions = {}): UseCommandPaletteResult {
   const {
     isOpen,
@@ -54,21 +54,21 @@ export function useCommandPalette({
     results,
     allCommands,
     getNamespaceLabel,
-    NAMESPACE_LABELS,
+    NAMESPACE_LABELS
   } = useCommandContext();
 
   const handleExecute = useCallback(
     (command: Command): void => {
       close();
-      if (command.type === "navigation" && command.href) {
+      if (command.type === 'navigation' && command.href) {
         command.onAction?.();
-      } else if (command.type === "action" && command.onAction) {
+      } else if (command.type === 'action' && command.onAction) {
         command.onAction();
-      } else if (command.type === "search" && command.onAction) {
+      } else if (command.type === 'search' && command.onAction) {
         command.onAction();
       }
     },
-    [close],
+    [close]
   );
 
   // Global keyboard binding — only mounted from one Layout at a time
@@ -76,16 +76,16 @@ export function useCommandPalette({
     if (!bindHotkey) return;
 
     const handler = (e: KeyboardEvent): void => {
-      const isMac = navigator.platform?.toLowerCase().includes("mac");
+      const isMac = navigator.platform?.toLowerCase().includes('mac');
       const modKey = isMac ? e.metaKey : e.ctrlKey;
-      if (modKey && e.key === "k") {
+      if (modKey && e.key === 'k') {
         e.preventDefault();
         toggle();
       }
     };
 
-    document.addEventListener("keydown", handler);
-    return () => document.removeEventListener("keydown", handler);
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
   }, [bindHotkey, toggle]);
 
   return {
@@ -99,6 +99,6 @@ export function useCommandPalette({
     allCommands,
     handleExecute,
     getNamespaceLabel,
-    NAMESPACE_LABELS,
+    NAMESPACE_LABELS
   };
 }

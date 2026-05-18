@@ -1,5 +1,5 @@
-import { useAuth } from "../context/AuthContext";
-import { getCurrentAppConfig } from "../config/appConfigs";
+import { useAuth } from '../context/AuthContext';
+import { getCurrentAppConfig } from '../config/appConfigs';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -12,45 +12,45 @@ interface PermissionMap {
 
 const ROLE_PERMISSIONS: PermissionMap = {
   // Church app
-  admin: ["read", "write", "delete", "manage_users", "manage_settings"],
-  pastor: ["read", "write", "manage_members", "manage_events"],
-  leader: ["read", "write", "manage_groups"],
-  member: ["read", "write_limited"],
-  visitor: ["read_limited"],
+  admin: ['read', 'write', 'delete', 'manage_users', 'manage_settings'],
+  pastor: ['read', 'write', 'manage_members', 'manage_events'],
+  leader: ['read', 'write', 'manage_groups'],
+  member: ['read', 'write_limited'],
+  visitor: ['read_limited'],
   // Admin app
   super_admin: [
-    "read",
-    "write",
-    "delete",
-    "manage_users",
-    "manage_settings",
-    "manage_system",
+    'read',
+    'write',
+    'delete',
+    'manage_users',
+    'manage_settings',
+    'manage_system'
   ],
-  moderator: ["read", "write", "manage_content"],
-  support: ["read", "write_limited"],
+  moderator: ['read', 'write', 'manage_content'],
+  support: ['read', 'write_limited'],
   // Business app
   owner: [
-    "read",
-    "write",
-    "delete",
-    "manage_users",
-    "manage_settings",
-    "manage_billing",
+    'read',
+    'write',
+    'delete',
+    'manage_users',
+    'manage_settings',
+    'manage_billing'
   ],
-  manager: ["read", "write", "manage_employees"],
-  employee: ["read", "write_limited"],
-  client: ["read_limited"],
-  guest: ["read_public"],
+  manager: ['read', 'write', 'manage_employees'],
+  employee: ['read', 'write_limited'],
+  client: ['read_limited'],
+  guest: ['read_public'],
   // Home app
-  head: ["read", "write", "delete", "manage_family"],
-  adult: ["read", "write", "manage_tasks"],
-  teen: ["read", "write_limited"],
-  child: ["read_limited"],
+  head: ['read', 'write', 'delete', 'manage_family'],
+  adult: ['read', 'write', 'manage_tasks'],
+  teen: ['read', 'write_limited'],
+  child: ['read_limited'],
   // Personal app
-  user: ["read", "write", "manage_personal"],
+  user: ['read', 'write', 'manage_personal'],
   // Playback app
-  premium: ["read", "write", "premium_content", "offline_access"],
-  standard: ["read", "write", "standard_content"],
+  premium: ['read', 'write', 'premium_content', 'offline_access'],
+  standard: ['read', 'write', 'standard_content']
 };
 
 const ROLE_LEVELS: Record<string, number> = {
@@ -81,16 +81,16 @@ const ROLE_LEVELS: Record<string, number> = {
   // Playback
   playback_guest: 1,
   play_standard: 2,
-  premium: 3,
+  premium: 3
 };
 
 const ADMIN_ROLES: Record<string, string> = {
-  church: "admin",
-  admin: "super_admin",
-  work: "owner",
-  home: "head",
-  personal: "user",
-  playback: "premium",
+  church: 'admin',
+  admin: 'super_admin',
+  work: 'owner',
+  home: 'head',
+  personal: 'user',
+  playback: 'premium'
 };
 
 interface AppConfig {
@@ -107,7 +107,7 @@ interface UsePermissionsReturn {
   canPerform: (
     action: string,
     resource: string,
-    resourceData?: { ownerId?: string },
+    resourceData?: { ownerId?: string }
   ) => boolean;
   getRoleLevel: (role: RoleName) => number;
   hasHigherRoleThan: (role: RoleName) => boolean;
@@ -131,13 +131,13 @@ export const usePermissions = (): UsePermissionsReturn => {
 
   const hasAnyRole = (roles: RoleName[]): boolean => {
     if (!isAuthenticated || !user) return false;
-    return roles.includes(user.role ?? "");
+    return roles.includes(user.role ?? '');
   };
 
   const hasAllRoles = (roles: RoleName[]): boolean => {
     if (!isAuthenticated || !user) return false;
-    if (!Array.isArray(user.roles)) return roles.includes(user.role ?? "");
-    return roles.every((role) => user.roles!.includes(role));
+    if (!Array.isArray(user.roles)) return roles.includes(user.role ?? '');
+    return roles.every(role => user.roles!.includes(role));
   };
 
   const hasPermission = (permission: Permission): boolean => {
@@ -145,24 +145,24 @@ export const usePermissions = (): UsePermissionsReturn => {
     if (Array.isArray(user.permissions)) {
       return user.permissions.includes(permission);
     }
-    return getRolePermissions(user.role ?? "").includes(permission);
+    return getRolePermissions(user.role ?? '').includes(permission);
   };
 
   const isAdmin = (): boolean => {
     if (!isAuthenticated || !user) return false;
-    const currentApp = appConfig.appName.toLowerCase().split(" ")[0]!;
-    return user.role === (ADMIN_ROLES[currentApp] ?? "");
+    const currentApp = appConfig.appName.toLowerCase().split(' ')[0]!;
+    return user.role === (ADMIN_ROLES[currentApp] ?? '');
   };
 
   const canPerform = (
     action: string,
     resource: string,
-    resourceData: { ownerId?: string } = {},
+    resourceData: { ownerId?: string } = {}
   ): boolean => {
     if (!isAuthenticated || !user) return false;
     if (!hasPermission(action)) return false;
     if (resourceData.ownerId && resourceData.ownerId === user.id) return true;
-    const userPermissions = getRolePermissions(user.role ?? "");
+    const userPermissions = getRolePermissions(user.role ?? '');
     return (
       userPermissions.includes(action) ||
       userPermissions.includes(`${action}_${resource}`)
@@ -173,7 +173,7 @@ export const usePermissions = (): UsePermissionsReturn => {
 
   const hasHigherRoleThan = (role: RoleName): boolean => {
     if (!isAuthenticated || !user) return false;
-    return getRoleLevel(user.role ?? "") > getRoleLevel(role);
+    return getRoleLevel(user.role ?? '') > getRoleLevel(role);
   };
 
   return {
@@ -187,7 +187,7 @@ export const usePermissions = (): UsePermissionsReturn => {
     getRoleLevel,
     hasHigherRoleThan,
     userRole: user?.role,
-    userPermissions: user?.permissions ?? getRolePermissions(user?.role ?? ""),
+    userPermissions: user?.permissions ?? getRolePermissions(user?.role ?? '')
   };
 };
 

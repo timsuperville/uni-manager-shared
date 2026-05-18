@@ -8,7 +8,7 @@
  * directly without loading the full service.
  */
 
-import { MFA_METHOD, type MFAMethod } from "../types/mfaConstants";
+import { MFA_METHOD, type MFAMethod } from '../types/mfaConstants';
 
 // Re-export so callers who import from mfaUtils don't need a second import.
 export type { MFAMethod };
@@ -18,11 +18,11 @@ export type { MFAMethod };
 /** Map each MFA method to its user-readable display name. */
 export function getMFAMethodDisplayName(method: MFAMethod): string {
   const displayNames: Record<string, string> = {
-    [MFA_METHOD.TOTP]: "Authenticator App",
-    [MFA_METHOD.SMS]: "SMS Text Message",
-    [MFA_METHOD.EMAIL]: "Email Code",
-    [MFA_METHOD.WEBAUTHN]: "Security Key",
-    backup: "Backup Codes",
+    [MFA_METHOD.TOTP]: 'Authenticator App',
+    [MFA_METHOD.SMS]: 'SMS Text Message',
+    [MFA_METHOD.EMAIL]: 'Email Code',
+    [MFA_METHOD.WEBAUTHN]: 'Security Key',
+    backup: 'Backup Codes'
   };
   return displayNames[method] ?? method;
 }
@@ -30,13 +30,13 @@ export function getMFAMethodDisplayName(method: MFAMethod): string {
 /** Map each MFA method to an icon identifier. */
 export function getMFAMethodIcon(method: MFAMethod): string {
   const icons: Record<string, string> = {
-    [MFA_METHOD.TOTP]: "shield",
-    [MFA_METHOD.SMS]: "smartphone",
-    [MFA_METHOD.EMAIL]: "mail",
-    [MFA_METHOD.WEBAUTHN]: "fingerprint",
-    backup: "key",
+    [MFA_METHOD.TOTP]: 'shield',
+    [MFA_METHOD.SMS]: 'smartphone',
+    [MFA_METHOD.EMAIL]: 'mail',
+    [MFA_METHOD.WEBAUTHN]: 'fingerprint',
+    backup: 'key'
   };
-  return icons[method] ?? "shield";
+  return icons[method] ?? 'shield';
 }
 
 // ── Validation helpers ────────────────────────────────────────────────────────
@@ -57,8 +57,8 @@ export function validateSMSCode(code: string): boolean {
 
 /** Normalises a phone number string into a human-readable format. */
 export function formatPhoneNumber(phone: string): string {
-  if (!phone) return "";
-  const cleaned = phone.replace(/\D/g, "");
+  if (!phone) return '';
+  const cleaned = phone.replace(/\D/g, '');
   if (cleaned.length === 10) {
     return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
   }

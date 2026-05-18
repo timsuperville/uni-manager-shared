@@ -1,8 +1,8 @@
 // Unified ConfirmDialog component for all Uni-Manager applications
-import React from "react";
+import React from 'react';
 
-type DialogType = "info" | "success" | "warning" | "danger";
-type DialogSize = "small" | "medium" | "large";
+type DialogType = 'info' | 'success' | 'warning' | 'danger';
+type DialogSize = 'small' | 'medium' | 'large';
 
 interface ConfirmDialogProps {
   isOpen?: boolean;
@@ -89,7 +89,7 @@ const typeIconMap: Record<DialogType, React.ReactElement> = {
   info: <InfoIcon />,
   success: <SuccessIcon />,
   warning: <WarningIcon />,
-  danger: <WarningIcon />,
+  danger: <WarningIcon />
 };
 
 interface TypeStyle {
@@ -100,33 +100,33 @@ interface TypeStyle {
 
 const typeStyleMap: Record<DialogType, TypeStyle> = {
   info: {
-    iconColor: "text-blue-600 dark:text-blue-400",
-    iconBg: "bg-blue-100 dark:bg-blue-900/20",
-    confirmBtn: "bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500",
+    iconColor: 'text-blue-600 dark:text-blue-400',
+    iconBg: 'bg-blue-100 dark:bg-blue-900/20',
+    confirmBtn: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500'
   },
   success: {
-    iconColor: "text-green-600 dark:text-green-400",
-    iconBg: "bg-green-100 dark:bg-green-900/20",
+    iconColor: 'text-green-600 dark:text-green-400',
+    iconBg: 'bg-green-100 dark:bg-green-900/20',
     confirmBtn:
-      "bg-green-600 text-white hover:bg-green-700 focus:ring-green-500",
+      'bg-green-600 text-white hover:bg-green-700 focus:ring-green-500'
   },
   warning: {
-    iconColor: "text-yellow-600 dark:text-yellow-400",
-    iconBg: "bg-yellow-100 dark:bg-yellow-900/20",
+    iconColor: 'text-yellow-600 dark:text-yellow-400',
+    iconBg: 'bg-yellow-100 dark:bg-yellow-900/20',
     confirmBtn:
-      "bg-yellow-600 text-white hover:bg-yellow-700 focus:ring-yellow-500",
+      'bg-yellow-600 text-white hover:bg-yellow-700 focus:ring-yellow-500'
   },
   danger: {
-    iconColor: "text-red-600 dark:text-red-400",
-    iconBg: "bg-red-100 dark:bg-red-900/20",
-    confirmBtn: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500",
-  },
+    iconColor: 'text-red-600 dark:text-red-400',
+    iconBg: 'bg-red-100 dark:bg-red-900/20',
+    confirmBtn: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500'
+  }
 };
 
 const sizeClassMap: Record<DialogSize, string> = {
-  small: "max-w-md",
-  medium: "max-w-lg",
-  large: "max-w-2xl",
+  small: 'max-w-md',
+  medium: 'max-w-lg',
+  large: 'max-w-2xl'
 };
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -135,15 +135,15 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   isOpen = false,
   onClose,
   onConfirm,
-  title = "Confirm Action",
-  message = "Are you sure you want to proceed?",
-  confirmText = "Confirm",
-  cancelText = "Cancel",
-  type = "info",
-  size = "medium",
+  title = 'Confirm Action',
+  message = 'Are you sure you want to proceed?',
+  confirmText = 'Confirm',
+  cancelText = 'Cancel',
+  type = 'info',
+  size = 'medium',
   showCloseButton = true,
   isLoading = false,
-  className = "",
+  className = ''
 }) => {
   if (!isOpen) return null;
 

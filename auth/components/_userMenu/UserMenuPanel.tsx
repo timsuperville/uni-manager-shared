@@ -1,22 +1,22 @@
-import React from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import React from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
   User as UserIcon,
   LogOut,
   SlidersHorizontal,
-  Loader2,
-} from "lucide-react";
+  Loader2
+} from 'lucide-react';
 
-import { UserAvatar } from "../../../components/ui";
-import UserMenuItem from "./UserMenuItem";
-import PresenceToggle from "./PresenceToggle";
-import MenuDivider from "./MenuDivider";
-import { DROPDOWN_W } from "./positionUtils";
-import type { DropdownCoords } from "./positionUtils";
-import { getUserDisplayName } from "../../../utils";
-import type { User } from "../../types/auth.types";
-import type { AppConfig } from "../../config/appConfigs";
-import { glassBorder, flex1, textAccent } from "@shared/styles/styleUtils";
+import { UserAvatar } from '../../../components/ui';
+import UserMenuItem from './UserMenuItem';
+import PresenceToggle from './PresenceToggle';
+import MenuDivider from './MenuDivider';
+import { DROPDOWN_W } from './positionUtils';
+import type { DropdownCoords } from './positionUtils';
+import { getUserDisplayName } from '../../../utils';
+import type { User } from '../../types/auth.types';
+import type { AppConfig } from '../../config/appConfigs';
+import { glassBorder, flex1, textAccent } from '@shared/styles/styleUtils';
 
 interface UserMenuPanelProps {
   panelRef: React.RefObject<HTMLDivElement>;
@@ -75,14 +75,14 @@ function UserMenuPanel({
   onPreferencesClick,
   onClose,
   onLogout,
-  isLoggingOut,
+  isLoggingOut
 }: UserMenuPanelProps) {
   const { opensUpward } = dropdownCoords;
 
   const animVariant = {
     initial: { opacity: 0, y: opensUpward ? -8 : 8, scale: 0.96 },
     animate: { opacity: 1, y: 0, scale: 1 },
-    exit: { opacity: 0, y: opensUpward ? -8 : 8, scale: 0.96 },
+    exit: { opacity: 0, y: opensUpward ? -8 : 8, scale: 0.96 }
   };
 
   return (
@@ -96,44 +96,44 @@ function UserMenuPanel({
           initial={animVariant.initial}
           animate={animVariant.animate}
           exit={animVariant.exit}
-          transition={{ duration: 0.15, ease: "easeOut" }}
+          transition={{ duration: 0.15, ease: 'easeOut' }}
           style={{
-            position: "fixed",
+            position: 'fixed',
             top: dropdownCoords.top,
             left: dropdownCoords.left,
             zIndex: 99000,
             width: `${DROPDOWN_W}px`,
-            borderRadius: "var(--radius-lg, 14px)",
-            background: "var(--bg-sidebar)",
-            backdropFilter: "blur(24px) saturate(180%)",
-            WebkitBackdropFilter: "blur(24px) saturate(180%)",
+            borderRadius: 'var(--radius-lg, 14px)',
+            background: 'var(--bg-sidebar)',
+            backdropFilter: 'blur(24px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(24px) saturate(180%)',
             boxShadow:
-              "0 16px 48px hsla(222,47%,4%,0.55), 0 0 0 1px var(--glass-outline)",
-            overflow: "hidden",
-            ...glassBorder,
+              '0 16px 48px hsla(222,47%,4%,0.55), 0 0 0 1px var(--glass-outline)',
+            overflow: 'hidden',
+            ...glassBorder
           }}
         >
           {/* ── Identity header ── */}
           <div
             style={{
-              padding: "14px 16px",
-              background: "hsla(0,0%,100%,0.02)",
-              ...glassBorder,
+              padding: '14px 16px',
+              background: 'hsla(0,0%,100%,0.02)',
+              ...glassBorder
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <UserAvatar user={user} appConfig={appConfig} size="md" />
 
               <div style={{ minWidth: 0, ...flex1 }}>
                 <p
                   style={{
                     margin: 0,
-                    fontSize: "13px",
-                    fontWeight: "600",
-                    color: "var(--text-primary)",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    color: 'var(--text-primary)',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap'
                   }}
                 >
                   {getUserDisplayName(user)}
@@ -142,15 +142,15 @@ function UserMenuPanel({
                 {roleLabel && (
                   <p
                     style={{
-                      margin: "1px 0 0",
-                      fontSize: "11px",
-                      fontWeight: "500",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                      textTransform: "capitalize",
-                      letterSpacing: "0.02em",
-                      ...textAccent,
+                      margin: '1px 0 0',
+                      fontSize: '11px',
+                      fontWeight: '500',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      textTransform: 'capitalize',
+                      letterSpacing: '0.02em',
+                      ...textAccent
                     }}
                   >
                     {roleLabel}
@@ -159,12 +159,12 @@ function UserMenuPanel({
 
                 <p
                   style={{
-                    margin: "2px 0 0",
-                    fontSize: "11px",
-                    color: "var(--text-muted)",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
+                    margin: '2px 0 0',
+                    fontSize: '11px',
+                    color: 'var(--text-muted)',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap'
                   }}
                 >
                   {user.email}
@@ -172,7 +172,7 @@ function UserMenuPanel({
 
                 {hasPresence && (
                   <PresenceToggle
-                    status={status as "available" | "unavailable"}
+                    status={status as 'available' | 'unavailable'}
                     isConnected={isConnected}
                     onToggle={onToggleStatus}
                     dotColor={statusDotColor}
@@ -186,8 +186,8 @@ function UserMenuPanel({
           {customHeader && (
             <div
               style={{
-                padding: "8px 12px",
-                ...glassBorder,
+                padding: '8px 12px',
+                ...glassBorder
               }}
             >
               {customHeader}
@@ -195,7 +195,7 @@ function UserMenuPanel({
           )}
 
           {/* ── Menu items ── */}
-          <div style={{ padding: "6px" }}>
+          <div style={{ padding: '6px' }}>
             {children}
 
             {showProfile && (
@@ -227,7 +227,7 @@ function UserMenuPanel({
             {/* Sign out — disabled while logout is in-flight to prevent double-click */}
             <UserMenuItem
               icon={isLoggingOut ? Loader2 : LogOut}
-              label={isLoggingOut ? "Signing out…" : "Sign out"}
+              label={isLoggingOut ? 'Signing out…' : 'Sign out'}
               onClick={onLogout}
               variant="danger"
               disabled={isLoggingOut}

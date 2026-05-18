@@ -1,5 +1,5 @@
-import { useAuth } from "./useAuth";
-import type { User } from "../types/auth.types";
+import { useAuth } from './useAuth';
+import type { User } from '../types/auth.types';
 
 /**
  * useChurchId — resolves the active church ID from the auth user object.
@@ -25,7 +25,7 @@ export function useChurchId(): string | null {
   ).currentChurch;
 
   if (currentChurch) {
-    if (typeof currentChurch === "object") {
+    if (typeof currentChurch === 'object') {
       return currentChurch.id ?? currentChurch._id ?? user.churchId ?? null;
     }
     return currentChurch;

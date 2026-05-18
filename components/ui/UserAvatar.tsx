@@ -1,5 +1,5 @@
-import React from "react";
-import { getUserInitials, getUserAvatar } from "../../utils";
+import React from 'react';
+import { getUserInitials, getUserAvatar } from '../../utils';
 
 /**
  * UserAvatar Component
@@ -25,7 +25,7 @@ export interface AppConfig {
   };
 }
 
-type AvatarSize = "xs" | "sm" | "md" | "lg";
+type AvatarSize = 'xs' | 'sm' | 'md' | 'lg';
 
 export interface UserAvatarProps {
   user?: UserAvatarUser;
@@ -39,15 +39,15 @@ const SIZES: Record<AvatarSize, { dimension: number; fontSize: number }> = {
   xs: { dimension: 24, fontSize: 10 },
   sm: { dimension: 28, fontSize: 11 },
   md: { dimension: 36, fontSize: 13 },
-  lg: { dimension: 40, fontSize: 14 },
+  lg: { dimension: 40, fontSize: 14 }
 };
 
 const UserAvatar = ({
   user,
   appConfig,
-  size = "md",
-  className = "",
-  style: styleProp = {},
+  size = 'md',
+  className = '',
+  style: styleProp = {}
 }: UserAvatarProps) => {
   const initials = getUserInitials(user);
   const { dimension, fontSize } = SIZES[size] ?? SIZES.md;
@@ -56,17 +56,17 @@ const UserAvatar = ({
     width: dimension,
     height: dimension,
     minWidth: dimension,
-    borderRadius: "50%",
+    borderRadius: '50%',
     fontSize,
     fontWeight: 600,
-    objectFit: "cover" as React.CSSProperties["objectFit"],
+    objectFit: 'cover' as React.CSSProperties['objectFit'],
     flexShrink: 0,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    border: "1px solid rgba(128,128,128,0.25)",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.15)",
-    ...styleProp,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    border: '1px solid rgba(128,128,128,0.25)',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
+    ...styleProp
   };
 
   const avatarSrc = getUserAvatar(user);
@@ -75,7 +75,7 @@ const UserAvatar = ({
     return (
       <img
         src={avatarSrc}
-        alt={`${user?.firstName ?? user?.name ?? "User"}'s avatar`}
+        alt={`${user?.firstName ?? user?.name ?? 'User'}'s avatar`}
         className={className}
         style={baseStyle}
       />
@@ -83,11 +83,11 @@ const UserAvatar = ({
   }
 
   // Fallback color if appConfig is missing
-  const bgColor = appConfig?.branding?.primaryColor ?? "#4F46E5";
+  const bgColor = appConfig?.branding?.primaryColor ?? '#4F46E5';
 
   return (
     <div
-      style={{ ...baseStyle, backgroundColor: bgColor, color: "#fff" }}
+      style={{ ...baseStyle, backgroundColor: bgColor, color: '#fff' }}
       className={className}
     >
       {initials}

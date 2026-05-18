@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 interface FormFieldProps extends React.HTMLAttributes<HTMLDivElement> {
   label?: string;
@@ -16,22 +16,22 @@ export function FormField({
   hint,
   required = false,
   children,
-  className = "",
+  className = '',
   ...props
 }: FormFieldProps) {
   return (
     <div
       className={className}
-      style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}
+      style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}
       {...props}
     >
       {label && (
         <label
           style={{
-            fontSize: "var(--text-xs, 0.75rem)",
+            fontSize: 'var(--text-xs, 0.75rem)',
             fontWeight: 500,
-            color: "var(--text-muted, rgba(255,255,255,0.6))",
-            display: "block",
+            color: 'var(--text-muted, rgba(255,255,255,0.6))',
+            display: 'block'
           }}
         >
           {label}
@@ -39,8 +39,8 @@ export function FormField({
             <span
               aria-hidden="true"
               style={{
-                color: "var(--accent-rose, var(--color-error, #ef4444))",
-                marginLeft: "0.2rem",
+                color: 'var(--accent-rose, var(--color-error, #ef4444))',
+                marginLeft: '0.2rem'
               }}
             >
               *
@@ -53,9 +53,9 @@ export function FormField({
         <p
           role="alert"
           style={{
-            fontSize: "var(--text-xs, 0.75rem)",
-            color: "var(--accent-rose, var(--color-error, #ef4444))",
-            margin: 0,
+            fontSize: 'var(--text-xs, 0.75rem)',
+            color: 'var(--accent-rose, var(--color-error, #ef4444))',
+            margin: 0
           }}
         >
           {error}
@@ -64,9 +64,9 @@ export function FormField({
       {hint && !error && (
         <p
           style={{
-            fontSize: "var(--text-xs, 0.75rem)",
-            color: "var(--text-muted, rgba(255,255,255,0.5))",
-            margin: 0,
+            fontSize: 'var(--text-xs, 0.75rem)',
+            color: 'var(--text-muted, rgba(255,255,255,0.5))',
+            margin: 0
           }}
         >
           {hint}

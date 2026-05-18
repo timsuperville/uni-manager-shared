@@ -3,7 +3,7 @@
  * Tests OAuth provider configurations across all applications
  */
 
-import { OAUTH_PROVIDERS } from "../utils/socialAuth.ts";
+import { OAUTH_PROVIDERS } from '../utils/socialAuth.ts';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -44,79 +44,79 @@ interface ConfigIssue {
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 const getMockAppConfig = (appType: string): MockAppConfig => {
-  const baseApiUrl = "http://127.0.0.1:5000";
+  const baseApiUrl = 'http://127.0.0.1:5000';
 
   const configs: Record<string, MockAppConfig> = {
     church: {
       features: {
         socialLogin: {
           enabled: true,
-          providers: ["google"],
-          googleClientId: "mock-google-client-id",
-        },
+          providers: ['google'],
+          googleClientId: 'mock-google-client-id'
+        }
       },
-      apiEndpoints: { login: `${baseApiUrl}/church/auth/login` },
+      apiEndpoints: { login: `${baseApiUrl}/church/auth/login` }
     },
     admin: {
       features: {
         socialLogin: {
           enabled: true,
-          providers: ["google", "microsoft"],
-          googleClientId: "mock-google-client-id",
-          microsoftClientId: "mock-microsoft-client-id",
-        },
+          providers: ['google', 'microsoft'],
+          googleClientId: 'mock-google-client-id',
+          microsoftClientId: 'mock-microsoft-client-id'
+        }
       },
-      apiEndpoints: { login: `${baseApiUrl}/admin/auth/login` },
+      apiEndpoints: { login: `${baseApiUrl}/admin/auth/login` }
     },
     work: {
       features: {
         socialLogin: {
           enabled: true,
-          providers: ["google", "linkedin"],
-          googleClientId: "mock-google-client-id",
-          linkedinClientId: "mock-linkedin-client-id",
-        },
+          providers: ['google', 'linkedin'],
+          googleClientId: 'mock-google-client-id',
+          linkedinClientId: 'mock-linkedin-client-id'
+        }
       },
-      apiEndpoints: { login: `${baseApiUrl}/business/auth/login` },
+      apiEndpoints: { login: `${baseApiUrl}/business/auth/login` }
     },
     home: {
       features: { socialLogin: { enabled: false, providers: [] } },
-      apiEndpoints: { login: `${baseApiUrl}/home/auth/login` },
+      apiEndpoints: { login: `${baseApiUrl}/home/auth/login` }
     },
     personal: {
       features: {
         socialLogin: {
           enabled: true,
-          providers: ["google", "github"],
-          googleClientId: "mock-google-client-id",
-          githubClientId: "mock-github-client-id",
-        },
+          providers: ['google', 'github'],
+          googleClientId: 'mock-google-client-id',
+          githubClientId: 'mock-github-client-id'
+        }
       },
-      apiEndpoints: { login: `${baseApiUrl}/personal/auth/login` },
+      apiEndpoints: { login: `${baseApiUrl}/personal/auth/login` }
     },
     playback: {
       features: {
         socialLogin: {
           enabled: true,
-          providers: ["google", "spotify", "apple"],
-          googleClientId: "mock-google-client-id",
-          spotifyClientId: "mock-spotify-client-id",
-          appleClientId: "mock-apple-client-id",
-        },
+          providers: ['google', 'spotify', 'apple'],
+          googleClientId: 'mock-google-client-id',
+          spotifyClientId: 'mock-spotify-client-id',
+          appleClientId: 'mock-apple-client-id'
+        }
       },
-      apiEndpoints: { login: `${baseApiUrl}/playback/auth/login` },
-    },
+      apiEndpoints: { login: `${baseApiUrl}/playback/auth/login` }
+    }
   };
 
   return (
     configs[appType] ?? {
-      features: { socialLogin: { enabled: false, providers: [] } },
+      features: { socialLogin: { enabled: false, providers: [] } }
     }
   );
 };
 
 const getEnabledProvidersForApp = (
-  appConfig: MockAppConfig,
+  appConfig: MockAppConfig
 ): ProviderResult[] => {
   const socialLogin = appConfig.features?.socialLogin;
   if (!socialLogin?.enabled) return [];
@@ -127,12 +127,12 @@ const getEnabledProvidersForApp = (
   >;
 
   return socialLogin.providers
-    .map((providerId) => ({
+    .map(providerId => ({
       id: providerId,
       ...(oauthProviders[providerId] ?? {}),
-      clientId: socialLogin[`${providerId}ClientId`],
+      clientId: socialLogin[`${providerId}ClientId`]
     }))
-    .filter((provider) => provider.clientId);
+    .filter(provider => provider.clientId);
 };
 
 // ── Exports ───────────────────────────────────────────────────────────────────
@@ -144,7 +144,7 @@ export const testOAuthConfigurations = () => {
   let appsWithOAuth = 0;
   let totalEnabledProviders = 0;
 
-  const appTypes = ["church", "admin", "work", "home", "personal", "playback"];
+  const appTypes = ['church', 'admin', 'work', 'home', 'personal', 'playback'];
 
   for (const appType of appTypes) {
     try {
@@ -153,9 +153,9 @@ export const testOAuthConfigurations = () => {
 
       appConfigurations[appType] = {
         hasOAuth: mockAppConfig.features?.socialLogin?.enabled ?? false,
-        enabledProviders: enabledProviders.map((p) => p.id),
+        enabledProviders: enabledProviders.map(p => p.id),
         providerCount: enabledProviders.length,
-        providers: enabledProviders,
+        providers: enabledProviders
       };
 
       if (enabledProviders.length > 0) {
@@ -167,7 +167,7 @@ export const testOAuthConfigurations = () => {
       issues.push({
         app: appType,
         error: err instanceof Error ? err.message : String(err),
-        type: "configuration_error",
+        type: 'configuration_error'
       });
     }
   }
@@ -180,8 +180,8 @@ export const testOAuthConfigurations = () => {
     summary: {
       appsWithOAuth,
       totalEnabledProviders,
-      uniqueProviders: Array.from(uniqueProviderIds),
-    },
+      uniqueProviders: Array.from(uniqueProviderIds)
+    }
   };
 };
 
@@ -195,17 +195,17 @@ export const validateOAuthProvider = (providerId: string) => {
   if (!provider) {
     return {
       valid: false,
-      error: `Provider '${providerId}' not found in OAUTH_PROVIDERS`,
+      error: `Provider '${providerId}' not found in OAUTH_PROVIDERS`
     };
   }
 
-  const requiredFields = ["name", "icon", "color", "getAuthUrl", "scopes"];
-  const missingFields = requiredFields.filter((field) => !provider[field]);
+  const requiredFields = ['name', 'icon', 'color', 'getAuthUrl', 'scopes'];
+  const missingFields = requiredFields.filter(field => !provider[field]);
 
   if (missingFields.length > 0) {
     return {
       valid: false,
-      error: `Provider '${providerId}' missing required fields: ${missingFields.join(", ")}`,
+      error: `Provider '${providerId}' missing required fields: ${missingFields.join(', ')}`
     };
   }
 
@@ -218,31 +218,31 @@ export const generateOAuthReport = () => {
 
   if (testResults.summary.appsWithOAuth === 0) {
     recommendations.push(
-      "Consider enabling OAuth for at least one application to improve user experience",
+      'Consider enabling OAuth for at least one application to improve user experience'
     );
   }
 
   if (testResults.issues.length > 0) {
     recommendations.push(
-      "Fix configuration errors before deploying OAuth functionality",
+      'Fix configuration errors before deploying OAuth functionality'
     );
   }
 
   if (testResults.summary.uniqueProviders.length < 3) {
     recommendations.push(
-      "Consider adding more OAuth providers to give users more login options",
+      'Consider adding more OAuth providers to give users more login options'
     );
   }
 
   return {
     timestamp: new Date().toISOString(),
     ...testResults,
-    recommendations,
+    recommendations
   };
 };
 
 export default {
   testOAuthConfigurations,
   validateOAuthProvider,
-  generateOAuthReport,
+  generateOAuthReport
 };

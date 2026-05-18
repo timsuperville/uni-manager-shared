@@ -1,10 +1,10 @@
-import { BaseService } from "../../../api/services/BaseService";
-import { ApiClient } from "../../../api/core/ApiClient";
-import { ApiKey, ApiKeyCreateResult } from "../../../api/types";
+import { BaseService } from '../../../api/services/BaseService';
+import { ApiClient } from '../../../api/core/ApiClient';
+import { ApiKey, ApiKeyCreateResult } from '../../../api/types';
 
 export class DeveloperService extends BaseService {
   constructor(client: ApiClient) {
-    super(client, "/developer", "DeveloperService");
+    super(client, '/developer', 'DeveloperService');
   }
 
   /**
@@ -26,9 +26,9 @@ export class DeveloperService extends BaseService {
    */
   async generateApiKey(
     name: string,
-    roles: string[] = ["read-only"],
+    roles: string[] = ['read-only']
   ): Promise<ApiKeyCreateResult> {
-    return this.post<ApiKeyCreateResult>("/keys", { name, roles });
+    return this.post<ApiKeyCreateResult>('/keys', { name, roles });
   }
 
   /**

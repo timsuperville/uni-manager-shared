@@ -1,8 +1,8 @@
 import {
   startRegistration,
-  startAuthentication,
-} from "@simplewebauthn/browser";
-import { getApiClient } from "../../api";
+  startAuthentication
+} from '@simplewebauthn/browser';
+import { getApiClient } from '../../api';
 
 /**
  * Service for handling WebAuthn (Passkey / Biometric Anchor) flows.
@@ -25,7 +25,7 @@ export class WebAuthnService {
     try {
       // 1. Get registration options from the server
       const { data: optionsData } = await this.apiClient.post<any>(
-        "/auth/webauthn/register/generate-options",
+        '/auth/webauthn/register/generate-options'
       );
       const options = optionsData.data;
 
@@ -33,12 +33,12 @@ export class WebAuthnService {
       let registrationResponse;
       try {
         registrationResponse = await startRegistration({
-          optionsJSON: options,
+          optionsJSON: options
         });
       } catch (error: any) {
-        if (error.name === "InvalidStateError") {
+        if (error.name === 'InvalidStateError') {
           throw new Error(
-            "Error: Authenticator was probably already registered by user",
+            'Error: Authenticator was probably already registered by user'
           );
         }
         throw new Error(`Local authenticator error: ${error.message}`);
@@ -46,13 +46,13 @@ export class WebAuthnService {
 
       // 3. Send the registration response back to the server for verification
       const { data: verificationData } = await this.apiClient.post<any>(
-        "/auth/webauthn/register/verify",
-        registrationResponse,
+        '/auth/webauthn/register/verify',
+        registrationResponse
       );
 
       return verificationData.data;
     } catch (error: any) {
-      console.error("WebAuthn Registration Error:", error);
+      console.error('WebAuthn Registration Error:', error);
       throw error;
     }
   }
@@ -67,7 +67,7 @@ export class WebAuthnService {
     try {
       // 1. Get authentication options from the server
       const { data: optionsData } = await this.apiClient.post<any>(
-        "/auth/webauthn/authenticate/generate-options",
+        '/auth/webauthn/authenticate/generate-options'
       );
       const options = optionsData.data;
 
@@ -75,7 +75,7 @@ export class WebAuthnService {
       let authenticationResponse;
       try {
         authenticationResponse = await startAuthentication({
-          optionsJSON: options,
+          optionsJSON: options
         });
       } catch (error: any) {
         throw new Error(`Local authenticator error: ${error.message}`);
@@ -83,13 +83,13 @@ export class WebAuthnService {
 
       // 3. Send the authentication response back to the server for verification
       const { data: verificationData } = await this.apiClient.post<any>(
-        "/auth/webauthn/authenticate/verify",
-        authenticationResponse,
+        '/auth/webauthn/authenticate/verify',
+        authenticationResponse
       );
 
       return verificationData.data;
     } catch (error: any) {
-      console.error("WebAuthn Authentication Error:", error);
+      console.error('WebAuthn Authentication Error:', error);
       throw error;
     }
   }

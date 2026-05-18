@@ -1,14 +1,14 @@
-import React from "react";
+import React from 'react';
 
 export type AppDomain =
-  | "platform"
-  | "church"
-  | "home"
-  | "personal"
-  | "work"
-  | "admin"
-  | "playback"
-  | "presentation";
+  | 'platform'
+  | 'church'
+  | 'home'
+  | 'personal'
+  | 'work'
+  | 'admin'
+  | 'playback'
+  | 'presentation';
 
 interface AppLogoProps extends React.SVGProps<SVGSVGElement> {
   app?: AppDomain;
@@ -21,36 +21,36 @@ interface AppLogoProps extends React.SVGProps<SVGSVGElement> {
  * Each app has its own autonomous shape, but shares the same rendering DNA.
  */
 export const AppLogo: React.FC<AppLogoProps> = ({
-  app = "platform",
-  className = "h-8 w-8",
+  app = 'platform',
+  className = 'h-8 w-8',
   withText = false,
   ...props
 }) => {
   const getAppTitle = () => {
     switch (app) {
-      case "church":
-        return "Ecclesiastical Suite";
-      case "home":
-        return "Domestic Nucleus";
-      case "personal":
-        return "Personal Sanctuary";
-      case "work":
-        return "Executive Slate";
-      case "admin":
-        return "Command Hub";
-      case "playback":
-        return "Playback Pro";
-      case "presentation":
-        return "Presentation Pro";
-      case "platform":
+      case 'church':
+        return 'Ecclesiastical Suite';
+      case 'home':
+        return 'Domestic Nucleus';
+      case 'personal':
+        return 'Personal Sanctuary';
+      case 'work':
+        return 'Executive Slate';
+      case 'admin':
+        return 'Command Hub';
+      case 'playback':
+        return 'Playback Pro';
+      case 'presentation':
+        return 'Presentation Pro';
+      case 'platform':
       default:
-        return "Uni-Manager";
+        return 'Uni-Manager';
     }
   };
 
   const renderLogoContent = () => {
     switch (app) {
-      case "church":
+      case 'church':
         return (
           <>
             <path
@@ -82,7 +82,7 @@ export const AppLogo: React.FC<AppLogoProps> = ({
             />
           </>
         );
-      case "home":
+      case 'home':
         return (
           <>
             <path d="M 50 15 L 15 45 L 85 45 Z" fill="url(#logo-grad-top)" />
@@ -105,7 +105,7 @@ export const AppLogo: React.FC<AppLogoProps> = ({
             />
           </>
         );
-      case "personal":
+      case 'personal':
         return (
           <>
             <path
@@ -120,7 +120,7 @@ export const AppLogo: React.FC<AppLogoProps> = ({
             <circle cx="50" cy="45" r="7" fill="#ffffff" fillOpacity="0.8" />
           </>
         );
-      case "work":
+      case 'work':
         return (
           <>
             <rect
@@ -168,7 +168,7 @@ export const AppLogo: React.FC<AppLogoProps> = ({
             />
           </>
         );
-      case "admin":
+      case 'admin':
         return (
           <>
             <polygon
@@ -193,7 +193,7 @@ export const AppLogo: React.FC<AppLogoProps> = ({
             />
           </>
         );
-      case "playback":
+      case 'playback':
         return (
           <>
             <rect
@@ -240,7 +240,7 @@ export const AppLogo: React.FC<AppLogoProps> = ({
             />
           </>
         );
-      case "presentation":
+      case 'presentation':
         return (
           <>
             <rect
@@ -268,7 +268,7 @@ export const AppLogo: React.FC<AppLogoProps> = ({
             <circle cx="50" cy="47" r="6" fill="#ffffff" fillOpacity="0.9" />
           </>
         );
-      case "platform":
+      case 'platform':
       default:
         return (
           <>
@@ -281,9 +281,9 @@ export const AppLogo: React.FC<AppLogoProps> = ({
                 y2="100"
                 gradientUnits="userSpaceOnUse"
               >
-                <stop stopColor="#8b5cf6" stopOpacity="0.9" />{" "}
+                <stop stopColor="#8b5cf6" stopOpacity="0.9" />{' '}
                 {/* violet-500 */}
-                <stop offset="1" stopColor="#f43f5e" stopOpacity="0.9" />{" "}
+                <stop offset="1" stopColor="#f43f5e" stopOpacity="0.9" />{' '}
                 {/* rose-500 */}
               </linearGradient>
               <linearGradient
@@ -295,7 +295,7 @@ export const AppLogo: React.FC<AppLogoProps> = ({
                 gradientUnits="userSpaceOnUse"
               >
                 <stop stopColor="#f59e0b" stopOpacity="0.8" /> {/* amber-500 */}
-                <stop offset="1" stopColor="#f43f5e" stopOpacity="0.8" />{" "}
+                <stop offset="1" stopColor="#f43f5e" stopOpacity="0.8" />{' '}
                 {/* rose-500 */}
               </linearGradient>
             </defs>
@@ -322,7 +322,7 @@ export const AppLogo: React.FC<AppLogoProps> = ({
               r="5"
               fill="#f59e0b"
               fillOpacity="0.9"
-            />{" "}
+            />{' '}
             {/* amber */}
             <circle
               cx="28"
@@ -330,7 +330,7 @@ export const AppLogo: React.FC<AppLogoProps> = ({
               r="5"
               fill="#8b5cf6"
               fillOpacity="0.9"
-            />{" "}
+            />{' '}
             {/* violet */}
             {/* Center Singular Node */}
             <circle cx="50" cy="50" r="4" fill="#ffffff" />
@@ -349,13 +349,13 @@ export const AppLogo: React.FC<AppLogoProps> = ({
   };
 
   return (
-    <div className={`flex items-center gap-3 ${withText ? "w-fit" : ""}`}>
+    <div className={`flex items-center gap-3 ${withText ? 'w-fit' : ''}`}>
       <svg
         viewBox="0 0 100 100"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         className={`shrink-0 ${className}`}
-        style={{ color: "var(--primary, currentColor)" }}
+        style={{ color: 'var(--primary, currentColor)' }}
         {...props}
       >
         <defs>
@@ -402,7 +402,7 @@ export const AppLogo: React.FC<AppLogoProps> = ({
       {withText && (
         <span
           className="font-semibold text-lg tracking-tight whitespace-nowrap"
-          style={{ color: "var(--foreground, currentColor)" }}
+          style={{ color: 'var(--foreground, currentColor)' }}
         >
           {getAppTitle()}
         </span>

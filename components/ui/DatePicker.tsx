@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Calendar, ChevronLeft, ChevronRight, X } from "lucide-react";
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Calendar, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import {
   MONTHS,
   DAYS_SHORT,
@@ -9,9 +9,9 @@ import {
   parseValue,
   formatISO,
   formatDisplay,
-  DATE_PICKER_STYLES as S,
-} from "./datePickerUtils";
-export type { ParsedDate } from "./datePickerUtils";
+  DATE_PICKER_STYLES as S
+} from './datePickerUtils';
+export type { ParsedDate } from './datePickerUtils';
 
 /**
  * DatePicker — Liquid Glass Design System
@@ -43,11 +43,11 @@ export function DatePicker({
   id,
   value,
   onChange,
-  placeholder = "Select a date",
+  placeholder = 'Select a date',
   disabled = false,
   minDate,
   maxDate,
-  label,
+  label
 }: DatePickerProps) {
   const parsed = parseValue(value);
   const today = new Date();
@@ -74,24 +74,24 @@ export function DatePicker({
       if (wrapRef.current && !wrapRef.current.contains(e.target as Node))
         setOpen(false);
     };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
   }, [open]);
 
   // Close on Escape
   useEffect(() => {
     if (!open) return;
     const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === 'Escape') setOpen(false);
     };
-    document.addEventListener("keydown", handler);
-    return () => document.removeEventListener("keydown", handler);
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
   }, [open]);
 
   const prevMonth = useCallback(() => {
-    setViewMonth((m) => {
+    setViewMonth(m => {
       if (m === 0) {
-        setViewYear((y) => y - 1);
+        setViewYear(y => y - 1);
         return 11;
       }
       return m - 1;
@@ -99,9 +99,9 @@ export function DatePicker({
   }, []);
 
   const nextMonth = useCallback(() => {
-    setViewMonth((m) => {
+    setViewMonth(m => {
       if (m === 11) {
-        setViewYear((y) => y + 1);
+        setViewYear(y => y + 1);
         return 0;
       }
       return m + 1;
@@ -114,11 +114,11 @@ export function DatePicker({
       setOpen(false);
       triggerRef.current?.focus();
     },
-    [onChange],
+    [onChange]
   );
 
   const clear = useCallback(() => {
-    onChange?.("");
+    onChange?.('');
     setOpen(false);
   }, [onChange]);
 
@@ -150,15 +150,15 @@ export function DatePicker({
 
   const triggerFocusStyle = (focused: boolean): React.CSSProperties => ({
     border: focused
-      ? "1px solid var()"
-      : "1px solid var(--glass-outline, rgba(255,255,255,0.12))",
+      ? '1px solid var()'
+      : '1px solid var(--glass-outline, rgba(255,255,255,0.12))',
     boxShadow: focused
-      ? "0 0 0 3px var(--primary-glow, rgba(99,102,241,0.2))"
-      : "none",
+      ? '0 0 0 3px var(--primary-glow, rgba(99,102,241,0.2))'
+      : 'none'
   });
 
   return (
-    <div ref={wrapRef} style={{ position: "relative", width: "100%" }}>
+    <div ref={wrapRef} style={{ position: 'relative', width: '100%' }}>
       {/* Keyframe style injected once */}
       <style>{`@keyframes lgFadeIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }`}</style>
 
@@ -170,17 +170,17 @@ export function DatePicker({
         aria-label={label || placeholder}
         aria-haspopup="dialog"
         aria-expanded={open}
-        onClick={() => !disabled && setOpen((o) => !o)}
+        onClick={() => !disabled && setOpen(o => !o)}
         style={{
           ...S.trigger,
           opacity: disabled ? 0.55 : 1,
-          cursor: disabled ? "not-allowed" : "pointer",
-          ...(open ? triggerFocusStyle(true) : triggerFocusStyle(false)),
+          cursor: disabled ? 'not-allowed' : 'pointer',
+          ...(open ? triggerFocusStyle(true) : triggerFocusStyle(false))
         }}
-        onFocus={(e) =>
+        onFocus={e =>
           Object.assign(e.currentTarget.style, triggerFocusStyle(true))
         }
-        onBlur={(e) => {
+        onBlur={e => {
           if (!wrapRef.current?.contains(e.relatedTarget))
             Object.assign(e.currentTarget.style, triggerFocusStyle(false));
         }}
@@ -189,8 +189,8 @@ export function DatePicker({
           style={{
             width: 14,
             height: 14,
-            color: "var(--text-muted)",
-            flexShrink: 0,
+            color: 'var(--text-muted)',
+            flexShrink: 0
           }}
         />
         <span style={parsed ? {} : S.triggerPlaceholder}>
@@ -207,14 +207,14 @@ export function DatePicker({
               onClick={prevMonth}
               style={S.navBtn}
               aria-label="Previous month"
-              onMouseEnter={(e) => {
+              onMouseEnter={e => {
                 e.currentTarget.style.background =
-                  "var(--glass-surface-hover, rgba(255,255,255,0.06))";
-                e.currentTarget.style.color = "var(--text-primary)";
+                  'var(--glass-surface-hover, rgba(255,255,255,0.06))';
+                e.currentTarget.style.color = 'var(--text-primary)';
               }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = "transparent";
-                e.currentTarget.style.color = "var(--text-muted)";
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.color = 'var(--text-muted)';
               }}
             >
               <ChevronLeft style={{ width: 16, height: 16 }} />
@@ -229,14 +229,14 @@ export function DatePicker({
               onClick={nextMonth}
               style={S.navBtn}
               aria-label="Next month"
-              onMouseEnter={(e) => {
+              onMouseEnter={e => {
                 e.currentTarget.style.background =
-                  "var(--glass-surface-hover, rgba(255,255,255,0.06))";
-                e.currentTarget.style.color = "var(--text-primary)";
+                  'var(--glass-surface-hover, rgba(255,255,255,0.06))';
+                e.currentTarget.style.color = 'var(--text-primary)';
               }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = "transparent";
-                e.currentTarget.style.color = "var(--text-muted)";
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.color = 'var(--text-muted)';
               }}
             >
               <ChevronRight style={{ width: 16, height: 16 }} />
@@ -245,7 +245,7 @@ export function DatePicker({
 
           {/* Weekday headers */}
           <div style={S.weekHeader} aria-hidden="true">
-            {DAYS_SHORT.map((d) => (
+            {DAYS_SHORT.map(d => (
               <div key={d} style={S.weekDay}>
                 {d}
               </div>
@@ -271,38 +271,38 @@ export function DatePicker({
                   key={day}
                   type="button"
                   role="gridcell"
-                  aria-label={`${MONTHS[viewMonth]} ${day}, ${viewYear}${sel ? " (selected)" : ""}${tod ? " (today)" : ""}`}
+                  aria-label={`${MONTHS[viewMonth]} ${day}, ${viewYear}${sel ? ' (selected)' : ''}${tod ? ' (today)' : ''}`}
                   aria-selected={sel}
                   aria-disabled={dis}
                   disabled={dis}
                   onClick={() => !dis && selectDay(viewYear, viewMonth, day)}
                   style={{
                     ...S.day,
-                    ...(dis ? { opacity: 0.3, cursor: "not-allowed" } : {}),
-                    ...(tod && !sel ? { color: "var()", fontWeight: 700 } : {}),
+                    ...(dis ? { opacity: 0.3, cursor: 'not-allowed' } : {}),
+                    ...(tod && !sel ? { color: 'var()', fontWeight: 700 } : {}),
                     ...(sel
                       ? {
-                          background: "var(--primary-resonance)",
-                          color: "#fff",
+                          background: 'var(--primary-resonance)',
+                          color: '#fff',
                           fontWeight: 700,
                           boxShadow:
-                            "0 2px 8px var(--primary-glow, rgba(99,102,241,0.3))",
+                            '0 2px 8px var(--primary-glow, rgba(99,102,241,0.3))'
                         }
-                      : {}),
+                      : {})
                   }}
-                  onMouseEnter={(e) => {
+                  onMouseEnter={e => {
                     if (!sel && !dis) {
                       e.currentTarget.style.background =
-                        "var(--glass-surface-hover, rgba(255,255,255,0.07))";
-                      e.currentTarget.style.color = "var(--text-primary)";
+                        'var(--glass-surface-hover, rgba(255,255,255,0.07))';
+                      e.currentTarget.style.color = 'var(--text-primary)';
                     }
                   }}
-                  onMouseLeave={(e) => {
+                  onMouseLeave={e => {
                     if (!sel && !dis) {
-                      e.currentTarget.style.background = "transparent";
+                      e.currentTarget.style.background = 'transparent';
                       e.currentTarget.style.color = tod
-                        ? "var()"
-                        : "var(--text-secondary)";
+                        ? 'var()'
+                        : 'var(--text-secondary)';
                     }
                   }}
                 >
@@ -316,19 +316,19 @@ export function DatePicker({
           <div style={S.clearRow}>
             <button
               type="button"
-              style={{ ...S.clearBtn, marginRight: "auto" }}
+              style={{ ...S.clearBtn, marginRight: 'auto' }}
               onClick={() =>
                 selectDay(
                   today.getFullYear(),
                   today.getMonth(),
-                  today.getDate(),
+                  today.getDate()
                 )
               }
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = "var(--text-primary)";
+              onMouseEnter={e => {
+                e.currentTarget.style.color = 'var(--text-primary)';
               }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = "var(--text-muted)";
+              onMouseLeave={e => {
+                e.currentTarget.style.color = 'var(--text-muted)';
               }}
             >
               Today
@@ -339,11 +339,11 @@ export function DatePicker({
                 type="button"
                 style={S.clearBtn}
                 onClick={clear}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.color = "var()";
+                onMouseEnter={e => {
+                  e.currentTarget.style.color = 'var()';
                 }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = "var(--text-muted)";
+                onMouseLeave={e => {
+                  e.currentTarget.style.color = 'var(--text-muted)';
                 }}
               >
                 <X style={{ width: 11, height: 11 }} />

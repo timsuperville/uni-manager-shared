@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 interface LogoProps extends React.SVGProps<SVGSVGElement> {
   className?: string;
@@ -10,18 +10,18 @@ interface LogoProps extends React.SVGProps<SVGSVGElement> {
  * Automatically adopts the current app's colour variables if present.
  */
 export const Logo: React.FC<LogoProps> = ({
-  className = "h-8 w-8",
+  className = 'h-8 w-8',
   withText = false,
   ...props
 }) => {
   return (
-    <div className={`flex items-center gap-3 ${withText ? "w-fit" : ""}`}>
+    <div className={`flex items-center gap-3 ${withText ? 'w-fit' : ''}`}>
       <svg
         viewBox="0 0 100 100"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         className={`shrink-0 ${className}`}
-        style={{ color: "var(--primary, currentColor)" }}
+        style={{ color: 'var(--primary, currentColor)' }}
         {...props}
       >
         <defs>
@@ -85,7 +85,7 @@ export const Logo: React.FC<LogoProps> = ({
       {withText && (
         <span
           className="font-semibold text-lg tracking-tight"
-          style={{ color: "var(--foreground, currentColor)" }}
+          style={{ color: 'var(--foreground, currentColor)' }}
         >
           Uni-Manager
         </span>

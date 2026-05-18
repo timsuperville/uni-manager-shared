@@ -1,10 +1,10 @@
-import React from "react";
-import { ChevronDown, WifiOff, Ghost } from "lucide-react";
+import React from 'react';
+import { ChevronDown, WifiOff, Ghost } from 'lucide-react';
 
-import { UserAvatar } from "../../../components/ui";
-import { getUserDisplayName } from "../../../utils";
-import type { User } from "../../types/auth.types";
-import type { AppConfig } from "../../config/appConfigs";
+import { UserAvatar } from '../../../components/ui';
+import { getUserDisplayName } from '../../../utils';
+import type { User } from '../../types/auth.types';
+import type { AppConfig } from '../../config/appConfigs';
 
 interface UserMenuTriggerProps {
   buttonRef: React.RefObject<HTMLButtonElement>;
@@ -45,7 +45,7 @@ function UserMenuTrigger({
   onMouseEnter,
   onMouseLeave,
   triggerBorder,
-  triggerBg,
+  triggerBg
 }: UserMenuTriggerProps) {
   return (
     <button
@@ -59,43 +59,43 @@ function UserMenuTrigger({
       aria-label="User menu"
       aria-controls={isOpen ? panelId : undefined}
       style={{
-        display: "flex",
-        alignItems: "center",
-        gap: "8px",
-        padding: "4px 10px 4px 4px",
-        borderRadius: "100px",
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        padding: '4px 10px 4px 4px',
+        borderRadius: '100px',
         border: `1px solid ${triggerBorder}`,
         background: triggerBg,
-        cursor: "pointer",
-        transition: "all 200ms ease",
-        outline: "none",
+        cursor: 'pointer',
+        transition: 'all 200ms ease',
+        outline: 'none'
       }}
     >
       {/* Avatar + presence dot */}
-      <div style={{ position: "relative", flexShrink: 0 }}>
+      <div style={{ position: 'relative', flexShrink: 0 }}>
         <UserAvatar user={user} appConfig={appConfig} size="xs" />
         {hasPresence && (
           <span
             style={{
-              position: "absolute",
-              bottom: "-2px",
-              right: "-2px",
-              width: "9px",
-              height: "9px",
-              borderRadius: "50%",
+              position: 'absolute',
+              bottom: '-2px',
+              right: '-2px',
+              width: '9px',
+              height: '9px',
+              borderRadius: '50%',
               background: isConnected
                 ? statusDotColor
-                : "var(--color-warning, hsl(38,95%,54%))",
+                : 'var(--color-warning, hsl(38,95%,54%))',
               border:
-                "2px solid var(--bg-sidebar, var(--bg-obsidian, #0a0e1a))",
-              transition: "background 300ms ease",
+                '2px solid var(--bg-sidebar, var(--bg-obsidian, #0a0e1a))',
+              transition: 'background 300ms ease'
             }}
             title={
               !isConnected
-                ? "Offline"
-                : status === "available"
-                  ? "Available"
-                  : "Unavailable"
+                ? 'Offline'
+                : status === 'available'
+                  ? 'Available'
+                  : 'Unavailable'
             }
             aria-hidden="true"
           />
@@ -107,14 +107,14 @@ function UserMenuTrigger({
         <p
           style={{
             margin: 0,
-            fontSize: "12px",
-            fontWeight: "500",
-            color: "var(--text-secondary)",
-            maxWidth: "110px",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-            lineHeight: 1.2,
+            fontSize: '12px',
+            fontWeight: '500',
+            color: 'var(--text-secondary)',
+            maxWidth: '110px',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            lineHeight: 1.2
           }}
         >
           {getUserDisplayName(user)}
@@ -123,28 +123,28 @@ function UserMenuTrigger({
           <p
             style={{
               margin: 0,
-              fontSize: "10px",
-              color: user.isGhost ? "hsla(0,80%,68%,1)" : "var(--text-muted)",
-              maxWidth: "110px",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
+              fontSize: '10px',
+              color: user.isGhost ? 'hsla(0,80%,68%,1)' : 'var(--text-muted)',
+              maxWidth: '110px',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
               lineHeight: 1.2,
-              textTransform: "capitalize",
-              display: "flex",
-              alignItems: "center",
-              gap: "4px",
+              textTransform: 'capitalize',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px'
             }}
             title={
               user.isGhost
-                ? `Ghost: ${user.impersonatorEmail || "Admin"}`
+                ? `Ghost: ${user.impersonatorEmail || 'Admin'}`
                 : undefined
             }
           >
             {user.isGhost && (
               <Ghost
                 size={10}
-                style={{ animation: "status-pulse 2s ease-in-out infinite" }}
+                style={{ animation: 'status-pulse 2s ease-in-out infinite' }}
               />
             )}
             {roleLabel}
@@ -157,8 +157,8 @@ function UserMenuTrigger({
         <WifiOff
           size={12}
           style={{
-            color: "var(--color-warning, hsl(38,95%,54%))",
-            flexShrink: 0,
+            color: 'var(--color-warning, hsl(38,95%,54%))',
+            flexShrink: 0
           }}
           aria-label="Offline"
         />
@@ -168,10 +168,10 @@ function UserMenuTrigger({
       <ChevronDown
         size={12}
         style={{
-          color: "var(--text-ghost, var(--text-muted))",
-          transform: isOpen ? "rotate(180deg)" : "none",
-          transition: "transform 200ms ease",
-          flexShrink: 0,
+          color: 'var(--text-ghost, var(--text-muted))',
+          transform: isOpen ? 'rotate(180deg)' : 'none',
+          transition: 'transform 200ms ease',
+          flexShrink: 0
         }}
       />
     </button>

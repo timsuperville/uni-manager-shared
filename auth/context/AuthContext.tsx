@@ -3,22 +3,22 @@ import React, {
   useContext,
   useMemo,
   useRef,
-  useEffect,
-} from "react";
-import { AuthService } from "../services/AuthService";
-import SessionService from "../services/SessionService";
-import { APP_CONFIGS } from "../config/appConfigs";
-import { useAuthState } from "../hooks/useAuthState";
-import { useAuthActions, type AuthServiceLike } from "../hooks/useAuthActions";
+  useEffect
+} from 'react';
+import { AuthService } from '../services/AuthService';
+import SessionService from '../services/SessionService';
+import { APP_CONFIGS } from '../config/appConfigs';
+import { useAuthState } from '../hooks/useAuthState';
+import { useAuthActions, type AuthServiceLike } from '../hooks/useAuthActions';
 import {
   useAuthCallbacks,
-  type AuthStateShape,
-} from "../hooks/useAuthCallbacks";
-import { RBACUtils } from "../utils/RBACUtils";
-import type { Permission } from "../types/rbacRoles";
-import { useApi } from "../../api/hooks/index";
-import { contextManager } from "../../api/core/ContextManager";
-import type { AuthContextType, User } from "../types/auth.types";
+  type AuthStateShape
+} from '../hooks/useAuthCallbacks';
+import { RBACUtils } from '../utils/RBACUtils';
+import type { Permission } from '../types/rbacRoles';
+import { useApi } from '../../api/hooks/index';
+import { contextManager } from '../../api/core/ContextManager';
+import type { AuthContextType, User } from '../types/auth.types';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -47,8 +47,8 @@ interface CallbackRef<T> {
 }
 
 interface CallbackRefs {
-  onAuthStateChangeRef: CallbackRef<AuthProviderProps["onAuthStateChange"]>;
-  onErrorRef: CallbackRef<AuthProviderProps["onError"]>;
+  onAuthStateChangeRef: CallbackRef<AuthProviderProps['onAuthStateChange']>;
+  onErrorRef: CallbackRef<AuthProviderProps['onError']>;
 }
 
 type NoopBool = () => boolean;
@@ -73,29 +73,29 @@ interface RBACMethods {
 
 const DOMAIN_ROLE_MAP: Record<string, Record<string, string>> = {
   home: {
-    owner: "home_admin",
-    adult: "home_user",
-    child: "home_user",
-    guest: "guest",
+    owner: 'home_admin',
+    adult: 'home_user',
+    child: 'home_user',
+    guest: 'guest'
   },
   work: {
-    owner: "business_admin",
-    manager: "work_manager",
-    accountant: "work_manager",
-    employee: "business_user",
-    viewer: "guest",
+    owner: 'business_admin',
+    manager: 'work_manager',
+    accountant: 'work_manager',
+    employee: 'business_user',
+    viewer: 'guest'
   },
   // CAHA community journey stages — canonical per CAHA_PROTOCOL.md §1.1
   church: {
-    steward: "church_steward",
-    member: "church_user",
-    attendee: "church_user",
-    visitor: "guest",
-    viewer: "guest",
+    steward: 'church_steward',
+    member: 'church_user',
+    attendee: 'church_user',
+    visitor: 'guest',
+    viewer: 'guest'
   },
-  personal: { personal_user: "personal_user" },
-  playback: { operator: "playback_admin", viewer: "playback_user" },
-  admin: { super_admin: "super_admin", admin: "system_admin" },
+  personal: { personal_user: 'personal_user' },
+  playback: { operator: 'playback_admin', viewer: 'playback_user' },
+  admin: { super_admin: 'super_admin', admin: 'system_admin' }
 };
 
 // ── Context ───────────────────────────────────────────────────────────────────
@@ -109,7 +109,7 @@ export const AuthContext = createContext<AuthContextType | null>(null);
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
+    throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 };
@@ -122,7 +122,7 @@ type SyntheticUser = User & {
 };
 
 class SessionRBAC extends (RBACUtils as new (
-  user: SyntheticUser | null,
+  user: SyntheticUser | null
 ) => RBACUtils) {
   private readonly _resolved: Permission[];
 
@@ -166,7 +166,7 @@ function buildRBACMethods(user: User | null): RBACMethods {
       isAnyAdmin: noop,
       getApplicationRoles: noopArr,
       getPermissionSummary: noopObj,
-      isEntitled: noop,
+      isEntitled: noop
     };
   }
 
@@ -174,7 +174,7 @@ function buildRBACMethods(user: User | null): RBACMethods {
     rbac?: { role?: string; app?: string; global?: string[] };
   };
   const rbacRole = extUser.rbac?.role;
-  const appType = extUser.rbac?.app ?? "personal";
+  const appType = extUser.rbac?.app ?? 'personal';
 
   const platformRoles: string[] = Array.isArray(user.roles)
     ? user.roles
@@ -188,8 +188,8 @@ function buildRBACMethods(user: User | null): RBACMethods {
     ...new Set([
       ...platformRoles,
       ...appRoles,
-      ...(mappedAppRole ? [mappedAppRole] : []),
-    ]),
+      ...(mappedAppRole ? [mappedAppRole] : [])
+    ])
   ];
 
   const syntheticUser: SyntheticUser = {
@@ -198,21 +198,21 @@ function buildRBACMethods(user: User | null): RBACMethods {
     // rbac.global contains string permission IDs that are valid Permission literals at runtime
     _resolvedPermissions: (Array.isArray(extUser.rbac?.global)
       ? extUser.rbac!.global!
-      : []) as Permission[],
+      : []) as Permission[]
   };
 
   const rbac = new SessionRBAC(syntheticUser);
 
   return {
-    hasPermission: (perm) => rbac.hasPermission(perm as Permission),
-    hasAnyPermission: (perms) => rbac.hasAnyPermission(perms as Permission[]),
-    hasAllPermissions: (perms) => rbac.hasAllPermissions(perms as Permission[]),
-    hasRole: (role) => rbac.hasRole(role),
-    hasAnyRole: (roles) => rbac.hasAnyRole(roles),
-    hasMinimumRoleLevel: (level) => rbac.hasMinimumRoleLevel(level),
-    isApplicationAdmin: (app) => rbac.isApplicationAdmin(app),
+    hasPermission: perm => rbac.hasPermission(perm as Permission),
+    hasAnyPermission: perms => rbac.hasAnyPermission(perms as Permission[]),
+    hasAllPermissions: perms => rbac.hasAllPermissions(perms as Permission[]),
+    hasRole: role => rbac.hasRole(role),
+    hasAnyRole: roles => rbac.hasAnyRole(roles),
+    hasMinimumRoleLevel: level => rbac.hasMinimumRoleLevel(level),
+    isApplicationAdmin: app => rbac.isApplicationAdmin(app),
     isAnyAdmin: () => rbac.isAnyAdmin(),
-    getApplicationRoles: (app) => rbac.getApplicationRoles(app),
+    getApplicationRoles: app => rbac.getApplicationRoles(app),
     getPermissionSummary: () =>
       rbac.getPermissionSummary() as unknown as Record<string, unknown>,
     isEntitled: (entitlement: string) => {
@@ -224,7 +224,7 @@ function buildRBACMethods(user: User | null): RBACMethods {
 
       const allAddons = new Set([...churchAddons, ...userAddons]);
       return allAddons.has(entitlement);
-    },
+    }
   };
 }
 
@@ -234,7 +234,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   children,
   config = {},
   onAuthStateChange,
-  onError,
+  onError
 }) => {
   const { apiClient } = useApi();
   const authService = useMemo(() => new AuthService(apiClient), [apiClient]);
@@ -245,13 +245,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     clearError,
     resetState,
     setError,
-    updateActivity,
+    updateActivity
   } = useAuthState();
 
   // Step 1: Create callback refs (populated by useAuthCallbacks)
   const callbackRefsRef = useRef<CallbackRefs>({
     onAuthStateChangeRef: { current: null },
-    onErrorRef: { current: null },
+    onErrorRef: { current: null }
   });
 
   // Step 2: Create actions with the callback refs
@@ -260,7 +260,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     updateState,
     setError,
     resetState,
-    callbackRefsRef.current as unknown as Parameters<typeof useAuthActions>[4],
+    callbackRefsRef.current as unknown as Parameters<typeof useAuthActions>[4]
   );
 
   // Step 3: Set up callbacks with actions available
@@ -270,19 +270,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     onAuthStateChange as ((state: Record<string, unknown>) => void) | undefined,
     onError as ((error: unknown) => void) | undefined,
     config,
-    callbackRefsRef.current as unknown as Parameters<
-      typeof useAuthCallbacks
-    >[5],
+    callbackRefsRef.current as unknown as Parameters<typeof useAuthCallbacks>[5]
   );
 
   // Apply Security Profile for session enforcement
   useEffect(() => {
-    const appName = config?.appName || "personal";
+    const appName = config?.appName || 'personal';
     const appConfig = APP_CONFIGS[appName as keyof typeof APP_CONFIGS];
     if (appConfig?.securityProfile) {
       SessionService.applySecurityProfile(appConfig.securityProfile);
     } else {
-      SessionService.applySecurityProfile("standard");
+      SessionService.applySecurityProfile('standard');
     }
   }, [config?.appName]);
 
@@ -306,9 +304,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
       ...rbacMethods,
       clearError,
       updateActivity,
-      authService,
+      authService
     }),
-    [state, actions, rbacMethods, clearError, updateActivity, authService],
+    [state, actions, rbacMethods, clearError, updateActivity, authService]
   ) as unknown as AuthContextType;
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

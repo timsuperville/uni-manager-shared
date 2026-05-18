@@ -1,12 +1,12 @@
-import { useEffect, useCallback, useState } from "react";
-import { logger } from "@shared/utils/logger";
+import { useEffect, useCallback, useState } from 'react';
+import { logger } from '@shared/utils/logger';
 
-const DURESS_CHANNEL_NAME = "uni-manager:duress-protocol";
-const GHOST_MODE_KEY = "uni-manager:ghost-mode:active";
+const DURESS_CHANNEL_NAME = 'uni-manager:duress-protocol';
+const GHOST_MODE_KEY = 'uni-manager:ghost-mode:active';
 
 export function useDuressProtocol() {
   const [isGhostState, setIsGhostState] = useState(() => {
-    return localStorage.getItem(GHOST_MODE_KEY) === "true";
+    return localStorage.getItem(GHOST_MODE_KEY) === 'true';
   });
 
   const purgeData = useCallback(() => {
@@ -15,20 +15,20 @@ export function useDuressProtocol() {
     sessionStorage.clear();
 
     // Set ghost mode flag
-    localStorage.setItem(GHOST_MODE_KEY, "true");
+    localStorage.setItem(GHOST_MODE_KEY, 'true');
     setIsGhostState(true);
 
     // Optional: reload the page or navigate home so state resets
-    window.location.href = "/";
+    window.location.href = '/';
   }, []);
 
   useEffect(() => {
     const channel = new BroadcastChannel(DURESS_CHANNEL_NAME);
 
-    channel.onmessage = (event) => {
-      if (event.data.type === "TRIGGER_DURESS") {
+    channel.onmessage = event => {
+      if (event.data.type === 'TRIGGER_DURESS') {
         logger.warn(
-          "DURESS PROTOCOL ACTIVATED FROM ANOTHER TAB/APP. PURGING DATA.",
+          'DURESS PROTOCOL ACTIVATED FROM ANOTHER TAB/APP. PURGING DATA.'
         );
         purgeData();
       }
@@ -40,14 +40,14 @@ export function useDuressProtocol() {
   }, [purgeData]);
 
   const triggerDuress = useCallback(() => {
-    logger.warn("DURESS PROTOCOL ACTIVATED. PURGING DATA AND BROADCASTING.");
+    logger.warn('DURESS PROTOCOL ACTIVATED. PURGING DATA AND BROADCASTING.');
     const channel = new BroadcastChannel(DURESS_CHANNEL_NAME);
-    channel.postMessage({ type: "TRIGGER_DURESS", timestamp: Date.now() });
+    channel.postMessage({ type: 'TRIGGER_DURESS', timestamp: Date.now() });
     purgeData();
   }, [purgeData]);
 
   return {
     isGhostState,
-    triggerDuress,
+    triggerDuress
   };
 }

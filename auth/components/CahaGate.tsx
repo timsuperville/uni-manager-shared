@@ -1,17 +1,17 @@
-import React from "react";
-import { Navigate } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth";
-import { useChurchRole } from "../hooks/useChurchRole";
+import React from 'react';
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
+import { useChurchRole } from '../hooks/useChurchRole';
 
 export type CahaRole =
-  | "tier_8_sovereign"
-  | "tier_7_architect"
-  | "tier_6_apostolic"
-  | "tier_5_pastoral"
-  | "tier_4_elder_deacon"
-  | "tier_3_ministry_leader"
-  | "tier_2_volunteer"
-  | "tier_1_member";
+  | 'tier_8_sovereign'
+  | 'tier_7_architect'
+  | 'tier_6_apostolic'
+  | 'tier_5_pastoral'
+  | 'tier_4_elder_deacon'
+  | 'tier_3_ministry_leader'
+  | 'tier_2_volunteer'
+  | 'tier_1_member';
 
 export const CAHA_TIER: Record<CahaRole, number> = {
   tier_8_sovereign: 8,
@@ -21,11 +21,11 @@ export const CAHA_TIER: Record<CahaRole, number> = {
   tier_4_elder_deacon: 4,
   tier_3_ministry_leader: 3,
   tier_2_volunteer: 2,
-  tier_1_member: 1,
+  tier_1_member: 1
 };
 
 export interface CahaGateProps {
-  domain: "church" | "admin" | "work" | "home";
+  domain: 'church' | 'admin' | 'work' | 'home';
   minTier: CahaRole;
   children: React.ReactNode;
   fallback?: React.ReactNode;
@@ -43,7 +43,7 @@ export const CahaGate: React.FC<CahaGateProps> = ({
   minTier,
   children,
   fallback = null,
-  redirectTo,
+  redirectTo
 }) => {
   const { user, isAuthenticated } = useAuth();
   const churchRole = useChurchRole();
@@ -56,25 +56,25 @@ export const CahaGate: React.FC<CahaGateProps> = ({
   // 1. Platform Supremacy Check
   const platformRoles = (user as { roles?: string[] }).roles ?? [];
   const isSovereign =
-    platformRoles.includes("sovereign") || (user as any).role === "super_admin";
+    platformRoles.includes('sovereign') || (user as any).role === 'super_admin';
   const isArchitect =
-    platformRoles.includes("architect") ||
-    platformRoles.includes("admin") ||
-    platformRoles.includes("org_admin");
+    platformRoles.includes('architect') ||
+    platformRoles.includes('admin') ||
+    platformRoles.includes('org_admin');
 
-  if (domain === "admin") {
-    if (minTier === "tier_8_sovereign" && !isSovereign) {
+  if (domain === 'admin') {
+    if (minTier === 'tier_8_sovereign' && !isSovereign) {
       if (redirectTo) return <Navigate to={redirectTo} replace />;
       return <>{fallback}</>;
     }
-    if (minTier === "tier_7_architect" && !isSovereign && !isArchitect) {
+    if (minTier === 'tier_7_architect' && !isSovereign && !isArchitect) {
       if (redirectTo) return <Navigate to={redirectTo} replace />;
       return <>{fallback}</>;
     }
     return <>{children}</>;
   }
 
-  if (domain === "church") {
+  if (domain === 'church') {
     let effectiveTier = 0;
 
     if (churchRole.membership && (churchRole.membership as any).cahaRole) {
@@ -87,13 +87,13 @@ export const CahaGate: React.FC<CahaGateProps> = ({
 
       // Infer middle tiers from ministry participation
       if (
-        churchRole.ministryRoles.some((m) => {
+        churchRole.ministryRoles.some(m => {
           const raw = (
             (m as any).position ??
             m.role ??
-            "participant"
+            'participant'
           ).toLowerCase();
-          return raw === "leader";
+          return raw === 'leader';
         })
       ) {
         effectiveTier = Math.max(effectiveTier, 3); // Ministry Leader

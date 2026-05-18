@@ -1,6 +1,6 @@
-import React from "react";
+import React from 'react';
 
-type AvatarSize = "xs" | "sm" | "md" | "lg" | "xl";
+type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
 interface AvatarProps {
   src?: string;
@@ -14,31 +14,31 @@ const SIZES: Record<AvatarSize, number> = {
   sm: 28,
   md: 36,
   lg: 44,
-  xl: 56,
+  xl: 56
 };
 const FONT_SIZES: Record<AvatarSize, number> = {
   xs: 9,
   sm: 11,
   md: 13,
   lg: 15,
-  xl: 18,
+  xl: 18
 };
 
-function getInitials(alt = ""): string {
+function getInitials(alt = ''): string {
   return alt
-    .split(" ")
+    .split(' ')
     .slice(0, 2)
-    .map((w) => w[0] ?? "")
-    .join("")
+    .map(w => w[0] ?? '')
+    .join('')
     .toUpperCase();
 }
 
 /** Avatar — image-first circular avatar with initials fallback. */
 export function Avatar({
   src,
-  alt = "",
-  size = "md",
-  className = "",
+  alt = '',
+  size = 'md',
+  className = ''
 }: AvatarProps) {
   const dim = SIZES[size] ?? SIZES.md;
   const fs = FONT_SIZES[size] ?? FONT_SIZES.md;
@@ -47,19 +47,19 @@ export function Avatar({
     width: dim,
     height: dim,
     minWidth: dim,
-    borderRadius: "50%",
-    overflow: "hidden",
+    borderRadius: '50%',
+    overflow: 'hidden',
     flexShrink: 0,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    border: "1px solid var(--glass-outline, rgba(128,128,128,0.25))",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.15)",
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    border: '1px solid var(--glass-outline, rgba(128,128,128,0.25))',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
     fontSize: fs,
     fontWeight: 600,
-    background: "var(--primary-resonance, #6366f1)",
-    color: "#fff",
-    userSelect: "none",
+    background: 'var(--primary-resonance, #6366f1)',
+    color: '#fff',
+    userSelect: 'none'
   };
 
   if (src) {
@@ -68,12 +68,12 @@ export function Avatar({
         src={src}
         alt={alt}
         className={className}
-        style={{ ...baseStyle, objectFit: "cover" }}
-        onError={(e) => {
-          (e.target as HTMLImageElement).style.display = "none";
+        style={{ ...baseStyle, objectFit: 'cover' }}
+        onError={e => {
+          (e.target as HTMLImageElement).style.display = 'none';
           (e.target as HTMLImageElement).parentElement?.setAttribute(
-            "data-fallback",
-            "true",
+            'data-fallback',
+            'true'
           );
         }}
       />

@@ -13,14 +13,14 @@
  *   const { capacityStatus, isLoading, consentGiven } = useCapacityBridge(userId);
  */
 
-import { useState, useEffect, useRef } from "react";
-import { getApiClient } from "../api/core/ApiClient";
+import { useState, useEffect, useRef } from 'react';
+import { getApiClient } from '../api/core/ApiClient';
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
-export type CapacityStatus = "optimal" | "reduced" | "low" | "critical";
+export type CapacityStatus = 'optimal' | 'reduced' | 'low' | 'critical';
 
 export interface CapacityBridgeState {
   capacityStatus: CapacityStatus | null;
@@ -31,7 +31,7 @@ export interface CapacityBridgeState {
 }
 
 interface CapacityCacheEntry {
-  data: Omit<CapacityBridgeState, "isLoading" | "error">;
+  data: Omit<CapacityBridgeState, 'isLoading' | 'error'>;
   fetchedAt: number;
 }
 
@@ -57,7 +57,7 @@ const INITIAL_STATE: CapacityBridgeState = {
   consentGiven: true,
   message: null,
   isLoading: false,
-  error: null,
+  error: null
 };
 
 // ---------------------------------------------------------------------------
@@ -88,32 +88,32 @@ export function useCapacityBridge(userId: string | null): CapacityBridgeState {
     abortRef.current?.abort();
     abortRef.current = new AbortController();
 
-    setState((prev) => ({ ...prev, isLoading: true, error: null }));
+    setState(prev => ({ ...prev, isLoading: true, error: null }));
 
     const apiClient = getApiClient();
     apiClient
       .get<CapacityApiResponse>(`/api/v1/personal/capacity-status/${userId}`, {
-        signal: abortRef.current.signal,
+        signal: abortRef.current.signal
       })
-      .then((res) => {
+      .then(res => {
         const json = res.data;
         if (!json.success) {
-          throw new Error(json.message ?? "Capacity query failed");
+          throw new Error(json.message ?? 'Capacity query failed');
         }
-        const data: Omit<CapacityBridgeState, "isLoading" | "error"> = {
+        const data: Omit<CapacityBridgeState, 'isLoading' | 'error'> = {
           capacityStatus: json.data.capacityStatus,
           consentGiven: json.data.consentGiven !== false,
-          message: json.data.message ?? null,
+          message: json.data.message ?? null
         };
         STATUS_CACHE.set(userId, { data, fetchedAt: Date.now() });
         setState({ ...data, isLoading: false, error: null });
       })
       .catch((err: unknown) => {
-        if (err instanceof Error && err.name === "AbortError") return;
+        if (err instanceof Error && err.name === 'AbortError') return;
         // Fail gracefully — never block the Church UI if Personal App is unreachable
         setState({
           ...INITIAL_STATE,
-          error: err instanceof Error ? err.message : "Unknown error",
+          error: err instanceof Error ? err.message : 'Unknown error'
         });
       });
 

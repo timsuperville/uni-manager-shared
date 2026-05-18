@@ -5,7 +5,7 @@
  * All functions are pure — no side effects, no I/O.
  */
 
-import type { ValidationResult } from "../types/auth.types";
+import type { ValidationResult } from '../types/auth.types';
 
 // ---------------------------------------------------------------------------
 // Internal result shapes
@@ -49,8 +49,8 @@ interface AuthDataInput {
 }
 
 interface StrengthLabel {
-  label: "Weak" | "Fair" | "Good" | "Strong";
-  color: "red" | "orange" | "yellow" | "green";
+  label: 'Weak' | 'Fair' | 'Good' | 'Strong';
+  color: 'red' | 'orange' | 'yellow' | 'green';
 }
 
 interface PasswordStrength {
@@ -61,7 +61,7 @@ interface PasswordStrength {
 
 interface FormattedError {
   message: string;
-  type: "validation";
+  type: 'validation';
 }
 
 // ---------------------------------------------------------------------------
@@ -71,14 +71,14 @@ interface FormattedError {
 /** Returns true if the email passes basic RFC format validation. */
 export const validateEmail = (email: string): ValidationResult => {
   if (!email) {
-    return { isValid: false, errors: { email: "Email is required" } };
+    return { isValid: false, errors: { email: 'Email is required' } };
   }
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
     return {
       isValid: false,
-      errors: { email: "Please enter a valid email address" },
+      errors: { email: 'Please enter a valid email address' }
     };
   }
 
@@ -88,18 +88,18 @@ export const validateEmail = (email: string): ValidationResult => {
 /** Validates password against configurable strength requirements. */
 export const validatePassword = (
   password: string,
-  options: PasswordValidationOptions = {},
+  options: PasswordValidationOptions = {}
 ): PasswordValidationResult => {
   const {
     minLength = 8,
     requireUppercase = true,
     requireLowercase = true,
     requireNumbers = true,
-    requireSpecialChars = true,
+    requireSpecialChars = true
   } = options;
 
   if (!password) {
-    return { isValid: false, error: "Password is required" };
+    return { isValid: false, error: 'Password is required' };
   }
 
   const errors: string[] = [];
@@ -108,24 +108,24 @@ export const validatePassword = (
     errors.push(`Password must be at least ${minLength} characters`);
   }
   if (requireUppercase && !/[A-Z]/.test(password))
-    errors.push("uppercase letter");
+    errors.push('uppercase letter');
   if (requireLowercase && !/[a-z]/.test(password))
-    errors.push("lowercase letter");
-  if (requireNumbers && !/\d/.test(password)) errors.push("number");
+    errors.push('lowercase letter');
+  if (requireNumbers && !/\d/.test(password)) errors.push('number');
   if (requireSpecialChars && !/[!@#$%^&*(),.?':{}|<>]/.test(password))
-    errors.push("special character");
+    errors.push('special character');
 
   if (errors.length > 1) {
     const lastError = errors.pop()!;
     return {
       isValid: false,
-      error: `Password must contain at least one ${errors.join(", ")} and ${lastError}`,
+      error: `Password must contain at least one ${errors.join(', ')} and ${lastError}`
     };
   }
   if (errors.length === 1) {
     return {
       isValid: false,
-      error: `Password must contain at least one ${errors[0]!}`,
+      error: `Password must contain at least one ${errors[0]!}`
     };
   }
 
@@ -151,7 +151,7 @@ export const calculatePasswordStrength = (password: string): number => {
     /[a-z]/.test(password),
     /[A-Z]/.test(password),
     /\d/.test(password),
-    /[!@#$%^&*(),.?":{}|<>]/.test(password),
+    /[!@#$%^&*(),.?":{}|<>]/.test(password)
   ].filter(Boolean).length;
 
   if (varietyCount >= 3) score += 10;
@@ -165,10 +165,10 @@ export const calculatePasswordStrength = (password: string): number => {
 
 /** Returns a human-readable label for a 0-100 strength score. */
 export const getPasswordStrengthLabel = (strength: number): StrengthLabel => {
-  if (strength < 30) return { label: "Weak", color: "red" };
-  if (strength < 60) return { label: "Fair", color: "orange" };
-  if (strength < 80) return { label: "Good", color: "yellow" };
-  return { label: "Strong", color: "green" };
+  if (strength < 30) return { label: 'Weak', color: 'red' };
+  if (strength < 60) return { label: 'Fair', color: 'orange' };
+  if (strength < 80) return { label: 'Good', color: 'yellow' };
+  return { label: 'Strong', color: 'green' };
 };
 
 /** Validates both email and password for login. */
@@ -178,7 +178,7 @@ export const validateCredentials = ({ email, password }: CredentialsInput) => {
   const emailResult = validateEmail(email);
   if (!emailResult.isValid && emailResult.errors.email)
     errors.push(emailResult.errors.email);
-  if (!password) errors.push("Password is required");
+  if (!password) errors.push('Password is required');
 
   return { isValid: errors.length === 0, errors };
 };
@@ -188,12 +188,12 @@ export const validateSignupData = ({
   name,
   email,
   password,
-  confirmPassword,
+  confirmPassword
 }: SignupInput) => {
   const errors: string[] = [];
 
   if (!name || name.trim().length < 2)
-    errors.push("Name must be at least 2 characters");
+    errors.push('Name must be at least 2 characters');
 
   const emailResult = validateEmail(email);
   if (!emailResult.isValid && emailResult.errors.email)
@@ -203,12 +203,12 @@ export const validateSignupData = ({
   if (!passwordResult.isValid && passwordResult.error)
     errors.push(passwordResult.error);
 
-  if (password !== confirmPassword) errors.push("Passwords do not match");
+  if (password !== confirmPassword) errors.push('Passwords do not match');
 
   return {
     isValid: errors.length === 0,
     errors,
-    passwordStrength: calculatePasswordStrength(password),
+    passwordStrength: calculatePasswordStrength(password)
   };
 };
 
@@ -216,55 +216,55 @@ export const validateSignupData = ({
 export const validateResetPassword = ({
   password,
   confirmPassword,
-  token,
+  token
 }: ResetPasswordInput) => {
   const errors: string[] = [];
 
-  if (!token) errors.push("Reset token is required");
+  if (!token) errors.push('Reset token is required');
 
   const passwordResult = validatePassword(password);
   if (!passwordResult.isValid && passwordResult.error)
     errors.push(passwordResult.error);
 
-  if (password !== confirmPassword) errors.push("Passwords do not match");
+  if (password !== confirmPassword) errors.push('Passwords do not match');
 
   return { isValid: errors.length === 0, errors };
 };
 
 /** Validates that an auth data payload contains the required fields. */
 export const validateAuthData = (
-  authData: AuthDataInput | null | undefined,
+  authData: AuthDataInput | null | undefined
 ) => {
-  if (!authData) return { isValid: false, error: "No auth data provided" };
+  if (!authData) return { isValid: false, error: 'No auth data provided' };
 
   const { user, accessToken } = authData;
 
-  if (!user) return { isValid: false, error: "User data missing" };
-  if (!user.email) return { isValid: false, error: "User email missing" };
-  if (!accessToken) return { isValid: false, error: "Access token missing" };
+  if (!user) return { isValid: false, error: 'User data missing' };
+  if (!user.email) return { isValid: false, error: 'User email missing' };
+  if (!accessToken) return { isValid: false, error: 'Access token missing' };
 
   return { isValid: true, error: null };
 };
 
 /** Validates a name field (letters, spaces, hyphens, apostrophes; 2-50 chars). */
-export const validateName = (name: string, fieldName = "Name") => {
+export const validateName = (name: string, fieldName = 'Name') => {
   if (!name) return { isValid: false, error: `${fieldName} is required` };
 
   const trimmedName = name.trim();
   if (trimmedName.length < 2)
     return {
       isValid: false,
-      error: `${fieldName} must be at least 2 characters`,
+      error: `${fieldName} must be at least 2 characters`
     };
   if (trimmedName.length > 50)
     return {
       isValid: false,
-      error: `${fieldName} must be less than 50 characters`,
+      error: `${fieldName} must be less than 50 characters`
     };
   if (!/^[a-zA-Z\s\-']+$/.test(trimmedName)) {
     return {
       isValid: false,
-      error: `${fieldName} can only contain letters, spaces, hyphens, and apostrophes`,
+      error: `${fieldName} can only contain letters, spaces, hyphens, and apostrophes`
     };
   }
 
@@ -287,7 +287,7 @@ export const getPasswordStrength = (password: string): PasswordStrength => {
 /** Maps a raw error array to the `{ message, type }` shape expected by form UIs. */
 export const formatValidationErrors = (errors: string[]): FormattedError[] => {
   if (!Array.isArray(errors)) return [];
-  return errors.map((message) => ({ message, type: "validation" as const }));
+  return errors.map(message => ({ message, type: 'validation' as const }));
 };
 
 /** @deprecated Use getPasswordStrength */
@@ -295,31 +295,31 @@ export const validatePasswordStrength = getPasswordStrength;
 
 /** Returns true if the string matches JWT format (xxx.yyy.zzz). */
 export const validateToken = (token: unknown): boolean => {
-  if (!token || typeof token !== "string") return false;
+  if (!token || typeof token !== 'string') return false;
   return /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(token);
 };
 
 /** Returns true if the code is 4-6 digits. */
 export const validateMFACode = (code: unknown): boolean => {
-  if (!code || typeof code !== "string") return false;
+  if (!code || typeof code !== 'string') return false;
   return /^\d{4,6}$/.test(code.trim());
 };
 
 /** Returns true if the string is a valid 10 or 11-digit phone number. */
 export const validatePhoneNumber = (phone: unknown): boolean => {
-  if (!phone || typeof phone !== "string") return false;
-  const digits = phone.replace(/\D/g, "");
+  if (!phone || typeof phone !== 'string') return false;
+  const digits = phone.replace(/\D/g, '');
   return digits.length === 10 || digits.length === 11;
 };
 
 /** Escapes HTML special characters to prevent XSS. */
 export const sanitizeInput = (input: unknown): unknown => {
-  if (typeof input !== "string") return input;
+  if (typeof input !== 'string') return input;
   return input
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#x27;")
-    .replace(/\//g, "&#x2F;");
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+    .replace(/\//g, '&#x2F;');
 };

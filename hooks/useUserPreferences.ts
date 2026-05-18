@@ -3,7 +3,7 @@
  * Manages user preferences and settings
  */
 
-import { useState, useCallback } from "react";
+import { useState, useCallback } from 'react';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -27,7 +27,7 @@ export interface UseUserPreferencesResult {
   updatePreference: (key: string, value: PreferenceValue) => void;
   getPreference: (
     key: string,
-    defaultValue?: PreferenceValue,
+    defaultValue?: PreferenceValue
   ) => PreferenceValue;
   resetPreferences: () => void;
 }
@@ -42,9 +42,9 @@ export function useUserPreferences(): UseUserPreferencesResult {
 
   const updatePreference = useCallback(
     (key: string, value: PreferenceValue): void => {
-      setPreferences((prev) => ({ ...prev, [key]: value }));
+      setPreferences(prev => ({ ...prev, [key]: value }));
     },
-    [],
+    []
   );
 
   const getPreference = useCallback(
@@ -53,7 +53,7 @@ export function useUserPreferences(): UseUserPreferencesResult {
         ? preferences[key]
         : (defaultValue ?? null);
     },
-    [preferences],
+    [preferences]
   );
 
   const resetPreferences = useCallback((): void => {
@@ -65,7 +65,7 @@ export function useUserPreferences(): UseUserPreferencesResult {
     loading,
     updatePreference,
     getPreference,
-    resetPreferences,
+    resetPreferences
   };
 }
 

@@ -24,14 +24,14 @@ This guide outlines best practices for working with the authentication system to
 
 ```javascript
 // ✅ Good
-import { TokenManagementService } from "@shared/auth/services";
+import { TokenManagementService } from '@shared/auth/services';
 
 const tokenService = new TokenManagementService();
 await tokenService.setTokens({ accessToken, refreshToken });
 
 // ❌ Bad
-localStorage.setItem("token", accessToken); // Vulnerable
-console.log("Token:", accessToken); // Security risk
+localStorage.setItem('token', accessToken); // Vulnerable
+console.log('Token:', accessToken); // Security risk
 ```
 
 ### 2. Password Handling
@@ -53,17 +53,17 @@ console.log("Token:", accessToken); // Security risk
 
 ```javascript
 // ✅ Good - Use validation utilities
-import { validatePassword } from "@shared/auth/utils/authValidation";
+import { validatePassword } from '@shared/auth/utils/authValidation';
 
 const result = validatePassword(password);
 if (!result.isValid) {
-  setError(result.errors.join(", "));
+  setError(result.errors.join(', '));
 }
 
 // ❌ Bad - Weak validation
 if (password.length < 6) {
   // Too short minimum
-  setError("Password too short");
+  setError('Password too short');
 }
 ```
 
@@ -138,14 +138,17 @@ if (user.isAdmin) {
 
 ```javascript
 // ✅ Good - Use existing services
-import { RateLimitService, EmailPasswordAuthService } from "@shared/auth/services";
+import {
+  RateLimitService,
+  EmailPasswordAuthService
+} from '@shared/auth/services';
 
 const authService = new EmailPasswordAuthService({ apiBaseUrl });
 const rateLimitService = new RateLimitService();
 
 // Check rate limit before auth attempt
 if (rateLimitService.isRateLimited(email)) {
-  showError("Too many attempts. Please wait.");
+  showError('Too many attempts. Please wait.');
   return;
 }
 
@@ -177,7 +180,7 @@ function LoginForm() {
 
   return (
     <form
-      onSubmit={(e) => {
+      onSubmit={e => {
         e.preventDefault();
         login(credentials);
       }}
@@ -212,12 +215,16 @@ function handleLogin() {
 
 ```javascript
 // ✅ Good
-import { AUTH_ERROR_CODES, ERROR_MESSAGES } from "@shared/auth/types/errorConstants";
+import {
+  AUTH_ERROR_CODES,
+  ERROR_MESSAGES
+} from '@shared/auth/types/errorConstants';
 
 try {
   await login(credentials);
 } catch (error) {
-  const message = ERROR_MESSAGES[error.code] || "Login failed. Please try again.";
+  const message =
+    ERROR_MESSAGES[error.code] || 'Login failed. Please try again.';
   setError(message);
   logError(error); // Log for debugging, no sensitive data
 }
@@ -251,14 +258,18 @@ try {
 
 ```javascript
 // ✅ Good - Lazy loading
-const MFASetupWizard = React.lazy(() => import("./components/MFASetupWizard"));
+const MFASetupWizard = React.lazy(() => import('./components/MFASetupWizard'));
 
 function Settings() {
-  return <Suspense fallback={<Loading />}>{showMFASetup && <MFASetupWizard />}</Suspense>;
+  return (
+    <Suspense fallback={<Loading />}>
+      {showMFASetup && <MFASetupWizard />}
+    </Suspense>
+  );
 }
 
 // ❌ Bad - Eager loading
-import MFASetupWizard from "./components/MFASetupWizard"; // Always loaded
+import MFASetupWizard from './components/MFASetupWizard'; // Always loaded
 ```
 
 ### 2. Token Refresh
@@ -281,13 +292,13 @@ import MFASetupWizard from "./components/MFASetupWizard"; // Always loaded
 const tokenService = new TokenManagementService({
   apiBaseUrl,
   autoRefresh: true,
-  onRefreshError: () => logout(),
+  onRefreshError: () => logout()
 });
 
 // ❌ Bad - Manual refresh on each request
 async function apiCall() {
   await refreshToken(); // Inefficient
-  return fetch("/api/data");
+  return fetch('/api/data');
 }
 ```
 
@@ -326,14 +337,17 @@ async function apiCall() {
 
 ```javascript
 // ✅ Good
-import { SESSION_CONFIG, SESSION_STATUS } from "@shared/auth/types/sessionConstants";
+import {
+  SESSION_CONFIG,
+  SESSION_STATUS
+} from '@shared/auth/types/sessionConstants';
 
 if (status === SESSION_STATUS.EXPIRED) {
   setTimeout(handleExpiry, SESSION_CONFIG.WARNING_THRESHOLD);
 }
 
 // ❌ Bad
-if (status === "expired") {
+if (status === 'expired') {
   // Magic string
   setTimeout(handleExpiry, 300000); // Magic number
 }
@@ -373,23 +387,23 @@ if (status === "expired") {
 
 ```javascript
 // ✅ Good - Comprehensive testing
-describe("Login", () => {
-  it("should handle rate limiting", async () => {
+describe('Login', () => {
+  it('should handle rate limiting', async () => {
     // Test rate limit scenario
   });
 
-  it("should handle MFA requirement", async () => {
+  it('should handle MFA requirement', async () => {
     // Test MFA flow
   });
 
-  it("should handle network errors", async () => {
+  it('should handle network errors', async () => {
     // Test error handling
   });
 });
 
 // ❌ Bad - Only happy path
-describe("Login", () => {
-  it("should login successfully", async () => {
+describe('Login', () => {
+  it('should login successfully', async () => {
     // Only one test
   });
 });

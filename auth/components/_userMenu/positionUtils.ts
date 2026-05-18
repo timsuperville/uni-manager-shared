@@ -11,10 +11,10 @@ export const DROPDOWN_EST_H = 400; // px — estimated panel height (used for fl
 export const EDGE_MARGIN = 8; // px — minimum distance from any viewport edge
 
 export type PreferredPosition =
-  | "bottom-right"
-  | "bottom-left"
-  | "top-right"
-  | "top-left";
+  | 'bottom-right'
+  | 'bottom-left'
+  | 'top-right'
+  | 'top-left';
 
 export interface DropdownCoords {
   top: number;
@@ -26,13 +26,13 @@ export function computeDropdownCoords(
   rect: DOMRect,
   preferredPosition: PreferredPosition,
   width: number = DROPDOWN_W,
-  height: number = DROPDOWN_EST_H,
+  height: number = DROPDOWN_EST_H
 ): DropdownCoords {
   const vpW = window.innerWidth;
   const vpH = window.innerHeight;
 
-  const preferTop = preferredPosition.startsWith("top");
-  const preferLeft = preferredPosition.endsWith("left");
+  const preferTop = preferredPosition.startsWith('top');
+  const preferLeft = preferredPosition.endsWith('left');
 
   // ── Vertical ─────────────────────────────────────────────────────────────
   const spaceBelow = vpH - rect.bottom - EDGE_MARGIN;

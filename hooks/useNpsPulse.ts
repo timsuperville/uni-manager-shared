@@ -17,8 +17,8 @@
  *   {nps.shouldShow && <NpsSurvey onDismiss={nps.dismiss} onSubmit={nps.submit} />}
  */
 
-import { useState, useEffect, useCallback, useRef } from "react";
-import { submitFeedbackSilently } from "../features/feedback";
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { submitFeedbackSilently } from '../features/feedback';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -41,17 +41,17 @@ export interface UseNpsPulseResult {
 // Constants
 // ---------------------------------------------------------------------------
 
-const STORAGE_KEY_SUFFIX = "_nps_last_shown";
+const STORAGE_KEY_SUFFIX = '_nps_last_shown';
 
 // ---------------------------------------------------------------------------
 // Hook
 // ---------------------------------------------------------------------------
 
 export function useNpsPulse({
-  appType = "unknown",
+  appType = 'unknown',
   intervalDays = 14,
   minActivityMs = 3 * 60 * 1000, // 3 minutes
-  enabled = true,
+  enabled = true
 }: UseNpsPulseOptions = {}): UseNpsPulseResult {
   const [shouldShow, setShouldShow] = useState(false);
   const activityTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -60,7 +60,7 @@ export function useNpsPulse({
   const storageKey = `${appType}${STORAGE_KEY_SUFFIX}`;
 
   const isEligible = useCallback((): boolean => {
-    if (typeof window === "undefined") return false;
+    if (typeof window === 'undefined') return false;
     try {
       const last = localStorage.getItem(storageKey);
       if (!last) return true; // Never shown — eligible immediately
@@ -86,19 +86,19 @@ export function useNpsPulse({
   }, [markShown]);
 
   const submit = useCallback(
-    async (score: number, comment = ""): Promise<void> => {
+    async (score: number, comment = ''): Promise<void> => {
       setShouldShow(false);
       markShown();
       const label =
-        score >= 9 ? "Promoter" : score >= 7 ? "Passive" : "Detractor";
+        score >= 9 ? 'Promoter' : score >= 7 ? 'Passive' : 'Detractor';
       await submitFeedbackSilently({
         title: `NPS Score: ${score}/10 (${label})`,
-        description: `Net Promoter Score submitted for ${appType}. Score: ${score}/10.${comment ? ` Comment: ${comment}` : ""}`,
+        description: `Net Promoter Score submitted for ${appType}. Score: ${score}/10.${comment ? ` Comment: ${comment}` : ''}`,
         appType,
-        severity: "low",
+        severity: 'low'
       });
     },
-    [markShown, appType],
+    [markShown, appType]
   );
 
   useEffect(() => {

@@ -10,7 +10,7 @@
  * auth service contract is finalised.
  */
 
-import type { User } from "../types/auth.types";
+import type { User } from '../types/auth.types';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -19,19 +19,19 @@ import type { User } from "../types/auth.types";
 type EventListener<T = unknown> = (payload: T) => void;
 
 interface AuthEventMap {
-  "app-registered": { appName: string; totalApps: number };
-  "app-unregistered": { appName: string; totalApps: number };
-  "auth-login": { user: User | null; source: string; timestamp: Date };
-  "auth-logout": { source: string; timestamp: Date };
-  "auth-token-refreshed": { user: User | null; timestamp: Date };
-  "auth-token-refresh-failed": { error: unknown };
-  "auth-state-changed": {
+  'app-registered': { appName: string; totalApps: number };
+  'app-unregistered': { appName: string; totalApps: number };
+  'auth-login': { user: User | null; source: string; timestamp: Date };
+  'auth-logout': { source: string; timestamp: Date };
+  'auth-token-refreshed': { user: User | null; timestamp: Date };
+  'auth-token-refresh-failed': { error: unknown };
+  'auth-state-changed': {
     user: User | null;
     isAuthenticated: boolean;
     timestamp: Date;
   };
-  "auth-synced-from-storage": { user: User | null; isAuthenticated: boolean };
-  "auth-error": { error: unknown; source: string };
+  'auth-synced-from-storage': { user: User | null; isAuthenticated: boolean };
+  'auth-error': { error: unknown; source: string };
 }
 
 interface Credentials {
@@ -55,22 +55,22 @@ class SimpleEventEmitter {
 
   on<K extends keyof AuthEventMap>(
     event: K,
-    listener: EventListener<AuthEventMap[K]>,
+    listener: EventListener<AuthEventMap[K]>
   ): void {
     if (!this.events[event]) this.events[event] = [];
     this.events[event]!.push(listener as EventListener);
   }
 
   emit<K extends keyof AuthEventMap>(event: K, payload: AuthEventMap[K]): void {
-    this.events[event]?.forEach((l) => l(payload));
+    this.events[event]?.forEach(l => l(payload));
   }
 
   off<K extends keyof AuthEventMap>(
     event: K,
-    listener: EventListener<AuthEventMap[K]>,
+    listener: EventListener<AuthEventMap[K]>
   ): void {
     if (this.events[event]) {
-      this.events[event] = this.events[event]!.filter((l) => l !== listener);
+      this.events[event] = this.events[event]!.filter(l => l !== listener);
     }
   }
 
@@ -100,8 +100,8 @@ class SharedAuthService extends SimpleEventEmitter {
 
   private init(): void {
     this.loadStoredAuth();
-    if (typeof window !== "undefined") {
-      window.addEventListener("storage", this.boundStorageHandler);
+    if (typeof window !== 'undefined') {
+      window.addEventListener('storage', this.boundStorageHandler);
     }
     void this.validateToken();
   }
@@ -109,15 +109,15 @@ class SharedAuthService extends SimpleEventEmitter {
   /** Registers an application with the shared auth service. Returns a handle to unregister. */
   registerApplication(appName: string): { unregister: () => void } {
     this.applications.add(appName);
-    this.emit("app-registered", { appName, totalApps: this.applications.size });
+    this.emit('app-registered', { appName, totalApps: this.applications.size });
     return { unregister: () => this.unregisterApplication(appName) };
   }
 
   unregisterApplication(appName: string): void {
     this.applications.delete(appName);
-    this.emit("app-unregistered", {
+    this.emit('app-unregistered', {
       appName,
-      totalApps: this.applications.size,
+      totalApps: this.applications.size
     });
   }
 
@@ -127,7 +127,7 @@ class SharedAuthService extends SimpleEventEmitter {
 
   async login(
     credentials: Credentials,
-    appContext = "unknown",
+    appContext = 'unknown'
   ): Promise<{ success: boolean; user: User | null }> {
     try {
       const response = await this.mockAuthenticate(credentials);
@@ -136,36 +136,36 @@ class SharedAuthService extends SimpleEventEmitter {
         this.setAuthState(
           response.user,
           response.accessToken,
-          response.refreshToken ?? null,
+          response.refreshToken ?? null
         );
-        this.emit("auth-login", {
+        this.emit('auth-login', {
           user: this.currentUser,
           source: appContext,
-          timestamp: new Date(),
+          timestamp: new Date()
         });
         return { success: true, user: this.currentUser };
       }
 
-      throw new Error(response.message ?? "Authentication failed");
+      throw new Error(response.message ?? 'Authentication failed');
     } catch (error) {
-      this.emit("auth-error", { error, source: appContext });
+      this.emit('auth-error', { error, source: appContext });
       throw error;
     }
   }
 
-  async logout(appContext = "unknown"): Promise<{ success: boolean }> {
+  async logout(appContext = 'unknown'): Promise<{ success: boolean }> {
     try {
       this.clearAuthState();
-      this.emit("auth-logout", { source: appContext, timestamp: new Date() });
+      this.emit('auth-logout', { source: appContext, timestamp: new Date() });
       return { success: true };
     } catch (error) {
-      this.emit("auth-error", { error, source: appContext });
+      this.emit('auth-error', { error, source: appContext });
       throw error;
     }
   }
 
   async refreshAuthToken(): Promise<string> {
-    if (!this.refreshToken) throw new Error("No refresh token available");
+    if (!this.refreshToken) throw new Error('No refresh token available');
 
     try {
       const response = await this.mockRefreshToken();
@@ -174,19 +174,19 @@ class SharedAuthService extends SimpleEventEmitter {
         this.setAuthState(
           this.currentUser!,
           response.accessToken,
-          response.refreshToken ?? null,
+          response.refreshToken ?? null
         );
-        this.emit("auth-token-refreshed", {
+        this.emit('auth-token-refreshed', {
           user: this.currentUser,
-          timestamp: new Date(),
+          timestamp: new Date()
         });
         return response.accessToken;
       }
 
-      throw new Error("Token refresh failed");
+      throw new Error('Token refresh failed');
     } catch (error) {
-      this.emit("auth-token-refresh-failed", { error });
-      void this.logout("token-refresh-failure");
+      this.emit('auth-token-refresh-failed', { error });
+      void this.logout('token-refresh-failure');
       throw error;
     }
   }
@@ -198,16 +198,16 @@ class SharedAuthService extends SimpleEventEmitter {
   private setAuthState(
     user: User,
     accessToken: string,
-    refreshToken: string | null,
+    refreshToken: string | null
   ): void {
     this.currentUser = user;
     this.accessToken = accessToken;
     this.refreshToken = refreshToken;
     this.storeAuth();
-    this.emit("auth-state-changed", {
+    this.emit('auth-state-changed', {
       user: this.currentUser,
       isAuthenticated: this.isAuthenticated(),
-      timestamp: new Date(),
+      timestamp: new Date()
     });
   }
 
@@ -215,12 +215,12 @@ class SharedAuthService extends SimpleEventEmitter {
     this.currentUser = null;
     this.accessToken = null;
     this.refreshToken = null;
-    if (typeof localStorage !== "undefined")
-      localStorage.removeItem("uni_manager_auth");
-    this.emit("auth-state-changed", {
+    if (typeof localStorage !== 'undefined')
+      localStorage.removeItem('uni_manager_auth');
+    this.emit('auth-state-changed', {
       user: null,
       isAuthenticated: false,
-      timestamp: new Date(),
+      timestamp: new Date()
     });
   }
 
@@ -237,7 +237,7 @@ class SharedAuthService extends SimpleEventEmitter {
   }
 
   getAuthHeaders(): Record<string, string> {
-    const base = { "Content-Type": "application/json" };
+    const base = { 'Content-Type': 'application/json' };
     return this.accessToken
       ? { ...base, Authorization: `Bearer ${this.accessToken}` }
       : base;
@@ -252,18 +252,18 @@ class SharedAuthService extends SimpleEventEmitter {
       user: this.currentUser,
       accessToken: this.accessToken,
       refreshToken: this.refreshToken,
-      timestamp: new Date().toISOString(),
+      timestamp: new Date().toISOString()
     };
-    if (typeof localStorage !== "undefined") {
-      localStorage.setItem("uni_manager_auth", JSON.stringify(authData));
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('uni_manager_auth', JSON.stringify(authData));
     }
   }
 
   private loadStoredAuth(): void {
     try {
       const stored =
-        typeof localStorage !== "undefined"
-          ? localStorage.getItem("uni_manager_auth")
+        typeof localStorage !== 'undefined'
+          ? localStorage.getItem('uni_manager_auth')
           : null;
       if (!stored) return;
 
@@ -283,15 +283,15 @@ class SharedAuthService extends SimpleEventEmitter {
   }
 
   private handleStorageChange(event: StorageEvent): void {
-    if (event.key !== "uni_manager_auth") return;
+    if (event.key !== 'uni_manager_auth') return;
 
     if (event.newValue === null) {
       this.clearAuthState();
     } else {
       this.loadStoredAuth();
-      this.emit("auth-synced-from-storage", {
+      this.emit('auth-synced-from-storage', {
         user: this.currentUser,
-        isAuthenticated: this.isAuthenticated(),
+        isAuthenticated: this.isAuthenticated()
       });
     }
   }
@@ -328,24 +328,24 @@ class SharedAuthService extends SimpleEventEmitter {
     refreshToken?: string;
     message?: string;
   }> {
-    await new Promise<void>((resolve) => setTimeout(resolve, 500));
+    await new Promise<void>(resolve => setTimeout(resolve, 500));
 
     if (credentials.email && credentials.password) {
       return {
         success: true,
         user: {
-          id: "user-123",
+          id: 'user-123',
           email: credentials.email,
-          firstName: "John",
-          lastName: "Doe",
-          roles: ["user"],
+          firstName: 'John',
+          lastName: 'Doe',
+          roles: ['user']
         },
         accessToken: `mock-access-token-${Date.now()}`,
-        refreshToken: `mock-refresh-token-${Date.now()}`,
+        refreshToken: `mock-refresh-token-${Date.now()}`
       };
     }
 
-    return { success: false, message: "Invalid credentials" };
+    return { success: false, message: 'Invalid credentials' };
   }
 
   private async mockRefreshToken(): Promise<{
@@ -353,19 +353,19 @@ class SharedAuthService extends SimpleEventEmitter {
     accessToken?: string;
     refreshToken?: string;
   }> {
-    await new Promise<void>((resolve) => setTimeout(resolve, 300));
+    await new Promise<void>(resolve => setTimeout(resolve, 300));
     return {
       success: true,
       accessToken: `refreshed-access-token-${Date.now()}`,
-      refreshToken: `refreshed-refresh-token-${Date.now()}`,
+      refreshToken: `refreshed-refresh-token-${Date.now()}`
     };
   }
 
   private async mockValidateToken(token: string): Promise<boolean> {
-    await new Promise<void>((resolve) => setTimeout(resolve, 200));
+    await new Promise<void>(resolve => setTimeout(resolve, 200));
     return (
-      token.startsWith("mock-access-token") ||
-      token.startsWith("refreshed-access-token")
+      token.startsWith('mock-access-token') ||
+      token.startsWith('refreshed-access-token')
     );
   }
 
@@ -374,8 +374,8 @@ class SharedAuthService extends SimpleEventEmitter {
   // ---------------------------------------------------------------------------
 
   cleanup(): void {
-    if (typeof window !== "undefined") {
-      window.removeEventListener("storage", this.boundStorageHandler);
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('storage', this.boundStorageHandler);
     }
     this.clearAllListeners();
     this.currentUser = null;

@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 interface EmptyStateProps extends React.HTMLAttributes<HTMLDivElement> {
   icon?: React.ReactNode;
@@ -16,30 +16,30 @@ export function EmptyState({
   description,
   action,
   actionableGuidance,
-  className = "",
+  className = '',
   ...props
 }: EmptyStateProps) {
   return (
     <div
       className={className}
       style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        textAlign: "center",
-        padding: "3rem 1.5rem",
-        gap: "0.75rem",
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        textAlign: 'center',
+        padding: '3rem 1.5rem',
+        gap: '0.75rem'
       }}
       {...props}
     >
       {icon && (
         <div
           style={{
-            fontSize: "2.5rem",
+            fontSize: '2.5rem',
             lineHeight: 1,
-            color: "var(--text-muted, rgba(255,255,255,0.4))",
-            marginBottom: "0.25rem",
+            color: 'var(--text-muted, rgba(255,255,255,0.4))',
+            marginBottom: '0.25rem'
           }}
         >
           {icon}
@@ -49,9 +49,9 @@ export function EmptyState({
         <h3
           style={{
             margin: 0,
-            fontSize: "var(--text-base, 1rem)",
+            fontSize: 'var(--text-base, 1rem)',
             fontWeight: 600,
-            color: "var(--text-primary, inherit)",
+            color: 'var(--text-primary, inherit)'
           }}
         >
           {title}
@@ -61,9 +61,9 @@ export function EmptyState({
         <p
           style={{
             margin: 0,
-            fontSize: "var(--text-sm, 0.875rem)",
-            color: "var(--text-secondary, rgba(255,255,255,0.6))",
-            maxWidth: "28ch",
+            fontSize: 'var(--text-sm, 0.875rem)',
+            color: 'var(--text-secondary, rgba(255,255,255,0.6))',
+            maxWidth: '28ch'
           }}
         >
           {description}
@@ -72,25 +72,25 @@ export function EmptyState({
       {actionableGuidance && (
         <div
           style={{
-            marginTop: "1rem",
-            padding: "0.75rem 1rem",
-            background: "var(--bg-surface-2, rgba(255,255,255,0.05))",
-            border: "1px solid var(--border-subtle, rgba(255,255,255,0.1))",
-            borderRadius: "var(--radius-md, 6px)",
-            fontSize: "var(--text-sm, 0.875rem)",
-            color: "var(--text-secondary, rgba(255,255,255,0.7))",
-            maxWidth: "400px",
-            textAlign: "left",
-            display: "flex",
-            alignItems: "flex-start",
-            gap: "0.5rem",
+            marginTop: '1rem',
+            padding: '0.75rem 1rem',
+            background: 'var(--bg-surface-2, rgba(255,255,255,0.05))',
+            border: '1px solid var(--border-subtle, rgba(255,255,255,0.1))',
+            borderRadius: 'var(--radius-md, 6px)',
+            fontSize: 'var(--text-sm, 0.875rem)',
+            color: 'var(--text-secondary, rgba(255,255,255,0.7))',
+            maxWidth: '400px',
+            textAlign: 'left',
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '0.5rem'
           }}
         >
-          <span style={{ color: "var(--primary-resonance, #0ea5e9)" }}>💡</span>
+          <span style={{ color: 'var(--primary-resonance, #0ea5e9)' }}>💡</span>
           <div>{actionableGuidance}</div>
         </div>
       )}
-      {action && <div style={{ marginTop: "1.5rem" }}>{action}</div>}
+      {action && <div style={{ marginTop: '1.5rem' }}>{action}</div>}
     </div>
   );
 }

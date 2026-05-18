@@ -1,6 +1,6 @@
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef } from 'react';
 
-import { useSync } from "./useSync.ts";
+import { useSync } from './useSync.ts';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -22,7 +22,7 @@ export interface UseProjectSyncResult {
   /** Project meta map (milestone toggles, labels, etc.) */
   projectMeta: ProjectMeta;
   /** Connection state */
-  status: "connected" | "disconnected" | "connecting";
+  status: 'connected' | 'disconnected' | 'connecting';
   /** Array of {name, color, userId} for all users on the canvas */
   awareness: Array<{ name: string; color: string; userId: string }>;
   /** Move task to new column */
@@ -52,7 +52,7 @@ export interface UseProjectSyncResult {
  */
 export function useProjectSync(
   workId: string,
-  projectId: string,
+  projectId: string
 ): UseProjectSyncResult {
   const roomName =
     workId && projectId ? `work-project-${workId}-${projectId}` : null;
@@ -67,8 +67,8 @@ export function useProjectSync(
     if (!doc) return;
     destroyedRef.current = false;
 
-    const yTasks = doc.getArray<TaskRecord>("tasks");
-    const yMeta = doc.getMap<unknown>("projectMeta");
+    const yTasks = doc.getArray<TaskRecord>('tasks');
+    const yMeta = doc.getMap<unknown>('projectMeta');
 
     const syncTasks = (): void => {
       if (!destroyedRef.current) setTasks(yTasks.toArray());
@@ -94,10 +94,10 @@ export function useProjectSync(
   const moveTask = useCallback(
     (taskId: string, newStatus: string): void => {
       if (!doc) return;
-      const yTasks = doc.getArray<TaskRecord>("tasks");
+      const yTasks = doc.getArray<TaskRecord>('tasks');
       doc.transact(() => {
         const arr = yTasks.toArray();
-        const idx = arr.findIndex((t) => t.id === taskId);
+        const idx = arr.findIndex(t => t.id === taskId);
         if (idx === -1) return;
         const existing = arr[idx];
         if (!existing) return;
@@ -105,31 +105,31 @@ export function useProjectSync(
         yTasks.insert(idx, [{ ...existing, status: newStatus }]);
       });
     },
-    [doc],
+    [doc]
   );
 
   const seedTasks = useCallback(
     (initialTasks: TaskRecord[]): void => {
       if (!doc) return;
-      const yTasks = doc.getArray<TaskRecord>("tasks");
+      const yTasks = doc.getArray<TaskRecord>('tasks');
       if (yTasks.length === 0 && initialTasks.length > 0) {
         doc.transact(() => {
           yTasks.insert(0, initialTasks);
         });
       }
     },
-    [doc],
+    [doc]
   );
 
   const updateMeta = useCallback(
     (key: string, value: unknown): void => {
       if (!doc) return;
-      const yMeta = doc.getMap<unknown>("projectMeta");
+      const yMeta = doc.getMap<unknown>('projectMeta');
       doc.transact(() => {
         yMeta.set(key, value);
       });
     },
-    [doc],
+    [doc]
   );
 
   return {
@@ -139,6 +139,6 @@ export function useProjectSync(
     awareness,
     moveTask,
     seedTasks,
-    updateMeta,
+    updateMeta
   };
 }

@@ -57,7 +57,7 @@ interface CacheSetOptions {
 interface SubscriptionEvent {
   key: string;
   value: unknown;
-  operation: "set" | "delete";
+  operation: 'set' | 'delete';
   timestamp: number;
   appName: string;
 }
@@ -81,11 +81,11 @@ type AppCacheHandle = {
   mget: (keys: string[]) => Record<string, unknown>;
   mset: (
     entries: Record<string, unknown>,
-    options?: CacheSetOptions,
+    options?: CacheSetOptions
   ) => Record<string, boolean>;
   subscribe: (
     pattern: string,
-    callback: (event: SubscriptionEvent) => void,
+    callback: (event: SubscriptionEvent) => void
   ) => Unsubscribable | null;
   unsubscribe: (pattern: string) => void;
   invalidate: (pattern: string) => string[];
@@ -133,15 +133,15 @@ export class SharedDataCache {
   private init(): void {
     this.loadPersistedCache();
     this.startCleanupInterval();
-    if (typeof window !== "undefined") {
-      window.addEventListener("storage", this.boundStorageHandler);
+    if (typeof window !== 'undefined') {
+      window.addEventListener('storage', this.boundStorageHandler);
     }
   }
 
   /** Registers an application and returns a namespaced cache handle. */
   registerApp(
     appName: string,
-    config: Partial<CacheAppConfig> = {},
+    config: Partial<CacheAppConfig> = {}
   ): AppCacheHandle {
     const appConfig: CacheAppConfig = {
       appName,
@@ -150,7 +150,7 @@ export class SharedDataCache {
       persistEnabled: config.persistEnabled !== false,
       maxCacheEntries: config.maxCacheEntries ?? 100,
       defaultTTL: config.defaultTTL ?? this.defaultTTL,
-      registeredAt: new Date(),
+      registeredAt: new Date()
     };
 
     this.subscribers.set(appName, appConfig);
@@ -161,26 +161,25 @@ export class SharedDataCache {
         this.get(this.getNamespacedKey(appName, key), options),
       set: (key, value, options) =>
         this.set(this.getNamespacedKey(appName, key), value, options),
-      delete: (key) => this.delete(this.getNamespacedKey(appName, key)),
-      clear: (pattern = "*") => this.clearNamespace(appName, pattern),
-      mget: (keys) =>
-        this.mget(keys.map((k) => this.getNamespacedKey(appName, k))),
+      delete: key => this.delete(this.getNamespacedKey(appName, key)),
+      clear: (pattern = '*') => this.clearNamespace(appName, pattern),
+      mget: keys => this.mget(keys.map(k => this.getNamespacedKey(appName, k))),
       mset: (entries, options) =>
         this.mset(
           Object.fromEntries(
             Object.entries(entries).map(([k, v]) => [
               this.getNamespacedKey(appName, k),
-              v,
-            ]),
+              v
+            ])
           ),
-          options,
+          options
         ),
       subscribe: (pattern, callback) =>
         this.subscribe(appName, pattern, callback),
-      unsubscribe: (pattern) => this.unsubscribe(appName, pattern),
-      invalidate: (pattern) => this.invalidatePattern(appName, pattern),
+      unsubscribe: pattern => this.unsubscribe(appName, pattern),
+      invalidate: pattern => this.invalidatePattern(appName, pattern),
       stats: () => this.getAppStats(appName),
-      unregister: () => this.unregisterApp(appName),
+      unregister: () => this.unregisterApp(appName)
     };
   }
 
@@ -219,7 +218,7 @@ export class SharedDataCache {
       ttl = this.defaultTTL,
       persist = true,
       syncAcrossApps = true,
-      tags = [],
+      tags = []
     } = options;
 
     if (this.cache.size >= this.maxCacheSize) this.evictLRU();
@@ -235,12 +234,12 @@ export class SharedDataCache {
       accessCount: 1,
       tags,
       persist,
-      syncAcrossApps,
+      syncAcrossApps
     };
     this.metadata.set(key, meta);
 
     if (persist) this.persistEntry(key, value, meta);
-    if (syncAcrossApps) this.notifySubscribers(key, value, "set");
+    if (syncAcrossApps) this.notifySubscribers(key, value, 'set');
 
     return true;
   }
@@ -250,7 +249,7 @@ export class SharedDataCache {
     this.cache.delete(key);
     this.metadata.delete(key);
     this.removePersistedEntry(key);
-    this.notifySubscribers(key, null, "delete");
+    this.notifySubscribers(key, null, 'delete');
     return existed;
   }
 
@@ -269,7 +268,7 @@ export class SharedDataCache {
 
   mset(
     entries: Record<string, unknown>,
-    options: CacheSetOptions = {},
+    options: CacheSetOptions = {}
   ): Record<string, boolean> {
     const results: Record<string, boolean> = {};
     for (const [key, value] of Object.entries(entries)) {
@@ -282,14 +281,14 @@ export class SharedDataCache {
   // Pattern-based operations
   // ---------------------------------------------------------------------------
 
-  clearNamespace(appName: string, pattern = "*"): number {
+  clearNamespace(appName: string, pattern = '*'): number {
     const namespace = this.getNamespace(appName);
     const regex = this.patternToRegex(namespace + pattern);
     const toDelete: string[] = [];
     for (const key of this.cache.keys()) {
       if (regex.test(key)) toDelete.push(key);
     }
-    toDelete.forEach((k) => this.delete(k));
+    toDelete.forEach(k => this.delete(k));
     return toDelete.length;
   }
 
@@ -313,7 +312,7 @@ export class SharedDataCache {
   subscribe(
     appName: string,
     pattern: string,
-    callback: (event: SubscriptionEvent) => void,
+    callback: (event: SubscriptionEvent) => void
   ): Unsubscribable | null {
     if (!this.subscribers.has(appName)) return null;
 
@@ -324,7 +323,7 @@ export class SharedDataCache {
       pattern,
       callback,
       regex: this.patternToRegex(pattern),
-      subscribedAt: Date.now(),
+      subscribedAt: Date.now()
     });
 
     return { unsubscribe: () => this.unsubscribe(appName, pattern) };
@@ -337,7 +336,7 @@ export class SharedDataCache {
   private notifySubscribers(
     key: string,
     value: unknown,
-    operation: "set" | "delete",
+    operation: 'set' | 'delete'
   ): void {
     for (const [appName, appConfig] of this.subscribers) {
       if (!appConfig.subscriptions) continue;
@@ -349,7 +348,7 @@ export class SharedDataCache {
               value,
               operation,
               timestamp: Date.now(),
-              appName,
+              appName
             });
           } catch (_err) {
             // Intentionally silent — one bad subscriber must not break others
@@ -390,7 +389,7 @@ export class SharedDataCache {
     for (const [key, meta] of this.metadata) {
       if (this.isExpired(meta)) expired.push(key);
     }
-    expired.forEach((k) => this.delete(k));
+    expired.forEach(k => this.delete(k));
   }
 
   private isExpired(meta: CacheMetadata): boolean {
@@ -399,7 +398,7 @@ export class SharedDataCache {
 
   private async refreshEntry(
     key: string,
-    refreshCallback: (key: string) => Promise<unknown>,
+    refreshCallback: (key: string) => Promise<unknown>
   ): Promise<void> {
     if (this.pendingOperations.has(key)) return;
     this.pendingOperations.set(key, true);
@@ -422,10 +421,10 @@ export class SharedDataCache {
 
   private persistEntry(key: string, value: unknown, meta: CacheMetadata): void {
     try {
-      if (typeof localStorage === "undefined") return;
+      if (typeof localStorage === 'undefined') return;
       const data: PersistedEntry = {
         value,
-        metadata: { ...meta, persistedAt: Date.now() },
+        metadata: { ...meta, persistedAt: Date.now() }
       };
       localStorage.setItem(`uni_cache_${key}`, JSON.stringify(data));
     } catch (_err) {
@@ -435,7 +434,7 @@ export class SharedDataCache {
 
   private removePersistedEntry(key: string): void {
     try {
-      if (typeof localStorage !== "undefined")
+      if (typeof localStorage !== 'undefined')
         localStorage.removeItem(`uni_cache_${key}`);
     } catch (_err) {
       // Intentionally silent
@@ -444,8 +443,8 @@ export class SharedDataCache {
 
   private loadPersistedCache(): void {
     try {
-      const keys = Object.keys(localStorage).filter((k) =>
-        k.startsWith("uni_cache_"),
+      const keys = Object.keys(localStorage).filter(k =>
+        k.startsWith('uni_cache_')
       );
       for (const persistKey of keys) {
         try {
@@ -453,7 +452,7 @@ export class SharedDataCache {
           if (!raw) continue;
 
           const data = JSON.parse(raw) as PersistedEntry;
-          const key = persistKey.replace("uni_cache_", "");
+          const key = persistKey.replace('uni_cache_', '');
 
           if (!this.isExpired(data.metadata)) {
             this.cache.set(key, data.value);
@@ -471,9 +470,9 @@ export class SharedDataCache {
   }
 
   private handleStorageSync(event: StorageEvent): void {
-    if (!event.key?.startsWith("uni_cache_")) return;
+    if (!event.key?.startsWith('uni_cache_')) return;
 
-    const key = event.key.replace("uni_cache_", "");
+    const key = event.key.replace('uni_cache_', '');
     if (event.newValue === null) {
       this.cache.delete(key);
       this.metadata.delete(key);
@@ -502,8 +501,8 @@ export class SharedDataCache {
   }
 
   private patternToRegex(pattern: string): RegExp {
-    const escaped = pattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const regex = escaped.replace(/\\\*/g, ".*").replace(/\\\?/g, ".");
+    const escaped = pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = escaped.replace(/\\\*/g, '.*').replace(/\\\?/g, '.');
     return new RegExp(`^${regex}$`);
   }
 
@@ -513,7 +512,7 @@ export class SharedDataCache {
 
     for (const [key, meta] of this.metadata) {
       if (key.startsWith(namespace)) {
-        entries.push({ ...meta, key: key.replace(namespace, "") });
+        entries.push({ ...meta, key: key.replace(namespace, '') });
       }
     }
 
@@ -523,15 +522,15 @@ export class SharedDataCache {
         const value = this.cache.get(namespace + e.key);
         return size + (value ? JSON.stringify(value).length : 0);
       }, 0),
-      expiredEntries: entries.filter((e) => this.isExpired(e)).length,
+      expiredEntries: entries.filter(e => this.isExpired(e)).length,
       oldestEntry: entries.reduce<(CacheMetadata & { key: string }) | null>(
         (oldest, e) => (!oldest || e.createdAt < oldest.createdAt ? e : oldest),
-        null,
+        null
       ),
       newestEntry: entries.reduce<(CacheMetadata & { key: string }) | null>(
         (newest, e) => (!newest || e.createdAt > newest.createdAt ? e : newest),
-        null,
-      ),
+        null
+      )
     };
   }
 
@@ -541,7 +540,7 @@ export class SharedDataCache {
       totalMemoryUsage: this.calculateMemoryUsage(),
       registeredApps: this.subscribers.size,
       pendingOperations: this.pendingOperations.size,
-      cacheHitRate: this.calculateHitRate(),
+      cacheHitRate: this.calculateHitRate()
     };
   }
 
@@ -569,8 +568,8 @@ export class SharedDataCache {
       clearTimeout(this.cleanupTimer);
       this.cleanupTimer = null;
     }
-    if (typeof window !== "undefined") {
-      window.removeEventListener("storage", this.boundStorageHandler);
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('storage', this.boundStorageHandler);
     }
     this.cache.clear();
     this.metadata.clear();

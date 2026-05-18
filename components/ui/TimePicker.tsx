@@ -3,19 +3,19 @@ import React, {
   useEffect,
   useRef,
   useCallback,
-  forwardRef,
-} from "react";
-import { Clock, Check } from "lucide-react";
+  forwardRef
+} from 'react';
+import { Clock, Check } from 'lucide-react';
 import {
   parse24,
   to24String,
   toDisplay,
   clamp,
-  TIME_PICKER_STYLES as S,
-} from "./timePickerUtils";
-import { glassBorder, glassBackgroundHover } from "@shared/styles/styleUtils";
+  TIME_PICKER_STYLES as S
+} from './timePickerUtils';
+import { glassBorder, glassBackgroundHover } from '@shared/styles/styleUtils';
 
-export type { ParsedTime } from "./timePickerUtils";
+export type { ParsedTime } from './timePickerUtils';
 
 /**
  * TimePicker — Liquid Glass Design System
@@ -50,49 +50,49 @@ interface DigitInputProps {
   onStep: (dir: number) => void;
   nextRef?: React.RefObject<HTMLInputElement> | null;
   isHour?: boolean;
-  onAMPM?: (ampm: "AM" | "PM") => void;
+  onAMPM?: (ampm: 'AM' | 'PM') => void;
   highlight?: boolean;
 }
 
 const DigitInput = forwardRef<HTMLInputElement, DigitInputProps>(
   function DigitInput(
     { value, min, max, onCommit, onStep, nextRef, isHour, onAMPM, highlight },
-    ref,
+    ref
   ) {
-    const [buffer, setBuffer] = useState("");
+    const [buffer, setBuffer] = useState('');
     const [focused, setFocused] = useState(false);
 
     useEffect(() => {
-      setBuffer("");
+      setBuffer('');
     }, [value]);
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === "ArrowUp") {
+      if (e.key === 'ArrowUp') {
         e.preventDefault();
-        setBuffer("");
+        setBuffer('');
         onStep(1);
         return;
       }
-      if (e.key === "ArrowDown") {
+      if (e.key === 'ArrowDown') {
         e.preventDefault();
-        setBuffer("");
+        setBuffer('');
         onStep(-1);
         return;
       }
-      if (e.key === "Tab") {
-        setBuffer("");
+      if (e.key === 'Tab') {
+        setBuffer('');
         return;
       }
 
       if (isHour) {
-        if (e.key === "a" || e.key === "A") {
+        if (e.key === 'a' || e.key === 'A') {
           e.preventDefault();
-          onAMPM?.("AM");
+          onAMPM?.('AM');
           return;
         }
-        if (e.key === "p" || e.key === "P") {
+        if (e.key === 'p' || e.key === 'P') {
           e.preventDefault();
-          onAMPM?.("PM");
+          onAMPM?.('PM');
           return;
         }
       }
@@ -109,20 +109,20 @@ const DigitInput = forwardRef<HTMLInputElement, DigitInputProps>(
       if (next.length === 1) {
         const maxTens = isHour ? 1 : 5;
         if (digit > maxTens) {
-          setBuffer("");
+          setBuffer('');
           onCommit(clamp(digit, min, max));
           nextRef?.current?.focus();
         } else {
           setBuffer(next);
         }
       } else {
-        setBuffer("");
+        setBuffer('');
         onCommit(clamp(parseInt(next, 10), min, max));
         nextRef?.current?.focus();
       }
     };
 
-    const shownValue = buffer !== "" ? buffer : String(value).padStart(2, "0");
+    const shownValue = buffer !== '' ? buffer : String(value).padStart(2, '0');
 
     return (
       <input
@@ -135,29 +135,28 @@ const DigitInput = forwardRef<HTMLInputElement, DigitInputProps>(
         onKeyDown={handleKeyDown}
         onFocus={() => {
           setFocused(true);
-          setBuffer("");
+          setBuffer('');
         }}
         onBlur={() => {
           setFocused(false);
-          setBuffer("");
+          setBuffer('');
         }}
         style={{
           ...S.digitInput,
           ...(focused || highlight
             ? {
-                borderColor: "var(--primary-resonance)",
-                boxShadow:
-                  "0 0 0 3px var(--primary-glow, rgba(99,102,241,0.2))",
+                borderColor: 'var(--primary-resonance)',
+                boxShadow: '0 0 0 3px var(--primary-glow, rgba(99,102,241,0.2))'
               }
-            : {}),
+            : {})
         }}
-        aria-label={isHour ? "Hours" : "Minutes"}
+        aria-label={isHour ? 'Hours' : 'Minutes'}
         aria-valuenow={value}
         aria-valuemin={min}
         aria-valuemax={max}
       />
     );
-  },
+  }
 );
 
 // ── TimePicker ────────────────────────────────────────────────────────────────
@@ -176,16 +175,16 @@ export function TimePicker({
   id,
   value,
   onChange,
-  placeholder = "Select a time",
+  placeholder = 'Select a time',
   disabled = false,
   minuteStep = 5,
-  label,
+  label
 }: TimePickerProps) {
   const parsed = parse24(value);
 
   const [open, setOpen] = useState(false);
-  const [presetMode, setPresetMode] = useState<"hours" | "minutes" | "ampm">(
-    "hours",
+  const [presetMode, setPresetMode] = useState<'hours' | 'minutes' | 'ampm'>(
+    'hours'
   );
   const [hours, setHours] = useState(parsed?.hours ?? 9);
   const [minutes, setMinutes] = useState(parsed?.minutes ?? 0);
@@ -207,17 +206,17 @@ export function TimePicker({
     (h: number, m: number) => {
       onChange?.(to24String(h, m));
     },
-    [onChange],
+    [onChange]
   );
 
   const commitAndClose = useCallback(
     (h: number, m: number) => {
       emit(h, m);
       setOpen(false);
-      setPresetMode("hours");
+      setPresetMode('hours');
       triggerRef.current?.focus();
     },
-    [emit],
+    [emit]
   );
 
   // Close on outside click
@@ -227,21 +226,21 @@ export function TimePicker({
       if (wrapRef.current && !wrapRef.current.contains(e.target as Node))
         setOpen(false);
     };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
   }, [open]);
 
   // Close on Escape
   useEffect(() => {
     if (!open) return;
     const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
+      if (e.key === 'Escape') {
         setOpen(false);
-        setPresetMode("hours");
+        setPresetMode('hours');
       }
     };
-    document.addEventListener("keydown", handler);
-    return () => document.removeEventListener("keydown", handler);
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
   }, [open]);
 
   const isAM = hours < 12;
@@ -254,7 +253,7 @@ export function TimePicker({
       setHours(h24);
       emit(h24, minutes);
     },
-    [isAM, minutes, emit],
+    [isAM, minutes, emit]
   );
 
   const commitMins = useCallback(
@@ -263,23 +262,23 @@ export function TimePicker({
       setMinutes(m);
       emit(hours, m);
     },
-    [hours, emit],
+    [hours, emit]
   );
 
   const stepHours = useCallback(
     (dir: number) => {
-      setHours((h) => {
+      setHours(h => {
         const next = (((h + dir) % 24) + 24) % 24;
         emit(next, minutes);
         return next;
       });
     },
-    [minutes, emit],
+    [minutes, emit]
   );
 
   const stepMins = useCallback(
     (dir: number) => {
-      setMinutes((m) => {
+      setMinutes(m => {
         let next = m + dir * minuteStep;
         let h = hours;
         if (next < 0) {
@@ -296,31 +295,31 @@ export function TimePicker({
         return next;
       });
     },
-    [hours, minuteStep, emit],
+    [hours, minuteStep, emit]
   );
 
   const setAMPM = useCallback(
-    (ampm: "AM" | "PM") => {
+    (ampm: 'AM' | 'PM') => {
       let h = hours;
-      if (ampm === "AM" && !isAM) h = hours - 12;
-      if (ampm === "PM" && isAM) h = hours + 12;
+      if (ampm === 'AM' && !isAM) h = hours - 12;
+      if (ampm === 'PM' && isAM) h = hours + 12;
       setHours(h);
       commitAndClose(h, minutes);
     },
-    [hours, isAM, minutes, commitAndClose],
+    [hours, isAM, minutes, commitAndClose]
   );
 
   const triggerFocus = (focused: boolean): React.CSSProperties => ({
     border: focused
-      ? "1px solid var()"
-      : "1px solid var(--glass-outline, rgba(255,255,255,0.12))",
+      ? '1px solid var()'
+      : '1px solid var(--glass-outline, rgba(255,255,255,0.12))',
     boxShadow: focused
-      ? "0 0 0 3px var(--primary-glow, rgba(99,102,241,0.2))"
-      : "none",
+      ? '0 0 0 3px var(--primary-glow, rgba(99,102,241,0.2))'
+      : 'none'
   });
 
   return (
-    <div ref={wrapRef} style={{ position: "relative", width: "100%" }}>
+    <div ref={wrapRef} style={{ position: 'relative', width: '100%' }}>
       <style>{`
         @keyframes lgFadeIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
         .tp-preset:hover { background: var(--primary-subtle, hsla(272,65%,62%,0.14)) !important; color: var(--text-primary) !important; border-color: var(--primary-resonance) !important; }
@@ -341,19 +340,17 @@ export function TimePicker({
         aria-expanded={open}
         onClick={() => {
           if (disabled) return;
-          if (!open) setPresetMode("hours");
-          setOpen((o) => !o);
+          if (!open) setPresetMode('hours');
+          setOpen(o => !o);
         }}
         style={{
           ...S.trigger,
           opacity: disabled ? 0.55 : 1,
-          cursor: disabled ? "not-allowed" : "pointer",
-          ...(open ? triggerFocus(true) : triggerFocus(false)),
+          cursor: disabled ? 'not-allowed' : 'pointer',
+          ...(open ? triggerFocus(true) : triggerFocus(false))
         }}
-        onFocus={(e) =>
-          Object.assign(e.currentTarget.style, triggerFocus(true))
-        }
-        onBlur={(e) => {
+        onFocus={e => Object.assign(e.currentTarget.style, triggerFocus(true))}
+        onBlur={e => {
           if (!wrapRef.current?.contains(e.relatedTarget))
             Object.assign(e.currentTarget.style, triggerFocus(false));
         }}
@@ -362,15 +359,15 @@ export function TimePicker({
           style={{
             width: 14,
             height: 14,
-            color: "var(--text-muted)",
-            flexShrink: 0,
+            color: 'var(--text-muted)',
+            flexShrink: 0
           }}
         />
         <span
           style={
             parsed
-              ? { color: "var(--text-primary)" }
-              : { color: "var(--text-muted, rgba(255,255,255,0.35))" }
+              ? { color: 'var(--text-primary)' }
+              : { color: 'var(--text-muted, rgba(255,255,255,0.35))' }
           }
         >
           {parsed ? toDisplay(parsed.hours, parsed.minutes) : placeholder}
@@ -383,11 +380,11 @@ export function TimePicker({
           {/* ── Inline editor row ── */}
           <div
             style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "6px",
-              marginBottom: "12px",
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px',
+              marginBottom: '12px'
             }}
           >
             <DigitInput
@@ -399,16 +396,16 @@ export function TimePicker({
               onStep={stepHours}
               onAMPM={setAMPM}
               nextRef={minuteRef}
-              highlight={presetMode === "hours"}
+              highlight={presetMode === 'hours'}
             />
 
             <span
               style={{
                 fontSize: 20,
                 fontWeight: 700,
-                color: "var(--text-muted)",
+                color: 'var(--text-muted)',
                 lineHeight: 1,
-                userSelect: "none",
+                userSelect: 'none'
               }}
             >
               :
@@ -422,41 +419,41 @@ export function TimePicker({
               onCommit={commitMins}
               onStep={stepMins}
               nextRef={null}
-              highlight={presetMode === "minutes"}
+              highlight={presetMode === 'minutes'}
             />
 
             {/* AM / PM Toggle */}
             <button
               type="button"
               onClick={() => {
-                setHours((h) => (h < 12 ? h + 12 : h - 12));
+                setHours(h => (h < 12 ? h + 12 : h - 12));
               }}
               style={{
-                width: "48px",
-                height: "40px",
+                width: '48px',
+                height: '40px',
                 marginLeft: 4,
-                borderRadius: "8px",
-                background: "var(--bg-surface-2, rgba(255,255,255,0.06))",
-                color: "var(--text-primary)",
-                fontSize: "14px",
+                borderRadius: '8px',
+                background: 'var(--bg-surface-2, rgba(255,255,255,0.06))',
+                color: 'var(--text-primary)',
+                fontSize: '14px',
                 fontWeight: 700,
-                cursor: "pointer",
-                transition: "all 0.15s",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
+                cursor: 'pointer',
+                transition: 'all 0.15s',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
                 flexShrink: 0,
-                ...(presetMode === "ampm"
+                ...(presetMode === 'ampm'
                   ? {
-                      borderColor: "var(--primary-resonance)",
+                      borderColor: 'var(--primary-resonance)',
                       boxShadow:
-                        "0 0 0 3px var(--primary-glow, rgba(99,102,241,0.2))",
+                        '0 0 0 3px var(--primary-glow, rgba(99,102,241,0.2))'
                     }
                   : {}),
-                ...glassBorder,
+                ...glassBorder
               }}
             >
-              {isAM ? "AM" : "PM"}
+              {isAM ? 'AM' : 'PM'}
             </button>
 
             {/* ✓ Done */}
@@ -470,16 +467,16 @@ export function TimePicker({
                 marginLeft: 2,
                 width: 32,
                 height: 32,
-                borderRadius: "8px",
-                color: "var(--text-muted)",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
+                borderRadius: '8px',
+                color: 'var(--text-muted)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
                 flexShrink: 0,
-                transition: "all 0.15s",
+                transition: 'all 0.15s',
                 ...glassBorder,
-                ...glassBackgroundHover,
+                ...glassBackgroundHover
               }}
             >
               <Check style={{ width: 14, height: 14 }} />
@@ -490,53 +487,53 @@ export function TimePicker({
           <div
             style={{
               borderTop:
-                "1px solid var(--glass-outline, rgba(255,255,255,0.08))",
-              marginBottom: "10px",
+                '1px solid var(--glass-outline, rgba(255,255,255,0.08))',
+              marginBottom: '10px'
             }}
           />
 
           {/* ── Quick presets grid ── */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-            {presetMode === "hours" &&
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            {presetMode === 'hours' &&
               [
                 [1, 2, 3, 4],
                 [5, 6, 7, 8],
-                [9, 10, 11, 12],
+                [9, 10, 11, 12]
               ].map((row, ri) => (
                 <div
                   key={ri}
                   style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(4, 1fr)",
-                    gap: 4,
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(4, 1fr)',
+                    gap: 4
                   }}
                 >
-                  {row.map((hval) => {
+                  {row.map(hval => {
                     const active = h12 === hval;
                     return (
                       <button
                         key={hval}
                         type="button"
-                        className={`tp-preset${active ? " tp-preset-active" : ""}`}
+                        className={`tp-preset${active ? ' tp-preset-active' : ''}`}
                         onClick={() => {
                           commitH12(hval);
-                          setPresetMode("minutes");
+                          setPresetMode('minutes');
                         }}
                         style={{
-                          padding: "9px 4px",
-                          fontSize: "14px",
+                          padding: '9px 4px',
+                          fontSize: '14px',
                           fontWeight: 600,
-                          borderRadius: "8px",
+                          borderRadius: '8px',
                           border: active
-                            ? "1px solid transparent"
-                            : "1px solid var(--glass-outline)",
+                            ? '1px solid transparent'
+                            : '1px solid var(--glass-outline)',
                           background: active
-                            ? "var(--primary-resonance)"
-                            : "var(--glass-surface-hover, rgba(255,255,255,0.04))",
-                          color: active ? "#fff" : "var(--text-muted)",
-                          cursor: "pointer",
-                          transition: "all 0.12s",
-                          textAlign: "center",
+                            ? 'var(--primary-resonance)'
+                            : 'var(--glass-surface-hover, rgba(255,255,255,0.04))',
+                          color: active ? '#fff' : 'var(--text-muted)',
+                          cursor: 'pointer',
+                          transition: 'all 0.12s',
+                          textAlign: 'center'
                         }}
                       >
                         {hval}
@@ -546,87 +543,87 @@ export function TimePicker({
                 </div>
               ))}
 
-            {presetMode === "minutes" &&
+            {presetMode === 'minutes' &&
               [
                 [0, 5, 10, 15],
                 [20, 25, 30, 35],
-                [40, 45, 50, 55],
+                [40, 45, 50, 55]
               ].map((row, ri) => (
                 <div
                   key={ri}
                   style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(4, 1fr)",
-                    gap: 4,
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(4, 1fr)',
+                    gap: 4
                   }}
                 >
-                  {row.map((m) => {
+                  {row.map(m => {
                     const active = minutes === m;
                     return (
                       <button
                         key={m}
                         type="button"
-                        className={`tp-preset${active ? " tp-preset-active" : ""}`}
+                        className={`tp-preset${active ? ' tp-preset-active' : ''}`}
                         onClick={() => {
                           commitMins(m);
-                          setPresetMode("ampm");
+                          setPresetMode('ampm');
                         }}
                         style={{
-                          padding: "7px 4px",
-                          fontSize: "12px",
+                          padding: '7px 4px',
+                          fontSize: '12px',
                           fontWeight: 600,
-                          borderRadius: "8px",
+                          borderRadius: '8px',
                           border: active
-                            ? "1px solid transparent"
-                            : "1px solid var(--glass-outline)",
+                            ? '1px solid transparent'
+                            : '1px solid var(--glass-outline)',
                           background: active
-                            ? "var(--primary-resonance)"
-                            : "var(--glass-surface-hover, rgba(255,255,255,0.04))",
-                          color: active ? "#fff" : "var(--text-muted)",
-                          cursor: "pointer",
-                          transition: "all 0.12s",
-                          textAlign: "center",
+                            ? 'var(--primary-resonance)'
+                            : 'var(--glass-surface-hover, rgba(255,255,255,0.04))',
+                          color: active ? '#fff' : 'var(--text-muted)',
+                          cursor: 'pointer',
+                          transition: 'all 0.12s',
+                          textAlign: 'center'
                         }}
                       >
-                        :{String(m).padStart(2, "0")}
+                        :{String(m).padStart(2, '0')}
                       </button>
                     );
                   })}
                 </div>
               ))}
 
-            {presetMode === "ampm" && (
+            {presetMode === 'ampm' && (
               <div
                 style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr',
                   gap: 8,
-                  marginTop: 4,
+                  marginTop: 4
                 }}
               >
-                {(["AM", "PM"] as const).map((ap) => {
-                  const active = (ap === "AM") === isAM;
+                {(['AM', 'PM'] as const).map(ap => {
+                  const active = (ap === 'AM') === isAM;
                   return (
                     <button
                       key={ap}
                       type="button"
                       onClick={() => setAMPM(ap)}
-                      className={`tp-preset${active ? " tp-preset-active" : ""}`}
+                      className={`tp-preset${active ? ' tp-preset-active' : ''}`}
                       style={{
-                        padding: "16px",
-                        fontSize: "16px",
+                        padding: '16px',
+                        fontSize: '16px',
                         fontWeight: 700,
-                        borderRadius: "10px",
+                        borderRadius: '10px',
                         border: active
-                          ? "1px solid transparent"
-                          : "1px solid var(--glass-outline)",
+                          ? '1px solid transparent'
+                          : '1px solid var(--glass-outline)',
                         background: active
-                          ? "var(--primary-resonance)"
-                          : "var(--glass-surface-hover, rgba(255,255,255,0.04))",
-                        color: active ? "#fff" : "var(--text-muted)",
-                        cursor: "pointer",
-                        transition: "all 0.12s",
-                        textAlign: "center",
+                          ? 'var(--primary-resonance)'
+                          : 'var(--glass-surface-hover, rgba(255,255,255,0.04))',
+                        color: active ? '#fff' : 'var(--text-muted)',
+                        cursor: 'pointer',
+                        transition: 'all 0.12s',
+                        textAlign: 'center'
                       }}
                     >
                       {ap}

@@ -3,8 +3,8 @@ import React, {
   useContext,
   useState,
   useCallback,
-  useRef,
-} from "react";
+  useRef
+} from 'react';
 
 /**
  * @shared/command — Universal Command Core
@@ -26,16 +26,16 @@ import React, {
 
 // ── Types ───────────────────────────────────────────────────────────────────
 
-export type CommandType = "navigation" | "action" | "search";
+export type CommandType = 'navigation' | 'action' | 'search';
 
 export type CommandNamespace =
-  | "work"
-  | "church"
-  | "home"
-  | "personal"
-  | "playback"
-  | "admin"
-  | "universal";
+  | 'work'
+  | 'church'
+  | 'home'
+  | 'personal'
+  | 'playback'
+  | 'admin'
+  | 'universal';
 
 /** A registered command schema. */
 export interface Command {
@@ -83,19 +83,19 @@ interface CommandProviderProps {
 // ── Constants ───────────────────────────────────────────────────────────────
 
 export const NAMESPACE_LABELS: Record<CommandNamespace | string, string> = {
-  work: "Business Hub",
-  church: "Church Suite",
-  home: "Home Nucleus",
-  personal: "Personal Sanctuary",
-  playback: "Playback Engine",
-  admin: "Platform Command",
-  universal: "Ecosystem",
+  work: 'Business Hub',
+  church: 'Church Suite',
+  home: 'Home Nucleus',
+  personal: 'Personal Sanctuary',
+  playback: 'Playback Engine',
+  admin: 'Platform Command',
+  universal: 'Ecosystem'
 };
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
 function filterCommands(commands: Command[], query: string): Command[] {
-  if (!query || query.trim() === "") return commands;
+  if (!query || query.trim() === '') return commands;
 
   const lq = query.toLowerCase().trim();
 
@@ -103,23 +103,23 @@ function filterCommands(commands: Command[], query: string): Command[] {
   let nsFilter: string | null = null;
   let contentQuery = lq;
 
-  if (lq.startsWith(">")) {
+  if (lq.startsWith('>')) {
     const rest = lq.slice(1);
-    const colonIdx = rest.indexOf(":");
+    const colonIdx = rest.indexOf(':');
     if (colonIdx !== -1) {
       nsFilter = rest.slice(0, colonIdx).trim();
       contentQuery = rest.slice(colonIdx + 1).trim();
     } else {
       // Just ">word" — treat as namespace prefix
       nsFilter = rest.trim();
-      contentQuery = "";
+      contentQuery = '';
     }
   }
 
-  return commands.filter((cmd) => {
+  return commands.filter(cmd => {
     if (nsFilter) {
-      const ns = cmd.namespace?.toLowerCase() ?? "";
-      const label = NAMESPACE_LABELS[cmd.namespace]?.toLowerCase() ?? "";
+      const ns = cmd.namespace?.toLowerCase() ?? '';
+      const label = NAMESPACE_LABELS[cmd.namespace]?.toLowerCase() ?? '';
       if (!ns.startsWith(nsFilter) && !label.startsWith(nsFilter)) return false;
     }
 
@@ -130,10 +130,10 @@ function filterCommands(commands: Command[], query: string): Command[] {
       cmd.description,
       cmd.namespace,
       NAMESPACE_LABELS[cmd.namespace],
-      ...(cmd.keywords ?? []),
+      ...(cmd.keywords ?? [])
     ]
       .filter(Boolean)
-      .join(" ")
+      .join(' ')
       .toLowerCase();
 
     return haystack.includes(contentQuery);
@@ -148,23 +148,23 @@ export const CommandContext = createContext<CommandContextValue | null>(null);
 
 export function CommandProvider({ children }: CommandProviderProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState('');
   const commandsRef = useRef<Command[]>([]);
   const [, forceRender] = useState(0);
 
   const open = useCallback(() => {
     setIsOpen(true);
-    setQuery("");
+    setQuery('');
   }, []);
 
   const close = useCallback(() => {
     setIsOpen(false);
-    setQuery("");
+    setQuery('');
   }, []);
 
   const toggle = useCallback(() => {
-    setIsOpen((prev) => {
-      if (!prev) setQuery("");
+    setIsOpen(prev => {
+      if (!prev) setQuery('');
       return !prev;
     });
   }, []);
@@ -177,16 +177,16 @@ export function CommandProvider({ children }: CommandProviderProps) {
    */
   const registerCommands = useCallback((newCommands: Command[]) => {
     // Deduplicate by id — last-write wins
-    const ids = new Set(newCommands.map((c) => c.id));
+    const ids = new Set(newCommands.map(c => c.id));
     commandsRef.current = [
-      ...commandsRef.current.filter((c) => !ids.has(c.id)),
-      ...newCommands,
+      ...commandsRef.current.filter(c => !ids.has(c.id)),
+      ...newCommands
     ];
-    forceRender((n) => n + 1);
+    forceRender(n => n + 1);
 
     return () => {
-      commandsRef.current = commandsRef.current.filter((c) => !ids.has(c.id));
-      forceRender((n) => n + 1);
+      commandsRef.current = commandsRef.current.filter(c => !ids.has(c.id));
+      forceRender(n => n + 1);
     };
   }, []);
 
@@ -203,7 +203,7 @@ export function CommandProvider({ children }: CommandProviderProps) {
     results,
     allCommands: commandsRef.current,
     getNamespaceLabel: (ns: string) => NAMESPACE_LABELS[ns] ?? ns,
-    NAMESPACE_LABELS,
+    NAMESPACE_LABELS
   };
 
   return (
@@ -218,8 +218,8 @@ export function useCommandContext(): CommandContextValue {
   const ctx = useContext(CommandContext);
   if (!ctx) {
     throw new Error(
-      "useCommandContext must be used inside <CommandProvider>. " +
-        "Mount <CommandProvider> in App.tsx before the Router.",
+      'useCommandContext must be used inside <CommandProvider>. ' +
+        'Mount <CommandProvider> in App.tsx before the Router.'
     );
   }
   return ctx;

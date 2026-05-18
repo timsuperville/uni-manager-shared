@@ -45,12 +45,12 @@ import axios, {
   AxiosResponse,
   AxiosError,
   AxiosProgressEvent,
-  RawAxiosRequestHeaders,
-} from "axios";
-import { ErrorHandler } from "./ErrorHandler";
-import { AuthInterceptor, AuthInterceptorConfig } from "./AuthInterceptor";
-import { SovereignApiGuard } from "./SovereignApiGuard";
-import { contextManager } from "./ContextManager";
+  RawAxiosRequestHeaders
+} from 'axios';
+import { ErrorHandler } from './ErrorHandler';
+import { AuthInterceptor, AuthInterceptorConfig } from './AuthInterceptor';
+import { SovereignApiGuard } from './SovereignApiGuard';
+import { contextManager } from './ContextManager';
 
 export interface ApiClientConfig {
   baseURL: string;
@@ -75,12 +75,12 @@ export interface RequestOptions {
   onDownloadProgress?: (progressEvent: AxiosProgressEvent) => void;
   signal?: AbortSignal;
   responseType?:
-    | "arraybuffer"
-    | "blob"
-    | "document"
-    | "json"
-    | "text"
-    | "stream";
+    | 'arraybuffer'
+    | 'blob'
+    | 'document'
+    | 'json'
+    | 'text'
+    | 'stream';
   silent?: boolean; // Suppress global error events, console logs, and telemetry
 }
 
@@ -104,7 +104,7 @@ export class ApiClient {
       timeout: 10000,
       retryAttempts: 3,
       authEnabled: true,
-      ...config,
+      ...config
     };
 
     this.setupAxiosInstance();
@@ -122,22 +122,22 @@ export class ApiClient {
       baseURL: this.config.baseURL,
       timeout: this.config.timeout,
       headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        ...this.config.defaultHeaders,
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        ...this.config.defaultHeaders
       },
-      withCredentials: true,
+      withCredentials: true
     });
   }
 
   private setupInterceptors(): void {
     // Request interceptors
     this.axios.interceptors.request.use(
-      (config) => {
+      config => {
         // Evaluate Sovereign Shutdown Boundary
         if (SovereignApiGuard.shouldBlockRequest(config)) {
           // Reject with a specific cancellation message so the error handler knows it was the firewall
-          return Promise.reject(new axios.Cancel("SOVEREIGN_SHUTDOWN_LOCKED"));
+          return Promise.reject(new axios.Cancel('SOVEREIGN_SHUTDOWN_LOCKED'));
         }
 
         // Add authentication if enabled
@@ -150,19 +150,19 @@ export class ApiClient {
         Object.assign(config.headers, contextHeaders);
 
         // Add request ID for tracking
-        config.headers["X-Request-ID"] = this.generateRequestId();
+        config.headers['X-Request-ID'] = this.generateRequestId();
 
         // Add timestamp
-        config.headers["X-Request-Timestamp"] = new Date().toISOString();
+        config.headers['X-Request-Timestamp'] = new Date().toISOString();
 
         return config;
       },
-      (error) => Promise.reject(error),
+      error => Promise.reject(error)
     );
 
     // Response interceptors
     this.axios.interceptors.response.use(
-      (response) => {
+      response => {
         // Process successful response through auth interceptor
         if (this.config.authEnabled) {
           response = this.authInterceptor.onResponse(response);
@@ -181,7 +181,7 @@ export class ApiClient {
 
         // Handle other errors through error handler
         return this.errorHandler.handleError(error, this.axios);
-      },
+      }
     );
   }
 
@@ -193,7 +193,7 @@ export class ApiClient {
     method: string,
     endpoint: string,
     data?: unknown,
-    options: RequestOptions = {},
+    options: RequestOptions = {}
   ): Promise<ApiResponse<T>> {
     const requestConfig: AxiosRequestConfig = {
       method,
@@ -207,7 +207,7 @@ export class ApiClient {
       signal: options.signal,
       responseType:
         options.responseType as unknown as XMLHttpRequestResponseType,
-      ...(options.silent !== undefined ? { silent: options.silent } : {}),
+      ...(options.silent !== undefined ? { silent: options.silent } : {})
     } as AxiosRequestConfig; // cast since silent is custom
 
     try {
@@ -219,8 +219,8 @@ export class ApiClient {
         status: response.status,
         statusText: response.statusText,
         headers: response.headers as Record<string, string>,
-        message: response.headers["x-response-message"],
-        timestamp: response.headers["x-response-timestamp"],
+        message: response.headers['x-response-message'],
+        timestamp: response.headers['x-response-timestamp']
       };
 
       return apiResponse;
@@ -234,9 +234,9 @@ export class ApiClient {
    */
   async get<T = unknown>(
     endpoint: string,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<ApiResponse<T>> {
-    return this.executeRequest<T>("GET", endpoint, undefined, options);
+    return this.executeRequest<T>('GET', endpoint, undefined, options);
   }
 
   /**
@@ -245,9 +245,9 @@ export class ApiClient {
   async post<T = unknown>(
     endpoint: string,
     data?: unknown,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<ApiResponse<T>> {
-    return this.executeRequest<T>("POST", endpoint, data, options);
+    return this.executeRequest<T>('POST', endpoint, data, options);
   }
 
   /**
@@ -256,9 +256,9 @@ export class ApiClient {
   async put<T = unknown>(
     endpoint: string,
     data?: unknown,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<ApiResponse<T>> {
-    return this.executeRequest<T>("PUT", endpoint, data, options);
+    return this.executeRequest<T>('PUT', endpoint, data, options);
   }
 
   /**
@@ -267,9 +267,9 @@ export class ApiClient {
   async patch<T = unknown>(
     endpoint: string,
     data?: unknown,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<ApiResponse<T>> {
-    return this.executeRequest<T>("PATCH", endpoint, data, options);
+    return this.executeRequest<T>('PATCH', endpoint, data, options);
   }
 
   /**
@@ -277,9 +277,9 @@ export class ApiClient {
    */
   async delete<T = unknown>(
     endpoint: string,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<ApiResponse<T>> {
-    return this.executeRequest<T>("DELETE", endpoint, undefined, options);
+    return this.executeRequest<T>('DELETE', endpoint, undefined, options);
   }
 
   /**
@@ -288,23 +288,23 @@ export class ApiClient {
   async upload<T = unknown>(
     endpoint: string,
     file: File | FormData,
-    options?: RequestOptions & { fieldName?: string },
+    options?: RequestOptions & { fieldName?: string }
   ): Promise<ApiResponse<T>> {
     const formData = file instanceof FormData ? file : new FormData();
 
     if (file instanceof File) {
-      formData.append(options?.fieldName || "file", file);
+      formData.append(options?.fieldName || 'file', file);
     }
 
     const uploadOptions: RequestOptions = {
       ...options,
       headers: {
-        "Content-Type": "multipart/form-data",
-        ...options?.headers,
-      },
+        'Content-Type': 'multipart/form-data',
+        ...options?.headers
+      }
     };
 
-    return this.executeRequest<T>("POST", endpoint, formData, uploadOptions);
+    return this.executeRequest<T>('POST', endpoint, formData, uploadOptions);
   }
 
   /**
@@ -313,18 +313,18 @@ export class ApiClient {
   async download(endpoint: string, options?: RequestOptions): Promise<Blob> {
     const downloadOptions: RequestOptions = {
       ...options,
-      responseType: "blob",
+      responseType: 'blob',
       headers: {
-        Accept: "application/octet-stream",
-        ...options?.headers,
-      },
+        Accept: 'application/octet-stream',
+        ...options?.headers
+      }
     };
 
     const response = await this.executeRequest<Blob>(
-      "GET",
+      'GET',
       endpoint,
       undefined,
-      downloadOptions,
+      downloadOptions
     );
     return response.data;
   }
@@ -403,7 +403,7 @@ export function initializeApiClient(config: ApiClientConfig): ApiClient {
 export function getApiClient(): ApiClient {
   if (!defaultApiClient) {
     throw new Error(
-      "API Client not initialized. Call initializeApiClient() first.",
+      'API Client not initialized. Call initializeApiClient() first.'
     );
   }
   return defaultApiClient;

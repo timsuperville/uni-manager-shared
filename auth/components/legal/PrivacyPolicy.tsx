@@ -1,8 +1,8 @@
-import React from "react";
-import { AuthContainer } from "../_authUI/AuthContainer";
-import { AuthCardContent } from "../_authUI/AuthCardContent";
-import { getCurrentAppConfig } from "../../config/appConfigs";
-import { useNavigate } from "react-router-dom";
+import React from 'react';
+import { AuthContainer } from '../_authUI/AuthContainer';
+import { AuthCardContent } from '../_authUI/AuthCardContent';
+import { getCurrentAppConfig } from '../../config/appConfigs';
+import { useNavigate } from 'react-router-dom';
 
 const PrivacyPolicy: React.FC = () => {
   const config = getCurrentAppConfig();
@@ -16,7 +16,7 @@ const PrivacyPolicy: React.FC = () => {
             className="w-16 h-16 rounded-2xl flex items-center justify-center text-white mb-6 animate-float"
             style={{
               background: `linear-gradient(135deg, ${config.branding.gradientFrom}, ${config.branding.gradientTo})`,
-              boxShadow: `0 10px 30px -10px ${config.branding.primaryColor}`,
+              boxShadow: `0 10px 30px -10px ${config.branding.primaryColor}`
             }}
           >
             {config.ui.icon}
@@ -53,7 +53,7 @@ const PrivacyPolicy: React.FC = () => {
             </h2>
             <p className="leading-relaxed">
               We use the information we collect to provide, maintain, and
-              improve our services, to develop new features, and to protect{" "}
+              improve our services, to develop new features, and to protect{' '}
               {config.appName} and our users. We do not sell your personal data
               to third parties.
             </p>

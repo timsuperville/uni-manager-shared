@@ -54,7 +54,7 @@ export interface User {
     | string[];
   organizations?: string[];
   addons?: string[];
-  status?: "active" | "suspended" | "pending" | "inactive";
+  status?: 'active' | 'suspended' | 'pending' | 'inactive';
   mfaEnabled?: boolean;
   isGhost?: boolean;
   impersonatorId?: string;
@@ -70,7 +70,7 @@ export interface User {
 }
 
 export interface UserPreferences {
-  theme: "light" | "dark" | "auto";
+  theme: 'light' | 'dark' | 'auto';
   language: string;
   notifications: NotificationPreferences;
 }
@@ -90,12 +90,12 @@ export interface AuthState {
   isLoading: boolean;
   error: string | null;
   sessionId: string | null;
-  sessionStatus: "inactive" | "active" | "warning" | "expired";
+  sessionStatus: 'inactive' | 'active' | 'warning' | 'expired';
   lastActivity: number;
   sessionTimeRemaining: number | null;
   mfaRequired: boolean;
   mfaSetupRequired: boolean;
-  mfaStatus: "none" | "enabled" | "pending" | null;
+  mfaStatus: 'none' | 'enabled' | 'pending' | null;
   deviceId: string | null;
   isTrustedDevice: boolean;
   oauthProviders: OAuthProvider[];
@@ -115,7 +115,7 @@ export interface AuthContextType {
 
   // Core auth methods
   login: (
-    credentials: LoginCredentials,
+    credentials: LoginCredentials
   ) => Promise<LoginResult | LoginResponse>;
   loginWithGoogle?: () => Promise<LoginResult | LoginResponse>;
   logout: () => Promise<void | { success: boolean }>;
@@ -136,7 +136,7 @@ export interface AuthContextType {
   resetPassword?: (token: string, newPassword: string) => Promise<any>;
   changePassword?: (
     currentPassword: string,
-    newPassword: string,
+    newPassword: string
   ) => Promise<any>;
 
   // Church management (app-specific)
@@ -155,7 +155,7 @@ export interface AuthContextType {
   verifyMFALogin?: (
     token: string,
     deviceFingerprint?: string | null,
-    trustDevice?: boolean,
+    trustDevice?: boolean
   ) => Promise<any>;
 
   // Entitlements
@@ -285,7 +285,7 @@ export interface SessionManager {
 // ==================== MFA ====================
 
 export interface MFAChallenge {
-  method: "totp" | "sms" | "email" | "webauthn";
+  method: 'totp' | 'sms' | 'email' | 'webauthn';
   challengeId: string;
   expiresIn: number;
   destination?: string;
@@ -329,7 +329,7 @@ export interface Permission {
   id: string;
   name: string;
   resource: string;
-  action: "create" | "read" | "update" | "delete" | "manage";
+  action: 'create' | 'read' | 'update' | 'delete' | 'manage';
   description?: string;
 }
 
@@ -346,8 +346,8 @@ export interface Role {
 
 export interface SecurityAlert {
   id: string;
-  type: "login_failure" | "mfa_failure" | "suspicious_activity" | string;
-  severity: "low" | "medium" | "high" | "critical";
+  type: 'login_failure' | 'mfa_failure' | 'suspicious_activity' | string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
   message: string;
   location?: string;
   deviceInfo?: string;
@@ -366,16 +366,16 @@ export interface AuthError {
 // ==================== APP CONFIGURATION ====================
 
 export type AppType =
-  | "admin"
-  | "church"
-  | "work"
-  | "home"
-  | "personal"
-  | "playback"
-  | "presentation"
-  | "default";
+  | 'admin'
+  | 'church'
+  | 'work'
+  | 'home'
+  | 'personal'
+  | 'playback'
+  | 'presentation'
+  | 'default';
 
-export type LoginTheme = "default" | "dark" | "minimal";
+export type LoginTheme = 'default' | 'dark' | 'minimal';
 
 export interface AppConfig {
   title: string;
@@ -452,7 +452,7 @@ export interface LoginFormState {
 // ==================== EVENT HANDLERS ====================
 
 export type FormChangeHandler = (
-  e: React.ChangeEvent<HTMLInputElement>,
+  e: React.ChangeEvent<HTMLInputElement>
 ) => void;
 
 export type FormSubmitHandler = (e: React.FormEvent<HTMLFormElement>) => void;

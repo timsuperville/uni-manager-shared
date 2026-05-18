@@ -1,5 +1,5 @@
-import { useCallback } from "react";
-import { useAuth } from "./useAuth";
+import { useCallback } from 'react';
+import { useAuth } from './useAuth';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -23,7 +23,7 @@ export function useLogout(): UseLogoutReturn {
       await (authLogout as () => Promise<void>)();
     } catch (err) {
       if (import.meta.env.DEV) {
-        console.error("Logout error:", err);
+        console.error('Logout error:', err);
       }
       throw err;
     }
@@ -32,7 +32,7 @@ export function useLogout(): UseLogoutReturn {
   return {
     logout: handleLogout,
     isLoading,
-    error: error ?? null,
+    error: error ?? null
   };
 }
 

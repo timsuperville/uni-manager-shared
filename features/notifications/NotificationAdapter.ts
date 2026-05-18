@@ -19,7 +19,7 @@
 // returning data to the hook. Never let backend field-name differences
 // (e.g. `body` vs `message`, `read` vs `status`) leak into the UI layer.
 
-import { logger } from "@shared/utils/logger";
+import { logger } from '@shared/utils/logger';
 
 export interface AppNotification {
   /** Unified ID — adapter maps _id → id when needed */
@@ -36,8 +36,8 @@ export interface AppNotification {
   /** Notification category (announcement, reminder, alert, system, …) */
   type?: string;
   /** "unread" | "read" | "archived" — adapter maps boolean `read` → status */
-  status: "unread" | "read" | "archived";
-  priority?: "low" | "normal" | "high" | "urgent";
+  status: 'unread' | 'read' | 'archived';
+  priority?: 'low' | 'normal' | 'high' | 'urgent';
   createdAt: string;
   /** Legacy timestamp alias */
   timestamp?: string;
@@ -71,7 +71,7 @@ export interface FetchNotificationsParams {
   page?: number;
   limit?: number;
   /** Filter by status — adapter maps to backend query param */
-  status?: "unread" | "read" | "archived";
+  status?: 'unread' | 'read' | 'archived';
   /** Filter by type (announcement, system, …) */
   type?: string;
   search?: string;
@@ -95,7 +95,7 @@ export interface NotificationAdapter {
    * Must return a `NotificationPage` with normalised `AppNotification` items.
    */
   fetchNotifications(
-    params: FetchNotificationsParams,
+    params: FetchNotificationsParams
   ): Promise<NotificationPage>;
 
   /**
@@ -129,31 +129,31 @@ const warn = (method: string) =>
   import.meta.env?.DEV &&
   logger.warn(
     `[NotificationCenter] ${method} called without a NotificationProvider. ` +
-      "Wrap the notification bell with a <NotificationProvider adapter={...}>.",
+      'Wrap the notification bell with a <NotificationProvider adapter={...}>.'
   );
 
 export const NULL_NOTIFICATION_ADAPTER: NotificationAdapter = {
   fetchNotifications: async () => {
-    warn("fetchNotifications");
+    warn('fetchNotifications');
     return { items: [], total: 0, unreadCount: 0 };
   },
   fetchUnreadCount: async () => {
-    warn("fetchUnreadCount");
+    warn('fetchUnreadCount');
     return 0;
   },
   markRead: async () => {
-    warn("markRead");
+    warn('markRead');
   },
   markAllRead: async () => {
-    warn("markAllRead");
+    warn('markAllRead');
   },
   bulkMarkRead: async () => {
-    warn("bulkMarkRead");
+    warn('bulkMarkRead');
   },
   archive: async () => {
-    warn("archive");
+    warn('archive');
   },
   delete: async () => {
-    warn("delete");
-  },
+    warn('delete');
+  }
 };

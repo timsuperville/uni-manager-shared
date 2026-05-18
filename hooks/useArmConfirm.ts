@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from 'react';
 
 /**
  * useArmConfirm — Two-step arm-to-fire confirmation pattern for live cue safety.

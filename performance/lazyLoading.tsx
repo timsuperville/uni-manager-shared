@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useState, useEffect, useRef } from "react";
+import React, { lazy, Suspense, useState, useEffect, useRef } from 'react';
 
 // ── PageLoadingSpinner ────────────────────────────────────────────────────────
 // Defined first so createLazyRoute can reference it without hoisting issues.
@@ -16,7 +16,7 @@ const PageLoadingSpinner: React.FC = () => (
  */
 export const createLazyComponent = <P extends object>(
   importFunc: () => Promise<{ default: React.ComponentType<P> }>,
-  fallback: React.ReactNode = null,
+  fallback: React.ReactNode = null
 ): React.FC<P> => {
   const LazyComponent = lazy(importFunc);
 
@@ -36,7 +36,7 @@ export const createLazyComponent = <P extends object>(
  * perceived load time when the component is eventually rendered.
  */
 export const preloadComponent = <T,>(
-  importFunc: () => Promise<T>,
+  importFunc: () => Promise<T>
 ): Promise<T> => importFunc();
 
 // ── createLazyRoute ───────────────────────────────────────────────────────────
@@ -46,7 +46,7 @@ export const preloadComponent = <T,>(
  */
 export const createLazyRoute = <P extends object>(
   importFunc: () => Promise<{ default: React.ComponentType<P> }>,
-  LoadingComponent: React.ReactNode = null,
+  LoadingComponent: React.ReactNode = null
 ): React.FC<P> => {
   const LazyRoute = lazy(importFunc);
 
@@ -73,7 +73,7 @@ export const LazyImage: React.FC<LazyImageProps> = ({
   src,
   alt,
   className,
-  placeholder,
+  placeholder
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isInView, setIsInView] = useState(false);
@@ -87,7 +87,7 @@ export const LazyImage: React.FC<LazyImageProps> = ({
           observer.disconnect();
         }
       },
-      { threshold: 0.1 },
+      { threshold: 0.1 }
     );
 
     if (imgRef.current) observer.observe(imgRef.current);
@@ -101,7 +101,7 @@ export const LazyImage: React.FC<LazyImageProps> = ({
           src={src}
           alt={alt}
           onLoad={() => setIsLoaded(true)}
-          style={{ opacity: isLoaded ? 1 : 0, transition: "opacity 0.3s ease" }}
+          style={{ opacity: isLoaded ? 1 : 0, transition: 'opacity 0.3s ease' }}
         />
       ) : (
         (placeholder ?? <div className="image-placeholder" />)
@@ -123,7 +123,7 @@ interface LazySectionProps {
  */
 export const LazySection: React.FC<LazySectionProps> = ({
   children,
-  threshold = 0.1,
+  threshold = 0.1
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -133,7 +133,7 @@ export const LazySection: React.FC<LazySectionProps> = ({
       ([entry]) => {
         if (entry.isIntersecting) setIsVisible(true);
       },
-      { threshold },
+      { threshold }
     );
 
     if (ref.current) observer.observe(ref.current);

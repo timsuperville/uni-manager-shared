@@ -1,6 +1,6 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from 'react';
 
-type Theme = "light" | "dark";
+type Theme = 'light' | 'dark';
 
 /**
  * Resolves the effective theme priority:
@@ -8,17 +8,17 @@ type Theme = "light" | "dark";
  *   2. OS / browser prefers-color-scheme              (auto-detected)
  */
 function resolveInitialTheme(): Theme {
-  const stored = localStorage.getItem("theme") as Theme | null;
-  if (stored === "light" || stored === "dark") return stored;
+  const stored = localStorage.getItem('theme') as Theme | null;
+  if (stored === 'light' || stored === 'dark') return stored;
   // No explicit user preference — follow the OS
-  return window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "dark"
-    : "light";
+  return window.matchMedia('(prefers-color-scheme: dark)').matches
+    ? 'dark'
+    : 'light';
 }
 
 function applyTheme(theme: Theme) {
   const root = window.document.documentElement;
-  root.classList.remove("light", "dark");
+  root.classList.remove('light', 'dark');
   root.classList.add(theme);
 }
 
@@ -32,27 +32,27 @@ export function useDarkMode() {
 
   // Listen for OS theme changes — only acts when no user override is stored
   useEffect(() => {
-    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
 
     const handleSystemChange = (e: MediaQueryListEvent) => {
       // Respect an explicit user override; only auto-switch when following system
-      const stored = localStorage.getItem("theme");
+      const stored = localStorage.getItem('theme');
       if (!stored) {
-        setTheme(e.matches ? "dark" : "light");
+        setTheme(e.matches ? 'dark' : 'light');
       }
     };
 
-    mq.addEventListener("change", handleSystemChange);
-    return () => mq.removeEventListener("change", handleSystemChange);
+    mq.addEventListener('change', handleSystemChange);
+    return () => mq.removeEventListener('change', handleSystemChange);
   }, []);
 
   /**
    * Explicit user toggle — writes to localStorage so the choice is remembered.
    */
   const toggleTheme = useCallback(() => {
-    setTheme((prev) => {
-      const next: Theme = prev === "light" ? "dark" : "light";
-      localStorage.setItem("theme", next);
+    setTheme(prev => {
+      const next: Theme = prev === 'light' ? 'dark' : 'light';
+      localStorage.setItem('theme', next);
       return next;
     });
   }, []);
@@ -61,11 +61,11 @@ export function useDarkMode() {
    * Reset to automatic — clears the override and immediately re-follows the OS.
    */
   const resetToSystem = useCallback(() => {
-    localStorage.removeItem("theme");
-    const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
+    localStorage.removeItem('theme');
+    const systemTheme = window.matchMedia('(prefers-color-scheme: dark)')
       .matches
-      ? "dark"
-      : "light";
+      ? 'dark'
+      : 'light';
     setTheme(systemTheme);
   }, []);
 

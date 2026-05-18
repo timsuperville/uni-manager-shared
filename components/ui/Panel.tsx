@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { glassBackground, glassBorder, flex1 } from "@shared/styles/styleUtils";
+import React, { useEffect } from 'react';
+import { glassBackground, glassBorder, flex1 } from '@shared/styles/styleUtils';
 
 interface PanelProps {
   open: boolean;
@@ -20,16 +20,16 @@ export function Panel({
   children,
   footer,
   width = 440,
-  className = "",
-  padded = true,
+  className = '',
+  padded = true
 }: PanelProps) {
   useEffect(() => {
     if (!open) return;
     const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === 'Escape') onClose();
     };
-    document.addEventListener("keydown", handler);
-    return () => document.removeEventListener("keydown", handler);
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
   }, [open, onClose]);
 
   if (!open) return null;
@@ -38,13 +38,13 @@ export function Panel({
     <div
       role="dialog"
       aria-modal="true"
-      aria-label={title || "Panel overlay"}
+      aria-label={title || 'Panel overlay'}
       style={{
-        position: "fixed",
+        position: 'fixed',
         inset: 0,
         zIndex: 1000,
-        display: "flex",
-        justifyContent: "flex-end",
+        display: 'flex',
+        justifyContent: 'flex-end'
       }}
     >
       <style>{`
@@ -54,49 +54,49 @@ export function Panel({
       <div
         onClick={onClose}
         style={{
-          position: "absolute",
+          position: 'absolute',
           inset: 0,
-          background: "rgba(0,0,0,0.45)",
-          backdropFilter: "blur(4px)",
-          WebkitBackdropFilter: "blur(4px)",
-          cursor: "pointer",
-          animation: "fadeInBg 0.2s ease-out forwards",
+          background: 'rgba(0,0,0,0.45)',
+          backdropFilter: 'blur(4px)',
+          WebkitBackdropFilter: 'blur(4px)',
+          cursor: 'pointer',
+          animation: 'fadeInBg 0.2s ease-out forwards'
         }}
       />
       <div
         className={className}
         style={{
-          position: "relative",
-          width: "100%",
+          position: 'relative',
+          width: '100%',
           maxWidth: width,
-          height: "100%",
-          display: "flex",
-          flexDirection: "column",
-          backdropFilter: "blur(32px) saturate(200%)",
-          WebkitBackdropFilter: "blur(32px) saturate(200%)",
-          boxShadow: "-12px 0 48px rgba(0,0,0,0.45)",
-          animation: "slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          backdropFilter: 'blur(32px) saturate(200%)',
+          WebkitBackdropFilter: 'blur(32px) saturate(200%)',
+          boxShadow: '-12px 0 48px rgba(0,0,0,0.45)',
+          animation: 'slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
           ...glassBackground,
-          ...glassBorder,
+          ...glassBorder
         }}
       >
         <div
           style={{
-            padding: "1.25rem 1.5rem",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            ...glassBorder,
+            padding: '1.25rem 1.5rem',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            ...glassBorder
           }}
         >
           {title ? (
             <h3
               style={{
                 margin: 0,
-                fontSize: "1.125rem",
+                fontSize: '1.125rem',
                 fontWeight: 600,
-                color: "var(--text-primary)",
-                fontFamily: "var(--font-display, inherit)",
+                color: 'var(--text-primary)',
+                fontFamily: 'var(--font-display, inherit)'
               }}
             >
               {title}
@@ -108,21 +108,21 @@ export function Panel({
             onClick={onClose}
             aria-label="Close panel"
             style={{
-              background: "transparent",
-              border: "none",
-              color: "var(--text-muted)",
-              cursor: "pointer",
-              padding: "4px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              transition: "color 0.2s",
+              background: 'transparent',
+              border: 'none',
+              color: 'var(--text-muted)',
+              cursor: 'pointer',
+              padding: '4px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'color 0.2s'
             }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.color = "var(--text-primary)")
+            onMouseEnter={e =>
+              (e.currentTarget.style.color = 'var(--text-primary)')
             }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.color = "var(--text-muted)")
+            onMouseLeave={e =>
+              (e.currentTarget.style.color = 'var(--text-muted)')
             }
           >
             <svg
@@ -142,9 +142,9 @@ export function Panel({
         </div>
         <div
           style={{
-            overflowY: "auto",
-            padding: padded ? "1.5rem" : "0",
-            ...flex1,
+            overflowY: 'auto',
+            padding: padded ? '1.5rem' : '0',
+            ...flex1
           }}
         >
           {children}
@@ -152,9 +152,9 @@ export function Panel({
         {footer && (
           <div
             style={{
-              padding: "1.25rem 1.5rem",
-              background: "rgba(0,0,0,0.2)",
-              ...glassBorder,
+              padding: '1.25rem 1.5rem',
+              background: 'rgba(0,0,0,0.2)',
+              ...glassBorder
             }}
           >
             {footer}

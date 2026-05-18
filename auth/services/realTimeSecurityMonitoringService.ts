@@ -8,7 +8,7 @@
 
 type EventHandler<T = unknown> = (data: T) => void;
 
-type Severity = "low" | "medium" | "high" | "critical";
+type Severity = 'low' | 'medium' | 'high' | 'critical';
 
 interface MonitoringConfig {
   threatDetection: boolean;
@@ -46,7 +46,7 @@ interface SecurityAlert {
 }
 
 interface SecurityEventPayload {
-  type: "threat_detected" | "behavior_anomaly" | "security_alert";
+  type: 'threat_detected' | 'behavior_anomaly' | 'security_alert';
   data: Record<string, unknown>;
 }
 
@@ -69,19 +69,19 @@ class RealTimeSecurityMonitoringService {
     threatDetection: true,
     behaviorAnalysis: true,
     riskScoring: true,
-    realTimeAlerts: true,
+    realTimeAlerts: true
   };
   private readonly metrics: ServiceMetrics = {
     activeThreats: new Map(),
     alertsCount: 0,
     connectionsCount: 0,
     lastThreatDetected: null,
-    systemHealth: "initializing",
+    systemHealth: 'initializing'
   };
 
   async initialize(
     userId: string,
-    sessionId: string,
+    sessionId: string
   ): Promise<{
     success: boolean;
     connectionId?: string;
@@ -94,18 +94,18 @@ class RealTimeSecurityMonitoringService {
       this.isConnected = true;
       this.metrics.connectionsCount++;
 
-      await new Promise<void>((resolve) => setTimeout(resolve, 100));
+      await new Promise<void>(resolve => setTimeout(resolve, 100));
 
-      this.emit("connected", undefined);
-      this.metrics.systemHealth = "healthy";
+      this.emit('connected', undefined);
+      this.metrics.systemHealth = 'healthy';
 
       return {
         success: true,
         connectionId: `connection_${Date.now()}`,
-        monitoringConfig: this.monitoringConfig,
+        monitoringConfig: this.monitoringConfig
       };
     } catch (error) {
-      this.emit("error", { message: (error as Error).message });
+      this.emit('error', { message: (error as Error).message });
       return { success: false, error: (error as Error).message };
     }
   }
@@ -113,12 +113,12 @@ class RealTimeSecurityMonitoringService {
   async connect(): Promise<void> {
     if (this.isConnected) return;
     this.isConnected = true;
-    this.emit("connected", undefined);
+    this.emit('connected', undefined);
   }
 
   async disconnect(): Promise<void> {
     this.isConnected = false;
-    this.emit("disconnected", undefined);
+    this.emit('disconnected', undefined);
   }
 
   async destroy(): Promise<void> {
@@ -144,14 +144,14 @@ class RealTimeSecurityMonitoringService {
   emit(event: string, data: unknown): void {
     const handlers = this.eventHandlers.get(event);
     if (!handlers) return;
-    handlers.forEach((handler) => {
+    handlers.forEach(handler => {
       try {
         handler(data);
       } catch (error) {
         if (import.meta.env?.DEV) {
           console.warn(
             `[RealTimeSecurityMonitoringService] Error in ${event} handler:`,
-            (error as Error).message,
+            (error as Error).message
           );
         }
       }
@@ -159,84 +159,84 @@ class RealTimeSecurityMonitoringService {
   }
 
   async processSecurityEvent(event: SecurityEventPayload): Promise<void> {
-    if (!this.isConnected) throw new Error("Service not connected");
+    if (!this.isConnected) throw new Error('Service not connected');
 
     switch (event.type) {
-      case "threat_detected":
+      case 'threat_detected':
         await this.handleThreat(event.data);
         break;
-      case "behavior_anomaly":
+      case 'behavior_anomaly':
         await this.handleBehaviorAnomaly(event.data);
         break;
-      case "security_alert":
+      case 'security_alert':
         await this.handleSecurityAlert(event.data);
         break;
       default:
         if (import.meta.env?.DEV)
           console.warn(
-            "[RealTimeSecurityMonitoringService] Unknown security event type:",
-            (event as SecurityEventPayload).type,
+            '[RealTimeSecurityMonitoringService] Unknown security event type:',
+            (event as SecurityEventPayload).type
           );
     }
   }
 
   private async handleThreat(
-    threatData: Record<string, unknown>,
+    threatData: Record<string, unknown>
   ): Promise<void> {
     const threat: Threat = {
       threatId:
-        (threatData["threatId"] as string | undefined) ??
+        (threatData['threatId'] as string | undefined) ??
         `threat_${Date.now()}`,
-      threatType: threatData["threatType"] as string,
-      severity: (threatData["severity"] as Severity | undefined) ?? "medium",
-      confidence: (threatData["confidence"] as number | undefined) ?? 0.5,
-      source: threatData["source"] as string,
-      target: (threatData["target"] as string | undefined) ?? this.userId,
-      timestamp: (threatData["timestamp"] as number | undefined) ?? Date.now(),
+      threatType: threatData['threatType'] as string,
+      severity: (threatData['severity'] as Severity | undefined) ?? 'medium',
+      confidence: (threatData['confidence'] as number | undefined) ?? 0.5,
+      source: threatData['source'] as string,
+      target: (threatData['target'] as string | undefined) ?? this.userId,
+      timestamp: (threatData['timestamp'] as number | undefined) ?? Date.now(),
       metadata:
-        (threatData["metadata"] as Record<string, unknown> | undefined) ?? {},
+        (threatData['metadata'] as Record<string, unknown> | undefined) ?? {}
     };
 
     this.metrics.activeThreats.set(threat.threatId, threat);
     this.metrics.lastThreatDetected = threat.timestamp;
     this.metrics.alertsCount++;
 
-    this.emit("threatDetected", threat);
+    this.emit('threatDetected', threat);
   }
 
   private async handleBehaviorAnomaly(
-    anomalyData: Record<string, unknown>,
+    anomalyData: Record<string, unknown>
   ): Promise<void> {
     const anomaly: BehaviorAnomaly = {
-      anomalyType: anomalyData["anomalyType"] as string,
-      severity: (anomalyData["severity"] as Severity | undefined) ?? "low",
-      confidence: (anomalyData["confidence"] as number | undefined) ?? 0.5,
+      anomalyType: anomalyData['anomalyType'] as string,
+      severity: (anomalyData['severity'] as Severity | undefined) ?? 'low',
+      confidence: (anomalyData['confidence'] as number | undefined) ?? 0.5,
       behaviorData:
-        (anomalyData["behaviorData"] as Record<string, unknown> | undefined) ??
+        (anomalyData['behaviorData'] as Record<string, unknown> | undefined) ??
         {},
-      timestamp: (anomalyData["timestamp"] as number | undefined) ?? Date.now(),
+      timestamp: (anomalyData['timestamp'] as number | undefined) ?? Date.now()
     };
-    this.emit("behaviorAnomaly", anomaly);
+    this.emit('behaviorAnomaly', anomaly);
   }
 
   private async handleSecurityAlert(
-    alertData: Record<string, unknown>,
+    alertData: Record<string, unknown>
   ): Promise<void> {
     const alert: SecurityAlert = {
       alertId:
-        (alertData["alertId"] as string | undefined) ?? `alert_${Date.now()}`,
-      alertType: alertData["alertType"] as string,
-      severity: (alertData["severity"] as Severity | undefined) ?? "low",
-      message: alertData["message"] as string,
-      timestamp: (alertData["timestamp"] as number | undefined) ?? Date.now(),
+        (alertData['alertId'] as string | undefined) ?? `alert_${Date.now()}`,
+      alertType: alertData['alertType'] as string,
+      severity: (alertData['severity'] as Severity | undefined) ?? 'low',
+      message: alertData['message'] as string,
+      timestamp: (alertData['timestamp'] as number | undefined) ?? Date.now(),
       actionRequired:
-        (alertData["actionRequired"] as boolean | undefined) ?? false,
+        (alertData['actionRequired'] as boolean | undefined) ?? false
     };
-    this.emit("securityAlert", alert);
+    this.emit('securityAlert', alert);
   }
 
   async updateConfiguration(
-    config: Partial<MonitoringConfig>,
+    config: Partial<MonitoringConfig>
   ): Promise<{ success: true; config: MonitoringConfig }> {
     this.monitoringConfig = { ...this.monitoringConfig, ...config };
     return { success: true, config: this.monitoringConfig };
@@ -247,9 +247,9 @@ class RealTimeSecurityMonitoringService {
   }
 
   async sendMessage(message: unknown): Promise<void> {
-    if (!this.isConnected) throw new Error("Service not connected");
+    if (!this.isConnected) throw new Error('Service not connected');
     if (import.meta.env?.DEV)
-      console.log("[SecurityMonitor] message:", message);
+      console.log('[SecurityMonitor] message:', message);
   }
 }
 

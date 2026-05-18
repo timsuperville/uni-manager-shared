@@ -4,7 +4,7 @@
  * Supports Google, Microsoft, LinkedIn, GitHub, Spotify, Apple OAuth providers
  */
 
-import type { AppName } from "./appConfigs";
+import type { AppName } from './appConfigs';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -54,169 +54,169 @@ export interface ResolvedProviderConfig extends OAuthProvider {
 
 export const oauthProviders: Record<string, OAuthProvider> = {
   google: {
-    name: "Google",
-    iconName: "google",
-    authUrl: "https://accounts.google.com/oauth2/v2/auth",
-    scope: "openid email profile",
-    responseType: "code",
+    name: 'Google',
+    iconName: 'google',
+    authUrl: 'https://accounts.google.com/oauth2/v2/auth',
+    scope: 'openid email profile',
+    responseType: 'code',
     includeGrantedScopes: true,
-    accessType: "offline",
+    accessType: 'offline',
     state: true,
     security: {
       pkce: true,
       nonce: true,
       deviceFingerprinting: true,
-      sessionTracking: true,
+      sessionTracking: true
     },
     configs: {
       church: {
         scope:
-          "openid email profile https://www.googleapis.com/auth/userinfo.email",
-        additionalParams: { prompt: "consent", access_type: "offline" },
+          'openid email profile https://www.googleapis.com/auth/userinfo.email',
+        additionalParams: { prompt: 'consent', access_type: 'offline' }
       },
       admin: {
-        scope: "openid email profile",
+        scope: 'openid email profile',
         additionalParams: {
-          hd: import.meta.env.VITE_GOOGLE_HOSTED_DOMAIN as string | undefined,
-        },
+          hd: import.meta.env.VITE_GOOGLE_HOSTED_DOMAIN as string | undefined
+        }
       },
       work: {
-        scope: "openid email profile",
-        additionalParams: { prompt: "select_account" },
+        scope: 'openid email profile',
+        additionalParams: { prompt: 'select_account' }
       },
       personal: {
-        scope: "openid email profile",
-        additionalParams: { prompt: "select_account" },
+        scope: 'openid email profile',
+        additionalParams: { prompt: 'select_account' }
       },
       home: {
-        scope: "openid email profile",
-        additionalParams: { prompt: "select_account" },
+        scope: 'openid email profile',
+        additionalParams: { prompt: 'select_account' }
       },
       playback: {
-        scope: "openid email profile",
-        additionalParams: { prompt: "select_account" },
-      },
-    },
+        scope: 'openid email profile',
+        additionalParams: { prompt: 'select_account' }
+      }
+    }
   },
 
   microsoft: {
-    name: "Microsoft",
-    iconName: "microsoft",
-    authUrl: "https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
-    scope: "openid email profile User.Read",
-    responseType: "code",
+    name: 'Microsoft',
+    iconName: 'microsoft',
+    authUrl: 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize',
+    scope: 'openid email profile User.Read',
+    responseType: 'code',
     state: true,
     security: {
       pkce: true,
       nonce: true,
       deviceFingerprinting: true,
-      sessionTracking: true,
+      sessionTracking: true
     },
     configs: {
       admin: {
-        scope: "openid email profile User.Read Directory.Read.All",
-        additionalParams: { prompt: "select_account" },
+        scope: 'openid email profile User.Read Directory.Read.All',
+        additionalParams: { prompt: 'select_account' }
       },
       work: {
-        scope: "openid email profile User.Read",
-        additionalParams: { prompt: "select_account" },
-      },
-    },
+        scope: 'openid email profile User.Read',
+        additionalParams: { prompt: 'select_account' }
+      }
+    }
   },
 
   linkedin: {
-    name: "LinkedIn",
-    iconName: "linkedin",
-    authUrl: "https://www.linkedin.com/oauth/v2/authorization",
-    scope: "r_liteprofile r_emailaddress",
-    responseType: "code",
+    name: 'LinkedIn',
+    iconName: 'linkedin',
+    authUrl: 'https://www.linkedin.com/oauth/v2/authorization',
+    scope: 'r_liteprofile r_emailaddress',
+    responseType: 'code',
     state: true,
     security: {
       pkce: false,
       nonce: false,
       deviceFingerprinting: true,
-      sessionTracking: true,
+      sessionTracking: true
     },
     configs: {
       work: {
-        scope: "r_liteprofile r_emailaddress w_member_social",
-        additionalParams: {},
-      },
-    },
+        scope: 'r_liteprofile r_emailaddress w_member_social',
+        additionalParams: {}
+      }
+    }
   },
 
   github: {
-    name: "GitHub",
-    iconName: "github",
-    authUrl: "https://github.com/login/oauth/authorize",
-    scope: "user:email read:user",
-    responseType: "code",
+    name: 'GitHub',
+    iconName: 'github',
+    authUrl: 'https://github.com/login/oauth/authorize',
+    scope: 'user:email read:user',
+    responseType: 'code',
     state: true,
     security: {
       pkce: false,
       nonce: false,
       deviceFingerprinting: true,
-      sessionTracking: true,
+      sessionTracking: true
     },
     configs: {
       personal: {
-        scope: "user:email read:user repo",
-        additionalParams: { allow_signup: "false" },
-      },
-    },
+        scope: 'user:email read:user repo',
+        additionalParams: { allow_signup: 'false' }
+      }
+    }
   },
 
   spotify: {
-    name: "Spotify",
-    iconName: "spotify",
-    authUrl: "https://accounts.spotify.com/authorize",
-    scope: "user-read-email user-read-private",
-    responseType: "code",
+    name: 'Spotify',
+    iconName: 'spotify',
+    authUrl: 'https://accounts.spotify.com/authorize',
+    scope: 'user-read-email user-read-private',
+    responseType: 'code',
     state: true,
     security: {
       pkce: true,
       nonce: false,
       deviceFingerprinting: true,
-      sessionTracking: true,
+      sessionTracking: true
     },
     configs: {
       playback: {
         scope:
-          "user-read-email user-read-private user-read-playback-state user-modify-playback-state",
-        additionalParams: { show_dialog: "true" },
-      },
-    },
+          'user-read-email user-read-private user-read-playback-state user-modify-playback-state',
+        additionalParams: { show_dialog: 'true' }
+      }
+    }
   },
 
   apple: {
-    name: "Apple",
-    iconName: "apple",
-    authUrl: "https://appleid.apple.com/auth/authorize",
-    scope: "email name",
-    responseType: "code",
-    responseMode: "form_post",
+    name: 'Apple',
+    iconName: 'apple',
+    authUrl: 'https://appleid.apple.com/auth/authorize',
+    scope: 'email name',
+    responseType: 'code',
+    responseMode: 'form_post',
     state: true,
     security: {
       pkce: true,
       nonce: true,
       deviceFingerprinting: true,
-      sessionTracking: true,
+      sessionTracking: true
     },
     configs: {
       playback: {
-        scope: "email name",
-        additionalParams: { response_mode: "form_post" },
-      },
-    },
-  },
+        scope: 'email name',
+        additionalParams: { response_mode: 'form_post' }
+      }
+    }
+  }
 };
 
 // ── PKCE ──────────────────────────────────────────────────────────────────────
 
 function generateRandomString(length: number): string {
   const charset =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~";
-  let result = "";
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
+  let result = '';
   for (let i = 0; i < length; i++) {
     result += charset.charAt(Math.floor(Math.random() * charset.length));
   }
@@ -225,18 +225,18 @@ function generateRandomString(length: number): string {
 
 function base64URLEncode(buffer: ArrayBuffer): string {
   const bytes = new Uint8Array(buffer);
-  let binary = "";
+  let binary = '';
   for (let i = 0; i < bytes.byteLength; i++) {
     binary += String.fromCharCode(bytes[i]!);
   }
-  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 }
 
 export async function generatePKCE(): Promise<{
   codeVerifier: string;
   codeChallenge: string;
 }> {
-  const hasSubtle = typeof window !== "undefined" && window.crypto?.subtle;
+  const hasSubtle = typeof window !== 'undefined' && window.crypto?.subtle;
 
   if (!hasSubtle) {
     // Fallback for environments without Web Crypto API
@@ -250,7 +250,7 @@ export async function generatePKCE(): Promise<{
 
   const codeVerifier = generateRandomString(128);
   const data = new TextEncoder().encode(codeVerifier);
-  const digest = await window.crypto.subtle.digest("SHA-256", data);
+  const digest = await window.crypto.subtle.digest('SHA-256', data);
   const codeChallenge = base64URLEncode(digest);
 
   return { codeVerifier, codeChallenge };
@@ -277,7 +277,7 @@ export function generateState(): string {
 
 export function getProviderConfig(
   providerId: string,
-  appName: string,
+  appName: string
 ): ResolvedProviderConfig {
   const provider = oauthProviders[providerId];
   if (!provider) throw new Error(`Unsupported OAuth provider: ${providerId}`);
@@ -290,11 +290,11 @@ export function getProviderConfig(
   const clientId =
     (import.meta.env[`VITE_${providerId.toUpperCase()}_CLIENT_ID`] as
       | string
-      | undefined) ?? "";
+      | undefined) ?? '';
   const redirectUri =
     (import.meta.env[`VITE_${providerId.toUpperCase()}_REDIRECT_URI`] as
       | string
-      | undefined) ?? "";
+      | undefined) ?? '';
   const tokenEndpoint =
     (import.meta.env[`VITE_${providerId.toUpperCase()}_TOKEN_ENDPOINT`] as
       | string
@@ -307,19 +307,19 @@ export function getProviderConfig(
   return {
     ...provider,
     scope: resolvedScope,
-    scopes: resolvedScope.split(" ").filter(Boolean),
+    scopes: resolvedScope.split(' ').filter(Boolean),
     additionalParams: appConfig.additionalParams ?? {},
     clientId,
     redirectUri,
     authorizationEndpoint: provider.authUrl,
     tokenEndpoint,
-    userInfoEndpoint,
+    userInfoEndpoint
   };
 }
 
 export function isProviderSupportedForApp(
   providerId: string,
-  appName: string,
+  appName: string
 ): boolean {
   const provider = oauthProviders[providerId];
   if (!provider) return false;
@@ -327,8 +327,8 @@ export function isProviderSupportedForApp(
 }
 
 export function getSupportedProvidersForApp(appName: string): string[] {
-  return Object.keys(oauthProviders).filter((id) =>
-    isProviderSupportedForApp(id, appName),
+  return Object.keys(oauthProviders).filter(id =>
+    isProviderSupportedForApp(id, appName)
   );
 }
 

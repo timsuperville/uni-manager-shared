@@ -7,15 +7,15 @@
  * Uses both memory cache (fast) and sessionStorage (persistent across page reloads).
  */
 
-import { logger } from "@shared/utils/logger";
+import { logger } from '@shared/utils/logger';
 
 // Memory cache — null means no value cached
 let cachedFingerprint: string | null = null;
 let cacheTimestamp: number | null = null;
 
 const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
-const STORAGE_KEY = "device_fingerprint";
-const STORAGE_TIME_KEY = "device_fingerprint_time";
+const STORAGE_KEY = 'device_fingerprint';
+const STORAGE_TIME_KEY = 'device_fingerprint_time';
 
 /** Returns the cached device fingerprint if available and not expired, otherwise null. */
 export function getCachedDeviceFingerprint(): string | null {
@@ -29,7 +29,7 @@ export function getCachedDeviceFingerprint(): string | null {
   }
 
   // sessionStorage (persistent across page reloads)
-  if (typeof sessionStorage !== "undefined") {
+  if (typeof sessionStorage !== 'undefined') {
     try {
       const stored = sessionStorage.getItem(STORAGE_KEY);
       const storedTime = sessionStorage.getItem(STORAGE_TIME_KEY);
@@ -46,8 +46,8 @@ export function getCachedDeviceFingerprint(): string | null {
     } catch (error) {
       if (import.meta.env.DEV) {
         logger.warn(
-          "[DeviceFingerprintCache] Failed to read from sessionStorage:",
-          error,
+          '[DeviceFingerprintCache] Failed to read from sessionStorage:',
+          error
         );
       }
     }
@@ -64,15 +64,15 @@ export function setCachedDeviceFingerprint(fingerprint: string): void {
   cachedFingerprint = fingerprint;
   cacheTimestamp = now;
 
-  if (typeof sessionStorage !== "undefined") {
+  if (typeof sessionStorage !== 'undefined') {
     try {
       sessionStorage.setItem(STORAGE_KEY, fingerprint);
       sessionStorage.setItem(STORAGE_TIME_KEY, now.toString());
     } catch (error) {
       if (import.meta.env.DEV) {
         logger.warn(
-          "[DeviceFingerprintCache] Failed to write to sessionStorage:",
-          error,
+          '[DeviceFingerprintCache] Failed to write to sessionStorage:',
+          error
         );
       }
     }
@@ -87,15 +87,15 @@ export function clearCachedDeviceFingerprint(): void {
   cachedFingerprint = null;
   cacheTimestamp = null;
 
-  if (typeof sessionStorage !== "undefined") {
+  if (typeof sessionStorage !== 'undefined') {
     try {
       sessionStorage.removeItem(STORAGE_KEY);
       sessionStorage.removeItem(STORAGE_TIME_KEY);
     } catch (error) {
       if (import.meta.env.DEV) {
         logger.warn(
-          "[DeviceFingerprintCache] Failed to clear sessionStorage:",
-          error,
+          '[DeviceFingerprintCache] Failed to clear sessionStorage:',
+          error
         );
       }
     }

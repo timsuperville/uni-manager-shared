@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 interface MinistryMembership {
   id: string;
@@ -34,7 +34,7 @@ const RoleGuard: React.FC<RoleGuardProps> = ({
   ministryRoles = [],
   children,
   fallback = null,
-  requireAll = false,
+  requireAll = false
 }) => {
   if (!user) return <>{fallback}</>;
 
@@ -42,26 +42,26 @@ const RoleGuard: React.FC<RoleGuardProps> = ({
     if (roles.length === 0) return true;
     const userRoles = user.roles ?? [];
     return requireAll
-      ? roles.every((r) => userRoles.includes(r))
-      : roles.some((r) => userRoles.includes(r));
+      ? roles.every(r => userRoles.includes(r))
+      : roles.some(r => userRoles.includes(r));
   };
 
   const hasRequiredPermissions = (): boolean => {
     if (permissions.length === 0) return true;
     const userPerms = user.permissions ?? [];
     return requireAll
-      ? permissions.every((p) => userPerms.includes(p))
-      : permissions.some((p) => userPerms.includes(p));
+      ? permissions.every(p => userPerms.includes(p))
+      : permissions.some(p => userPerms.includes(p));
   };
 
   const hasMinistryAccess = (): boolean => {
     if (!ministryId || ministryRoles.length === 0) return true;
-    const ministry = (user.ministries ?? []).find((m) => m.id === ministryId);
+    const ministry = (user.ministries ?? []).find(m => m.id === ministryId);
     if (!ministry) return false;
     const mRoles = ministry.roles ?? [];
     return requireAll
-      ? ministryRoles.every((r) => mRoles.includes(r))
-      : ministryRoles.some((r) => mRoles.includes(r));
+      ? ministryRoles.every(r => mRoles.includes(r))
+      : ministryRoles.some(r => mRoles.includes(r));
   };
 
   const hasAccess =

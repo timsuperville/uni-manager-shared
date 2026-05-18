@@ -1,6 +1,6 @@
-import { Card, CardContent } from "./Card";
+import { Card, CardContent } from './Card';
 
-type CompositeColor = "blue" | "green" | "purple" | "orange" | "red";
+type CompositeColor = 'blue' | 'green' | 'purple' | 'orange' | 'red';
 
 interface ColorTokens {
   bg: string;
@@ -11,35 +11,35 @@ interface ColorTokens {
 
 const COLOR_VARS: Record<CompositeColor, ColorTokens> = {
   blue: {
-    bg: "var(--primary-resonance, #6366f1)",
-    text: "var(--primary-resonance, #6366f1)",
-    light: "var(--glass-surface, rgba(15,15,35,0.7))",
-    border: "var(--glass-outline, rgba(255,255,255,0.12))",
+    bg: 'var(--primary-resonance, #6366f1)',
+    text: 'var(--primary-resonance, #6366f1)',
+    light: 'var(--glass-surface, rgba(15,15,35,0.7))',
+    border: 'var(--glass-outline, rgba(255,255,255,0.12))'
   },
   green: {
-    bg: "var(--color-success, #10b981)",
-    text: "var(--color-success, #10b981)",
-    light: "var(--glass-surface, rgba(15,15,35,0.7))",
-    border: "var(--glass-outline, rgba(255,255,255,0.12))",
+    bg: 'var(--color-success, #10b981)',
+    text: 'var(--color-success, #10b981)',
+    light: 'var(--glass-surface, rgba(15,15,35,0.7))',
+    border: 'var(--glass-outline, rgba(255,255,255,0.12))'
   },
   purple: {
-    bg: "var(--cobalt, #7c3aed)",
-    text: "var(--cobalt, #7c3aed)",
-    light: "var(--glass-surface, rgba(15,15,35,0.7))",
-    border: "var(--glass-outline, rgba(255,255,255,0.12))",
+    bg: 'var(--cobalt, #7c3aed)',
+    text: 'var(--cobalt, #7c3aed)',
+    light: 'var(--glass-surface, rgba(15,15,35,0.7))',
+    border: 'var(--glass-outline, rgba(255,255,255,0.12))'
   },
   orange: {
-    bg: "var(--color-warning, #f59e0b)",
-    text: "var(--color-warning, #f59e0b)",
-    light: "var(--glass-surface, rgba(15,15,35,0.7))",
-    border: "var(--glass-outline, rgba(255,255,255,0.12))",
+    bg: 'var(--color-warning, #f59e0b)',
+    text: 'var(--color-warning, #f59e0b)',
+    light: 'var(--glass-surface, rgba(15,15,35,0.7))',
+    border: 'var(--glass-outline, rgba(255,255,255,0.12))'
   },
   red: {
-    bg: "var(--color-error, #ef4444)",
-    text: "var(--color-error, #ef4444)",
-    light: "var(--glass-surface, rgba(15,15,35,0.7))",
-    border: "var(--glass-outline, rgba(255,255,255,0.12))",
-  },
+    bg: 'var(--color-error, #ef4444)',
+    text: 'var(--color-error, #ef4444)',
+    light: 'var(--glass-surface, rgba(15,15,35,0.7))',
+    border: 'var(--glass-outline, rgba(255,255,255,0.12))'
+  }
 };
 
 interface QuickActionCardProps {
@@ -57,8 +57,8 @@ export function QuickActionCard({
   description,
   icon,
   action,
-  color = "blue",
-  actionText = "Get Started",
+  color = 'blue',
+  actionText = 'Get Started'
 }: QuickActionCardProps) {
   const colors = COLOR_VARS[color] ?? COLOR_VARS.blue;
   return (
@@ -83,7 +83,7 @@ export function QuickActionCard({
             </h3>
             <p
               className="text-sm mb-4"
-              style={{ color: "var(--text-muted, #94a3b8)" }}
+              style={{ color: 'var(--text-muted, #94a3b8)' }}
             >
               {description}
             </p>
@@ -117,7 +117,7 @@ export function ProgressCard({
   target,
   unit,
   description,
-  color = "blue",
+  color = 'blue'
 }: ProgressCardProps) {
   const percentage = target > 0 ? Math.min((progress / target) * 100, 100) : 0;
   const colors = COLOR_VARS[color] ?? COLOR_VARS.blue;
@@ -130,7 +130,7 @@ export function ProgressCard({
           </h3>
           <span
             className="text-sm"
-            style={{ color: "var(--text-muted, #94a3b8)" }}
+            style={{ color: 'var(--text-muted, #94a3b8)' }}
           >
             {Math.round(percentage)}%
           </span>
@@ -138,7 +138,7 @@ export function ProgressCard({
         <div className="mb-4">
           <div
             className="flex justify-between text-sm mb-2"
-            style={{ color: "var(--text-muted, #94a3b8)" }}
+            style={{ color: 'var(--text-muted, #94a3b8)' }}
           >
             <span>
               {progress} {unit}
@@ -150,7 +150,7 @@ export function ProgressCard({
           <div
             className="w-full rounded-full h-2"
             style={{
-              background: "var(--glass-outline, rgba(255,255,255,0.12))",
+              background: 'var(--glass-outline, rgba(255,255,255,0.12))'
             }}
           >
             <div
@@ -162,7 +162,7 @@ export function ProgressCard({
         {description && (
           <p
             className="text-sm"
-            style={{ color: "var(--text-muted, #94a3b8)" }}
+            style={{ color: 'var(--text-muted, #94a3b8)' }}
           >
             {description}
           </p>

@@ -17,29 +17,29 @@
  *   await pushHospitalityEvent({ churchEventId, ... });
  */
 
-import { useState, useCallback } from "react";
-import { getApiClient } from "../api/core/ApiClient";
+import { useState, useCallback } from 'react';
+import { getApiClient } from '../api/core/ApiClient';
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
 export type HospitalityEventType =
-  | "small-group"
-  | "in-home"
-  | "bible-study"
-  | "prayer-meeting"
-  | "other";
+  | 'small-group'
+  | 'in-home'
+  | 'bible-study'
+  | 'prayer-meeting'
+  | 'other';
 
 export type DietaryFlag =
-  | "nut_allergy"
-  | "vegetarian"
-  | "vegan"
-  | "gluten_free"
-  | "halal"
-  | "kosher"
-  | "lactose_intolerant"
-  | "other";
+  | 'nut_allergy'
+  | 'vegetarian'
+  | 'vegan'
+  | 'gluten_free'
+  | 'halal'
+  | 'kosher'
+  | 'lactose_intolerant'
+  | 'other';
 
 export interface HospitalityEventPayload {
   churchEventId: string;
@@ -53,7 +53,7 @@ export interface HospitalityEventPayload {
 
 export interface UseHospitalityBridgeResult {
   pushHospitalityEvent: (
-    payload: HospitalityEventPayload,
+    payload: HospitalityEventPayload
   ) => Promise<string | null>;
   isLoading: boolean;
   error: string | null;
@@ -71,14 +71,14 @@ interface HospitalityApiResponse {
 // ---------------------------------------------------------------------------
 
 const VALID_DIETARY_FLAGS = new Set<DietaryFlag>([
-  "nut_allergy",
-  "vegetarian",
-  "vegan",
-  "gluten_free",
-  "halal",
-  "kosher",
-  "lactose_intolerant",
-  "other",
+  'nut_allergy',
+  'vegetarian',
+  'vegan',
+  'gluten_free',
+  'halal',
+  'kosher',
+  'lactose_intolerant',
+  'other'
 ]);
 
 // ---------------------------------------------------------------------------
@@ -95,33 +95,33 @@ export function useHospitalityBridge(): UseHospitalityBridgeResult {
       const {
         churchEventId,
         churchEventTitle,
-        eventType = "small-group",
+        eventType = 'small-group',
         scheduledAt,
         householdId,
         guestCount = 1,
-        dietaryFlags = [],
+        dietaryFlags = []
       } = payload;
 
       if (!churchEventId || !scheduledAt || !householdId) {
-        setError("churchEventId, scheduledAt, and householdId are required");
+        setError('churchEventId, scheduledAt, and householdId are required');
         return null;
       }
 
       // Sanitize dietary flags — only allow valid enum values
-      const sanitizedFlags = dietaryFlags.filter((f) =>
-        VALID_DIETARY_FLAGS.has(f),
+      const sanitizedFlags = dietaryFlags.filter(f =>
+        VALID_DIETARY_FLAGS.has(f)
       );
 
       // Build sanitized payload — NO CRM contact details
       const sanitizedPayload = {
         churchEventId,
-        churchEventTitle: churchEventTitle ?? "Church Gathering",
+        churchEventTitle: churchEventTitle ?? 'Church Gathering',
         eventType,
         scheduledAt:
           scheduledAt instanceof Date ? scheduledAt.toISOString() : scheduledAt,
         householdId,
         guestCount: Math.max(1, Math.min(500, Number(guestCount) || 1)),
-        dietaryFlags: sanitizedFlags,
+        dietaryFlags: sanitizedFlags
       };
 
       setIsLoading(true);
@@ -130,26 +130,26 @@ export function useHospitalityBridge(): UseHospitalityBridgeResult {
       try {
         const apiClient = getApiClient();
         const res = await apiClient.post<HospitalityApiResponse>(
-          "/api/v1/home/hospitality/events",
-          sanitizedPayload,
+          '/api/v1/home/hospitality/events',
+          sanitizedPayload
         );
 
         const json = res.data;
         if (!json.success)
-          throw new Error(json.message ?? "Hospitality push failed");
+          throw new Error(json.message ?? 'Hospitality push failed');
 
         const eventId = json.data?._id ?? null;
         setLastEventId(eventId);
         return eventId;
       } catch (err: unknown) {
         // Fail silently — Church App must never block on Home App availability
-        setError(err instanceof Error ? err.message : "Unknown error");
+        setError(err instanceof Error ? err.message : 'Unknown error');
         return null;
       } finally {
         setIsLoading(false);
       }
     },
-    [],
+    []
   );
 
   return { pushHospitalityEvent, isLoading, error, lastEventId };

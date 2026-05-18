@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 interface PageHeaderProps {
   title: string;
@@ -10,14 +10,14 @@ interface PageHeaderProps {
   /** Optional cover image URL — renders a hero background behind the title. */
   image?: string | null;
   /** Size variant: 'sm' | 'md' | 'lg'. Affects hero height when image is provided. */
-  size?: "sm" | "md" | "lg";
+  size?: 'sm' | 'md' | 'lg';
   children?: React.ReactNode;
 }
 
 const IMAGE_HEIGHT: Record<string, string> = {
-  sm: "h-24 sm:h-40",
-  md: "h-32 sm:h-56",
-  lg: "h-48 sm:h-72",
+  sm: 'h-24 sm:h-40',
+  md: 'h-32 sm:h-56',
+  lg: 'h-48 sm:h-72'
 };
 
 /**
@@ -31,10 +31,10 @@ export function PageHeader({
   actions,
   breadcrumb,
   compact = false,
-  className = "",
+  className = '',
   image,
-  size = "md",
-  children,
+  size = 'md',
+  children
 }: PageHeaderProps) {
   if (image) {
     const heightClass = IMAGE_HEIGHT[size] ?? IMAGE_HEIGHT.md;
@@ -46,15 +46,15 @@ export function PageHeader({
           src={image}
           alt={title}
           className="absolute inset-0 w-full h-full object-cover"
-          onError={(e) => {
-            e.currentTarget.style.display = "none";
+          onError={e => {
+            e.currentTarget.style.display = 'none';
           }}
         />
         <div
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.2) 60%, transparent 100%)",
+              'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.2) 60%, transparent 100%)'
           }}
         />
         <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-6">
@@ -64,7 +64,7 @@ export function PageHeader({
                 <div className="text-white/70 text-xs mb-1">{breadcrumb}</div>
               )}
               <h1
-                className={`font-bold leading-tight truncate ${compact ? "text-lg sm:text-2xl" : "text-xl sm:text-3xl"}`}
+                className={`font-bold leading-tight truncate ${compact ? 'text-lg sm:text-2xl' : 'text-xl sm:text-3xl'}`}
               >
                 {title}
               </h1>
@@ -89,15 +89,15 @@ export function PageHeader({
   return (
     <div
       className={[
-        "flex flex-col gap-0.5 sm:gap-1",
-        compact ? "py-0" : "py-0.5 sm:py-1",
-        className,
-      ].join(" ")}
+        'flex flex-col gap-0.5 sm:gap-1',
+        compact ? 'py-0' : 'py-0.5 sm:py-1',
+        className
+      ].join(' ')}
     >
       {breadcrumb && (
         <div
           className="flex items-center gap-1 mb-0.5 sm:mb-1 text-xs font-medium"
-          style={{ color: "var(--text-muted)" }}
+          style={{ color: 'var(--text-muted)' }}
         >
           {breadcrumb}
         </div>
@@ -106,12 +106,12 @@ export function PageHeader({
         <div className="min-w-0 flex-1">
           <h1
             className={[
-              "font-bold leading-tight truncate",
-              compact ? "text-lg sm:text-2xl" : "text-xl sm:text-3xl",
-            ].join(" ")}
+              'font-bold leading-tight truncate',
+              compact ? 'text-lg sm:text-2xl' : 'text-xl sm:text-3xl'
+            ].join(' ')}
             style={{
-              color: "var(--text-primary)",
-              fontFamily: "var(--font-display)",
+              color: 'var(--text-primary)',
+              fontFamily: 'var(--font-display)'
             }}
           >
             {title}
@@ -119,7 +119,7 @@ export function PageHeader({
           {description && (
             <p
               className="hidden sm:block text-sm mt-0.5 truncate"
-              style={{ color: "var(--text-muted)" }}
+              style={{ color: 'var(--text-muted)' }}
             >
               {description}
             </p>

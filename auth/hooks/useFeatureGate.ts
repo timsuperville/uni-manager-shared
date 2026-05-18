@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from "react";
-import { useAuth } from "./useAuth";
-import { getApiBaseUrl } from "../../api/config/apiConfig";
+import { useState, useEffect, useRef } from 'react';
+import { useAuth } from './useAuth';
+import { getApiBaseUrl } from '../../api/config/apiConfig';
 
 // ── Module-level gate cache ───────────────────────────────────────────────────
 // Keyed by `${appType}:${userId}`, value is Map<featureKey, boolean>.
@@ -10,7 +10,7 @@ const _cache = new Map<string, Map<string, boolean>>();
 async function fetchActiveGates(
   appType: string,
   token: string | null | undefined,
-  userId: string,
+  userId: string
 ): Promise<Map<string, boolean>> {
   const cacheKey = `${appType}:${userId}`;
   const cached = _cache.get(cacheKey);
@@ -21,13 +21,13 @@ async function fetchActiveGates(
     const res = await fetch(
       `${base}/api/v1/features/active?appType=${encodeURIComponent(appType)}`,
       {
-        method: "GET",
+        method: 'GET',
         headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
         },
-        credentials: "include",
-      },
+        credentials: 'include'
+      }
     );
 
     if (!res.ok) {
@@ -40,7 +40,7 @@ async function fetchActiveGates(
     };
     const gates = data.features ?? [];
     const gateMap = new Map<string, boolean>();
-    gates.forEach((gate) => {
+    gates.forEach(gate => {
       gateMap.set(gate.featureKey, gate.isEnabled !== false);
     });
 
@@ -59,7 +59,7 @@ async function fetchActiveGates(
  */
 export function invalidateFeatureGateCache(
   appType: string,
-  userId: string,
+  userId: string
 ): void {
   _cache.delete(`${appType}:${userId}`);
 }
@@ -90,11 +90,11 @@ export function useFeatureGate(featureKey: string): boolean {
       _id?: string;
     };
 
-    const appType = extUser.rbac?.app ?? "personal";
+    const appType = extUser.rbac?.app ?? 'personal';
     const token = extUser._token ?? null;
-    const userId = extUser._id ?? user.id ?? "anon";
+    const userId = extUser._id ?? user.id ?? 'anon';
 
-    fetchActiveGates(appType, token, userId).then((gateMap) => {
+    fetchActiveGates(appType, token, userId).then(gateMap => {
       if (!mountedRef.current) return;
       if (gateMap.size === 0) {
         setEnabled(true); // endpoint unavailable — fail open
@@ -111,11 +111,11 @@ export function useFeatureGate(featureKey: string): boolean {
 // ── Batch hook ────────────────────────────────────────────────────────────────
 
 export function useFeatureGates(
-  featureKeys: string[],
+  featureKeys: string[]
 ): Record<string, boolean> {
   const { user, isAuthenticated } = useAuth();
   const [gates, setGates] = useState<Record<string, boolean>>(() =>
-    Object.fromEntries(featureKeys.map((k) => [k, true])),
+    Object.fromEntries(featureKeys.map(k => [k, true]))
   );
   const mountedRef = useRef(true);
 
@@ -128,7 +128,7 @@ export function useFeatureGates(
 
   useEffect(() => {
     if (!isAuthenticated || !user) {
-      setGates(Object.fromEntries(featureKeys.map((k) => [k, false])));
+      setGates(Object.fromEntries(featureKeys.map(k => [k, false])));
       return;
     }
 
@@ -138,14 +138,14 @@ export function useFeatureGates(
       _id?: string;
     };
 
-    const appType = extUser.rbac?.app ?? "personal";
+    const appType = extUser.rbac?.app ?? 'personal';
     const token = extUser._token ?? null;
-    const userId = extUser._id ?? user.id ?? "anon";
+    const userId = extUser._id ?? user.id ?? 'anon';
 
-    fetchActiveGates(appType, token, userId).then((gateMap) => {
+    fetchActiveGates(appType, token, userId).then(gateMap => {
       if (!mountedRef.current) return;
       const result: Record<string, boolean> = {};
-      featureKeys.forEach((key) => {
+      featureKeys.forEach(key => {
         result[key] = gateMap.has(key) ? gateMap.get(key)! : true;
       });
       setGates(result);

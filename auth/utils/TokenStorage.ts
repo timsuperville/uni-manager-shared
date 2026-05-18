@@ -20,8 +20,8 @@
  * reads — only add async if the caller itself does real I/O (fetch, etc.).
  */
 
-import type { User } from "../types/auth.types";
-import { logger } from "../../utils/logger";
+import type { User } from '../types/auth.types';
+import { logger } from '../../utils/logger';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -63,16 +63,16 @@ export class TokenStorage {
    * App-specific prefix for storage keys. Each app MUST use its own namespace
    * so sessions never bleed between apps on the same origin.
    */
-  constructor(namespace = "uni") {
+  constructor(namespace = 'uni') {
     this.storageKeys = {
       accessToken: `${namespace}_auth_access_token`,
       refreshToken: `${namespace}_auth_refresh_token`,
       user: `${namespace}_auth_user_data`,
-      sessionId: `${namespace}_auth_session_id`,
+      sessionId: `${namespace}_auth_session_id`
     };
-    this.storage = typeof window !== "undefined" ? window.sessionStorage : null;
+    this.storage = typeof window !== 'undefined' ? window.sessionStorage : null;
     this.persistentStorage =
-      typeof window !== "undefined" ? window.localStorage : null;
+      typeof window !== 'undefined' ? window.localStorage : null;
   }
 
   /** Store authentication tokens. Writes to sessionStorage unless `persistent` is true. */
@@ -81,7 +81,7 @@ export class TokenStorage {
     refreshToken,
     user,
     sessionId,
-    persistent = false,
+    persistent = false
   }: SetTokensParams): boolean {
     try {
       const storage = persistent ? this.persistentStorage : this.storage;
@@ -99,8 +99,8 @@ export class TokenStorage {
     } catch (error) {
       if (import.meta.env.DEV)
         logger.warn(
-          "[TokenStorage] setTokens failed:",
-          (error as Error).message,
+          '[TokenStorage] setTokens failed:',
+          (error as Error).message
         );
       return false;
     }
@@ -117,8 +117,8 @@ export class TokenStorage {
     } catch (error) {
       if (import.meta.env.DEV)
         logger.warn(
-          "[TokenStorage] getAccessToken failed:",
-          (error as Error).message,
+          '[TokenStorage] getAccessToken failed:',
+          (error as Error).message
         );
       return null;
     }
@@ -135,8 +135,8 @@ export class TokenStorage {
     } catch (error) {
       if (import.meta.env.DEV)
         logger.warn(
-          "[TokenStorage] getRefreshToken failed:",
-          (error as Error).message,
+          '[TokenStorage] getRefreshToken failed:',
+          (error as Error).message
         );
       return null;
     }
@@ -151,10 +151,7 @@ export class TokenStorage {
       return raw ? (JSON.parse(raw) as User) : null;
     } catch (error) {
       if (import.meta.env.DEV)
-        logger.warn(
-          "[TokenStorage] getUser failed:",
-          (error as Error).message,
-        );
+        logger.warn('[TokenStorage] getUser failed:', (error as Error).message);
       return null;
     }
   }
@@ -170,8 +167,8 @@ export class TokenStorage {
     } catch (error) {
       if (import.meta.env.DEV)
         logger.warn(
-          "[TokenStorage] getSessionId failed:",
-          (error as Error).message,
+          '[TokenStorage] getSessionId failed:',
+          (error as Error).message
         );
       return null;
     }
@@ -188,8 +185,8 @@ export class TokenStorage {
     } catch (error) {
       if (import.meta.env.DEV)
         logger.warn(
-          "[TokenStorage] clearTokens failed:",
-          (error as Error).message,
+          '[TokenStorage] clearTokens failed:',
+          (error as Error).message
         );
       return false;
     }
@@ -216,20 +213,20 @@ export class TokenStorage {
         refreshToken,
         user,
         sessionId,
-        isAuthenticated: !!(accessToken && user),
+        isAuthenticated: !!(accessToken && user)
       };
     } catch (error) {
       if (import.meta.env.DEV)
         logger.warn(
-          "[TokenStorage] getAuthData failed:",
-          (error as Error).message,
+          '[TokenStorage] getAuthData failed:',
+          (error as Error).message
         );
       return {
         accessToken: null,
         refreshToken: null,
         user: null,
         sessionId: null,
-        isAuthenticated: false,
+        isAuthenticated: false
       };
     }
   }
@@ -253,8 +250,8 @@ export class TokenStorage {
     } catch (error) {
       if (import.meta.env.DEV)
         logger.warn(
-          "[TokenStorage] updateUser failed:",
-          (error as Error).message,
+          '[TokenStorage] updateUser failed:',
+          (error as Error).message
         );
       return false;
     }

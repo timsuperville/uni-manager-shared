@@ -1,9 +1,9 @@
-import Dexie, { Table } from "dexie";
+import Dexie, { Table } from 'dexie';
 
 // Define the shape of our offline mutation queue.
 export interface SyncQueueEntry {
   id: string; // UUID
-  action: "CREATE" | "UPDATE" | "DELETE";
+  action: 'CREATE' | 'UPDATE' | 'DELETE';
   collection: string;
   documentId: string;
   payload: Record<string, unknown>;
@@ -25,16 +25,16 @@ export class LocalFirstDatabase extends Dexie {
   tasks!: Table<LocalDocument, string>;
 
   constructor() {
-    super("UniManagerLocalDB");
+    super('UniManagerLocalDB');
 
     // Define the schema.
     // id means it's the primary key.
     // We index the updatedAt to easily fetch recent records.
     this.version(1).stores({
-      syncQueue: "id, collection, timestamp",
-      chores: "id, updatedAt, deletedAt",
-      journal: "id, updatedAt, deletedAt",
-      tasks: "id, updatedAt, deletedAt",
+      syncQueue: 'id, collection, timestamp',
+      chores: 'id, updatedAt, deletedAt',
+      journal: 'id, updatedAt, deletedAt',
+      tasks: 'id, updatedAt, deletedAt'
     });
   }
 }

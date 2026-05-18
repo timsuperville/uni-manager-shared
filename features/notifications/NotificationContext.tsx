@@ -16,11 +16,11 @@
  *     </NotificationProvider>
  *   );
  */
-import React, { createContext, useContext, useMemo } from "react";
+import React, { createContext, useContext, useMemo } from 'react';
 import {
   NULL_NOTIFICATION_ADAPTER,
-  type NotificationAdapter,
-} from "./NotificationAdapter";
+  type NotificationAdapter
+} from './NotificationAdapter';
 
 // ── Context ───────────────────────────────────────────────────────────────────
 
@@ -29,7 +29,7 @@ interface NotificationContextValue {
 }
 
 const NotificationContext = createContext<NotificationContextValue>({
-  adapter: NULL_NOTIFICATION_ADAPTER,
+  adapter: NULL_NOTIFICATION_ADAPTER
 });
 
 // ── Provider ──────────────────────────────────────────────────────────────────
@@ -54,7 +54,7 @@ interface NotificationProviderProps {
  */
 export const NotificationProvider: React.FC<NotificationProviderProps> = ({
   adapter,
-  children,
+  children
 }) => {
   const value = useMemo(() => ({ adapter }), [adapter]);
   return (

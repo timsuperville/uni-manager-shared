@@ -1,8 +1,8 @@
-import React from "react";
-import { CHIP_VARIANTS, CHIP_FALLBACK, CHIP_SIZE_MAP } from "./chipVariants";
-import type { ChipVariant, ChipSize } from "./chipVariants";
+import React from 'react';
+import { CHIP_VARIANTS, CHIP_FALLBACK, CHIP_SIZE_MAP } from './chipVariants';
+import type { ChipVariant, ChipSize } from './chipVariants';
 
-export { CHIP_VARIANTS } from "./chipVariants";
+export { CHIP_VARIANTS } from './chipVariants';
 
 /**
  * Chip — Liquid Glass Design System
@@ -67,8 +67,8 @@ export function Chip({
   dotGlow = false,
   onClick,
   title,
-  size = "sm",
-  className = "",
+  size = 'sm',
+  className = '',
   style: styleProp,
   ...props
 }: ChipProps) {
@@ -87,45 +87,45 @@ export function Chip({
 
   const sz = CHIP_SIZE_MAP[size] ?? CHIP_SIZE_MAP.sm;
 
-  const isInteractive = typeof onClick === "function";
+  const isInteractive = typeof onClick === 'function';
 
   return (
     <span
       title={title}
       onClick={onClick}
-      role={isInteractive ? "button" : undefined}
+      role={isInteractive ? 'button' : undefined}
       tabIndex={isInteractive ? 0 : undefined}
       onKeyDown={
         isInteractive
-          ? (e) => {
-              if (e.key === "Enter" || e.key === " ") onClick(e);
+          ? e => {
+              if (e.key === 'Enter' || e.key === ' ') onClick(e);
             }
           : undefined
       }
       className={className}
       style={{
-        display: "inline-flex",
-        alignItems: "center",
+        display: 'inline-flex',
+        alignItems: 'center',
         gap: showDot
-          ? "5px"
+          ? '5px'
           : React.Children.count(children) > 0 || label
-            ? "4px"
-            : "0",
+            ? '4px'
+            : '0',
         padding: sz.padding,
-        borderRadius: "100px",
+        borderRadius: '100px',
         fontSize: sz.fontSize,
         fontWeight: sz.fontWeight,
         background: resolvedBg,
         color: resolvedColor,
         border: `1px solid ${resolvedBorder}`,
         flexShrink: 0,
-        whiteSpace: "nowrap",
-        cursor: isInteractive ? "pointer" : "default",
-        userSelect: "none",
+        whiteSpace: 'nowrap',
+        cursor: isInteractive ? 'pointer' : 'default',
+        userSelect: 'none',
         transition: isInteractive
-          ? "opacity 120ms ease, filter 120ms ease"
-          : "none",
-        ...styleProp,
+          ? 'opacity 120ms ease, filter 120ms ease'
+          : 'none',
+        ...styleProp
       }}
       {...props}
     >
@@ -135,11 +135,11 @@ export function Chip({
           style={{
             width: sz.dotSize,
             height: sz.dotSize,
-            borderRadius: "50%",
+            borderRadius: '50%',
             background: resolvedDotColor ?? undefined,
             flexShrink: 0,
-            boxShadow: dotGlow ? `0 0 6px ${resolvedDotColor}` : "none",
-            transition: "box-shadow 150ms ease",
+            boxShadow: dotGlow ? `0 0 6px ${resolvedDotColor}` : 'none',
+            transition: 'box-shadow 150ms ease'
           }}
         />
       )}

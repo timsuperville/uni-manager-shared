@@ -9,8 +9,8 @@
  * - Fraud detection metrics
  */
 
-import React, { useState, useEffect, useCallback } from "react";
-import securityService from "../services/securityService";
+import React, { useState, useEffect, useCallback } from 'react';
+import securityService from '../services/securityService';
 
 interface SecurityAlertPayload {
   type: string;
@@ -36,17 +36,17 @@ interface SecurityEvent {
   id: string;
   timestamp: string | number | Date;
   type: string;
-  severity: "high" | "medium" | "low" | string;
+  severity: 'high' | 'medium' | 'low' | string;
   data?: Record<string, unknown>;
 }
 
 const SecurityDashboard = ({
   refreshInterval = 30000,
-  className = "",
-  onSecurityAlert = null,
+  className = '',
+  onSecurityAlert = null
 }: SecurityDashboardProps) => {
   const [securityStats, setSecurityStats] = useState<SecurityStats | null>(
-    null,
+    null
   );
   const [securityEvents, setSecurityEvents] = useState<SecurityEvent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -70,19 +70,17 @@ const SecurityDashboard = ({
       setSecurityEvents(events);
 
       // Check for high-risk events
-      const highRiskEvents = events.filter(
-        (event) => event.severity === "high",
-      );
+      const highRiskEvents = events.filter(event => event.severity === 'high');
       if (highRiskEvents.length > 0 && onSecurityAlert) {
         onSecurityAlert({
-          type: "high_risk_events",
+          type: 'high_risk_events',
           count: highRiskEvents.length,
-          events: highRiskEvents,
+          events: highRiskEvents
         });
       }
     } catch (err) {
       const msg =
-        err instanceof Error ? err.message : "Failed to load security data";
+        err instanceof Error ? err.message : 'Failed to load security data';
       setError(msg);
     } finally {
       setLoading(false);
@@ -113,19 +111,19 @@ const SecurityDashboard = ({
   };
 
   const getSecurityScoreColor = (score: number): string => {
-    if (score >= 80) return "text-green-600";
-    if (score >= 60) return "text-yellow-600";
-    return "text-red-600";
+    if (score >= 80) return 'text-green-600';
+    if (score >= 60) return 'text-yellow-600';
+    return 'text-red-600';
   };
 
   const getEventSeverityBadge = (severity: string): string => {
-    const baseClasses = "px-2 py-1 rounded text-xs font-medium";
+    const baseClasses = 'px-2 py-1 rounded text-xs font-medium';
     switch (severity) {
-      case "high":
+      case 'high':
         return `${baseClasses} bg-red-100 text-red-800`;
-      case "medium":
+      case 'medium':
         return `${baseClasses} bg-yellow-100 text-yellow-800`;
-      case "low":
+      case 'low':
         return `${baseClasses} bg-green-100 text-green-800`;
       default:
         return `${baseClasses} bg-gray-100 text-gray-800`;
@@ -140,11 +138,11 @@ const SecurityDashboard = ({
    * Format timeframe options
    */
   const timeframeOptions = [
-    { value: 60 * 60 * 1000, label: "1 Hour" },
-    { value: 6 * 60 * 60 * 1000, label: "6 Hours" },
-    { value: 24 * 60 * 60 * 1000, label: "24 Hours" },
-    { value: 7 * 24 * 60 * 60 * 1000, label: "7 Days" },
-    { value: 30 * 24 * 60 * 60 * 1000, label: "30 Days" },
+    { value: 60 * 60 * 1000, label: '1 Hour' },
+    { value: 6 * 60 * 60 * 1000, label: '6 Hours' },
+    { value: 24 * 60 * 60 * 1000, label: '24 Hours' },
+    { value: 7 * 24 * 60 * 60 * 1000, label: '7 Days' },
+    { value: 30 * 24 * 60 * 60 * 1000, label: '30 Days' }
   ];
 
   if (loading) {
@@ -205,10 +203,10 @@ const SecurityDashboard = ({
           {/* Timeframe Selector */}
           <select
             value={timeframe}
-            onChange={(e) => handleTimeframeChange(Number(e.target.value))}
+            onChange={e => handleTimeframeChange(Number(e.target.value))}
             className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            {timeframeOptions.map((option) => (
+            {timeframeOptions.map(option => (
               <option key={option.value} value={option.value}>
                 {option.label}
               </option>
@@ -220,7 +218,7 @@ const SecurityDashboard = ({
             <input
               type="checkbox"
               checked={autoRefresh}
-              onChange={(e) => setAutoRefresh(e.target.checked)}
+              onChange={e => setAutoRefresh(e.target.checked)}
               className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
             <span>Auto-refresh</span>
@@ -255,10 +253,10 @@ const SecurityDashboard = ({
                 </div>
                 <div className="text-xs text-gray-400">
                   {securityStats.securityScore >= 80
-                    ? "Excellent"
+                    ? 'Excellent'
                     : securityStats.securityScore >= 60
-                      ? "Good"
-                      : "Needs Attention"}
+                      ? 'Good'
+                      : 'Needs Attention'}
                 </div>
               </div>
             </div>
@@ -277,8 +275,8 @@ const SecurityDashboard = ({
                   Security Events
                 </div>
                 <div className="text-xs text-gray-400">
-                  Last{" "}
-                  {timeframeOptions.find((o) => o.value === timeframe)?.label}
+                  Last{' '}
+                  {timeframeOptions.find(o => o.value === timeframe)?.label}
                 </div>
               </div>
             </div>
@@ -289,7 +287,7 @@ const SecurityDashboard = ({
             <div className="flex items-center">
               <div className="shrink-0">
                 <div
-                  className={`text-3xl font-bold ${securityStats.highRiskEvents > 0 ? "text-red-600" : "text-green-600"}`}
+                  className={`text-3xl font-bold ${securityStats.highRiskEvents > 0 ? 'text-red-600' : 'text-green-600'}`}
                 >
                   {securityStats.highRiskEvents}
                 </div>
@@ -308,7 +306,7 @@ const SecurityDashboard = ({
             <div className="flex items-center">
               <div className="shrink-0">
                 <div
-                  className={`text-3xl font-bold ${securityStats.activeRateLimits > 0 ? "text-orange-600" : "text-green-600"}`}
+                  className={`text-3xl font-bold ${securityStats.activeRateLimits > 0 ? 'text-orange-600' : 'text-green-600'}`}
                 >
                   {securityStats.activeRateLimits}
                 </div>
@@ -341,10 +339,10 @@ const SecurityDashboard = ({
                         {count}
                       </div>
                       <div className="text-sm text-gray-500 capitalize">
-                        {eventType.replace(/_/g, " ")}
+                        {eventType.replace(/_/g, ' ')}
                       </div>
                     </div>
-                  ),
+                  )
                 )}
               </div>
             </div>
@@ -383,13 +381,13 @@ const SecurityDashboard = ({
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {securityEvents.slice(0, 20).map((event) => (
+                  {securityEvents.slice(0, 20).map(event => (
                     <tr key={event.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {formatTimestamp(event.timestamp)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 capitalize">
-                        {event.type.replace(/_/g, " ")}
+                        {event.type.replace(/_/g, ' ')}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={getEventSeverityBadge(event.severity)}>
@@ -399,11 +397,11 @@ const SecurityDashboard = ({
                       <td className="px-6 py-4 text-sm text-gray-900">
                         {event.data && (
                           <div className="max-w-xs truncate">
-                            {typeof event.data === "object"
+                            {typeof event.data === 'object'
                               ? JSON.stringify(event.data, null, 0).substring(
                                   0,
-                                  100,
-                                ) + "..."
+                                  100
+                                ) + '...'
                               : String(event.data).substring(0, 100)}
                           </div>
                         )}

@@ -1,8 +1,8 @@
 // Safe auth access — reads user from AuthContext without throwing when
 // the component is rendered outside an AuthProvider (e.g. public marketing pages).
-import { useContext } from "react";
-import { AuthContext } from "../../../auth/context/AuthContext";
-import type { FeedbackUser } from "../utils/collectSystemContext";
+import { useContext } from 'react';
+import { AuthContext } from '../../../auth/context/AuthContext';
+import type { FeedbackUser } from '../utils/collectSystemContext';
 
 export function useOptionalUser(): FeedbackUser | null {
   const ctx = useContext(AuthContext);
@@ -25,8 +25,8 @@ export function useOptionalUser(): FeedbackUser | null {
     name:
       u.name ??
       u.displayName ??
-      ([u.firstName, u.lastName].filter(Boolean).join(" ") || null),
+      ([u.firstName, u.lastName].filter(Boolean).join(' ') || null),
     role: u.role ?? u.roles?.[0] ?? u.rbac?.role ?? null,
-    appRole: u.rbac?.role ?? null,
+    appRole: u.rbac?.role ?? null
   };
 }

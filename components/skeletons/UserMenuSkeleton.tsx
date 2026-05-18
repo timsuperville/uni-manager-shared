@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 const UserMenuSkeleton: React.FC = () => (
   <div className="flex items-center space-x-3 p-2 rounded-xl animate-pulse">

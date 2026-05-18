@@ -13,18 +13,16 @@ const resources = {
   }
 };
 
-i18n
-  .use(initReactI18next)
-  .init({
-    resources,
-    lng: 'en',
-    fallbackLng: 'en',
-    ns: ['shared'],
-    defaultNS: 'shared',
-    interpolation: {
-      escapeValue: false // React already escapes by default
-    }
-  });
+i18n.use(initReactI18next).init({
+  resources,
+  lng: 'en',
+  fallbackLng: 'en',
+  ns: ['shared'],
+  defaultNS: 'shared',
+  interpolation: {
+    escapeValue: false // React already escapes by default
+  }
+});
 
 export { i18n };
 export * from 'react-i18next';

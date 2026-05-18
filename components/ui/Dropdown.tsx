@@ -1,7 +1,7 @@
-import React, { useState, useRef, useEffect, useCallback, useId } from "react";
-import { flex1 } from "@shared/styles/styleUtils";
+import React, { useState, useRef, useEffect, useCallback, useId } from 'react';
+import { flex1 } from '@shared/styles/styleUtils';
 
-type DropdownSize = "sm" | "md" | "lg";
+type DropdownSize = 'sm' | 'md' | 'lg';
 
 interface DropdownOption {
   value: string | number;
@@ -24,9 +24,9 @@ const SIZE_STYLES: Record<
   DropdownSize,
   { padding: string; fontSize: number; minWidth: number }
 > = {
-  sm: { padding: "4px 10px", fontSize: 12, minWidth: 110 },
-  md: { padding: "7px 12px", fontSize: 14, minWidth: 140 },
-  lg: { padding: "10px 16px", fontSize: 16, minWidth: 180 },
+  sm: { padding: '4px 10px', fontSize: 12, minWidth: 110 },
+  md: { padding: '7px 12px', fontSize: 14, minWidth: 140 },
+  lg: { padding: '10px 16px', fontSize: 16, minWidth: 180 }
 };
 
 /** Dropdown — Liquid Glass accessible select-style menu. */
@@ -34,43 +34,43 @@ export function Dropdown({
   options = [],
   value,
   onChange,
-  placeholder = "Select…",
-  size = "md",
+  placeholder = 'Select…',
+  size = 'md',
   disabled = false,
-  className = "",
+  className = ''
 }: DropdownProps) {
   const id = useId();
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const selected = options.find((o) => o.value === value);
+  const selected = options.find(o => o.value === value);
   const sz = SIZE_STYLES[size];
 
   const triggerStyle: React.CSSProperties = {
-    display: "inline-flex",
-    alignItems: "center",
+    display: 'inline-flex',
+    alignItems: 'center',
     gap: 6,
-    cursor: disabled ? "not-allowed" : "pointer",
-    background: "var(--glass-surface, rgba(255,255,255,0.06))",
-    border: "1px solid var(--glass-outline, rgba(128,128,128,0.25))",
+    cursor: disabled ? 'not-allowed' : 'pointer',
+    background: 'var(--glass-surface, rgba(255,255,255,0.06))',
+    border: '1px solid var(--glass-outline, rgba(128,128,128,0.25))',
     borderRadius: 8,
-    color: "var(--text-primary, inherit)",
-    outline: "none",
-    userSelect: "none",
+    color: 'var(--text-primary, inherit)',
+    outline: 'none',
+    userSelect: 'none',
     opacity: disabled ? 0.55 : 1,
-    ...sz,
+    ...sz
   };
   const listStyle: React.CSSProperties = {
-    position: "absolute",
-    top: "calc(100% + 4px)",
+    position: 'absolute',
+    top: 'calc(100% + 4px)',
     left: 0,
-    minWidth: "100%",
-    background: "var(--glass-panel, #fff)",
-    border: "1px solid var(--glass-outline, rgba(128,128,128,0.25))",
+    minWidth: '100%',
+    background: 'var(--glass-panel, #fff)',
+    border: '1px solid var(--glass-outline, rgba(128,128,128,0.25))',
     borderRadius: 8,
-    boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
+    boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
     zIndex: 100,
-    overflow: "hidden",
-    padding: "4px 0",
+    overflow: 'hidden',
+    padding: '4px 0'
   };
 
   useEffect(() => {
@@ -78,25 +78,25 @@ export function Dropdown({
     const handler = (e: MouseEvent) => {
       if (!containerRef.current?.contains(e.target as Node)) setOpen(false);
     };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
   }, [open]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === "Escape") setOpen(false);
+    if (e.key === 'Escape') setOpen(false);
   }, []);
   const handleSelect = useCallback(
     (optValue: string | number) => {
       onChange?.(optValue);
       setOpen(false);
     },
-    [onChange],
+    [onChange]
   );
 
   return (
     <div
       ref={containerRef}
-      style={{ position: "relative", display: "inline-block" }}
+      style={{ position: 'relative', display: 'inline-block' }}
       className={className}
       onKeyDown={handleKeyDown}
     >
@@ -104,7 +104,7 @@ export function Dropdown({
         id={id}
         type="button"
         style={triggerStyle}
-        onClick={() => !disabled && setOpen((o) => !o)}
+        onClick={() => !disabled && setOpen(o => !o)}
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-disabled={disabled}
@@ -122,8 +122,8 @@ export function Dropdown({
           fill="none"
           style={{
             flexShrink: 0,
-            transition: "transform 0.18s",
-            transform: open ? "rotate(180deg)" : "rotate(0deg)",
+            transition: 'transform 0.18s',
+            transform: open ? 'rotate(180deg)' : 'rotate(0deg)'
           }}
         >
           <path
@@ -136,7 +136,7 @@ export function Dropdown({
       </button>
       {open && (
         <ul role="listbox" aria-labelledby={id} style={listStyle}>
-          {options.map((opt) => {
+          {options.map(opt => {
             const isSelected = opt.value === value;
             return (
               <li
@@ -146,30 +146,30 @@ export function Dropdown({
                 aria-disabled={opt.disabled}
                 onClick={() => !opt.disabled && handleSelect(opt.value)}
                 style={{
-                  display: "flex",
-                  alignItems: "center",
+                  display: 'flex',
+                  alignItems: 'center',
                   gap: 8,
-                  padding: "7px 14px",
+                  padding: '7px 14px',
                   fontSize: sz.fontSize,
-                  cursor: opt.disabled ? "not-allowed" : "pointer",
+                  cursor: opt.disabled ? 'not-allowed' : 'pointer',
                   opacity: opt.disabled ? 0.45 : 1,
                   background: isSelected
-                    ? "var(--primary-surface, rgba(99,102,241,0.12))"
-                    : "transparent",
+                    ? 'var(--primary-surface, rgba(99,102,241,0.12))'
+                    : 'transparent',
                   color: isSelected
-                    ? "var(--primary-resonance, #6366f1)"
-                    : "var(--text-primary, inherit)",
+                    ? 'var(--primary-resonance, #6366f1)'
+                    : 'var(--text-primary, inherit)',
                   fontWeight: isSelected ? 600 : 400,
-                  transition: "background 0.12s",
+                  transition: 'background 0.12s'
                 }}
-                onMouseEnter={(e) => {
+                onMouseEnter={e => {
                   if (!opt.disabled && !isSelected)
                     e.currentTarget.style.background =
-                      "var(--glass-hover, rgba(128,128,128,0.08))";
+                      'var(--glass-hover, rgba(128,128,128,0.08))';
                 }}
-                onMouseLeave={(e) => {
+                onMouseLeave={e => {
                   if (!opt.disabled && !isSelected)
-                    e.currentTarget.style.background = "transparent";
+                    e.currentTarget.style.background = 'transparent';
                 }}
               >
                 {opt.icon && (
@@ -182,10 +182,10 @@ export function Dropdown({
           {options.length === 0 && (
             <li
               style={{
-                padding: "10px 14px",
+                padding: '10px 14px',
                 fontSize: 13,
-                color: "var(--text-secondary, #888)",
-                fontStyle: "italic",
+                color: 'var(--text-secondary, #888)',
+                fontStyle: 'italic'
               }}
             >
               No options

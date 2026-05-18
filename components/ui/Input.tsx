@@ -1,11 +1,11 @@
-import React from "react";
+import React from 'react';
 
-type InputSize = "sm" | "default" | "lg";
-type InputVariant = "default" | "outline";
+type InputSize = 'sm' | 'default' | 'lg';
+type InputVariant = 'default' | 'outline';
 
 interface InputProps extends Omit<
   React.InputHTMLAttributes<HTMLInputElement>,
-  "size"
+  'size'
 > {
   size?: InputSize;
   variant?: InputVariant;
@@ -26,9 +26,9 @@ interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement
 }
 
 const getSizeClasses = (size: InputSize): string => {
-  if (size === "sm") return "px-3 py-1.5 text-xs";
-  if (size === "lg") return "px-4 py-3 text-base";
-  return "px-3 py-2 text-sm";
+  if (size === 'sm') return 'px-3 py-1.5 text-xs';
+  if (size === 'lg') return 'px-4 py-3 text-base';
+  return 'px-3 py-2 text-sm';
 };
 
 const hasError = (error?: boolean | string) => !!error;
@@ -36,13 +36,13 @@ const hasError = (error?: boolean | string) => !!error;
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
   function Input(
     {
-      type = "text",
-      placeholder = "",
+      type = 'text',
+      placeholder = '',
       value,
       onChange,
-      className = "",
-      size = "default",
-      variant = "default",
+      className = '',
+      size = 'default',
+      variant = 'default',
       disabled = false,
       error = false,
       fullWidth: _fullWidth,
@@ -51,14 +51,14 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       icon,
       ...props
     },
-    ref,
+    ref
   ) {
-    const errorMsg = typeof error === "string" ? error : undefined;
+    const errorMsg = typeof error === 'string' ? error : undefined;
     const isError = hasError(error);
     const showHelper = errorMsg || helperText;
 
     const inputEl = (
-      <div className={`relative flex items-center${icon ? "" : ""}`}>
+      <div className={`relative flex items-center${icon ? '' : ''}`}>
         {icon && (
           <span className="absolute left-3 flex items-center pointer-events-none">
             {icon}
@@ -71,7 +71,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           value={value}
           onChange={onChange}
           disabled={disabled}
-          className={`block w-full lg-input ${isError ? "lg-input-error" : ""} shadow-sm ${getSizeClasses(size)} ${icon ? "pl-10" : ""} ${className}`}
+          className={`block w-full lg-input ${isError ? 'lg-input-error' : ''} shadow-sm ${getSizeClasses(size)} ${icon ? 'pl-10' : ''} ${className}`}
           {...props}
         />
       </div>
@@ -84,7 +84,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label
             className="block text-sm font-medium mb-1"
-            style={{ color: "var(--text-secondary)" }}
+            style={{ color: 'var(--text-secondary)' }}
           >
             {label}
           </label>
@@ -92,26 +92,26 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {inputEl}
         {showHelper && (
           <p
-            className={`text-xs mt-1 ${isError ? "text-red-500" : ""}`}
-            style={!isError ? { color: "var(--text-muted)" } : undefined}
+            className={`text-xs mt-1 ${isError ? 'text-red-500' : ''}`}
+            style={!isError ? { color: 'var(--text-muted)' } : undefined}
           >
             {errorMsg ?? helperText}
           </p>
         )}
       </div>
     );
-  },
+  }
 );
 
-Input.displayName = "Input";
+Input.displayName = 'Input';
 
 export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
   function Textarea(
     {
-      placeholder = "",
+      placeholder = '',
       value,
       onChange,
-      className = "",
+      className = '',
       rows = 3,
       disabled = false,
       error = false,
@@ -120,9 +120,9 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
       label,
       ...props
     },
-    ref,
+    ref
   ) {
-    const errorMsg = typeof error === "string" ? error : undefined;
+    const errorMsg = typeof error === 'string' ? error : undefined;
     const isError = hasError(error);
     const showHelper = errorMsg || helperText;
 
@@ -134,7 +134,7 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         onChange={onChange}
         rows={rows}
         disabled={disabled}
-        className={`block w-full lg-input ${isError ? "lg-input-error" : ""} shadow-sm px-3 py-2 text-sm resize-vertical ${className}`}
+        className={`block w-full lg-input ${isError ? 'lg-input-error' : ''} shadow-sm px-3 py-2 text-sm resize-vertical ${className}`}
         {...props}
       />
     );
@@ -146,7 +146,7 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         {label && (
           <label
             className="block text-sm font-medium mb-1"
-            style={{ color: "var(--text-secondary)" }}
+            style={{ color: 'var(--text-secondary)' }}
           >
             {label}
           </label>
@@ -154,17 +154,17 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         {textareaEl}
         {showHelper && (
           <p
-            className={`text-xs mt-1 ${isError ? "text-red-500" : ""}`}
-            style={!isError ? { color: "var(--text-muted)" } : undefined}
+            className={`text-xs mt-1 ${isError ? 'text-red-500' : ''}`}
+            style={!isError ? { color: 'var(--text-muted)' } : undefined}
           >
             {errorMsg ?? helperText}
           </p>
         )}
       </div>
     );
-  },
+  }
 );
 
-Textarea.displayName = "Textarea";
+Textarea.displayName = 'Textarea';
 
 export { Input as default };

@@ -1,8 +1,8 @@
-import { useCallback, useState, useEffect } from "react";
-import { useAuth } from "./useAuth";
+import { useCallback, useState, useEffect } from 'react';
+import { useAuth } from './useAuth';
 // removed authService import
-import { getApiBaseUrl } from "../../api/config/apiConfig";
-import type { Session, SecurityAlert } from "../types/auth.types";
+import { getApiBaseUrl } from '../../api/config/apiConfig';
+import type { Session, SecurityAlert } from '../types/auth.types';
 
 const API_URL = getApiBaseUrl() as string;
 
@@ -22,27 +22,27 @@ export function useSessionManagement(): UseSessionManagementReturn {
     session: Session | null | undefined;
     logout: () => Promise<void | { success: boolean }>;
   };
-  const [sessionStatus, setSessionStatus] = useState("active");
+  const [sessionStatus, setSessionStatus] = useState('active');
 
   const generateDeviceFingerprint = useCallback(
     () => `device_${Math.random().toString(36).substring(7)}`,
-    [],
+    []
   );
   const [deviceFingerprint] = useState<string>(() =>
-    generateDeviceFingerprint(),
+    generateDeviceFingerprint()
   );
 
   const invalidateSession = useCallback(async (): Promise<void> => {
     try {
-      setSessionStatus("invalidated");
-      const { getApiClient } = await import("../../api/index");
-      const AuthService = (await import("../services/AuthService")).default;
+      setSessionStatus('invalidated');
+      const { getApiClient } = await import('../../api/index');
+      const AuthService = (await import('../services/AuthService')).default;
       const authService = new AuthService(getApiClient());
       await authService.logout();
       if (logout) await logout();
     } catch (err) {
       if (import.meta.env.DEV)
-        console.error("Failed to invalidate session:", err);
+        console.error('Failed to invalidate session:', err);
     }
   }, [logout]);
 
@@ -51,8 +51,8 @@ export function useSessionManagement(): UseSessionManagementReturn {
     sessionStatus,
     deviceFingerprint,
     invalidateSession,
-    isActive: sessionStatus === "active" && !!session,
-    isExpired: sessionStatus === "expired",
+    isActive: sessionStatus === 'active' && !!session,
+    isExpired: sessionStatus === 'expired'
   };
 }
 
@@ -84,7 +84,7 @@ export function useUserSessions(userId: string | null): UseUserSessionsReturn {
       setLoading(true);
       try {
         const response = await fetch(`${API_URL}/auth/sessions`, {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${token}` }
         });
         if (response.ok) {
           const data = (await response.json()) as {
@@ -94,7 +94,7 @@ export function useUserSessions(userId: string | null): UseUserSessionsReturn {
         }
       } catch (err) {
         if (import.meta.env.DEV)
-          console.error("Failed to fetch user sessions:", err);
+          console.error('Failed to fetch user sessions:', err);
       } finally {
         setLoading(false);
       }
@@ -107,14 +107,14 @@ export function useUserSessions(userId: string | null): UseUserSessionsReturn {
       setLoading(true);
       if (token) {
         await fetch(`${API_URL}/auth/sessions`, {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${token}` }
         });
       }
       setUserSessions([]);
     } catch (err) {
       if (import.meta.env.DEV)
-        console.error("Failed to invalidate all sessions:", err);
+        console.error('Failed to invalidate all sessions:', err);
     } finally {
       setLoading(false);
     }
@@ -125,17 +125,17 @@ export function useUserSessions(userId: string | null): UseUserSessionsReturn {
       try {
         if (token) {
           await fetch(`${API_URL}/auth/sessions/${sessionId}`, {
-            method: "DELETE",
-            headers: { Authorization: `Bearer ${token}` },
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${token}` }
           });
         }
-        setUserSessions((prev) => prev.filter((s) => s.id !== sessionId));
+        setUserSessions(prev => prev.filter(s => s.id !== sessionId));
       } catch (err) {
         if (import.meta.env.DEV)
-          console.error("Failed to invalidate session:", err);
+          console.error('Failed to invalidate session:', err);
       }
     },
-    [token],
+    [token]
   );
 
   return {
@@ -143,9 +143,8 @@ export function useUserSessions(userId: string | null): UseUserSessionsReturn {
     loading,
     invalidateAllSessions,
     invalidateSpecificSession,
-    activeSessionCount: userSessions.filter((s) => s.status === "active")
-      .length,
-    totalSessionCount: userSessions.length,
+    activeSessionCount: userSessions.filter(s => s.status === 'active').length,
+    totalSessionCount: userSessions.length
   };
 }
 
@@ -159,10 +158,10 @@ interface UseSessionSecurityReturn {
 }
 
 export function useSessionSecurity(
-  sessionId: string | null,
+  sessionId: string | null
 ): UseSessionSecurityReturn {
   const { token } = useAuth();
-  const [securityStatus, setSecurityStatus] = useState("secure");
+  const [securityStatus, setSecurityStatus] = useState('secure');
   const [securityAlerts, setSecurityAlerts] = useState<SecurityAlert[]>([]);
 
   useEffect(() => {
@@ -172,23 +171,23 @@ export function useSessionSecurity(
         const response = await fetch(
           `${API_URL}/auth/sessions/${sessionId}/security`,
           {
-            headers: { Authorization: `Bearer ${token}` },
-          },
+            headers: { Authorization: `Bearer ${token}` }
+          }
         );
         if (response.ok) {
           const data = (await response.json()) as {
             status?: string;
             alerts?: SecurityAlert[];
           };
-          setSecurityStatus(data.status ?? "secure");
+          setSecurityStatus(data.status ?? 'secure');
           setSecurityAlerts(data.alerts ?? []);
         } else {
-          setSecurityStatus("secure");
+          setSecurityStatus('secure');
           setSecurityAlerts([]);
         }
       } catch (err) {
-        if (import.meta.env.DEV) console.error("Security check failed:", err);
-        setSecurityStatus("warning");
+        if (import.meta.env.DEV) console.error('Security check failed:', err);
+        setSecurityStatus('warning');
       }
     };
     checkSecurity();
@@ -200,7 +199,7 @@ export function useSessionSecurity(
     securityStatus,
     securityAlerts,
     hasAlerts: securityAlerts.length > 0,
-    clearSecurityAlerts,
+    clearSecurityAlerts
   };
 }
 
@@ -220,14 +219,14 @@ interface UseSessionAnalyticsReturn {
 
 export function useSessionAnalytics(
   userId: string | null,
-  refreshInterval = 30000,
+  refreshInterval = 30000
 ): UseSessionAnalyticsReturn {
   const { token } = useAuth();
   const [analytics, setAnalytics] = useState<SessionAnalytics>({
     totalSessions: 0,
     activeSessions: 0,
     avgSessionDuration: 0,
-    lastActivity: null,
+    lastActivity: null
   });
   const [loading, setLoading] = useState(false);
 
@@ -237,7 +236,7 @@ export function useSessionAnalytics(
       setLoading(true);
       try {
         const response = await fetch(`${API_URL}/auth/sessions/analytics`, {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${token}` }
         });
         if (response.ok) {
           const data = (await response.json()) as SessionAnalytics;
@@ -245,7 +244,7 @@ export function useSessionAnalytics(
         }
       } catch (err) {
         if (import.meta.env.DEV)
-          console.error("Failed to fetch analytics:", err);
+          console.error('Failed to fetch analytics:', err);
       } finally {
         setLoading(false);
       }
@@ -263,5 +262,5 @@ export default {
   useSessionManagement,
   useUserSessions,
   useSessionSecurity,
-  useSessionAnalytics,
+  useSessionAnalytics
 };

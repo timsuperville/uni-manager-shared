@@ -1,10 +1,10 @@
-import { useCallback, useState, useMemo } from "react";
-import { useAuth } from "./useAuth";
-import { MFAService } from "../services/mfaService";
+import { useCallback, useState, useMemo } from 'react';
+import { useAuth } from './useAuth';
+import { MFAService } from '../services/mfaService';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-type MFAMethod = "totp" | "sms";
+type MFAMethod = 'totp' | 'sms';
 
 interface MFASetupResult {
   success?: boolean;
@@ -23,7 +23,7 @@ interface UseMFAReturn {
   backupCodes: string[];
   setupMFA: (
     method?: MFAMethod,
-    identifier?: string | null,
+    identifier?: string | null
   ) => Promise<MFASetupResult>;
   verifyCode: (code: string, isSetup?: boolean) => Promise<unknown>;
   disableMFA: (method?: MFAMethod, code?: string | null) => Promise<void>;
@@ -46,34 +46,34 @@ export function useMFA(): UseMFAReturn {
 
   const handleSetupMFA = useCallback(
     async (
-      method: MFAMethod = "totp",
-      identifier: string | null = null,
+      method: MFAMethod = 'totp',
+      identifier: string | null = null
     ): Promise<MFASetupResult> => {
       setIsLoading(true);
       setError(null);
       try {
         let result: MFASetupResult;
-        if (method === "totp") {
+        if (method === 'totp') {
           const targetEmail = identifier ?? user?.email;
-          if (!targetEmail) throw new Error("Email is required for TOTP setup");
+          if (!targetEmail) throw new Error('Email is required for TOTP setup');
           result = (await mfaService.setupTOTP(targetEmail)) as MFASetupResult;
-        } else if (method === "sms") {
+        } else if (method === 'sms') {
           if (!identifier)
-            throw new Error("Phone number is required for SMS setup");
+            throw new Error('Phone number is required for SMS setup');
           result = (await mfaService.setupSMS(identifier)) as MFASetupResult;
         } else {
           throw new Error(`Unsupported MFA method: ${method}`);
         }
         return result;
       } catch (err) {
-        const message = err instanceof Error ? err.message : "MFA setup failed";
+        const message = err instanceof Error ? err.message : 'MFA setup failed';
         setError(message);
         throw err;
       } finally {
         setIsLoading(false);
       }
     },
-    [mfaService, user?.email],
+    [mfaService, user?.email]
   );
 
   const handleVerifyCode = useCallback(
@@ -91,7 +91,7 @@ export function useMFA(): UseMFAReturn {
               setBackupCodes(codes.backupCodes ?? []);
             } catch (e) {
               if (import.meta.env.DEV) {
-                console.warn("Failed to auto-generate backup codes", e);
+                console.warn('Failed to auto-generate backup codes', e);
               }
             }
           }
@@ -101,20 +101,20 @@ export function useMFA(): UseMFAReturn {
         return result;
       } catch (err) {
         const message =
-          err instanceof Error ? err.message : "Code verification failed";
+          err instanceof Error ? err.message : 'Code verification failed';
         setError(message);
         throw err;
       } finally {
         setIsLoading(false);
       }
     },
-    [mfaService],
+    [mfaService]
   );
 
   const handleDisableMFA = useCallback(
     async (
-      method: MFAMethod = "totp",
-      code: string | null = null,
+      method: MFAMethod = 'totp',
+      code: string | null = null
     ): Promise<void> => {
       setIsLoading(true);
       setError(null);
@@ -123,14 +123,14 @@ export function useMFA(): UseMFAReturn {
         setBackupCodes([]);
       } catch (err) {
         const message =
-          err instanceof Error ? err.message : "Failed to disable MFA";
+          err instanceof Error ? err.message : 'Failed to disable MFA';
         setError(message);
         throw err;
       } finally {
         setIsLoading(false);
       }
     },
-    [mfaService],
+    [mfaService]
   );
 
   const handleGenerateBackupCodes =
@@ -146,7 +146,7 @@ export function useMFA(): UseMFAReturn {
         const message =
           err instanceof Error
             ? err.message
-            : "Failed to generate backup codes";
+            : 'Failed to generate backup codes';
         setError(message);
         throw err;
       } finally {
@@ -164,7 +164,7 @@ export function useMFA(): UseMFAReturn {
     setupMFA: handleSetupMFA,
     verifyCode: handleVerifyCode,
     disableMFA: handleDisableMFA,
-    generateBackupCodes: handleGenerateBackupCodes,
+    generateBackupCodes: handleGenerateBackupCodes
   };
 }
 

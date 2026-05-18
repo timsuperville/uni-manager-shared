@@ -1,12 +1,12 @@
-import { useEffect } from "react";
-import { createPortal } from "react-dom";
+import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
-type ModalSize = "sm" | "md" | "lg" | "xl";
+type ModalSize = 'sm' | 'md' | 'lg' | 'xl';
 const SIZE_MAP: Record<ModalSize, number> = {
   sm: 520,
   md: 760,
   lg: 960,
-  xl: 1280,
+  xl: 1280
 };
 
 interface ModalProps {
@@ -26,8 +26,8 @@ interface ModalProps {
   size?: ModalSize;
 }
 
-import React from "react";
-import { glassBackground, glassBorder, flex1 } from "@shared/styles/styleUtils";
+import React from 'react';
+import { glassBackground, glassBorder, flex1 } from '@shared/styles/styleUtils';
 
 /** Modal — Liquid Glass full-screen backdrop modal. */
 export function Modal({
@@ -37,27 +37,27 @@ export function Modal({
   children,
   footer,
   maxWidth,
-  className = "",
+  className = '',
   hideHeader = false,
   hidePadding = false,
   noScroll = false,
   isOpen,
-  size,
+  size
 }: ModalProps) {
   const isVisible = open ?? isOpen ?? false;
   // Universally scale up any hardcoded widths to ensure all modals are wider
   const parsedMaxWidth =
-    typeof maxWidth === "number" ? Math.round(maxWidth * 1.3) : maxWidth;
+    typeof maxWidth === 'number' ? Math.round(maxWidth * 1.3) : maxWidth;
   const resolvedMaxWidth =
     parsedMaxWidth ?? (size ? (SIZE_MAP[size] ?? SIZE_MAP.md) : SIZE_MAP.md);
 
   useEffect(() => {
     if (!isVisible) return;
     const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose?.();
+      if (e.key === 'Escape') onClose?.();
     };
-    document.addEventListener("keydown", handler);
-    return () => document.removeEventListener("keydown", handler);
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
   }, [isVisible, onClose]);
 
   if (!isVisible) return null;
@@ -66,26 +66,26 @@ export function Modal({
     <div
       role="dialog"
       aria-modal="true"
-      aria-label={typeof title === "string" ? title : undefined}
-      onClick={(e) => e.target === e.currentTarget && onClose?.()}
+      aria-label={typeof title === 'string' ? title : undefined}
+      onClick={e => e.target === e.currentTarget && onClose?.()}
       className="fixed inset-0 z-[1000] flex items-center justify-center p-0 sm:p-4 md:p-6"
-      style={{ background: "rgba(0,0,0,0.55)" }}
+      style={{ background: 'rgba(0,0,0,0.55)' }}
     >
       <div
         className={className}
         style={{
-          backdropFilter: "blur(24px) saturate(180%)",
-          WebkitBackdropFilter: "blur(24px) saturate(180%)",
+          backdropFilter: 'blur(24px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(24px) saturate(180%)',
           maxWidth: resolvedMaxWidth,
-          width: "100%",
-          maxHeight: "100%",
-          display: "flex",
-          flexDirection: "column",
-          overflow: "hidden",
-          boxShadow: "0 24px 64px rgba(0,0,0,0.45)",
-          borderRadius: "var(--modal-radius, var(--radius-lg))",
+          width: '100%',
+          maxHeight: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+          boxShadow: '0 24px 64px rgba(0,0,0,0.45)',
+          borderRadius: 'var(--modal-radius, var(--radius-lg))',
           ...glassBackground,
-          ...glassBorder,
+          ...glassBorder
         }}
       >
         <style>
@@ -103,19 +103,19 @@ export function Modal({
         {!hideHeader && (
           <div
             style={{
-              padding: "1rem 1.5rem",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              ...glassBorder,
+              padding: '1rem 1.5rem',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              ...glassBorder
             }}
           >
             <h3
               style={{
                 margin: 0,
-                fontSize: "var(--text-lg)",
+                fontSize: 'var(--text-lg)',
                 fontWeight: 600,
-                color: "var(--text-primary)",
+                color: 'var(--text-primary)'
               }}
             >
               {title}
@@ -124,15 +124,15 @@ export function Modal({
               onClick={onClose}
               aria-label="Close dialog"
               style={{
-                background: "none",
-                border: "none",
-                color: "var(--text-secondary)",
-                cursor: "pointer",
-                fontSize: "1.1rem",
-                padding: "2px 6px",
-                borderRadius: "4px",
+                background: 'none',
+                border: 'none',
+                color: 'var(--text-secondary)',
+                cursor: 'pointer',
+                fontSize: '1.1rem',
+                padding: '2px 6px',
+                borderRadius: '4px',
                 lineHeight: 1,
-                transition: "color 0.15s",
+                transition: 'color 0.15s'
               }}
             >
               ✕
@@ -141,12 +141,12 @@ export function Modal({
         )}
         <div
           style={{
-            padding: hidePadding ? "0" : "1.5rem",
-            overflowY: noScroll ? "hidden" : "auto",
-            display: "flex",
-            flexDirection: "column",
+            padding: hidePadding ? '0' : '1.5rem',
+            overflowY: noScroll ? 'hidden' : 'auto',
+            display: 'flex',
+            flexDirection: 'column',
             minHeight: 0,
-            ...flex1,
+            ...flex1
           }}
         >
           {children}
@@ -154,11 +154,11 @@ export function Modal({
         {footer && (
           <div
             style={{
-              padding: "1rem 1.5rem",
-              display: "flex",
-              justifyContent: "flex-end",
-              gap: "0.5rem",
-              ...glassBorder,
+              padding: '1rem 1.5rem',
+              display: 'flex',
+              justifyContent: 'flex-end',
+              gap: '0.5rem',
+              ...glassBorder
             }}
           >
             {footer}
@@ -166,7 +166,7 @@ export function Modal({
         )}
       </div>
     </div>,
-    document.body,
+    document.body
   );
 }
 

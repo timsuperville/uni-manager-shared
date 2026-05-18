@@ -89,13 +89,13 @@ export interface ParsedChordPro {
  */
 function matchDirective(line: string, ...names: string[]): string | null {
   const trimmed = line.trim();
-  if (!trimmed.startsWith("{") || !trimmed.endsWith("}")) return null;
+  if (!trimmed.startsWith('{') || !trimmed.endsWith('}')) return null;
   const inner = trimmed.slice(1, -1);
-  const colonIdx = inner.indexOf(":");
+  const colonIdx = inner.indexOf(':');
   if (colonIdx === -1) {
     // Bare directive — {chorus}, {verse} etc. — not a key-value pair.
     const name = inner.trim().toLowerCase();
-    return names.includes(name) ? "" : null;
+    return names.includes(name) ? '' : null;
   }
   const name = inner.slice(0, colonIdx).trim().toLowerCase();
   const value = inner.slice(colonIdx + 1).trim();
@@ -125,17 +125,17 @@ function stripChords(line: string): string {
       // (Structural headers shouldn't be here since they are handled before stripChords, but just in case)
       .replace(
         /\[(?!(?:Verse|Chorus|Bridge|Pre-Chorus|Tag|Outro|Intro|Interlude|Ending)\b)[^\]]+\]/gi,
-        "",
+        ''
       )
       // Remove bare pipe characters (tab/intro bar notation)
-      .replace(/\|/g, "")
+      .replace(/\|/g, '')
       // Remove syllable-extension dashes: one or more hyphens surrounded by
       // whitespace on both sides — e.g. "   -   " or " - " used to show
       // where a chord lands inside a syllable. Join the syllable parts directly
       // (empty replacement) so "au   -   thori   -   ty" → "authority".
-      .replace(/\s+-+\s*/g, "")
+      .replace(/\s+-+\s*/g, '')
       // Collapse any multi-space runs left by chord removal into a single space
-      .replace(/ {2,}/g, " ")
+      .replace(/ {2,}/g, ' ')
       .trim()
   );
 }
@@ -152,12 +152,12 @@ function stripChords(line: string): string {
  */
 export function parseChordPro(content: string): ParsedChordPro {
   const result: ParsedChordPro = {
-    title: "",
+    title: '',
     artist: [],
-    lyrics: "",
+    lyrics: '',
     chordPro: content,
     sections: [],
-    themes: [],
+    themes: []
   };
 
   const lines = content.split(/\r?\n/);
@@ -168,7 +168,7 @@ export function parseChordPro(content: string): ParsedChordPro {
 
   const flushSection = () => {
     if (currentSectionLines.length > 0) {
-      lyricLines.push(...currentSectionLines, "");
+      lyricLines.push(...currentSectionLines, '');
       currentSectionLines = [];
     }
     inSection = false;
@@ -180,38 +180,38 @@ export function parseChordPro(content: string): ParsedChordPro {
     // ── Directives ───────────────────────────────────────────────────────────
 
     // title / t
-    const titleVal = matchDirective(trimmed, "title", "t");
+    const titleVal = matchDirective(trimmed, 'title', 't');
     if (titleVal !== null) {
       result.title = titleVal;
       continue;
     }
 
     // artist / a — may contain multiple artists separated by ", "
-    const artistVal = matchDirective(trimmed, "artist", "a", "author");
+    const artistVal = matchDirective(trimmed, 'artist', 'a', 'author');
     if (artistVal !== null) {
       result.artist = artistVal
-        .split(",")
-        .map((a) => a.trim())
+        .split(',')
+        .map(a => a.trim())
         .filter(Boolean);
       continue;
     }
 
     // subtitle
-    const subtitleVal = matchDirective(trimmed, "subtitle", "st");
+    const subtitleVal = matchDirective(trimmed, 'subtitle', 'st');
     if (subtitleVal !== null) {
       result.subtitle = subtitleVal;
       continue;
     }
 
     // key
-    const keyVal = matchDirective(trimmed, "key");
+    const keyVal = matchDirective(trimmed, 'key');
     if (keyVal !== null) {
       result.key = keyVal;
       continue;
     }
 
     // tempo
-    const tempoVal = matchDirective(trimmed, "tempo");
+    const tempoVal = matchDirective(trimmed, 'tempo');
     if (tempoVal !== null) {
       const bpm = parseInt(tempoVal, 10);
       if (!isNaN(bpm) && bpm >= 20 && bpm <= 400) {
@@ -221,14 +221,14 @@ export function parseChordPro(content: string): ParsedChordPro {
     }
 
     // time (time signature)
-    const timeVal = matchDirective(trimmed, "time");
+    const timeVal = matchDirective(trimmed, 'time');
     if (timeVal !== null) {
       result.timeSignature = timeVal;
       continue;
     }
 
     // capo
-    const capoVal = matchDirective(trimmed, "capo");
+    const capoVal = matchDirective(trimmed, 'capo');
     if (capoVal !== null) {
       const capo = parseInt(capoVal, 10);
       if (!isNaN(capo) && capo >= 0 && capo <= 12) {
@@ -238,7 +238,7 @@ export function parseChordPro(content: string): ParsedChordPro {
     }
 
     // ccli song number ({ccli:} or {ccli_song:})
-    const ccliVal = matchDirective(trimmed, "ccli", "ccli_song", "song_ccli");
+    const ccliVal = matchDirective(trimmed, 'ccli', 'ccli_song', 'song_ccli');
     if (ccliVal !== null) {
       result.ccliNumber = ccliVal;
       continue;
@@ -246,40 +246,40 @@ export function parseChordPro(content: string): ParsedChordPro {
 
     // ccli_license — the church's SongSelect license number, NOT the song CCLI #.
     // Silently consume this directive so it doesn't fall through to lyrics.
-    const licenseVal = matchDirective(trimmed, "ccli_license", "cclinumber");
+    const licenseVal = matchDirective(trimmed, 'ccli_license', 'cclinumber');
     if (licenseVal !== null) {
       // Intentionally not stored — this is the church's license, not the song #.
       continue;
     }
 
     // copyright
-    const copyrightVal = matchDirective(trimmed, "copyright");
+    const copyrightVal = matchDirective(trimmed, 'copyright');
     if (copyrightVal !== null) {
       result.copyright = copyrightVal;
       continue;
     }
 
     // footer — SongSelect terms notice; store for display but skip in lyrics
-    const footerVal = matchDirective(trimmed, "footer");
+    const footerVal = matchDirective(trimmed, 'footer');
     if (footerVal !== null) {
       result.footer = footerVal;
       continue;
     }
 
     // themes / theme
-    const themesVal = matchDirective(trimmed, "themes", "theme");
+    const themesVal = matchDirective(trimmed, 'themes', 'theme');
     if (themesVal !== null) {
       result.themes.push(
         ...themesVal
-          .split(",")
-          .map((t) => t.trim())
-          .filter(Boolean),
+          .split(',')
+          .map(t => t.trim())
+          .filter(Boolean)
       );
       continue;
     }
 
     // comment / c — section label (Intro, Verse 1, Chorus, Bridge, …)
-    const commentVal = matchDirective(trimmed, "comment", "c");
+    const commentVal = matchDirective(trimmed, 'comment', 'c');
     if (commentVal !== null) {
       flushSection();
       result.sections.push(commentVal);
@@ -292,40 +292,40 @@ export function parseChordPro(content: string): ParsedChordPro {
     // verse / chorus / bridge / tag / outro — bare structural directives
     const structVal = matchDirective(
       trimmed,
-      "verse",
-      "chorus",
-      "bridge",
-      "tag",
-      "intro",
-      "outro",
-      "start_of_verse",
-      "sov",
-      "start_of_chorus",
-      "soc",
-      "start_of_bridge",
-      "sob",
-      "end_of_verse",
-      "eov",
-      "end_of_chorus",
-      "eoc",
-      "end_of_bridge",
-      "eob",
+      'verse',
+      'chorus',
+      'bridge',
+      'tag',
+      'intro',
+      'outro',
+      'start_of_verse',
+      'sov',
+      'start_of_chorus',
+      'soc',
+      'start_of_bridge',
+      'sob',
+      'end_of_verse',
+      'eov',
+      'end_of_chorus',
+      'eoc',
+      'end_of_bridge',
+      'eob'
     );
     if (structVal !== null) {
       // These directives delimit sections; handle structural markers
       if (
-        trimmed.startsWith("{start") ||
-        trimmed.startsWith("{sov") ||
-        trimmed.startsWith("{soc") ||
-        trimmed.startsWith("{sob")
+        trimmed.startsWith('{start') ||
+        trimmed.startsWith('{sov') ||
+        trimmed.startsWith('{soc') ||
+        trimmed.startsWith('{sob')
       ) {
         flushSection();
         inSection = true;
       } else if (
-        trimmed.startsWith("{end") ||
-        trimmed.startsWith("{eov") ||
-        trimmed.startsWith("{eoc") ||
-        trimmed.startsWith("{eob")
+        trimmed.startsWith('{end') ||
+        trimmed.startsWith('{eov') ||
+        trimmed.startsWith('{eoc') ||
+        trimmed.startsWith('{eob')
       ) {
         flushSection();
       }
@@ -333,22 +333,22 @@ export function parseChordPro(content: string): ParsedChordPro {
     }
 
     // ── All other directives — skip ───────────────────────────────────────────
-    if (trimmed.startsWith("{") && trimmed.endsWith("}")) continue;
+    if (trimmed.startsWith('{') && trimmed.endsWith('}')) continue;
 
     // Sometimes .txt exports include "Key - Eb | Tempo - 72 | Time - 4/4"
     if (
-      trimmed.includes("Key -") ||
-      trimmed.includes("Tempo -") ||
-      trimmed.includes("Time -")
+      trimmed.includes('Key -') ||
+      trimmed.includes('Tempo -') ||
+      trimmed.includes('Time -')
     ) {
-      const parts = trimmed.split("|");
+      const parts = trimmed.split('|');
       for (const part of parts) {
         const p = part.trim();
-        if (p.startsWith("Key -")) result.key = p.replace("Key -", "").trim();
-        else if (p.startsWith("Tempo -"))
-          result.tempo = parseInt(p.replace("Tempo -", "").trim(), 10);
-        else if (p.startsWith("Time -"))
-          result.timeSignature = p.replace("Time -", "").trim();
+        if (p.startsWith('Key -')) result.key = p.replace('Key -', '').trim();
+        else if (p.startsWith('Tempo -'))
+          result.tempo = parseInt(p.replace('Tempo -', '').trim(), 10);
+        else if (p.startsWith('Time -'))
+          result.timeSignature = p.replace('Time -', '').trim();
       }
       continue;
     }
@@ -356,36 +356,36 @@ export function parseChordPro(content: string): ParsedChordPro {
     // ── Plain text header parsing (.txt exports or loose ChordPro) ───────────
     // Some files use plain text headers before lyrics, e.g. "Title: My Song"
     const headerMatch = trimmed.match(
-      /^(Title|Artist|Author|Key|Tempo|Time(?: Signature)?|CCLI(?: Song #)?|Copyright)[\s:-]+(.*)$/i,
+      /^(Title|Artist|Author|Key|Tempo|Time(?: Signature)?|CCLI(?: Song #)?|Copyright)[\s:-]+(.*)$/i
     );
     // Only capture these if we haven't hit a section/lyrics yet to avoid false positives inside lyrics
     if (headerMatch && !inSection && lyricLines.length < 5) {
       const key = headerMatch[1].toLowerCase();
       const val = headerMatch[2].trim();
-      if (key === "title" && !result.title) result.title = val;
+      if (key === 'title' && !result.title) result.title = val;
       else if (
-        (key === "artist" || key === "author") &&
+        (key === 'artist' || key === 'author') &&
         result.artist.length === 0
       ) {
         result.artist = val
-          .split(",")
-          .map((a) => a.trim())
+          .split(',')
+          .map(a => a.trim())
           .filter(Boolean);
-      } else if (key === "key" && !result.key) result.key = val;
-      else if (key === "tempo" && !result.tempo) {
+      } else if (key === 'key' && !result.key) result.key = val;
+      else if (key === 'tempo' && !result.tempo) {
         const bpm = parseInt(val, 10);
         if (!isNaN(bpm)) result.tempo = bpm;
-      } else if (key.startsWith("time") && !result.timeSignature)
+      } else if (key.startsWith('time') && !result.timeSignature)
         result.timeSignature = val;
-      else if (key.startsWith("ccli") && !result.ccliNumber)
+      else if (key.startsWith('ccli') && !result.ccliNumber)
         result.ccliNumber = val;
-      else if (key === "copyright" && !result.copyright) result.copyright = val;
+      else if (key === 'copyright' && !result.copyright) result.copyright = val;
       continue;
     }
 
     // Bracketed section headers like [Verse 1]
     const bracketSectionMatch = trimmed.match(
-      /^\[(Verse|Chorus|Bridge|Pre-Chorus|Tag|Outro|Intro|Interlude|Ending)[^\]]*\]$/i,
+      /^\[(Verse|Chorus|Bridge|Pre-Chorus|Tag|Outro|Intro|Interlude|Ending)[^\]]*\]$/i
     );
     if (bracketSectionMatch) {
       flushSection();
@@ -422,11 +422,11 @@ export function parseChordPro(content: string): ParsedChordPro {
 
     // If we are in the trailing block, keep consuming non-empty lines
     if (inTrailingBlock) {
-      if (trimmed !== "") {
+      if (trimmed !== '') {
         // Catch wrapped copyright continuations
-        if (!trimmed.includes("[")) {
+        if (!trimmed.includes('[')) {
           if (result.copyright && !result.copyright.includes(trimmed)) {
-            result.copyright += " " + trimmed;
+            result.copyright += ' ' + trimmed;
           }
         }
         continue;
@@ -436,14 +436,14 @@ export function parseChordPro(content: string): ParsedChordPro {
     }
 
     // ── Lyric / chord lines ───────────────────────────────────────────────────
-    if (trimmed === "") {
+    if (trimmed === '') {
       // Blank line — section separator
       if (currentSectionLines.length > 0) {
-        lyricLines.push(...currentSectionLines, "");
+        lyricLines.push(...currentSectionLines, '');
         currentSectionLines = [];
       } else {
         // Preserve blank lines between sections in lyrics
-        lyricLines.push("");
+        lyricLines.push('');
       }
     } else {
       const text = stripChords(trimmed);
@@ -467,8 +467,8 @@ export function parseChordPro(content: string): ParsedChordPro {
 
   // Trim trailing blank lines and join
   result.lyrics = lyricLines
-    .join("\n")
-    .replace(/\n{3,}/g, "\n\n")
+    .join('\n')
+    .replace(/\n{3,}/g, '\n\n')
     .trim();
 
   // Deduplicate any explicit themes

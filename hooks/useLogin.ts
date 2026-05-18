@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState } from 'react';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -43,9 +43,9 @@ export interface UseLoginResult {
 // ---------------------------------------------------------------------------
 
 const INITIAL_FORM: LoginFormData = {
-  email: "",
-  password: "",
-  rememberMe: false,
+  email: '',
+  password: '',
+  rememberMe: false
 };
 
 /**
@@ -59,11 +59,11 @@ export function useLogin(): UseLoginResult {
 
   const updateField = (
     name: keyof LoginFormData,
-    value: string | boolean,
+    value: string | boolean
   ): void => {
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
     if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }));
+      setErrors(prev => ({ ...prev, [name]: '' }));
     }
   };
 
@@ -71,15 +71,15 @@ export function useLogin(): UseLoginResult {
     const newErrors: LoginFormErrors = {};
 
     if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
+      newErrors.email = 'Email is required';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "Email is invalid";
+      newErrors.email = 'Email is invalid';
     }
 
     if (!formData.password) {
-      newErrors.password = "Password is required";
+      newErrors.password = 'Password is required';
     } else if (formData.password.length < 8) {
-      newErrors.password = "Password must be at least 8 characters";
+      newErrors.password = 'Password must be at least 8 characters';
     }
 
     setErrors(newErrors);
@@ -88,27 +88,27 @@ export function useLogin(): UseLoginResult {
 
   // Dev/demo stub — production shells use their own AuthService
   const simulateLogin = async (
-    appType: string,
+    appType: string
   ): Promise<SimulateLoginResult> => {
     setIsLoading(true);
     try {
-      await new Promise<void>((resolve) => setTimeout(resolve, 1_000));
+      await new Promise<void>(resolve => setTimeout(resolve, 1_000));
       if (formData.email && formData.password.length >= 8) {
         return {
           success: true,
           user: {
-            id: "1",
+            id: '1',
             email: formData.email,
-            name: formData.email.split("@")[0] ?? formData.email,
-            appType,
-          },
+            name: formData.email.split('@')[0] ?? formData.email,
+            appType
+          }
         };
       }
-      throw new Error("Invalid credentials");
+      throw new Error('Invalid credentials');
     } catch (err: unknown) {
       return {
         success: false,
-        error: err instanceof Error ? err.message : "Unknown error",
+        error: err instanceof Error ? err.message : 'Unknown error'
       };
     } finally {
       setIsLoading(false);
@@ -128,6 +128,6 @@ export function useLogin(): UseLoginResult {
     updateField,
     validateForm,
     simulateLogin,
-    resetForm,
+    resetForm
   };
 }

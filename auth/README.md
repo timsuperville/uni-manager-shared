@@ -15,7 +15,7 @@ A comprehensive, reusable authentication system designed to work across all fron
 ## Quick Start
 
 ```jsx
-import { LoginForm } from "@shared/auth";
+import { LoginForm } from '@shared/auth';
 
 // Basic usage
 export function LoginPage() {
@@ -103,20 +103,22 @@ Clean, minimal design with subtle borders and ample whitespace.
 
 ```jsx
 function LoginPage() {
-  const handleSuccess = (result) => {
+  const handleSuccess = result => {
     // Custom success logic
-    console.log("User logged in:", result.user);
-    analytics.track("login_success");
-    navigate("/custom-path");
+    console.log('User logged in:', result.user);
+    analytics.track('login_success');
+    navigate('/custom-path');
   };
 
-  const handleError = (error) => {
+  const handleError = error => {
     // Custom error handling
-    console.error("Login failed:", error);
-    toast.error("Please check your credentials");
+    console.error('Login failed:', error);
+    toast.error('Please check your credentials');
   };
 
-  return <LoginForm appType="work" onSuccess={handleSuccess} onError={handleError} />;
+  return (
+    <LoginForm appType="work" onSuccess={handleSuccess} onError={handleError} />
+  );
 }
 ```
 
@@ -124,7 +126,17 @@ function LoginPage() {
 
 ```jsx
 function CustomLoginPage() {
-  return <LoginForm appType="default" appTitle="My Custom App" appDescription="Welcome to our special portal" theme="dark" redirectPath="/custom-dashboard" showRememberMe={false} showRegistration={true} />;
+  return (
+    <LoginForm
+      appType="default"
+      appTitle="My Custom App"
+      appDescription="Welcome to our special portal"
+      theme="dark"
+      redirectPath="/custom-dashboard"
+      showRememberMe={false}
+      showRegistration={true}
+    />
+  );
 }
 ```
 
@@ -134,16 +146,16 @@ Replace existing login forms by importing and using the Universal component:
 
 ```jsx
 // Before: App-specific login form
-import { LoginForm as OldLoginForm } from "./features/auth/components/LoginForm";
+import { LoginForm as OldLoginForm } from './features/auth/components/LoginForm';
 
 // After: Shared auth login form
-import { LoginForm } from "@shared/auth";
+import { LoginForm } from '@shared/auth';
 
 export function AuthPage() {
   return (
     <LoginForm
       appType="admin"
-      onSuccess={(result) => {
+      onSuccess={result => {
         // Existing success logic
       }}
     />
@@ -187,10 +199,14 @@ npm test -- --coverage LoginForm.test.jsx
 Full TypeScript interfaces are available:
 
 ```typescript
-import type { LoginFormProps, LoginResult, User } from "@shared/auth/types/auth.types";
+import type {
+  LoginFormProps,
+  LoginResult,
+  User
+} from '@shared/auth/types/auth.types';
 
 const handleSuccess = (result: LoginResult) => {
-  console.log("Logged in user:", result.user);
+  console.log('Logged in user:', result.user);
 };
 ```
 
@@ -201,7 +217,7 @@ const handleSuccess = (result: LoginResult) => {
 1. **Import the LoginForm component**:
 
    ```jsx
-   import { LoginForm } from "@shared/auth";
+   import { LoginForm } from '@shared/auth';
    ```
 
 2. **Replace existing form with LoginForm component**:
@@ -243,7 +259,7 @@ const handleSuccess = (result: LoginResult) => {
 **Component not rendering**: Ensure you have the proper router context:
 
 ```jsx
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter } from 'react-router-dom';
 
 <MemoryRouter>
   <LoginForm appType="admin" />
@@ -253,7 +269,7 @@ import { MemoryRouter } from "react-router-dom";
 **Authentication not working**: Verify your AuthProvider is properly set up:
 
 ```jsx
-import { AuthProvider } from "@shared/auth";
+import { AuthProvider } from '@shared/auth';
 
 <AuthProvider>
   <LoginForm appType="admin" />
@@ -265,7 +281,7 @@ import { AuthProvider } from "@shared/auth";
 **TypeScript errors**: Import the proper types:
 
 ```typescript
-import type { LoginFormProps } from "@shared/auth/types/auth.types";
+import type { LoginFormProps } from '@shared/auth/types/auth.types';
 ```
 
 ## Contributing

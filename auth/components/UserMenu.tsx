@@ -31,24 +31,24 @@ import React, {
   useEffect,
   useCallback,
   useContext,
-  useId,
-} from "react";
-import { createPortal } from "react-dom";
-import { useLocation } from "react-router-dom";
+  useId
+} from 'react';
+import { createPortal } from 'react-dom';
+import { useLocation } from 'react-router-dom';
 
-import { useAuth } from "../context/AuthContext";
-import { PresenceContext } from "../../context/PresenceContext";
-import { getCurrentAppConfig } from "../config/appConfigs";
-import { formatRole } from "../../utils";
-import UserMenuSkeleton from "../../components/skeletons/UserMenuSkeleton";
+import { useAuth } from '../context/AuthContext';
+import { PresenceContext } from '../../context/PresenceContext';
+import { getCurrentAppConfig } from '../config/appConfigs';
+import { formatRole } from '../../utils';
+import UserMenuSkeleton from '../../components/skeletons/UserMenuSkeleton';
 
-import { computeDropdownCoords } from "./_userMenu/positionUtils";
-import UserMenuTrigger from "./_userMenu/UserMenuTrigger";
-import UserMenuPanel from "./_userMenu/UserMenuPanel";
+import { computeDropdownCoords } from './_userMenu/positionUtils';
+import UserMenuTrigger from './_userMenu/UserMenuTrigger';
+import UserMenuPanel from './_userMenu/UserMenuPanel';
 
 // ─── UserMenu ─────────────────────────────────────────────────────────────────
 
-type MenuPosition = "bottom-right" | "bottom-left" | "top-right" | "top-left";
+type MenuPosition = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
 
 interface UserMenuProps {
   className?: string;
@@ -65,15 +65,15 @@ interface UserMenuProps {
 }
 
 const UserMenu = ({
-  className = "",
+  className = '',
   onProfileClick,
   onPreferencesClick,
   showProfileLink = true,
   showPreferencesLink = true,
   children,
   customHeader = null,
-  position = "bottom-right",
-  roleLabel: roleLabelProp,
+  position = 'bottom-right',
+  roleLabel: roleLabelProp
 }: UserMenuProps) => {
   const { user, logout, isLoading } = useAuth();
 
@@ -81,7 +81,7 @@ const UserMenu = ({
   const presence = useContext(PresenceContext);
   const hasPresence = presence !== undefined && presence !== null;
   const isConnected = hasPresence ? (presence.isConnected ?? true) : true;
-  const status = hasPresence ? presence.status || "available" : "available";
+  const status = hasPresence ? presence.status || 'available' : 'available';
   const setStatus = hasPresence ? presence.setStatus : null;
 
   const appConfig = getCurrentAppConfig();
@@ -94,7 +94,7 @@ const UserMenu = ({
   const [dropdownCoords, setDropdownCoords] = useState({
     top: 0,
     left: 0,
-    opensUpward: false,
+    opensUpward: false
   });
 
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -110,7 +110,7 @@ const UserMenu = ({
   useEffect(() => {
     if (!isOpen || window.innerWidth >= 768) return;
     const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    document.body.style.overflow = 'hidden';
     return () => {
       document.body.style.overflow = prev;
     };
@@ -124,18 +124,15 @@ const UserMenu = ({
       const inPanel = panelRef.current?.contains(e.target as Node);
       if (!inTrigger && !inPanel) setIsOpen(false);
     };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
   }, [isOpen]);
 
   // ── Portal coordinates ─────────────────────────────────────────────────────
   const openMenu = useCallback(() => {
     if (!buttonRef.current) return;
     setDropdownCoords(
-      computeDropdownCoords(
-        buttonRef.current.getBoundingClientRect(),
-        position,
-      ),
+      computeDropdownCoords(buttonRef.current.getBoundingClientRect(), position)
     );
     setIsOpen(true);
   }, [position]);
@@ -148,15 +145,15 @@ const UserMenu = ({
       setDropdownCoords(
         computeDropdownCoords(
           buttonRef.current.getBoundingClientRect(),
-          position,
-        ),
+          position
+        )
       );
     };
-    window.addEventListener("scroll", recalc, true);
-    window.addEventListener("resize", recalc);
+    window.addEventListener('scroll', recalc, true);
+    window.addEventListener('resize', recalc);
     return () => {
-      window.removeEventListener("scroll", recalc, true);
-      window.removeEventListener("resize", recalc);
+      window.removeEventListener('scroll', recalc, true);
+      window.removeEventListener('resize', recalc);
     };
   }, [isOpen, position]);
 
@@ -165,30 +162,30 @@ const UserMenu = ({
     (e: KeyboardEvent) => {
       if (!isOpen || !panelRef.current) return;
       const items = Array.from(
-        panelRef.current.querySelectorAll('[role="menuitem"]'),
+        panelRef.current.querySelectorAll('[role="menuitem"]')
       ) as HTMLElement[];
       const currentIdx = items.indexOf(document.activeElement as HTMLElement);
       switch (e.key) {
-        case "ArrowDown":
+        case 'ArrowDown':
           e.preventDefault();
           items[currentIdx < items.length - 1 ? currentIdx + 1 : 0]?.focus();
           break;
-        case "ArrowUp":
+        case 'ArrowUp':
           e.preventDefault();
           items[currentIdx > 0 ? currentIdx - 1 : items.length - 1]?.focus();
           break;
-        case "Home":
+        case 'Home':
           e.preventDefault();
           items[0]?.focus();
           break;
-        case "End":
+        case 'End':
           e.preventDefault();
           items[items.length - 1]?.focus();
           break;
-        case "Tab":
+        case 'Tab':
           setIsOpen(false);
           break;
-        case "Escape":
+        case 'Escape':
           setIsOpen(false);
           buttonRef.current?.focus();
           break;
@@ -196,19 +193,19 @@ const UserMenu = ({
           break;
       }
     },
-    [isOpen],
+    [isOpen]
   );
 
   useEffect(() => {
     if (!isOpen) return;
-    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown);
     requestAnimationFrame(() => {
       const firstItem = panelRef.current?.querySelector(
-        '[role="menuitem"]',
+        '[role="menuitem"]'
       ) as HTMLElement | null;
       firstItem?.focus();
     });
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, handleKeyDown]);
 
   // ── Handlers ──────────────────────────────────────────────────────────────
@@ -228,20 +225,20 @@ const UserMenu = ({
     }
   }, [logout]);
   const handleToggleStatus = useCallback(() => {
-    setStatus?.(status === "available" ? "unavailable" : "available");
+    setStatus?.(status === 'available' ? 'unavailable' : 'available');
   }, [status, setStatus]);
 
   // ── Derived ───────────────────────────────────────────────────────────────
   const statusDotColor =
-    status === "available"
-      ? "var(--color-success, hsl(142,71%,45%))"
-      : "var(--text-ghost, hsla(0,0%,100%,0.2))";
+    status === 'available'
+      ? 'var(--color-success, hsl(142,71%,45%))'
+      : 'var(--text-ghost, hsla(0,0%,100%,0.2))';
 
   const showProfile =
     showProfileLink && (appConfig.features?.profileManagement ?? true);
   const prefsActive =
-    location.pathname === "/preferences" || location.pathname === "/settings";
-  const isProfileActive = location.pathname === "/profile";
+    location.pathname === '/preferences' || location.pathname === '/settings';
+  const isProfileActive = location.pathname === '/profile';
   // Compute the role label shown in the trigger pill and identity header.
   // Priority:
   //   1. Explicit `roleLabel` prop (caller knows best)
@@ -269,20 +266,20 @@ const UserMenu = ({
 
   const triggerBorder =
     isOpen || triggerHover
-      ? "var(--glass-outline-active, var(--primary-resonance))"
-      : "var(--glass-outline)";
+      ? 'var(--glass-outline-active, var(--primary-resonance))'
+      : 'var(--glass-outline)';
   const triggerBg = isOpen
-    ? "var(--primary-subtle, hsla(187,84%,44%,0.1))"
+    ? 'var(--primary-subtle, hsla(187,84%,44%,0.1))'
     : triggerHover
-      ? "var(--nav-hover, hsla(0,0%,100%,0.06))"
-      : "var(--bg-surface-1, hsla(0,0%,100%,0.04))";
+      ? 'var(--nav-hover, hsla(0,0%,100%,0.06))'
+      : 'var(--bg-surface-1, hsla(0,0%,100%,0.04))';
 
   // ── Early returns ─────────────────────────────────────────────────────────
   if (isLoading) return <UserMenuSkeleton />;
   if (!user) return null;
 
   return (
-    <div className={`relative ${className}`} style={{ display: "inline-flex" }}>
+    <div className={`relative ${className}`} style={{ display: 'inline-flex' }}>
       <UserMenuTrigger
         buttonRef={buttonRef}
         triggerId={triggerId}
@@ -303,7 +300,7 @@ const UserMenu = ({
       />
 
       {/* Portal — renders into document.body, escaping overflow:hidden ancestors */}
-      {typeof document !== "undefined" &&
+      {typeof document !== 'undefined' &&
         createPortal(
           <UserMenuPanel
             panelRef={panelRef}
@@ -331,7 +328,7 @@ const UserMenu = ({
           >
             {children}
           </UserMenuPanel>,
-          document.body,
+          document.body
         )}
     </div>
   );

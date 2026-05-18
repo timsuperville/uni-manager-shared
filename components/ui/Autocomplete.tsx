@@ -1,21 +1,21 @@
 // Unified Select component — Liquid Glass Design System
 // Dropdown is rendered via ReactDOM.createPortal so it escapes any stacking
 // context created by backdrop-filter, transform, or will-change on ancestors.
-import React from "react";
-import ReactDOM from "react-dom";
-import { ChevronDown, Check, Loader2, X } from "lucide-react";
-import { useSelectState } from "./useSelectState";
-export type { SelectOption, SelectValue } from "./useSelectState";
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { ChevronDown, Check, Loader2, X } from 'lucide-react';
+import { useSelectState } from './useSelectState';
+export type { SelectOption, SelectValue } from './useSelectState';
 
-type SelectSize = "small" | "medium" | "large" | "chip";
-type SelectVariant = "default" | "outlined" | "filled";
+type SelectSize = 'small' | 'medium' | 'large' | 'chip';
+type SelectVariant = 'default' | 'outlined' | 'filled';
 
-import type { SelectOption, SelectValue } from "./useSelectState";
-import { glassBorder } from "@shared/styles/styleUtils";
+import type { SelectOption, SelectValue } from './useSelectState';
+import { glassBorder } from '@shared/styles/styleUtils';
 
 interface SelectProps extends Omit<
   React.HTMLAttributes<HTMLDivElement>,
-  "onChange"
+  'onChange'
 > {
   options?: SelectOption[];
   value?: SelectValue | SelectValue[];
@@ -43,14 +43,14 @@ const Autocomplete: React.FC<SelectProps> = ({
   options = [],
   value,
   onChange,
-  placeholder = "Select…",
+  placeholder = 'Select…',
   disabled = false,
   searchable = false,
   multiple = false,
-  size = "medium",
+  size = 'medium',
   error = false,
-  helperText = "",
-  className = "input-ecclesia",
+  helperText = '',
+  className = 'input-ecclesia',
   name,
   id,
   required = false,
@@ -83,7 +83,7 @@ const Autocomplete: React.FC<SelectProps> = ({
     commitFreeText,
     handleKeyDown,
     setHighlightedIndex,
-    close,
+    close
   } = useSelectState({
     options,
     value,
@@ -93,78 +93,78 @@ const Autocomplete: React.FC<SelectProps> = ({
     searchable,
     multiple,
     clearable,
-    allowFreeText,
+    allowFreeText
   });
 
   // ── Styles ─────────────────────────────────────────────────────────────────
-  const isChip = size === "chip";
-  const padY = size === "small" ? "6px" : size === "large" ? "12px" : "9px";
+  const isChip = size === 'chip';
+  const padY = size === 'small' ? '6px' : size === 'large' ? '12px' : '9px';
   const fontSize =
-    size === "small" ? "12px" : size === "large" ? "15px" : "13px";
+    size === 'small' ? '12px' : size === 'large' ? '15px' : '13px';
 
   const triggerStyle: React.CSSProperties = isChip
     ? {
-        display: "inline-flex",
-        alignItems: "center",
+        display: 'inline-flex',
+        alignItems: 'center',
         gap: 5,
         height: 32,
-        padding: "0 10px 0 8px",
+        padding: '0 10px 0 8px',
         borderRadius: 999,
         border: hasValue
-          ? "1.5px solid var()"
-          : "1px solid var(--glass-outline, rgba(255,255,255,0.18))",
+          ? '1.5px solid var()'
+          : '1px solid var(--glass-outline, rgba(255,255,255,0.18))',
         background: hasValue
-          ? "var(--primary-glow, hsla(272,65%,62%,0.22))"
-          : "var(--glass-input, rgba(255,255,255,0.07))",
-        color: hasValue ? "var()" : "var(--text-secondary)",
+          ? 'var(--primary-glow, hsla(272,65%,62%,0.22))'
+          : 'var(--glass-input, rgba(255,255,255,0.07))',
+        color: hasValue ? 'var()' : 'var(--text-secondary)',
         fontSize: 12,
         fontWeight: hasValue ? 600 : 500,
-        fontFamily: "var(--font-body)",
-        cursor: disabled ? "not-allowed" : "pointer",
+        fontFamily: 'var(--font-body)',
+        cursor: disabled ? 'not-allowed' : 'pointer',
         opacity: disabled ? 0.5 : 1,
-        whiteSpace: "nowrap",
+        whiteSpace: 'nowrap',
         flexShrink: 0,
-        transition: "all 0.15s",
-        outline: "none",
-        backdropFilter: "blur(8px)",
+        transition: 'all 0.15s',
+        outline: 'none',
+        backdropFilter: 'blur(8px)',
         boxShadow: isOpen
-          ? "0 0 0 2px var(--primary-glow, hsla(272,65%,62%,0.35))"
-          : "none",
+          ? '0 0 0 2px var(--primary-glow, hsla(272,65%,62%,0.35))'
+          : 'none'
       }
     : {
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        width: "100%",
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        width: '100%',
         padding: `${padY} 36px ${padY} 12px`,
         fontSize,
-        fontFamily: "var(--font-body)",
-        borderRadius: "var()",
+        fontFamily: 'var(--font-body)',
+        borderRadius: 'var()',
         border: error
-          ? "1px solid var()"
+          ? '1px solid var()'
           : isOpen
-            ? "1px solid var()"
-            : "1px solid var(--glass-outline, rgba(255,255,255,0.1))",
+            ? '1px solid var()'
+            : '1px solid var(--glass-outline, rgba(255,255,255,0.1))',
         background: disabled
-          ? "var(--glass-input-disabled, rgba(255,255,255,0.02))"
-          : "var(--glass-input, rgba(255,255,255,0.06))",
-        color: hasValue ? "var(--text-primary)" : "var(--text-muted)",
-        cursor: disabled ? "not-allowed" : "pointer",
+          ? 'var(--glass-input-disabled, rgba(255,255,255,0.02))'
+          : 'var(--glass-input, rgba(255,255,255,0.06))',
+        color: hasValue ? 'var(--text-primary)' : 'var(--text-muted)',
+        cursor: disabled ? 'not-allowed' : 'pointer',
         opacity: disabled ? 0.5 : 1,
-        backdropFilter: "blur(8px)",
+        backdropFilter: 'blur(8px)',
         boxShadow: isOpen
-          ? "0 0 0 2px var(--primary-glow, hsla(272,65%,62%,0.25))"
-          : "none",
-        transition: "border-color 0.15s, box-shadow 0.15s",
-        textAlign: "left",
-        position: "relative",
+          ? '0 0 0 2px var(--primary-glow, hsla(272,65%,62%,0.25))'
+          : 'none',
+        transition: 'border-color 0.15s, box-shadow 0.15s',
+        textAlign: 'left',
+        position: 'relative'
       };
 
   // ── Option row ─────────────────────────────────────────────────────────────
   const renderOption = (
     option: SelectOption,
     _listIndex: number,
-    offsetIndex: number,
+    offsetIndex: number
   ) => {
     const isSelected = multiple
       ? Array.isArray(value) && value.includes(option.value)
@@ -175,55 +175,55 @@ const Autocomplete: React.FC<SelectProps> = ({
         key={option.value}
         role="option"
         aria-selected={isSelected}
-        onMouseDown={(e) => e.preventDefault()}
+        onMouseDown={e => e.preventDefault()}
         onClick={() => handleOptionClick(option)}
         onMouseEnter={() => setHighlightedIndex(offsetIndex)}
         onMouseLeave={() => setHighlightedIndex(-1)}
         style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: "8px 12px",
-          fontSize: "13px",
-          fontFamily: "var(--font-body)",
-          cursor: "pointer",
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '8px 12px',
+          fontSize: '13px',
+          fontFamily: 'var(--font-body)',
+          cursor: 'pointer',
           color: isSelected
-            ? "var()"
+            ? 'var()'
             : isHighlighted
-              ? "var(--text-primary)"
-              : "var(--text-secondary)",
+              ? 'var(--text-primary)'
+              : 'var(--text-secondary)',
           background: isSelected
-            ? "var(--primary-glow, hsla(272,65%,62%,0.15))"
+            ? 'var(--primary-glow, hsla(272,65%,62%,0.15))'
             : isHighlighted
-              ? "var(--glass-input, rgba(255,255,255,0.06))"
-              : "transparent",
-          transition: "background 0.12s, color 0.12s",
+              ? 'var(--glass-input, rgba(255,255,255,0.06))'
+              : 'transparent',
+          transition: 'background 0.12s, color 0.12s'
         }}
       >
         <span
           style={{
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-            display: "flex",
-            alignItems: "center",
-            gap: 6,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6
           }}
         >
           {option.icon &&
-            (typeof option.icon === "string" ? (
+            (typeof option.icon === 'string' ? (
               <img
                 src={option.icon}
                 alt=""
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = "none";
+                onError={e => {
+                  (e.target as HTMLImageElement).style.display = 'none';
                 }}
                 style={{
                   width: 20,
                   height: 14,
-                  objectFit: "cover",
+                  objectFit: 'cover',
                   borderRadius: 2,
-                  flexShrink: 0,
+                  flexShrink: 0
                 }}
               />
             ) : (
@@ -245,7 +245,7 @@ const Autocomplete: React.FC<SelectProps> = ({
     <div
       ref={selectRef}
       className={`relative ${className}`}
-      style={{ position: "relative" }}
+      style={{ position: 'relative' }}
       {...props}
     >
       {/* ── Trigger ── */}
@@ -259,15 +259,15 @@ const Autocomplete: React.FC<SelectProps> = ({
         style={triggerStyle}
         onClick={handleOpen}
         onKeyDown={handleKeyDown}
-        onMouseEnter={(e) => {
+        onMouseEnter={e => {
           if (!disabled && !isOpen)
-            e.currentTarget.style.border = "1px solid var()";
+            e.currentTarget.style.border = '1px solid var()';
         }}
-        onMouseLeave={(e) => {
+        onMouseLeave={e => {
           if (!isOpen)
             e.currentTarget.style.border = error
-              ? "1px solid var(--accent-rose)"
-              : "1px solid var(--glass-outline, rgba(255,255,255,0.1))";
+              ? '1px solid var(--accent-rose)'
+              : '1px solid var(--glass-outline, rgba(255,255,255,0.1))';
         }}
       >
         {isChip ? (
@@ -277,24 +277,24 @@ const Autocomplete: React.FC<SelectProps> = ({
                 style={{
                   width: 11,
                   height: 11,
-                  animation: "spin 1s linear infinite",
-                  flexShrink: 0,
+                  animation: 'spin 1s linear infinite',
+                  flexShrink: 0
                 }}
               />
             ) : selectedIcon ? (
-              typeof selectedIcon === "string" ? (
+              typeof selectedIcon === 'string' ? (
                 <img
                   src={selectedIcon}
                   alt=""
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = "none";
+                  onError={e => {
+                    (e.target as HTMLImageElement).style.display = 'none';
                   }}
                   style={{
                     width: 16,
                     height: 11,
-                    objectFit: "cover",
+                    objectFit: 'cover',
                     borderRadius: 2,
-                    flexShrink: 0,
+                    flexShrink: 0
                   }}
                 />
               ) : (
@@ -303,9 +303,9 @@ const Autocomplete: React.FC<SelectProps> = ({
             ) : chipIcon ? (
               <span
                 style={{
-                  display: "flex",
+                  display: 'flex',
                   flexShrink: 0,
-                  opacity: hasValue ? 0.8 : 0.55,
+                  opacity: hasValue ? 0.8 : 0.55
                 }}
               >
                 {chipIcon}
@@ -314,8 +314,8 @@ const Autocomplete: React.FC<SelectProps> = ({
             <span
               style={{
                 maxWidth: 90,
-                overflow: "hidden",
-                textOverflow: "ellipsis",
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
               }}
             >
               {selectedLabel ?? placeholder}
@@ -324,13 +324,13 @@ const Autocomplete: React.FC<SelectProps> = ({
               <span
                 role="button"
                 aria-label="Clear filter"
-                onMouseDown={(e) => {
+                onMouseDown={e => {
                   e.stopPropagation();
                   e.preventDefault();
-                  onChange?.(multiple ? [] : "");
+                  onChange?.(multiple ? [] : '');
                 }}
-                onClick={(e) => e.stopPropagation()}
-                style={{ display: "flex", flexShrink: 0, opacity: 0.7 }}
+                onClick={e => e.stopPropagation()}
+                style={{ display: 'flex', flexShrink: 0, opacity: 0.7 }}
               >
                 <X style={{ width: 11, height: 11 }} />
               </span>
@@ -340,9 +340,9 @@ const Autocomplete: React.FC<SelectProps> = ({
                   width: 11,
                   height: 11,
                   flexShrink: 0,
-                  transform: isOpen ? "rotate(180deg)" : "none",
-                  transition: "transform 0.2s",
-                  opacity: 0.5,
+                  transform: isOpen ? 'rotate(180deg)' : 'none',
+                  transition: 'transform 0.2s',
+                  opacity: 0.5
                 }}
               />
             )}
@@ -351,28 +351,28 @@ const Autocomplete: React.FC<SelectProps> = ({
           <>
             <span
               style={{
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6
               }}
             >
               {loading ? (
                 <span
                   style={{
-                    color: "var(--text-muted)",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 6,
+                    color: 'var(--text-muted)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6
                   }}
                 >
                   <Loader2
                     style={{
                       width: 13,
                       height: 13,
-                      animation: "spin 1s linear infinite",
+                      animation: 'spin 1s linear infinite'
                     }}
                   />
                   Loading…
@@ -380,19 +380,19 @@ const Autocomplete: React.FC<SelectProps> = ({
               ) : (
                 <>
                   {selectedIcon &&
-                    (typeof selectedIcon === "string" ? (
+                    (typeof selectedIcon === 'string' ? (
                       <img
                         src={selectedIcon}
                         alt=""
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = "none";
+                        onError={e => {
+                          (e.target as HTMLImageElement).style.display = 'none';
                         }}
                         style={{
                           width: 20,
                           height: 14,
-                          objectFit: "cover",
+                          objectFit: 'cover',
                           borderRadius: 2,
-                          flexShrink: 0,
+                          flexShrink: 0
                         }}
                       />
                     ) : (
@@ -404,13 +404,13 @@ const Autocomplete: React.FC<SelectProps> = ({
             </span>
             <span
               style={{
-                position: "absolute",
+                position: 'absolute',
                 right: 10,
-                top: "50%",
+                top: '50%',
                 transform: `translateY(-50%) rotate(${isOpen ? 180 : 0}deg)`,
-                transition: "transform 0.2s",
-                color: "var(--text-muted)",
-                display: "flex",
+                transition: 'transform 0.2s',
+                color: 'var(--text-muted)',
+                display: 'flex'
               }}
             >
               <ChevronDown style={{ width: 15, height: 15 }} />
@@ -426,36 +426,36 @@ const Autocomplete: React.FC<SelectProps> = ({
             role="listbox"
             aria-multiselectable={multiple}
             style={{
-              position: "absolute",
+              position: 'absolute',
               zIndex: 99999,
               top: dropdownPos.top,
               left: dropdownPos.left,
               width: dropdownPos.width,
-              background: "var(--glass-surface, rgba(15,15,35,0.96))",
-              border: "1px solid var(--glass-outline, rgba(255,255,255,0.12))",
-              borderRadius: "var()",
-              backdropFilter: "blur(20px) saturate(150%)",
+              background: 'var(--glass-surface, rgba(15,15,35,0.96))',
+              border: '1px solid var(--glass-outline, rgba(255,255,255,0.12))',
+              borderRadius: 'var()',
+              backdropFilter: 'blur(20px) saturate(150%)',
               boxShadow: dropdownPos.flipUp
-                ? "0 -16px 40px rgba(0,0,0,0.5)"
-                : "0 16px 40px rgba(0,0,0,0.5)",
+                ? '0 -16px 40px rgba(0,0,0,0.5)'
+                : '0 16px 40px rgba(0,0,0,0.5)',
               maxHeight: dropdownPos.maxHeight || 240,
-              overflowY: "auto",
-              overflowX: "hidden",
+              overflowY: 'auto',
+              overflowX: 'hidden',
               opacity: isOpen ? 1 : 0,
               transform: isOpen
-                ? "translateY(0)"
+                ? 'translateY(0)'
                 : dropdownPos.flipUp
-                  ? "translateY(6px)"
-                  : "translateY(-6px)",
-              pointerEvents: isOpen ? "auto" : "none",
-              transition: "opacity 0.15s, transform 0.15s",
+                  ? 'translateY(6px)'
+                  : 'translateY(-6px)',
+              pointerEvents: isOpen ? 'auto' : 'none',
+              transition: 'opacity 0.15s, transform 0.15s'
             }}
           >
             {searchable && (
               <div
                 style={{
-                  padding: "8px",
-                  ...glassBorder,
+                  padding: '8px',
+                  ...glassBorder
                 }}
               >
                 <input
@@ -466,15 +466,15 @@ const Autocomplete: React.FC<SelectProps> = ({
                   onKeyDown={handleKeyDown}
                   placeholder="Search…"
                   style={{
-                    width: "100%",
-                    padding: "6px 10px",
-                    fontSize: "12px",
-                    fontFamily: "var(--font-body)",
-                    background: "var(--glass-input, rgba(255,255,255,0.06))",
-                    borderRadius: "var()",
-                    color: "var(--text-primary)",
-                    outline: "none",
-                    ...glassBorder,
+                    width: '100%',
+                    padding: '6px 10px',
+                    fontSize: '12px',
+                    fontFamily: 'var(--font-body)',
+                    background: 'var(--glass-input, rgba(255,255,255,0.06))',
+                    borderRadius: 'var()',
+                    color: 'var(--text-primary)',
+                    outline: 'none',
+                    ...glassBorder
                   }}
                 />
               </div>
@@ -482,7 +482,7 @@ const Autocomplete: React.FC<SelectProps> = ({
 
             <ul
               ref={listRef}
-              style={{ listStyle: "none", margin: 0, padding: "4px 0" }}
+              style={{ listStyle: 'none', margin: 0, padding: '4px 0' }}
             >
               {/* Clear row */}
               {hasClear &&
@@ -492,24 +492,24 @@ const Autocomplete: React.FC<SelectProps> = ({
                     <li
                       role="option"
                       aria-selected={false}
-                      onMouseDown={(e) => e.preventDefault()}
+                      onMouseDown={e => e.preventDefault()}
                       onClick={() => {
-                        onChange?.(multiple ? [] : "");
+                        onChange?.(multiple ? [] : '');
                         close();
                       }}
                       onMouseEnter={() => setHighlightedIndex(idx)}
                       onMouseLeave={() => setHighlightedIndex(-1)}
                       style={{
-                        padding: "8px 12px",
-                        fontSize: "12px",
-                        color: "var(--accent-rose)",
-                        cursor: "pointer",
+                        padding: '8px 12px',
+                        fontSize: '12px',
+                        color: 'var(--accent-rose)',
+                        cursor: 'pointer',
                         background:
                           highlightedIndex === idx
-                            ? "hsla(0,72%,50%,0.08)"
-                            : "transparent",
-                        transition: "background 0.12s",
-                        ...glassBorder,
+                            ? 'hsla(0,72%,50%,0.08)'
+                            : 'transparent',
+                        transition: 'background 0.12s',
+                        ...glassBorder
                       }}
                     >
                       Clear selection
@@ -527,28 +527,28 @@ const Autocomplete: React.FC<SelectProps> = ({
                     <li
                       role="option"
                       aria-selected={false}
-                      onMouseDown={(e) => e.preventDefault()}
+                      onMouseDown={e => e.preventDefault()}
                       onClick={commitFreeText}
                       onMouseEnter={() => setHighlightedIndex(idx)}
                       onMouseLeave={() => setHighlightedIndex(-1)}
                       style={{
-                        padding: "8px 12px",
-                        fontSize: "12px",
-                        cursor: "pointer",
+                        padding: '8px 12px',
+                        fontSize: '12px',
+                        cursor: 'pointer',
                         borderBottom:
                           filteredOptions.length > 0
-                            ? "1px solid var(--glass-outline)"
-                            : "none",
-                        display: "flex",
-                        alignItems: "center",
+                            ? '1px solid var(--glass-outline)'
+                            : 'none',
+                        display: 'flex',
+                        alignItems: 'center',
                         gap: 6,
                         color: isHighlighted
-                          ? "var(--text-primary)"
-                          : "var(--text-secondary)",
+                          ? 'var(--text-primary)'
+                          : 'var(--text-secondary)',
                         background: isHighlighted
-                          ? "var(--glass-input, rgba(255,255,255,0.06))"
-                          : "transparent",
-                        transition: "background 0.12s, color 0.12s",
+                          ? 'var(--glass-input, rgba(255,255,255,0.06))'
+                          : 'transparent',
+                        transition: 'background 0.12s, color 0.12s'
                       }}
                     >
                       <span
@@ -566,23 +566,23 @@ const Autocomplete: React.FC<SelectProps> = ({
               {filteredOptions.length === 0 && !allowFreeText ? (
                 <li
                   style={{
-                    padding: "10px 12px",
-                    fontSize: "12px",
-                    color: "var(--text-muted)",
-                    textAlign: "center",
+                    padding: '10px 12px',
+                    fontSize: '12px',
+                    color: 'var(--text-muted)',
+                    textAlign: 'center'
                   }}
                 >
-                  {searchTerm ? "No results" : "No options available"}
+                  {searchTerm ? 'No results' : 'No options available'}
                 </li>
               ) : filteredOptions.length === 0 &&
                 allowFreeText &&
                 searchTerm.trim().length === 0 ? (
                 <li
                   style={{
-                    padding: "10px 12px",
-                    fontSize: "12px",
-                    color: "var(--text-muted)",
-                    textAlign: "center",
+                    padding: '10px 12px',
+                    fontSize: '12px',
+                    color: 'var(--text-muted)',
+                    textAlign: 'center'
                   }}
                 >
                   Type to search…
@@ -595,13 +595,13 @@ const Autocomplete: React.FC<SelectProps> = ({
                   return renderOption(
                     option,
                     listIndex,
-                    listIndex + extraOffset,
+                    listIndex + extraOffset
                   );
                 })
               )}
             </ul>
           </div>,
-          portalRoot,
+          portalRoot
         )}
 
       {/* Helper / Error text */}
@@ -609,8 +609,8 @@ const Autocomplete: React.FC<SelectProps> = ({
         <p
           style={{
             marginTop: 4,
-            fontSize: "11px",
-            color: error ? "var(--accent-rose)" : "var(--text-muted)",
+            fontSize: '11px',
+            color: error ? 'var(--accent-rose)' : 'var(--text-muted)'
           }}
         >
           {helperText}
@@ -625,7 +625,7 @@ const Autocomplete: React.FC<SelectProps> = ({
             ? Array.isArray(value)
               ? value.map(String)
               : []
-            : (value as string) || ""
+            : (value as string) || ''
         }
         onChange={() => {}}
         required={required}
@@ -635,13 +635,13 @@ const Autocomplete: React.FC<SelectProps> = ({
         aria-hidden="true"
       >
         {multiple ? (
-          (Array.isArray(value) ? value : []).map((v) => (
+          (Array.isArray(value) ? value : []).map(v => (
             <option key={v} value={v}>
               {v}
             </option>
           ))
         ) : (
-          <option value={(value as string) || ""}>{placeholder}</option>
+          <option value={(value as string) || ''}>{placeholder}</option>
         )}
       </select>
     </div>

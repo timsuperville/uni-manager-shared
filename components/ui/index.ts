@@ -2,77 +2,77 @@
 // All components use CSS custom properties (var(--*)) so they automatically
 // adopt each app's colour palette (home=emerald, church=violet, admin=cobalt, etc.)
 
-export { default as Button } from "./Button";
-export { default as UserAvatar } from "./UserAvatar";
-export type { UserAvatarProps, UserAvatarUser } from "./UserAvatar";
-export { default as Logo } from "./Logo";
-export { default as AppLogo } from "./AppLogo";
-export { Card, CardHeader, CardContent, CardTitle, CardBody } from "./Card";
-export { DashboardCard, StatCard, ActionCard } from "./DashboardCard";
+export { default as Button } from './Button';
+export { default as UserAvatar } from './UserAvatar';
+export type { UserAvatarProps, UserAvatarUser } from './UserAvatar';
+export { default as Logo } from './Logo';
+export { default as AppLogo } from './AppLogo';
+export { Card, CardHeader, CardContent, CardTitle, CardBody } from './Card';
+export { DashboardCard, StatCard, ActionCard } from './DashboardCard';
 export {
   Table,
   TableHeader,
   TableBody,
   TableRow,
   TableHead,
-  TableCell,
-} from "./Table";
-export { Tabs, TabsList, TabsTrigger, TabsContent } from "./Tabs";
-export { Badge } from "./Badge";
-export { Input, Textarea } from "./Input";
-export { Progress, CircularProgress } from "./Progress";
-export { Switch } from "./Switch";
-export { ProgressCard, QuickActionCard } from "./CompositeCards";
-export { SignaturePad } from "./SignaturePad";
-export { ResonanceCreditHUD } from "./ResonanceCreditHUD";
+  TableCell
+} from './Table';
+export { Tabs, TabsList, TabsTrigger, TabsContent } from './Tabs';
+export { Badge } from './Badge';
+export { Input, Textarea } from './Input';
+export { Progress, CircularProgress } from './Progress';
+export { Switch } from './Switch';
+export { ProgressCard, QuickActionCard } from './CompositeCards';
+export { SignaturePad } from './SignaturePad';
+export { ResonanceCreditHUD } from './ResonanceCreditHUD';
 
 // Liquid Glass primitives (CSS vars — zero hardcoded colours)
-export { ProgressBar, default as ProgressBarDefault } from "./ProgressBar";
-export { Toggle } from "./Toggle";
-export { ThemeToggle } from "./ThemeToggle";
-export { Modal } from "./Modal";
-export { Panel } from "./Panel";
-export { Spinner } from "./Spinner";
-export { EmptyState } from "./EmptyState";
-export { OptionCard } from "./OptionCard";
-export { SectionCard } from "./SectionCard";
-export { FormField } from "./FormField";
-export { WizardStepper } from "./WizardStepper";
-export { RankMedal } from "./RankMedal";
-export { Alert, AlertTitle, AlertDescription } from "./Alert";
+export { ProgressBar, default as ProgressBarDefault } from './ProgressBar';
+export { Toggle } from './Toggle';
+export { ThemeToggle } from './ThemeToggle';
+export { Modal } from './Modal';
+export { Panel } from './Panel';
+export { Spinner } from './Spinner';
+export { EmptyState } from './EmptyState';
+export { OptionCard } from './OptionCard';
+export { SectionCard } from './SectionCard';
+export { FormField } from './FormField';
+export { WizardStepper } from './WizardStepper';
+export { RankMedal } from './RankMedal';
+export { Alert, AlertTitle, AlertDescription } from './Alert';
 export {
   WidgetSkeleton,
   WidgetSkeletonRow,
   WidgetSkeletonBar,
-  WidgetSkeletonList,
-} from "./WidgetSkeleton";
-export { Tooltip } from "./Tooltip";
+  WidgetSkeletonList
+} from './WidgetSkeleton';
+export { Tooltip } from './Tooltip';
 
 // Liquid Glass form primitives (inline-style, CSS token—based)
-export { Select } from "./Select";
-export { default as Autocomplete } from "./Autocomplete";
-export { Chip, CHIP_VARIANTS } from "./Chip";
-export type { ChipProps } from "./Chip";
-export { StatusBadge, STATUS_VARIANTS } from "./StatusBadge";
-export { Sparkline } from "./Sparkline";
-export { SearchInput } from "./SearchInput";
-export { DatePicker } from "./DatePicker";
-export { TimePicker } from "./TimePicker";
-export { Calendar } from "./Calendar";
+export { Select } from './Select';
+export { default as Autocomplete } from './Autocomplete';
+export { Chip, CHIP_VARIANTS } from './Chip';
+export type { ChipProps } from './Chip';
+export { StatusBadge, STATUS_VARIANTS } from './StatusBadge';
+export { Sparkline } from './Sparkline';
+export { SearchInput } from './SearchInput';
+export { DatePicker } from './DatePicker';
+export { TimePicker } from './TimePicker';
+export { Calendar } from './Calendar';
 
 // Notification-layer primitives
-export { Avatar } from "./Avatar";
-export { LoadingSpinner } from "./LoadingSpinner";
-export { Dropdown } from "./Dropdown";
-export { Pagination } from "./Pagination";
-export { StatsStrip } from "./StatsStrip";
-export { PageHeader } from "./PageHeader";
-export { SectionTabBar } from "./SectionTabBar";
+export { Avatar } from './Avatar';
+export { LoadingSpinner } from './LoadingSpinner';
+export { Dropdown } from './Dropdown';
+export { Pagination } from './Pagination';
+export { StatsStrip } from './StatsStrip';
+export { PageHeader } from './PageHeader';
+export { SectionTabBar } from './SectionTabBar';
 
 // Typography primitives
-export { Heading } from "./Heading";
-export { Text } from "./Text";
-export * from "./ProgressRing";
+export { Heading } from './Heading';
+export { Text } from './Text';
+export * from './ProgressRing';
 
 // TextArea — alias for Textarea (capitalization variant used in groups feature)
-export { Textarea as TextArea } from "./Input";
+export { Textarea as TextArea } from './Input';

@@ -1,23 +1,23 @@
-import { renderHook, act } from "@testing-library/react";
-import { vi, describe, it, expect, beforeEach } from "vitest";
-import { useDeviceTrust } from "../hooks/useDeviceTrust";
-import { useAuth } from "../hooks/useAuth";
-import { MFAService } from "../services/mfaService";
-import { generateDeviceFingerprint } from "../utils/socialAuth";
+import { renderHook, act } from '@testing-library/react';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { useDeviceTrust } from '../hooks/useDeviceTrust';
+import { useAuth } from '../hooks/useAuth';
+import { MFAService } from '../services/mfaService';
+import { generateDeviceFingerprint } from '../utils/socialAuth';
 
 // Mock dependencies
-vi.mock("../hooks/useAuth");
-vi.mock("../services/mfaService");
-vi.mock("../utils/socialAuth");
+vi.mock('../hooks/useAuth');
+vi.mock('../services/mfaService');
+vi.mock('../utils/socialAuth');
 
-describe("useDeviceTrust", () => {
-  const mockToken = "fake-token";
-  const mockFingerprint = "device-123";
+describe('useDeviceTrust', () => {
+  const mockToken = 'fake-token';
+  const mockFingerprint = 'device-123';
 
   const mockServiceMethods = {
     checkDeviceTrust: vi.fn(),
     addTrustedDevice: vi.fn(),
-    removeTrustedDevice: vi.fn(),
+    removeTrustedDevice: vi.fn()
   };
 
   beforeEach(() => {
@@ -30,7 +30,7 @@ describe("useDeviceTrust", () => {
     });
   });
 
-  it("should initialize and generate fingerprint", async () => {
+  it('should initialize and generate fingerprint', async () => {
     mockServiceMethods.checkDeviceTrust.mockResolvedValue({ isTrusted: false });
 
     const { result } = renderHook(() => useDeviceTrust());
@@ -41,12 +41,12 @@ describe("useDeviceTrust", () => {
     expect(generateDeviceFingerprint).toHaveBeenCalled();
     expect(result.current.deviceFingerprint).toBe(mockFingerprint);
     expect(mockServiceMethods.checkDeviceTrust).toHaveBeenCalledWith(
-      mockFingerprint,
+      mockFingerprint
     );
     expect(result.current.isTrusted).toBe(false);
   });
 
-  it("should handle trust device flow", async () => {
+  it('should handle trust device flow', async () => {
     mockServiceMethods.checkDeviceTrust.mockResolvedValue({ isTrusted: false });
 
     const { result } = renderHook(() => useDeviceTrust());
@@ -62,7 +62,7 @@ describe("useDeviceTrust", () => {
     expect(result.current.isTrusted).toBe(true);
   });
 
-  it("should handle untrust device flow", async () => {
+  it('should handle untrust device flow', async () => {
     mockServiceMethods.checkDeviceTrust.mockResolvedValue({ isTrusted: true });
 
     const { result } = renderHook(() => useDeviceTrust());
@@ -77,7 +77,7 @@ describe("useDeviceTrust", () => {
     });
 
     expect(mockServiceMethods.removeTrustedDevice).toHaveBeenCalledWith(
-      mockFingerprint,
+      mockFingerprint
     );
     expect(result.current.isTrusted).toBe(false);
   });

@@ -1,4 +1,4 @@
-import { glassBackground, glassBorder } from "@shared/styles/styleUtils";
+import { glassBackground, glassBorder } from '@shared/styles/styleUtils';
 
 interface StatsStripItem {
   key: string;
@@ -20,14 +20,14 @@ interface StatsStripProps {
 export function StatsStrip({
   items,
   values,
-  loading = false,
+  loading = false
 }: StatsStripProps) {
   return (
     <div
       className="flex items-center rounded-xl overflow-hidden w-full"
       style={{
         ...glassBackground,
-        ...glassBorder,
+        ...glassBorder
       }}
       role="list"
       aria-label="Statistics"
@@ -39,9 +39,7 @@ export function StatsStrip({
           className="flex items-center gap-1.5 px-3 py-2 sm:px-4 flex-1 min-w-0"
           style={{
             borderRight:
-              idx < items.length - 1
-                ? "1px solid var(--glass-outline)"
-                : "none",
+              idx < items.length - 1 ? '1px solid var(--glass-outline)' : 'none'
           }}
         >
           <span
@@ -52,22 +50,22 @@ export function StatsStrip({
           {loading ? (
             <span
               className="block h-3 w-5 rounded animate-pulse shrink-0"
-              style={{ background: "var(--glass-outline)" }}
+              style={{ background: 'var(--glass-outline)' }}
             />
           ) : (
             <span
               className="text-xs sm:text-sm font-bold tabular-nums shrink-0"
               style={{
-                color: "var(--text-primary)",
-                fontFamily: "var(--font-display)",
+                color: 'var(--text-primary)',
+                fontFamily: 'var(--font-display)'
               }}
             >
-              {values[key] ?? "—"}
+              {values[key] ?? '—'}
             </span>
           )}
           <span
             className="text-[10px] sm:text-[11px] truncate"
-            style={{ color: "var(--text-muted)" }}
+            style={{ color: 'var(--text-muted)' }}
           >
             {shortLabel ? (
               <>

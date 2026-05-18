@@ -20,8 +20,8 @@ export {
   CommandContext,
   CommandProvider,
   useCommandContext,
-  NAMESPACE_LABELS,
-} from "./CommandContext";
-export { CommandPalette } from "./CommandPalette";
-export { useCommandPalette } from "./useCommandPalette";
-export { useRegisterCommands } from "./useRegisterCommands";
+  NAMESPACE_LABELS
+} from './CommandContext';
+export { CommandPalette } from './CommandPalette';
+export { useCommandPalette } from './useCommandPalette';
+export { useRegisterCommands } from './useRegisterCommands';

@@ -1,5 +1,5 @@
-import { useState, useCallback } from "react";
-import type { User } from "../types/auth.types";
+import { useState, useCallback } from 'react';
+import type { User } from '../types/auth.types';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -36,7 +36,7 @@ const INITIAL_STATE: AuthStateShape = {
   mfaRequired: false,
   mfaSetup: false,
   mfaVerified: false,
-  sessionExpiry: null,
+  sessionExpiry: null
 };
 
 // ── Hook ──────────────────────────────────────────────────────────────────────
@@ -49,38 +49,38 @@ export function useAuthState(): UseAuthStateReturn {
   const [state, setState] = useState<AuthStateShape>(INITIAL_STATE);
 
   const updateState = useCallback((updates: PartialAuthState) => {
-    setState((prev) => ({
+    setState(prev => ({
       ...prev,
       ...updates,
-      lastActivity: Date.now(),
+      lastActivity: Date.now()
     }));
   }, []);
 
   const clearError = useCallback(() => {
-    setState((prev) => ({ ...prev, error: null }));
+    setState(prev => ({ ...prev, error: null }));
   }, []);
 
   const resetState = useCallback(() => {
     setState({
       ...INITIAL_STATE,
       isLoading: false,
-      lastActivity: Date.now(),
+      lastActivity: Date.now()
     });
   }, []);
 
   const setLoading = useCallback((isLoading: boolean) => {
-    setState((prev) => ({ ...prev, isLoading }));
+    setState(prev => ({ ...prev, isLoading }));
   }, []);
 
   const setError = useCallback((error: unknown) => {
     const errorMessage =
       (error as { message?: string })?.message ??
-      (typeof error === "string" ? error : "An error occurred");
-    setState((prev) => ({ ...prev, error: errorMessage, isLoading: false }));
+      (typeof error === 'string' ? error : 'An error occurred');
+    setState(prev => ({ ...prev, error: errorMessage, isLoading: false }));
   }, []);
 
   const updateActivity = useCallback(() => {
-    setState((prev) => ({ ...prev, lastActivity: Date.now() }));
+    setState(prev => ({ ...prev, lastActivity: Date.now() }));
   }, []);
 
   return {
@@ -90,6 +90,6 @@ export function useAuthState(): UseAuthStateReturn {
     resetState,
     setLoading,
     setError,
-    updateActivity,
+    updateActivity
   };
 }

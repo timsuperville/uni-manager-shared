@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 
 // ── Internal types (not exported — consumers just use value strings) ────────────
 
@@ -31,11 +31,11 @@ interface TabsContentProps
 // ── Components ─────────────────────────────────────────────────────────────────
 
 export const Tabs: React.FC<TabsProps> = ({
-  defaultValue = "",
+  defaultValue = '',
   value,
   onValueChange,
   children,
-  className = "",
+  className = '',
   ...props
 }) => {
   const [internalTab, setInternalTab] = useState(defaultValue);
@@ -47,11 +47,11 @@ export const Tabs: React.FC<TabsProps> = ({
 
   const tabsList = React.Children.toArray(children).find(
     (c): c is React.ReactElement =>
-      React.isValidElement(c) && c.type === TabsList,
+      React.isValidElement(c) && c.type === TabsList
   );
   const tabsContent = React.Children.toArray(children).filter(
     (c): c is React.ReactElement =>
-      React.isValidElement(c) && c.type === TabsContent,
+      React.isValidElement(c) && c.type === TabsContent
   );
 
   return (
@@ -59,10 +59,10 @@ export const Tabs: React.FC<TabsProps> = ({
       {tabsList &&
         React.cloneElement(tabsList, {
           activeTab,
-          setActiveTab: handleSetActiveTab,
+          setActiveTab: handleSetActiveTab
         })}
-      {tabsContent.map((content) =>
-        React.cloneElement(content, { activeTab, key: content.props.value }),
+      {tabsContent.map(content =>
+        React.cloneElement(content, { activeTab, key: content.props.value })
       )}
     </div>
   );
@@ -70,7 +70,7 @@ export const Tabs: React.FC<TabsProps> = ({
 
 export const TabsList: React.FC<TabsListProps> = ({
   children,
-  className = "",
+  className = '',
   activeTab,
   setActiveTab,
   ...props
@@ -80,13 +80,13 @@ export const TabsList: React.FC<TabsListProps> = ({
     {...props}
   >
     <nav className="-mb-px flex space-x-4 min-w-max px-1">
-      {React.Children.map(children, (child) =>
+      {React.Children.map(children, child =>
         React.isValidElement(child)
           ? React.cloneElement(child as React.ReactElement<TabsInternalProps>, {
               activeTab,
-              setActiveTab,
+              setActiveTab
             })
-          : child,
+          : child
       )}
     </nav>
   </div>
@@ -95,7 +95,7 @@ export const TabsList: React.FC<TabsListProps> = ({
 export const TabsTrigger: React.FC<TabsTriggerProps> = ({
   children,
   value,
-  className = "",
+  className = '',
   activeTab,
   setActiveTab,
   ...props
@@ -103,7 +103,7 @@ export const TabsTrigger: React.FC<TabsTriggerProps> = ({
   const isActive = activeTab === value;
   return (
     <button
-      className={`py-2 px-1 border-b-2 font-medium text-sm ${isActive ? "border-(--primary-resonance,#4f46e5) text-(--primary-resonance,#4f46e5)" : "border-transparent text-(--text-muted,rgba(255,255,255,0.5)) hover:text-(--text-primary,inherit) hover:border-(--glass-outline,rgba(255,255,255,0.3))"} ${className}`}
+      className={`py-2 px-1 border-b-2 font-medium text-sm ${isActive ? 'border-(--primary-resonance,#4f46e5) text-(--primary-resonance,#4f46e5)' : 'border-transparent text-(--text-muted,rgba(255,255,255,0.5)) hover:text-(--text-primary,inherit) hover:border-(--glass-outline,rgba(255,255,255,0.3))'} ${className}`}
       onClick={() => setActiveTab?.(value)}
       {...props}
     >
@@ -115,7 +115,7 @@ export const TabsTrigger: React.FC<TabsTriggerProps> = ({
 export const TabsContent: React.FC<TabsContentProps> = ({
   children,
   value,
-  className = "",
+  className = '',
   activeTab,
   ...props
 }) => {

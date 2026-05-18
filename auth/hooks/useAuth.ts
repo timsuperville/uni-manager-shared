@@ -1,5 +1,5 @@
-import { useAuth as useAuthFromProvider } from "../context/AuthContext";
-import type { AuthContextType } from "../types/auth.types";
+import { useAuth as useAuthFromProvider } from '../context/AuthContext';
+import type { AuthContextType } from '../types/auth.types';
 
 /**
  * useAuth — Primary Authentication Hook.

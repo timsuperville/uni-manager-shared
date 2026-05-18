@@ -1,8 +1,8 @@
-import React from "react";
-import { Card, CardContent } from "./Card";
-import { glassBackground } from "@shared/styles/styleUtils";
+import React from 'react';
+import { Card, CardContent } from './Card';
+import { glassBackground } from '@shared/styles/styleUtils';
 
-type TrendDirection = "up" | "down" | "neutral";
+type TrendDirection = 'up' | 'down' | 'neutral';
 
 interface DashboardCardProps extends React.HTMLAttributes<HTMLDivElement> {
   title: string;
@@ -14,16 +14,16 @@ interface DashboardCardProps extends React.HTMLAttributes<HTMLDivElement> {
   trend?: TrendDirection;
   trendLabel?: string;
   className?: string;
-  variant?: "default" | "elevated" | "outlined" | "gradient";
+  variant?: 'default' | 'elevated' | 'outlined' | 'gradient';
   interactive?: boolean;
   onClick?: () => void;
   loading?: boolean;
 }
 
 const TREND_COLORS: Record<TrendDirection, string> = {
-  up: "text-(--accent-emerald,#4ade80)",
-  down: "text-(--danger,#f87171)",
-  neutral: "text-(--text-muted,rgba(255,255,255,0.5))",
+  up: 'text-(--accent-emerald,#4ade80)',
+  down: 'text-(--danger,#f87171)',
+  neutral: 'text-(--text-muted,rgba(255,255,255,0.5))'
 };
 
 const DashboardCard: React.FC<DashboardCardProps> = ({
@@ -35,8 +35,8 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
   iconColor,
   trend,
   trendLabel,
-  className = "",
-  variant = "elevated",
+  className = '',
+  variant = 'elevated',
   interactive = false,
   onClick,
   loading = false,
@@ -48,7 +48,7 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
       variant={variant}
       interactive={interactive}
       onClick={handleClick}
-      className={`${className} ${loading ? "animate-pulse" : ""}`}
+      className={`${className} ${loading ? 'animate-pulse' : ''}`}
       {...props}
     >
       <CardContent padding="lg">
@@ -73,7 +73,7 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
               <div
                 className={`flex items-center mt-2 text-xs ${TREND_COLORS[trend] ?? TREND_COLORS.neutral}`}
               >
-                {trend === "up" && (
+                {trend === 'up' && (
                   <svg
                     className="w-3 h-3 mr-1"
                     fill="currentColor"
@@ -86,7 +86,7 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
                     />
                   </svg>
                 )}
-                {trend === "down" && (
+                {trend === 'down' && (
                   <svg
                     className="w-3 h-3 mr-1"
                     fill="currentColor"
@@ -99,7 +99,7 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
                     />
                   </svg>
                 )}
-                {trend === "neutral" && (
+                {trend === 'neutral' && (
                   <svg
                     className="w-3 h-3 mr-1"
                     fill="currentColor"
@@ -124,20 +124,20 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
                   height: 48,
                   background: iconColor
                     ? `${iconColor}22`
-                    : "var(--glass-surface, rgba(255,255,255,0.06))",
-                  borderRadius: "0.75rem",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
+                    : 'var(--glass-surface, rgba(255,255,255,0.06))',
+                  borderRadius: '0.75rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                   border:
-                    "1px solid var(--glass-outline, rgba(255,255,255,0.15))",
-                  flexShrink: 0,
+                    '1px solid var(--glass-outline, rgba(255,255,255,0.15))',
+                  flexShrink: 0
                 }}
               >
                 <Icon
                   className="w-6 h-6"
                   style={{
-                    color: iconColor || "var(--primary-resonance, #6366f1)",
+                    color: iconColor || 'var(--primary-resonance, #6366f1)'
                   }}
                 />
               </div>
@@ -147,9 +147,9 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
         {caption && (
           <p
             style={{
-              fontSize: "var(--text-xs, 0.75rem)",
-              color: "var(--text-muted, rgba(255,255,255,0.5))",
-              margin: "0 1rem 0.75rem",
+              fontSize: 'var(--text-xs, 0.75rem)',
+              color: 'var(--text-muted, rgba(255,255,255,0.5))',
+              margin: '0 1rem 0.75rem'
             }}
           >
             {caption}
@@ -160,25 +160,25 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
   );
 };
 
-type StatVariant = "default" | "success" | "warning" | "danger";
-type ChangeType = "up" | "down" | "neutral";
+type StatVariant = 'default' | 'success' | 'warning' | 'danger';
+type ChangeType = 'up' | 'down' | 'neutral';
 
 const STAT_VARIANT_BORDER: Record<StatVariant, string> = {
-  default: "var(--glass-outline)",
-  success: "var(--color-success-border, rgba(74,222,128,0.35))",
-  warning: "var(--color-warning-border, rgba(251,191,36,0.35))",
-  danger: "var(--color-error-border, rgba(248,113,113,0.35))",
+  default: 'var(--glass-outline)',
+  success: 'var(--color-success-border, rgba(74,222,128,0.35))',
+  warning: 'var(--color-warning-border, rgba(251,191,36,0.35))',
+  danger: 'var(--color-error-border, rgba(248,113,113,0.35))'
 };
 const STAT_VARIANT_ICON_COLOR: Record<StatVariant, string> = {
-  default: "var(--text-secondary)",
-  success: "var(--color-success, #4ade80)",
-  warning: "var(--color-warning, #fbbf24)",
-  danger: "var(--color-error, #f87171)",
+  default: 'var(--text-secondary)',
+  success: 'var(--color-success, #4ade80)',
+  warning: 'var(--color-warning, #fbbf24)',
+  danger: 'var(--color-error, #f87171)'
 };
 
 interface StatCardProps extends Omit<
   React.ButtonHTMLAttributes<HTMLButtonElement>,
-  "value"
+  'value'
 > {
   title?: string;
   value: React.ReactNode;
@@ -198,15 +198,15 @@ const StatCard: React.FC<StatCardProps> = ({
   title,
   value,
   change,
-  changeType = "neutral",
+  changeType = 'neutral',
   icon: Icon,
   iconColor,
   subtitle,
   caption,
-  className = "",
+  className = '',
   label,
   sub,
-  variant = "default",
+  variant = 'default',
   onClick,
   ...props
 }) => {
@@ -218,19 +218,19 @@ const StatCard: React.FC<StatCardProps> = ({
     iconColor ??
     STAT_VARIANT_ICON_COLOR[variant] ??
     STAT_VARIANT_ICON_COLOR.default;
-  const isEmojiIcon = typeof Icon === "string";
+  const isEmojiIcon = typeof Icon === 'string';
   const changeBg =
-    changeType === "up"
-      ? "var(--color-success-surface, rgba(74,222,128,0.1))"
-      : changeType === "down"
-        ? "var(--color-error-surface, rgba(248,113,113,0.1))"
-        : "var(--glass-surface)";
+    changeType === 'up'
+      ? 'var(--color-success-surface, rgba(74,222,128,0.1))'
+      : changeType === 'down'
+        ? 'var(--color-error-surface, rgba(248,113,113,0.1))'
+        : 'var(--glass-surface)';
   const changeColor =
-    changeType === "up"
-      ? "var(--color-success, #4ade80)"
-      : changeType === "down"
-        ? "var(--color-error, #f87171)"
-        : "var(--text-muted)";
+    changeType === 'up'
+      ? 'var(--color-success, #4ade80)'
+      : changeType === 'down'
+        ? 'var(--color-error, #f87171)'
+        : 'var(--text-muted)';
 
   return (
     <button
@@ -239,9 +239,9 @@ const StatCard: React.FC<StatCardProps> = ({
       className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all w-full text-left ${className}`}
       style={{
         border: `1px solid ${variantBorder}`,
-        backdropFilter: "var(--glass-blur)",
-        cursor: onClick ? "pointer" : "default",
-        ...glassBackground,
+        backdropFilter: 'var(--glass-blur)',
+        cursor: onClick ? 'pointer' : 'default',
+        ...glassBackground
       }}
       {...props}
     >
@@ -257,7 +257,7 @@ const StatCard: React.FC<StatCardProps> = ({
               width: 28,
               height: 28,
               background: `${variantIconColor}18`,
-              border: `1px solid ${variantIconColor}30`,
+              border: `1px solid ${variantIconColor}30`
             }}
           >
             <Icon className="w-3.5 h-3.5" style={{ color: variantIconColor }} />
@@ -269,15 +269,15 @@ const StatCard: React.FC<StatCardProps> = ({
           <span
             className="text-base font-bold leading-none"
             style={{
-              color: "var(--text-primary)",
-              fontFamily: "var(--font-display)",
+              color: 'var(--text-primary)',
+              fontFamily: 'var(--font-display)'
             }}
           >
             {value}
           </span>
           <span
             className="text-xs font-medium truncate leading-none"
-            style={{ color: "var(--text-secondary)" }}
+            style={{ color: 'var(--text-secondary)' }}
           >
             {resolvedTitle}
             {(resolvedSubtitle || caption) && (
@@ -314,14 +314,14 @@ const ActionCard: React.FC<ActionCardProps> = ({
   description,
   action,
   icon,
-  className = "",
+  className = '',
   ...props
 }) => {
   // If icon is a function/class component, render it; otherwise treat as ReactNode
   const iconNode =
-    typeof icon === "function"
+    typeof icon === 'function'
       ? React.createElement(icon as React.ElementType, {
-          className: "w-5 h-5 text-(--primary-resonance,#6366f1)",
+          className: 'w-5 h-5 text-(--primary-resonance,#6366f1)'
         })
       : (icon as React.ReactNode);
 

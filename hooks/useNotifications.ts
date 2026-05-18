@@ -1,11 +1,11 @@
 /* eslint-env browser */
-import { useState, useEffect, useCallback, useRef } from "react";
-import { useNotificationContext } from "../features/notifications/NotificationContext";
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { useNotificationContext } from '../features/notifications/NotificationContext';
 import type {
   AppNotification,
-  FetchNotificationsParams,
-} from "../features/notifications/NotificationAdapter";
-import { logger } from "@shared/utils/logger";
+  FetchNotificationsParams
+} from '../features/notifications/NotificationAdapter';
+import { logger } from '@shared/utils/logger';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -54,7 +54,7 @@ export const useNotifications = ({
   limit = 20,
   status,
   type,
-  search,
+  search
 }: UseNotificationsOptions = {}): UseNotificationsReturn => {
   const { adapter } = useNotificationContext();
 
@@ -72,7 +72,7 @@ export const useNotifications = ({
 
   const loadNotifications = useCallback(
     async (forceRefresh = false) => {
-      const cacheKey = `${page}:${limit}:${status ?? ""}:${type ?? ""}:${search ?? ""}`;
+      const cacheKey = `${page}:${limit}:${status ?? ''}:${type ?? ''}:${search ?? ''}`;
 
       if (!forceRefresh && cacheRef.current.has(cacheKey)) {
         const cached = cacheRef.current.get(cacheKey)!;
@@ -97,7 +97,7 @@ export const useNotifications = ({
           status,
           type,
           search,
-          signal: abortRef.current.signal,
+          signal: abortRef.current.signal
         });
 
         setNotifications(result.items);
@@ -109,7 +109,7 @@ export const useNotifications = ({
           items: result.items,
           total: result.total,
           unreadCount: result.unreadCount,
-          timestamp: Date.now(),
+          timestamp: Date.now()
         });
 
         // Evict oldest cache entry beyond 10 entries
@@ -120,10 +120,10 @@ export const useNotifications = ({
       } catch (err) {
         const typedErr = err instanceof Error ? err : new Error(String(err));
         const isCancel =
-          typedErr.name === "AbortError" ||
-          typedErr.name === "CanceledError" ||
-          typedErr.message === "canceled" ||
-          typedErr.message === "Request was cancelled";
+          typedErr.name === 'AbortError' ||
+          typedErr.name === 'CanceledError' ||
+          typedErr.message === 'canceled' ||
+          typedErr.message === 'Request was cancelled';
 
         // Auth failures (401 / token expiry) during background polls are
         // transient — the AuthInterceptor is already handling the refresh.
@@ -133,16 +133,16 @@ export const useNotifications = ({
           !isCancel &&
           ((err as { response?: { status?: number } })?.response?.status ===
             401 ||
-            typedErr.message.toLowerCase().includes("token expired") ||
-            typedErr.message.toLowerCase().includes("unauthorized") ||
-            typedErr.message.toLowerCase().includes("401"));
+            typedErr.message.toLowerCase().includes('token expired') ||
+            typedErr.message.toLowerCase().includes('unauthorized') ||
+            typedErr.message.toLowerCase().includes('401'));
 
         if (!isCancel && !isAuthError) {
           setError(typedErr.message);
           if (import.meta.env?.DEV) {
             logger.warn(
-              "[useNotifications] fetchNotifications failed:",
-              typedErr.message,
+              '[useNotifications] fetchNotifications failed:',
+              typedErr.message
             );
           }
         }
@@ -154,7 +154,7 @@ export const useNotifications = ({
     // adapter is stable for the lifetime of the provider;
     // params change triggers a refetch via the effect below.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [adapter, page, limit, status, type, search],
+    [adapter, page, limit, status, type, search]
   );
 
   // ── Mutations ───────────────────────────────────────────────────────────────
@@ -162,28 +162,26 @@ export const useNotifications = ({
   const markAsRead = useCallback(
     async (id: string) => {
       // Optimistic update
-      setNotifications((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, status: "read" as const } : n)),
+      setNotifications(prev =>
+        prev.map(n => (n.id === id ? { ...n, status: 'read' as const } : n))
       );
-      setUnreadCount((prev) => Math.max(0, prev - 1));
+      setUnreadCount(prev => Math.max(0, prev - 1));
 
       try {
         await adapter.markRead(id);
       } catch (err) {
         // Revert
-        setNotifications((prev) =>
-          prev.map((n) =>
-            n.id === id ? { ...n, status: "unread" as const } : n,
-          ),
+        setNotifications(prev =>
+          prev.map(n => (n.id === id ? { ...n, status: 'unread' as const } : n))
         );
-        setUnreadCount((prev) => prev + 1);
+        setUnreadCount(prev => prev + 1);
         if (import.meta.env?.DEV) {
-          logger.warn("[useNotifications] markRead failed:", err);
+          logger.warn('[useNotifications] markRead failed:', err);
         }
         throw err;
       }
     },
-    [adapter],
+    [adapter]
   );
 
   const markMultipleAsRead = useCallback(
@@ -191,15 +189,15 @@ export const useNotifications = ({
       const snapshot = [...notifications];
       const snapshotUnread = unreadCount;
 
-      setNotifications((prev) =>
-        prev.map((n) =>
-          ids.includes(n.id) ? { ...n, status: "read" as const } : n,
-        ),
+      setNotifications(prev =>
+        prev.map(n =>
+          ids.includes(n.id) ? { ...n, status: 'read' as const } : n
+        )
       );
       const toRead = notifications.filter(
-        (n) => ids.includes(n.id) && n.status === "unread",
+        n => ids.includes(n.id) && n.status === 'unread'
       ).length;
-      setUnreadCount((prev) => Math.max(0, prev - toRead));
+      setUnreadCount(prev => Math.max(0, prev - toRead));
 
       try {
         await adapter.bulkMarkRead(ids);
@@ -207,20 +205,20 @@ export const useNotifications = ({
         setNotifications(snapshot);
         setUnreadCount(snapshotUnread);
         if (import.meta.env?.DEV) {
-          logger.warn("[useNotifications] bulkMarkRead failed:", err);
+          logger.warn('[useNotifications] bulkMarkRead failed:', err);
         }
         throw err;
       }
     },
-    [adapter, notifications, unreadCount],
+    [adapter, notifications, unreadCount]
   );
 
   const markAllAsRead = useCallback(async () => {
     const snapshot = [...notifications];
     const snapshotUnread = unreadCount;
 
-    setNotifications((prev) =>
-      prev.map((n) => ({ ...n, status: "read" as const })),
+    setNotifications(prev =>
+      prev.map(n => ({ ...n, status: 'read' as const }))
     );
     setUnreadCount(0);
 
@@ -230,7 +228,7 @@ export const useNotifications = ({
       setNotifications(snapshot);
       setUnreadCount(snapshotUnread);
       if (import.meta.env?.DEV) {
-        logger.warn("[useNotifications] markAllRead failed:", err);
+        logger.warn('[useNotifications] markAllRead failed:', err);
       }
       throw err;
     }
@@ -238,39 +236,39 @@ export const useNotifications = ({
 
   const archiveNotification = useCallback(
     async (id: string) => {
-      setNotifications((prev) => prev.filter((n) => n.id !== id));
+      setNotifications(prev => prev.filter(n => n.id !== id));
       try {
         await adapter.archive(id);
       } catch (err) {
         // Refetch to restore consistent state
         await loadNotifications(true);
         if (import.meta.env?.DEV) {
-          logger.warn("[useNotifications] archive failed:", err);
+          logger.warn('[useNotifications] archive failed:', err);
         }
         throw err;
       }
     },
-    [adapter, loadNotifications],
+    [adapter, loadNotifications]
   );
 
   const deleteNotification = useCallback(
     async (id: string) => {
-      const target = notifications.find((n) => n.id === id);
-      setNotifications((prev) => prev.filter((n) => n.id !== id));
-      if (target?.status === "unread")
-        setUnreadCount((prev) => Math.max(0, prev - 1));
+      const target = notifications.find(n => n.id === id);
+      setNotifications(prev => prev.filter(n => n.id !== id));
+      if (target?.status === 'unread')
+        setUnreadCount(prev => Math.max(0, prev - 1));
 
       try {
         await adapter.delete(id);
       } catch (err) {
         await loadNotifications(true);
         if (import.meta.env?.DEV) {
-          logger.warn("[useNotifications] delete failed:", err);
+          logger.warn('[useNotifications] delete failed:', err);
         }
         throw err;
       }
     },
-    [adapter, notifications, loadNotifications],
+    [adapter, notifications, loadNotifications]
   );
 
   const refreshNotifications = useCallback(async () => {
@@ -305,7 +303,7 @@ export const useNotifications = ({
     markAllAsRead,
     archiveNotification,
     deleteNotification,
-    refreshNotifications,
+    refreshNotifications
   };
 };
 

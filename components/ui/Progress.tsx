@@ -1,13 +1,13 @@
-import React from "react";
+import React from 'react';
 
 type ProgressVariant =
-  | "default"
-  | "success"
-  | "warning"
-  | "danger"
-  | "error"
-  | "info";
-type ProgressSize = "sm" | "default" | "lg";
+  | 'default'
+  | 'success'
+  | 'warning'
+  | 'danger'
+  | 'error'
+  | 'info';
+type ProgressSize = 'sm' | 'default' | 'lg';
 
 interface ProgressProps extends React.HTMLAttributes<HTMLDivElement> {
   value?: number;
@@ -28,43 +28,43 @@ interface CircularProgressProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const sizeClasses: Record<ProgressSize, string> = {
-  sm: "h-2",
-  default: "h-3",
-  lg: "h-4",
+  sm: 'h-2',
+  default: 'h-3',
+  lg: 'h-4'
 };
 
 const variantClasses: Record<ProgressVariant, string> = {
-  default: "[background:var(--primary-resonance,#4f46e5)]",
-  success: "[background:var(--accent-emerald,#22c55e)]",
-  warning: "[background:var(--warning,#eab308)]",
-  danger: "[background:var(--danger,#ef4444)]",
-  error: "[background:var(--danger,#ef4444)]",
-  info: "[background:var(--badge-info-text,#60a5fa)]",
+  default: '[background:var(--primary-resonance,#4f46e5)]',
+  success: '[background:var(--accent-emerald,#22c55e)]',
+  warning: '[background:var(--warning,#eab308)]',
+  danger: '[background:var(--danger,#ef4444)]',
+  error: '[background:var(--danger,#ef4444)]',
+  info: '[background:var(--badge-info-text,#60a5fa)]'
 };
 
 const variantColors: Record<ProgressVariant, string> = {
-  default: "var(--primary-resonance, #4f46e5)",
-  success: "var(--accent-emerald, #10b981)",
-  warning: "var(--warning, #f59e0b)",
-  danger: "var(--danger, #ef4444)",
-  error: "var(--danger, #ef4444)",
-  info: "var(--badge-info-text, #3b82f6)",
+  default: 'var(--primary-resonance, #4f46e5)',
+  success: 'var(--accent-emerald, #10b981)',
+  warning: 'var(--warning, #f59e0b)',
+  danger: 'var(--danger, #ef4444)',
+  error: 'var(--danger, #ef4444)',
+  info: 'var(--badge-info-text, #3b82f6)'
 };
 
 const circleSizes: Record<ProgressSize, number> = {
   sm: 64,
   default: 96,
-  lg: 128,
+  lg: 128
 };
 
 export const Progress: React.FC<ProgressProps> = ({
   value = 0,
   max = 100,
-  className = "",
-  size = "default",
-  variant = "default",
+  className = '',
+  size = 'default',
+  variant = 'default',
   showLabel = false,
-  label = "",
+  label = '',
   ...props
 }) => {
   const pct = Math.min(Math.max((value / max) * 100, 0), 100);
@@ -97,11 +97,11 @@ export const Progress: React.FC<ProgressProps> = ({
 export const CircularProgress: React.FC<CircularProgressProps> = ({
   value = 0,
   max = 100,
-  size = "default",
-  variant = "default",
+  size = 'default',
+  variant = 'default',
   showLabel = false,
   strokeWidth = 8,
-  className = "",
+  className = '',
   ...props
 }) => {
   const pct = Math.min(Math.max((value / max) * 100, 0), 100);

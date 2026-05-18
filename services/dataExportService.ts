@@ -3,15 +3,15 @@
  * Comprehensive data export functionality with multiple formats
  */
 
-import * as XLSX from "xlsx";
-import jsPDF from "jspdf";
-import "jspdf-autotable";
+import * as XLSX from 'xlsx';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
-export type ExportFormat = "csv" | "xlsx" | "pdf" | "json";
+export type ExportFormat = 'csv' | 'xlsx' | 'pdf' | 'json';
 
 export interface ExportOptions {
   filename?: string;
@@ -68,24 +68,24 @@ type DataRow = Record<string, unknown>;
 
 class DataExportService {
   private readonly supportedFormats: ExportFormat[] = [
-    "csv",
-    "xlsx",
-    "pdf",
-    "json",
+    'csv',
+    'xlsx',
+    'pdf',
+    'json'
   ];
   private exportHistory: ExportHistoryEntry[] = [];
 
   async exportData(
     data: DataRow[],
     format: string,
-    options: ExportOptions = {},
+    options: ExportOptions = {}
   ): Promise<ExportResult> {
     const {
-      filename = `export_${new Date().toISOString().split("T")[0]}`,
-      title = "Data Export",
+      filename = `export_${new Date().toISOString().split('T')[0]}`,
+      title = 'Data Export',
       columns = null,
       filters = {},
-      metadata = {},
+      metadata = {}
     } = options;
 
     try {
@@ -93,28 +93,28 @@ class DataExportService {
 
       let result: ExportResult;
       switch (format.toLowerCase() as ExportFormat) {
-        case "csv":
+        case 'csv':
           result = await this.exportToCSV(filteredData, { filename, columns });
           break;
-        case "xlsx":
+        case 'xlsx':
           result = await this.exportToExcel(filteredData, {
             filename,
             columns,
-            title,
+            title
           });
           break;
-        case "pdf":
+        case 'pdf':
           result = await this.exportToPDF(filteredData, {
             filename,
             columns,
             title,
-            metadata,
+            metadata
           });
           break;
-        case "json":
+        case 'json':
           result = await this.exportToJSON(filteredData, {
             filename,
-            metadata,
+            metadata
           });
           break;
         default:
@@ -127,14 +127,14 @@ class DataExportService {
         recordCount: filteredData.length,
         timestamp: new Date(),
         filters,
-        metadata,
+        metadata
       });
 
       return result;
     } catch (_error) {
       // Root-Cause: re-throw with context; do NOT reference `error` (out of scope bug in JS original)
       throw new Error(
-        `Export failed: ${_error instanceof Error ? _error.message : String(_error)}`,
+        `Export failed: ${_error instanceof Error ? _error.message : String(_error)}`
       );
     }
   }
@@ -142,12 +142,12 @@ class DataExportService {
   private applyFilters(data: DataRow[], filters: FilterSpec): DataRow[] {
     if (!filters || Object.keys(filters).length === 0) return data;
 
-    return data.filter((item) =>
+    return data.filter(item =>
       Object.entries(filters).every(([key, value]) => {
         if (value == null) return true;
         const itemValue = this.getNestedValue(item, key);
 
-        if (typeof value === "object" && !Array.isArray(value)) {
+        if (typeof value === 'object' && !Array.isArray(value)) {
           const range = value as {
             min?: number;
             max?: number;
@@ -173,18 +173,18 @@ class DataExportService {
         if (Array.isArray(value))
           return value.includes(itemValue as string | number);
 
-        if (typeof itemValue === "string" && typeof value === "string") {
+        if (typeof itemValue === 'string' && typeof value === 'string') {
           return itemValue.toLowerCase().includes(value.toLowerCase());
         }
 
         return itemValue === value;
-      }),
+      })
     );
   }
 
   private getNestedValue(obj: DataRow, path: string): unknown {
-    return path.split(".").reduce<unknown>((current, key) => {
-      if (current && typeof current === "object")
+    return path.split('.').reduce<unknown>((current, key) => {
+      if (current && typeof current === 'object')
         return (current as DataRow)[key];
       return undefined;
     }, obj);
@@ -192,79 +192,79 @@ class DataExportService {
 
   private async exportToCSV(
     data: DataRow[],
-    options: { filename?: string; columns?: string[] | null },
+    options: { filename?: string; columns?: string[] | null }
   ): Promise<ExportResult> {
-    const { filename = "export", columns } = options;
-    if (data.length === 0) throw new Error("No data to export");
+    const { filename = 'export', columns } = options;
+    if (data.length === 0) throw new Error('No data to export');
 
     const exportColumns = columns ?? Object.keys(data[0]);
-    const headers = exportColumns.join(",");
-    const rows = data.map((item) =>
+    const headers = exportColumns.join(',');
+    const rows = data.map(item =>
       exportColumns
-        .map((col) => {
+        .map(col => {
           const value = this.getNestedValue(item, col);
           if (
-            typeof value === "string" &&
-            (value.includes(",") || value.includes('"'))
+            typeof value === 'string' &&
+            (value.includes(',') || value.includes('"'))
           ) {
             return `'${value.replace(/'/g, "''")}'`;
           }
-          return String(value ?? "");
+          return String(value ?? '');
         })
-        .join(","),
+        .join(',')
     );
 
-    const csvContent = [headers, ...rows].join("\n");
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const csvContent = [headers, ...rows].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const finalFilename = `${filename}.csv`;
     this.downloadBlob(blob, finalFilename);
 
     return {
       filename: finalFilename,
-      format: "csv",
+      format: 'csv',
       size: blob.size,
-      recordCount: data.length,
+      recordCount: data.length
     };
   }
 
   private async exportToExcel(
     data: DataRow[],
-    options: { filename?: string; columns?: string[] | null; title?: string },
+    options: { filename?: string; columns?: string[] | null; title?: string }
   ): Promise<ExportResult> {
-    const { filename = "export", columns, title } = options;
-    if (data.length === 0) throw new Error("No data to export");
+    const { filename = 'export', columns, title } = options;
+    if (data.length === 0) throw new Error('No data to export');
 
     const exportColumns = columns ?? Object.keys(data[0]);
     const wb = XLSX.utils.book_new();
     const wsData = [
       exportColumns,
-      ...data.map((item) =>
-        exportColumns.map((col) => this.getNestedValue(item, col)),
-      ),
+      ...data.map(item =>
+        exportColumns.map(col => this.getNestedValue(item, col))
+      )
     ];
     const ws = XLSX.utils.aoa_to_sheet(wsData);
-    ws["!cols"] = exportColumns.map((col) => ({
-      wch: Math.max(col.length, 15),
+    ws['!cols'] = exportColumns.map(col => ({
+      wch: Math.max(col.length, 15)
     }));
-    XLSX.utils.book_append_sheet(wb, ws, title ?? "Data");
+    XLSX.utils.book_append_sheet(wb, ws, title ?? 'Data');
 
     const excelBuffer = XLSX.write(wb, {
-      bookType: "xlsx",
-      type: "array",
+      bookType: 'xlsx',
+      type: 'array'
     }) as ArrayBuffer;
     // Bug fix: original had garbage string in MIME type — was:
     // 'application/vnd.openxmlformats-officetypeof document !== "undefined" && document.spreadsheetml.sheet;...'
     const blob = new Blob([excelBuffer], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8'
     });
     const finalFilename = `${filename}.xlsx`;
     this.downloadBlob(blob, finalFilename);
 
     return {
       filename: finalFilename,
-      format: "xlsx",
+      format: 'xlsx',
       size: blob.size,
-      recordCount: data.length,
+      recordCount: data.length
     };
   }
 
@@ -275,16 +275,16 @@ class DataExportService {
       columns?: string[] | null;
       title?: string;
       metadata?: Record<string, unknown>;
-    },
+    }
   ): Promise<ExportResult> {
-    const { filename = "export", columns, title, metadata } = options;
-    if (data.length === 0) throw new Error("No data to export");
+    const { filename = 'export', columns, title, metadata } = options;
+    if (data.length === 0) throw new Error('No data to export');
 
     const exportColumns = columns ?? Object.keys(data[0]);
     const doc = new jsPDF();
 
     doc.setFontSize(16);
-    doc.text(title ?? "Data Export", 14, 20);
+    doc.text(title ?? 'Data Export', 14, 20);
 
     let yOffset = 35;
     if (metadata && Object.keys(metadata).length > 0) {
@@ -301,8 +301,8 @@ class DataExportService {
     doc.text(`Records: ${data.length}`, 14, yOffset + 5);
     yOffset += 15;
 
-    const tableData = data.map((item) =>
-      exportColumns.map((col) => String(this.getNestedValue(item, col) ?? "")),
+    const tableData = data.map(item =>
+      exportColumns.map(col => String(this.getNestedValue(item, col) ?? ''))
     );
 
     (
@@ -316,47 +316,47 @@ class DataExportService {
       styles: { fontSize: 8 },
       headStyles: { fillColor: [71, 85, 105] },
       alternateRowStyles: { fillColor: [245, 245, 245] },
-      margin: { top: 20 },
+      margin: { top: 20 }
     });
 
-    const pdfBlob = doc.output("blob");
+    const pdfBlob = doc.output('blob');
     const finalFilename = `${filename}.pdf`;
     this.downloadBlob(pdfBlob, finalFilename);
 
     return {
       filename: finalFilename,
-      format: "pdf",
+      format: 'pdf',
       size: pdfBlob.size,
-      recordCount: data.length,
+      recordCount: data.length
     };
   }
 
   private async exportToJSON(
     data: DataRow[],
-    options: { filename?: string; metadata?: Record<string, unknown> },
+    options: { filename?: string; metadata?: Record<string, unknown> }
   ): Promise<ExportResult> {
-    const { filename = "export", metadata } = options;
+    const { filename = 'export', metadata } = options;
     const exportData = {
       metadata: {
         exportDate: new Date().toISOString(),
         recordCount: data.length,
-        ...metadata,
+        ...metadata
       },
-      data,
+      data
     };
 
     const jsonContent = JSON.stringify(exportData, null, 2);
     const blob = new Blob([jsonContent], {
-      type: "application/json;charset=utf-8;",
+      type: 'application/json;charset=utf-8;'
     });
     const finalFilename = `${filename}.json`;
     this.downloadBlob(blob, finalFilename);
 
     return {
       filename: finalFilename,
-      format: "json",
+      format: 'json',
       size: blob.size,
-      recordCount: data.length,
+      recordCount: data.length
     };
   }
 
@@ -367,8 +367,8 @@ class DataExportService {
     };
     if (nav.msSaveOrOpenBlob) {
       nav.msSaveOrOpenBlob(blob, filename);
-    } else if (typeof document !== "undefined") {
-      const link = document.createElement("a");
+    } else if (typeof document !== 'undefined') {
+      const link = document.createElement('a');
       const url = URL.createObjectURL(blob);
       link.href = url;
       link.download = filename;
@@ -384,10 +384,10 @@ class DataExportService {
     if (this.exportHistory.length > 100)
       this.exportHistory = this.exportHistory.slice(0, 100);
     try {
-      if (typeof localStorage !== "undefined") {
+      if (typeof localStorage !== 'undefined') {
         localStorage.setItem(
-          "exportHistory",
-          JSON.stringify(this.exportHistory),
+          'exportHistory',
+          JSON.stringify(this.exportHistory)
         );
       }
     } catch {
@@ -398,8 +398,8 @@ class DataExportService {
   loadExportHistory(): void {
     try {
       const stored =
-        typeof localStorage !== "undefined"
-          ? localStorage.getItem("exportHistory")
+        typeof localStorage !== 'undefined'
+          ? localStorage.getItem('exportHistory')
           : null;
       if (stored)
         this.exportHistory = JSON.parse(stored) as ExportHistoryEntry[];
@@ -414,8 +414,8 @@ class DataExportService {
 
   clearExportHistory(): void {
     this.exportHistory = [];
-    if (typeof localStorage !== "undefined")
-      localStorage.removeItem("exportHistory");
+    if (typeof localStorage !== 'undefined')
+      localStorage.removeItem('exportHistory');
   }
 
   getSupportedFormats(): ExportFormat[] {
@@ -423,13 +423,13 @@ class DataExportService {
   }
 
   validateExportParams(data: unknown, format: string): boolean {
-    if (!Array.isArray(data)) throw new Error("Data must be an array");
+    if (!Array.isArray(data)) throw new Error('Data must be an array');
     if (!this.supportedFormats.includes(format.toLowerCase() as ExportFormat)) {
       throw new Error(
-        `Unsupported format: ${format}. Supported formats: ${this.supportedFormats.join(", ")}`,
+        `Unsupported format: ${format}. Supported formats: ${this.supportedFormats.join(', ')}`
       );
     }
-    if ((data as unknown[]).length === 0) throw new Error("No data to export");
+    if ((data as unknown[]).length === 0) throw new Error('No data to export');
     return true;
   }
 
@@ -439,7 +439,7 @@ class DataExportService {
       columns?: string[];
       filters?: FilterSpec;
       maxRows?: number;
-    } = {},
+    } = {}
   ): PreviewResult {
     const { columns, filters = {}, maxRows = 10 } = options;
     const filteredData = this.applyFilters(data, filters);
@@ -452,7 +452,7 @@ class DataExportService {
       data: previewData,
       totalRecords: filteredData.length,
       previewRecords: previewData.length,
-      hasMore: filteredData.length > maxRows,
+      hasMore: filteredData.length > maxRows
     };
   }
 }

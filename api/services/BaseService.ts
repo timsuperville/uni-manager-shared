@@ -5,13 +5,13 @@
  * standardized error handling, and consistent patterns.
  */
 
-import { ApiClient, ApiResponse, RequestOptions } from "../core/ApiClient";
-import { ApiError, ApiErrorType } from "../core/ErrorHandler";
-import { reportApiError, isDev } from "../../utils";
+import { ApiClient, ApiResponse, RequestOptions } from '../core/ApiClient';
+import { ApiError, ApiErrorType } from '../core/ErrorHandler';
+import { reportApiError, isDev } from '../../utils';
 
 export interface ValidationSchema {
   [key: string]: {
-    type: "string" | "number" | "boolean" | "object" | "array";
+    type: 'string' | 'number' | 'boolean' | 'object' | 'array';
     required?: boolean;
     minLength?: number;
     maxLength?: number;
@@ -24,7 +24,7 @@ export interface PaginationParams {
   page?: number;
   limit?: number;
   sortBy?: string;
-  sortOrder?: "asc" | "desc";
+  sortOrder?: 'asc' | 'desc';
 }
 
 export interface PaginatedResponse<T> {
@@ -59,9 +59,9 @@ export abstract class BaseService {
     // Preserve empty string as-is (services that own their own full paths).
     // Non-empty strings without a leading slash get one prepended.
     this.baseEndpoint =
-      baseEndpoint === ""
-        ? ""
-        : baseEndpoint.startsWith("/")
+      baseEndpoint === ''
+        ? ''
+        : baseEndpoint.startsWith('/')
           ? baseEndpoint
           : `/${baseEndpoint}`;
     this.serviceName = serviceName;
@@ -73,26 +73,26 @@ export abstract class BaseService {
    * Guards against producing a protocol-relative double-slash (`//path`)
    * which Axios would interpret as `http://<path-segment-as-host>/...`.
    */
-  protected buildEndpoint(path: string = ""): string {
+  protected buildEndpoint(path: string = ''): string {
     const cleanPath = path
-      ? path.startsWith("/") || path.startsWith("?")
+      ? path.startsWith('/') || path.startsWith('?')
         ? path
         : `/${path}`
-      : "";
+      : '';
     const combined = `${this.baseEndpoint}${cleanPath}`;
     // Collapse any accidental leading `//` into a single `/`
-    return combined.startsWith("//") ? combined.slice(1) : combined;
+    return combined.startsWith('//') ? combined.slice(1) : combined;
   }
 
   /**
    * Build endpoint with ID parameter
    */
-  protected buildIdEndpoint(id: string, path: string = ""): string {
+  protected buildIdEndpoint(id: string, path: string = ''): string {
     const cleanPath = path
-      ? path.startsWith("/") || path.startsWith("?")
+      ? path.startsWith('/') || path.startsWith('?')
         ? path
         : `/${path}`
-      : "";
+      : '';
     return `/${id}${cleanPath}`;
   }
 
@@ -100,8 +100,8 @@ export abstract class BaseService {
    * Validate request data against schema
    */
   protected validateRequest<T>(data: T, schema: ValidationSchema): T {
-    if (!data || typeof data !== "object") {
-      throw this.createValidationError("Request data must be an object");
+    if (!data || typeof data !== 'object') {
+      throw this.createValidationError('Request data must be an object');
     }
 
     const errors: string[] = [];
@@ -113,7 +113,7 @@ export abstract class BaseService {
       // Check required fields
       if (
         rules.required &&
-        (value === undefined || value === null || value === "")
+        (value === undefined || value === null || value === '')
       ) {
         errors.push(`${field} is required`);
         continue;
@@ -131,15 +131,15 @@ export abstract class BaseService {
       }
 
       // String validations
-      if (rules.type === "string" && typeof value === "string") {
+      if (rules.type === 'string' && typeof value === 'string') {
         if (rules.minLength && value.length < rules.minLength) {
           errors.push(
-            `${field} must be at least ${rules.minLength} characters long`,
+            `${field} must be at least ${rules.minLength} characters long`
           );
         }
         if (rules.maxLength && value.length > rules.maxLength) {
           errors.push(
-            `${field} must be no more than ${rules.maxLength} characters long`,
+            `${field} must be no more than ${rules.maxLength} characters long`
           );
         }
         if (rules.pattern && !rules.pattern.test(value)) {
@@ -152,14 +152,14 @@ export abstract class BaseService {
         const result = rules.validator(value, data);
         if (result !== true) {
           errors.push(
-            typeof result === "string" ? result : `${field} is invalid`,
+            typeof result === 'string' ? result : `${field} is invalid`
           );
         }
       }
     }
 
     if (errors.length > 0) {
-      throw this.createValidationError(errors.join("; "));
+      throw this.createValidationError(errors.join('; '));
     }
 
     return validatedData;
@@ -167,17 +167,17 @@ export abstract class BaseService {
 
   private validateType(value: unknown, type: string): boolean {
     switch (type) {
-      case "string":
-        return typeof value === "string";
-      case "number":
-        return typeof value === "number" && !isNaN(value);
-      case "boolean":
-        return typeof value === "boolean";
-      case "object":
+      case 'string':
+        return typeof value === 'string';
+      case 'number':
+        return typeof value === 'number' && !isNaN(value);
+      case 'boolean':
+        return typeof value === 'boolean';
+      case 'object':
         return (
-          typeof value === "object" && value !== null && !Array.isArray(value)
+          typeof value === 'object' && value !== null && !Array.isArray(value)
         );
-      case "array":
+      case 'array':
         return Array.isArray(value);
       default:
         return true;
@@ -197,9 +197,9 @@ export abstract class BaseService {
     // Peel the { success, data } envelope produced by responseHelpers.
     if (
       body !== null &&
-      typeof body === "object" &&
-      "success" in body &&
-      "data" in body
+      typeof body === 'object' &&
+      'success' in body &&
+      'data' in body
     ) {
       payload = (body as { success: boolean; data: unknown }).data;
     }
@@ -207,11 +207,11 @@ export abstract class BaseService {
     // Extract ETag capture
     if (
       response.headers?.etag &&
-      typeof payload === "object" &&
+      typeof payload === 'object' &&
       payload !== null &&
       !Array.isArray(payload)
     ) {
-      const etagValue = parseInt(response.headers.etag.replace(/"/g, ""), 10);
+      const etagValue = parseInt(response.headers.etag.replace(/"/g, ''), 10);
       if (
         !isNaN(etagValue) &&
         (payload as Record<string, unknown>).__v === undefined
@@ -232,16 +232,16 @@ export abstract class BaseService {
    *   3. Named-collection object:  { services: [...], total: N }
    */
   protected transformListResponse<T>(
-    response: ApiResponse<unknown>,
+    response: ApiResponse<unknown>
   ): PaginatedResponse<T> {
     const body = response.data as Record<string, unknown>;
 
     // Step 1 — peel the { success, data } envelope if present
     const payload: unknown =
       body !== null &&
-      typeof body === "object" &&
-      "success" in body &&
-      "data" in body
+      typeof body === 'object' &&
+      'success' in body &&
+      'data' in body
         ? (body as { success: boolean; data: unknown }).data
         : body;
 
@@ -253,7 +253,7 @@ export abstract class BaseService {
       // Shape 1: bare array
       items = payload as T[];
       pagination = undefined;
-    } else if (payload !== null && typeof payload === "object") {
+    } else if (payload !== null && typeof payload === 'object') {
       const payloadObj = payload as Record<string, unknown>;
       if (Array.isArray(payloadObj.data)) {
         // Shape 2: { data: [...], pagination?: {} }
@@ -261,8 +261,8 @@ export abstract class BaseService {
         pagination = payloadObj.pagination as RawPagination | undefined;
       } else {
         // Shape 3: { services/items/records: [...], total?: N }
-        const arrayKey = Object.keys(payloadObj).find((k) =>
-          Array.isArray(payloadObj[k]),
+        const arrayKey = Object.keys(payloadObj).find(k =>
+          Array.isArray(payloadObj[k])
         );
         items = arrayKey ? (payloadObj[arrayKey] as T[]) : [];
         pagination = payloadObj.pagination as RawPagination | undefined;
@@ -280,8 +280,8 @@ export abstract class BaseService {
         total: pagination?.total ?? items.length,
         totalPages: pagination?.totalPages ?? 0,
         hasNextPage: pagination?.hasNextPage ?? false,
-        hasPrevPage: pagination?.hasPrevPage ?? false,
-      },
+        hasPrevPage: pagination?.hasPrevPage ?? false
+      }
     };
   }
 
@@ -302,7 +302,7 @@ export abstract class BaseService {
    */
   protected createValidationError(message: string): ApiError {
     const error = new Error(message) as ApiError;
-    error.name = "ValidationError";
+    error.name = 'ValidationError';
     error.type = ApiErrorType.VALIDATION_ERROR;
     error.retryable = false;
     error.timestamp = new Date().toISOString();
@@ -316,13 +316,13 @@ export abstract class BaseService {
    */
   protected logError(error: ApiError, context?: string): void {
     if (isDev()) {
-      console.error(`[${this.serviceName}${context ? `:${context}` : ""}]`, {
+      console.error(`[${this.serviceName}${context ? `:${context}` : ''}]`, {
         type: error.type,
         message: error.message,
         statusCode: error.statusCode,
         timestamp: error.timestamp,
         service: this.serviceName,
-        context,
+        context
       });
     }
 
@@ -336,8 +336,8 @@ export abstract class BaseService {
       context: {
         operation: context,
         errorType: error.type,
-        timestamp: error.timestamp,
-      },
+        timestamp: error.timestamp
+      }
     });
   }
 
@@ -345,7 +345,7 @@ export abstract class BaseService {
    * Build query parameters from pagination params
    */
   protected buildPaginationParams(
-    params: PaginationParams = {},
+    params: PaginationParams = {}
   ): Record<string, string> {
     const queryParams: Record<string, string> = {};
 
@@ -364,7 +364,7 @@ export abstract class BaseService {
     return {
       cache: true,
       retry: true,
-      ...options,
+      ...options
     };
   }
 
@@ -373,16 +373,16 @@ export abstract class BaseService {
    */
   protected async get<T>(
     endpoint: string,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<T> {
     try {
       const response = await this.client.get<T>(
         this.buildEndpoint(endpoint),
-        this.mergeOptions(options),
+        this.mergeOptions(options)
       );
       return this.transformResponse(response);
     } catch (error) {
-      this.handleError(error as ApiError, "GET");
+      this.handleError(error as ApiError, 'GET');
     }
   }
 
@@ -392,17 +392,17 @@ export abstract class BaseService {
   protected async post<T>(
     endpoint: string,
     data?: unknown,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<T> {
     try {
       const response = await this.client.post<T>(
         this.buildEndpoint(endpoint),
         data,
-        this.mergeOptions(options),
+        this.mergeOptions(options)
       );
       return this.transformResponse(response);
     } catch (error) {
-      this.handleError(error as ApiError, "POST");
+      this.handleError(error as ApiError, 'POST');
     }
   }
 
@@ -412,17 +412,17 @@ export abstract class BaseService {
   protected async put<T>(
     endpoint: string,
     data?: unknown,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<T> {
     try {
       const response = await this.client.put<T>(
         this.buildEndpoint(endpoint),
         data,
-        this.mergeOptions(options),
+        this.mergeOptions(options)
       );
       return this.transformResponse(response);
     } catch (error) {
-      this.handleError(error as ApiError, "PUT");
+      this.handleError(error as ApiError, 'PUT');
     }
   }
 
@@ -432,17 +432,17 @@ export abstract class BaseService {
   protected async patch<T>(
     endpoint: string,
     data?: unknown,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<T> {
     try {
       const response = await this.client.patch<T>(
         this.buildEndpoint(endpoint),
         data,
-        this.mergeOptions(options),
+        this.mergeOptions(options)
       );
       return this.transformResponse(response);
     } catch (error) {
-      this.handleError(error as ApiError, "PATCH");
+      this.handleError(error as ApiError, 'PATCH');
     }
   }
 
@@ -451,16 +451,16 @@ export abstract class BaseService {
    */
   protected async delete<T>(
     endpoint: string,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<T> {
     try {
       const response = await this.client.delete<T>(
         this.buildEndpoint(endpoint),
-        this.mergeOptions(options),
+        this.mergeOptions(options)
       );
       return this.transformResponse(response);
     } catch (error) {
-      this.handleError(error as ApiError, "DELETE");
+      this.handleError(error as ApiError, 'DELETE');
     }
   }
 
@@ -470,13 +470,13 @@ export abstract class BaseService {
   protected async getList<T>(
     endpoint: string,
     params?: PaginationParams | Record<string, unknown>,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<PaginatedResponse<T>> {
     try {
       const queryParams: Record<string, string> = {};
       if (params) {
         for (const [key, value] of Object.entries(params)) {
-          if (value !== undefined && value !== null && value !== "") {
+          if (value !== undefined && value !== null && value !== '') {
             queryParams[key] = value.toString();
           }
         }
@@ -491,7 +491,7 @@ export abstract class BaseService {
       const response = await this.client.get(url, this.mergeOptions(options));
       return this.transformListResponse<T>(response);
     } catch (error) {
-      this.handleError(error as ApiError, "LIST");
+      this.handleError(error as ApiError, 'LIST');
     }
   }
 
@@ -501,17 +501,17 @@ export abstract class BaseService {
   protected async upload<T>(
     endpoint: string,
     file: File | FormData,
-    options?: RequestOptions & { fieldName?: string },
+    options?: RequestOptions & { fieldName?: string }
   ): Promise<T> {
     try {
       const response = await this.client.upload<T>(
         this.buildEndpoint(endpoint),
         file,
-        this.mergeOptions(options),
+        this.mergeOptions(options)
       );
       return this.transformResponse(response);
     } catch (error) {
-      this.handleError(error as ApiError, "UPLOAD");
+      this.handleError(error as ApiError, 'UPLOAD');
     }
   }
 
@@ -520,15 +520,15 @@ export abstract class BaseService {
    */
   protected async download(
     endpoint: string,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<Blob> {
     try {
       return await this.client.download(
         this.buildEndpoint(endpoint),
-        this.mergeOptions(options),
+        this.mergeOptions(options)
       );
     } catch (error) {
-      this.handleError(error as ApiError, "DOWNLOAD");
+      this.handleError(error as ApiError, 'DOWNLOAD');
     }
   }
 }

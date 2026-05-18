@@ -16,14 +16,14 @@ import {
   SESSION_CONFIG,
   SESSION_STATUS,
   STORAGE_KEYS,
-  AUTH_EVENTS,
-} from "../types/constants";
-import securityService from "./securityService";
+  AUTH_EVENTS
+} from '../types/constants';
+import securityService from './securityService';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 interface SessionOptions {
-  storage?: "localStorage" | "sessionStorage";
+  storage?: 'localStorage' | 'sessionStorage';
   sessionTimeout?: number;
   inactivityTimeout?: number;
   warningThreshold?: number;
@@ -72,7 +72,7 @@ interface DeviceInfo {
 }
 
 interface CrossTabMessage {
-  type: "LOGIN" | "LOGOUT" | "TOKEN_REFRESH" | "ACTIVITY";
+  type: 'LOGIN' | 'LOGOUT' | 'TOKEN_REFRESH' | 'ACTIVITY';
   payload: Record<string, unknown>;
 }
 
@@ -100,7 +100,7 @@ class SessionService {
 
   constructor(options: SessionOptions = {}) {
     this.options = {
-      storage: "localStorage",
+      storage: 'localStorage',
       sessionTimeout: SESSION_CONFIG.TIMEOUT,
       inactivityTimeout: SESSION_CONFIG.INACTIVITY_TIMEOUT,
       warningThreshold: SESSION_CONFIG.WARNING_THRESHOLD,
@@ -108,10 +108,10 @@ class SessionService {
       maxConcurrentSessions: SESSION_CONFIG.MAX_DEVICES,
       autoRefreshInterval: 5 * 60 * 1000,
       heartbeatInterval: 60 * 1000,
-      ...options,
+      ...options
     };
 
-    this.isBrowser = typeof window !== "undefined";
+    this.isBrowser = typeof window !== 'undefined';
 
     if (this.isBrowser) {
       this.initializeCrossTabSync();
@@ -122,13 +122,13 @@ class SessionService {
 
   // ── Configuration ───────────────────────────────────────────────────────────
 
-  applySecurityProfile(profile: "strict" | "standard" | "relaxed"): void {
-    if (profile === "strict") {
+  applySecurityProfile(profile: 'strict' | 'standard' | 'relaxed'): void {
+    if (profile === 'strict') {
       this.options.sessionTimeout = 15 * 60 * 1000;
       this.options.inactivityTimeout = 5 * 60 * 1000;
       this.options.warningThreshold = 60 * 1000;
       this.options.autoRefreshInterval = 2 * 60 * 1000;
-    } else if (profile === "relaxed") {
+    } else if (profile === 'relaxed') {
       this.options.sessionTimeout = 30 * 24 * 60 * 60 * 1000;
       this.options.inactivityTimeout = 24 * 60 * 60 * 1000;
       this.options.warningThreshold = 5 * 60 * 1000;
@@ -151,10 +151,10 @@ class SessionService {
     try {
       const {
         userId,
-        authMethod = "password",
+        authMethod = 'password',
         deviceInfo = {},
-        ipAddress = "127.0.0.1",
-        rememberMe = false,
+        ipAddress = '127.0.0.1',
+        rememberMe = false
       } = sessionData;
 
       const sessionId = this.generateSessionId();
@@ -170,7 +170,7 @@ class SessionService {
         ipAddress,
         userId,
         timestamp: now,
-        deviceFingerprint,
+        deviceFingerprint
       });
 
       const session: Session = {
@@ -188,7 +188,7 @@ class SessionService {
         rememberMe,
         fraudRisk,
         status: SESSION_STATUS.ACTIVE,
-        activityCount: 1,
+        activityCount: 1
       };
 
       this.activeSessions.set(sessionId, session);
@@ -210,13 +210,13 @@ class SessionService {
       return session;
     } catch (error) {
       if (import.meta.env?.DEV)
-        console.error("[SessionService] Failed to create session:", error);
+        console.error('[SessionService] Failed to create session:', error);
       throw error;
     }
   }
 
   async renewSession(): Promise<Session> {
-    if (!this.currentSession) throw new Error("No active session to renew");
+    if (!this.currentSession) throw new Error('No active session to renew');
 
     const session = this.currentSession;
     session.lastActivity = Date.now();
@@ -235,7 +235,7 @@ class SessionService {
 
   getUserSessions(userId: string): Session[] {
     return (this.userSessions.get(userId) ?? [])
-      .map((id) => this.activeSessions.get(id))
+      .map(id => this.activeSessions.get(id))
       .filter((s): s is Session => s !== undefined);
   }
 
@@ -253,13 +253,13 @@ class SessionService {
       this.deviceSessions.get(session.deviceFingerprint) ?? [];
     this.deviceSessions.set(
       session.deviceFingerprint,
-      deviceSessions.filter((s) => s !== id),
+      deviceSessions.filter(s => s !== id)
     );
 
     const userSessions = this.userSessions.get(session.userId) ?? [];
     this.userSessions.set(
       session.userId,
-      userSessions.filter((s) => s !== id),
+      userSessions.filter(s => s !== id)
     );
 
     if (this.currentSession?.sessionId === id) {
@@ -275,7 +275,7 @@ class SessionService {
   storeToken(
     token: string,
     refreshToken: string | null = null,
-    expiresIn = 3600,
+    expiresIn = 3600
   ): void {
     const storage = this.getStorage();
     if (!storage) return;
@@ -308,27 +308,27 @@ class SessionService {
   }
 
   async refreshToken(
-    refreshFn: (token: string) => Promise<StoredTokenRefreshResult>,
+    refreshFn: (token: string) => Promise<StoredTokenRefreshResult>
   ): Promise<StoredTokenRefreshResult> {
-    if (!refreshFn) throw new Error("refreshFn required");
+    if (!refreshFn) throw new Error('refreshFn required');
 
     try {
       const refreshToken = this.getRefreshToken();
-      if (!refreshToken) throw new Error("No refresh token available");
+      if (!refreshToken) throw new Error('No refresh token available');
 
       const result = await refreshFn(refreshToken);
       this.storeToken(
         result.token,
         result.refreshToken ?? null,
-        result.expiresIn ?? 3600,
+        result.expiresIn ?? 3600
       );
 
-      this.emit(AUTH_EVENTS.SESSION_UPDATED, { type: "token_refresh" });
+      this.emit(AUTH_EVENTS.SESSION_UPDATED, { type: 'token_refresh' });
       return result;
     } catch (error) {
       this.clearTokens();
       this.emit(AUTH_EVENTS.SESSION_EXPIRED, {
-        reason: "token_refresh_failed",
+        reason: 'token_refresh_failed'
       });
       throw error;
     }
@@ -342,45 +342,45 @@ class SessionService {
   // ── Device Management ───────────────────────────────────────────────────────
 
   async generateDeviceFingerprint(): Promise<string> {
-    if (!this.isBrowser) return "unknown";
+    if (!this.isBrowser) return 'unknown';
 
     const components = [
-      navigator?.userAgent ?? "unknown",
-      navigator?.language ?? "unknown",
-      navigator?.platform ?? "unknown",
+      navigator?.userAgent ?? 'unknown',
+      navigator?.language ?? 'unknown',
+      navigator?.platform ?? 'unknown',
       new Date().getTimezoneOffset().toString(),
       window?.screen?.width ?? 0,
       window?.screen?.height ?? 0,
-      window?.screen?.colorDepth ?? 0,
+      window?.screen?.colorDepth ?? 0
     ];
 
-    const fingerprint = components.join("|");
+    const fingerprint = components.join('|');
     const hashBuffer = await crypto.subtle.digest(
-      "SHA-256",
-      new TextEncoder().encode(fingerprint),
+      'SHA-256',
+      new TextEncoder().encode(fingerprint)
     );
     const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
   }
 
   getDeviceInfo(additional: Record<string, unknown> = {}): DeviceInfo {
     return {
-      platform: navigator?.platform ?? "Unknown",
-      language: navigator?.language ?? "en-US",
+      platform: navigator?.platform ?? 'Unknown',
+      language: navigator?.language ?? 'en-US',
       timezone:
-        Intl?.DateTimeFormat?.()?.resolvedOptions?.()?.timeZone ?? "Unknown",
+        Intl?.DateTimeFormat?.()?.resolvedOptions?.()?.timeZone ?? 'Unknown',
       screen: {
         width: window?.screen?.width ?? 0,
         height: window?.screen?.height ?? 0,
-        colorDepth: window?.screen?.colorDepth ?? 0,
+        colorDepth: window?.screen?.colorDepth ?? 0
       },
-      ...additional,
+      ...additional
     };
   }
 
   isDeviceTrusted(deviceFingerprint: string): boolean {
     const trustedDevices = this.getStorage()?.getItem(
-      STORAGE_KEYS.TRUSTED_DEVICES,
+      STORAGE_KEYS.TRUSTED_DEVICES
     );
     if (!trustedDevices) return false;
 
@@ -390,8 +390,8 @@ class SessionService {
     } catch (error) {
       if (import.meta.env?.DEV)
         console.warn(
-          "[SessionService] isDeviceTrusted JSON parse failed:",
-          (error as Error).message,
+          '[SessionService] isDeviceTrusted JSON parse failed:',
+          (error as Error).message
         );
       return false;
     }
@@ -415,7 +415,7 @@ class SessionService {
       trustedDevices.push(deviceFingerprint);
       storage.setItem(
         STORAGE_KEYS.TRUSTED_DEVICES,
-        JSON.stringify(trustedDevices),
+        JSON.stringify(trustedDevices)
       );
     }
   }
@@ -452,16 +452,16 @@ class SessionService {
   private initializeCrossTabSync(): void {
     if (!this.isBrowser) return;
     try {
-      if (typeof window !== "undefined" && window.BroadcastChannel) {
-        this.crossTabChannel = new window.BroadcastChannel("auth_session");
+      if (typeof window !== 'undefined' && window.BroadcastChannel) {
+        this.crossTabChannel = new window.BroadcastChannel('auth_session');
         this.crossTabChannel.addEventListener(
-          "message",
+          'message',
           (event: MessageEvent<CrossTabMessage>) => {
             this.handleCrossTabMessage(event.data);
-          },
+          }
         );
-      } else if (typeof window !== "undefined") {
-        window.addEventListener("storage", (event: StorageEvent) => {
+      } else if (typeof window !== 'undefined') {
+        window.addEventListener('storage', (event: StorageEvent) => {
           if (event.key === STORAGE_KEYS.AUTH_TOKEN) {
             this.handleCrossTabStorageChange();
           }
@@ -469,49 +469,49 @@ class SessionService {
       }
     } catch (error) {
       if (import.meta.env?.DEV)
-        console.warn("[SessionService] Cross-tab sync not available:", error);
+        console.warn('[SessionService] Cross-tab sync not available:', error);
     }
   }
 
   private handleCrossTabMessage(data: CrossTabMessage): void {
     const { type, payload } = data;
     switch (type) {
-      case "LOGIN":
-        this.emit("cross-tab-login", payload);
+      case 'LOGIN':
+        this.emit('cross-tab-login', payload);
         break;
-      case "LOGOUT":
+      case 'LOGOUT':
         this.clearTokens();
         this.currentSession = null;
-        this.emit("cross-tab-logout", null);
+        this.emit('cross-tab-logout', null);
         break;
-      case "TOKEN_REFRESH":
+      case 'TOKEN_REFRESH':
         this.storeToken(
-          payload["token"] as string,
-          payload["refreshToken"] as string | null,
-          payload["expiresIn"] as number | undefined,
+          payload['token'] as string,
+          payload['refreshToken'] as string | null,
+          payload['expiresIn'] as number | undefined
         );
         break;
-      case "ACTIVITY":
+      case 'ACTIVITY':
         this.trackActivity();
         break;
     }
   }
 
   private broadcastCrossTab(
-    type: CrossTabMessage["type"],
-    payload: Record<string, unknown> = {},
+    type: CrossTabMessage['type'],
+    payload: Record<string, unknown> = {}
   ): void {
     if (!this.crossTabChannel) return;
     try {
       this.crossTabChannel.postMessage({ type, payload });
     } catch (error) {
       if (import.meta.env?.DEV)
-        console.warn("[SessionService] Cross-tab broadcast failed:", error);
+        console.warn('[SessionService] Cross-tab broadcast failed:', error);
     }
   }
 
   private handleCrossTabStorageChange(): void {
-    this.emit("cross-tab-storage-change", null);
+    this.emit('cross-tab-storage-change', null);
   }
 
   // ── Timeout Management ──────────────────────────────────────────────────────
@@ -531,8 +531,8 @@ class SessionService {
     if (warningTime > 0) {
       setTimeout(() => {
         this.emit(AUTH_EVENTS.SESSION_UPDATED, {
-          type: "session_warning",
-          sessionId,
+          type: 'session_warning',
+          sessionId
         });
       }, warningTime);
     }
@@ -574,19 +574,19 @@ class SessionService {
   private initializeAutoRefresh(): void {
     if (!this.isBrowser) return;
 
-    if (typeof document !== "undefined") {
-      document.addEventListener("visibilitychange", () => {
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', () => {
         if (!document.hidden) this.trackActivity();
       });
     }
 
-    if (typeof window !== "undefined") {
-      (["mousedown", "keydown", "scroll", "touchstart"] as const).forEach(
-        (event) => {
+    if (typeof window !== 'undefined') {
+      (['mousedown', 'keydown', 'scroll', 'touchstart'] as const).forEach(
+        event => {
           window.addEventListener(event, () => this.trackActivity(), {
-            passive: true,
+            passive: true
           });
-        },
+        }
       );
     }
   }
@@ -595,10 +595,10 @@ class SessionService {
     this.clearAutoRefresh();
     const refreshTime = Math.max(
       60000,
-      expiresIn - this.options.warningThreshold,
+      expiresIn - this.options.warningThreshold
     );
     this.refreshTimer = setTimeout(() => {
-      this.emit("token-refresh-needed", null);
+      this.emit('token-refresh-needed', null);
     }, refreshTime);
   }
 
@@ -616,7 +616,7 @@ class SessionService {
     if (sessions.length === 0) return;
 
     const oldest = sessions.reduce((prev, curr) =>
-      curr.createdAt < prev.createdAt ? curr : prev,
+      curr.createdAt < prev.createdAt ? curr : prev
     );
     await this.destroySession(oldest.sessionId);
   }
@@ -631,18 +631,18 @@ class SessionService {
     if (!this.isBrowser) return null;
     try {
       const storage =
-        this.options.storage === "sessionStorage"
+        this.options.storage === 'sessionStorage'
           ? window.sessionStorage
           : window.localStorage;
-      storage.setItem("test", "test");
-      storage.removeItem("test");
+      storage.setItem('test', 'test');
+      storage.removeItem('test');
       return storage;
     } catch (error) {
       // Intentionally silent — storage may be unavailable (SSR, private mode, quota)
       if (import.meta.env?.DEV)
         console.warn(
-          "[SessionService] getStorage failed:",
-          (error as Error).message,
+          '[SessionService] getStorage failed:',
+          (error as Error).message
         );
       return null;
     }
@@ -650,8 +650,8 @@ class SessionService {
 
   private setupEventListeners(): void {
     if (!this.isBrowser) return;
-    if (typeof window !== "undefined") {
-      window.addEventListener("beforeunload", () => {
+    if (typeof window !== 'undefined') {
+      window.addEventListener('beforeunload', () => {
         this.clearAutoRefresh();
       });
     }
@@ -664,7 +664,7 @@ class SessionService {
   }
 
   off(event: string, callback: (data: unknown) => void): void {
-    this.listeners.forEach((listener) => {
+    this.listeners.forEach(listener => {
       if (listener.event === event && listener.callback === callback) {
         this.listeners.delete(listener);
       }
@@ -672,7 +672,7 @@ class SessionService {
   }
 
   private emit(event: string, data: unknown): void {
-    this.listeners.forEach((listener) => {
+    this.listeners.forEach(listener => {
       if (listener.event === event) {
         try {
           listener.callback(data);
@@ -680,7 +680,7 @@ class SessionService {
           if (import.meta.env?.DEV)
             console.warn(
               `[SessionService] Error in ${event} listener:`,
-              (error as Error).message,
+              (error as Error).message
             );
         }
       }
@@ -693,7 +693,7 @@ class SessionService {
     this.activeSessions.clear();
     this.deviceSessions.clear();
     this.userSessions.clear();
-    this.sessionTimeouts.forEach((timeout) => clearTimeout(timeout));
+    this.sessionTimeouts.forEach(timeout => clearTimeout(timeout));
     this.sessionTimeouts.clear();
 
     if (this.crossTabChannel) {
@@ -707,8 +707,8 @@ class SessionService {
 
   // Expose broadcastCrossTab as public for callers that need cross-tab messaging
   broadcast(
-    type: CrossTabMessage["type"],
-    payload: Record<string, unknown> = {},
+    type: CrossTabMessage['type'],
+    payload: Record<string, unknown> = {}
   ): void {
     this.broadcastCrossTab(type, payload);
   }

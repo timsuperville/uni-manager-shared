@@ -1,9 +1,9 @@
-import React from "react";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import type { RenderOptions, RenderResult } from "@testing-library/react";
-import { BrowserRouter } from "react-router-dom";
-import { expect } from "vitest";
-import "@testing-library/jest-dom";
+import React from 'react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import type { RenderOptions, RenderResult } from '@testing-library/react';
+import { BrowserRouter } from 'react-router-dom';
+import { expect } from 'vitest';
+import '@testing-library/jest-dom';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -15,7 +15,7 @@ interface MockUser {
   email: string;
 }
 
-type RenderWithProvidersOptions = Omit<RenderOptions, "wrapper">;
+type RenderWithProvidersOptions = Omit<RenderOptions, 'wrapper'>;
 
 // ---------------------------------------------------------------------------
 // Test wrapper with providers
@@ -27,7 +27,7 @@ const Wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 
 export const renderWithProviders = (
   ui: React.ReactElement,
-  options: RenderWithProvidersOptions = {},
+  options: RenderWithProvidersOptions = {}
 ): RenderResult => render(ui, { wrapper: Wrapper, ...options });
 
 // ---------------------------------------------------------------------------
@@ -39,7 +39,7 @@ export const mockApiResponse = <T,>(data: T, status = 200): void => {
     ok: status < 400,
     status,
     json: async () => data,
-    text: async () => JSON.stringify(data),
+    text: async () => JSON.stringify(data)
   });
 
   const globalFetch = globalThis.fetch as unknown as {
@@ -51,7 +51,7 @@ export const mockApiResponse = <T,>(data: T, status = 200): void => {
       ok: status < 400,
       status,
       json: async () => data,
-      text: async () => JSON.stringify(data),
+      text: async () => JSON.stringify(data)
     });
   } else {
     globalThis.fetch = () => mockFetch() as Promise<Response>;
@@ -82,10 +82,10 @@ export const waitForLoadingToFinish = async (): Promise<void> => {
 // ---------------------------------------------------------------------------
 
 export const fillForm = async (
-  formData: Record<string, string>,
+  formData: Record<string, string>
 ): Promise<void> => {
   for (const [field, value] of Object.entries(formData)) {
-    const input = screen.getByLabelText(new RegExp(field, "i"));
+    const input = screen.getByLabelText(new RegExp(field, 'i'));
     fireEvent.change(input, { target: { value } });
   }
 };
@@ -95,19 +95,19 @@ export const fillForm = async (
 // ---------------------------------------------------------------------------
 
 export const mockAuthUser = (
-  user: MockUser = { id: 1, name: "Test User", email: "test@example.com" },
+  user: MockUser = { id: 1, name: 'Test User', email: 'test@example.com' }
 ): MockUser => {
-  if (typeof localStorage !== "undefined") {
-    localStorage.setItem("authToken", "mock-token");
-    localStorage.setItem("user", JSON.stringify(user));
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem('authToken', 'mock-token');
+    localStorage.setItem('user', JSON.stringify(user));
   }
   return user;
 };
 
 export const mockAuthLogout = (): void => {
-  if (typeof localStorage !== "undefined") {
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("user");
+  if (typeof localStorage !== 'undefined') {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('user');
   }
 };
 
@@ -116,22 +116,22 @@ export const mockAuthLogout = (): void => {
 // ---------------------------------------------------------------------------
 
 export const testComponentAccessibility = async (
-  component: React.ReactElement,
+  component: React.ReactElement
 ): Promise<void> => {
   const { container } = renderWithProviders(component);
   expect(container).toBeInTheDocument();
 };
 
 export const testComponentResponsiveness = (
-  component: React.ReactElement,
+  component: React.ReactElement
 ): void => {
-  (globalThis as Record<string, unknown>)["innerWidth"] = 320;
+  (globalThis as Record<string, unknown>)['innerWidth'] = 320;
   renderWithProviders(component);
 
-  (globalThis as Record<string, unknown>)["innerWidth"] = 768;
+  (globalThis as Record<string, unknown>)['innerWidth'] = 768;
   renderWithProviders(component);
 
-  (globalThis as Record<string, unknown>)["innerWidth"] = 1024;
+  (globalThis as Record<string, unknown>)['innerWidth'] = 1024;
   renderWithProviders(component);
 };
 

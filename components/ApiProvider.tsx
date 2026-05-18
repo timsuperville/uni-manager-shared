@@ -1,5 +1,5 @@
-import React, { createContext, useContext } from "react";
-import { getSharedEnvironmentConfig } from "../config/environment";
+import React, { createContext, useContext } from 'react';
+import { getSharedEnvironmentConfig } from '../config/environment';
 
 interface ApiContextValue {
   baseURL: string;
@@ -19,7 +19,7 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({ children }) => {
   const apiValue: ApiContextValue = {
     baseURL: config.api.baseUrl,
     timeout: config.api.timeout,
-    environment: config.environment,
+    environment: config.environment
   };
 
   return <ApiContext.Provider value={apiValue}>{children}</ApiContext.Provider>;
@@ -28,7 +28,7 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({ children }) => {
 export const useApi = (): ApiContextValue => {
   const context = useContext(ApiContext);
   if (!context) {
-    throw new Error("useApi must be used within an ApiProvider");
+    throw new Error('useApi must be used within an ApiProvider');
   }
   return context;
 };

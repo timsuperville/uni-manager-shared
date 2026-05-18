@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
-import { useBioTelemetry } from "../../hooks/useBioTelemetry";
+import React, { useState, useEffect } from 'react';
+import { useBioTelemetry } from '../../hooks/useBioTelemetry';
 
 export interface BioAdaptiveWrapperProps {
   children: React.ReactNode;
-  cognitiveLoad?: "LOW" | "MEDIUM" | "HIGH";
+  cognitiveLoad?: 'LOW' | 'MEDIUM' | 'HIGH';
 }
 
 const CognitiveBrakeAnimation: React.FC = () => (
@@ -17,13 +17,13 @@ const CognitiveBrakeAnimation: React.FC = () => (
 
 export const BioAdaptiveWrapper: React.FC<BioAdaptiveWrapperProps> = ({
   children,
-  cognitiveLoad = "HIGH",
+  cognitiveLoad = 'HIGH'
 }) => {
   const { capacityScore } = useBioTelemetry(); // 0-100 score based on HRV/Sleep
   const [isUnlocked, setIsUnlocked] = useState(false);
 
   useEffect(() => {
-    if (capacityScore > 40 || cognitiveLoad === "LOW") {
+    if (capacityScore > 40 || cognitiveLoad === 'LOW') {
       setIsUnlocked(true);
       return;
     }

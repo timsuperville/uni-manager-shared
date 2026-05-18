@@ -1,12 +1,12 @@
-import { useCallback } from "react";
-import { auth, googleProvider, signInWithPopup } from "../utils/firebase";
-import { clearCachedDeviceFingerprint } from "../utils/deviceFingerprintCache";
+import { useCallback } from 'react';
+import { auth, googleProvider, signInWithPopup } from '../utils/firebase';
+import { clearCachedDeviceFingerprint } from '../utils/deviceFingerprintCache';
 import type {
   User,
   LoginCredentials,
   SignupData,
-  AuthServiceLike,
-} from "../types/auth.types";
+  AuthServiceLike
+} from '../types/auth.types';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -20,7 +20,7 @@ interface CallbackRefs {
 }
 
 // Generic auth service shape — see types/auth.types.ts for the canonical definition.
-export type { AuthServiceLike } from "../types/auth.types";
+export type { AuthServiceLike } from '../types/auth.types';
 
 type StateUpdater = (updates: Record<string, unknown>) => void;
 type ErrorSetter = (error: unknown) => void;
@@ -39,8 +39,8 @@ export function useAuthActions(
   resetState: StateResetter,
   callbackRefs: CallbackRefs = {
     onAuthStateChangeRef: { current: null },
-    onErrorRef: { current: null },
-  },
+    onErrorRef: { current: null }
+  }
 ) {
   const { onAuthStateChangeRef, onErrorRef } = callbackRefs;
 
@@ -52,7 +52,7 @@ export function useAuthActions(
         }, 0);
       }
     },
-    [onAuthStateChangeRef],
+    [onAuthStateChangeRef]
   );
 
   const notifyError = useCallback(
@@ -63,7 +63,7 @@ export function useAuthActions(
         }, 0);
       }
     },
-    [onErrorRef],
+    [onErrorRef]
   );
 
   const initializeAuth = useCallback(async () => {
@@ -77,7 +77,7 @@ export function useAuthActions(
     } catch (error) {
       const errorMessage =
         (error as { message?: string })?.message ??
-        "Authentication initialization failed";
+        'Authentication initialization failed';
       setError(errorMessage);
       notifyError(error);
     }
@@ -89,29 +89,29 @@ export function useAuthActions(
         updateState({ isLoading: true, error: null });
         const result = await authService.login(credentials);
 
-        if (result["requiresMFA"] || result["mfaRequired"]) {
+        if (result['requiresMFA'] || result['mfaRequired']) {
           updateState({ isLoading: false, mfaRequired: true });
           return result;
         }
 
         const newState = {
-          user: result["user"],
+          user: result['user'],
           isAuthenticated: true,
-          isLoading: false,
+          isLoading: false
         };
         updateState(newState);
         notifyStateChange(newState);
         return result;
       } catch (error) {
         const errorMessage =
-          (error as { message?: string })?.message ?? "Login failed";
+          (error as { message?: string })?.message ?? 'Login failed';
         setError(errorMessage);
         updateState({ isLoading: false });
         notifyError(error);
         throw error;
       }
     },
-    [authService, updateState, setError, notifyStateChange, notifyError],
+    [authService, updateState, setError, notifyStateChange, notifyError]
   );
 
   const loginWithGoogle = useCallback(async () => {
@@ -123,15 +123,15 @@ export function useAuthActions(
 
       const result = await authService.loginWithGoogle(idToken);
 
-      if (result["requiresMFA"] || result["mfaRequired"]) {
+      if (result['requiresMFA'] || result['mfaRequired']) {
         updateState({ isLoading: false, mfaRequired: true });
         return result;
       }
 
       const newState = {
-        user: result["user"],
+        user: result['user'],
         isAuthenticated: true,
-        isLoading: false,
+        isLoading: false
       };
 
       updateState(newState);
@@ -139,7 +139,7 @@ export function useAuthActions(
       return result;
     } catch (error) {
       const errorMessage =
-        (error as { message?: string })?.message ?? "Google Login failed";
+        (error as { message?: string })?.message ?? 'Google Login failed';
       setError(errorMessage);
       updateState({ isLoading: false });
       notifyError(error);
@@ -173,14 +173,14 @@ export function useAuthActions(
         return result;
       } catch (error) {
         const errorMessage =
-          (error as { message?: string })?.message ?? "Signup failed";
+          (error as { message?: string })?.message ?? 'Signup failed';
         setError(errorMessage);
         updateState({ isLoading: false });
         notifyError(error);
         throw error;
       }
     },
-    [authService, updateState, setError, notifyError],
+    [authService, updateState, setError, notifyError]
   );
 
   const resetPassword = useCallback(
@@ -192,14 +192,14 @@ export function useAuthActions(
         return result;
       } catch (error) {
         const errorMessage =
-          (error as { message?: string })?.message ?? "Password reset failed";
+          (error as { message?: string })?.message ?? 'Password reset failed';
         setError(errorMessage);
         updateState({ isLoading: false });
         notifyError(error);
         throw error;
       }
     },
-    [authService, updateState, setError, notifyError],
+    [authService, updateState, setError, notifyError]
   );
 
   const verifyMFA = useCallback(
@@ -208,25 +208,25 @@ export function useAuthActions(
         updateState({ isLoading: true, error: null });
         const result = await authService.verifyMFA(code);
         const newState = {
-          user: result["user"],
+          user: result['user'],
           isAuthenticated: true,
           mfaVerified: true,
           mfaRequired: false,
-          isLoading: false,
+          isLoading: false
         };
         updateState(newState);
         notifyStateChange(newState);
         return result;
       } catch (error) {
         const errorMessage =
-          (error as { message?: string })?.message ?? "MFA verification failed";
+          (error as { message?: string })?.message ?? 'MFA verification failed';
         setError(errorMessage);
         updateState({ isLoading: false });
         notifyError(error);
         throw error;
       }
     },
-    [authService, updateState, setError, notifyStateChange, notifyError],
+    [authService, updateState, setError, notifyStateChange, notifyError]
   );
 
   const setupMFA = useCallback(
@@ -238,14 +238,14 @@ export function useAuthActions(
         return result;
       } catch (error) {
         const errorMessage =
-          (error as { message?: string })?.message ?? "MFA setup failed";
+          (error as { message?: string })?.message ?? 'MFA setup failed';
         setError(errorMessage);
         updateState({ isLoading: false });
         notifyError(error);
         throw error;
       }
     },
-    [authService, updateState, setError, notifyError],
+    [authService, updateState, setError, notifyError]
   );
 
   const refreshAuth = useCallback(async () => {
@@ -258,7 +258,7 @@ export function useAuthActions(
       return false;
     } catch (error) {
       const errorMessage =
-        (error as { message?: string })?.message ?? "Token refresh failed";
+        (error as { message?: string })?.message ?? 'Token refresh failed';
 
       const apiError = error as any;
       const status = apiError.statusCode;
@@ -266,7 +266,7 @@ export function useAuthActions(
       const isRejectedToken = status && status >= 400 && status < 500;
 
       if (import.meta.env.DEV) {
-        console.warn("[useAuthActions] Refresh failed...", errorMessage);
+        console.warn('[useAuthActions] Refresh failed...', errorMessage);
       }
 
       if (isRejectedToken) {
@@ -296,13 +296,13 @@ export function useAuthActions(
         return success;
       } catch (error) {
         const errorMessage =
-          (error as { message?: string })?.message ?? "Update user failed";
+          (error as { message?: string })?.message ?? 'Update user failed';
         setError(errorMessage);
         notifyError(error);
         return false;
       }
     },
-    [authService, updateState, setError, notifyStateChange, notifyError],
+    [authService, updateState, setError, notifyStateChange, notifyError]
   );
 
   const switchChurch = useCallback(
@@ -310,20 +310,20 @@ export function useAuthActions(
       try {
         updateState({ isLoading: true, error: null });
         const result = await authService.switchChurch(churchId);
-        const newState = { user: result["user"], isLoading: false };
+        const newState = { user: result['user'], isLoading: false };
         updateState(newState);
         notifyStateChange(newState);
         return result;
       } catch (error) {
         const errorMessage =
-          (error as { message?: string })?.message ?? "Church switch failed";
+          (error as { message?: string })?.message ?? 'Church switch failed';
         setError(errorMessage);
         updateState({ isLoading: false });
         notifyError(error);
         throw error;
       }
     },
-    [authService, updateState, setError, notifyStateChange, notifyError],
+    [authService, updateState, setError, notifyStateChange, notifyError]
   );
 
   return {
@@ -337,6 +337,6 @@ export function useAuthActions(
     setupMFA,
     refreshAuth,
     updateUser,
-    switchChurch,
+    switchChurch
   };
 }

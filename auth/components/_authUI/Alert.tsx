@@ -1,6 +1,6 @@
-import React from "react";
+import React from 'react';
 
-type AlertType = "error" | "success" | "info" | "warning";
+type AlertType = 'error' | 'success' | 'info' | 'warning';
 
 interface AlertProps {
   type?: AlertType;
@@ -60,31 +60,31 @@ const ICONS: Record<AlertType, React.ReactElement> = {
         clipRule="evenodd"
       />
     </svg>
-  ),
+  )
 };
 
 const STYLES: Record<AlertType, { bg: string; border: string; text: string }> =
   {
     error: {
-      bg: "bg-red-50/90 dark:bg-red-900/30",
-      border: "border-red-200 dark:border-red-800",
-      text: "text-red-800 dark:text-red-200",
+      bg: 'bg-red-50/90 dark:bg-red-900/30',
+      border: 'border-red-200 dark:border-red-800',
+      text: 'text-red-800 dark:text-red-200'
     },
     success: {
-      bg: "bg-green-50/90 dark:bg-green-900/30",
-      border: "border-green-200 dark:border-green-800",
-      text: "text-green-800 dark:text-green-200",
+      bg: 'bg-green-50/90 dark:bg-green-900/30',
+      border: 'border-green-200 dark:border-green-800',
+      text: 'text-green-800 dark:text-green-200'
     },
     info: {
-      bg: "bg-blue-50/90 dark:bg-blue-900/30",
-      border: "border-blue-200 dark:border-blue-800",
-      text: "text-blue-800 dark:text-blue-200",
+      bg: 'bg-blue-50/90 dark:bg-blue-900/30',
+      border: 'border-blue-200 dark:border-blue-800',
+      text: 'text-blue-800 dark:text-blue-200'
     },
     warning: {
-      bg: "bg-yellow-50/90 dark:bg-yellow-900/30",
-      border: "border-yellow-200 dark:border-yellow-800",
-      text: "text-yellow-800 dark:text-yellow-200",
-    },
+      bg: 'bg-yellow-50/90 dark:bg-yellow-900/30',
+      border: 'border-yellow-200 dark:border-yellow-800',
+      text: 'text-yellow-800 dark:text-yellow-200'
+    }
   };
 
 /**
@@ -92,9 +92,9 @@ const STYLES: Record<AlertType, { bg: string; border: string; text: string }> =
  * states. Used inside auth forms.
  */
 export const Alert = ({
-  type = "error",
+  type = 'error',
   message,
-  className = "",
+  className = ''
 }: AlertProps) => {
   const { bg, border, text } = STYLES[type];
   return (

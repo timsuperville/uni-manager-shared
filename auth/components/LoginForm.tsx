@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { useAuth } from "../context/AuthContext";
-import { useNavigate, useLocation } from "react-router-dom";
-import MFAVerification from "./MFAVerification";
-import MFASetup from "./MFASetup";
-import { getCurrentAppConfig } from "../config/appConfigs";
-import { validateEmail } from "../utils/authValidation";
+import React, { useState, useEffect, useCallback } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate, useLocation } from 'react-router-dom';
+import MFAVerification from './MFAVerification';
+import MFASetup from './MFASetup';
+import { getCurrentAppConfig } from '../config/appConfigs';
+import { validateEmail } from '../utils/authValidation';
 import {
   AuthContainer,
   AuthCardContent,
@@ -14,18 +14,18 @@ import {
   AuthDivider,
   Alert,
   GoogleIcon,
-  PasswordToggleButton,
-} from "./_authUI";
-import { textAccent, textSecondary, textMuted } from "../../styles/styleUtils";
-import { KeyIcon } from "../../components/icons";
-import { glassBorder } from "@shared/styles/styleUtils";
+  PasswordToggleButton
+} from './_authUI';
+import { textAccent, textSecondary, textMuted } from '../../styles/styleUtils';
+import { KeyIcon } from '../../components/icons';
+import { glassBorder } from '@shared/styles/styleUtils';
 
 // Default UI config for unknown/unregistered appTypes
 const DEFAULT_UI = {
   icon: <KeyIcon size={40} className="mx-auto" />,
-  loginTitle: "Sign In",
-  loginDescription: "Sign in to your account",
-  registerPath: "/auth/register",
+  loginTitle: 'Sign In',
+  loginDescription: 'Sign in to your account',
+  registerPath: '/auth/register'
 };
 
 /**
@@ -50,7 +50,7 @@ interface LoginFormProps {
 }
 
 export function LoginForm({
-  appType = "default",
+  appType = 'default',
   appTitle,
   appDescription,
   showRememberMe = true,
@@ -59,7 +59,7 @@ export function LoginForm({
   trustDeviceAvailable = true,
   onSuccess,
   onError,
-  redirectPath = "/dashboard",
+  redirectPath = '/dashboard'
 }: LoginFormProps) {
   const {
     login,
@@ -69,7 +69,7 @@ export function LoginForm({
     error,
     mfaRequired,
     mfaSetupRequired,
-    clearError,
+    clearError
   } = useAuth();
 
   const navigate = useNavigate();
@@ -79,23 +79,23 @@ export function LoginForm({
   // Only honour paths that start with / to prevent open-redirect attacks.
   const returnTo = (() => {
     try {
-      const param = new URLSearchParams(location.search).get("returnTo");
-      return param && param.startsWith("/") ? param : null;
+      const param = new URLSearchParams(location.search).get('returnTo');
+      return param && param.startsWith('/') ? param : null;
     } catch (_err) {
       return null;
     }
   })();
 
-  const [currentStep, setCurrentStep] = useState("login");
+  const [currentStep, setCurrentStep] = useState('login');
   const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-    rememberMe: false,
+    email: '',
+    password: '',
+    rememberMe: false
   });
   const [trustDevice, setTrustDevice] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [deviceFingerprint, setDeviceFingerprint] = useState<string | null>(
-    null,
+    null
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
@@ -106,24 +106,24 @@ export function LoginForm({
   const finalTitle = appTitle || ui.loginTitle;
   const finalDescription = appDescription || ui.loginDescription;
   // returnTo takes priority over redirectPath prop
-  const finalRedirect = returnTo || redirectPath || "/dashboard";
+  const finalRedirect = returnTo || redirectPath || '/dashboard';
 
   const generateFingerprint = useCallback((): string | null => {
-    if (typeof document === "undefined") return null;
+    if (typeof document === 'undefined') return null;
     try {
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
       if (!ctx) return null;
-      ctx.textBaseline = "top";
-      ctx.font = "14px Arial";
-      ctx.fillText("Device fingerprint", 2, 2);
+      ctx.textBaseline = 'top';
+      ctx.font = '14px Arial';
+      ctx.fillText('Device fingerprint', 2, 2);
       const raw = [
         navigator?.userAgent,
         navigator?.language,
-        screen ? `${screen.width}x${screen.height}` : "",
+        screen ? `${screen.width}x${screen.height}` : '',
         new Date().getTimezoneOffset(),
-        canvas.toDataURL(),
-      ].join("|");
+        canvas.toDataURL()
+      ].join('|');
       return btoa(raw).slice(0, 32);
     } catch {
       return null;
@@ -137,16 +137,16 @@ export function LoginForm({
   // ─── MFA state transitions ───────────────────────────────────────────────────
   useEffect(() => {
     if (!enableMFA) return;
-    if (mfaRequired) setCurrentStep("mfa-verification");
-    else if (mfaSetupRequired) setCurrentStep("mfa-setup");
+    if (mfaRequired) setCurrentStep('mfa-verification');
+    else if (mfaSetupRequired) setCurrentStep('mfa-setup');
   }, [mfaRequired, mfaSetupRequired, enableMFA]);
 
   // ─── Handlers ────────────────────────────────────────────────────────────────
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: type === 'checkbox' ? checked : value
     }));
   };
 
@@ -160,7 +160,7 @@ export function LoginForm({
         password: formData.password,
         rememberMe: formData.rememberMe,
         deviceInfo: { fingerprint: deviceFingerprint || undefined },
-        appType: appType as Parameters<typeof login>[0]["appType"],
+        appType: appType as Parameters<typeof login>[0]['appType']
       });
       const loginResult = result as unknown as Record<string, unknown>;
       const isMFAPending =
@@ -188,11 +188,11 @@ export function LoginForm({
       const result = await verifyMFALogin?.(
         token,
         deviceFingerprint,
-        trustDevice,
+        trustDevice
       );
       const r = result as Record<string, unknown> | undefined;
       if (r?.success) {
-        setCurrentStep("login");
+        setCurrentStep('login');
         if (onSuccess) onSuccess(result);
         else navigate(finalRedirect);
       }
@@ -202,13 +202,13 @@ export function LoginForm({
   };
 
   const handleMFASetupComplete = () => {
-    setCurrentStep("login");
+    setCurrentStep('login');
     if (onSuccess) onSuccess({ success: true, mfaSetupCompleted: true });
     else navigate(finalRedirect);
   };
 
   const handleBackToLogin = () => {
-    setCurrentStep("login");
+    setCurrentStep('login');
     clearError?.();
   };
 
@@ -216,13 +216,13 @@ export function LoginForm({
   const isFormValid = Boolean(
     formData.email &&
     validateEmail(formData.email.trim()).isValid &&
-    formData.password,
+    formData.password
   );
 
   const isFormLoading = isLoading || isSubmitting;
 
   // ─── MFA Verification step ───────────────────────────────────────────────────
-  if (currentStep === "mfa-verification" && enableMFA) {
+  if (currentStep === 'mfa-verification' && enableMFA) {
     return (
       <AuthContainer maxWidth="md">
         <AuthCardContent>
@@ -250,8 +250,8 @@ export function LoginForm({
             </p>
           </div>
           <MFAVerification
-            onVerificationSuccess={(result) =>
-              handleMFAVerification(result?.verified ? "verified" : "")
+            onVerificationSuccess={result =>
+              handleMFAVerification(result?.verified ? 'verified' : '')
             }
             onCancel={handleBackToLogin}
             deviceFingerprint={deviceFingerprint}
@@ -263,7 +263,7 @@ export function LoginForm({
   }
 
   // ─── MFA Setup step ──────────────────────────────────────────────────────────
-  if (currentStep === "mfa-setup" && enableMFA) {
+  if (currentStep === 'mfa-setup' && enableMFA) {
     return (
       <AuthContainer maxWidth="lg">
         <AuthCardContent>
@@ -317,11 +317,11 @@ export function LoginForm({
                   if (redirectPath) navigate(redirectPath, { replace: true });
                 }
               } else {
-                console.warn("Google OAuth login method is not available.");
+                console.warn('Google OAuth login method is not available.');
               }
             } catch (err: any) {
               setLocalError(
-                err.message || "An error occurred during Google sign in.",
+                err.message || 'An error occurred during Google sign in.'
               );
               onError?.(err);
             }
@@ -358,7 +358,7 @@ export function LoginForm({
           <AuthInput
             id="login-password"
             name="password"
-            type={showPassword ? "text" : "password"}
+            type={showPassword ? 'text' : 'password'}
             label="Password"
             value={formData.password}
             onChange={handleChange}
@@ -368,7 +368,7 @@ export function LoginForm({
             rightElement={
               <PasswordToggleButton
                 visible={showPassword}
-                onToggle={() => setShowPassword((v) => !v)}
+                onToggle={() => setShowPassword(v => !v)}
               />
             }
           />
@@ -379,7 +379,7 @@ export function LoginForm({
               type="button"
               className="text-xs font-medium hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--primary-resonance,hsl(272,65%,62%))] rounded cursor-pointer"
               style={textAccent}
-              onClick={() => navigate("/auth/forgot-password")}
+              onClick={() => navigate('/auth/forgot-password')}
             >
               Forgot password?
             </button>
@@ -396,8 +396,8 @@ export function LoginForm({
                 onChange={handleChange}
                 className="h-4 w-4 rounded cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--primary-resonance,hsl(272,65%,62%))]"
                 style={{
-                  accentColor: "var(--primary-resonance, hsl(272,65%,62%))",
-                  ...glassBorder,
+                  accentColor: 'var(--primary-resonance, hsl(272,65%,62%))',
+                  ...glassBorder
                 }}
               />
               <label
@@ -418,7 +418,7 @@ export function LoginForm({
               loading={isFormLoading}
               variant="primary"
             >
-              {isFormLoading ? "Signing in…" : "Sign in"}
+              {isFormLoading ? 'Signing in…' : 'Sign in'}
             </AuthButton>
           </div>
 

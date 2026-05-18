@@ -24,7 +24,7 @@
 const EXPECTED_STATUS_CODES = new Set([
   401, // Unauthenticated — handled by auth redirect
   403, // Forbidden — handled by RBAC guard
-  408, // Request timeout — transient, user retries
+  408 // Request timeout — transient, user retries
 ]);
 
 /**
@@ -33,7 +33,7 @@ const EXPECTED_STATUS_CODES = new Set([
  * Mirrors the same namespace scan used by GlobalErrorBoundary.
  */
 function resolveAuthToken(): string | null {
-  const namespaces = ["church", "admin", "home", "personal", "work", "uni"];
+  const namespaces = ['church', 'admin', 'home', 'personal', 'work', 'uni'];
   for (const ns of namespaces) {
     const token =
       window.sessionStorage?.getItem(`${ns}_auth_access_token`) ??
@@ -81,9 +81,9 @@ function isReportable(statusCode: number): boolean {
  */
 function isReportingEnabled(): boolean {
   // Vite exposes import.meta.env — typed via vite/client ambient declarations.
-  const mode = import.meta.env.MODE ?? "development";
-  if (mode === "production") return true;
-  return import.meta.env.VITE_REPORT_API_ERRORS === "true";
+  const mode = import.meta.env.MODE ?? 'development';
+  if (mode === 'production') return true;
+  return import.meta.env.VITE_REPORT_API_ERRORS === 'true';
 }
 
 /**
@@ -100,22 +100,22 @@ export async function reportApiError(report: ApiErrorReport): Promise<void> {
 
     const token = resolveAuthToken();
     const headers: Record<string, string> = {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json'
     };
-    if (token) headers["Authorization"] = `Bearer ${token}`;
+    if (token) headers['Authorization'] = `Bearer ${token}`;
 
-    const mode = import.meta.env.MODE ?? "development";
+    const mode = import.meta.env.MODE ?? 'development';
 
-    await fetch("/api/v1/errors/log", {
-      method: "POST",
+    await fetch('/api/v1/errors/log', {
+      method: 'POST',
       headers,
       body: JSON.stringify({
         // Core fields expected by ErrorLog model
-        message: report.message || "API call failed",
-        severity: report.statusCode >= 500 ? "high" : "medium",
-        appType: report.appType ?? "unknown",
-        category: "api",
-        environment: mode === "production" ? "production" : "development",
+        message: report.message || 'API call failed',
+        severity: report.statusCode >= 500 ? 'high' : 'medium',
+        appType: report.appType ?? 'unknown',
+        category: 'api',
+        environment: mode === 'production' ? 'production' : 'development',
         url: window.location.href,
         path: window.location.pathname,
         userAgent: navigator.userAgent,
@@ -127,8 +127,8 @@ export async function reportApiError(report: ApiErrorReport): Promise<void> {
         service: report.service,
 
         // free-form additional context
-        ...(report.context ?? {}),
-      }),
+        ...(report.context ?? {})
+      })
     });
   } catch (_err) {
     // Intentionally silent — this reporter must never surface errors itself.

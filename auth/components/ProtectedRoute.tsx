@@ -2,10 +2,10 @@
  * ProtectedRoute Component
  * Unified route protection with authentication checks
  */
-import React, { useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth";
-import { getCurrentAppConfig } from "../config/appConfigs";
+import React, { useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
+import { getCurrentAppConfig } from '../config/appConfigs';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -19,8 +19,8 @@ const ProtectedRoute = ({
   children,
   requiredRoles = [],
   fallback = null,
-  redirectTo = "/auth/login",
-  showLoading = true,
+  redirectTo = '/auth/login',
+  showLoading = true
 }: ProtectedRouteProps) => {
   const { user, isLoading, isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -38,7 +38,7 @@ const ProtectedRoute = ({
     navigate,
     redirectTo,
     fallback,
-    location.pathname,
+    location.pathname
   ]);
 
   // Show loading state
@@ -61,7 +61,7 @@ const ProtectedRoute = ({
 
   // Check role permissions
   if (requiredRoles.length > 0 && user) {
-    const hasRequiredRole = requiredRoles.includes(user.role ?? "");
+    const hasRequiredRole = requiredRoles.includes(user.role ?? '');
 
     if (!hasRequiredRole) {
       return (
@@ -87,7 +87,7 @@ const ProtectedRoute = ({
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
               You don&apos;t have permission to access this page. Required
-              role(s): {requiredRoles.join(", ")}
+              role(s): {requiredRoles.join(', ')}
             </p>
             <button
               onClick={() => navigate(-1)}

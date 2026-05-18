@@ -9,10 +9,10 @@ import {
   getProviderConfig,
   generatePKCE,
   generateNonce,
-  generateState,
-} from "../config/oauthProviders";
-import { getCurrentAppConfig } from "../config/appConfigs";
-import { trackUserActivity } from "../utils/socialAuth";
+  generateState
+} from '../config/oauthProviders';
+import { getCurrentAppConfig } from '../config/appConfigs';
+import { trackUserActivity } from '../utils/socialAuth';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -66,30 +66,30 @@ export class OAuthAuthService {
     this.config = config;
     this.apiBaseUrl = config.apiBaseUrl;
     this.endpoints = config.endpoints ?? {};
-    this.appType = config.appType ?? "default";
+    this.appType = config.appType ?? 'default';
     this.deviceFingerprint = config.deviceFingerprint ?? null;
   }
 
   private async _makeRequest(
     endpoint: string,
-    options: ApiRequestOptions = {},
+    options: ApiRequestOptions = {}
   ): Promise<Response> {
     const url = `${this.apiBaseUrl}${this.endpoints[endpoint] ?? endpoint}`;
     const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-      ...options.headers,
+      'Content-Type': 'application/json',
+      ...options.headers
     };
     return fetch(url, { ...options, headers });
   }
 
   private async _handleResponse(
-    response: Response,
+    response: Response
   ): Promise<Record<string, unknown>> {
-    const contentType = response.headers.get("content-type");
-    if (!contentType?.includes("application/json")) {
+    const contentType = response.headers.get('content-type');
+    if (!contentType?.includes('application/json')) {
       if (!response.ok) {
         throw new Error(
-          `Server error: ${response.status} ${response.statusText}`,
+          `Server error: ${response.status} ${response.statusText}`
         );
       }
       return { success: true };
@@ -97,8 +97,8 @@ export class OAuthAuthService {
     const data = (await response.json()) as Record<string, unknown>;
     if (!response.ok) {
       throw new Error(
-        (data["message"] as string | undefined) ??
-          `Request failed with status ${response.status}`,
+        (data['message'] as string | undefined) ??
+          `Request failed with status ${response.status}`
       );
     }
     return data;
@@ -106,14 +106,14 @@ export class OAuthAuthService {
 
   async startOAuthFlow(
     providerId: string,
-    options: OAuthFlowOptions = {},
+    options: OAuthFlowOptions = {}
   ): Promise<OAuthFlowResult> {
     const appConfig = getCurrentAppConfig();
     const providerConfig = getProviderConfig(providerId, appConfig.name);
 
     if (!providerConfig) {
       throw new Error(
-        `OAuth provider ${providerId} not supported for ${appConfig.name}`,
+        `OAuth provider ${providerId} not supported for ${appConfig.name}`
       );
     }
 
@@ -121,31 +121,31 @@ export class OAuthAuthService {
     const state = generateState();
     const nonce = generateNonce();
 
-    if (typeof sessionStorage !== "undefined") {
-      sessionStorage.setItem("pkce_verifier", codeVerifier);
-      sessionStorage.setItem("oauth_state", state);
-      sessionStorage.setItem("oauth_nonce", nonce);
-      sessionStorage.setItem("oauth_provider", providerId);
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.setItem('pkce_verifier', codeVerifier);
+      sessionStorage.setItem('oauth_state', state);
+      sessionStorage.setItem('oauth_nonce', nonce);
+      sessionStorage.setItem('oauth_provider', providerId);
     }
 
     const authParams = new URLSearchParams({
-      response_type: "code",
+      response_type: 'code',
       client_id: providerConfig.clientId,
       redirect_uri: providerConfig.redirectUri,
-      scope: providerConfig.scopes.join(" "),
+      scope: providerConfig.scopes.join(' '),
       state,
       code_challenge: codeChallenge,
-      code_challenge_method: "S256",
+      code_challenge_method: 'S256',
       nonce,
-      ...options.additionalParams,
+      ...options.additionalParams
     });
 
     const authUrl = `${providerConfig.authorizationEndpoint}?${authParams.toString()}`;
 
-    trackUserActivity("oauth_init", {
+    trackUserActivity('oauth_init', {
       provider: providerId,
       app: appConfig.name,
-      deviceFingerprint: this.deviceFingerprint,
+      deviceFingerprint: this.deviceFingerprint
     });
 
     return { authUrl, state };
@@ -154,39 +154,39 @@ export class OAuthAuthService {
   async handleOAuthCallback(
     code: string,
     state: string,
-    error: string | null = null,
+    error: string | null = null
   ): Promise<OAuthCallbackResult> {
     if (error) throw new Error(`OAuth error: ${error}`);
 
     const storedState =
-      typeof sessionStorage !== "undefined"
-        ? sessionStorage.getItem("oauth_state")
+      typeof sessionStorage !== 'undefined'
+        ? sessionStorage.getItem('oauth_state')
         : null;
-    if (state !== storedState) throw new Error("Invalid OAuth state parameter");
+    if (state !== storedState) throw new Error('Invalid OAuth state parameter');
 
     const providerId =
-      typeof sessionStorage !== "undefined"
-        ? sessionStorage.getItem("oauth_provider")
+      typeof sessionStorage !== 'undefined'
+        ? sessionStorage.getItem('oauth_provider')
         : null;
     const codeVerifier =
-      typeof sessionStorage !== "undefined"
-        ? sessionStorage.getItem("pkce_verifier")
+      typeof sessionStorage !== 'undefined'
+        ? sessionStorage.getItem('pkce_verifier')
         : null;
 
     if (!providerId || !codeVerifier)
-      throw new Error("Missing OAuth session data");
+      throw new Error('Missing OAuth session data');
 
     const tokenResponse = await this.exchangeOAuthCode(
       providerId,
       code,
-      codeVerifier,
+      codeVerifier
     );
 
-    if (typeof sessionStorage !== "undefined") {
-      sessionStorage.removeItem("pkce_verifier");
-      sessionStorage.removeItem("oauth_state");
-      sessionStorage.removeItem("oauth_nonce");
-      sessionStorage.removeItem("oauth_provider");
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.removeItem('pkce_verifier');
+      sessionStorage.removeItem('oauth_state');
+      sessionStorage.removeItem('oauth_nonce');
+      sessionStorage.removeItem('oauth_provider');
     }
 
     return {
@@ -194,92 +194,92 @@ export class OAuthAuthService {
       user: tokenResponse.user,
       accessToken: tokenResponse.accessToken,
       refreshToken: tokenResponse.refreshToken,
-      provider: providerId,
+      provider: providerId
     };
   }
 
   async exchangeOAuthCode(
     providerId: string,
     code: string,
-    codeVerifier: string,
+    codeVerifier: string
   ): Promise<OAuthTokenResponse> {
     const appConfig = getCurrentAppConfig();
     const providerConfig = getProviderConfig(providerId, appConfig.name);
 
-    const response = await this._makeRequest("oauthExchange", {
-      method: "POST",
+    const response = await this._makeRequest('oauthExchange', {
+      method: 'POST',
       body: JSON.stringify({
         providerId,
         code,
         codeVerifier,
         redirectUri: providerConfig.redirectUri,
-        appType: this.appType,
-      }),
+        appType: this.appType
+      })
     });
 
     const responseData = await this._handleResponse(response);
 
-    if (responseData["success"] && responseData["accessToken"]) {
+    if (responseData['success'] && responseData['accessToken']) {
       return {
-        accessToken: responseData["accessToken"] as string,
-        refreshToken: responseData["refreshToken"] as string | undefined,
-        user: responseData["user"],
+        accessToken: responseData['accessToken'] as string,
+        refreshToken: responseData['refreshToken'] as string | undefined,
+        user: responseData['user']
       };
     }
 
     throw new Error(
-      (responseData["message"] as string | undefined) ??
-        "OAuth token exchange failed",
+      (responseData['message'] as string | undefined) ??
+        'OAuth token exchange failed'
     );
   }
 
   async linkOAuthAccount(
     providerId: string,
-    sessionToken: string,
+    sessionToken: string
   ): Promise<OAuthFlowResult> {
     const { authUrl, state } = await this.startOAuthFlow(providerId, {
-      additionalParams: { link_account: "true" },
+      additionalParams: { link_account: 'true' }
     });
-    if (typeof sessionStorage !== "undefined") {
-      sessionStorage.setItem("link_session_token", sessionToken);
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.setItem('link_session_token', sessionToken);
     }
     return { authUrl, state };
   }
 
   async unlinkOAuthAccount(
     providerId: string,
-    sessionToken: string,
+    sessionToken: string
   ): Promise<{ success: true; message: string }> {
-    const response = await this._makeRequest("unlinkOAuth", {
-      method: "POST",
+    const response = await this._makeRequest('unlinkOAuth', {
+      method: 'POST',
       headers: { Authorization: `Bearer ${sessionToken}` },
-      body: JSON.stringify({ providerId }),
+      body: JSON.stringify({ providerId })
     });
 
     const responseData = await this._handleResponse(response);
 
-    if (responseData["success"]) {
+    if (responseData['success']) {
       return {
         success: true,
         message:
-          (responseData["message"] as string | undefined) ??
-          "Account unlinked successfully",
+          (responseData['message'] as string | undefined) ??
+          'Account unlinked successfully'
       };
     }
 
     throw new Error(
-      (responseData["message"] as string | undefined) ??
-        "Failed to unlink OAuth account",
+      (responseData['message'] as string | undefined) ??
+        'Failed to unlink OAuth account'
     );
   }
 
   async getLinkedProviders(sessionToken: string): Promise<unknown[]> {
-    const response = await this._makeRequest("linkedProviders", {
-      method: "GET",
-      headers: { Authorization: `Bearer ${sessionToken}` },
+    const response = await this._makeRequest('linkedProviders', {
+      method: 'GET',
+      headers: { Authorization: `Bearer ${sessionToken}` }
     });
     const responseData = await this._handleResponse(response);
-    return (responseData["providers"] as unknown[] | undefined) ?? [];
+    return (responseData['providers'] as unknown[] | undefined) ?? [];
   }
 }
 

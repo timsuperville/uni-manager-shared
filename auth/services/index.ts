@@ -16,8 +16,8 @@
 // Core auth service
 // ---------------------------------------------------------------------------
 
-import { AuthService as _AuthService } from "./AuthService";
-import { getApiClient } from "../../api";
+import { AuthService as _AuthService } from './AuthService';
+import { getApiClient } from '../../api';
 
 /**
  * Factory — returns a ready AuthService instance using the shared ApiClient.
@@ -33,19 +33,19 @@ export function getAuthService(): Promise<InstanceType<typeof _AuthService>> {
 // ---------------------------------------------------------------------------
 
 /** Handles login attempt tracking and exponential back-off */
-export { RateLimitService } from "./RateLimitService";
+export { RateLimitService } from './RateLimitService';
 
 /** Token lifecycle: storage delegation, JWT decode/expiry, auto-refresh */
-export { TokenManagementService } from "./TokenManagementService";
+export { TokenManagementService } from './TokenManagementService';
 
 /** Traditional email/password flows (login, signup, forgot/reset password) */
-export { EmailPasswordAuthService } from "./EmailPasswordAuthService";
+export { EmailPasswordAuthService } from './EmailPasswordAuthService';
 
 /** OAuth 2.0 PKCE flows */
-export { OAuthAuthService } from "./OAuthAuthService";
+export { OAuthAuthService } from './OAuthAuthService';
 
 /** WebAuthn (Biometric Anchor) */
-export { webAuthnService, WebAuthnService } from "./webAuthnService";
+export { webAuthnService, WebAuthnService } from './webAuthnService';
 
 /** MFA utility helpers — phone formatting, code validation, display names */
 export {
@@ -54,5 +54,5 @@ export {
   validateTOTPCode,
   validateSMSCode,
   formatPhoneNumber,
-  type MFAMethod,
-} from "../utils/mfaUtils";
+  type MFAMethod
+} from '../utils/mfaUtils';

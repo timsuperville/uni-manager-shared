@@ -96,17 +96,20 @@ Always use workspace alias paths — never relative paths across packages:
 
 ```js
 // ✅ Correct — alias paths
-import { Button, Modal } from "@shared/components";
-import { useAuth } from "@shared/auth";
-import { useNpsPulse } from "@shared/hooks";
-import { getApiBaseUrl } from "@shared/api";
-import { INTEGRATION_DATABASE } from "@shared/data";
-import { flex, textPrimary } from "@shared/styles/styleUtils";
-import { ErrorBoundary, initializeMonitoring } from "@shared/monitoring/ErrorMonitoring"; // shim ✅
-import { PresenceProvider } from "@shared/context"; // ✅ PresenceContext.tsx
+import { Button, Modal } from '@shared/components';
+import { useAuth } from '@shared/auth';
+import { useNpsPulse } from '@shared/hooks';
+import { getApiBaseUrl } from '@shared/api';
+import { INTEGRATION_DATABASE } from '@shared/data';
+import { flex, textPrimary } from '@shared/styles/styleUtils';
+import {
+  ErrorBoundary,
+  initializeMonitoring
+} from '@shared/monitoring/ErrorMonitoring'; // shim ✅
+import { PresenceProvider } from '@shared/context'; // ✅ PresenceContext.tsx
 
 // ❌ Wrong — relative cross-package imports
-import { Button } from "../../shared/components/ui/Button";
+import { Button } from '../../shared/components/ui/Button';
 ```
 
 ---

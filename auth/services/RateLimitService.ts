@@ -45,7 +45,7 @@ export class RateLimitService {
       count: 0,
       firstAttempt: Date.now(),
       lastAttempt: Date.now(),
-      lockedUntil: null,
+      lockedUntil: null
     };
 
     attempts.count++;

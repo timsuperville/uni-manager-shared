@@ -12,17 +12,17 @@ declare global {
 
 // M2 — Set session start timestamp at module load so collectSystemContext can
 // calculate sessionDurationMs. Written only once per page load.
-if (typeof window !== "undefined" && !window.__feedbackSessionStart) {
+if (typeof window !== 'undefined' && !window.__feedbackSessionStart) {
   window.__feedbackSessionStart = Date.now();
 }
 
 // Track navigation history for context (SPA route changes)
-if (typeof window !== "undefined" && !window.__feedbackNavHistory) {
+if (typeof window !== 'undefined' && !window.__feedbackNavHistory) {
   window.__feedbackNavHistory = [];
   const origPush = history.pushState.bind(history);
   const origReplace = history.replaceState.bind(history);
   const trackPage = (url: string | URL | null | undefined) => {
-    const path = typeof url === "string" ? url : window.location.pathname;
+    const path = typeof url === 'string' ? url : window.location.pathname;
     const hist = window.__feedbackNavHistory!;
     const last = hist[hist.length - 1];
     if (last === undefined || last !== path) {
@@ -51,13 +51,13 @@ export interface FeedbackUser {
 }
 
 interface DeviceInfo {
-  deviceType: "desktop" | "mobile" | "tablet";
+  deviceType: 'desktop' | 'mobile' | 'tablet';
   os: string;
   osVersion: string | null;
   orientation:
     | OrientationType
-    | "landscape-primary"
-    | "portrait-primary"
+    | 'landscape-primary'
+    | 'portrait-primary'
     | null;
 }
 
@@ -86,10 +86,10 @@ export interface SystemContext {
     timestamp: string;
   };
   device: {
-    type: DeviceInfo["deviceType"];
+    type: DeviceInfo['deviceType'];
     os: string;
     osVersion: string | null;
-    orientation: DeviceInfo["orientation"];
+    orientation: DeviceInfo['orientation'];
   };
   browser: {
     userAgent: string;
@@ -112,7 +112,7 @@ export interface SystemContext {
   application: {
     name: string;
     version: string;
-    environment: "production" | "development";
+    environment: 'production' | 'development';
     baseUrl: string;
   };
   session: {
@@ -133,24 +133,24 @@ export interface SystemContext {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function detectDevice(): DeviceInfo {
-  const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
+  const ua = typeof navigator !== 'undefined' ? navigator.userAgent : '';
   const isMobile =
     /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
   const isTablet =
     /Tablet|iPad/i.test(ua) ||
     (isMobile && Math.min(screen.width, screen.height) >= 600);
-  const deviceType: DeviceInfo["deviceType"] = isTablet
-    ? "tablet"
+  const deviceType: DeviceInfo['deviceType'] = isTablet
+    ? 'tablet'
     : isMobile
-      ? "mobile"
-      : "desktop";
+      ? 'mobile'
+      : 'desktop';
 
-  let os = "unknown";
-  if (/Windows NT/i.test(ua)) os = "Windows";
-  else if (/Mac OS X/i.test(ua)) os = /iPhone|iPad/i.test(ua) ? "iOS" : "macOS";
-  else if (/Android/i.test(ua)) os = "Android";
-  else if (/Linux/i.test(ua)) os = "Linux";
-  else if (/CrOS/i.test(ua)) os = "ChromeOS";
+  let os = 'unknown';
+  if (/Windows NT/i.test(ua)) os = 'Windows';
+  else if (/Mac OS X/i.test(ua)) os = /iPhone|iPad/i.test(ua) ? 'iOS' : 'macOS';
+  else if (/Android/i.test(ua)) os = 'Android';
+  else if (/Linux/i.test(ua)) os = 'Linux';
+  else if (/CrOS/i.test(ua)) os = 'ChromeOS';
 
   const winMatch = ua.match(/Windows NT (\d+\.\d+)/);
   const macMatch = ua.match(/Mac OS X ([\d_]+)/);
@@ -158,18 +158,18 @@ function detectDevice(): DeviceInfo {
   const iosMatch = ua.match(/OS ([\d_]+) like Mac/);
   const osVersion: string | null =
     winMatch?.[1] ??
-    macMatch?.[1]?.replace(/_/g, ".") ??
+    macMatch?.[1]?.replace(/_/g, '.') ??
     androidMatch?.[1] ??
-    iosMatch?.[1]?.replace(/_/g, ".") ??
+    iosMatch?.[1]?.replace(/_/g, '.') ??
     null;
 
-  const orientation: DeviceInfo["orientation"] =
-    typeof screen !== "undefined" && screen.orientation
+  const orientation: DeviceInfo['orientation'] =
+    typeof screen !== 'undefined' && screen.orientation
       ? screen.orientation.type
-      : typeof window !== "undefined"
+      : typeof window !== 'undefined'
         ? window.innerWidth > window.innerHeight
-          ? "landscape-primary"
-          : "portrait-primary"
+          ? 'landscape-primary'
+          : 'portrait-primary'
         : null;
 
   return { deviceType, os, osVersion, orientation };
@@ -179,10 +179,10 @@ function detectDevice(): DeviceInfo {
 
 export function collectSystemContext(
   appName: string,
-  user: FeedbackUser | null = null,
+  user: FeedbackUser | null = null
 ): SystemContext {
   const sessionStart =
-    typeof window !== "undefined" ? window.__feedbackSessionStart : undefined;
+    typeof window !== 'undefined' ? window.__feedbackSessionStart : undefined;
   const sessionDurationMs = sessionStart ? Date.now() - sessionStart : null;
 
   // performance.memory is a non-standard Chrome extension — read both values in one try.
@@ -201,7 +201,7 @@ export function collectSystemContext(
 
   let loadTimingMs: number | null = null;
   try {
-    const nav = performance?.getEntriesByType?.("navigation")?.[0] as
+    const nav = performance?.getEntriesByType?.('navigation')?.[0] as
       | PerformanceNavigationTiming
       | undefined;
     if (nav?.domInteractive) loadTimingMs = Math.round(nav.domInteractive);
@@ -233,7 +233,7 @@ export function collectSystemContext(
         effectiveType: conn.effectiveType ?? null,
         downlinkMbps: conn.downlink ?? null,
         rtt: conn.rtt ?? null,
-        saveData: conn.saveData ?? false,
+        saveData: conn.saveData ?? false
       };
     }
   } catch {
@@ -244,7 +244,7 @@ export function collectSystemContext(
   try {
     storageKeys = {
       localStorage: localStorage.length,
-      sessionStorage: sessionStorage.length,
+      sessionStorage: sessionStorage.length
     };
   } catch {
     /* intentionally silent — storage may be blocked in private mode */
@@ -267,22 +267,22 @@ export function collectSystemContext(
   let recentActivity: string[] = [];
   try {
     recentActivity = JSON.parse(
-      sessionStorage.getItem("userActivities") || "[]",
+      sessionStorage.getItem('userActivities') || '[]'
     ).slice(-10);
   } catch {
     /* silent */
   }
 
-  const env: "production" | "development" =
-    import.meta?.env?.MODE === "production" ? "production" : "development";
+  const env: 'production' | 'development' =
+    import.meta?.env?.MODE === 'production' ? 'production' : 'development';
 
-  const appVersion: string = import.meta?.env?.VITE_APP_VERSION ?? "unknown";
+  const appVersion: string = import.meta?.env?.VITE_APP_VERSION ?? 'unknown';
 
   const fullPathname =
-    typeof window !== "undefined" ? window.location.pathname : "/";
-  const base = (import.meta?.env?.BASE_URL as string | undefined) ?? "/";
+    typeof window !== 'undefined' ? window.location.pathname : '/';
+  const base = (import.meta?.env?.BASE_URL as string | undefined) ?? '/';
   const inAppPath = fullPathname.startsWith(base)
-    ? "/" + fullPathname.slice(base.length)
+    ? '/' + fullPathname.slice(base.length)
     : fullPathname;
 
   const device = detectDevice();
@@ -294,57 +294,57 @@ export function collectSystemContext(
           email: user.email,
           name: user.name,
           role: user.role,
-          appRole: user.appRole,
+          appRole: user.appRole
         }
       : null,
     page: {
-      url: typeof window !== "undefined" ? window.location.href : "unknown",
+      url: typeof window !== 'undefined' ? window.location.href : 'unknown',
       path: inAppPath,
-      hash: typeof window !== "undefined" ? window.location.hash : "",
-      queryString: typeof window !== "undefined" ? window.location.search : "",
-      referrer: typeof document !== "undefined" ? document.referrer : "",
-      title: typeof document !== "undefined" ? document.title : "",
-      timestamp: new Date().toISOString(),
+      hash: typeof window !== 'undefined' ? window.location.hash : '',
+      queryString: typeof window !== 'undefined' ? window.location.search : '',
+      referrer: typeof document !== 'undefined' ? document.referrer : '',
+      title: typeof document !== 'undefined' ? document.title : '',
+      timestamp: new Date().toISOString()
     },
     device: {
       type: device.deviceType,
       os: device.os,
       osVersion: device.osVersion,
-      orientation: device.orientation,
+      orientation: device.orientation
     },
     browser: {
       userAgent:
-        typeof navigator !== "undefined" ? navigator.userAgent : "unknown",
+        typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown',
       viewport: {
-        width: typeof window !== "undefined" ? window.innerWidth : 0,
-        height: typeof window !== "undefined" ? window.innerHeight : 0,
+        width: typeof window !== 'undefined' ? window.innerWidth : 0,
+        height: typeof window !== 'undefined' ? window.innerHeight : 0
       },
       screen: {
-        width: typeof screen !== "undefined" ? screen.width : 0,
-        height: typeof screen !== "undefined" ? screen.height : 0,
+        width: typeof screen !== 'undefined' ? screen.width : 0,
+        height: typeof screen !== 'undefined' ? screen.height : 0,
         pixelRatio:
-          typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1,
-        colorDepth: typeof screen !== "undefined" ? screen.colorDepth : null,
+          typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1,
+        colorDepth: typeof screen !== 'undefined' ? screen.colorDepth : null
       },
-      language: typeof navigator !== "undefined" ? navigator.language : "",
+      language: typeof navigator !== 'undefined' ? navigator.language : '',
       languages:
-        typeof navigator !== "undefined" && Array.isArray(navigator.languages)
+        typeof navigator !== 'undefined' && Array.isArray(navigator.languages)
           ? navigator.languages.slice(0, 3)
           : [],
-      timezone: Intl?.DateTimeFormat?.()?.resolvedOptions?.()?.timeZone ?? "",
+      timezone: Intl?.DateTimeFormat?.()?.resolvedOptions?.()?.timeZone ?? '',
       cookiesEnabled:
-        typeof navigator !== "undefined" ? navigator.cookieEnabled : null,
+        typeof navigator !== 'undefined' ? navigator.cookieEnabled : null,
       doNotTrack:
-        typeof navigator !== "undefined" ? navigator.doNotTrack : null,
-      onLine: typeof navigator !== "undefined" ? navigator.onLine : null,
+        typeof navigator !== 'undefined' ? navigator.doNotTrack : null,
+      onLine: typeof navigator !== 'undefined' ? navigator.onLine : null,
       connection,
-      loadTimingMs,
+      loadTimingMs
     },
     application: {
       name: appName,
       version: appVersion,
       environment: env,
-      baseUrl: base,
+      baseUrl: base
     },
     session: {
       durationMs: sessionDurationMs,
@@ -355,11 +355,11 @@ export function collectSystemContext(
       navigationHistoryCount: navigationHistory.length,
       recentNavigation: navigationHistory.slice(-5),
       pageVisibilityState,
-      recentActivity,
+      recentActivity
     },
     performance: {
       memoryUsedMb: memoryMb,
-      jsHeapLimitMb,
-    },
+      jsHeapLimitMb
+    }
   };
 }

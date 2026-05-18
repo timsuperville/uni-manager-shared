@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 type TableHtmlProps = React.HTMLAttributes<HTMLTableElement>;
 
@@ -8,7 +8,7 @@ type TdHtmlProps = React.TdHTMLAttributes<HTMLTableCellElement>;
 
 export const Table: React.FC<TableHtmlProps> = ({
   children,
-  className = "",
+  className = '',
   ...props
 }) => (
   <div className="overflow-x-auto">
@@ -23,7 +23,7 @@ export const Table: React.FC<TableHtmlProps> = ({
 
 export const TableHeader: React.FC<
   React.HTMLAttributes<HTMLTableSectionElement>
-> = ({ children, className = "", ...props }) => (
+> = ({ children, className = '', ...props }) => (
   <thead
     className={`[background:var(--bg-surface-1,rgba(255,255,255,0.03))] ${className}`}
     {...props}
@@ -34,7 +34,7 @@ export const TableHeader: React.FC<
 
 export const TableBody: React.FC<
   React.HTMLAttributes<HTMLTableSectionElement>
-> = ({ children, className = "", ...props }) => (
+> = ({ children, className = '', ...props }) => (
   <tbody
     className={`[background:transparent] divide-y divide-(--glass-outline,rgba(255,255,255,0.08)) ${className}`}
     {...props}
@@ -45,7 +45,7 @@ export const TableBody: React.FC<
 
 export const TableRow: React.FC<TrHtmlProps> = ({
   children,
-  className = "",
+  className = '',
   ...props
 }) => (
   <tr
@@ -58,7 +58,7 @@ export const TableRow: React.FC<TrHtmlProps> = ({
 
 export const TableHead: React.FC<ThHtmlProps> = ({
   children,
-  className = "",
+  className = '',
   ...props
 }) => (
   <th
@@ -71,7 +71,7 @@ export const TableHead: React.FC<ThHtmlProps> = ({
 
 export const TableCell: React.FC<TdHtmlProps> = ({
   children,
-  className = "",
+  className = '',
   ...props
 }) => (
   <td

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 
 export interface UseOnboardingOverlayProps {
   /** The length of the collection/array being checked. */
@@ -12,7 +12,7 @@ export interface UseOnboardingOverlayProps {
 export function useOnboardingOverlay({
   collectionLength,
   isLoading,
-  domainKey,
+  domainKey
 }: UseOnboardingOverlayProps) {
   const [showOverlay, setShowOverlay] = useState(false);
 
@@ -22,7 +22,7 @@ export function useOnboardingOverlay({
       const storageKey = `um_onboarding_dismissed_${domainKey}`;
       const dismissed = localStorage.getItem(storageKey);
 
-      if (dismissed !== "true") {
+      if (dismissed !== 'true') {
         setShowOverlay(true);
       } else {
         setShowOverlay(false);
@@ -35,7 +35,7 @@ export function useOnboardingOverlay({
 
   const dismissOverlay = () => {
     const storageKey = `um_onboarding_dismissed_${domainKey}`;
-    localStorage.setItem(storageKey, "true");
+    localStorage.setItem(storageKey, 'true');
     setShowOverlay(false);
   };
 
@@ -50,6 +50,6 @@ export function useOnboardingOverlay({
   return {
     showOverlay,
     dismissOverlay,
-    resetOverlay,
+    resetOverlay
   };
 }

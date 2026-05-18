@@ -2,5 +2,5 @@
 export {
   PresenceProvider,
   usePresence,
-  PresenceContext,
-} from "./PresenceContext.tsx";
+  PresenceContext
+} from './PresenceContext.tsx';

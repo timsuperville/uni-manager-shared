@@ -3,14 +3,14 @@
 // NOTE: No backend ingest endpoint exists for /api/analytics/web-vitals —
 //       metrics are retained in-memory and logged DEV-only (Rule 9.8/§451).
 
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 
 // ---------------------------------------------------------------------------
 // Types (exported for consumption by app-level hooks)
 // ---------------------------------------------------------------------------
 
-export type VitalName = "LCP" | "FID" | "CLS" | "FCP" | "TTFB" | string;
-export type VitalRating = "good" | "needs-improvement" | "poor" | "unknown";
+export type VitalName = 'LCP' | 'FID' | 'CLS' | 'FCP' | 'TTFB' | string;
+export type VitalRating = 'good' | 'needs-improvement' | 'poor' | 'unknown';
 
 interface VitalThreshold {
   good: number;
@@ -68,17 +68,17 @@ class WebVitalsMonitor {
     FID: { good: 100, poor: 300 }, // First Input Delay
     CLS: { good: 0.1, poor: 0.25 }, // Cumulative Layout Shift
     FCP: { good: 1800, poor: 3000 }, // First Contentful Paint
-    TTFB: { good: 800, poor: 1800 }, // Time to First Byte
+    TTFB: { good: 800, poor: 1800 } // Time to First Byte
   };
   private initialized = false;
 
   init(): void {
-    if (this.initialized || typeof window === "undefined") return;
+    if (this.initialized || typeof window === 'undefined') return;
     this.initialized = true;
 
     this.trackPerformanceMetrics();
 
-    window.addEventListener("beforeunload", () => {
+    window.addEventListener('beforeunload', () => {
       void this.sendMetrics();
     });
 
@@ -89,28 +89,28 @@ class WebVitalsMonitor {
   }
 
   private trackPerformanceMetrics(): void {
-    if (!("PerformanceObserver" in window)) return;
+    if (!('PerformanceObserver' in window)) return;
     try {
-      const observer = new PerformanceObserver((list) => {
-        list.getEntries().forEach((entry) => this.handleEntry(entry));
+      const observer = new PerformanceObserver(list => {
+        list.getEntries().forEach(entry => this.handleEntry(entry));
       });
       observer.observe({
-        entryTypes: ["navigation", "paint", "largest-contentful-paint"],
+        entryTypes: ['navigation', 'paint', 'largest-contentful-paint']
       });
     } catch (_err) {
       // PerformanceObserver entryTypes not fully supported — safe to ignore.
       if (import.meta.env.DEV) {
-        console.warn("[WebVitals] PerformanceObserver not fully supported.");
+        console.warn('[WebVitals] PerformanceObserver not fully supported.');
       }
     }
   }
 
   private handleEntry(entry: PerformanceEntry): void {
     const metricName: VitalName =
-      entry.entryType === "largest-contentful-paint"
-        ? "LCP"
-        : entry.name === "first-contentful-paint"
-          ? "FCP"
+      entry.entryType === 'largest-contentful-paint'
+        ? 'LCP'
+        : entry.name === 'first-contentful-paint'
+          ? 'FCP'
           : entry.entryType;
 
     // `startTime` exists on all PerformanceEntry; `loadEventEnd` on
@@ -121,20 +121,20 @@ class WebVitalsMonitor {
     this.metrics[metricName] = {
       value,
       rating: this.getRating(metricName, value),
-      timestamp: Date.now(),
+      timestamp: Date.now()
     };
 
-    if (import.meta.env.DEV && this.getRating(metricName, value) === "poor") {
+    if (import.meta.env.DEV && this.getRating(metricName, value) === 'poor') {
       console.warn(`[WebVitals] Poor ${metricName}: ${value}`);
     }
   }
 
   private getRating(metricName: VitalName, value: number): VitalRating {
     const threshold = this.thresholds[metricName];
-    if (!threshold) return "unknown";
-    if (value <= threshold.good) return "good";
-    if (value <= threshold.poor) return "needs-improvement";
-    return "poor";
+    if (!threshold) return 'unknown';
+    if (value <= threshold.good) return 'good';
+    if (value <= threshold.poor) return 'needs-improvement';
+    return 'poor';
   }
 
   /** DEV-only metrics log — no backend endpoint exists for web vitals. */
@@ -147,15 +147,15 @@ class WebVitalsMonitor {
     const payload: WebVitalsPayload = {
       url: window.location.href,
       userAgent: navigator.userAgent,
-      connection: nav.connection?.effectiveType ?? "unknown",
+      connection: nav.connection?.effectiveType ?? 'unknown',
       metrics: this.metrics,
       timestamp: Date.now(),
-      app: win.ENV?.VITE_APP_NAME ?? "unknown",
+      app: win.ENV?.VITE_APP_NAME ?? 'unknown'
     };
 
     // No production endpoint — log in dev for awareness only (Rule 9.8).
     if (import.meta.env.DEV) {
-      console.info("[WebVitals] Metrics snapshot:", payload);
+      console.info('[WebVitals] Metrics snapshot:', payload);
     }
   }
 
@@ -166,11 +166,11 @@ class WebVitalsMonitor {
   getPerformanceScore(): number {
     const scores = Object.values(this.metrics).map(({ rating }) => {
       switch (rating) {
-        case "good":
+        case 'good':
           return 100;
-        case "needs-improvement":
+        case 'needs-improvement':
           return 50;
-        case "poor":
+        case 'poor':
           return 0;
         default:
           return 50;

@@ -1,5 +1,5 @@
-import { useCallback, useState, useEffect, useRef } from "react";
-import { getApiBaseUrl } from "../../api/config/apiConfig";
+import { useCallback, useState, useEffect, useRef } from 'react';
+import { getApiBaseUrl } from '../../api/config/apiConfig';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -37,28 +37,28 @@ export function useOAuth(): UseOAuthReturn {
       const {
         type,
         data,
-        error: errorMsg,
+        error: errorMsg
       } = event.data as {
         type?: string;
         data?: unknown;
         error?: string;
       };
 
-      if (type === "OAUTH_SUCCESS") {
+      if (type === 'OAUTH_SUCCESS') {
         if (checkTimerRef.current) clearInterval(checkTimerRef.current);
         if (popupRef.current) popupRef.current.close();
         setIsLoading(false);
-        if (import.meta.env.DEV) console.log("OAuth Success:", data);
-      } else if (type === "OAUTH_ERROR") {
+        if (import.meta.env.DEV) console.log('OAuth Success:', data);
+      } else if (type === 'OAUTH_ERROR') {
         if (checkTimerRef.current) clearInterval(checkTimerRef.current);
         if (popupRef.current) popupRef.current.close();
         setIsLoading(false);
-        setError(errorMsg ?? "Authentication failed");
+        setError(errorMsg ?? 'Authentication failed');
       }
     };
 
-    window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
   }, []);
 
   const loginWithProvider = useCallback(
@@ -80,7 +80,7 @@ export function useOAuth(): UseOAuthReturn {
         popupRef.current = popup;
 
         if (!popup) {
-          throw new Error("Popup blocked. Please allow popups for this site.");
+          throw new Error('Popup blocked. Please allow popups for this site.');
         }
 
         checkTimerRef.current = setInterval(() => {
@@ -91,20 +91,20 @@ export function useOAuth(): UseOAuthReturn {
         }, 1000);
       } catch (err) {
         if (import.meta.env.DEV) {
-          console.error("OAuth Error:", err);
+          console.error('OAuth Error:', err);
         }
-        setError(err instanceof Error ? err.message : "OAuth failed");
+        setError(err instanceof Error ? err.message : 'OAuth failed');
         setIsLoading(false);
       }
     },
-    [],
+    []
   );
 
   return {
     isLoading,
     error,
     loginWithProvider,
-    resetError: () => setError(null),
+    resetError: () => setError(null)
   };
 }
 

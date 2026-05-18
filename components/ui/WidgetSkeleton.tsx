@@ -1,4 +1,4 @@
-import { skeletonBase } from "../../styles/styleUtils";
+import { skeletonBase } from '../../styles/styleUtils';
 
 /**
  * WidgetSkeleton
@@ -37,7 +37,7 @@ export const WidgetSkeletonList = ({ rows = 3 }: { rows?: number }) => (
 export const WidgetSkeleton = {
   Row: WidgetSkeletonRow,
   Bar: WidgetSkeletonBar,
-  List: WidgetSkeletonList,
+  List: WidgetSkeletonList
 };
 
 export default WidgetSkeleton;

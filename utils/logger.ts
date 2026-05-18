@@ -13,7 +13,7 @@ type LogArgs = unknown[];
 interface SentryLike {
   captureException: (
     error: Error,
-    context?: { extra: Record<string, unknown> },
+    context?: { extra: Record<string, unknown> }
   ) => void;
 }
 
@@ -27,13 +27,13 @@ const LOG_LEVELS = {
   DEBUG: 0,
   INFO: 1,
   WARN: 2,
-  ERROR: 3,
+  ERROR: 3
 } as const;
 
 // ─── Logger class ─────────────────────────────────────────────────────────────
 
-const isDevelopment = import.meta.env.MODE === "development";
-const isTest = import.meta.env.MODE === "test";
+const isDevelopment = import.meta.env.MODE === 'development';
+const isTest = import.meta.env.MODE === 'test';
 
 class Logger {
   private readonly level: number;
@@ -45,21 +45,21 @@ class Logger {
   /** Log debug information (development only) */
   debug(message: string, ...args: LogArgs): void {
     if (this.level <= LOG_LEVELS.DEBUG && !isTest) {
-      console.debug("🔍 [DEBUG]", message, ...args);
+      console.debug('🔍 [DEBUG]', message, ...args);
     }
   }
 
   /** Log informational messages (development only) */
   info(message: string, ...args: LogArgs): void {
     if (this.level <= LOG_LEVELS.INFO && !isTest) {
-      console.info("ℹ️ [INFO]", message, ...args);
+      console.info('ℹ️ [INFO]', message, ...args);
     }
   }
 
   /** Log warnings (development only — production warnings go to Sentry via error()) */
   warn(message: string, ...args: LogArgs): void {
     if (this.level <= LOG_LEVELS.WARN && !isTest && import.meta.env.DEV) {
-      console.warn("⚠️ [WARN]", message, ...args);
+      console.warn('⚠️ [WARN]', message, ...args);
     }
   }
 
@@ -70,17 +70,17 @@ class Logger {
    */
   error(message: string, error?: unknown, ...args: LogArgs): void {
     if (!isTest && import.meta.env.DEV) {
-      console.error("❌ [ERROR]", message, error, ...args);
+      console.error('❌ [ERROR]', message, error, ...args);
     }
 
-    if (!isDevelopment && !isTest && typeof window !== "undefined") {
+    if (!isDevelopment && !isTest && typeof window !== 'undefined') {
       const win = window as SentryWindow;
       if (win.Sentry) {
         win.Sentry.captureException(
           error instanceof Error ? error : new Error(message),
           {
-            extra: { args },
-          },
+            extra: { args }
+          }
         );
       }
     }

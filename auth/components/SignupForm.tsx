@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   validateEmail,
   validatePassword,
   validateName,
-  getPasswordStrength,
-} from "../utils/authValidation";
-import { getCurrentAppConfig } from "../config/appConfigs";
-import { getAuthService } from "../services";
+  getPasswordStrength
+} from '../utils/authValidation';
+import { getCurrentAppConfig } from '../config/appConfigs';
+import { getAuthService } from '../services';
 import {
   AuthContainer,
   AuthCardContent,
@@ -17,9 +17,9 @@ import {
   AuthDivider,
   Alert,
   GoogleIcon,
-  PasswordToggleButton,
-} from "./_authUI";
-import { UserIcon } from "../../components/icons";
+  PasswordToggleButton
+} from './_authUI';
+import { UserIcon } from '../../components/icons';
 
 interface SignupFormProps {
   onLogin?: () => void;
@@ -61,21 +61,21 @@ const SignupForm = ({
   isLoading = false,
   error = null,
   authService: providedAuthService = null,
-  appType = "default",
-  loginPath = "/auth/login",
+  appType = 'default',
+  loginPath = '/auth/login',
   onTermsClick,
-  onPrivacyClick,
+  onPrivacyClick
 }: SignupFormProps) => {
   const navigate = useNavigate();
   const appConfig = getCurrentAppConfig(appType);
 
   const [formData, setFormData] = useState<SignupFormData>({
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    agreeToTerms: false,
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    agreeToTerms: false
   });
 
   const [errors, setErrors] = useState<SignupFormErrors>({});
@@ -84,11 +84,11 @@ const SignupForm = ({
     useState<SignupPasswordStrength | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [authService, setAuthService] = useState<AnyAuthService>(
-    () => providedAuthService ?? null,
+    () => providedAuthService ?? null
   );
   useEffect(() => {
     if (!providedAuthService && !authService) {
-      getAuthService().then((svc) => setAuthService(svc));
+      getAuthService().then(svc => setAuthService(svc));
     }
   }, [providedAuthService, authService]);
 
@@ -116,20 +116,20 @@ const SignupForm = ({
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: type === 'checkbox' ? checked : value
     }));
 
     if (errors[name as keyof typeof errors]) {
-      setErrors((prev) => ({
+      setErrors(prev => ({
         ...prev,
-        [name]: "",
+        [name]: ''
       }));
     }
 
-    if (name === "password" && errors.confirmPassword) {
-      setErrors((prev) => ({ ...prev, confirmPassword: "" }));
+    if (name === 'password' && errors.confirmPassword) {
+      setErrors(prev => ({ ...prev, confirmPassword: '' }));
     }
   };
 
@@ -144,13 +144,13 @@ const SignupForm = ({
 
     const emailValidation = validateEmail(formData.email);
     if (!emailValidation.isValid) {
-      setErrors((prev) => ({
+      setErrors(prev => ({
         ...prev,
-        email: emailValidation.errors?.email ?? "Invalid email",
+        email: emailValidation.errors?.email ?? 'Invalid email'
       }));
       return;
     }
-    setErrors((prev) => ({ ...prev, email: "" }));
+    setErrors(prev => ({ ...prev, email: '' }));
 
     // Debounce 400 ms so rapid tab-through doesn't fire multiple requests
     emailCheckTimerRef.current = setTimeout(async () => {
@@ -160,21 +160,21 @@ const SignupForm = ({
       try {
         const result = await authService.checkEmailAvailability(
           formData.email,
-          { signal: controller.signal },
+          { signal: controller.signal }
         );
         if (!result.available) {
-          setErrors((prev) => ({
+          setErrors(prev => ({
             ...prev,
-            email: "Email is already registered",
+            email: 'Email is already registered'
           }));
         }
       } catch (err) {
         // Ignore AbortError (user moved on); surface other errors in dev
         if (
-          (err as { name?: string })?.name !== "AbortError" &&
+          (err as { name?: string })?.name !== 'AbortError' &&
           import.meta.env?.DEV
         ) {
-          console.warn("[SignupForm] Email availability check failed:", err);
+          console.warn('[SignupForm] Email availability check failed:', err);
         }
       } finally {
         setEmailChecking(false);
@@ -186,9 +186,9 @@ const SignupForm = ({
     if (formData.password) {
       const passwordValidation = validatePassword(formData.password);
       if (!passwordValidation.isValid) {
-        setErrors((prev) => ({
+        setErrors(prev => ({
           ...prev,
-          password: passwordValidation.error ?? "Invalid password",
+          password: passwordValidation.error ?? 'Invalid password'
         }));
       }
     }
@@ -197,14 +197,14 @@ const SignupForm = ({
   const handleConfirmPasswordBlur = () => {
     if (formData.password && formData.confirmPassword) {
       if (formData.password !== formData.confirmPassword) {
-        setErrors((prev) => ({
+        setErrors(prev => ({
           ...prev,
-          confirmPassword: "Passwords do not match",
+          confirmPassword: 'Passwords do not match'
         }));
       } else {
-        setErrors((prev) => ({
+        setErrors(prev => ({
           ...prev,
-          confirmPassword: "",
+          confirmPassword: ''
         }));
       }
     }
@@ -224,15 +224,15 @@ const SignupForm = ({
       const result = await svc.googleSignup();
       if (result.success) {
         if (result.requiresVerification) {
-          navigate("/auth/verify-email");
+          navigate('/auth/verify-email');
         } else {
-          navigate("/onboarding");
+          navigate('/onboarding');
         }
       }
     } catch (_error) {
-      setErrors((prev) => ({
+      setErrors(prev => ({
         ...prev,
-        general: "Google signup failed",
+        general: 'Google signup failed'
       }));
     }
   };
@@ -245,31 +245,31 @@ const SignupForm = ({
     // Validate first name
     const firstNameValidation = validateName(formData.firstName);
     if (!firstNameValidation.isValid)
-      newErrors.firstName = firstNameValidation.error ?? "Invalid first name";
+      newErrors.firstName = firstNameValidation.error ?? 'Invalid first name';
 
     // Validate last name
     const lastNameValidation = validateName(formData.lastName);
     if (!lastNameValidation.isValid)
-      newErrors.lastName = lastNameValidation.error ?? "Invalid last name";
+      newErrors.lastName = lastNameValidation.error ?? 'Invalid last name';
 
     // Validate email
     const emailValidation = validateEmail(formData.email);
     if (!emailValidation.isValid)
-      newErrors.email = emailValidation.errors?.email ?? "Invalid email";
+      newErrors.email = emailValidation.errors?.email ?? 'Invalid email';
 
     // Validate password
     const passwordValidation = validatePassword(formData.password);
     if (!passwordValidation.isValid)
-      newErrors.password = passwordValidation.error ?? "Invalid password";
+      newErrors.password = passwordValidation.error ?? 'Invalid password';
 
     // Confirm password match
     if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
+      newErrors.confirmPassword = 'Passwords do not match';
     }
 
     // Check terms agreement
     if (!formData.agreeToTerms) {
-      newErrors.agreeToTerms = "You must agree to the terms and conditions";
+      newErrors.agreeToTerms = 'You must agree to the terms and conditions';
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -278,9 +278,9 @@ const SignupForm = ({
     }
 
     if (!authService) {
-      setErrors((prev) => ({
+      setErrors(prev => ({
         ...prev,
-        general: "Authentication service not available",
+        general: 'Authentication service not available'
       }));
       return;
     }
@@ -298,29 +298,29 @@ const SignupForm = ({
         string,
         SignupFn | undefined
       >;
-      if (!svcAny.signup) throw new Error("signup method not available");
+      if (!svcAny.signup) throw new Error('signup method not available');
       const result = await svcAny.signup({
         firstName: formData.firstName.trim(),
         lastName: formData.lastName.trim(),
         email: formData.email.trim(),
         password: formData.password,
-        acceptTerms: formData.agreeToTerms,
+        acceptTerms: formData.agreeToTerms
       });
 
       if (result.success) {
         if (result.requiresVerification) {
-          navigate("/auth/verify-email", {
-            state: { email: formData.email },
+          navigate('/auth/verify-email', {
+            state: { email: formData.email }
           });
         } else {
-          navigate("/onboarding");
+          navigate('/onboarding');
         }
       }
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Registration failed";
-      setErrors((prev) => ({
+      const msg = err instanceof Error ? err.message : 'Registration failed';
+      setErrors(prev => ({
         ...prev,
-        general: msg,
+        general: msg
       }));
     } finally {
       setIsSubmitting(false);
@@ -335,7 +335,7 @@ const SignupForm = ({
     formData.confirmPassword &&
     formData.password === formData.confirmPassword &&
     formData.agreeToTerms &&
-    Object.keys(errors).filter((key) => errors[key]).length === 0;
+    Object.keys(errors).filter(key => errors[key]).length === 0;
 
   return (
     <AuthContainer maxWidth="md">
@@ -349,7 +349,7 @@ const SignupForm = ({
             {appConfig?.ui?.icon ?? <UserIcon size={40} />}
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">
-            Join {appConfig?.appName ?? "Uni-Manager"}
+            Join {appConfig?.appName ?? 'Uni-Manager'}
           </h2>
           <p className="mt-2 text-sm sm:text-base text-gray-600 dark:text-gray-400">
             Create your account to get started
@@ -360,7 +360,7 @@ const SignupForm = ({
         {(error || errors.general) && (
           <Alert
             type="error"
-            message={error ?? errors.general ?? ""}
+            message={error ?? errors.general ?? ''}
             className="mb-6"
           />
         )}
@@ -446,7 +446,7 @@ const SignupForm = ({
             <AuthInput
               id="password"
               name="password"
-              type={showPassword ? "text" : "password"}
+              type={showPassword ? 'text' : 'password'}
               label="Password"
               value={formData.password}
               onChange={handleChange}
@@ -458,8 +458,8 @@ const SignupForm = ({
               rightElement={
                 <PasswordToggleButton
                   visible={showPassword}
-                  onToggle={() => setShowPassword((v) => !v)}
-                  ariaLabel={showPassword ? "Hide password" : "Show password"}
+                  onToggle={() => setShowPassword(v => !v)}
+                  ariaLabel={showPassword ? 'Hide password' : 'Show password'}
                 />
               }
             />
@@ -475,27 +475,27 @@ const SignupForm = ({
                   <span
                     className={`text-xs font-bold uppercase tracking-wider ${
                       passwordStrength.score >= 3
-                        ? "text-emerald-600 dark:text-emerald-400"
+                        ? 'text-emerald-600 dark:text-emerald-400'
                         : passwordStrength.score >= 2
-                          ? "text-amber-600 dark:text-amber-400"
-                          : "text-rose-600 dark:text-rose-400"
+                          ? 'text-amber-600 dark:text-amber-400'
+                          : 'text-rose-600 dark:text-rose-400'
                     }`}
                   >
                     {passwordStrength.label}
                   </span>
                 </div>
                 <div className="flex gap-1.5 h-1.5">
-                  {[0, 1, 2, 3].map((step) => (
+                  {[0, 1, 2, 3].map(step => (
                     <div
                       key={step}
                       className={`flex-1 rounded-full transition-all duration-500 ease-out ${
                         passwordStrength.score > step
                           ? passwordStrength.score >= 3
-                            ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"
+                            ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]'
                             : passwordStrength.score >= 2
-                              ? "bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]"
-                              : "bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]"
-                          : "bg-gray-200 dark:bg-gray-600"
+                              ? 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]'
+                              : 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]'
+                          : 'bg-gray-200 dark:bg-gray-600'
                       }`}
                     />
                   ))}
@@ -511,7 +511,7 @@ const SignupForm = ({
           <AuthInput
             id="confirmPassword"
             name="confirmPassword"
-            type={showConfirmPassword ? "text" : "password"}
+            type={showConfirmPassword ? 'text' : 'password'}
             label="Confirm password"
             value={formData.confirmPassword}
             onChange={handleChange}
@@ -523,11 +523,11 @@ const SignupForm = ({
             rightElement={
               <PasswordToggleButton
                 visible={showConfirmPassword}
-                onToggle={() => setShowConfirmPassword((v) => !v)}
+                onToggle={() => setShowConfirmPassword(v => !v)}
                 ariaLabel={
                   showConfirmPassword
-                    ? "Hide confirm password"
-                    : "Show confirm password"
+                    ? 'Hide confirm password'
+                    : 'Show confirm password'
                 }
               />
             }
@@ -544,26 +544,26 @@ const SignupForm = ({
                 onChange={handleChange}
                 aria-invalid={!!errors.agreeToTerms}
                 aria-describedby={
-                  errors.agreeToTerms ? "agreeToTerms-error" : undefined
+                  errors.agreeToTerms ? 'agreeToTerms-error' : undefined
                 }
                 className="h-4 w-4 rounded cursor-pointer border-gray-300 dark:border-gray-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--primary-resonance,hsl(272,65%,62%))] mt-1"
                 style={{
-                  accentColor: "var(--primary-resonance, hsl(272,65%,62%))",
+                  accentColor: 'var(--primary-resonance, hsl(272,65%,62%))'
                 }}
               />
               <label
                 htmlFor="agreeToTerms"
                 className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
               >
-                I agree to the{" "}
+                I agree to the{' '}
                 <a
                   href="/terms"
                   className="text-blue-600 hover:text-blue-500 dark:text-blue-400 font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--primary-resonance,hsl(272,65%,62%))] rounded"
                   onClick={onTermsClick}
                 >
                   Terms of Service
-                </a>{" "}
-                and{" "}
+                </a>{' '}
+                and{' '}
                 <a
                   href="/privacy"
                   className="text-blue-600 hover:text-blue-500 dark:text-blue-400 font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--primary-resonance,hsl(272,65%,62%))] rounded"
@@ -592,14 +592,14 @@ const SignupForm = ({
               loading={isSubmitting}
               variant="primary"
             >
-              {isSubmitting ? "Creating account..." : "Create account"}
+              {isSubmitting ? 'Creating account...' : 'Create account'}
             </AuthButton>
           </div>
 
           {/* Login Link */}
           <div className="text-center pt-2">
             <span className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-              Already have an account?{" "}
+              Already have an account?{' '}
               <button
                 type="button"
                 className="font-semibold text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 underline underline-offset-2 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--primary-resonance,hsl(272,65%,62%))] rounded"

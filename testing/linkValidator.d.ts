@@ -20,6 +20,6 @@ export interface LinkValidationResult {
 
 export function validateLinks(
   container: HTMLElement,
-  routes: RouteConfig[],
+  routes: RouteConfig[]
 ): LinkValidationResult;
 export function generateReport(result: LinkValidationResult): string;

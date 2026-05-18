@@ -1,8 +1,8 @@
-import React, { memo } from "react";
-import { WifiOff } from "lucide-react";
-import { glassBorder } from "@shared/styles/styleUtils";
+import React, { memo } from 'react';
+import { WifiOff } from 'lucide-react';
+import { glassBorder } from '@shared/styles/styleUtils';
 
-type PresenceStatus = "available" | "unavailable";
+type PresenceStatus = 'available' | 'unavailable';
 
 interface PresenceToggleProps {
   status: PresenceStatus;
@@ -27,51 +27,51 @@ const PresenceToggle = memo(function PresenceToggle({
   status,
   isConnected,
   onToggle,
-  dotColor,
+  dotColor
 }: PresenceToggleProps) {
   return (
     <button
       onClick={isConnected ? onToggle : undefined}
       disabled={!isConnected}
-      title={!isConnected ? "Status unavailable while offline" : undefined}
+      title={!isConnected ? 'Status unavailable while offline' : undefined}
       style={{
-        marginTop: "7px",
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "5px",
-        padding: "2px 8px",
-        borderRadius: "100px",
-        background: "var(--bg-surface-1, hsla(0,0%,100%,0.04))",
-        cursor: isConnected ? "pointer" : "not-allowed",
+        marginTop: '7px',
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '5px',
+        padding: '2px 8px',
+        borderRadius: '100px',
+        background: 'var(--bg-surface-1, hsla(0,0%,100%,0.04))',
+        cursor: isConnected ? 'pointer' : 'not-allowed',
         opacity: isConnected ? 1 : 0.6,
-        fontSize: "11px",
-        fontWeight: "500",
-        color: "var(--text-secondary)",
-        transition: "all 150ms ease",
-        ...glassBorder,
+        fontSize: '11px',
+        fontWeight: '500',
+        color: 'var(--text-secondary)',
+        transition: 'all 150ms ease',
+        ...glassBorder
       }}
     >
       {isConnected ? (
         <span
           style={{
-            width: "6px",
-            height: "6px",
-            borderRadius: "50%",
+            width: '6px',
+            height: '6px',
+            borderRadius: '50%',
             background: dotColor,
-            flexShrink: 0,
+            flexShrink: 0
           }}
         />
       ) : (
         <WifiOff
           size={10}
-          style={{ color: "var(--color-warning, hsl(38,95%,54%))" }}
+          style={{ color: 'var(--color-warning, hsl(38,95%,54%))' }}
         />
       )}
       {!isConnected
-        ? "Offline"
-        : status === "available"
-          ? "Available"
-          : "Unavailable"}
+        ? 'Offline'
+        : status === 'available'
+          ? 'Available'
+          : 'Unavailable'}
     </button>
   );
 });

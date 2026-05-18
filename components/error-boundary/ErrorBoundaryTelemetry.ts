@@ -1,12 +1,12 @@
-import { getAuthToken } from "../../utils/authToken.js";
-import { collectSystemContext } from "../../features/feedback/utils/collectSystemContext";
+import { getAuthToken } from '../../utils/authToken.js';
+import { collectSystemContext } from '../../features/feedback/utils/collectSystemContext';
 
 type CollectAdvancedFn =
   | ((ctx: Record<string, unknown>) => Record<string, unknown>)
   | null;
 let _collectAdvanced: CollectAdvancedFn = null;
-import("../../features/monitoring/ErrorMonitoring.jsx")
-  .then((m) => {
+import('../../features/monitoring/ErrorMonitoring.jsx')
+  .then(m => {
     _collectAdvanced = m.collectAdvancedErrorContext as CollectAdvancedFn;
   })
   .catch(() => {
@@ -15,18 +15,18 @@ import("../../features/monitoring/ErrorMonitoring.jsx")
 
 // ── Ingest endpoints ──────────────────────────────────────────────────────────
 const _apiOrigin: string =
-  (typeof import.meta !== "undefined" &&
+  (typeof import.meta !== 'undefined' &&
     import.meta.env &&
     import.meta.env.VITE_API_URL) ??
-  "";
+  '';
 const INGEST_ERRORS = `${_apiOrigin}/api/v1/infra/errors/log`;
 const INGEST_FEEDBACK = `${_apiOrigin}/api/v1/integrations/feedback`;
 
 function normaliseEnvironment(
-  mode: string | undefined,
-): "development" | "production" {
-  if (mode === "development") return "development";
-  return "production";
+  mode: string | undefined
+): 'development' | 'production' {
+  if (mode === 'development') return 'development';
+  return 'production';
 }
 
 function hashString(str: string): string {
@@ -35,15 +35,15 @@ function hashString(str: string): string {
     h ^= str.charCodeAt(i);
     h = (h * 0x01000193) >>> 0;
   }
-  return (h >>> 0).toString(16).padStart(8, "0");
+  return (h >>> 0).toString(16).padStart(8, '0');
 }
 
 export function buildErrorId(
   message: string,
   pathname: string,
-  appType: string,
+  appType: string
 ): string {
-  const seed = `${message || "unknown"}-${pathname}-${appType}-${Date.now()}`;
+  const seed = `${message || 'unknown'}-${pathname}-${appType}-${Date.now()}`;
   return `ERR-${hashString(seed).toUpperCase()}`;
 }
 
@@ -57,7 +57,7 @@ export interface UserContext {
 export function getUserContext(): UserContext {
   try {
     let userInfo: Record<string, unknown> = {};
-    for (const key of ["user", "uni_manager_auth", "auth_user"]) {
+    for (const key of ['user', 'uni_manager_auth', 'auth_user']) {
       const raw = localStorage.getItem(key);
       if (!raw) continue;
       try {
@@ -74,14 +74,14 @@ export function getUserContext(): UserContext {
       userEmail: (userInfo.email || userInfo.userEmail || null) as
         | string
         | null,
-      userRole: (userInfo.role || null) as string | null,
+      userRole: (userInfo.role || null) as string | null
     };
   } catch (_) {
     return {
       isAuthenticated: false,
       userId: null,
       userEmail: null,
-      userRole: null,
+      userRole: null
     };
   }
 }
@@ -93,7 +93,7 @@ export interface TelemetryPayload {
   severity: string;
   category: string;
   appType: string;
-  environment: "development" | "production";
+  environment: 'development' | 'production';
   timestamp: string;
   url: string;
   path: string;
@@ -107,32 +107,32 @@ export interface TelemetryPayload {
 export function collectTelemetry(
   error: Error | null,
   errorInfo: React.ErrorInfo | null,
-  appType: string,
+  appType: string
 ): TelemetryPayload {
   const user = getUserContext();
-  const w = typeof window !== "undefined" ? window : null;
-  const n = typeof navigator !== "undefined" ? navigator : null;
-  const s = typeof screen !== "undefined" ? screen : null;
-  const p = typeof performance !== "undefined" ? performance : null;
+  const w = typeof window !== 'undefined' ? window : null;
+  const n = typeof navigator !== 'undefined' ? navigator : null;
+  const s = typeof screen !== 'undefined' ? screen : null;
+  const p = typeof performance !== 'undefined' ? performance : null;
 
   return {
-    message: error?.message || "Unknown error",
-    stack: error?.stack || "",
-    componentStack: errorInfo?.componentStack || "",
-    severity: "critical",
-    category: "rendering",
-    appType: appType || (import.meta as any).env?.VITE_APP_TYPE || "unknown",
+    message: error?.message || 'Unknown error',
+    stack: error?.stack || '',
+    componentStack: errorInfo?.componentStack || '',
+    severity: 'critical',
+    category: 'rendering',
+    appType: appType || (import.meta as any).env?.VITE_APP_TYPE || 'unknown',
     environment: normaliseEnvironment((import.meta as any).env?.MODE),
     timestamp: new Date().toISOString(),
-    url: w?.location.href || "",
-    path: w?.location.pathname || "",
-    userAgent: n?.userAgent || "",
+    url: w?.location.href || '',
+    path: w?.location.pathname || '',
+    userAgent: n?.userAgent || '',
     userId: user.userId,
     userEmail: user.userEmail,
     meta: {
-      appVersion: (import.meta as any).env?.VITE_APP_VERSION || "unknown",
-      userRole: user.userRole || "guest",
-      os: n?.platform || "unknown",
+      appVersion: (import.meta as any).env?.VITE_APP_VERSION || 'unknown',
+      userRole: user.userRole || 'guest',
+      os: n?.platform || 'unknown',
       userContext: user,
       viewport: w ? { width: w.innerWidth, height: w.innerHeight } : null,
       screen: s ? { width: s.width, height: s.height } : null,
@@ -142,32 +142,32 @@ export function collectTelemetry(
             (p as Performance & { memory: { usedJSHeapSize: number } }).memory
               .usedJSHeapSize /
               1024 /
-              1024,
+              1024
           )
-        : null,
-    },
+        : null
+    }
   };
 }
 
 export function flushPendingErrorReports(appType?: string): void {
-  if (typeof localStorage === "undefined") return;
+  if (typeof localStorage === 'undefined') return;
   try {
     const pending = JSON.parse(
-      localStorage.getItem("pendingErrorReports") || "[]",
+      localStorage.getItem('pendingErrorReports') || '[]'
     ) as TelemetryPayload[];
     if (!pending.length) return;
-    localStorage.removeItem("pendingErrorReports");
+    localStorage.removeItem('pendingErrorReports');
     const resolvedType = appType || (import.meta as any).env?.VITE_APP_TYPE;
     const token = getAuthToken(resolvedType);
     const headers: Record<string, string> = {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json'
     };
-    if (token) headers["Authorization"] = `Bearer ${token}`;
-    pending.forEach((report) => {
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    pending.forEach(report => {
       fetch(INGEST_ERRORS, {
-        method: "POST",
+        method: 'POST',
         headers,
-        body: JSON.stringify({ ...report, _retried: true }),
+        body: JSON.stringify({ ...report, _retried: true })
       }).catch(() => {
         /* still failing — drop silently */
       });
@@ -177,12 +177,15 @@ export function flushPendingErrorReports(appType?: string): void {
   }
 }
 
-export function reportError(telemetry: TelemetryPayload, appType: string): void {
+export function reportError(
+  telemetry: TelemetryPayload,
+  appType: string
+): void {
   const token = getAuthToken(appType);
   const headers: Record<string, string> = {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json'
   };
-  if (token) headers["Authorization"] = `Bearer ${token}`;
+  if (token) headers['Authorization'] = `Bearer ${token}`;
 
   let fullMeta = { ...telemetry.meta };
   if (_collectAdvanced) {
@@ -194,8 +197,7 @@ export function reportError(telemetry: TelemetryPayload, appType: string): void 
       browserContext:
         (advanced as Record<string, unknown>).browserContext || null,
       capabilities: (advanced as Record<string, unknown>).capabilities || null,
-      recentActivity:
-        (advanced as Record<string, unknown>).recentActivity || [],
+      recentActivity: (advanced as Record<string, unknown>).recentActivity || []
     };
   }
 
@@ -211,58 +213,58 @@ export function reportError(telemetry: TelemetryPayload, appType: string): void 
           email: telemetry.userEmail,
           name: null,
           role: userRole,
-          appRole: userRole,
+          appRole: userRole
         }
-      : null,
+      : null
   );
 
   const feedbackPayload = {
-    type: "error-report",
+    type: 'error-report',
     priority: 10,
-    category: "bug",
-    severity: "critical",
+    category: 'bug',
+    severity: 'critical',
     userInput: {
       title: `[Auto] Crash: ${telemetry.message}`.substring(0, 200),
       description: [
         `**Error:** ${telemetry.message}`,
-        `**Error ID:** ${telemetry.errorId || "(none)"}`,
+        `**Error ID:** ${telemetry.errorId || '(none)'}`,
         `**App:** ${telemetry.appType}  **Path:** ${telemetry.path}`,
-        "",
-        "**Component Stack:**",
-        "```",
-        telemetry.componentStack || "(unavailable)",
-        "```",
+        '',
+        '**Component Stack:**',
+        '```',
+        telemetry.componentStack || '(unavailable)',
+        '```'
       ]
-        .join("\n")
+        .join('\n')
         .substring(0, 1000),
-      allowContact: false,
+      allowContact: false
     },
     systemContext: {
       ...systemCtx,
-      source: "error-boundary",
+      source: 'error-boundary',
       errors: [
         {
           message: telemetry.message,
           stack: telemetry.stack,
           timestamp: new Date(telemetry.timestamp || Date.now()),
-          level: "error",
-        },
-      ],
+          level: 'error'
+        }
+      ]
     },
-    linkedErrorId: telemetry.errorId,
+    linkedErrorId: telemetry.errorId
   };
 
   Promise.all([
     fetch(INGEST_ERRORS, {
-      method: "POST",
+      method: 'POST',
       headers,
-      body: JSON.stringify(ingestPayload),
+      body: JSON.stringify(ingestPayload)
     }),
     fetch(INGEST_FEEDBACK, {
-      method: "POST",
+      method: 'POST',
       headers,
-      body: JSON.stringify(feedbackPayload),
-    }),
+      body: JSON.stringify(feedbackPayload)
+    })
   ]).catch(() => {
     try {
       const safe = {
@@ -273,15 +275,15 @@ export function reportError(telemetry: TelemetryPayload, appType: string): void 
         appType: telemetry.appType,
         path: telemetry.path,
         timestamp: telemetry.timestamp,
-        environment: telemetry.environment,
+        environment: telemetry.environment
       };
       const pending = JSON.parse(
-        localStorage.getItem("pendingErrorReports") || "[]",
+        localStorage.getItem('pendingErrorReports') || '[]'
       ) as unknown[];
       pending.push(safe);
       localStorage.setItem(
-        "pendingErrorReports",
-        JSON.stringify(pending.slice(-10)),
+        'pendingErrorReports',
+        JSON.stringify(pending.slice(-10))
       );
     } catch (_) {
       /* localStorage unavailable */

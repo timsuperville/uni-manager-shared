@@ -12,14 +12,14 @@
  * Uses inline styles throughout to avoid Tailwind JIT scanning gaps in shared/.
  */
 
-import React, { useState } from "react";
-import { FeedbackModalPortal } from "./FeedbackModal";
-import { FEEDBACK_SOURCES, resolveSource } from "./constants";
-import { useOptionalUser } from "./hooks/useOptionalUser";
-import { collectSystemContext } from "./utils/collectSystemContext";
-import type { FeedbackUser } from "./utils/collectSystemContext";
-import { useFrustrationDetector } from "../../hooks/useFrustrationDetector.js";
-import { getApiBaseUrl } from "../../api/config/apiConfig";
+import React, { useState } from 'react';
+import { FeedbackModalPortal } from './FeedbackModal';
+import { FEEDBACK_SOURCES, resolveSource } from './constants';
+import { useOptionalUser } from './hooks/useOptionalUser';
+import { collectSystemContext } from './utils/collectSystemContext';
+import type { FeedbackUser } from './utils/collectSystemContext';
+import { useFrustrationDetector } from '../../hooks/useFrustrationDetector.js';
+import { getApiBaseUrl } from '../../api/config/apiConfig';
 
 // ─── Schema field limits (must match FeedbackReport Mongoose schema) ──────────
 // Enforced here at the network boundary so no caller can overflow regardless
@@ -28,21 +28,21 @@ const TITLE_MAX = 200;
 const DESC_MAX = 1000;
 
 function trunc(str: string | null | undefined, max: number): string {
-  if (!str || str.length <= max) return str ?? "";
-  return str.slice(0, max - 1) + "\u2026";
+  if (!str || str.length <= max) return str ?? '';
+  return str.slice(0, max - 1) + '\u2026';
 }
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type FabPosition = "bottom-right" | "bottom-left" | "top-right" | "top-left";
+type FabPosition = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
 type Variant =
-  | "sidebar-item"
-  | "sidebar-icon"
-  | "button"
-  | "bottom-nav-item"
-  | "quick-react"
-  | "floating";
-type Sentiment = "positive" | "neutral" | "negative";
+  | 'sidebar-item'
+  | 'sidebar-icon'
+  | 'button'
+  | 'bottom-nav-item'
+  | 'quick-react'
+  | 'floating';
+type Sentiment = 'positive' | 'neutral' | 'negative';
 
 /** Shape of the context object passed to useFrustrationDetector onFrustrated. */
 type FrustrationContext = { signal: string; source: string; path: string };
@@ -70,26 +70,26 @@ export async function submitFeedbackSilently({
   title,
   description,
   appType,
-  severity = "high",
+  severity = 'high',
   user = null,
-  source = null,
+  source = null
 }: SilentSubmitOptions = {}): Promise<void> {
   try {
     const appName =
       appType ??
-      (typeof window !== "undefined"
+      (typeof window !== 'undefined'
         ? (import.meta?.env?.VITE_APP_TYPE as string | undefined)
         : undefined) ??
-      "unknown";
+      'unknown';
 
     const namespaces = [
       appName,
-      "admin",
-      "church",
-      "personal",
-      "home",
-      "work",
-      "uni",
+      'admin',
+      'church',
+      'personal',
+      'home',
+      'work',
+      'uni'
     ].filter(Boolean);
     let authToken: string | null = null;
     for (const ns of namespaces) {
@@ -101,27 +101,27 @@ export async function submitFeedbackSilently({
     }
 
     const headers: Record<string, string> = {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json'
     };
-    if (authToken) headers["Authorization"] = `Bearer ${authToken}`;
+    if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
 
     const systemCtx = collectSystemContext(appName, user ?? null);
     systemCtx.source = resolveSource(source);
 
     await fetch(`${getApiBaseUrl()}/api/v1/integrations/feedback`, {
-      method: "POST",
+      method: 'POST',
       headers,
       body: JSON.stringify({
-        type: "error-report",
-        category: "bug",
+        type: 'error-report',
+        category: 'bug',
         severity,
         userInput: {
           title: trunc(title, TITLE_MAX),
           description: trunc(description, DESC_MAX),
-          allowContact: false,
+          allowContact: false
         },
-        systemContext: systemCtx,
-      }),
+        systemContext: systemCtx
+      })
     });
   } catch {
     // Intentionally silent — never surface auto-report errors to users
@@ -136,7 +136,7 @@ interface ChatBubbleIconProps {
 
 const ChatBubbleIcon: React.FC<ChatBubbleIconProps> = ({
   size = 15,
-  strokeWidth = 1.8,
+  strokeWidth = 1.8
 }) => (
   <svg
     width={size}
@@ -157,24 +157,24 @@ const ChatBubbleIcon: React.FC<ChatBubbleIconProps> = ({
 
 // ─── Public Component ─────────────────────────────────────────────────────────
 export const FeedbackQuickAction: React.FC<FeedbackQuickActionProps> = ({
-  variant = "sidebar-item",
-  position = "bottom-right",
+  variant = 'sidebar-item',
+  position = 'bottom-right',
   appType,
   accentColor,
-  onSubmitSuccess,
+  onSubmitSuccess
 }) => {
   const user = useOptionalUser();
   const [isOpen, setIsOpen] = useState(false);
-  const [prefill, setPrefill] = useState({ title: "", description: "" });
+  const [prefill, setPrefill] = useState({ title: '', description: '' });
   // R4 — 'reacted' declared here so hooks are never called inside a conditional branch
   const [reacted, setReacted] = useState(false);
 
   const appName =
     appType ??
-    (typeof window !== "undefined"
+    (typeof window !== 'undefined'
       ? (import.meta?.env?.VITE_APP_TYPE as string | undefined)
       : undefined) ??
-    "unknown";
+    'unknown';
 
   // Passive frustration detection
   useFrustrationDetector({
@@ -182,11 +182,11 @@ export const FeedbackQuickAction: React.FC<FeedbackQuickActionProps> = ({
     disableInDev: true,
     onFrustrated: ({ signal, source, path }: FrustrationContext) => {
       const title =
-        signal === "rage-click"
+        signal === 'rage-click'
           ? `Repeated click detected on ${path}`
           : `Rapid navigation on ${path}`;
       const description =
-        signal === "rage-click"
+        signal === 'rage-click'
           ? `The user clicked rapidly in the same area, which may indicate a broken interaction or unresponsive element at ${path}.`
           : `The user navigated rapidly across multiple pages starting at ${path}, which may indicate difficulty finding what they need.`;
       setPrefill({ title, description });
@@ -194,11 +194,11 @@ export const FeedbackQuickAction: React.FC<FeedbackQuickActionProps> = ({
         title,
         description,
         appType: appName,
-        severity: "medium",
+        severity: 'medium',
         user,
-        source,
+        source
       });
-    },
+    }
   });
 
   const modalProps = {
@@ -207,46 +207,46 @@ export const FeedbackQuickAction: React.FC<FeedbackQuickActionProps> = ({
     appType: appName,
     user,
     initialTitle: prefill.title,
-    initialDescription: prefill.description,
+    initialDescription: prefill.description
   };
 
   // ── VARIANT: sidebar-item ───────────────────────────────────────────────────
-  if (variant === "sidebar-item") {
-    const accent = accentColor || "var(--primary-resonance, #22d3ee)";
+  if (variant === 'sidebar-item') {
+    const accent = accentColor || 'var(--primary-resonance, #22d3ee)';
     return (
       <>
         <button
           id="feedback-sidebar-trigger"
           onClick={() => setIsOpen(true)}
           style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "10px",
-            width: "100%",
-            padding: "8px 12px",
-            borderRadius: "8px",
-            border: "none",
-            background: "transparent",
-            color: "var(--text-secondary, #94a3b8)",
-            fontSize: "13px",
-            fontWeight: "500",
-            cursor: "pointer",
-            textAlign: "left",
-            transition: "all 150ms ease",
-            fontFamily: "var(--font-body, inherit)",
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            width: '100%',
+            padding: '8px 12px',
+            borderRadius: '8px',
+            border: 'none',
+            background: 'transparent',
+            color: 'var(--text-secondary, #94a3b8)',
+            fontSize: '13px',
+            fontWeight: '500',
+            cursor: 'pointer',
+            textAlign: 'left',
+            transition: 'all 150ms ease',
+            fontFamily: 'var(--font-body, inherit)'
           }}
-          onMouseEnter={(e) => {
+          onMouseEnter={e => {
             e.currentTarget.style.background =
-              "var(--nav-hover, rgba(255,255,255,0.06))";
+              'var(--nav-hover, rgba(255,255,255,0.06))';
             e.currentTarget.style.color = accent;
           }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = "transparent";
-            e.currentTarget.style.color = "var(--text-secondary, #94a3b8)";
+          onMouseLeave={e => {
+            e.currentTarget.style.background = 'transparent';
+            e.currentTarget.style.color = 'var(--text-secondary, #94a3b8)';
           }}
           title="Share feedback or report a bug"
         >
-          <span style={{ color: "var(--text-muted, #64748b)", flexShrink: 0 }}>
+          <span style={{ color: 'var(--text-muted, #64748b)', flexShrink: 0 }}>
             <ChatBubbleIcon />
           </span>
           <span>Share Feedback</span>
@@ -257,8 +257,8 @@ export const FeedbackQuickAction: React.FC<FeedbackQuickActionProps> = ({
   }
 
   // ── VARIANT: sidebar-icon ───────────────────────────────────────────────────
-  if (variant === "sidebar-icon") {
-    const accent = accentColor || "var(--primary-resonance, #22d3ee)";
+  if (variant === 'sidebar-icon') {
+    const accent = accentColor || 'var(--primary-resonance, #22d3ee)';
     return (
       <>
         <button
@@ -266,26 +266,26 @@ export const FeedbackQuickAction: React.FC<FeedbackQuickActionProps> = ({
           onClick={() => setIsOpen(true)}
           title="Share Feedback"
           style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: "100%",
-            padding: "10px",
-            borderRadius: "8px",
-            border: "none",
-            background: "transparent",
-            color: "var(--text-muted, #64748b)",
-            cursor: "pointer",
-            transition: "all 150ms ease",
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '100%',
+            padding: '10px',
+            borderRadius: '8px',
+            border: 'none',
+            background: 'transparent',
+            color: 'var(--text-muted, #64748b)',
+            cursor: 'pointer',
+            transition: 'all 150ms ease'
           }}
-          onMouseEnter={(e) => {
+          onMouseEnter={e => {
             e.currentTarget.style.background =
-              "var(--nav-hover, rgba(255,255,255,0.06))";
+              'var(--nav-hover, rgba(255,255,255,0.06))';
             e.currentTarget.style.color = accent;
           }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = "transparent";
-            e.currentTarget.style.color = "var(--text-muted, #64748b)";
+          onMouseLeave={e => {
+            e.currentTarget.style.background = 'transparent';
+            e.currentTarget.style.color = 'var(--text-muted, #64748b)';
           }}
         >
           <ChatBubbleIcon />
@@ -296,34 +296,34 @@ export const FeedbackQuickAction: React.FC<FeedbackQuickActionProps> = ({
   }
 
   // ── VARIANT: button ─────────────────────────────────────────────────────────
-  if (variant === "button") {
+  if (variant === 'button') {
     return (
       <>
         <button
           id="feedback-header-trigger"
           onClick={() => setIsOpen(true)}
           style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "6px",
-            padding: "6px 12px",
-            borderRadius: "8px",
-            border: "1px solid rgba(128,128,128,0.25)",
-            background: "transparent",
-            color: "var(--text-secondary, #64748b)",
-            fontSize: "13px",
-            fontWeight: "500",
-            cursor: "pointer",
-            transition: "all 150ms ease",
-            fontFamily: "var(--font-body, inherit)",
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '6px 12px',
+            borderRadius: '8px',
+            border: '1px solid rgba(128,128,128,0.25)',
+            background: 'transparent',
+            color: 'var(--text-secondary, #64748b)',
+            fontSize: '13px',
+            fontWeight: '500',
+            cursor: 'pointer',
+            transition: 'all 150ms ease',
+            fontFamily: 'var(--font-body, inherit)'
           }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = "rgba(128,128,128,0.1)";
-            e.currentTarget.style.color = "var(--text-primary, inherit)";
+          onMouseEnter={e => {
+            e.currentTarget.style.background = 'rgba(128,128,128,0.1)';
+            e.currentTarget.style.color = 'var(--text-primary, inherit)';
           }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = "transparent";
-            e.currentTarget.style.color = "var(--text-secondary, #64748b)";
+          onMouseLeave={e => {
+            e.currentTarget.style.background = 'transparent';
+            e.currentTarget.style.color = 'var(--text-secondary, #64748b)';
           }}
         >
           <ChatBubbleIcon />
@@ -335,48 +335,48 @@ export const FeedbackQuickAction: React.FC<FeedbackQuickActionProps> = ({
   }
 
   // ── VARIANT: bottom-nav-item ────────────────────────────────────────────────
-  if (variant === "bottom-nav-item") {
-    const accent = accentColor || "var(--primary-resonance, #22d3ee)";
+  if (variant === 'bottom-nav-item') {
+    const accent = accentColor || 'var(--primary-resonance, #22d3ee)';
     return (
       <>
         <button
           id="feedback-bottom-nav-trigger"
           onClick={() => setIsOpen(true)}
           style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "12px",
-            width: "100%",
-            padding: "12px 16px",
-            borderRadius: "12px",
-            border: "none",
-            background: "transparent",
-            color: "var(--text-secondary, #94a3b8)",
-            fontSize: "14px",
-            fontWeight: "500",
-            cursor: "pointer",
-            textAlign: "left",
-            fontFamily: "var(--font-body, inherit)",
-            transition: "background 150ms ease",
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            width: '100%',
+            padding: '12px 16px',
+            borderRadius: '12px',
+            border: 'none',
+            background: 'transparent',
+            color: 'var(--text-secondary, #94a3b8)',
+            fontSize: '14px',
+            fontWeight: '500',
+            cursor: 'pointer',
+            textAlign: 'left',
+            fontFamily: 'var(--font-body, inherit)',
+            transition: 'background 150ms ease'
           }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = "rgba(255,255,255,0.06)";
+          onMouseEnter={e => {
+            e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
           }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = "transparent";
+          onMouseLeave={e => {
+            e.currentTarget.style.background = 'transparent';
           }}
         >
           <span
             style={{
-              width: "36px",
-              height: "36px",
-              borderRadius: "10px",
-              background: "var(--primary-subtle, rgba(99,102,241,0.12))",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
+              width: '36px',
+              height: '36px',
+              borderRadius: '10px',
+              background: 'var(--primary-subtle, rgba(99,102,241,0.12))',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
               color: accent,
-              flexShrink: 0,
+              flexShrink: 0
             }}
           >
             <ChatBubbleIcon size={18} />
@@ -384,15 +384,15 @@ export const FeedbackQuickAction: React.FC<FeedbackQuickActionProps> = ({
           <div>
             <div
               style={{
-                color: "var(--text-primary, #f1f5f9)",
-                fontSize: "14px",
-                fontWeight: "500",
+                color: 'var(--text-primary, #f1f5f9)',
+                fontSize: '14px',
+                fontWeight: '500'
               }}
             >
               Share Feedback
             </div>
             <div
-              style={{ color: "var(--text-muted, #64748b)", fontSize: "12px" }}
+              style={{ color: 'var(--text-muted, #64748b)', fontSize: '12px' }}
             >
               Report a bug or suggest a feature
             </div>
@@ -404,17 +404,17 @@ export const FeedbackQuickAction: React.FC<FeedbackQuickActionProps> = ({
   }
 
   // ── VARIANT: quick-react ────────────────────────────────────────────────────
-  if (variant === "quick-react") {
+  if (variant === 'quick-react') {
     const handleReact = (emoji: string, sentiment: Sentiment) => {
       if (reacted) return;
-      if (sentiment === "positive") {
+      if (sentiment === 'positive') {
         setReacted(true);
         void submitFeedbackSilently({
           title: `Quick reaction: ${emoji}`,
           description: `User gave a positive quick reaction on ${window.location.pathname}`,
           appType: appName,
-          severity: "low",
-          source: FEEDBACK_SOURCES.MANUAL,
+          severity: 'low',
+          source: FEEDBACK_SOURCES.MANUAL
         });
       } else {
         setIsOpen(true);
@@ -426,9 +426,9 @@ export const FeedbackQuickAction: React.FC<FeedbackQuickActionProps> = ({
         {reacted ? (
           <span
             style={{
-              fontSize: "12px",
-              color: "var(--text-secondary, #64748b)",
-              padding: "4px 8px",
+              fontSize: '12px',
+              color: 'var(--text-secondary, #64748b)',
+              padding: '4px 8px'
             }}
           >
             Thanks! 🙌
@@ -436,32 +436,32 @@ export const FeedbackQuickAction: React.FC<FeedbackQuickActionProps> = ({
         ) : (
           <div
             style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "4px",
-              background: "rgba(128,128,128,0.06)",
-              borderRadius: "20px",
-              padding: "4px 8px",
-              border: "1px solid rgba(128,128,128,0.15)",
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px',
+              background: 'rgba(128,128,128,0.06)',
+              borderRadius: '20px',
+              padding: '4px 8px',
+              border: '1px solid rgba(128,128,128,0.15)'
             }}
           >
             {(
               [
                 {
-                  emoji: "😊",
-                  label: "Great",
-                  sentiment: "positive" as Sentiment,
+                  emoji: '😊',
+                  label: 'Great',
+                  sentiment: 'positive' as Sentiment
                 },
                 {
-                  emoji: "😐",
-                  label: "Okay",
-                  sentiment: "neutral" as Sentiment,
+                  emoji: '😐',
+                  label: 'Okay',
+                  sentiment: 'neutral' as Sentiment
                 },
                 {
-                  emoji: "😤",
-                  label: "Frustrating",
-                  sentiment: "negative" as Sentiment,
-                },
+                  emoji: '😤',
+                  label: 'Frustrating',
+                  sentiment: 'negative' as Sentiment
+                }
               ] as const
             ).map(({ emoji, label, sentiment }) => (
               <button
@@ -470,20 +470,20 @@ export const FeedbackQuickAction: React.FC<FeedbackQuickActionProps> = ({
                 title={label}
                 onClick={() => handleReact(emoji, sentiment)}
                 style={{
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  fontSize: "18px",
-                  padding: "2px 4px",
-                  borderRadius: "6px",
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '18px',
+                  padding: '2px 4px',
+                  borderRadius: '6px',
                   lineHeight: 1,
-                  transition: "transform 120ms ease",
+                  transition: 'transform 120ms ease'
                 }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.transform = "scale(1.25)")
+                onMouseEnter={e =>
+                  (e.currentTarget.style.transform = 'scale(1.25)')
                 }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.transform = "scale(1)")
+                onMouseLeave={e =>
+                  (e.currentTarget.style.transform = 'scale(1)')
                 }
               >
                 {emoji}
@@ -504,41 +504,41 @@ export const FeedbackQuickAction: React.FC<FeedbackQuickActionProps> = ({
 
   // ── VARIANT: floating (FAB) ─────────────────────────────────────────────────
   const positionMap: Record<FabPosition, React.CSSProperties> = {
-    "bottom-right": { bottom: "24px", right: "24px" },
-    "bottom-left": { bottom: "24px", left: "24px" },
-    "top-right": { top: "24px", right: "24px" },
-    "top-left": { top: "24px", left: "24px" },
+    'bottom-right': { bottom: '24px', right: '24px' },
+    'bottom-left': { bottom: '24px', left: '24px' },
+    'top-right': { top: '24px', right: '24px' },
+    'top-left': { top: '24px', left: '24px' }
   };
 
   return (
     <>
-      <div style={{ position: "fixed", zIndex: 40, ...positionMap[position] }}>
+      <div style={{ position: 'fixed', zIndex: 40, ...positionMap[position] }}>
         <button
           id="feedback-fab-trigger"
           onClick={() => setIsOpen(true)}
           title="Send Feedback"
           style={{
-            width: "48px",
-            height: "48px",
-            borderRadius: "50%",
+            width: '48px',
+            height: '48px',
+            borderRadius: '50%',
             background:
-              "linear-gradient(135deg, var(--primary-resonance), var(--primary-hover, var(--primary-resonance)))",
-            border: "none",
-            color: "#fff",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            boxShadow: "0 4px 20px var(--primary-glow, rgba(0,0,0,0.3))",
-            transition: "transform 150ms ease, box-shadow 150ms ease",
+              'linear-gradient(135deg, var(--primary-resonance), var(--primary-hover, var(--primary-resonance)))',
+            border: 'none',
+            color: '#fff',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 4px 20px var(--primary-glow, rgba(0,0,0,0.3))',
+            transition: 'transform 150ms ease, box-shadow 150ms ease'
           }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = "scale(1.08)";
-            e.currentTarget.style.boxShadow = "0 6px 28px rgba(0,0,0,0.4)";
+          onMouseEnter={e => {
+            e.currentTarget.style.transform = 'scale(1.08)';
+            e.currentTarget.style.boxShadow = '0 6px 28px rgba(0,0,0,0.4)';
           }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = "scale(1)";
-            e.currentTarget.style.boxShadow = "0 4px 20px rgba(0,0,0,0.3)";
+          onMouseLeave={e => {
+            e.currentTarget.style.transform = 'scale(1)';
+            e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.3)';
           }}
         >
           <ChatBubbleIcon size={20} strokeWidth={2} />
@@ -552,4 +552,4 @@ export const FeedbackQuickAction: React.FC<FeedbackQuickActionProps> = ({
 export default FeedbackQuickAction;
 
 // Re-export constants so consumers can import from one place
-export { FEEDBACK_SOURCES } from "./constants";
+export { FEEDBACK_SOURCES } from './constants';

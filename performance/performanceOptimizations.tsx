@@ -11,8 +11,8 @@ import React, {
   Component,
   ComponentType,
   ReactNode,
-  ErrorInfo,
-} from "react";
+  ErrorInfo
+} from 'react';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -46,7 +46,7 @@ interface OptimizedListProps<T extends OptimizedListItem> {
 
 interface OptimizedSearchInputProps extends Omit<
   React.InputHTMLAttributes<HTMLInputElement>,
-  "onChange"
+  'onChange'
 > {
   onSearch: (value: string) => void;
   placeholder?: string;
@@ -70,7 +70,7 @@ interface LazyImageResult {
 
 export function withMemo<P extends object>(
   WrappedComponent: ComponentType<P>,
-  customCompare?: (prev: P, next: P) => boolean,
+  customCompare?: (prev: P, next: P) => boolean
 ): ComponentType<P> {
   const MemoizedComponent = memo(WrappedComponent, customCompare);
   MemoizedComponent.displayName = `Memoized(${WrappedComponent.displayName ?? WrappedComponent.name})`;
@@ -81,7 +81,7 @@ export function withMemo<P extends object>(
 
 export function withLazyLoading<P extends object>(
   importFunc: () => Promise<{ default: ComponentType<P> }>,
-  fallback: ReactNode = <div>Loading...</div>,
+  fallback: ReactNode = <div>Loading...</div>
 ): ComponentType<P> {
   const LazyComponent = lazy(importFunc);
 
@@ -91,7 +91,7 @@ export function withLazyLoading<P extends object>(
     </Suspense>
   );
 
-  LazyWrapper.displayName = "LazyWrapper";
+  LazyWrapper.displayName = 'LazyWrapper';
   return LazyWrapper;
 }
 
@@ -114,7 +114,7 @@ export function useDebounce<T>(value: T, delay: number): T {
 
 export function useThrottle<Args extends unknown[]>(
   callback: (...args: Args) => void,
-  delay: number,
+  delay: number
 ): (...args: Args) => void {
   const [isThrottled, setIsThrottled] = useState(false);
 
@@ -126,7 +126,7 @@ export function useThrottle<Args extends unknown[]>(
         setTimeout(() => setIsThrottled(false), delay);
       }
     },
-    [callback, delay, isThrottled],
+    [callback, delay, isThrottled]
   );
 
   return throttledCallback;
@@ -137,7 +137,7 @@ export function useThrottle<Args extends unknown[]>(
 export function useVirtualList<T extends OptimizedListItem>(
   items: T[],
   containerHeight: number,
-  itemHeight: number,
+  itemHeight: number
 ): VirtualListResult<T> {
   const [scrollTop, setScrollTop] = useState(0);
 
@@ -145,7 +145,7 @@ export function useVirtualList<T extends OptimizedListItem>(
     const startIndex = Math.floor(scrollTop / itemHeight);
     const endIndex = Math.min(
       startIndex + Math.ceil(containerHeight / itemHeight) + 1,
-      items.length,
+      items.length
     );
     return { startIndex, endIndex };
   }, [scrollTop, itemHeight, containerHeight, items.length]);
@@ -156,9 +156,9 @@ export function useVirtualList<T extends OptimizedListItem>(
         .slice(visibleRange.startIndex, visibleRange.endIndex)
         .map((item, index) => ({
           ...item,
-          index: visibleRange.startIndex + index,
+          index: visibleRange.startIndex + index
         })),
-    [items, visibleRange.startIndex, visibleRange.endIndex],
+    [items, visibleRange.startIndex, visibleRange.endIndex]
   );
 
   const totalHeight = items.length * itemHeight;
@@ -171,7 +171,7 @@ export function useVirtualList<T extends OptimizedListItem>(
 
 export function useLazyImage(
   src: string,
-  placeholder: string,
+  placeholder: string
 ): LazyImageResult {
   const [imageSrc, setImageSrc] = useState(placeholder);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -179,7 +179,7 @@ export function useLazyImage(
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      (entries) => {
+      entries => {
         if (entries[0].isIntersecting) {
           const img = new Image();
           img.onload = () => {
@@ -190,7 +190,7 @@ export function useLazyImage(
           observer.disconnect();
         }
       },
-      { threshold: 0.1 },
+      { threshold: 0.1 }
     );
 
     if (imgRef.current) observer.observe(imgRef.current);
@@ -205,14 +205,14 @@ export function useLazyImage(
 export function createAsyncComponent<P extends object>(
   importFunc: () => Promise<
     { default: ComponentType<P> } | { [key: string]: ComponentType<P> }
-  >,
+  >
 ): React.LazyExoticComponent<ComponentType<P>> {
   return lazy(() =>
-    importFunc().then((module) => ({
+    importFunc().then(module => ({
       default:
         (module as { default: ComponentType<P> }).default ??
-        (module as unknown as ComponentType<P>),
-    })),
+        (module as unknown as ComponentType<P>)
+    }))
   );
 }
 
@@ -258,7 +258,7 @@ export class PerformanceErrorBoundary extends Component<
 
 export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
   children,
-  componentName: _componentName,
+  componentName: _componentName
 }) => {
   useEffect(() => {
     const startTime = performance.now();
@@ -266,7 +266,7 @@ export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
       const renderTime = performance.now() - startTime;
       if (renderTime > 16 && import.meta.env.DEV) {
         console.warn(
-          `[Performance] ${_componentName} render took ${renderTime.toFixed(2)}ms`,
+          `[Performance] ${_componentName} render took ${renderTime.toFixed(2)}ms`
         );
       }
     };
@@ -282,27 +282,27 @@ function OptimizedListInner<T extends OptimizedListItem>({
   containerHeight = 400,
   itemHeight = 50,
   keyExtractor = (item: T, index: number) =>
-    (item.id as string | number) ?? index,
+    (item.id as string | number) ?? index
 }: OptimizedListProps<T>) {
   const { visibleItems, totalHeight, offsetY, setScrollTop } = useVirtualList(
     items,
     containerHeight,
-    itemHeight,
+    itemHeight
   );
 
   const handleScroll = useCallback(
     (e: React.UIEvent<HTMLDivElement>) => {
       setScrollTop((e.target as HTMLDivElement).scrollTop);
     },
-    [setScrollTop],
+    [setScrollTop]
   );
 
   return (
     <div
-      style={{ height: containerHeight, overflow: "auto" }}
+      style={{ height: containerHeight, overflow: 'auto' }}
       onScroll={handleScroll}
     >
-      <div style={{ height: totalHeight, position: "relative" }}>
+      <div style={{ height: totalHeight, position: 'relative' }}>
         <div style={{ transform: `translateY(${offsetY}px)` }}>
           {visibleItems.map((item, index) => (
             <div key={keyExtractor(item, index)} style={{ height: itemHeight }}>
@@ -316,19 +316,19 @@ function OptimizedListInner<T extends OptimizedListItem>({
 }
 
 export const OptimizedList = memo(
-  OptimizedListInner,
+  OptimizedListInner
 ) as typeof OptimizedListInner;
-(OptimizedList as { displayName?: string }).displayName = "OptimizedList";
+(OptimizedList as { displayName?: string }).displayName = 'OptimizedList';
 
 // ── OptimizedSearchInput ──────────────────────────────────────────────────────
 
 const OptimizedSearchInputInner: React.FC<OptimizedSearchInputProps> = ({
   onSearch,
-  placeholder = "Search...",
+  placeholder = 'Search...',
   debounceMs = 300,
   ...props
 }) => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearchTerm = useDebounce(searchTerm, debounceMs);
 
   useEffect(() => {
@@ -351,7 +351,7 @@ const OptimizedSearchInputInner: React.FC<OptimizedSearchInputProps> = ({
 };
 
 export const OptimizedSearchInput = memo(OptimizedSearchInputInner);
-OptimizedSearchInput.displayName = "OptimizedSearchInput";
+OptimizedSearchInput.displayName = 'OptimizedSearchInput';
 
 // ── Default export (barrel object) ───────────────────────────────────────────
 
@@ -366,5 +366,5 @@ export default {
   PerformanceErrorBoundary,
   PerformanceMonitor,
   OptimizedList,
-  OptimizedSearchInput,
+  OptimizedSearchInput
 };

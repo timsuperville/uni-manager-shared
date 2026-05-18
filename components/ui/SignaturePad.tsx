@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect } from 'react';
 
 export interface SignaturePadProps {
   value?: string;
@@ -20,13 +20,13 @@ export function SignaturePad({ value, onChange, required }: SignaturePadProps) {
     canvas.width = canvas.offsetWidth || 400;
     canvas.height = canvas.offsetHeight || 150;
 
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
     ctx.lineWidth = 3;
-    ctx.strokeStyle = "var(--text-primary, #ffffff)";
+    ctx.strokeStyle = 'var(--text-primary, #ffffff)';
 
     // If there's an existing signature (from profile/form data), draw it
     if (value) {
@@ -43,7 +43,7 @@ export function SignaturePad({ value, onChange, required }: SignaturePadProps) {
   const startDrawing = (e: React.MouseEvent | React.TouchEvent) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
     setIsDrawing(true);
@@ -57,7 +57,7 @@ export function SignaturePad({ value, onChange, required }: SignaturePadProps) {
     if (!isDrawing) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
     const pos = getPos(e, canvas);
@@ -74,28 +74,28 @@ export function SignaturePad({ value, onChange, required }: SignaturePadProps) {
     // Save state
     const canvas = canvasRef.current;
     if (canvas) {
-      onChange(canvas.toDataURL("image/png"));
+      onChange(canvas.toDataURL('image/png'));
     }
   };
 
   const clear = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext('2d');
     if (!ctx) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     setIsEmpty(true);
-    onChange("");
+    onChange('');
   };
 
   const getPos = (
     e: React.MouseEvent | React.TouchEvent,
-    canvas: HTMLCanvasElement,
+    canvas: HTMLCanvasElement
   ) => {
     const rect = canvas.getBoundingClientRect();
     let clientX, clientY;
 
-    if ("touches" in e) {
+    if ('touches' in e) {
       const touch = e.touches[0];
       clientX = touch?.clientX ?? 0;
       clientY = touch?.clientY ?? 0;
@@ -106,7 +106,7 @@ export function SignaturePad({ value, onChange, required }: SignaturePadProps) {
 
     return {
       x: ((clientX - rect.left) / rect.width) * canvas.width,
-      y: ((clientY - rect.top) / rect.height) * canvas.height,
+      y: ((clientY - rect.top) / rect.height) * canvas.height
     };
   };
 
@@ -115,8 +115,8 @@ export function SignaturePad({ value, onChange, required }: SignaturePadProps) {
       <div
         className="relative rounded-xl overflow-hidden"
         style={{
-          background: "rgba(255,255,255,0.05)",
-          border: `1px solid ${isEmpty && required ? "var(--color-error-base, #f87171)" : "rgba(255,255,255,0.15)"}`,
+          background: 'rgba(255,255,255,0.05)',
+          border: `1px solid ${isEmpty && required ? 'var(--color-error-base, #f87171)' : 'rgba(255,255,255,0.15)'}`
         }}
       >
         <canvas
@@ -129,12 +129,12 @@ export function SignaturePad({ value, onChange, required }: SignaturePadProps) {
           onTouchMove={draw}
           onTouchEnd={endDrawing}
           className="w-full h-[150px] touch-none cursor-crosshair"
-          style={{ display: "block" }}
+          style={{ display: 'block' }}
         />
         {isEmpty && (
           <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
             <span
-              style={{ color: "var(--text-muted)" }}
+              style={{ color: 'var(--text-muted)' }}
               className="text-sm select-none"
             >
               Draw your signature here
@@ -147,7 +147,7 @@ export function SignaturePad({ value, onChange, required }: SignaturePadProps) {
           type="button"
           onClick={clear}
           className="text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors hover:bg-white/5"
-          style={{ color: "var(--text-muted)" }}
+          style={{ color: 'var(--text-muted)' }}
         >
           Clear Signature
         </button>

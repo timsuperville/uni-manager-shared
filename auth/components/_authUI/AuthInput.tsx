@@ -1,10 +1,10 @@
-import React from "react";
+import React from 'react';
 import {
   textSecondary,
   textMuted,
   inputBase,
-  errorSurface,
-} from "../../../styles/styleUtils";
+  errorSurface
+} from '../../../styles/styleUtils';
 
 interface AuthInputProps {
   id: string;
@@ -34,7 +34,7 @@ interface AuthInputProps {
 export const AuthInput = ({
   id,
   name,
-  type = "text",
+  type = 'text',
   label,
   value,
   onChange,
@@ -46,7 +46,7 @@ export const AuthInput = ({
   autoFocus = false,
   disabled = false,
   icon,
-  rightElement,
+  rightElement
 }: AuthInputProps) => {
   const errorId = `${id}-error`;
 
@@ -88,19 +88,19 @@ export const AuthInput = ({
           autoComplete={autoComplete}
           autoFocus={autoFocus}
           disabled={disabled}
-          className={`block w-full ${icon ? "pl-10" : "pl-4"} ${rightElement ? "pr-10" : "pr-4"} py-3 sm:py-3.5 text-sm sm:text-base rounded-xl shadow-sm focus:outline-none transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-white/5 border ${error ? "border-red-500 bg-red-50 dark:bg-red-500/10" : "border-gray-200 dark:border-white/10"} text-gray-900 dark:text-[var(--text-primary,#f1f5f9)] placeholder-gray-400 dark:placeholder-gray-500`}
-          onFocus={(e) => {
+          className={`block w-full ${icon ? 'pl-10' : 'pl-4'} ${rightElement ? 'pr-10' : 'pr-4'} py-3 sm:py-3.5 text-sm sm:text-base rounded-xl shadow-sm focus:outline-none transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-white/5 border ${error ? 'border-red-500 bg-red-50 dark:bg-red-500/10' : 'border-gray-200 dark:border-white/10'} text-gray-900 dark:text-[var(--text-primary,#f1f5f9)] placeholder-gray-400 dark:placeholder-gray-500`}
+          onFocus={e => {
             if (!error) {
               e.target.style.borderColor =
-                "var(--glass-outline-active, hsla(272,65%,62%,0.5))";
+                'var(--glass-outline-active, hsla(272,65%,62%,0.5))';
               e.target.style.boxShadow =
-                "0 0 0 3px var(--primary-glow, hsla(272,65%,62%,0.14))";
+                '0 0 0 3px var(--primary-glow, hsla(272,65%,62%,0.14))';
             }
           }}
-          onBlurCapture={(e) => {
+          onBlurCapture={e => {
             if (!error) {
-              e.target.style.borderColor = "";
-              e.target.style.boxShadow = "none";
+              e.target.style.borderColor = '';
+              e.target.style.boxShadow = 'none';
             }
             onBlur?.(e);
           }}

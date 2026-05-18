@@ -8,11 +8,11 @@ export {
   getSharedEnvironmentConfig,
   getApiBaseUrl,
   getAppUrl,
-  getWebSocketUrl,
-} from "./environment.js";
+  getWebSocketUrl
+} from './environment.js';
 
 // Bundle optimization helpers (Vite build-time only — not imported at runtime)
 // Export if needed:  export { createOptimizedConfig, BundleAnalyzer } from "./bundleOptimization.js";
 
-export { PLATFORM_CONFIG } from "./platformConfig";
-export type { PlatformConfig } from "./platformConfig";
+export { PLATFORM_CONFIG } from './platformConfig';
+export type { PlatformConfig } from './platformConfig';

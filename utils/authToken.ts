@@ -11,19 +11,19 @@
  */
 
 const TOKEN_NAMESPACES = [
-  "admin",
-  "home",
-  "church",
-  "personal",
-  "work",
-  "uni",
+  'admin',
+  'home',
+  'church',
+  'personal',
+  'work',
+  'uni'
 ] as const;
 type TokenNamespace = (typeof TOKEN_NAMESPACES)[number];
 
 export function getAuthToken(appType?: string): string | null {
-  if (typeof window === "undefined") return null;
+  if (typeof window === 'undefined') return null;
   const namespaces: string[] = [appType, ...TOKEN_NAMESPACES].filter(
-    (ns): ns is string => typeof ns === "string" && ns.length > 0,
+    (ns): ns is string => typeof ns === 'string' && ns.length > 0
   );
   // Deduplicate in case appType is already in the namespaces list
   const seen = new Set<string>();

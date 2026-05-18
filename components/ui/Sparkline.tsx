@@ -4,7 +4,7 @@
  */
 
 interface SparklineProps<
-  T extends Record<string, unknown> = Record<string, number>,
+  T extends Record<string, unknown> = Record<string, number>
 > {
   data?: T[];
   dataKey: keyof T;
@@ -16,13 +16,13 @@ interface SparklineProps<
 export function Sparkline<T extends Record<string, number>>({
   data = [],
   dataKey,
-  color = "var(--color-primary, #6366f1)",
+  color = 'var(--color-primary, #6366f1)',
   height = 60,
-  className = "",
+  className = ''
 }: SparklineProps<T>) {
   if (!data.length) return null;
 
-  const values = data.map((d) => (d[dataKey] as number) ?? 0);
+  const values = data.map(d => (d[dataKey] as number) ?? 0);
   const min = Math.min(...values);
   const max = Math.max(...values);
   const range = max - min || 1;
@@ -38,7 +38,7 @@ export function Sparkline<T extends Record<string, number>>({
   return (
     <svg
       viewBox={`0 0 ${W} ${H}`}
-      style={{ width: "100%", height }}
+      style={{ width: '100%', height }}
       preserveAspectRatio="none"
       aria-hidden="true"
       className={className}
@@ -49,10 +49,10 @@ export function Sparkline<T extends Record<string, number>>({
         strokeWidth={1.5}
         strokeLinecap="round"
         strokeLinejoin="round"
-        points={pts.join(" ")}
+        points={pts.join(' ')}
       />
       <polygon
-        points={`0,${H} ${pts.join(" ")} ${W},${H}`}
+        points={`0,${H} ${pts.join(' ')} ${W},${H}`}
         fill={color}
         fillOpacity={0.08}
       />

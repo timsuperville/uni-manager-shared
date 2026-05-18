@@ -1,6 +1,6 @@
-import { useCallback, useState } from "react";
-import { useAuth } from "./useAuth";
-import type { LoginFormData } from "../types/auth.types";
+import { useCallback, useState } from 'react';
+import { useAuth } from './useAuth';
+import type { LoginFormData } from '../types/auth.types';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -15,9 +15,9 @@ interface UseLoginReturn {
 }
 
 const INITIAL_FORM: LoginFormData = {
-  email: "",
-  password: "",
-  rememberMe: false,
+  email: '',
+  password: '',
+  rememberMe: false
 };
 
 // ── Hook ──────────────────────────────────────────────────────────────────────
@@ -34,9 +34,9 @@ export function useLogin(): UseLoginReturn {
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
-    setForm((prev) => ({
+    setForm(prev => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: type === 'checkbox' ? checked : value
     }));
     setLocalError(null);
   }, []);
@@ -51,7 +51,7 @@ export function useLogin(): UseLoginReturn {
       e?.preventDefault?.();
 
       if (!form.email || !form.password) {
-        setLocalError("Email and password are required");
+        setLocalError('Email and password are required');
         return;
       }
 
@@ -59,16 +59,16 @@ export function useLogin(): UseLoginReturn {
         await authLogin({
           email: form.email,
           password: form.password,
-          rememberMe: form.rememberMe,
+          rememberMe: form.rememberMe
         });
         handleReset();
       } catch (err) {
-        const message = err instanceof Error ? err.message : "Login failed";
+        const message = err instanceof Error ? err.message : 'Login failed';
         setLocalError(message);
         throw err;
       }
     },
-    [form, authLogin, handleReset],
+    [form, authLogin, handleReset]
   );
 
   const handleClearError = useCallback(() => {
@@ -82,7 +82,7 @@ export function useLogin(): UseLoginReturn {
     handleChange,
     handleSubmit,
     clearError: handleClearError,
-    reset: handleReset,
+    reset: handleReset
   };
 }
 

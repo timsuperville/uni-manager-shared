@@ -8,13 +8,13 @@
  */
 export const formatCurrency = (
   n: number | null | undefined,
-  currency = "USD",
+  currency = 'USD'
 ): string => {
-  if (n == null) return "—";
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
+  if (n == null) return '—';
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
     currency,
-    maximumFractionDigits: 0,
+    maximumFractionDigits: 0
   }).format(n);
 };
 
@@ -22,10 +22,10 @@ export const formatCurrency = (
  * Formats a system role into a friendly display name.
  */
 export const formatRole = (role: string | undefined | null): string => {
-  if (!role) return "User";
+  if (!role) return 'User';
   return role
-    .replace(/_/g, " ") // super_admin -> super admin
-    .replace(/\b\w/g, (c) => c.toUpperCase()); // super admin -> Super Admin
+    .replace(/_/g, ' ') // super_admin -> super admin
+    .replace(/\b\w/g, c => c.toUpperCase()); // super admin -> Super Admin
 };
 
 /** Minimal user shape expected by display helpers. */
@@ -41,13 +41,13 @@ interface UserLike {
  * @returns "First Last" or "Email" or "User"
  */
 export const getUserDisplayName = (
-  user: UserLike | null | undefined,
+  user: UserLike | null | undefined
 ): string => {
-  if (!user) return "User";
+  if (!user) return 'User';
   if (user.firstName && user.lastName) {
     return `${user.firstName} ${user.lastName}`;
   }
-  return user.email || "User";
+  return user.email || 'User';
 };
 
 /**
@@ -56,11 +56,11 @@ export const getUserDisplayName = (
  * @returns Initials (e.g. "JD" or "E")
  */
 export const getUserInitials = (user: UserLike | null | undefined): string => {
-  if (!user) return "U";
+  if (!user) return 'U';
   if (user.firstName && user.lastName) {
     return `${user.firstName[0]}${user.lastName[0]}`.toUpperCase();
   }
-  return (user.email?.[0] || "U").toUpperCase();
+  return (user.email?.[0] || 'U').toUpperCase();
 };
 
 /**
@@ -69,11 +69,11 @@ export const getUserInitials = (user: UserLike | null | undefined): string => {
  * Returns "" for null/undefined.
  */
 export const formatDuration = (seconds: number | null | undefined): string => {
-  if (seconds == null || isNaN(seconds)) return "";
+  if (seconds == null || isNaN(seconds)) return '';
   const totalSec = Math.round(Math.abs(seconds));
   const m = Math.floor(totalSec / 60);
   const s = totalSec % 60;
-  return `${m}:${String(s).padStart(2, "0")}`;
+  return `${m}:${String(s).padStart(2, '0')}`;
 };
 
 /**
@@ -85,7 +85,7 @@ export const parseDuration = (value: string): number | undefined => {
   const trimmed = value.trim();
   if (!trimmed) return undefined;
   if (/^\d+:\d{1,2}$/.test(trimmed)) {
-    const parts = trimmed.split(":").map(Number);
+    const parts = trimmed.split(':').map(Number);
     const m = parts[0] as number;
     const s = parts[1] as number;
     return m * 60 + s;

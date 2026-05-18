@@ -4,7 +4,7 @@
  * Works with the enhanced backend push notification system
  */
 
-import { apiService } from "../../../shared/services/apiService";
+import { apiService } from '../../../shared/services/apiService';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -25,7 +25,7 @@ export interface TestNotificationOptions {
   title?: string;
   body?: string;
   category?: string;
-  priority?: "urgent" | "high" | "normal" | "low";
+  priority?: 'urgent' | 'high' | 'normal' | 'low';
 }
 
 export interface LocalNotificationOptions {
@@ -55,13 +55,13 @@ export interface PwaNotificationStatus {
 }
 
 type NotificationCategory =
-  | "service"
-  | "event"
-  | "admin"
-  | "family"
-  | "work"
-  | "system"
-  | "marketing";
+  | 'service'
+  | 'event'
+  | 'admin'
+  | 'family'
+  | 'work'
+  | 'system'
+  | 'marketing';
 
 // ---------------------------------------------------------------------------
 // Service class
@@ -76,7 +76,7 @@ class PWANotificationService {
   private isInitialized = false;
 
   constructor() {
-    this.isSupported = "serviceWorker" in navigator && "PushManager" in window;
+    this.isSupported = 'serviceWorker' in navigator && 'PushManager' in window;
     this.permission = Notification.permission;
     this.preferences = {
       serviceReminders: true,
@@ -85,7 +85,7 @@ class PWANotificationService {
       familyUpdates: true,
       workNotifications: true,
       systemUpdates: false,
-      marketingMessages: false,
+      marketingMessages: false
     };
   }
 
@@ -105,12 +105,12 @@ class PWANotificationService {
     // In production, this should come from the backend
     this.vapidPublicKey =
       (import.meta.env.VITE_VAPID_PUBLIC_KEY as string | undefined) ??
-      "BNxJLxVhXvvJV2wX1xG8K9EeEQy-Zj6QJvF2CZlHfE9QJ6vX2Z8H4G3K9EeEQy";
+      'BNxJLxVhXvvJV2wX1xG8K9EeEQy-Zj6QJvF2CZlHfE9QJ6vX2Z8H4G3K9EeEQy';
   }
 
   private async checkExistingSubscription(): Promise<PushSubscription | null> {
     try {
-      if (!("serviceWorker" in navigator)) return null;
+      if (!('serviceWorker' in navigator)) return null;
 
       // Bug fix: original had `(await typeof navigator) !== "undefined"` — `typeof` returns a string,
       // not a Promise, so `await` on it is a no-op but the intent was just `navigator.serviceWorker.ready`.
@@ -122,7 +122,7 @@ class PWANotificationService {
 
         try {
           const response = (await apiService.get(
-            "/admin/push-notifications/subscriptions",
+            '/admin/push-notifications/subscriptions'
           )) as {
             success: boolean;
             data: Array<{
@@ -132,7 +132,7 @@ class PWANotificationService {
           };
           if (response.success) {
             const match = response.data.find(
-              (sub) => sub.endpoint === subscription.endpoint,
+              sub => sub.endpoint === subscription.endpoint
             );
             if (match) {
               this.preferences = match.preferences;
@@ -153,38 +153,38 @@ class PWANotificationService {
 
   async requestPermission(): Promise<boolean> {
     if (!this.isSupported)
-      throw new Error("Push notifications are not supported");
-    if (this.permission === "granted") return true;
+      throw new Error('Push notifications are not supported');
+    if (this.permission === 'granted') return true;
 
     const permission = await Notification.requestPermission();
     this.permission = permission;
-    return permission === "granted";
+    return permission === 'granted';
   }
 
   async subscribe(): Promise<PushSubscription> {
     if (!this.isSupported)
-      throw new Error("Push notifications are not supported");
+      throw new Error('Push notifications are not supported');
 
     const hasPermission = await this.requestPermission();
-    if (!hasPermission) throw new Error("Notification permission not granted");
+    if (!hasPermission) throw new Error('Notification permission not granted');
 
     const registration = await navigator.serviceWorker.ready;
     const subscription = await registration.pushManager.subscribe({
       userVisibleOnly: true,
-      applicationServerKey: this.urlBase64ToUint8Array(this.vapidPublicKey!),
+      applicationServerKey: this.urlBase64ToUint8Array(this.vapidPublicKey!)
     });
 
     this.subscription = subscription;
 
     const deviceInfo = this.getDeviceInfo();
     const response = (await apiService.post(
-      "/admin/push-notifications/subscribe",
+      '/admin/push-notifications/subscribe',
       {
         subscription: subscription.toJSON(),
         userAgent:
-          typeof navigator !== "undefined" ? navigator.userAgent : null,
-        deviceInfo,
-      },
+          typeof navigator !== 'undefined' ? navigator.userAgent : null,
+        deviceInfo
+      }
     )) as {
       success: boolean;
       message?: string;
@@ -194,58 +194,58 @@ class PWANotificationService {
     if (response.success) {
       this.preferences = response.data.preferences;
 
-      if (typeof window !== "undefined") {
+      if (typeof window !== 'undefined') {
         window.dispatchEvent(
-          new CustomEvent("pwa-notification-subscribed", {
+          new CustomEvent('pwa-notification-subscribed', {
             detail: {
               subscription: subscription.toJSON(),
-              preferences: this.preferences,
-            },
-          }),
+              preferences: this.preferences
+            }
+          })
         );
       }
 
       return subscription;
     }
 
-    throw new Error(response.message ?? "Failed to subscribe");
+    throw new Error(response.message ?? 'Failed to subscribe');
   }
 
   async unsubscribe(): Promise<boolean> {
     if (!this.subscription) return true;
 
     const response = (await apiService.delete(
-      "/admin/push-notifications/unsubscribe",
+      '/admin/push-notifications/unsubscribe',
       {
-        endpoint: this.subscription.endpoint,
-      },
+        endpoint: this.subscription.endpoint
+      }
     )) as { success: boolean; message?: string };
 
     if (response.success) {
       await this.subscription.unsubscribe();
       this.subscription = null;
 
-      if (typeof window !== "undefined") {
-        window.dispatchEvent(new CustomEvent("pwa-notification-unsubscribed"));
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('pwa-notification-unsubscribed'));
       }
 
       return true;
     }
 
-    throw new Error(response.message ?? "Failed to unsubscribe");
+    throw new Error(response.message ?? 'Failed to unsubscribe');
   }
 
   async updatePreferences(
-    newPreferences: Partial<PwaNotificationPreferences>,
+    newPreferences: Partial<PwaNotificationPreferences>
   ): Promise<PwaNotificationPreferences> {
-    if (!this.subscription) throw new Error("No active subscription");
+    if (!this.subscription) throw new Error('No active subscription');
 
     const response = (await apiService.put(
-      "/admin/push-notifications/preferences",
+      '/admin/push-notifications/preferences',
       {
         subscriptionId: this.subscription.endpoint,
-        preferences: newPreferences,
-      },
+        preferences: newPreferences
+      }
     )) as {
       success: boolean;
       message?: string;
@@ -255,33 +255,33 @@ class PWANotificationService {
     if (response.success) {
       this.preferences = response.data.preferences;
 
-      if (typeof window !== "undefined") {
+      if (typeof window !== 'undefined') {
         window.dispatchEvent(
-          new CustomEvent("pwa-notification-preferences-updated", {
-            detail: { preferences: this.preferences },
-          }),
+          new CustomEvent('pwa-notification-preferences-updated', {
+            detail: { preferences: this.preferences }
+          })
         );
       }
 
       return this.preferences;
     }
 
-    throw new Error(response.message ?? "Failed to update preferences");
+    throw new Error(response.message ?? 'Failed to update preferences');
   }
 
   async sendTestNotification(
-    options: TestNotificationOptions = {},
+    options: TestNotificationOptions = {}
   ): Promise<unknown> {
     const testNotification = {
-      title: options.title ?? "Test Notification",
-      body: options.body ?? "This is a test notification from Uni-Manager",
-      category: options.category ?? "system",
-      priority: options.priority ?? "normal",
+      title: options.title ?? 'Test Notification',
+      body: options.body ?? 'This is a test notification from Uni-Manager',
+      category: options.category ?? 'system',
+      priority: options.priority ?? 'normal'
     };
 
     const response = (await apiService.post(
-      "/admin/push-notifications/test",
-      testNotification,
+      '/admin/push-notifications/test',
+      testNotification
     )) as {
       success: boolean;
       message?: string;
@@ -289,25 +289,25 @@ class PWANotificationService {
     };
 
     if (response.success) return response.data;
-    throw new Error(response.message ?? "Failed to send test notification");
+    throw new Error(response.message ?? 'Failed to send test notification');
   }
 
   showLocalNotification(
     title: string,
     body: string,
-    options: LocalNotificationOptions = {},
+    options: LocalNotificationOptions = {}
   ): Notification | null {
-    if (!this.isSupported || this.permission !== "granted") return null;
+    if (!this.isSupported || this.permission !== 'granted') return null;
 
     const notification = new Notification(title, {
       body,
-      icon: options.icon ?? "/icons/icon-192x192.png",
-      badge: options.badge ?? "/icons/icon-72x72.png",
-      tag: options.tag ?? "default",
+      icon: options.icon ?? '/icons/icon-192x192.png',
+      badge: options.badge ?? '/icons/icon-72x72.png',
+      tag: options.tag ?? 'default',
       requireInteraction: options.requireInteraction ?? false,
       silent: options.silent ?? false,
       vibrate: options.vibrate ?? [200, 100, 200],
-      data: options.data ?? {},
+      data: options.data ?? {}
     });
 
     if (options.timeout) {
@@ -319,33 +319,33 @@ class PWANotificationService {
 
   getDeviceInfo(): DeviceInfo {
     const userAgent =
-      typeof navigator !== "undefined" ? navigator.userAgent : "";
-    let browser = "Unknown";
-    let platform = "Unknown";
+      typeof navigator !== 'undefined' ? navigator.userAgent : '';
+    let browser = 'Unknown';
+    let platform = 'Unknown';
 
-    if (userAgent.includes("Chrome")) browser = "Chrome";
-    else if (userAgent.includes("Firefox")) browser = "Firefox";
-    else if (userAgent.includes("Safari")) browser = "Safari";
-    else if (userAgent.includes("Edge")) browser = "Edge";
+    if (userAgent.includes('Chrome')) browser = 'Chrome';
+    else if (userAgent.includes('Firefox')) browser = 'Firefox';
+    else if (userAgent.includes('Safari')) browser = 'Safari';
+    else if (userAgent.includes('Edge')) browser = 'Edge';
 
-    if (userAgent.includes("Windows")) platform = "Windows";
-    else if (userAgent.includes("Mac")) platform = "macOS";
-    else if (userAgent.includes("Linux")) platform = "Linux";
-    else if (userAgent.includes("Android")) platform = "Android";
-    else if (userAgent.includes("iOS")) platform = "iOS";
+    if (userAgent.includes('Windows')) platform = 'Windows';
+    else if (userAgent.includes('Mac')) platform = 'macOS';
+    else if (userAgent.includes('Linux')) platform = 'Linux';
+    else if (userAgent.includes('Android')) platform = 'Android';
+    else if (userAgent.includes('iOS')) platform = 'iOS';
 
     return {
       browser,
       platform,
-      version: typeof navigator !== "undefined" ? navigator.appVersion : false,
+      version: typeof navigator !== 'undefined' ? navigator.appVersion : false
     };
   }
 
   private urlBase64ToUint8Array(base64String: string): Uint8Array {
-    const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+    const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
     const base64 = (base64String + padding)
-      .replace(/-/g, "+")
-      .replace(/_/g, "/");
+      .replace(/-/g, '+')
+      .replace(/_/g, '/');
     const rawData = window.atob(base64);
     const outputArray = new Uint8Array(rawData.length);
     for (let i = 0; i < rawData.length; ++i)
@@ -359,7 +359,7 @@ class PWANotificationService {
       permission: this.permission,
       isSubscribed: !!this.subscription,
       preferences: this.preferences,
-      isInitialized: this.isInitialized,
+      isInitialized: this.isInitialized
     };
   }
 
@@ -368,13 +368,13 @@ class PWANotificationService {
       NotificationCategory,
       keyof PwaNotificationPreferences
     > = {
-      service: "serviceReminders",
-      event: "eventNotifications",
-      admin: "adminAlerts",
-      family: "familyUpdates",
-      work: "workNotifications",
-      system: "systemUpdates",
-      marketing: "marketingMessages",
+      service: 'serviceReminders',
+      event: 'eventNotifications',
+      admin: 'adminAlerts',
+      family: 'familyUpdates',
+      work: 'workNotifications',
+      system: 'systemUpdates',
+      marketing: 'marketingMessages'
     };
     const prefKey = categoryMap[category];
     return prefKey ? this.preferences[prefKey] : true;
@@ -387,11 +387,11 @@ class PWANotificationService {
 
 const pwaNotificationService = new PWANotificationService();
 
-if ("serviceWorker" in navigator) {
+if ('serviceWorker' in navigator) {
   navigator.serviceWorker.ready.then(() => {
     pwaNotificationService.initialize().catch((e: unknown) => {
       if (import.meta.env.DEV)
-        console.error("[PWANotification] Auto-init failed:", e);
+        console.error('[PWANotification] Auto-init failed:', e);
     });
   });
 }

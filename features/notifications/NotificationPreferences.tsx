@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   FiBell,
   FiMail,
@@ -10,10 +10,10 @@ import {
   FiVolumeX,
   FiSave,
   FiRefreshCw,
-  FiDownload,
-} from "react-icons/fi";
-import { useNotificationPreferences } from "../../hooks/useNotificationPreferences";
-import type { NotificationPreferences as StoredPreferences } from "../../hooks/useNotificationPreferences";
+  FiDownload
+} from 'react-icons/fi';
+import { useNotificationPreferences } from '../../hooks/useNotificationPreferences';
+import type { NotificationPreferences as StoredPreferences } from '../../hooks/useNotificationPreferences';
 import {
   Button,
   Card,
@@ -21,20 +21,20 @@ import {
   Select,
   TimePicker,
   LoadingSpinner,
-  Modal,
-} from "@shared/components/ui";
-import { Slider } from "@shared/components/ui/Slider";
+  Modal
+} from '@shared/components/ui';
+import { Slider } from '@shared/components/ui/Slider';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
-type SaveStatus = "success" | "error" | "reset" | "exported" | null;
+type SaveStatus = 'success' | 'error' | 'reset' | 'exported' | null;
 type ActiveTab =
-  | "channels"
-  | "types"
-  | "schedule"
-  | "delivery"
-  | "interface"
-  | "advanced";
+  | 'channels'
+  | 'types'
+  | 'schedule'
+  | 'delivery'
+  | 'interface'
+  | 'advanced';
 
 interface ChannelSettings {
   enabled: boolean;
@@ -112,53 +112,53 @@ interface NotificationPreferencesProps {
 
 const DEFAULT_PREFERENCES: LocalPreferences = {
   channels: {
-    email: { enabled: true, frequency: "immediate" },
-    sms: { enabled: false, frequency: "daily" },
-    push: { enabled: true, frequency: "immediate" },
-    inApp: { enabled: true, frequency: "immediate" },
-    slack: { enabled: false, frequency: "immediate" },
-    teams: { enabled: false, frequency: "immediate" },
+    email: { enabled: true, frequency: 'immediate' },
+    sms: { enabled: false, frequency: 'daily' },
+    push: { enabled: true, frequency: 'immediate' },
+    inApp: { enabled: true, frequency: 'immediate' },
+    slack: { enabled: false, frequency: 'immediate' },
+    teams: { enabled: false, frequency: 'immediate' }
   },
   types: {
-    user: { enabled: true, priority: "all" },
-    system: { enabled: true, priority: "high" },
-    church: { enabled: true, priority: "all" },
-    work: { enabled: true, priority: "normal" },
-    security: { enabled: true, priority: "all" },
-    workflow: { enabled: true, priority: "high" },
+    user: { enabled: true, priority: 'all' },
+    system: { enabled: true, priority: 'high' },
+    church: { enabled: true, priority: 'all' },
+    work: { enabled: true, priority: 'normal' },
+    security: { enabled: true, priority: 'all' },
+    workflow: { enabled: true, priority: 'high' }
   },
   quietHours: {
     enabled: false,
-    startTime: "22:00",
-    endTime: "08:00",
+    startTime: '22:00',
+    endTime: '08:00',
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-    allowUrgent: true,
+    allowUrgent: true
   },
   delivery: {
     batching: false,
     batchInterval: 60,
     maxBatchSize: 10,
     smartTiming: true,
-    respectUserActivity: true,
+    respectUserActivity: true
   },
   interface: {
     sound: true,
     vibration: true,
     volume: 0.7,
-    soundTheme: "default",
+    soundTheme: 'default',
     showPreviews: true,
     markReadOnClick: true,
     autoArchive: false,
-    autoArchiveDays: 30,
+    autoArchiveDays: 30
   },
   advanced: {
-    language: "en",
+    language: 'en',
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-    emailTemplate: "default",
+    emailTemplate: 'default',
     consolidateDigests: true,
     enableAnalytics: true,
-    debugMode: false,
-  },
+    debugMode: false
+  }
 };
 
 const CHANNEL_ICONS: Record<
@@ -170,51 +170,51 @@ const CHANNEL_ICONS: Record<
   push: FiSmartphone,
   inApp: FiBell,
   slack: FiMessageSquare,
-  teams: FiMessageSquare,
+  teams: FiMessageSquare
 };
 
 // ── Options ───────────────────────────────────────────────────────────────────
 
 const FREQUENCY_OPTIONS: SelectOption[] = [
-  { value: "immediate", label: "Immediate" },
-  { value: "hourly", label: "Hourly" },
-  { value: "daily", label: "Daily Digest" },
-  { value: "weekly", label: "Weekly Summary" },
-  { value: "never", label: "Never" },
+  { value: 'immediate', label: 'Immediate' },
+  { value: 'hourly', label: 'Hourly' },
+  { value: 'daily', label: 'Daily Digest' },
+  { value: 'weekly', label: 'Weekly Summary' },
+  { value: 'never', label: 'Never' }
 ];
 
 const PRIORITY_OPTIONS: SelectOption[] = [
-  { value: "all", label: "All Priorities" },
-  { value: "urgent", label: "Urgent Only" },
-  { value: "high", label: "High & Urgent" },
-  { value: "normal", label: "Normal & Above" },
-  { value: "never", label: "Never" },
+  { value: 'all', label: 'All Priorities' },
+  { value: 'urgent', label: 'Urgent Only' },
+  { value: 'high', label: 'High & Urgent' },
+  { value: 'normal', label: 'Normal & Above' },
+  { value: 'never', label: 'Never' }
 ];
 
 const SOUND_THEME_OPTIONS: SelectOption[] = [
-  { value: "default", label: "Default" },
-  { value: "subtle", label: "Subtle" },
-  { value: "professional", label: "Professional" },
-  { value: "cheerful", label: "Cheerful" },
-  { value: "custom", label: "Custom" },
+  { value: 'default', label: 'Default' },
+  { value: 'subtle', label: 'Subtle' },
+  { value: 'professional', label: 'Professional' },
+  { value: 'cheerful', label: 'Cheerful' },
+  { value: 'custom', label: 'Custom' }
 ];
 
 const LANGUAGE_OPTIONS: SelectOption[] = [
-  { value: "en", label: "English" },
-  { value: "es", label: "Spanish" },
-  { value: "fr", label: "French" },
-  { value: "de", label: "German" },
-  { value: "it", label: "Italian" },
-  { value: "pt", label: "Portuguese" },
+  { value: 'en', label: 'English' },
+  { value: 'es', label: 'Spanish' },
+  { value: 'fr', label: 'French' },
+  { value: 'de', label: 'German' },
+  { value: 'it', label: 'Italian' },
+  { value: 'pt', label: 'Portuguese' }
 ];
 
 const TABS: TabConfig[] = [
-  { id: "channels", label: "Channels", icon: FiBell },
-  { id: "types", label: "Types", icon: FiSettings },
-  { id: "schedule", label: "Schedule", icon: FiClock },
-  { id: "delivery", label: "Delivery", icon: FiMessageSquare },
-  { id: "interface", label: "Interface", icon: FiVolume2 },
-  { id: "advanced", label: "Advanced", icon: FiSettings },
+  { id: 'channels', label: 'Channels', icon: FiBell },
+  { id: 'types', label: 'Types', icon: FiSettings },
+  { id: 'schedule', label: 'Schedule', icon: FiClock },
+  { id: 'delivery', label: 'Delivery', icon: FiMessageSquare },
+  { id: 'interface', label: 'Interface', icon: FiVolume2 },
+  { id: 'advanced', label: 'Advanced', icon: FiSettings }
 ];
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -236,9 +236,9 @@ const TABS: TabConfig[] = [
 const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
   isOpen = false,
   onClose = () => {},
-  userId = null,
+  userId = null
 }) => {
-  const [activeTab, setActiveTab] = useState<ActiveTab>("channels");
+  const [activeTab, setActiveTab] = useState<ActiveTab>('channels');
   const [hasChanges, setHasChanges] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>(null);
@@ -251,7 +251,7 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
     updatePreferences,
     resetPreferences,
     exportPreferences,
-    refreshPreferences,
+    refreshPreferences
   } = useNotificationPreferences(userId);
 
   const [localPreferences, setLocalPreferences] =
@@ -260,9 +260,9 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
   // Sync from server
   useEffect(() => {
     if (preferences && Object.keys(preferences).length > 0) {
-      setLocalPreferences((prev) => ({
+      setLocalPreferences(prev => ({
         ...prev,
-        ...(preferences as unknown as Partial<LocalPreferences>),
+        ...(preferences as unknown as Partial<LocalPreferences>)
       }));
     }
   }, [preferences]);
@@ -270,7 +270,7 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
   // Track changes
   useEffect(() => {
     setHasChanges(
-      JSON.stringify(localPreferences) !== JSON.stringify(preferences),
+      JSON.stringify(localPreferences) !== JSON.stringify(preferences)
     );
   }, [localPreferences, preferences]);
 
@@ -280,9 +280,9 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
     <K extends keyof LocalPreferences>(
       section: K,
       key: keyof LocalPreferences[K],
-      value: unknown,
+      value: unknown
     ) => {
-      setLocalPreferences((prev) => {
+      setLocalPreferences(prev => {
         const sectionData = prev[section] as Record<string, unknown>;
         const existing = sectionData[key as string];
         return {
@@ -290,20 +290,20 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
           [section]: {
             ...sectionData,
             [key]:
-              typeof value === "object" &&
+              typeof value === 'object' &&
               value !== null &&
-              typeof existing === "object" &&
+              typeof existing === 'object' &&
               existing !== null
                 ? {
                     ...(existing as Record<string, unknown>),
-                    ...(value as Record<string, unknown>),
+                    ...(value as Record<string, unknown>)
                   }
-                : value,
-          },
+                : value
+          }
         };
       });
     },
-    [],
+    []
   );
 
   const updateNestedPreference = useCallback(
@@ -311,9 +311,9 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
       section: K,
       parentKey: string,
       childKey: string,
-      value: unknown,
+      value: unknown
     ) => {
-      setLocalPreferences((prev) => {
+      setLocalPreferences(prev => {
         const sectionData = prev[section] as unknown as Record<
           string,
           Record<string, unknown>
@@ -324,13 +324,13 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
             ...sectionData,
             [parentKey]: {
               ...sectionData[parentKey],
-              [childKey]: value,
-            },
-          },
+              [childKey]: value
+            }
+          }
         };
       });
     },
-    [],
+    []
   );
 
   // ── Handlers ───────────────────────────────────────────────────────────────
@@ -340,11 +340,11 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
     setSaveStatus(null);
     try {
       await updatePreferences(localPreferences as unknown as StoredPreferences);
-      setSaveStatus("success");
+      setSaveStatus('success');
       setHasChanges(false);
       setTimeout(() => setSaveStatus(null), 3000);
     } catch {
-      setSaveStatus("error");
+      setSaveStatus('error');
       setTimeout(() => setSaveStatus(null), 5000);
     } finally {
       setIsLoading(false);
@@ -359,10 +359,10 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
     try {
       await resetPreferences();
       await refreshPreferences();
-      setSaveStatus("reset");
+      setSaveStatus('reset');
       setTimeout(() => setSaveStatus(null), 3000);
     } catch {
-      setSaveStatus("error");
+      setSaveStatus('error');
       setTimeout(() => setSaveStatus(null), 5000);
     } finally {
       setIsLoading(false);
@@ -373,20 +373,20 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
     try {
       const exported = await exportPreferences();
       const blob = new Blob([JSON.stringify(exported, null, 2)], {
-        type: "application/json",
+        type: 'application/json'
       });
       const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
+      const link = document.createElement('a');
       link.href = url;
-      link.download = `notification-preferences-${new Date().toISOString().split("T")[0]}.json`;
+      link.download = `notification-preferences-${new Date().toISOString().split('T')[0]}.json`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-      setSaveStatus("exported");
+      setSaveStatus('exported');
       setTimeout(() => setSaveStatus(null), 3000);
     } catch {
-      setSaveStatus("error");
+      setSaveStatus('error');
       setTimeout(() => setSaveStatus(null), 5000);
     }
   }, [exportPreferences]);
@@ -414,7 +414,7 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                         <Icon className="w-5 h-5 text-()" />
                       </div>
                       <span className="font-semibold text-() capitalize">
-                        {channel === "inApp" ? "In-App" : channel}
+                        {channel === 'inApp' ? 'In-App' : channel}
                       </span>
                     </div>
                     <Switch
@@ -422,10 +422,10 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                         const enabled = e.target.checked;
                         updateNestedPreference(
-                          "channels",
+                          'channels',
                           channel,
-                          "enabled",
-                          enabled,
+                          'enabled',
+                          enabled
                         );
                       }}
                     />
@@ -440,10 +440,10 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                         onChange={(e: any) => {
                           const frequency = e.target.value;
                           updateNestedPreference(
-                            "channels",
+                            'channels',
                             channel,
-                            "frequency",
-                            frequency,
+                            'frequency',
+                            frequency
                           );
                         }}
                         options={FREQUENCY_OPTIONS}
@@ -453,7 +453,7 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                   )}
                 </div>
               );
-            },
+            }
           )}
         </div>
       </div>
@@ -478,7 +478,7 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                   checked={settings.enabled}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                     const enabled = e.target.checked;
-                    updateNestedPreference("types", type, "enabled", enabled);
+                    updateNestedPreference('types', type, 'enabled', enabled);
                   }}
                 />
               </div>
@@ -492,10 +492,10 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                     onChange={(e: any) => {
                       const priority = e.target.value;
                       updateNestedPreference(
-                        "types",
+                        'types',
                         type,
-                        "priority",
-                        priority,
+                        'priority',
+                        priority
                       );
                     }}
                     options={PRIORITY_OPTIONS}
@@ -528,7 +528,7 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
               checked={localPreferences.quietHours.enabled}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 const enabled = e.target.checked;
-                updateLocalPreference("quietHours", "enabled", enabled);
+                updateLocalPreference('quietHours', 'enabled', enabled);
               }}
             />
           </div>
@@ -542,7 +542,7 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                   <TimePicker
                     value={localPreferences.quietHours.startTime}
                     onChange={(time: string) => {
-                      updateLocalPreference("quietHours", "startTime", time);
+                      updateLocalPreference('quietHours', 'startTime', time);
                     }}
                   />
                 </div>
@@ -553,7 +553,7 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                   <TimePicker
                     value={localPreferences.quietHours.endTime}
                     onChange={(time: string) => {
-                      updateLocalPreference("quietHours", "endTime", time);
+                      updateLocalPreference('quietHours', 'endTime', time);
                     }}
                   />
                 </div>
@@ -567,9 +567,9 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                     const allowUrgent = e.target.checked;
                     updateLocalPreference(
-                      "quietHours",
-                      "allowUrgent",
-                      allowUrgent,
+                      'quietHours',
+                      'allowUrgent',
+                      allowUrgent
                     );
                   }}
                 />
@@ -595,7 +595,7 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                 checked={localPreferences.delivery.batching}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                   const batching = e.target.checked;
-                  updateLocalPreference("delivery", "batching", batching);
+                  updateLocalPreference('delivery', 'batching', batching);
                 }}
               />
             </div>
@@ -609,9 +609,9 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                     value={localPreferences.delivery.batchInterval}
                     onChange={(batchInterval: number) =>
                       updateLocalPreference(
-                        "delivery",
-                        "batchInterval",
-                        batchInterval,
+                        'delivery',
+                        'batchInterval',
+                        batchInterval
                       )
                     }
                     min={5}
@@ -631,9 +631,9 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                     value={localPreferences.delivery.maxBatchSize}
                     onChange={(maxBatchSize: number) =>
                       updateLocalPreference(
-                        "delivery",
-                        "maxBatchSize",
-                        maxBatchSize,
+                        'delivery',
+                        'maxBatchSize',
+                        maxBatchSize
                       )
                     }
                     min={1}
@@ -657,9 +657,9 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                     const smartTiming = e.target.checked;
                     updateLocalPreference(
-                      "delivery",
-                      "smartTiming",
-                      smartTiming,
+                      'delivery',
+                      'smartTiming',
+                      smartTiming
                     );
                   }}
                 />
@@ -673,9 +673,9 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                     const respectUserActivity = e.target.checked;
                     updateLocalPreference(
-                      "delivery",
-                      "respectUserActivity",
-                      respectUserActivity,
+                      'delivery',
+                      'respectUserActivity',
+                      respectUserActivity
                     );
                   }}
                 />
@@ -703,7 +703,7 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                   checked={localPreferences.interface.sound}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                     const sound = e.target.checked;
-                    updateLocalPreference("interface", "sound", sound);
+                    updateLocalPreference('interface', 'sound', sound);
                   }}
                 />
               </div>
@@ -716,7 +716,7 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                     <Slider
                       value={localPreferences.interface.volume}
                       onChange={(volume: number) =>
-                        updateLocalPreference("interface", "volume", volume)
+                        updateLocalPreference('interface', 'volume', volume)
                       }
                       min={0}
                       max={1}
@@ -736,9 +736,9 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                       onChange={(e: any) => {
                         const soundTheme = e.target.value;
                         updateLocalPreference(
-                          "interface",
-                          "soundTheme",
-                          soundTheme,
+                          'interface',
+                          'soundTheme',
+                          soundTheme
                         );
                       }}
                       options={SOUND_THEME_OPTIONS}
@@ -753,7 +753,7 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                   checked={localPreferences.interface.vibration}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                     const vibration = e.target.checked;
-                    updateLocalPreference("interface", "vibration", vibration);
+                    updateLocalPreference('interface', 'vibration', vibration);
                   }}
                 />
               </div>
@@ -769,9 +769,9 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                     const showPreviews = e.target.checked;
                     updateLocalPreference(
-                      "interface",
-                      "showPreviews",
-                      showPreviews,
+                      'interface',
+                      'showPreviews',
+                      showPreviews
                     );
                   }}
                 />
@@ -785,9 +785,9 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                     const markReadOnClick = e.target.checked;
                     updateLocalPreference(
-                      "interface",
-                      "markReadOnClick",
-                      markReadOnClick,
+                      'interface',
+                      'markReadOnClick',
+                      markReadOnClick
                     );
                   }}
                 />
@@ -799,9 +799,9 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                     const autoArchive = e.target.checked;
                     updateLocalPreference(
-                      "interface",
-                      "autoArchive",
-                      autoArchive,
+                      'interface',
+                      'autoArchive',
+                      autoArchive
                     );
                   }}
                 />
@@ -815,9 +815,9 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                     value={localPreferences.interface.autoArchiveDays}
                     onChange={(autoArchiveDays: number) =>
                       updateLocalPreference(
-                        "interface",
-                        "autoArchiveDays",
-                        autoArchiveDays,
+                        'interface',
+                        'autoArchiveDays',
+                        autoArchiveDays
                       )
                     }
                     min={1}
@@ -855,7 +855,7 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                   value={localPreferences.advanced.language}
                   onChange={(e: any) => {
                     const language = e.target.value;
-                    updateLocalPreference("advanced", "language", language);
+                    updateLocalPreference('advanced', 'language', language);
                   }}
                   options={LANGUAGE_OPTIONS}
                   className="w-full"
@@ -867,16 +867,16 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                 </label>
                 <select
                   value={localPreferences.advanced.timezone}
-                  onChange={(e) =>
+                  onChange={e =>
                     updateLocalPreference(
-                      "advanced",
-                      "timezone",
-                      e.target.value,
+                      'advanced',
+                      'timezone',
+                      e.target.value
                     )
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  {Intl.supportedValuesOf("timeZone").map((tz) => (
+                  {Intl.supportedValuesOf('timeZone').map(tz => (
                     <option key={tz} value={tz}>
                       {tz}
                     </option>
@@ -896,16 +896,16 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                 onChange={(e: any) => {
                   const emailTemplate = e.target.value;
                   updateLocalPreference(
-                    "advanced",
-                    "emailTemplate",
-                    emailTemplate,
+                    'advanced',
+                    'emailTemplate',
+                    emailTemplate
                   );
                 }}
                 options={[
-                  { value: "default", label: "Default" },
-                  { value: "minimal", label: "Minimal" },
-                  { value: "detailed", label: "Detailed" },
-                  { value: "modern", label: "Modern" },
+                  { value: 'default', label: 'Default' },
+                  { value: 'minimal', label: 'Minimal' },
+                  { value: 'detailed', label: 'Detailed' },
+                  { value: 'modern', label: 'Modern' }
                 ]}
                 className="w-full"
               />
@@ -923,9 +923,9 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                     const consolidateDigests = e.target.checked;
                     updateLocalPreference(
-                      "advanced",
-                      "consolidateDigests",
-                      consolidateDigests,
+                      'advanced',
+                      'consolidateDigests',
+                      consolidateDigests
                     );
                   }}
                 />
@@ -937,9 +937,9 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                     const enableAnalytics = e.target.checked;
                     updateLocalPreference(
-                      "advanced",
-                      "enableAnalytics",
-                      enableAnalytics,
+                      'advanced',
+                      'enableAnalytics',
+                      enableAnalytics
                     );
                   }}
                 />
@@ -950,7 +950,7 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                   checked={localPreferences.advanced.debugMode}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                     const debugMode = e.target.checked;
-                    updateLocalPreference("advanced", "debugMode", debugMode);
+                    updateLocalPreference('advanced', 'debugMode', debugMode);
                   }}
                 />
               </div>
@@ -966,10 +966,10 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
   if (!isOpen) return null;
 
   const SAVE_STATUS_MESSAGES: Record<string, string> = {
-    success: "Preferences saved",
-    reset: "Preferences reset",
-    exported: "Preferences exported",
-    error: "Failed to save",
+    success: 'Preferences saved',
+    reset: 'Preferences reset',
+    exported: 'Preferences exported',
+    error: 'Failed to save'
   };
 
   return (
@@ -984,7 +984,7 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
           {/* Sidebar */}
           <div className="w-48 border-r border-() pr-4 overflow-y-auto scrollbar-responsive">
             <nav className="space-y-1 mt-2">
-              {TABS.map((tab) => {
+              {TABS.map(tab => {
                 const Icon = tab.icon;
                 return (
                   <button
@@ -992,12 +992,12 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                     onClick={() => setActiveTab(tab.id)}
                     className={`w-full flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all ${
                       activeTab === tab.id
-                        ? "bg-() text-() shadow-sm border border-() border-opacity-30"
-                        : "text-() hover:text-() hover:bg-() border border-transparent"
+                        ? 'bg-() text-() shadow-sm border border-() border-opacity-30'
+                        : 'text-() hover:text-() hover:bg-() border border-transparent'
                     }`}
                   >
                     <Icon
-                      className={`w-4 h-4 mr-3 ${activeTab === tab.id ? "text-()" : "opacity-70"}`}
+                      className={`w-4 h-4 mr-3 ${activeTab === tab.id ? 'text-()' : 'opacity-70'}`}
                     />
                     {tab.label}
                   </button>
@@ -1029,12 +1029,12 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
                 </div>
               ) : (
                 <>
-                  {activeTab === "channels" && renderChannelPreferences()}
-                  {activeTab === "types" && renderTypePreferences()}
-                  {activeTab === "schedule" && renderQuietHoursPreferences()}
-                  {activeTab === "delivery" && renderDeliveryPreferences()}
-                  {activeTab === "interface" && renderInterfacePreferences()}
-                  {activeTab === "advanced" && renderAdvancedPreferences()}
+                  {activeTab === 'channels' && renderChannelPreferences()}
+                  {activeTab === 'types' && renderTypePreferences()}
+                  {activeTab === 'schedule' && renderQuietHoursPreferences()}
+                  {activeTab === 'delivery' && renderDeliveryPreferences()}
+                  {activeTab === 'interface' && renderInterfacePreferences()}
+                  {activeTab === 'advanced' && renderAdvancedPreferences()}
                 </>
               )}
             </div>
@@ -1062,7 +1062,7 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
             {saveStatus && (
               <span
                 className={`text-sm font-medium pr-2 ${
-                  saveStatus === "error" ? "text-red-500" : "text-green-500"
+                  saveStatus === 'error' ? 'text-red-500' : 'text-green-500'
                 }`}
               >
                 {SAVE_STATUS_MESSAGES[saveStatus]}

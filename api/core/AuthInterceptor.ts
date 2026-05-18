@@ -10,8 +10,8 @@ import axios, {
   InternalAxiosRequestConfig,
   AxiosResponse,
   AxiosError,
-  AxiosRequestConfig,
-} from "axios";
+  AxiosRequestConfig
+} from 'axios';
 
 /** Augment the global Window to allow opt-in auth failure callbacks. */
 declare global {
@@ -34,7 +34,7 @@ export interface TokenRefreshResponse {
 }
 
 export interface AuthInterceptorConfig {
-  tokenStorage?: "localStorage" | "sessionStorage" | "memory";
+  tokenStorage?: 'localStorage' | 'sessionStorage' | 'memory';
   tokenKey?: string;
   refreshTokenKey?: string;
   headerName?: string;
@@ -58,7 +58,7 @@ export class AuthInterceptor {
   private axiosInstance: AxiosInstance | null = null;
 
   private processQueue(error: any, token: string | null = null): void {
-    this.refreshQueue.forEach((prom) => {
+    this.refreshQueue.forEach(prom => {
       if (error) {
         prom.reject(error);
       } else {
@@ -70,17 +70,17 @@ export class AuthInterceptor {
 
   constructor(config: AuthInterceptorConfig = {}) {
     this.config = {
-      tokenStorage: config.tokenStorage || "localStorage",
-      tokenKey: config.tokenKey || "accessToken",
-      refreshTokenKey: config.refreshTokenKey || "refreshToken",
-      headerName: config.headerName || "Authorization",
+      tokenStorage: config.tokenStorage || 'localStorage',
+      tokenKey: config.tokenKey || 'accessToken',
+      refreshTokenKey: config.refreshTokenKey || 'refreshToken',
+      headerName: config.headerName || 'Authorization',
       tokenPrefix:
-        config.tokenPrefix !== undefined ? config.tokenPrefix : "Bearer ",
+        config.tokenPrefix !== undefined ? config.tokenPrefix : 'Bearer ',
       autoRefresh: config.autoRefresh !== false,
       refreshThreshold: config.refreshThreshold || 5,
-      refreshEndpoint: config.refreshEndpoint || "/auth/refresh-token",
+      refreshEndpoint: config.refreshEndpoint || '/auth/refresh-token',
       maxRetries: config.maxRetries || 1,
-      enableStats: config.enableStats !== false,
+      enableStats: config.enableStats !== false
     };
 
     this.loadTokensFromStorage();
@@ -107,7 +107,7 @@ export class AuthInterceptor {
       // when Axios merges headers during request dispatch.
       config.headers.set(
         this.config.headerName,
-        `${this.config.tokenPrefix} ${token}`,
+        `${this.config.tokenPrefix} ${token}`
       );
     }
 
@@ -119,13 +119,13 @@ export class AuthInterceptor {
    */
   onResponse(response: AxiosResponse): AxiosResponse {
     // Check for new tokens in response headers
-    const newAccessToken = response.headers["x-new-access-token"];
-    const newRefreshToken = response.headers["x-new-refresh-token"];
+    const newAccessToken = response.headers['x-new-access-token'];
+    const newRefreshToken = response.headers['x-new-refresh-token'];
 
     if (newAccessToken) {
       this.updateTokens({
         accessToken: newAccessToken,
-        refreshToken: newRefreshToken || this.tokens?.refreshToken,
+        refreshToken: newRefreshToken || this.tokens?.refreshToken
       });
     }
 
@@ -215,14 +215,14 @@ export class AuthInterceptor {
   setToken(
     accessToken: string,
     refreshToken?: string,
-    expiresIn?: number,
+    expiresIn?: number
   ): void {
     const expiresAt = expiresIn ? Date.now() + expiresIn * 1000 : undefined;
 
     this.updateTokens({
       accessToken,
       refreshToken: refreshToken || this.tokens?.refreshToken,
-      expiresAt,
+      expiresAt
     });
   }
 
@@ -279,7 +279,7 @@ export class AuthInterceptor {
     }
 
     if (!this.tokens?.refreshToken) {
-      throw new Error("No refresh token available");
+      throw new Error('No refresh token available');
     }
 
     this.isRefreshing = true;
@@ -301,11 +301,11 @@ export class AuthInterceptor {
       // Create a clean axios instance for the refresh request to avoid triggering
       // interceptors (like infinite 401 loops), but inherit the correct baseURL.
       const refreshAxios = axios.create({
-        baseURL: this.axiosInstance?.defaults?.baseURL,
+        baseURL: this.axiosInstance?.defaults?.baseURL
       });
 
       const response = await refreshAxios.post(this.config.refreshEndpoint, {
-        refreshToken: this.tokens?.refreshToken,
+        refreshToken: this.tokens?.refreshToken
       });
 
       const responseData = response.data.data || response.data;
@@ -315,7 +315,7 @@ export class AuthInterceptor {
       this.updateTokens({
         accessToken,
         refreshToken: refreshToken || this.tokens?.refreshToken,
-        expiresAt: expiresIn ? Date.now() + expiresIn * 1000 : undefined,
+        expiresAt: expiresIn ? Date.now() + expiresIn * 1000 : undefined
       });
 
       return accessToken;
@@ -332,8 +332,8 @@ export class AuthInterceptor {
 
       if (import.meta.env?.DEV)
         console.warn(
-          "[AuthInterceptor] Token refresh failed:",
-          (error as Error).message,
+          '[AuthInterceptor] Token refresh failed:',
+          (error as Error).message
         );
       throw error;
     }
@@ -374,7 +374,7 @@ export class AuthInterceptor {
   private updateTokens(tokens: Partial<AuthTokens>): void {
     this.tokens = {
       ...this.tokens,
-      ...tokens,
+      ...tokens
     } as AuthTokens;
 
     this.saveTokensToStorage();
@@ -398,9 +398,9 @@ export class AuthInterceptor {
       // if the login flow wrote to the other bucket (e.g. persistent=true routes
       // the token to localStorage while we are configured for sessionStorage),
       // the interceptor must still find it so requests are authorised.
-      if (!accessToken && typeof window !== "undefined") {
+      if (!accessToken && typeof window !== 'undefined') {
         const altStorage =
-          this.config.tokenStorage === "sessionStorage"
+          this.config.tokenStorage === 'sessionStorage'
             ? window.localStorage
             : window.sessionStorage;
         const altToken = altStorage.getItem(this.config.tokenKey);
@@ -420,7 +420,7 @@ export class AuthInterceptor {
 
         if (!resolvedExpiresAt) {
           try {
-            const payloadB64 = accessToken.split(".")[1];
+            const payloadB64 = accessToken.split('.')[1];
             if (payloadB64) {
               const payload = JSON.parse(atob(payloadB64)) as { exp?: number };
               if (payload.exp) {
@@ -436,15 +436,15 @@ export class AuthInterceptor {
         this.tokens = {
           accessToken,
           refreshToken: refreshToken || undefined,
-          expiresAt: resolvedExpiresAt,
+          expiresAt: resolvedExpiresAt
         };
       }
     } catch (error) {
       // Storage may be unavailable in SSR or restricted private-browsing contexts.
       if (import.meta.env?.DEV) {
         console.warn(
-          "[AuthInterceptor] loadTokensFromStorage failed:",
-          (error as Error).message,
+          '[AuthInterceptor] loadTokensFromStorage failed:',
+          (error as Error).message
         );
       }
     }
@@ -460,22 +460,22 @@ export class AuthInterceptor {
         if (this.tokens.refreshToken) {
           storage.setItem(
             this.config.refreshTokenKey,
-            this.tokens.refreshToken,
+            this.tokens.refreshToken
           );
         }
 
         if (this.tokens.expiresAt) {
           storage.setItem(
             `${this.config.tokenKey}_expires`,
-            this.tokens.expiresAt.toString(),
+            this.tokens.expiresAt.toString()
           );
         }
       }
     } catch (error) {
       if (import.meta.env?.DEV) {
         console.warn(
-          "[AuthInterceptor] saveTokensToStorage failed:",
-          (error as Error).message,
+          '[AuthInterceptor] saveTokensToStorage failed:',
+          (error as Error).message
         );
       }
     }
@@ -491,15 +491,15 @@ export class AuthInterceptor {
     } catch (error) {
       if (import.meta.env?.DEV) {
         console.warn(
-          "[AuthInterceptor] removeTokensFromStorage failed:",
-          (error as Error).message,
+          '[AuthInterceptor] removeTokensFromStorage failed:',
+          (error as Error).message
         );
       }
     }
   }
 
   private getStorage(): Storage {
-    if (typeof window === "undefined") {
+    if (typeof window === 'undefined') {
       // SSR or Node.js environment
       return {
         getItem: () => null,
@@ -507,17 +507,17 @@ export class AuthInterceptor {
         removeItem: () => {},
         clear: () => {},
         length: 0,
-        key: () => null,
+        key: () => null
       };
     }
 
     switch (this.config.tokenStorage) {
-      case "sessionStorage":
+      case 'sessionStorage':
         // typeof window guard already confirmed above — no inner check needed
         return window.sessionStorage;
-      case "memory":
+      case 'memory':
         return this.createMemoryStorage();
-      case "localStorage":
+      case 'localStorage':
       default:
         return window.localStorage;
     }
@@ -535,16 +535,16 @@ export class AuthInterceptor {
       get length() {
         return store.size;
       },
-      key: (index: number) => Array.from(store.keys())[index] || null,
+      key: (index: number) => Array.from(store.keys())[index] || null
     };
   }
 
   private notifyAuthFailure(): void {
-    if (typeof window !== "undefined") {
+    if (typeof window !== 'undefined') {
       window.dispatchEvent(
-        new CustomEvent("auth:failure", {
-          detail: { reason: "token_expired" },
-        }),
+        new CustomEvent('auth:failure', {
+          detail: { reason: 'token_expired' }
+        })
       );
       window.onAuthFailure?.();
     }

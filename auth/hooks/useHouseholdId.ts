@@ -1,4 +1,4 @@
-import { useAuth } from "./useAuth";
+import { useAuth } from './useAuth';
 
 /**
  * useHouseholdId — resolves the active household ID from the auth user object or session layer.
@@ -17,9 +17,9 @@ export function useHouseholdId(): string | null {
   const { user } = useAuth();
 
   const storedId =
-    typeof window !== "undefined"
-      ? sessionStorage.getItem("currentHouseholdId") ||
-        localStorage.getItem("currentHouseholdId")
+    typeof window !== 'undefined'
+      ? sessionStorage.getItem('currentHouseholdId') ||
+        localStorage.getItem('currentHouseholdId')
       : null;
 
   if (storedId) {

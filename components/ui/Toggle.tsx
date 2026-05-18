@@ -1,9 +1,9 @@
-import React from "react";
-import { glassBorder } from "@shared/styles/styleUtils";
+import React from 'react';
+import { glassBorder } from '@shared/styles/styleUtils';
 
 interface ToggleProps extends Omit<
   React.LabelHTMLAttributes<HTMLLabelElement>,
-  "onChange"
+  'onChange'
 > {
   checked?: boolean;
   onChange?: (checked: boolean) => void;
@@ -18,14 +18,14 @@ export function Toggle({
   onChange,
   label,
   disabled = false,
-  className = "",
+  className = '',
   ...props
 }: ToggleProps) {
   const handleClick = () => {
     if (!disabled && onChange) onChange(!checked);
   };
   const handleKey = (e: React.KeyboardEvent) => {
-    if ((e.key === "Enter" || e.key === " ") && !disabled && onChange) {
+    if ((e.key === 'Enter' || e.key === ' ') && !disabled && onChange) {
       e.preventDefault();
       onChange(!checked);
     }
@@ -33,7 +33,7 @@ export function Toggle({
 
   return (
     <label
-      className={`flex items-center gap-2 ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"} ${className}`}
+      className={`flex items-center gap-2 ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} ${className}`}
       {...props}
     >
       <span
@@ -44,41 +44,41 @@ export function Toggle({
         onClick={handleClick}
         onKeyDown={handleKey}
         style={{
-          display: "inline-block",
+          display: 'inline-block',
           width: 36,
           height: 20,
           borderRadius: 10,
           background: checked
-            ? "var(--primary-resonance)"
-            : "var(--glass-outline)",
-          position: "relative",
-          transition: "background 0.2s",
-          cursor: disabled ? "not-allowed" : "pointer",
+            ? 'var(--primary-resonance)'
+            : 'var(--glass-outline)',
+          position: 'relative',
+          transition: 'background 0.2s',
+          cursor: disabled ? 'not-allowed' : 'pointer',
           flexShrink: 0,
-          outline: "none",
-          ...glassBorder,
+          outline: 'none',
+          ...glassBorder
         }}
       >
         <span
           style={{
-            position: "absolute",
+            position: 'absolute',
             top: 2,
             left: checked ? 17 : 2,
             width: 14,
             height: 14,
-            borderRadius: "50%",
-            background: "var(--text-primary)",
-            transition: "left 0.2s cubic-bezier(0.4,0,0.2,1)",
-            boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
+            borderRadius: '50%',
+            background: 'var(--text-primary)',
+            transition: 'left 0.2s cubic-bezier(0.4,0,0.2,1)',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.3)'
           }}
         />
       </span>
       {label && (
         <span
           style={{
-            fontSize: "var(--text-sm)",
-            color: "var(--text-primary)",
-            userSelect: "none",
+            fontSize: 'var(--text-sm)',
+            color: 'var(--text-primary)',
+            userSelect: 'none'
           }}
         >
           {label}

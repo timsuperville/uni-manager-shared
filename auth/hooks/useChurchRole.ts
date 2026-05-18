@@ -1,5 +1,5 @@
-import { useMemo } from "react";
-import { useAuth } from "@shared/auth";
+import { useMemo } from 'react';
+import { useAuth } from '@shared/auth';
 
 // ── CAHA Community Journey Tier Map ───────────────────────────────────────────
 //
@@ -19,7 +19,7 @@ const COMMUNITY_TIER: Record<string, number> = {
   attendee: 2,
   member: 3,
   steward: 4,
-  admin: 4, // legacy alias for 'steward' — accepted during migration
+  admin: 4 // legacy alias for 'steward' — accepted during migration
 };
 
 /**
@@ -29,31 +29,31 @@ const COMMUNITY_TIER: Record<string, number> = {
  * Reference: docs/product/church/navigation-architecture.md
  */
 export const TIER_DEFAULT_TOOLS = new Set<string>([
-  "tool:events-view",
-  "tool:giving-personal",
-  "tool:giving-recurring",
-  "tool:capital-campaigns-view",
-  "tool:communications-receive",
-  "tool:formation-tracks",
-  "tool:library-browse",
-  "tool:events-rsvp",
-  "tool:groups-browse",
-  "tool:discovery-browse",
-  "tool:ministries-browse",
-  "tool:maintenance-submit",
-  "tool:resources-book",
+  'tool:events-view',
+  'tool:giving-personal',
+  'tool:giving-recurring',
+  'tool:capital-campaigns-view',
+  'tool:communications-receive',
+  'tool:formation-tracks',
+  'tool:library-browse',
+  'tool:events-rsvp',
+  'tool:groups-browse',
+  'tool:discovery-browse',
+  'tool:ministries-browse',
+  'tool:maintenance-submit',
+  'tool:resources-book'
 ]);
 
 /** The canonical community journey stage vocabulary. */
 export type CommunityStage =
-  | "viewer"
-  | "visitor"
-  | "attendee"
-  | "member"
-  | "steward";
+  | 'viewer'
+  | 'visitor'
+  | 'attendee'
+  | 'member'
+  | 'steward';
 
 /** Ministry position tokens — per CAHA_PROTOCOL.md §2.1. */
-export type MinistryPosition = "participant" | "volunteer" | "leader";
+export type MinistryPosition = 'participant' | 'volunteer' | 'leader';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -133,7 +133,7 @@ export interface UseChurchRoleReturn {
   /** Check if user has at least minPosition in the given ministry. */
   hasMinistryRole: (
     ministryId: string,
-    minRole: MinistryPosition | string,
+    minRole: MinistryPosition | string
   ) => boolean;
 
   // ── Raw data ───────────────────────────────────────────────────────────────
@@ -170,7 +170,7 @@ export function useChurchRole(): UseChurchRoleReturn {
 
   return useMemo(() => {
     if (!user) {
-      return buildResult("viewer", null, null, null);
+      return buildResult('viewer', null, null, null);
     }
 
     type ExtUser = typeof user & {
@@ -181,45 +181,45 @@ export function useChurchRole(): UseChurchRoleReturn {
     const u = user as ExtUser;
     const userRoles = u.roles ?? [];
     const isPlatformAdmin =
-      userRoles.includes("admin") ||
-      userRoles.includes("org_admin") ||
-      (user as { role?: string }).role === "super_admin";
+      userRoles.includes('admin') ||
+      userRoles.includes('org_admin') ||
+      (user as { role?: string }).role === 'super_admin';
 
     const currentChurchId =
-      typeof u.currentChurch === "object" && u.currentChurch !== null
+      typeof u.currentChurch === 'object' && u.currentChurch !== null
         ? (u.currentChurch._id?.toString() ?? null)
-        : typeof u.currentChurch === "string"
+        : typeof u.currentChurch === 'string'
           ? u.currentChurch
           : null;
 
     if (isPlatformAdmin) {
-      return buildResult("steward", null, currentChurchId, u, true);
+      return buildResult('steward', null, currentChurchId, u, true);
     }
 
     if (!currentChurchId) {
-      return buildResult("viewer", null, null, u);
+      return buildResult('viewer', null, null, u);
     }
 
     // u.churches holds Membership objects at runtime — cast to the richer shape.
     const memberships = (u.churches ?? []) as Membership[];
-    const membership = memberships.find((c) => {
+    const membership = memberships.find(c => {
       const churchId =
-        typeof c.church === "object" && c.church !== null
+        typeof c.church === 'object' && c.church !== null
           ? c.church._id?.toString()
-          : typeof c.church === "string"
+          : typeof c.church === 'string'
             ? c.church
             : undefined;
       return churchId === currentChurchId;
     });
 
     if (!membership) {
-      return buildResult("viewer", null, currentChurchId, u);
+      return buildResult('viewer', null, currentChurchId, u);
     }
 
     const rawRole =
-      membership.status === "left" ? "viewer" : (membership.role ?? "viewer");
+      membership.status === 'left' ? 'viewer' : (membership.role ?? 'viewer');
     // Normalize legacy 'admin' token to 'steward'
-    const effectiveRole = rawRole === "admin" ? "steward" : rawRole;
+    const effectiveRole = rawRole === 'admin' ? 'steward' : rawRole;
 
     return buildResult(effectiveRole, membership, currentChurchId, u);
   }, [user]);
@@ -231,17 +231,17 @@ export function useChurchRole(): UseChurchRoleReturn {
 const MINISTRY_POSITION_TIERS: Record<string, number> = {
   participant: 0,
   volunteer: 1,
-  leader: 2,
+  leader: 2
 };
 
 function buildResult(
   rawRole: string,
   membership: Membership | null,
   currentChurchId: string | null,
-  user: (typeof useAuth extends () => infer R ? R : never)["user"] | null,
-  isPlatformAdmin = false,
+  user: (typeof useAuth extends () => infer R ? R : never)['user'] | null,
+  isPlatformAdmin = false
 ): UseChurchRoleReturn {
-  const stage = (rawRole === "admin" ? "steward" : rawRole) as CommunityStage;
+  const stage = (rawRole === 'admin' ? 'steward' : rawRole) as CommunityStage;
   const tier = COMMUNITY_TIER[stage] ?? 0;
   const ministryRoles = membership?.ministryRoles ?? [];
 
@@ -262,7 +262,7 @@ function buildResult(
         toolMap.set(t.toolId, {
           toolId: t.toolId,
           canView: !!t.canView,
-          canEdit: !!t.canEdit,
+          canEdit: !!t.canEdit
         });
       }
     }
@@ -273,21 +273,21 @@ function buildResult(
   const effectivePlatformAdmin =
     isPlatformAdmin ||
     !!(
-      extUser?.roles?.includes("admin") ||
-      extUser?.roles?.includes("org_admin") ||
-      (extUser as { role?: string } | null)?.role === "super_admin"
+      extUser?.roles?.includes('admin') ||
+      extUser?.roles?.includes('org_admin') ||
+      (extUser as { role?: string } | null)?.role === 'super_admin'
     );
 
-  const isSteward = effectivePlatformAdmin || stage === "steward";
-  const stewardTier = COMMUNITY_TIER["steward"] ?? 4;
+  const isSteward = effectivePlatformAdmin || stage === 'steward';
+  const stewardTier = COMMUNITY_TIER['steward'] ?? 4;
 
   /** Check if user meets the minimum community stage (by tier). */
   const hasMinStage = (minStage: string): boolean => {
-    const minTier = COMMUNITY_TIER[minStage === "admin" ? "steward" : minStage];
+    const minTier = COMMUNITY_TIER[minStage === 'admin' ? 'steward' : minStage];
     if (minTier === undefined) {
-      if (process.env.NODE_ENV !== "production") {
+      if (process.env.NODE_ENV !== 'production') {
         console.warn(
-          `useChurchRole.hasMinStage: unknown stage "${minStage}". Valid: ${Object.keys(COMMUNITY_TIER).join(", ")}`,
+          `useChurchRole.hasMinStage: unknown stage "${minStage}". Valid: ${Object.keys(COMMUNITY_TIER).join(', ')}`
         );
       }
       return false;
@@ -299,11 +299,11 @@ function buildResult(
     // ── Community Journey ────────────────────────────────────────────────────
     journeyStage: stage,
     journeyTier: tier,
-    isMember: effectivePlatformAdmin || tier >= (COMMUNITY_TIER["member"] ?? 3),
+    isMember: effectivePlatformAdmin || tier >= (COMMUNITY_TIER['member'] ?? 3),
     isAttendee:
-      effectivePlatformAdmin || tier >= (COMMUNITY_TIER["attendee"] ?? 2),
+      effectivePlatformAdmin || tier >= (COMMUNITY_TIER['attendee'] ?? 2),
     isVisitor:
-      effectivePlatformAdmin || tier >= (COMMUNITY_TIER["visitor"] ?? 1),
+      effectivePlatformAdmin || tier >= (COMMUNITY_TIER['visitor'] ?? 1),
     isViewer: true, // always true if in church context
 
     // ── Institutional ────────────────────────────────────────────────────────
@@ -336,11 +336,11 @@ function buildResult(
 
     hasMinistryRole: (ministryId: string, minRole: string) => {
       if (effectivePlatformAdmin) return true;
-      const entry = ministryRoles.find((m) => {
+      const entry = ministryRoles.find(m => {
         const id =
-          typeof m.ministry === "object" && m.ministry !== null
+          typeof m.ministry === 'object' && m.ministry !== null
             ? m.ministry._id?.toString()
-            : typeof m.ministry === "string"
+            : typeof m.ministry === 'string'
               ? m.ministry
               : undefined;
         return id === ministryId;
@@ -351,17 +351,17 @@ function buildResult(
       const rawPosition =
         (entry as { position?: string }).position ??
         entry.role ??
-        "participant";
+        'participant';
 
       const lowerPos = rawPosition.toLowerCase();
       const normalizedPosition =
-        lowerPos === "leader"
-          ? "leader"
-          : lowerPos === "volunteer" ||
-              lowerPos === "assistant" ||
-              lowerPos === "coordinator"
-            ? "volunteer"
-            : "participant";
+        lowerPos === 'leader'
+          ? 'leader'
+          : lowerPos === 'volunteer' ||
+              lowerPos === 'assistant' ||
+              lowerPos === 'coordinator'
+            ? 'volunteer'
+            : 'participant';
 
       const entryPosition = MINISTRY_POSITION_TIERS[normalizedPosition] ?? 0;
       const minPosition = MINISTRY_POSITION_TIERS[minRole] ?? 0;
@@ -370,7 +370,7 @@ function buildResult(
 
     // ── Raw data ──────────────────────────────────────────────────────────────
     membership: membership ?? null,
-    currentChurchId,
+    currentChurchId
   };
 }
 

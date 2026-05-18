@@ -1,8 +1,8 @@
-import React from "react";
-import { Edit2 } from "lucide-react";
-import { Card, CardContent } from "../ui/Card";
-import UserAvatar, { UserAvatarUser } from "../ui/UserAvatar";
-import { Button } from "../ui/Button";
+import React from 'react';
+import { Edit2 } from 'lucide-react';
+import { Card, CardContent } from '../ui/Card';
+import UserAvatar, { UserAvatarUser } from '../ui/UserAvatar';
+import { Button } from '../ui/Button';
 
 export interface IdentityCardProps {
   /** The user data representing the unified identity node. */
@@ -30,7 +30,7 @@ export const IdentityCard: React.FC<IdentityCardProps> = ({
   contactInfo,
   onEdit,
   actions,
-  children,
+  children
 }) => {
   return (
     <Card variant="default">
@@ -46,19 +46,19 @@ export const IdentityCard: React.FC<IdentityCardProps> = ({
                 <h1
                   className="text-2xl font-bold"
                   style={{
-                    fontFamily: "var(--font-display, inherit)",
-                    color: "var(--text-primary)",
+                    fontFamily: 'var(--font-display, inherit)',
+                    color: 'var(--text-primary)'
                   }}
                 >
                   {user.displayName ||
                     user.name ||
-                    `${user.firstName || ""} ${user.lastName || ""}`.trim() ||
-                    "User"}
+                    `${user.firstName || ''} ${user.lastName || ''}`.trim() ||
+                    'User'}
                 </h1>
                 {subtitle && (
                   <p
                     className="text-sm mt-1"
-                    style={{ color: "var(--text-accent)" }}
+                    style={{ color: 'var(--text-accent)' }}
                   >
                     {subtitle}
                   </p>
@@ -66,7 +66,7 @@ export const IdentityCard: React.FC<IdentityCardProps> = ({
                 {contactInfo && (
                   <p
                     className="text-xs mt-1.5"
-                    style={{ color: "var(--text-muted)" }}
+                    style={{ color: 'var(--text-muted)' }}
                   >
                     {contactInfo}
                   </p>

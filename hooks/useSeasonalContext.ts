@@ -3,7 +3,7 @@
  * Manages seasonal context and data
  */
 
-import { useState, useCallback } from "react";
+import { useState, useCallback } from 'react';
 
 export interface SeasonData {
   id?: string;

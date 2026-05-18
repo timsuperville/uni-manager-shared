@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 interface GoogleIconProps {
   className?: string;
@@ -7,7 +7,7 @@ interface GoogleIconProps {
 /**
  * GoogleIcon — SVG logo for Google OAuth buttons.
  */
-export const GoogleIcon = ({ className = "w-5 h-5" }: GoogleIconProps) => (
+export const GoogleIcon = ({ className = 'w-5 h-5' }: GoogleIconProps) => (
   <svg className={className} viewBox="0 0 24 24">
     <path
       fill="#4285F4"

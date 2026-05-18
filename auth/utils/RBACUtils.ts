@@ -15,8 +15,8 @@ import {
   APPLICATION_ROLES,
   PROTECTED_ROUTES,
   type Permission,
-  type RoleDefinition,
-} from "../types/rbacRoles";
+  type RoleDefinition
+} from '../types/rbacRoles';
 
 // ── Module-level types ────────────────────────────────────────────────────────
 
@@ -98,7 +98,7 @@ export class RBACUtils {
       for (const inheritedRoleId of role.inherits) {
         permissions = [
           ...permissions,
-          ...this.getRolePermissions(inheritedRoleId),
+          ...this.getRolePermissions(inheritedRoleId)
         ];
       }
     }
@@ -123,13 +123,13 @@ export class RBACUtils {
 
   hasAnyPermission(permissions: Permission | Permission[]): boolean {
     if (!Array.isArray(permissions)) return this.hasPermission(permissions);
-    return permissions.some((p) => this.hasPermission(p));
+    return permissions.some(p => this.hasPermission(p));
   }
 
   hasAllPermissions(permissions: Permission | Permission[]): boolean {
     if (!Array.isArray(permissions)) return this.hasPermission(permissions);
     if (permissions.length === 0) return false;
-    return permissions.every((p) => this.hasPermission(p));
+    return permissions.every(p => this.hasPermission(p));
   }
 
   hasRole(roleId: string): boolean {
@@ -138,12 +138,12 @@ export class RBACUtils {
 
   hasAnyRole(roles: string | string[]): boolean {
     if (!Array.isArray(roles)) return this.hasRole(roles);
-    return roles.some((r) => this.hasRole(r));
+    return roles.some(r => this.hasRole(r));
   }
 
   hasMinimumRoleLevel(minLevel: number): boolean {
     const levels = this.userRoles.map(
-      (roleId) => ROLE_LOOKUP[roleId]?.level ?? 0,
+      roleId => ROLE_LOOKUP[roleId]?.level ?? 0
     );
     return Math.max(...levels, 0) >= minLevel;
   }
@@ -152,8 +152,8 @@ export class RBACUtils {
     const appRoutes = PROTECTED_ROUTES[application];
     if (!appRoutes) return true;
 
-    const routePattern = Object.keys(appRoutes).find((pattern) => {
-      const regex = new RegExp("^" + pattern.replace(/:[^/]+/g, "[^/]+") + "$");
+    const routePattern = Object.keys(appRoutes).find(pattern => {
+      const regex = new RegExp('^' + pattern.replace(/:[^/]+/g, '[^/]+') + '$');
       return regex.test(route);
     });
 
@@ -165,18 +165,18 @@ export class RBACUtils {
   canAccessApplication(application: string): boolean {
     const appRoles = APPLICATION_ROLES[application];
     if (!appRoles) return false;
-    return this.hasAnyRole(appRoles) || this.hasRole("super_admin");
+    return this.hasAnyRole(appRoles) || this.hasRole('super_admin');
   }
 
   getAccessibleApplications(): string[] {
-    return Object.keys(APPLICATION_ROLES).filter((app) =>
-      this.canAccessApplication(app),
+    return Object.keys(APPLICATION_ROLES).filter(app =>
+      this.canAccessApplication(app)
     );
   }
 
   getHighestRoleLevel(): number {
     const levels = this.userRoles.map(
-      (roleId) => ROLE_LOOKUP[roleId]?.level ?? 0,
+      roleId => ROLE_LOOKUP[roleId]?.level ?? 0
     );
     return Math.max(...levels, 0);
   }
@@ -184,26 +184,26 @@ export class RBACUtils {
   getApplicationRoles(application: string): string[] {
     const appRoles = APPLICATION_ROLES[application];
     if (!appRoles) return [];
-    return this.userRoles.filter((roleId) => appRoles.includes(roleId));
+    return this.userRoles.filter(roleId => appRoles.includes(roleId));
   }
 
   isAnyAdmin(): boolean {
     return (
-      this.hasAnyRole(["super_admin", "system_admin"]) ||
-      this.userRoles.some((roleId) => roleId.includes("_admin"))
+      this.hasAnyRole(['super_admin', 'system_admin']) ||
+      this.userRoles.some(roleId => roleId.includes('_admin'))
     );
   }
 
   isApplicationAdmin(application: string): boolean {
-    if (this.hasRole("super_admin")) return true;
+    if (this.hasRole('super_admin')) return true;
     return this.hasRole(`${application}_admin`);
   }
 
   filterMenuItems(
     menuItems: MenuItem[],
-    application: string | null = null,
+    application: string | null = null
   ): MenuItem[] {
-    return menuItems.filter((item) => {
+    return menuItems.filter(item => {
       if (!item) return false;
       if (
         item.requiredPermissions &&
@@ -236,7 +236,7 @@ export class RBACUtils {
       permissions: this.userPermissions,
       highestLevel: this.getHighestRoleLevel(),
       accessibleApps: this.getAccessibleApplications(),
-      isAnyAdmin: this.isAnyAdmin(),
+      isAnyAdmin: this.isAnyAdmin()
     };
   }
 }
@@ -253,19 +253,19 @@ export const PermissionUtils = {
   createChecker: (user: UserLike | null): PermissionChecker => {
     const rbac = new RBACUtils(user);
     return {
-      hasPermission: (p) => rbac.hasPermission(p),
-      hasAnyPermission: (ps) => rbac.hasAnyPermission(ps),
-      hasAllPermissions: (ps) => rbac.hasAllPermissions(ps),
-      hasRole: (r) => rbac.hasRole(r),
-      hasAnyRole: (rs) => rbac.hasAnyRole(rs),
+      hasPermission: p => rbac.hasPermission(p),
+      hasAnyPermission: ps => rbac.hasAnyPermission(ps),
+      hasAllPermissions: ps => rbac.hasAllPermissions(ps),
+      hasRole: r => rbac.hasRole(r),
+      hasAnyRole: rs => rbac.hasAnyRole(rs),
       canAccess: (app, route) => rbac.canAccessRoute(app, route),
-      isAdmin: (app) => rbac.isApplicationAdmin(app),
+      isAdmin: app => rbac.isApplicationAdmin(app)
     };
   },
 
   validateRoleAssignment: (
     assignerRoles: string[],
-    targetRole: string,
+    targetRole: string
   ): boolean => {
     const assignerRBAC = new RBACUtils({ roles: assignerRoles });
     const targetRoleLevel = ROLE_LOOKUP[targetRole]?.level ?? 0;
@@ -274,27 +274,27 @@ export const PermissionUtils = {
 
   getAssignableRoles: (
     assignerRoles: string[],
-    application: string | null = null,
+    application: string | null = null
   ): AssignableRole[] => {
     const assignerRBAC = new RBACUtils({ roles: assignerRoles });
     const assignerLevel = assignerRBAC.getHighestRoleLevel();
 
     return Object.values(ROLES)
-      .filter((role) => {
+      .filter(role => {
         if (role.level > assignerLevel) return false;
         if (application && role.applicationScope) {
           return role.applicationScope.includes(application);
         }
         return true;
       })
-      .map((role) => ({
+      .map(role => ({
         id: role.id,
         name: role.name,
         description: role.description,
         level: role.level,
-        applicationScope: role.applicationScope,
+        applicationScope: role.applicationScope
       }));
-  },
+  }
 };
 
 // ── Route utilities ───────────────────────────────────────────────────────────
@@ -303,8 +303,8 @@ export const RouteUtils = {
   requiresAuth: (application: string, route: string): boolean => {
     const appRoutes = PROTECTED_ROUTES[application];
     if (!appRoutes) return false;
-    return Object.keys(appRoutes).some((pattern) => {
-      const regex = new RegExp("^" + pattern.replace(/:[^/]+/g, "[^/]+") + "$");
+    return Object.keys(appRoutes).some(pattern => {
+      const regex = new RegExp('^' + pattern.replace(/:[^/]+/g, '[^/]+') + '$');
       return regex.test(route);
     });
   },
@@ -312,13 +312,13 @@ export const RouteUtils = {
   getRoutePermissions: (application: string, route: string): Permission[] => {
     const appRoutes = PROTECTED_ROUTES[application];
     if (!appRoutes) return [];
-    const routePattern = Object.keys(appRoutes).find((pattern) => {
-      const regex = new RegExp("^" + pattern.replace(/:[^/]+/g, "[^/]+") + "$");
+    const routePattern = Object.keys(appRoutes).find(pattern => {
+      const regex = new RegExp('^' + pattern.replace(/:[^/]+/g, '[^/]+') + '$');
       return regex.test(route);
     });
     return routePattern ? (appRoutes[routePattern] ?? []) : [];
-  },
+  }
 };
 
 // Re-export for consumers that imported data directly from this module.
-export { PERMISSIONS, ROLES } from "../types/rbacRoles";
+export { PERMISSIONS, ROLES } from '../types/rbacRoles';

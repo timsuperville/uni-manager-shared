@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
 // ── Token types ────────────────────────────────────────────────────────────────
 
@@ -49,7 +49,7 @@ interface ThemeTokens {
   borderRadius?: BorderRadiusTokens;
 }
 
-type ThemeMode = "system" | "dark" | "light";
+type ThemeMode = 'system' | 'dark' | 'light';
 
 interface ThemeContextValue extends Required<ThemeTokens> {
   colors: Required<ColorTokens>;
@@ -57,7 +57,7 @@ interface ThemeContextValue extends Required<ThemeTokens> {
   typography: { fontFamily: string; fontSize: Required<FontSizeTokens> };
   borderRadius: Required<BorderRadiusTokens>;
   theme: ThemeMode;
-  resolvedTheme: "dark" | "light";
+  resolvedTheme: 'dark' | 'light';
   setTheme: (theme: ThemeMode) => void;
 }
 
@@ -65,56 +65,56 @@ interface ThemeContextValue extends Required<ThemeTokens> {
 
 const defaultTokens = {
   colors: {
-    primary: "#2563eb",
-    secondary: "#64748b",
-    success: "#10b981",
-    danger: "#ef4444",
-    warning: "#f59e0b",
-    info: "#3b82f6",
-    light: "#f8fafc",
-    dark: "#1e293b",
+    primary: '#2563eb',
+    secondary: '#64748b',
+    success: '#10b981',
+    danger: '#ef4444',
+    warning: '#f59e0b',
+    info: '#3b82f6',
+    light: '#f8fafc',
+    dark: '#1e293b'
   },
   spacing: {
-    xs: "0.25rem",
-    sm: "0.5rem",
-    md: "1rem",
-    lg: "1.5rem",
-    xl: "3rem",
+    xs: '0.25rem',
+    sm: '0.5rem',
+    md: '1rem',
+    lg: '1.5rem',
+    xl: '3rem'
   },
   typography: {
-    fontFamily: "Inter, -apple-system, BlinkMacSystemFont, sans-serif",
+    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
     fontSize: {
-      xs: "0.75rem",
-      sm: "0.875rem",
-      md: "1rem",
-      lg: "1.125rem",
-      xl: "1.25rem",
-      xxl: "1.5rem",
-    },
+      xs: '0.75rem',
+      sm: '0.875rem',
+      md: '1rem',
+      lg: '1.125rem',
+      xl: '1.25rem',
+      xxl: '1.5rem'
+    }
   },
-  borderRadius: { sm: "0.25rem", md: "0.375rem", lg: "0.5rem", full: "9999px" },
+  borderRadius: { sm: '0.25rem', md: '0.375rem', lg: '0.5rem', full: '9999px' }
 } as const;
 
 // ── Context ────────────────────────────────────────────────────────────────────
 
 const ThemeContext = createContext<ThemeContextValue>({
   ...(defaultTokens as unknown as ThemeContextValue),
-  theme: "system",
-  resolvedTheme: "dark",
-  setTheme: () => null,
+  theme: 'system',
+  resolvedTheme: 'dark',
+  setTheme: () => null
 });
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
-function getSystemTheme(): "dark" | "light" {
-  if (typeof window === "undefined") return "dark";
-  return window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "dark"
-    : "light";
+function getSystemTheme(): 'dark' | 'light' {
+  if (typeof window === 'undefined') return 'dark';
+  return window.matchMedia('(prefers-color-scheme: dark)').matches
+    ? 'dark'
+    : 'light';
 }
 
-function resolveTheme(theme: ThemeMode): "dark" | "light" {
-  return theme === "system" ? getSystemTheme() : theme;
+function resolveTheme(theme: ThemeMode): 'dark' | 'light' {
+  return theme === 'system' ? getSystemTheme() : theme;
 }
 
 // ── Provider ───────────────────────────────────────────────────────────────────
@@ -130,9 +130,9 @@ interface ThemeProviderProps {
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({
   children,
   tokens = {},
-  defaultTheme = "system",
-  storageKey = "uni-manager-theme",
-  onThemeChange,
+  defaultTheme = 'system',
+  storageKey = 'uni-manager-theme',
+  onThemeChange
 }) => {
   const mergedTokens = {
     ...defaultTokens,
@@ -144,29 +144,29 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
       ...(tokens.typography ?? {}),
       fontSize: {
         ...defaultTokens.typography.fontSize,
-        ...(tokens.typography?.fontSize ?? {}),
-      },
+        ...(tokens.typography?.fontSize ?? {})
+      }
     },
     borderRadius: {
       ...defaultTokens.borderRadius,
-      ...(tokens.borderRadius ?? {}),
-    },
+      ...(tokens.borderRadius ?? {})
+    }
   };
 
   const [theme, setThemeState] = useState<ThemeMode>(() => {
-    if (typeof window === "undefined") return defaultTheme;
+    if (typeof window === 'undefined') return defaultTheme;
     return (
       (localStorage.getItem(storageKey) as ThemeMode | null) ?? defaultTheme
     );
   });
 
-  const [resolvedTheme, setResolvedTheme] = useState<"dark" | "light">(() =>
-    resolveTheme(theme),
+  const [resolvedTheme, setResolvedTheme] = useState<'dark' | 'light'>(() =>
+    resolveTheme(theme)
   );
 
   useEffect(() => {
     const root = window.document.documentElement;
-    root.classList.remove("light", "dark");
+    root.classList.remove('light', 'dark');
     root.classList.add(resolvedTheme);
   }, [resolvedTheme]);
 
@@ -174,22 +174,22 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
     const resolved = resolveTheme(theme);
     setResolvedTheme(resolved);
 
-    if (theme !== "system") return;
+    if (theme !== 'system') return;
 
-    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
     const onOsChange = (e: MediaQueryListEvent) => {
-      setResolvedTheme(e.matches ? "dark" : "light");
+      setResolvedTheme(e.matches ? 'dark' : 'light');
     };
 
     if (mq.addEventListener) {
-      mq.addEventListener("change", onOsChange);
+      mq.addEventListener('change', onOsChange);
     } else {
       mq.addListener(onOsChange); // Safari < 14 fallback
     }
 
     return () => {
       if (mq.removeEventListener) {
-        mq.removeEventListener("change", onOsChange);
+        mq.removeEventListener('change', onOsChange);
       } else {
         mq.removeListener(onOsChange);
       }
@@ -197,7 +197,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
   }, [theme]);
 
   const setTheme = (newTheme: ThemeMode) => {
-    if (typeof window !== "undefined") {
+    if (typeof window !== 'undefined') {
       localStorage.setItem(storageKey, newTheme);
     }
     setThemeState(newTheme);
@@ -208,7 +208,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
     ...mergedTokens,
     theme,
     resolvedTheme,
-    setTheme,
+    setTheme
   } as ThemeContextValue;
 
   return (

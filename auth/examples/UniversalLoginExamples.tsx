@@ -3,15 +3,15 @@
  * Demonstrates how to use the canonical LoginForm component.
  */
 
-import React from "react";
-import { LoginForm } from "../components/LoginForm";
-import { useNavigate } from "react-router-dom";
+import React from 'react';
+import { LoginForm } from '../components/LoginForm';
+import { useNavigate } from 'react-router-dom';
 
 export function AdminLoginPage() {
   const navigate = useNavigate();
 
   const handleLoginSuccess = (_result: unknown) => {
-    navigate("/dashboard");
+    navigate('/dashboard');
   };
 
   const handleLoginError = (_error: unknown) => {

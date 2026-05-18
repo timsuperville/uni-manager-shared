@@ -19,26 +19,32 @@ This guide documents:
 ### ✅ Correct Pattern
 
 ```typescript
-import { BaseService, ValidationSchema } from "@shared/api";
-import type { ApiClient, PaginationParams, PaginatedResponse } from "@shared/api";
+import { BaseService, ValidationSchema } from '@shared/api';
+import type {
+  ApiClient,
+  PaginationParams,
+  PaginatedResponse
+} from '@shared/api';
 
 export class ChurchService extends BaseService {
   private static readonly SCHEMAS = {
     create: {
-      name: { required: true, type: "string", minLength: 2 },
-      address: { required: true, type: "object" },
-    } satisfies ValidationSchema,
+      name: { required: true, type: 'string', minLength: 2 },
+      address: { required: true, type: 'object' }
+    } satisfies ValidationSchema
   };
 
   constructor(client: ApiClient) {
     // Pass a RELATIVE path — ApiClient.baseURL (/api/v1) is prepended automatically.
     // Never include /api or /api/v1 here.
-    super(client, "/churches", "ChurchService");
+    super(client, '/churches', 'ChurchService');
   }
 
-  async getAll(pagination?: PaginationParams): Promise<PaginatedResponse<Church>> {
+  async getAll(
+    pagination?: PaginationParams
+  ): Promise<PaginatedResponse<Church>> {
     // this.getMany("") → GET /api/v1/churches
-    return this.getMany<Church>("", undefined, pagination);
+    return this.getMany<Church>('', undefined, pagination);
   }
 
   async getById(id: string): Promise<Church> {
@@ -49,7 +55,7 @@ export class ChurchService extends BaseService {
   async create(data: CreateChurchRequest): Promise<Church> {
     this.validateRequest(data, ChurchService.SCHEMAS.create);
     // this.post("") → POST /api/v1/churches
-    return this.post<Church>("", data);
+    return this.post<Church>('', data);
   }
 
   async update(id: string, updates: UpdateChurchRequest): Promise<Church> {
@@ -68,18 +74,18 @@ export class ChurchService extends BaseService {
 
 ```typescript
 // WRONG — double-prefix bug: /api/v1 + /api/v1/... = /api/v1/api/v1/...
-super(client, "/api/v1/churches", "ChurchService");
+super(client, '/api/v1/churches', 'ChurchService');
 
 // WRONG — manually prepending baseEndpoint doubles the path
 // Results in /churches/churches
 this.post(this.baseEndpoint, data);
 
 // WRONG — same double-prefix via concatenation
-this.post(this.baseEndpoint + "/special", data);
+this.post(this.baseEndpoint + '/special', data);
 // Correct: this.post("/special", data)
 
 // WRONG — hardcoded localhost port (breaks in prod and other devs' environments)
-const client = new ApiClient({ baseURL: "http://localhost:5000/api" });
+const client = new ApiClient({ baseURL: 'http://localhost:5000/api' });
 // Correct: new ApiClient({ baseURL: getApiBaseUrl() })
 ```
 
@@ -92,7 +98,7 @@ Add your service to the `ApiServices` class in `services/index.ts`:
 ```typescript
 // services/index.ts
 
-import { ChurchService } from "./ChurchService";
+import { ChurchService } from './ChurchService';
 
 export class ApiServices {
   private _church: ChurchService;
@@ -111,7 +117,7 @@ export class ApiServices {
 And export it from the barrel (`api/index.ts`):
 
 ```typescript
-export { ChurchService } from "./services/ChurchService";
+export { ChurchService } from './services/ChurchService';
 ```
 
 ---
@@ -138,7 +144,7 @@ export { ChurchService } from "./services/ChurchService";
 
 ```javascript
 const response = await fetch(`/api/v1/churches`, {
-  headers: { Authorization: `Bearer ${token}` },
+  headers: { Authorization: `Bearer ${token}` }
 });
 const data = await response.json();
 ```
@@ -179,9 +185,9 @@ const [loading, setLoading] = useState(false);
 
 useEffect(() => {
   setLoading(true);
-  fetch("/api/v1/churches")
-    .then((r) => r.json())
-    .then((d) => setChurches(d.data))
+  fetch('/api/v1/churches')
+    .then(r => r.json())
+    .then(d => setChurches(d.data))
     .finally(() => setLoading(false));
 }, []);
 ```
@@ -190,7 +196,9 @@ useEffect(() => {
 
 ```typescript
 const api = useApi();
-const { data: churches, isLoading } = useApiQuery("churches", () => api.church.getAll());
+const { data: churches, isLoading } = useApiQuery('churches', () =>
+  api.church.getAll()
+);
 ```
 
 ### URL Construction
@@ -198,14 +206,14 @@ const { data: churches, isLoading } = useApiQuery("churches", () => api.church.g
 **Before:**
 
 ```javascript
-const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 const avatarUrl = `${apiUrl}/uploads/${user.avatar}`;
 ```
 
 **After:**
 
 ```typescript
-import { getAbsoluteUrl } from "@shared/api";
+import { getAbsoluteUrl } from '@shared/api';
 
 const avatarUrl = getAbsoluteUrl(`/uploads/${user.avatar}`);
 ```
@@ -225,7 +233,7 @@ These bugs were found and resolved during the migration. Document them here so t
 **Fix:** Always type progress callbacks as `AxiosProgressEvent`:
 
 ```typescript
-import type { AxiosProgressEvent } from "axios";
+import type { AxiosProgressEvent } from 'axios';
 
 onUploadProgress: (event: AxiosProgressEvent) => {
   const pct = Math.round((event.loaded * 100) / (event.total ?? event.loaded));
@@ -259,11 +267,11 @@ const pct = Math.round((event.loaded * 100) / (event.total ?? event.loaded));
 
 ```typescript
 try {
-  window.addEventListener("avatar-upload-progress", handler);
+  window.addEventListener('avatar-upload-progress', handler);
   const result = await uploadFn(file);
   return result;
 } finally {
-  window.removeEventListener("avatar-upload-progress", handler);
+  window.removeEventListener('avatar-upload-progress', handler);
 }
 ```
 
@@ -280,11 +288,11 @@ try {
 ```typescript
 // WRONG
 this.post(this.baseEndpoint, data); // → /notifications/notifications
-this.post(this.baseEndpoint + "/bulk", data); // → /notifications/notifications/bulk
+this.post(this.baseEndpoint + '/bulk', data); // → /notifications/notifications/bulk
 
 // CORRECT
-this.post("", data); // → /notifications
-this.post("/bulk", data); // → /notifications/bulk
+this.post('', data); // → /notifications
+this.post('/bulk', data); // → /notifications/bulk
 ```
 
 ---
@@ -335,7 +343,9 @@ constructor(config) {
 
 ```typescript
 const currentQueue = (await get(SYNC_STORE_NAME)) ?? [];
-const updated = currentQueue.map((item) => (item.id === entry.id ? { ...item, retries: entry.retries } : item));
+const updated = currentQueue.map(item =>
+  item.id === entry.id ? { ...item, retries: entry.retries } : item
+);
 await set(SYNC_STORE_NAME, updated);
 ```
 

@@ -1,5 +1,5 @@
-import { useCallback, useState, useEffect } from "react";
-import securityService from "../services/securityService";
+import { useCallback, useState, useEffect } from 'react';
+import securityService from '../services/securityService';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -28,7 +28,7 @@ interface UseRateLimitReturn {
   checkRateLimit: () => Promise<RateLimitStatus>;
   recordAttempt: (success?: boolean) => Promise<boolean>;
   executeWithRateLimit: <T>(
-    actionFn: () => Promise<T>,
+    actionFn: () => Promise<T>
   ) => Promise<
     | { success: true; data: T; rateLimitStatus: RateLimitStatus }
     | { success: false; error: string; rateLimitStatus: RateLimitStatus }
@@ -43,21 +43,21 @@ interface UseRateLimitReturn {
 // ── Hook ──────────────────────────────────────────────────────────────────────
 
 export const useRateLimit = (
-  options: RateLimitOptions = {},
+  options: RateLimitOptions = {}
 ): UseRateLimitReturn => {
   const {
     identifier = null,
-    action = "default",
+    action = 'default',
     maxAttempts = 5,
     windowMs = 60000,
-    autoDetectIP = true,
+    autoDetectIP = true
   } = options;
 
   const [rateLimitStatus, setRateLimitStatus] = useState<RateLimitStatus>({
     allowed: true,
     attemptsRemaining: maxAttempts,
     remainingTime: 0,
-    reason: null,
+    reason: null
   });
 
   const [clientIP, setClientIP] = useState<string | null>(null);
@@ -67,18 +67,18 @@ export const useRateLimit = (
     if (!autoDetectIP && clientIP) return clientIP;
 
     try {
-      if (import.meta.env.MODE === "development") {
-        const defaultIP = "127.0.0.1";
+      if (import.meta.env.MODE === 'development') {
+        const defaultIP = '127.0.0.1';
         setClientIP(defaultIP);
         return defaultIP;
       }
-      const response = await fetch("/api/auth/client-ip");
+      const response = await fetch('/api/auth/client-ip');
       const data = (await response.json()) as { ip?: string };
-      const detected = data.ip ?? "127.0.0.1";
+      const detected = data.ip ?? '127.0.0.1';
       setClientIP(detected);
       return detected;
     } catch (_err) {
-      const fallback = "127.0.0.1";
+      const fallback = '127.0.0.1';
       setClientIP(fallback);
       return fallback;
     }
@@ -94,7 +94,7 @@ export const useRateLimit = (
             id: string,
             action: string,
             max: number,
-            window: number,
+            window: number
           ): RateLimitStatus;
         }
       ).checkRateLimit(targetIdentifier, action, maxAttempts, windowMs);
@@ -106,7 +106,7 @@ export const useRateLimit = (
         attemptsRemaining: 1,
         remainingTime: 0,
         reason: null,
-        error: (e as Error).message,
+        error: (e as Error).message
       };
       setRateLimitStatus(fallback);
       return fallback;
@@ -130,7 +130,7 @@ export const useRateLimit = (
         return false;
       }
     },
-    [identifier, action, checkRateLimit, detectClientIP],
+    [identifier, action, checkRateLimit, detectClientIP]
   );
 
   const executeWithRateLimit = useCallback(
@@ -139,7 +139,7 @@ export const useRateLimit = (
         const status = await checkRateLimit();
         if (!status.allowed) {
           throw new Error(
-            `Rate limit exceeded: ${status.reason}. Try again in ${status.remainingTime}s.`,
+            `Rate limit exceeded: ${status.reason}. Try again in ${status.remainingTime}s.`
           );
         }
         try {
@@ -154,11 +154,11 @@ export const useRateLimit = (
         return {
           success: false as const,
           error: (e as Error).message,
-          rateLimitStatus,
+          rateLimitStatus
         };
       }
     },
-    [checkRateLimit, recordAttempt, rateLimitStatus],
+    [checkRateLimit, recordAttempt, rateLimitStatus]
   );
 
   const resetRateLimit = useCallback(async (): Promise<boolean> => {
@@ -177,7 +177,7 @@ export const useRateLimit = (
   }, [identifier, action, checkRateLimit, detectClientIP]);
 
   const getFormattedRemainingTime = useCallback((): string => {
-    if (rateLimitStatus.remainingTime <= 0) return "";
+    if (rateLimitStatus.remainingTime <= 0) return '';
     const minutes = Math.floor(rateLimitStatus.remainingTime / 60);
     const seconds = rateLimitStatus.remainingTime % 60;
     return minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
@@ -210,37 +210,37 @@ export const useRateLimit = (
     getFormattedRemainingTime,
     attemptsRemaining: rateLimitStatus.attemptsRemaining,
     remainingTime: rateLimitStatus.remainingTime,
-    formattedRemainingTime: getFormattedRemainingTime(),
+    formattedRemainingTime: getFormattedRemainingTime()
   };
 };
 
 export const useLoginRateLimit = (userIdentifier: string | null = null) =>
   useRateLimit({
     identifier: userIdentifier,
-    action: "login",
+    action: 'login',
     maxAttempts: 5,
-    windowMs: 15 * 60 * 1000,
+    windowMs: 15 * 60 * 1000
   });
 
 export const useMFARateLimit = (userIdentifier: string | null = null) =>
   useRateLimit({
     identifier: userIdentifier,
-    action: "mfa",
+    action: 'mfa',
     maxAttempts: 3,
-    windowMs: 5 * 60 * 1000,
+    windowMs: 5 * 60 * 1000
   });
 
-export const useAPIRateLimit = (endpoint = "api") =>
+export const useAPIRateLimit = (endpoint = 'api') =>
   useRateLimit({ action: endpoint, maxAttempts: 60, windowMs: 60 * 1000 });
 
 export const usePasswordResetRateLimit = (
-  userIdentifier: string | null = null,
+  userIdentifier: string | null = null
 ) =>
   useRateLimit({
     identifier: userIdentifier,
-    action: "password_reset",
+    action: 'password_reset',
     maxAttempts: 3,
-    windowMs: 60 * 60 * 1000,
+    windowMs: 60 * 60 * 1000
   });
 
 export default useRateLimit;

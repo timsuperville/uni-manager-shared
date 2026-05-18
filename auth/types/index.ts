@@ -53,11 +53,11 @@ export {
   HTTP_STATUS,
 
   // Events
-  AUTH_EVENTS,
-} from "./constants";
+  AUTH_EVENTS
+} from './constants';
 
 // ==================== TYPES ====================
 
-export type { MFAMethod, MFAStatus } from "./mfaConstants";
-export type { Permission, RoleDefinition } from "./rbacRoles";
-export * from "./auth.types";
+export type { MFAMethod, MFAStatus } from './mfaConstants';
+export type { Permission, RoleDefinition } from './rbacRoles';
+export * from './auth.types';

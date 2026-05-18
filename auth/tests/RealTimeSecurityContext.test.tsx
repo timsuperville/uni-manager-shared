@@ -5,13 +5,13 @@
  * with threat detection and notification management
  */
 
-import React from "react";
-import { describe, test, expect, beforeEach, afterEach, vi } from "vitest";
-import { render, screen, waitFor, act } from "@testing-library/react";
+import React from 'react';
+import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import {
   RealTimeSecurityProvider,
-  useRealTimeSecurity,
-} from "../context/RealTimeSecurityContext";
+  useRealTimeSecurity
+} from '../context/RealTimeSecurityContext';
 
 // Mock the security monitoring service
 const mockSecurityService = {
@@ -33,19 +33,19 @@ const mockSecurityService = {
     threatDetection: true,
     behaviorAnalysis: true,
     riskScoring: true,
-    realTimeAlerts: true,
+    realTimeAlerts: true
   },
   metrics: {
     activeThreats: new Map(),
     alertsCount: 0,
     connectionsCount: 1,
     lastThreatDetected: null,
-    systemHealth: "healthy",
-  },
+    systemHealth: 'healthy'
+  }
 };
 
-vi.mock("../services/realTimeSecurityMonitoringService", () => ({
-  default: vi.fn(() => mockSecurityService),
+vi.mock('../services/realTimeSecurityMonitoringService', () => ({
+  default: vi.fn(() => mockSecurityService)
 }));
 
 // Test component that uses the context
@@ -61,83 +61,82 @@ const TestComponent = () => {
     pendingNotifications,
     initializeSecurityMonitoring,
     reportSecurityEvent,
-    dismissNotification,
+    dismissNotification
   } = useRealTimeSecurity();
 
-  return React.createElement("div", { "data-testid": "test-component" }, [
+  return React.createElement('div', { 'data-testid': 'test-component' }, [
     React.createElement(
-      "div",
-      { key: "status", "data-testid": "connection-status" },
-      isConnected ? "Connected" : "Disconnected",
+      'div',
+      { key: 'status', 'data-testid': 'connection-status' },
+      isConnected ? 'Connected' : 'Disconnected'
     ),
     React.createElement(
-      "div",
-      { key: "initialized", "data-testid": "initialized-status" },
-      isInitialized ? "Initialized" : "Not Initialized",
+      'div',
+      { key: 'initialized', 'data-testid': 'initialized-status' },
+      isInitialized ? 'Initialized' : 'Not Initialized'
     ),
     React.createElement(
-      "div",
-      { key: "health", "data-testid": "system-health" },
-      systemHealth,
+      'div',
+      { key: 'health', 'data-testid': 'system-health' },
+      systemHealth
     ),
     React.createElement(
-      "div",
-      { key: "risk", "data-testid": "risk-score" },
-      riskScore.toString(),
+      'div',
+      { key: 'risk', 'data-testid': 'risk-score' },
+      riskScore.toString()
     ),
     React.createElement(
-      "div",
-      { key: "threats", "data-testid": "active-threats" },
-      activeThreats.size.toString(),
+      'div',
+      { key: 'threats', 'data-testid': 'active-threats' },
+      activeThreats.size.toString()
     ),
     React.createElement(
-      "div",
-      { key: "alerts", "data-testid": "recent-alerts" },
-      recentAlerts.length.toString(),
+      'div',
+      { key: 'alerts', 'data-testid': 'recent-alerts' },
+      recentAlerts.length.toString()
     ),
     React.createElement(
-      "div",
-      { key: "notifications", "data-testid": "pending-notifications" },
-      pendingNotifications.length.toString(),
+      'div',
+      { key: 'notifications', 'data-testid': 'pending-notifications' },
+      pendingNotifications.length.toString()
     ),
     error &&
       React.createElement(
-        "div",
-        { key: "error", "data-testid": "error" },
-        error,
+        'div',
+        { key: 'error', 'data-testid': 'error' },
+        error
       ),
     React.createElement(
-      "button",
+      'button',
       {
-        key: "init-btn",
-        "data-testid": "initialize-button",
-        onClick: () => initializeSecurityMonitoring("user123", "session456"),
+        key: 'init-btn',
+        'data-testid': 'initialize-button',
+        onClick: () => initializeSecurityMonitoring('user123', 'session456')
       },
-      "Initialize",
+      'Initialize'
     ),
     React.createElement(
-      "button",
+      'button',
       {
-        key: "report-btn",
-        "data-testid": "report-button",
-        onClick: () =>
-          reportSecurityEvent({ type: "test_event", data: "test" }),
+        key: 'report-btn',
+        'data-testid': 'report-button',
+        onClick: () => reportSecurityEvent({ type: 'test_event', data: 'test' })
       },
-      "Report Event",
+      'Report Event'
     ),
     React.createElement(
-      "button",
+      'button',
       {
-        key: "dismiss-btn",
-        "data-testid": "dismiss-button",
-        onClick: () => dismissNotification("test-notification"),
+        key: 'dismiss-btn',
+        'data-testid': 'dismiss-button',
+        onClick: () => dismissNotification('test-notification')
       },
-      "Dismiss Notification",
-    ),
+      'Dismiss Notification'
+    )
   ]);
 };
 
-describe("RealTimeSecurityContext", () => {
+describe('RealTimeSecurityContext', () => {
   let eventHandlers: any;
 
   beforeEach(() => {
@@ -161,8 +160,8 @@ describe("RealTimeSecurityContext", () => {
     // Reset service state
     mockSecurityService.initialize.mockResolvedValue({
       success: true,
-      connectionId: "test-connection",
-      monitoringConfig: mockSecurityService.monitoringConfig,
+      connectionId: 'test-connection',
+      monitoringConfig: mockSecurityService.monitoringConfig
     });
   });
 
@@ -170,77 +169,77 @@ describe("RealTimeSecurityContext", () => {
     eventHandlers.clear();
   });
 
-  describe("Provider Setup", () => {
-    test("should render children without context usage", () => {
+  describe('Provider Setup', () => {
+    test('should render children without context usage', () => {
       render(
         React.createElement(
           RealTimeSecurityProvider,
           null,
           React.createElement(
-            "div",
-            { "data-testid": "child" },
-            "Child Component",
-          ),
-        ),
+            'div',
+            { 'data-testid': 'child' },
+            'Child Component'
+          )
+        )
       );
 
-      expect(screen.getByTestId("child")).toHaveTextContent("Child Component");
+      expect(screen.getByTestId('child')).toHaveTextContent('Child Component');
     });
 
-    test("should throw error when hook used outside provider", () => {
+    test('should throw error when hook used outside provider', () => {
       const TestComponentOutsideProvider = () => {
         try {
           useRealTimeSecurity();
-          return React.createElement("div", null, "Should not render");
+          return React.createElement('div', null, 'Should not render');
         } catch (_error: any) {
           return React.createElement(
-            "div",
-            { "data-testid": "error" },
-            _error.message,
+            'div',
+            { 'data-testid': 'error' },
+            _error.message
           );
         }
       };
 
       render(React.createElement(TestComponentOutsideProvider));
 
-      expect(screen.getByTestId("error")).toHaveTextContent(
-        "useRealTimeSecurity must be used within a RealTimeSecurityProvider",
+      expect(screen.getByTestId('error')).toHaveTextContent(
+        'useRealTimeSecurity must be used within a RealTimeSecurityProvider'
       );
     });
   });
 
-  describe("Service Initialization", () => {
-    test("should initialize with default state", () => {
+  describe('Service Initialization', () => {
+    test('should initialize with default state', () => {
       render(
         React.createElement(
           RealTimeSecurityProvider,
           null,
-          React.createElement(TestComponent),
-        ),
+          React.createElement(TestComponent)
+        )
       );
 
-      expect(screen.getByTestId("connection-status")).toHaveTextContent(
-        "Disconnected",
+      expect(screen.getByTestId('connection-status')).toHaveTextContent(
+        'Disconnected'
       );
-      expect(screen.getByTestId("initialized-status")).toHaveTextContent(
-        "Not Initialized",
+      expect(screen.getByTestId('initialized-status')).toHaveTextContent(
+        'Not Initialized'
       );
-      expect(screen.getByTestId("system-health")).toHaveTextContent(
-        "initializing",
+      expect(screen.getByTestId('system-health')).toHaveTextContent(
+        'initializing'
       );
-      expect(screen.getByTestId("risk-score")).toHaveTextContent("0");
+      expect(screen.getByTestId('risk-score')).toHaveTextContent('0');
     });
 
-    test("should initialize security monitoring service", async () => {
+    test('should initialize security monitoring service', async () => {
       render(
         React.createElement(
           RealTimeSecurityProvider,
           null,
-          React.createElement(TestComponent),
-        ),
+          React.createElement(TestComponent)
+        )
       );
 
-      const initButton = screen.getByTestId("initialize-button");
+      const initButton = screen.getByTestId('initialize-button');
 
       await act(async () => {
         initButton.click();
@@ -248,379 +247,379 @@ describe("RealTimeSecurityContext", () => {
 
       await waitFor(() => {
         expect(mockSecurityService.initialize).toHaveBeenCalledWith(
-          "user123",
-          "session456",
+          'user123',
+          'session456'
         );
       });
 
       await waitFor(() => {
-        expect(screen.getByTestId("initialized-status")).toHaveTextContent(
-          "Initialized",
+        expect(screen.getByTestId('initialized-status')).toHaveTextContent(
+          'Initialized'
         );
       });
     });
 
-    test.skip("should handle initialization errors", async () => {
-      const initError = new Error("Failed to initialize");
+    test.skip('should handle initialization errors', async () => {
+      const initError = new Error('Failed to initialize');
       mockSecurityService.initialize.mockRejectedValue(initError);
 
       render(
         React.createElement(
           RealTimeSecurityProvider,
           null,
-          React.createElement(TestComponent),
-        ),
+          React.createElement(TestComponent)
+        )
       );
 
-      const initButton = screen.getByTestId("initialize-button");
+      const initButton = screen.getByTestId('initialize-button');
 
       await act(async () => {
         initButton.click();
       });
 
       await waitFor(() => {
-        expect(screen.getByTestId("error")).toHaveTextContent(
-          "Failed to initialize",
+        expect(screen.getByTestId('error')).toHaveTextContent(
+          'Failed to initialize'
         );
       });
 
       await waitFor(() => {
-        expect(screen.getByTestId("system-health")).toHaveTextContent("error");
+        expect(screen.getByTestId('system-health')).toHaveTextContent('error');
       });
     });
   });
 
-  describe("Event Handling", () => {
+  describe('Event Handling', () => {
     beforeEach(async () => {
       render(
         React.createElement(
           RealTimeSecurityProvider,
           null,
-          React.createElement(TestComponent),
-        ),
+          React.createElement(TestComponent)
+        )
       );
 
-      const initButton = screen.getByTestId("initialize-button");
+      const initButton = screen.getByTestId('initialize-button');
       await act(async () => {
         initButton.click();
       });
 
       await waitFor(() => {
-        expect(screen.getByTestId("initialized-status")).toHaveTextContent(
-          "Initialized",
+        expect(screen.getByTestId('initialized-status')).toHaveTextContent(
+          'Initialized'
         );
       });
     });
 
-    test("should handle threat detection events", async () => {
+    test('should handle threat detection events', async () => {
       const threatPayload = {
-        threatId: "threat_123",
-        threatType: "brute_force_attack",
-        severity: "high",
+        threatId: 'threat_123',
+        threatType: 'brute_force_attack',
+        severity: 'high',
         confidence: 0.9,
-        source: "192.168.1.100",
-        target: "user123",
+        source: '192.168.1.100',
+        target: 'user123',
         timestamp: Date.now(),
-        metadata: { attempts: 5 },
+        metadata: { attempts: 5 }
       };
 
       act(() => {
         // Simulate threat detected event
-        const threatHandler = eventHandlers.get("threatDetected")[0];
+        const threatHandler = eventHandlers.get('threatDetected')[0];
         threatHandler(threatPayload);
       });
 
       await waitFor(() => {
-        expect(screen.getByTestId("active-threats")).toHaveTextContent("1");
+        expect(screen.getByTestId('active-threats')).toHaveTextContent('1');
       });
 
       await waitFor(() => {
-        expect(screen.getByTestId("recent-alerts")).toHaveTextContent("1");
+        expect(screen.getByTestId('recent-alerts')).toHaveTextContent('1');
       });
     });
 
-    test("should handle security alert events", async () => {
+    test('should handle security alert events', async () => {
       const alertPayload = {
-        alertId: "alert_123",
-        alertType: "suspicious_login",
-        severity: "high",
-        message: "Login from unusual location",
+        alertId: 'alert_123',
+        alertType: 'suspicious_login',
+        severity: 'high',
+        message: 'Login from unusual location',
         timestamp: Date.now(),
-        actionRequired: true,
+        actionRequired: true
       };
 
       act(() => {
-        const alertHandler = eventHandlers.get("securityAlert")[0];
+        const alertHandler = eventHandlers.get('securityAlert')[0];
         alertHandler(alertPayload);
       });
 
       await waitFor(() => {
-        expect(screen.getByTestId("recent-alerts")).toHaveTextContent("1");
+        expect(screen.getByTestId('recent-alerts')).toHaveTextContent('1');
       });
 
       await waitFor(() => {
-        expect(screen.getByTestId("pending-notifications")).toHaveTextContent(
-          "1",
+        expect(screen.getByTestId('pending-notifications')).toHaveTextContent(
+          '1'
         );
       });
     });
 
-    test("should handle risk score updates", async () => {
+    test('should handle risk score updates', async () => {
       const riskUpdatePayload = {
-        sessionId: "session456",
+        sessionId: 'session456',
         newRiskScore: 0.7,
         previousRiskScore: 0.3,
-        factors: ["location_change"],
-        timestamp: Date.now(),
+        factors: ['location_change'],
+        timestamp: Date.now()
       };
 
       act(() => {
-        const riskHandler = eventHandlers.get("riskScoreUpdated")[0];
+        const riskHandler = eventHandlers.get('riskScoreUpdated')[0];
         riskHandler(riskUpdatePayload);
       });
 
       await waitFor(() => {
-        expect(screen.getByTestId("risk-score")).toHaveTextContent("0.7");
+        expect(screen.getByTestId('risk-score')).toHaveTextContent('0.7');
       });
     });
 
-    test("should handle behavior anomalies", async () => {
+    test('should handle behavior anomalies', async () => {
       const anomalyPayload = {
-        anomalyType: "keystroke_pattern",
-        severity: "medium",
+        anomalyType: 'keystroke_pattern',
+        severity: 'medium',
         confidence: 0.8,
         behaviorData: { avgDelay: 150 },
-        timestamp: Date.now(),
+        timestamp: Date.now()
       };
 
       act(() => {
-        const anomalyHandler = eventHandlers.get("behaviorAnomaly")[0];
+        const anomalyHandler = eventHandlers.get('behaviorAnomaly')[0];
         anomalyHandler(anomalyPayload);
       });
 
       await waitFor(() => {
-        expect(screen.getByTestId("recent-alerts")).toHaveTextContent("1");
+        expect(screen.getByTestId('recent-alerts')).toHaveTextContent('1');
       });
     });
 
-    test("should handle connection state changes", async () => {
+    test('should handle connection state changes', async () => {
       act(() => {
-        const connectedHandler = eventHandlers.get("connected")[0];
+        const connectedHandler = eventHandlers.get('connected')[0];
         connectedHandler();
       });
 
       await waitFor(() => {
-        expect(screen.getByTestId("connection-status")).toHaveTextContent(
-          "Connected",
+        expect(screen.getByTestId('connection-status')).toHaveTextContent(
+          'Connected'
         );
       });
 
       await waitFor(() => {
-        expect(screen.getByTestId("system-health")).toHaveTextContent(
-          "healthy",
+        expect(screen.getByTestId('system-health')).toHaveTextContent(
+          'healthy'
         );
       });
 
       act(() => {
-        const disconnectedHandler = eventHandlers.get("disconnected")[0];
+        const disconnectedHandler = eventHandlers.get('disconnected')[0];
         disconnectedHandler();
       });
 
       await waitFor(() => {
-        expect(screen.getByTestId("connection-status")).toHaveTextContent(
-          "Disconnected",
+        expect(screen.getByTestId('connection-status')).toHaveTextContent(
+          'Disconnected'
         );
       });
 
       await waitFor(() => {
-        expect(screen.getByTestId("system-health")).toHaveTextContent(
-          "disconnected",
+        expect(screen.getByTestId('system-health')).toHaveTextContent(
+          'disconnected'
         );
       });
     });
   });
 
-  describe("Threat Management", () => {
+  describe('Threat Management', () => {
     beforeEach(async () => {
       render(
         React.createElement(
           RealTimeSecurityProvider,
           null,
-          React.createElement(TestComponent),
-        ),
+          React.createElement(TestComponent)
+        )
       );
 
-      const initButton = screen.getByTestId("initialize-button");
+      const initButton = screen.getByTestId('initialize-button');
       await act(async () => {
         initButton.click();
       });
 
       await waitFor(() => {
-        expect(screen.getByTestId("initialized-status")).toHaveTextContent(
-          "Initialized",
+        expect(screen.getByTestId('initialized-status')).toHaveTextContent(
+          'Initialized'
         );
       });
     });
 
-    test("should add critical threats to critical alerts", async () => {
+    test('should add critical threats to critical alerts', async () => {
       const criticalThreat = {
-        threatId: "critical_threat",
-        threatType: "account_takeover",
-        severity: "critical",
+        threatId: 'critical_threat',
+        threatType: 'account_takeover',
+        severity: 'critical',
         confidence: 0.95,
-        source: "malicious_ip",
-        target: "user123",
-        timestamp: Date.now(),
+        source: 'malicious_ip',
+        target: 'user123',
+        timestamp: Date.now()
       };
 
       act(() => {
-        const threatHandler = eventHandlers.get("threatDetected")[0];
+        const threatHandler = eventHandlers.get('threatDetected')[0];
         threatHandler(criticalThreat);
       });
 
       await waitFor(() => {
-        expect(screen.getByTestId("active-threats")).toHaveTextContent("1");
+        expect(screen.getByTestId('active-threats')).toHaveTextContent('1');
       });
 
       await waitFor(() => {
-        expect(screen.getByTestId("pending-notifications")).toHaveTextContent(
-          "1",
+        expect(screen.getByTestId('pending-notifications')).toHaveTextContent(
+          '1'
         );
       });
     });
 
-    test("should handle multiple concurrent threats", async () => {
+    test('should handle multiple concurrent threats', async () => {
       const threats = [
         {
-          threatId: "threat_1",
-          threatType: "brute_force",
-          severity: "high",
+          threatId: 'threat_1',
+          threatType: 'brute_force',
+          severity: 'high',
           confidence: 0.8,
-          timestamp: Date.now(),
+          timestamp: Date.now()
         },
         {
-          threatId: "threat_2",
-          threatType: "suspicious_activity",
-          severity: "medium",
+          threatId: 'threat_2',
+          threatType: 'suspicious_activity',
+          severity: 'medium',
           confidence: 0.6,
-          timestamp: Date.now(),
-        },
+          timestamp: Date.now()
+        }
       ];
 
       act(() => {
-        const threatHandler = eventHandlers.get("threatDetected")[0];
-        threats.forEach((threat) => threatHandler(threat));
+        const threatHandler = eventHandlers.get('threatDetected')[0];
+        threats.forEach(threat => threatHandler(threat));
       });
 
       await waitFor(() => {
-        expect(screen.getByTestId("active-threats")).toHaveTextContent("2");
+        expect(screen.getByTestId('active-threats')).toHaveTextContent('2');
       });
 
       await waitFor(() => {
-        expect(screen.getByTestId("recent-alerts")).toHaveTextContent("2");
+        expect(screen.getByTestId('recent-alerts')).toHaveTextContent('2');
       });
     });
   });
 
-  describe("Notification Management", () => {
+  describe('Notification Management', () => {
     beforeEach(async () => {
       render(
         React.createElement(
           RealTimeSecurityProvider,
           null,
-          React.createElement(TestComponent),
-        ),
+          React.createElement(TestComponent)
+        )
       );
 
-      const initButton = screen.getByTestId("initialize-button");
+      const initButton = screen.getByTestId('initialize-button');
       await act(async () => {
         initButton.click();
       });
     });
 
-    test("should dismiss individual notifications", async () => {
+    test('should dismiss individual notifications', async () => {
       // Add a notification first
       const alertPayload = {
-        alertId: "test_alert_1",
-        alertType: "test_alert",
-        severity: "high", // Changed to high to trigger pending notification
-        message: "Test notification",
+        alertId: 'test_alert_1',
+        alertType: 'test_alert',
+        severity: 'high', // Changed to high to trigger pending notification
+        message: 'Test notification',
         timestamp: Date.now(),
-        actionRequired: true, // Added to ensure it goes to pending
+        actionRequired: true // Added to ensure it goes to pending
       };
 
       act(() => {
-        const alertHandler = eventHandlers.get("securityAlert")[0];
+        const alertHandler = eventHandlers.get('securityAlert')[0];
         alertHandler(alertPayload);
       });
 
       await waitFor(() => {
-        expect(screen.getByTestId("pending-notifications")).toHaveTextContent(
-          "1",
+        expect(screen.getByTestId('pending-notifications')).toHaveTextContent(
+          '1'
         );
       });
 
       // Now dismiss it
-      const dismissButton = screen.getByTestId("dismiss-button");
+      const dismissButton = screen.getByTestId('dismiss-button');
       act(() => {
         dismissButton.click();
       });
 
       // Since the test notification ID doesn't match, count should remain the same
       await waitFor(() => {
-        expect(screen.getByTestId("pending-notifications")).toHaveTextContent(
-          "1",
+        expect(screen.getByTestId('pending-notifications')).toHaveTextContent(
+          '1'
         );
       });
     });
 
-    test("should limit notification history", async () => {
+    test('should limit notification history', async () => {
       // Generate many notifications to test limit
       const notifications = Array.from({ length: 25 }, (_, i) => ({
         alertType: `alert_${i}`,
-        severity: "high",
+        severity: 'high',
         message: `Alert ${i}`,
         timestamp: Date.now() + i,
-        actionRequired: true,
+        actionRequired: true
       }));
 
       act(() => {
-        const alertHandler = eventHandlers.get("securityAlert")[0];
-        notifications.forEach((alert) => {
+        const alertHandler = eventHandlers.get('securityAlert')[0];
+        notifications.forEach(alert => {
           alertHandler({
             alertId: `alert_${Date.now()}_${Math.random()}`,
-            ...alert,
+            ...alert
           });
         });
       });
 
       await waitFor(() => {
         // Should be limited to 20 notifications
-        expect(screen.getByTestId("pending-notifications")).toHaveTextContent(
-          "20",
+        expect(screen.getByTestId('pending-notifications')).toHaveTextContent(
+          '20'
         );
       });
     });
   });
 
-  describe("Security Event Reporting", () => {
+  describe('Security Event Reporting', () => {
     beforeEach(async () => {
       render(
         React.createElement(
           RealTimeSecurityProvider,
           null,
-          React.createElement(TestComponent),
-        ),
+          React.createElement(TestComponent)
+        )
       );
 
-      const initButton = screen.getByTestId("initialize-button");
+      const initButton = screen.getByTestId('initialize-button');
       await act(async () => {
         initButton.click();
       });
     });
 
-    test("should report security events when connected", async () => {
-      const reportButton = screen.getByTestId("report-button");
+    test('should report security events when connected', async () => {
+      const reportButton = screen.getByTestId('report-button');
 
       act(() => {
         reportButton.click();
@@ -628,26 +627,26 @@ describe("RealTimeSecurityContext", () => {
 
       await waitFor(() => {
         expect(mockSecurityService.processSecurityEvent).toHaveBeenCalledWith({
-          type: "test_event",
-          data: "test",
+          type: 'test_event',
+          data: 'test'
         });
       });
     });
 
-    test("should not report events when disconnected", async () => {
+    test('should not report events when disconnected', async () => {
       // Simulate disconnection
       act(() => {
-        const disconnectedHandler = eventHandlers.get("disconnected")[0];
+        const disconnectedHandler = eventHandlers.get('disconnected')[0];
         disconnectedHandler();
       });
 
       await waitFor(() => {
-        expect(screen.getByTestId("connection-status")).toHaveTextContent(
-          "Disconnected",
+        expect(screen.getByTestId('connection-status')).toHaveTextContent(
+          'Disconnected'
         );
       });
 
-      const reportButton = screen.getByTestId("report-button");
+      const reportButton = screen.getByTestId('report-button');
 
       act(() => {
         reportButton.click();
@@ -658,44 +657,44 @@ describe("RealTimeSecurityContext", () => {
     });
   });
 
-  describe("Configuration Updates", () => {
-    test("should update monitoring configuration", async () => {
+  describe('Configuration Updates', () => {
+    test('should update monitoring configuration', async () => {
       const ConfigTestComponent = () => {
         const {
           updateMonitoringConfiguration,
           monitoringConfig,
-          initializeSecurityMonitoring,
+          initializeSecurityMonitoring
         } = useRealTimeSecurity();
 
-        return React.createElement("div", null, [
+        return React.createElement('div', null, [
           React.createElement(
-            "div",
+            'div',
             {
-              key: "threat-detection",
-              "data-testid": "threat-detection",
+              key: 'threat-detection',
+              'data-testid': 'threat-detection'
             },
-            monitoringConfig.threatDetection.toString(),
+            monitoringConfig.threatDetection.toString()
           ),
           React.createElement(
-            "button",
+            'button',
             {
-              key: "init-btn",
-              "data-testid": "initialize-button",
+              key: 'init-btn',
+              'data-testid': 'initialize-button',
               onClick: () =>
-                initializeSecurityMonitoring("test-user", "test-session"),
+                initializeSecurityMonitoring('test-user', 'test-session')
             },
-            "Initialize",
+            'Initialize'
           ),
           React.createElement(
-            "button",
+            'button',
             {
-              key: "update-btn",
-              "data-testid": "update-config",
+              key: 'update-btn',
+              'data-testid': 'update-config',
               onClick: () =>
-                updateMonitoringConfiguration({ threatDetection: false }),
+                updateMonitoringConfiguration({ threatDetection: false })
             },
-            "Update Config",
-          ),
+            'Update Config'
+          )
         ]);
       };
 
@@ -703,43 +702,43 @@ describe("RealTimeSecurityContext", () => {
         React.createElement(
           RealTimeSecurityProvider,
           null,
-          React.createElement(ConfigTestComponent),
-        ),
+          React.createElement(ConfigTestComponent)
+        )
       );
 
       // Initialize first
-      const initButton = screen.getByTestId("initialize-button");
+      const initButton = screen.getByTestId('initialize-button');
       await act(async () => {
         initButton.click();
       });
 
-      expect(screen.getByTestId("threat-detection")).toHaveTextContent("true");
+      expect(screen.getByTestId('threat-detection')).toHaveTextContent('true');
 
-      const updateButton = screen.getByTestId("update-config");
+      const updateButton = screen.getByTestId('update-config');
       act(() => {
         updateButton.click();
       });
 
       await waitFor(() => {
         expect(mockSecurityService.updateConfiguration).toHaveBeenCalledWith(
-          expect.objectContaining({ threatDetection: false }),
+          expect.objectContaining({ threatDetection: false })
         );
       });
     });
   });
 
-  describe("Cleanup and Error Handling", () => {
-    test("should cleanup service on unmount", async () => {
+  describe('Cleanup and Error Handling', () => {
+    test('should cleanup service on unmount', async () => {
       const { unmount } = render(
         React.createElement(
           RealTimeSecurityProvider,
           null,
-          React.createElement(TestComponent),
-        ),
+          React.createElement(TestComponent)
+        )
       );
 
       // Initialize the service first
-      const initButton = screen.getByTestId("initialize-button");
+      const initButton = screen.getByTestId('initialize-button');
       await act(async () => {
         initButton.click();
       });
@@ -754,34 +753,34 @@ describe("RealTimeSecurityContext", () => {
       expect(mockSecurityService.destroy).toHaveBeenCalled();
     });
 
-    test("should handle service errors gracefully", async () => {
+    test('should handle service errors gracefully', async () => {
       render(
         React.createElement(
           RealTimeSecurityProvider,
           null,
-          React.createElement(TestComponent),
-        ),
+          React.createElement(TestComponent)
+        )
       );
 
-      const initButton = screen.getByTestId("initialize-button");
+      const initButton = screen.getByTestId('initialize-button');
       await act(async () => {
         initButton.click();
       });
 
       // Simulate error event
       act(() => {
-        const errorHandler = eventHandlers.get("error")[0];
-        errorHandler({ message: "Connection error" });
+        const errorHandler = eventHandlers.get('error')[0];
+        errorHandler({ message: 'Connection error' });
       });
 
       await waitFor(() => {
-        expect(screen.getByTestId("error")).toHaveTextContent(
-          "Connection error",
+        expect(screen.getByTestId('error')).toHaveTextContent(
+          'Connection error'
         );
       });
 
       await waitFor(() => {
-        expect(screen.getByTestId("system-health")).toHaveTextContent("error");
+        expect(screen.getByTestId('system-health')).toHaveTextContent('error');
       });
     });
   });

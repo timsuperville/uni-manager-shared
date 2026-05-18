@@ -24,9 +24,9 @@ import React, {
   useCallback,
   useMemo,
   useRef,
-  type KeyboardEvent,
-} from "react";
-import { AnimatePresence, motion } from "framer-motion";
+  type KeyboardEvent
+} from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
   FiBell,
   FiSettings,
@@ -39,27 +39,27 @@ import {
   FiMail,
   FiMessageSquare,
   FiAlertCircle,
-  FiArchive,
-} from "react-icons/fi";
+  FiArchive
+} from 'react-icons/fi';
 import {
   formatDistanceToNow,
   isToday,
   isYesterday,
-  isThisWeek,
-} from "date-fns";
-import { useNotifications } from "../../hooks/useNotifications";
-import type { AppNotification } from "./NotificationAdapter";
+  isThisWeek
+} from 'date-fns';
+import { useNotifications } from '../../hooks/useNotifications';
+import type { AppNotification } from './NotificationAdapter';
 import {
   LoadingSpinner,
   Button,
   Badge,
   SearchInput,
-  Pagination,
-} from "@shared/components/ui";
-import { NotificationModal } from "./NotificationModal";
-import NotificationToast from "./NotificationToast";
-import { NotificationPreferences } from "./NotificationPreferences";
-import { glassBorder } from "@shared/styles/styleUtils";
+  Pagination
+} from '@shared/components/ui';
+import { NotificationModal } from './NotificationModal';
+import NotificationToast from './NotificationToast';
+import { NotificationPreferences } from './NotificationPreferences';
+import { glassBorder } from '@shared/styles/styleUtils';
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 
@@ -69,7 +69,7 @@ const PRIORITY_ORDER: Record<string, number> = {
   urgent: 4,
   high: 3,
   normal: 2,
-  low: 1,
+  low: 1
 };
 
 const TYPE_ICON: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -77,26 +77,26 @@ const TYPE_ICON: Record<string, React.ComponentType<{ className?: string }>> = {
   system: FiSettings,
   church: FiMessageSquare,
   work: FiMail,
-  security: FiAlertCircle,
+  security: FiAlertCircle
 };
 
 const PRIORITY_BADGE: Record<string, { color: string; label: string }> = {
-  urgent: { color: "red", label: "Urgent" },
-  high: { color: "orange", label: "High" },
-  normal: { color: "blue", label: "Normal" },
-  low: { color: "gray", label: "Low" },
+  urgent: { color: 'red', label: 'Urgent' },
+  high: { color: 'orange', label: 'High' },
+  normal: { color: 'blue', label: 'Normal' },
+  low: { color: 'gray', label: 'Low' }
 };
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
-type TabFilter = "all" | "unread" | "church" | "system";
-type SortField = "date" | "priority" | "type";
-type SortOrder = "asc" | "desc";
-type BulkAction = "markRead" | "archive" | "delete";
-type PanelPosition = "right" | "left" | "popover";
+type TabFilter = 'all' | 'unread' | 'church' | 'system';
+type SortField = 'date' | 'priority' | 'type';
+type SortOrder = 'asc' | 'desc';
+type BulkAction = 'markRead' | 'archive' | 'delete';
+type PanelPosition = 'right' | 'left' | 'popover';
 
 interface ToastConfig {
-  type: "success" | "error" | "info" | "warning";
+  type: 'success' | 'error' | 'info' | 'warning';
   title: string;
   message: string;
   duration?: number;
@@ -120,10 +120,10 @@ export interface NotificationCenterProps {
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
 function dateGroup(date: Date): string {
-  if (isToday(date)) return "Today";
-  if (isYesterday(date)) return "Yesterday";
-  if (isThisWeek(date)) return "This Week";
-  return "Older";
+  if (isToday(date)) return 'Today';
+  if (isYesterday(date)) return 'Yesterday';
+  if (isThisWeek(date)) return 'This Week';
+  return 'Older';
 }
 
 function notifId(n: AppNotification): string {
@@ -131,11 +131,11 @@ function notifId(n: AppNotification): string {
 }
 
 function notifTitle(n: AppNotification): string {
-  return n.subject ?? n.title ?? "No subject";
+  return n.subject ?? n.title ?? 'No subject';
 }
 
 function notifBody(n: AppNotification): string {
-  return n.body ?? n.content ?? n.message ?? "";
+  return n.body ?? n.content ?? n.message ?? '';
 }
 
 function notifDate(n: AppNotification): Date {
@@ -145,19 +145,19 @@ function notifDate(n: AppNotification): Date {
 // ── Component ──────────────────────────────────────────────────────────────────
 
 const NotificationCenter: React.FC<NotificationCenterProps> = ({
-  className = "",
+  className = '',
   isOpen = false,
   onClose = () => {},
-  position = "right",
+  position = 'right',
   dropdownCoords = null,
-  panelRef,
+  panelRef
 }) => {
   // ── Local state ─────────────────────────────────────────────────────────────
-  const [activeTab, setActiveTab] = useState<TabFilter>("all");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState<TabFilter>('all');
+  const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [sortBy, setSortBy] = useState<SortField>("date");
-  const [sortOrder] = useState<SortOrder>("desc");
+  const [sortBy, setSortBy] = useState<SortField>('date');
+  const [sortOrder] = useState<SortOrder>('desc');
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [focusedIndex, setFocusedIndex] = useState(-1);
@@ -182,14 +182,14 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
     markAllAsRead: _markAllAsRead,
     archiveNotification,
     deleteNotification,
-    refreshNotifications,
+    refreshNotifications
   } = useNotifications({
     page: currentPage,
     limit: 20,
-    status: activeTab === "unread" ? "unread" : undefined,
+    status: activeTab === 'unread' ? 'unread' : undefined,
     type:
-      activeTab === "church" || activeTab === "system" ? activeTab : undefined,
-    search: searchQuery || undefined,
+      activeTab === 'church' || activeTab === 'system' ? activeTab : undefined,
+    search: searchQuery || undefined
   });
 
   // ── Polling + reset ──────────────────────────────────────────────────────────
@@ -215,43 +215,43 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       list = list.filter(
-        (n) =>
+        n =>
           notifTitle(n).toLowerCase().includes(q) ||
           notifBody(n).toLowerCase().includes(q) ||
-          n.type?.toLowerCase().includes(q),
+          n.type?.toLowerCase().includes(q)
       );
     }
 
     list.sort((a, b) => {
       let av: number | string = 0;
       let bv: number | string = 0;
-      if (sortBy === "priority") {
-        av = PRIORITY_ORDER[a.priority ?? ""] ?? 0;
-        bv = PRIORITY_ORDER[b.priority ?? ""] ?? 0;
-      } else if (sortBy === "type") {
-        av = a.type ?? "";
-        bv = b.type ?? "";
+      if (sortBy === 'priority') {
+        av = PRIORITY_ORDER[a.priority ?? ''] ?? 0;
+        bv = PRIORITY_ORDER[b.priority ?? ''] ?? 0;
+      } else if (sortBy === 'type') {
+        av = a.type ?? '';
+        bv = b.type ?? '';
       } else {
         av = notifDate(a).getTime();
         bv = notifDate(b).getTime();
       }
-      return sortOrder === "asc" ? (av > bv ? 1 : -1) : av < bv ? 1 : -1;
+      return sortOrder === 'asc' ? (av > bv ? 1 : -1) : av < bv ? 1 : -1;
     });
 
     return list;
   }, [notifications, searchQuery, sortBy, sortOrder]);
 
   const grouped = useMemo<{ label: string; items: AppNotification[] }[]>(() => {
-    const ORDER = ["Today", "Yesterday", "This Week", "Older"];
+    const ORDER = ['Today', 'Yesterday', 'This Week', 'Older'];
     const map = new Map<string, AppNotification[]>();
     for (const n of processed) {
       const label = dateGroup(notifDate(n));
       if (!map.has(label)) map.set(label, []);
       map.get(label)!.push(n);
     }
-    return ORDER.filter((l) => map.has(l)).map((label) => ({
+    return ORDER.filter(l => map.has(l)).map(label => ({
       label,
-      items: map.get(label)!,
+      items: map.get(label)!
     }));
   }, [processed]);
 
@@ -260,7 +260,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
 
   // ── Selection ─────────────────────────────────────────────────────────────────
   const toggleSelect = useCallback((id: string) => {
-    setSelectedIds((prev) => {
+    setSelectedIds(prev => {
       const next = new Set(prev);
       next.has(id) ? next.delete(id) : next.add(id);
       return next;
@@ -279,20 +279,20 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
   const handleClick = useCallback(
     async (n: AppNotification) => {
       setDetailNotif(n);
-      if (n.status === "unread") {
+      if (n.status === 'unread') {
         try {
           await markAsRead(notifId(n));
         } catch {
           flash({
-            type: "error",
-            title: "Error",
-            message: "Failed to mark as read",
-            duration: 3000,
+            type: 'error',
+            title: 'Error',
+            message: 'Failed to mark as read',
+            duration: 3000
           });
         }
       }
     },
-    [markAsRead, flash],
+    [markAsRead, flash]
   );
 
   const handleMarkRead = useCallback(
@@ -300,21 +300,21 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
       try {
         await markAsRead(notifId(n));
         flash({
-          type: "success",
-          title: "Done",
-          message: "Marked as read",
-          duration: 2000,
+          type: 'success',
+          title: 'Done',
+          message: 'Marked as read',
+          duration: 2000
         });
       } catch {
         flash({
-          type: "error",
-          title: "Error",
-          message: "Failed to mark as read",
-          duration: 3000,
+          type: 'error',
+          title: 'Error',
+          message: 'Failed to mark as read',
+          duration: 3000
         });
       }
     },
-    [markAsRead, flash],
+    [markAsRead, flash]
   );
 
   const handleArchive = useCallback(
@@ -322,22 +322,22 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
       try {
         await archiveNotification(notifId(n));
         flash({
-          type: "success",
-          title: "Archived",
-          message: "Notification archived",
-          duration: 2000,
+          type: 'success',
+          title: 'Archived',
+          message: 'Notification archived',
+          duration: 2000
         });
         void refreshNotifications();
       } catch {
         flash({
-          type: "error",
-          title: "Error",
-          message: "Failed to archive",
-          duration: 3000,
+          type: 'error',
+          title: 'Error',
+          message: 'Failed to archive',
+          duration: 3000
         });
       }
     },
-    [archiveNotification, refreshNotifications, flash],
+    [archiveNotification, refreshNotifications, flash]
   );
 
   const handleDelete = useCallback(
@@ -345,22 +345,22 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
       try {
         await deleteNotification(notifId(n));
         flash({
-          type: "success",
-          title: "Deleted",
-          message: "Notification deleted",
-          duration: 2000,
+          type: 'success',
+          title: 'Deleted',
+          message: 'Notification deleted',
+          duration: 2000
         });
         void refreshNotifications();
       } catch {
         flash({
-          type: "error",
-          title: "Error",
-          message: "Failed to delete",
-          duration: 3000,
+          type: 'error',
+          title: 'Error',
+          message: 'Failed to delete',
+          duration: 3000
         });
       }
     },
-    [deleteNotification, refreshNotifications, flash],
+    [deleteNotification, refreshNotifications, flash]
   );
 
   // ── Bulk actions ──────────────────────────────────────────────────────────────
@@ -370,41 +370,41 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
       setIsMutating(true);
       const ids = Array.from(selectedIds);
       const count = ids.length;
-      const noun = `${count} notification${count > 1 ? "s" : ""}`;
+      const noun = `${count} notification${count > 1 ? 's' : ''}`;
       try {
-        if (action === "markRead") {
+        if (action === 'markRead') {
           await markMultipleAsRead(ids);
           flash({
-            type: "success",
-            title: "Done",
+            type: 'success',
+            title: 'Done',
             message: `${noun} marked as read`,
-            duration: 3000,
+            duration: 3000
           });
-        } else if (action === "archive") {
-          await Promise.all(ids.map((id) => archiveNotification(id)));
+        } else if (action === 'archive') {
+          await Promise.all(ids.map(id => archiveNotification(id)));
           flash({
-            type: "success",
-            title: "Done",
+            type: 'success',
+            title: 'Done',
             message: `${noun} archived`,
-            duration: 3000,
+            duration: 3000
           });
         } else {
-          await Promise.all(ids.map((id) => deleteNotification(id)));
+          await Promise.all(ids.map(id => deleteNotification(id)));
           flash({
-            type: "success",
-            title: "Done",
+            type: 'success',
+            title: 'Done',
             message: `${noun} deleted`,
-            duration: 3000,
+            duration: 3000
           });
         }
         setSelectedIds(new Set());
         void refreshNotifications();
       } catch {
         flash({
-          type: "error",
-          title: "Error",
-          message: `Failed to ${action === "markRead" ? "mark as read" : action}`,
-          duration: 3000,
+          type: 'error',
+          title: 'Error',
+          message: `Failed to ${action === 'markRead' ? 'mark as read' : action}`,
+          duration: 3000
         });
       } finally {
         setIsMutating(false);
@@ -416,8 +416,8 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
       archiveNotification,
       deleteNotification,
       refreshNotifications,
-      flash,
-    ],
+      flash
+    ]
   );
 
   const markAllAsRead = useCallback(async () => {
@@ -425,18 +425,18 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
     try {
       await _markAllAsRead();
       flash({
-        type: "success",
-        title: "Done",
-        message: "All notifications marked as read",
-        duration: 3000,
+        type: 'success',
+        title: 'Done',
+        message: 'All notifications marked as read',
+        duration: 3000
       });
       void refreshNotifications();
     } catch {
       flash({
-        type: "error",
-        title: "Error",
-        message: "Failed to mark all as read",
-        duration: 3000,
+        type: 'error',
+        title: 'Error',
+        message: 'Failed to mark all as read',
+        duration: 3000
       });
     } finally {
       setIsMutating(false);
@@ -447,41 +447,41 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
   const onKeyDown = useCallback(
     (e: KeyboardEvent<HTMLDivElement>) => {
       if (!processed.length) return;
-      if (e.key === "ArrowDown") {
+      if (e.key === 'ArrowDown') {
         e.preventDefault();
-        setFocusedIndex((i) => Math.min(i + 1, processed.length - 1));
-      } else if (e.key === "ArrowUp") {
+        setFocusedIndex(i => Math.min(i + 1, processed.length - 1));
+      } else if (e.key === 'ArrowUp') {
         e.preventDefault();
-        setFocusedIndex((i) => Math.max(i - 1, 0));
-      } else if (e.key === "Enter" && focusedIndex >= 0) {
+        setFocusedIndex(i => Math.max(i - 1, 0));
+      } else if (e.key === 'Enter' && focusedIndex >= 0) {
         void handleClick(processed[focusedIndex]!);
-      } else if ((e.key === "r" || e.key === "R") && focusedIndex >= 0) {
+      } else if ((e.key === 'r' || e.key === 'R') && focusedIndex >= 0) {
         const n = processed[focusedIndex]!;
-        if (n.status === "unread") void handleMarkRead(n);
-      } else if ((e.key === "d" || e.key === "D") && focusedIndex >= 0) {
+        if (n.status === 'unread') void handleMarkRead(n);
+      } else if ((e.key === 'd' || e.key === 'D') && focusedIndex >= 0) {
         void handleDelete(processed[focusedIndex]!);
       }
     },
-    [processed, focusedIndex, handleClick, handleMarkRead, handleDelete],
+    [processed, focusedIndex, handleClick, handleMarkRead, handleDelete]
   );
 
   // ── Icon / badge helpers ──────────────────────────────────────────────────────
   const typeIcon = useCallback((n: AppNotification) => {
-    const Icon = TYPE_ICON[n.type ?? ""] ?? FiBell;
+    const Icon = TYPE_ICON[n.type ?? ''] ?? FiBell;
     const colour =
-      n.priority === "urgent"
-        ? "text-red-500"
-        : n.priority === "high"
-          ? "text-orange-500"
-          : n.priority === "normal"
-            ? "text-blue-500"
-            : "text-[var(--text-secondary)]";
+      n.priority === 'urgent'
+        ? 'text-red-500'
+        : n.priority === 'high'
+          ? 'text-orange-500'
+          : n.priority === 'normal'
+            ? 'text-blue-500'
+            : 'text-[var(--text-secondary)]';
     return <Icon className={`w-5 h-5 ${colour}`} />;
   }, []);
 
   const priorityBadge = useCallback((n: AppNotification) => {
     const b =
-      PRIORITY_BADGE[n.priority ?? "normal"] ?? PRIORITY_BADGE["normal"]!;
+      PRIORITY_BADGE[n.priority ?? 'normal'] ?? PRIORITY_BADGE['normal']!;
     return (
       <Badge color={b.color} size="sm">
         {b.label}
@@ -494,7 +494,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
     (n: AppNotification, flatIdx: number) => {
       const id = notifId(n);
       const isSelected = selectedIds.has(id);
-      const isUnread = n.status === "unread";
+      const isUnread = n.status === 'unread';
       const isFocused = focusedIndex === flatIdx;
 
       return (
@@ -504,16 +504,16 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
           aria-selected={isSelected}
           tabIndex={isFocused ? 0 : -1}
           className={[
-            "relative p-4 border-b border-[var(--glass-outline)] cursor-pointer transition-colors group",
-            isSelected ? "bg-[var(--primary-subtle)]" : "",
-            isUnread && !isSelected ? "bg-[hsla(272,65%,62%,0.04)]" : "",
+            'relative p-4 border-b border-[var(--glass-outline)] cursor-pointer transition-colors group',
+            isSelected ? 'bg-[var(--primary-subtle)]' : '',
+            isUnread && !isSelected ? 'bg-[hsla(272,65%,62%,0.04)]' : '',
             isFocused
-              ? "ring-2 ring-inset ring-[var(--primary-resonance)] ring-opacity-60"
-              : "",
-            "hover:bg-[var(--glass-surface-hover)]",
+              ? 'ring-2 ring-inset ring-[var(--primary-resonance)] ring-opacity-60'
+              : '',
+            'hover:bg-[var(--glass-surface-hover)]'
           ]
             .filter(Boolean)
-            .join(" ")}
+            .join(' ')}
           onClick={() => void handleClick(n)}
         >
           {/* Checkbox */}
@@ -521,11 +521,11 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
             <input
               type="checkbox"
               checked={isSelected}
-              onChange={(e) => {
+              onChange={e => {
                 e.stopPropagation();
                 toggleSelect(id);
               }}
-              onClick={(e) => e.stopPropagation()}
+              onClick={e => e.stopPropagation()}
               className="w-4 h-4 rounded border-[var(--glass-outline)] bg-transparent
                 text-[var(--primary-resonance)] focus:ring-[var(--primary-resonance)]"
               aria-label={`Select: ${notifTitle(n)}`}
@@ -540,7 +540,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                 <span className="mt-0.5 shrink-0">{typeIcon(n)}</span>
                 <div className="min-w-0">
                   <p
-                    className={`text-sm font-medium truncate ${isUnread ? "text-[var(--text-primary)]" : "text-[var(--text-secondary)]"}`}
+                    className={`text-sm font-medium truncate ${isUnread ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}
                   >
                     {isUnread && (
                       <span
@@ -575,7 +575,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                   rounded-full bg-[var(--glass-surface)] border border-[var(--glass-outline)]
                   text-[var(--text-secondary)]"
                 >
-                  {n.type ?? "General"}
+                  {n.type ?? 'General'}
                 </span>
                 {n.module && (
                   <span
@@ -592,7 +592,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
               <div
                 className="flex items-center gap-1 opacity-0 group-hover:opacity-100
                   focus-within:opacity-100 transition-opacity"
-                onClick={(e) => e.stopPropagation()}
+                onClick={e => e.stopPropagation()}
               >
                 {isUnread && (
                   <button
@@ -636,45 +636,45 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
       handleDelete,
       toggleSelect,
       typeIcon,
-      priorityBadge,
-    ],
+      priorityBadge
+    ]
   );
 
   // ── Tabs ──────────────────────────────────────────────────────────────────────
   const TABS: { id: TabFilter; label: string }[] = [
-    { id: "all", label: "All" },
+    { id: 'all', label: 'All' },
     {
-      id: "unread",
-      label: unreadCount > 0 ? `Unread (${unreadCount})` : "Unread",
+      id: 'unread',
+      label: unreadCount > 0 ? `Unread (${unreadCount})` : 'Unread'
     },
-    { id: "church", label: "Church" },
-    { id: "system", label: "System" },
+    { id: 'church', label: 'Church' },
+    { id: 'system', label: 'System' }
   ];
 
   // ── Layout helpers ────────────────────────────────────────────────────────────
-  const isPopover = position === "popover";
+  const isPopover = position === 'popover';
 
   const popoverStyle: React.CSSProperties =
     isPopover && dropdownCoords
       ? {
-          position: "fixed",
+          position: 'fixed',
           top: dropdownCoords.top,
           left: dropdownCoords.left,
           zIndex: 99000,
-          width: "calc(100vw - 32px)",
-          maxWidth: "420px",
-          height: "620px",
-          maxHeight: "calc(100vh - 40px)",
-          borderRadius: "var(--radius-lg, 14px)",
-          border: "1px solid var(--glass-outline)",
-          background: "var(--bg-sidebar)",
-          backdropFilter: "blur(24px) saturate(180%)",
-          WebkitBackdropFilter: "blur(24px) saturate(180%)",
+          width: 'calc(100vw - 32px)',
+          maxWidth: '420px',
+          height: '620px',
+          maxHeight: 'calc(100vh - 40px)',
+          borderRadius: 'var(--radius-lg, 14px)',
+          border: '1px solid var(--glass-outline)',
+          background: 'var(--bg-sidebar)',
+          backdropFilter: 'blur(24px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(24px) saturate(180%)',
           boxShadow:
-            "0 16px 48px hsla(222,47%,4%,0.55), 0 0 0 1px var(--glass-outline)",
-          overflow: "hidden",
-          display: "flex",
-          flexDirection: "column",
+            '0 16px 48px hsla(222,47%,4%,0.55), 0 0 0 1px var(--glass-outline)',
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column'
         }
       : {};
 
@@ -682,11 +682,11 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
     initial: {
       opacity: 0,
       y: dropdownCoords?.opensUpward ? -8 : 8,
-      scale: 0.96,
+      scale: 0.96
     },
     animate: { opacity: 1, y: 0, scale: 1 },
     exit: { opacity: 0, y: dropdownCoords?.opensUpward ? -8 : 8, scale: 0.96 },
-    transition: { duration: 0.15, ease: "easeOut" as const },
+    transition: { duration: 0.15, ease: 'easeOut' as const }
   };
 
   // ── Inner content ─────────────────────────────────────────────────────────────
@@ -703,9 +703,9 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
       <div
         className="shrink-0"
         style={{
-          padding: "14px 16px 0",
-          background: "hsla(0,0%,100%,0.02)",
-          ...glassBorder,
+          padding: '14px 16px 0',
+          background: 'hsla(0,0%,100%,0.02)',
+          ...glassBorder
         }}
       >
         {/* Title row */}
@@ -731,7 +731,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
               aria-label="Refresh notifications"
             >
               <FiRefreshCw
-                className={`w-3.5 h-3.5 ${isLoading ? "animate-spin" : ""}`}
+                className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`}
               />
             </button>
 
@@ -783,7 +783,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
           role="tablist"
           aria-label="Filter notifications"
         >
-          {TABS.map((tab) => (
+          {TABS.map(tab => (
             <button
               key={tab.id}
               role="tab"
@@ -792,8 +792,8 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
               className={`px-3 py-2 text-xs font-medium rounded-t-md transition-colors
                 border-b-2 -mb-px ${
                   activeTab === tab.id
-                    ? "border-[var(--primary-resonance)] text-[var(--primary-resonance)]"
-                    : "border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                    ? 'border-[var(--primary-resonance)] text-[var(--primary-resonance)]'
+                    : 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                 }`}
             >
               {tab.label}
@@ -827,7 +827,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
             </span>
             <div className="flex items-center gap-1.5">
               <button
-                onClick={() => void runBulk("markRead")}
+                onClick={() => void runBulk('markRead')}
                 disabled={isMutating}
                 className="btn-ghost flex items-center gap-1 px-2.5 py-1 text-xs
                   disabled:opacity-50"
@@ -836,7 +836,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                 Mark Read
               </button>
               <button
-                onClick={() => void runBulk("archive")}
+                onClick={() => void runBulk('archive')}
                 disabled={isMutating}
                 className="btn-ghost flex items-center gap-1 px-2.5 py-1 text-xs
                   disabled:opacity-50"
@@ -845,7 +845,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                 Archive
               </button>
               <button
-                onClick={() => void runBulk("delete")}
+                onClick={() => void runBulk('delete')}
                 disabled={isMutating}
                 className="church-cancel-btn p-1.5 rounded-lg text-xs disabled:opacity-50"
                 title="Delete selected"
@@ -894,14 +894,14 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
               <FiBell className="w-6 h-6 text-[var(--text-secondary)] opacity-50" />
             </div>
             <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-1">
-              {activeTab === "unread" ? "All caught up!" : "No notifications"}
+              {activeTab === 'unread' ? 'All caught up!' : 'No notifications'}
             </h3>
             <p className="text-xs text-[var(--text-secondary)]">
               {searchQuery
-                ? "No notifications match your search."
-                : activeTab === "unread"
-                  ? "You have no unread notifications."
-                  : "Notifications will appear here."}
+                ? 'No notifications match your search.'
+                : activeTab === 'unread'
+                  ? 'You have no unread notifications.'
+                  : 'Notifications will appear here.'}
             </p>
             <p className="mt-4 text-[10px] text-[var(--text-muted)]">
               ↑ ↓ navigate · Enter open · R read · D delete
@@ -934,7 +934,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
               </label>
               <span className="text-[10px] text-[var(--text-muted)]">
                 {processed.length} notification
-                {processed.length !== 1 ? "s" : ""}
+                {processed.length !== 1 ? 's' : ''}
               </span>
             </div>
 
@@ -949,7 +949,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                 >
                   {label}
                 </div>
-                {items.map((n) => {
+                {items.map(n => {
                   flatIdx++;
                   return renderRow(n, flatIdx);
                 })}
@@ -1001,18 +1001,18 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
               {/* Side drawer */}
               <div
                 className={[
-                  "fixed top-0 h-full w-96 glass-sidebar z-50 shadow-2xl",
-                  "transform transition-transform duration-300 ease-in-out",
-                  position === "right" ? "right-0" : "left-0",
+                  'fixed top-0 h-full w-96 glass-sidebar z-50 shadow-2xl',
+                  'transform transition-transform duration-300 ease-in-out',
+                  position === 'right' ? 'right-0' : 'left-0',
                   isOpen
-                    ? "translate-x-0"
-                    : position === "right"
-                      ? "translate-x-full"
-                      : "-translate-x-full",
-                  className,
+                    ? 'translate-x-0'
+                    : position === 'right'
+                      ? 'translate-x-full'
+                      : '-translate-x-full',
+                  className
                 ]
                   .filter(Boolean)
-                  .join(" ")}
+                  .join(' ')}
               >
                 {content}
               </div>

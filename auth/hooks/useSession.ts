@@ -1,6 +1,6 @@
-import { useCallback } from "react";
-import { useAuth } from "./useAuth";
-import type { Session } from "../types/auth.types";
+import { useCallback } from 'react';
+import { useAuth } from './useAuth';
+import type { Session } from '../types/auth.types';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -32,7 +32,7 @@ export function useSession(): UseSessionReturn {
       await refreshAuth();
     } catch (err) {
       if (import.meta.env.DEV) {
-        console.error("Failed to renew session:", err);
+        console.error('Failed to renew session:', err);
       }
       throw err;
     }
@@ -51,7 +51,7 @@ export function useSession(): UseSessionReturn {
     isActive: !!session,
     timeRemaining,
     renewSession: handleRenewSession,
-    destroySession: handleDestroySession,
+    destroySession: handleDestroySession
   };
 }
 

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback } from 'react';
 import {
   FiCheck,
   FiArchive,
@@ -12,24 +12,24 @@ import {
   FiEye,
   FiDownload,
   FiCornerUpLeft as FiReply,
-  FiCornerUpRight as FiForward,
-} from "react-icons/fi";
-import { format } from "date-fns";
+  FiCornerUpRight as FiForward
+} from 'react-icons/fi';
+import { format } from 'date-fns';
 import {
   Button,
   Badge,
   Avatar,
   LoadingSpinner,
-  Modal,
-} from "@shared/components/ui";
-import type { Notification, Attachment } from "./NotificationToast";
+  Modal
+} from '@shared/components/ui';
+import type { Notification, Attachment } from './NotificationToast';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
 type ActionFn = (id: string) => Promise<void>;
 
 interface ActionStatus {
-  type: "success" | "error";
+  type: 'success' | 'error';
   message: string;
 }
 
@@ -55,20 +55,20 @@ const TYPE_ICON_MAP: Record<string, IconComponent> = {
   church: FiMessageSquare,
   work: FiMail,
   security: FiAlertCircle,
-  workflow: FiSettings,
+  workflow: FiSettings
 };
 
 const PRIORITY_BADGE: Record<string, { color: string; label: string }> = {
-  urgent: { color: "red", label: "Urgent" },
-  high: { color: "orange", label: "High" },
-  normal: { color: "blue", label: "Normal" },
-  low: { color: "gray", label: "Low" },
+  urgent: { color: 'red', label: 'Urgent' },
+  high: { color: 'orange', label: 'High' },
+  normal: { color: 'blue', label: 'Normal' },
+  low: { color: 'gray', label: 'Low' }
 };
 
 const STATUS_BADGE: Record<string, { color: string; label: string }> = {
-  unread: { color: "blue", label: "Unread" },
-  read: { color: "green", label: "Read" },
-  archived: { color: "gray", label: "Archived" },
+  unread: { color: 'blue', label: 'Unread' },
+  read: { color: 'green', label: 'Read' },
+  archived: { color: 'gray', label: 'Archived' }
 };
 
 // ── Component ────────────────────────────────────────────────────────────────
@@ -93,7 +93,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
   onDelete = async () => {},
   onReply,
   onForward,
-  className = "",
+  className = ''
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedAttachment, setSelectedAttachment] =
@@ -102,7 +102,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
   const [actionStatus, setActionStatus] = useState<ActionStatus | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
-  const notificationId = notification.id ?? notification._id ?? "";
+  const notificationId = notification.id ?? notification._id ?? '';
 
   // Handle action with loading state
   const handleAction = useCallback(
@@ -111,85 +111,85 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
       setActionStatus(null);
       try {
         await actionFn(notificationId);
-        setActionStatus({ type: "success", message: successMessage });
-        if (action !== "markRead") {
+        setActionStatus({ type: 'success', message: successMessage });
+        if (action !== 'markRead') {
           setTimeout(() => onClose(), 1500);
         }
       } catch {
         setActionStatus({
-          type: "error",
-          message: `Failed to ${action} notification`,
+          type: 'error',
+          message: `Failed to ${action} notification`
         });
       } finally {
         setIsLoading(false);
         setTimeout(() => setActionStatus(null), 3000);
       }
     },
-    [notificationId, onClose],
+    [notificationId, onClose]
   );
 
   const handleMarkAsRead = useCallback(() => {
-    handleAction("markRead", onMarkAsRead, "Marked as read");
+    handleAction('markRead', onMarkAsRead, 'Marked as read');
   }, [handleAction, onMarkAsRead]);
 
   const handleArchive = useCallback(() => {
-    handleAction("archive", onArchive, "Archived successfully");
+    handleAction('archive', onArchive, 'Archived successfully');
   }, [handleAction, onArchive]);
 
   const handleDelete = useCallback(() => setConfirmDelete(true), []);
 
   const handleDeleteConfirmed = useCallback(() => {
     setConfirmDelete(false);
-    handleAction("delete", onDelete, "Deleted successfully");
+    handleAction('delete', onDelete, 'Deleted successfully');
   }, [handleAction, onDelete]);
 
   const handleReply = useCallback(
     () => onReply?.(notification),
-    [onReply, notification],
+    [onReply, notification]
   );
   const handleForward = useCallback(
     () => onForward?.(notification),
-    [onForward, notification],
+    [onForward, notification]
   );
 
   const handleDownloadAttachment = useCallback((attachment: Attachment) => {
     try {
-      const link = document.createElement("a");
+      const link = document.createElement('a');
       link.href = attachment.url;
-      link.download = attachment.filename ?? "attachment";
+      link.download = attachment.filename ?? 'attachment';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
     } catch {
       setActionStatus({
-        type: "error",
-        message: "Failed to download attachment",
+        type: 'error',
+        message: 'Failed to download attachment'
       });
     }
   }, []);
 
   const handleExternalLink = useCallback((url: string) => {
-    window.open(url, "_blank", "noopener,noreferrer");
+    window.open(url, '_blank', 'noopener,noreferrer');
   }, []);
 
   // Icon selector
   const getNotificationIcon = useCallback(() => {
     const IconComponent =
-      TYPE_ICON_MAP[notification.type ?? ""] ?? FiMessageSquare;
+      TYPE_ICON_MAP[notification.type ?? ''] ?? FiMessageSquare;
     const priorityColor =
-      notification.priority === "urgent"
-        ? "text-red-500 animate-pulse drop-shadow-[0_0_8px_rgba(239,68,68,0.5)]"
-        : notification.priority === "high"
-          ? "text-() drop-shadow-[0_0_8px_var(--accent-amber-glow)]"
-          : notification.priority === "normal"
-            ? "text-()"
-            : "text-()";
+      notification.priority === 'urgent'
+        ? 'text-red-500 animate-pulse drop-shadow-[0_0_8px_rgba(239,68,68,0.5)]'
+        : notification.priority === 'high'
+          ? 'text-() drop-shadow-[0_0_8px_var(--accent-amber-glow)]'
+          : notification.priority === 'normal'
+            ? 'text-()'
+            : 'text-()';
     return <IconComponent className={`w-6 h-6 ${priorityColor}`} />;
   }, [notification]);
 
   const getPriorityBadge = useCallback(() => {
     const badge =
-      PRIORITY_BADGE[notification.priority ?? "normal"] ??
+      PRIORITY_BADGE[notification.priority ?? 'normal'] ??
       PRIORITY_BADGE.normal;
     return (
       <Badge color={badge.color} size="sm">
@@ -200,7 +200,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
 
   const getStatusBadge = useCallback(() => {
     const status =
-      STATUS_BADGE[notification.status ?? "unread"] ?? STATUS_BADGE.unread;
+      STATUS_BADGE[notification.status ?? 'unread'] ?? STATUS_BADGE.unread;
     return (
       <Badge color={status.color} size="sm">
         {status.label}
@@ -224,7 +224,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
             >
               <div className="flex items-center space-x-3">
                 <div className="shrink-0">
-                  {attachment.type?.startsWith("image/") ? (
+                  {attachment.type?.startsWith('image/') ? (
                     <img
                       src={attachment.thumbnail ?? attachment.url}
                       alt={attachment.filename}
@@ -238,7 +238,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
                 </div>
                 <div>
                   <p className="text-sm font-medium text-()">
-                    {attachment.filename ?? "Attachment"}
+                    {attachment.filename ?? 'Attachment'}
                   </p>
                   <p className="text-xs text-() mt-0.5">
                     {attachment.size != null &&
@@ -248,7 +248,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
                 </div>
               </div>
               <div className="flex items-center space-x-2">
-                {attachment.type?.startsWith("image/") && (
+                {attachment.type?.startsWith('image/') && (
                   <Button
                     variant="ghost"
                     size="sm"
@@ -286,7 +286,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
               key={index}
               onClick={() => action.url && handleExternalLink(action.url)}
               disabled={isLoading}
-              className={`flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-all ${action.primary ? "btn-primary" : "btn-ghost"}`}
+              className={`flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-all ${action.primary ? 'btn-primary' : 'btn-ghost'}`}
             >
               {action.icon && <FiDownload className="w-4 h-4 mr-2" />}
               {action.label}
@@ -321,13 +321,13 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
                   <span className="text-sm capitalize">{channel}</span>
                   <Badge
                     color={
-                      status === "delivered"
-                        ? "green"
-                        : status === "failed"
-                          ? "red"
-                          : status === "pending"
-                            ? "orange"
-                            : "gray"
+                      status === 'delivered'
+                        ? 'green'
+                        : status === 'failed'
+                          ? 'red'
+                          : status === 'pending'
+                            ? 'orange'
+                            : 'gray'
                     }
                     size="sm"
                   >
@@ -344,17 +344,17 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
 
   // Rich content renderer
   const renderContent = useCallback(() => {
-    const content = notification.content ?? notification.message ?? "";
+    const content = notification.content ?? notification.message ?? '';
     const formattedContent = content
-      .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-      .replace(/\*(.*?)\*/g, "<em>$1</em>")
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
       .replace(
         /`(.*?)`/g,
-        '<code class="bg-() border border-() px-1.5 py-0.5 rounded text-()">$1</code>',
+        '<code class="bg-() border border-() px-1.5 py-0.5 rounded text-()">$1</code>'
       )
       .replace(
         /(https?:\/\/[^\s]+)/g,
-        '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-() hover:brightness-110 underline decoration-white/20 underline-offset-2">$1</a>',
+        '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-() hover:brightness-110 underline decoration-white/20 underline-offset-2">$1</a>'
       );
     return (
       <div
@@ -371,7 +371,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
       <Modal
         isOpen={isOpen}
         onClose={onClose}
-        title={notification.subject ?? notification.title ?? "Notification"}
+        title={notification.subject ?? notification.title ?? 'Notification'}
         size="lg"
         className={className}
       >
@@ -384,13 +384,13 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
               </div>
               <div className="flex-1">
                 <h3 className="text-xl font-semibold text-() tracking-tight">
-                  {notification.subject ?? notification.title ?? "Notification"}
+                  {notification.subject ?? notification.title ?? 'Notification'}
                 </h3>
                 <div className="flex flex-wrap gap-2 items-center mt-2">
                   {getPriorityBadge()}
                   {getStatusBadge()}
                   <span className="text-[10px] tracking-wider uppercase font-semibold px-2 py-0.5 rounded-full bg-() border border-() text-()">
-                    {notification.type ?? "General"}
+                    {notification.type ?? 'General'}
                   </span>
                 </div>
               </div>
@@ -413,7 +413,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
                   />
                 )}
                 <span className="text-sm font-medium text-()">
-                  {notification.sender?.name ?? notification.module ?? "System"}
+                  {notification.sender?.name ?? notification.module ?? 'System'}
                 </span>
               </div>
             </div>
@@ -428,9 +428,9 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
                     new Date(
                       notification.createdAt ??
                         notification.timestamp ??
-                        Date.now(),
+                        Date.now()
                     ),
-                    "PPpp",
+                    'PPpp'
                   )}
                 </span>
               </div>
@@ -449,9 +449,9 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
           {actionStatus && (
             <div
               className={`p-3 rounded-lg ${
-                actionStatus.type === "success"
-                  ? "bg-green-50 text-green-700"
-                  : "bg-red-50 text-red-700"
+                actionStatus.type === 'success'
+                  ? 'bg-green-50 text-green-700'
+                  : 'bg-red-50 text-red-700'
               }`}
             >
               {actionStatus.message}
@@ -485,7 +485,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
           </div>
 
           <div className="flex items-center space-x-3 shrink-0">
-            {notification.status === "unread" && (
+            {notification.status === 'unread' && (
               <button
                 onClick={handleMarkAsRead}
                 disabled={isLoading}
@@ -524,7 +524,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
         <Modal
           isOpen={true}
           onClose={() => setSelectedAttachment(null)}
-          title={selectedAttachment.filename ?? "Attachment"}
+          title={selectedAttachment.filename ?? 'Attachment'}
           size="xl"
         >
           <div className="flex items-center justify-center">

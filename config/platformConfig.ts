@@ -17,7 +17,7 @@ export interface PlatformConfig {
 }
 
 export const PLATFORM_CONFIG: PlatformConfig = {
-  SUPPORT_EMAIL: "support@uni-manager.com",
-  MARKETING_URL: "https://uni-manager.com",
-  BRAND_NAME: "Uni-Manager",
+  SUPPORT_EMAIL: 'support@uni-manager.com',
+  MARKETING_URL: 'https://uni-manager.com',
+  BRAND_NAME: 'Uni-Manager'
 };

@@ -1,5 +1,5 @@
-import React from "react";
-import { useDarkMode } from "../../hooks";
+import React from 'react';
+import { useDarkMode } from '../../hooks';
 
 /**
  * ThemeToggle
@@ -15,7 +15,7 @@ export const ThemeToggle: React.FC = () => {
 
   // Detect whether a user override is stored
   const hasOverride =
-    typeof localStorage !== "undefined" && !!localStorage.getItem("theme");
+    typeof localStorage !== 'undefined' && !!localStorage.getItem('theme');
 
   const handleClick = () => {
     if (!hasOverride) {
@@ -26,7 +26,7 @@ export const ThemeToggle: React.FC = () => {
   };
 
   const label = hasOverride
-    ? `Switch to ${theme === "light" ? "dark" : "light"} mode`
+    ? `Switch to ${theme === 'light' ? 'dark' : 'light'} mode`
     : `Following system theme (${theme}). Click to override.`;
 
   return (
@@ -39,11 +39,11 @@ export const ThemeToggle: React.FC = () => {
         aria-label={label}
         title={label}
       >
-        {theme === "light" ? (
+        {theme === 'light' ? (
           /* Moon — currently light, click to go dark */
           <svg
             className="w-5 h-5"
-            style={{ color: "var(--text-secondary)" }}
+            style={{ color: 'var(--text-secondary)' }}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -59,7 +59,7 @@ export const ThemeToggle: React.FC = () => {
           /* Sun — currently dark, click to go light */
           <svg
             className="w-5 h-5 text-amber-500"
-            style={{ color: "var(--color-amber-500)" }}
+            style={{ color: 'var(--color-amber-500)' }}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -78,8 +78,8 @@ export const ThemeToggle: React.FC = () => {
           <span
             className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-[var(--bg-surface)]"
             style={{
-              backgroundColor: "var(--primary-resonance)",
-              borderColor: "var(--bg-surface)",
+              backgroundColor: 'var(--primary-resonance)',
+              borderColor: 'var(--bg-surface)'
             }}
             title="Following system theme"
           />
@@ -93,7 +93,7 @@ export const ThemeToggle: React.FC = () => {
           className="p-1.5 rounded-full transition-colors duration-200
             hover:bg-[var(--glass-surface)]
             focus:outline-none focus:ring-2 focus:ring-[var(--primary-resonance)]"
-          style={{ color: "var(--text-muted)" }}
+          style={{ color: 'var(--text-muted)' }}
           aria-label="Reset to system theme"
           title="Reset to system theme (auto)"
         >

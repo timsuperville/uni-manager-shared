@@ -10,8 +10,8 @@
  * callback, which invokes a network request).
  */
 
-import { TokenStorage } from "../utils/TokenStorage";
-import type { User } from "../types/auth.types";
+import { TokenStorage } from '../utils/TokenStorage';
+import type { User } from '../types/auth.types';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -64,11 +64,11 @@ export class TokenManagementService {
     refreshToken?: string;
     user?: User;
   }): void {
-    if (!tokens?.accessToken) throw new Error("Access token is required");
+    if (!tokens?.accessToken) throw new Error('Access token is required');
     this.storage.setTokens({
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
-      user: tokens.user,
+      user: tokens.user
     });
   }
 
@@ -89,7 +89,7 @@ export class TokenManagementService {
 
   /** Merges partial user fields into the stored user record. */
   updateUser(user: Partial<User>): boolean {
-    if (!user) throw new Error("User data is required");
+    if (!user) throw new Error('User data is required');
     return this.storage.updateUser(user);
   }
 
@@ -115,21 +115,21 @@ export class TokenManagementService {
   decodeToken(token: string): TokenPayload | null {
     if (!token) return null;
     try {
-      const base64Url = token.split(".")[1];
+      const base64Url = token.split('.')[1];
       if (!base64Url) return null;
-      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
       const jsonPayload = decodeURIComponent(
         atob(base64)
-          .split("")
-          .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-          .join(""),
+          .split('')
+          .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
       );
       return JSON.parse(jsonPayload) as TokenPayload;
     } catch (error) {
       if (import.meta.env.DEV)
         console.warn(
-          "[TokenManagementService] decodeToken failed:",
-          (error as Error).message,
+          '[TokenManagementService] decodeToken failed:',
+          (error as Error).message
         );
       return null;
     }
@@ -169,7 +169,7 @@ export class TokenManagementService {
    */
   startAutoRefresh(
     refreshCallback: RefreshCallback,
-    interval = 10 * 60 * 1000,
+    interval = 10 * 60 * 1000
   ): void {
     if (this.refreshInterval !== null) this.stopAutoRefresh();
 
@@ -188,8 +188,8 @@ export class TokenManagementService {
       } catch (error) {
         if (import.meta.env.DEV) {
           console.warn(
-            "[TokenManagementService] Auto-refresh failed:",
-            (error as Error).message,
+            '[TokenManagementService] Auto-refresh failed:',
+            (error as Error).message
           );
         }
         this.onTokenExpired?.(error as Error);

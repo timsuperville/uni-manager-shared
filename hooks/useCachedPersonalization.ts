@@ -7,12 +7,12 @@
  * context hooks. Migrated from IntelligentCache to TanStack Query (ECO-R-10).
  */
 
-import { useCallback } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useUserPreferences } from "./useUserPreferences.ts";
-import { useMinistryContext } from "./useMinistryContext.ts";
-import { useSeasonalContext } from "./useSeasonalContext.ts";
-import { useActivityContext } from "./useActivityContext.ts";
+import { useCallback } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useUserPreferences } from './useUserPreferences.ts';
+import { useMinistryContext } from './useMinistryContext.ts';
+import { useSeasonalContext } from './useSeasonalContext.ts';
+import { useActivityContext } from './useActivityContext.ts';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -101,7 +101,7 @@ interface RecommendationItem {
 export const useCachedUserPreferences = (userId: string) => {
   const queryClient = useQueryClient();
   const originalPrefs = useUserPreferences();
-  const cacheKey = ["user-preferences", userId];
+  const cacheKey = ['user-preferences', userId];
 
   const { data: preferences } = useQuery<VersionedRecord>({
     queryKey: cacheKey,
@@ -109,7 +109,7 @@ export const useCachedUserPreferences = (userId: string) => {
       return (originalPrefs.preferences as VersionedRecord) ?? {};
     },
     initialData: (originalPrefs.preferences as VersionedRecord) || undefined,
-    staleTime: 15 * 60 * 1000, // 15 mins TTL
+    staleTime: 15 * 60 * 1000 // 15 mins TTL
   });
 
   const { mutateAsync: updatePreferences } = useMutation({
@@ -118,20 +118,20 @@ export const useCachedUserPreferences = (userId: string) => {
         ...(preferences ?? {}),
         ...updates,
         version: Date.now(),
-        lastUpdated: new Date().toISOString(),
+        lastUpdated: new Date().toISOString()
       };
       return newPreferences;
     },
-    onSuccess: (newPreferences) => {
+    onSuccess: newPreferences => {
       queryClient.setQueryData(cacheKey, newPreferences);
-      queryClient.invalidateQueries({ queryKey: ["dashboard-state", userId] });
-    },
+      queryClient.invalidateQueries({ queryKey: ['dashboard-state', userId] });
+    }
   });
 
   return {
     ...(preferences ?? {}),
     updatePreferences,
-    clearCache: () => queryClient.removeQueries({ queryKey: cacheKey }),
+    clearCache: () => queryClient.removeQueries({ queryKey: cacheKey })
   };
 };
 
@@ -142,7 +142,7 @@ export const useCachedUserPreferences = (userId: string) => {
 export const useCachedMinistryContext = (churchId: string) => {
   const queryClient = useQueryClient();
   const originalContext = useMinistryContext();
-  const cacheKey = ["ministry-context", churchId];
+  const cacheKey = ['ministry-context', churchId];
 
   const { data: context } = useQuery<MinistryRecord>({
     queryKey: cacheKey,
@@ -150,13 +150,13 @@ export const useCachedMinistryContext = (churchId: string) => {
       return (originalContext.ministry as MinistryRecord) ?? {};
     },
     initialData: (originalContext.ministry as MinistryRecord) || undefined,
-    staleTime: 30 * 60 * 1000, // 30 mins TTL
+    staleTime: 30 * 60 * 1000 // 30 mins TTL
   });
 
   return {
     ...(context ?? {}),
     clearCache: () => queryClient.removeQueries({ queryKey: cacheKey }),
-    refreshCache: () => queryClient.invalidateQueries({ queryKey: cacheKey }),
+    refreshCache: () => queryClient.invalidateQueries({ queryKey: cacheKey })
   };
 };
 
@@ -167,7 +167,7 @@ export const useCachedMinistryContext = (churchId: string) => {
 export const useCachedSeasonalContext = () => {
   const queryClient = useQueryClient();
   const originalContext = useSeasonalContext();
-  const cacheKey = ["seasonal-context"];
+  const cacheKey = ['seasonal-context'];
 
   const { data: context } = useQuery<SeasonalRecord>({
     queryKey: cacheKey,
@@ -175,13 +175,13 @@ export const useCachedSeasonalContext = () => {
       return (originalContext.season as SeasonalRecord) ?? {};
     },
     initialData: (originalContext.season as SeasonalRecord) || undefined,
-    staleTime: 6 * 60 * 60 * 1000, // 6 hours TTL
+    staleTime: 6 * 60 * 60 * 1000 // 6 hours TTL
   });
 
   return {
     ...(context ?? {}),
     clearCache: () => queryClient.removeQueries({ queryKey: cacheKey }),
-    refreshCache: () => queryClient.invalidateQueries({ queryKey: cacheKey }),
+    refreshCache: () => queryClient.invalidateQueries({ queryKey: cacheKey })
   };
 };
 
@@ -192,7 +192,7 @@ export const useCachedSeasonalContext = () => {
 export const useCachedActivityContext = (userId: string) => {
   const queryClient = useQueryClient();
   const originalContext = useActivityContext();
-  const cacheKey = ["activity-context", userId];
+  const cacheKey = ['activity-context', userId];
 
   const { data: context } = useQuery<ActivityRecord>({
     queryKey: cacheKey,
@@ -200,7 +200,7 @@ export const useCachedActivityContext = (userId: string) => {
       return (originalContext.activity as ActivityRecord) ?? {};
     },
     initialData: (originalContext.activity as ActivityRecord) || undefined,
-    staleTime: 10 * 60 * 1000, // 10 mins TTL
+    staleTime: 10 * 60 * 1000 // 10 mins TTL
   });
 
   const { mutateAsync: trackActivity } = useMutation({
@@ -210,21 +210,21 @@ export const useCachedActivityContext = (userId: string) => {
         lastActivity: Date.now(),
         recentActivities: [
           activity,
-          ...(context?.recentActivities ?? []).slice(0, 49),
-        ],
+          ...(context?.recentActivities ?? []).slice(0, 49)
+        ]
       };
       return updatedContext;
     },
-    onSuccess: (updatedContext) => {
+    onSuccess: updatedContext => {
       queryClient.setQueryData(cacheKey, updatedContext);
-      queryClient.invalidateQueries({ queryKey: ["dashboard-state", userId] });
-    },
+      queryClient.invalidateQueries({ queryKey: ['dashboard-state', userId] });
+    }
   });
 
   return {
     ...(context ?? {}),
     trackActivity,
-    clearCache: () => queryClient.removeQueries({ queryKey: cacheKey }),
+    clearCache: () => queryClient.removeQueries({ queryKey: cacheKey })
   };
 };
 
@@ -239,7 +239,7 @@ export const useCachedDashboardState = (userId: string, churchId: string) => {
   const activityContext = useCachedActivityContext(userId);
   const queryClient = useQueryClient();
 
-  const dashboardCacheKey = ["dashboard-state", userId, churchId];
+  const dashboardCacheKey = ['dashboard-state', userId, churchId];
 
   const { data: dashboardConfig, isLoading } = useQuery<DashboardConfig>({
     queryKey: dashboardCacheKey,
@@ -250,17 +250,21 @@ export const useCachedDashboardState = (userId: string, churchId: string) => {
       const actCtx = activityContext as ActivityRecord | null;
 
       return {
-        layout: (prefs.layout as string) ?? "default",
+        layout: (prefs.layout as string) ?? 'default',
         widgets: generateWidgetConfiguration(prefs, minCtx, seaCtx, actCtx),
-        theme: (prefs.theme as string) ?? "light",
+        theme: (prefs.theme as string) ?? 'light',
         personalizations: generatePersonalizations(actCtx, seaCtx),
         recommendations: generateRecommendations(actCtx, minCtx, seaCtx),
         generatedAt: Date.now(),
-        version: `${String(prefs.version ?? 0)}-${Date.now()}`,
+        version: `${String(prefs.version ?? 0)}-${Date.now()}`
       };
     },
-    enabled: !!preferences && !!ministryContext && !!seasonalContext && !!activityContext,
-    staleTime: 5 * 60 * 1000, // 5 mins TTL
+    enabled:
+      !!preferences &&
+      !!ministryContext &&
+      !!seasonalContext &&
+      !!activityContext,
+    staleTime: 5 * 60 * 1000 // 5 mins TTL
   });
 
   const { mutateAsync: updateDashboardConfig } = useMutation({
@@ -272,7 +276,7 @@ export const useCachedDashboardState = (userId: string, churchId: string) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: dashboardCacheKey });
-    },
+    }
   });
 
   const clearAllCaches = useCallback(() => {
@@ -287,7 +291,7 @@ export const useCachedDashboardState = (userId: string, churchId: string) => {
     seasonalContext,
     activityContext,
     queryClient,
-    dashboardCacheKey,
+    dashboardCacheKey
   ]);
 
   return {
@@ -298,7 +302,7 @@ export const useCachedDashboardState = (userId: string, churchId: string) => {
     dashboardConfig: dashboardConfig ?? null,
     updateDashboardConfig,
     clearAllCaches,
-    isLoading: isLoading || !dashboardConfig,
+    isLoading: isLoading || !dashboardConfig
   };
 };
 
@@ -312,42 +316,42 @@ function generateWidgetConfiguration(
   preferences: VersionedRecord,
   ministryContext: MinistryRecord | null,
   seasonalContext: SeasonalRecord | null,
-  activityContext: ActivityRecord | null,
+  activityContext: ActivityRecord | null
 ): WidgetConfig[] {
   const baseWidgets: WidgetConfig[] = [
-    { id: "welcome", priority: "high", category: "user" },
-    { id: "quickActions", priority: "high", category: "actions" },
-    { id: "upcomingEvents", priority: "normal", category: "events" },
-    { id: "prayer-requests", priority: "normal", category: "ministry" },
+    { id: 'welcome', priority: 'high', category: 'user' },
+    { id: 'quickActions', priority: 'high', category: 'actions' },
+    { id: 'upcomingEvents', priority: 'normal', category: 'events' },
+    { id: 'prayer-requests', priority: 'normal', category: 'ministry' }
   ];
 
   if (seasonalContext?.currentSeason) {
     baseWidgets.push({
       id: `${seasonalContext.currentSeason}-content`,
-      priority: "normal",
-      category: "seasonal",
+      priority: 'normal',
+      category: 'seasonal'
     });
   }
 
   if ((ministryContext?.activeMinistries?.length ?? 0) > 0) {
-    ministryContext!.activeMinistries!.forEach((ministry) => {
+    ministryContext!.activeMinistries!.forEach(ministry => {
       baseWidgets.push({
         id: `${ministry.slug}-ministry`,
-        priority: "low",
-        category: "ministry",
+        priority: 'low',
+        category: 'ministry'
       });
     });
   }
 
   if ((activityContext?.recentActivities?.length ?? 0) > 0) {
     const activityTypes = [
-      ...new Set(activityContext!.recentActivities!.map((a) => a.type)),
+      ...new Set(activityContext!.recentActivities!.map(a => a.type))
     ];
-    activityTypes.forEach((type) => {
+    activityTypes.forEach(type => {
       baseWidgets.push({
         id: `${type}-recommendations`,
-        priority: "low",
-        category: "recommendations",
+        priority: 'low',
+        category: 'recommendations'
       });
     });
   }
@@ -358,13 +362,13 @@ function generateWidgetConfiguration(
     (preferences.widgetOrder as Record<string, number> | undefined) ?? {};
 
   return baseWidgets
-    .filter((widget) => !hiddenWidgets.includes(widget.id))
+    .filter(widget => !hiddenWidgets.includes(widget.id))
     .sort((a, b) => (widgetOrder[a.id] ?? 999) - (widgetOrder[b.id] ?? 999));
 }
 
 function generatePersonalizations(
   activityContext: ActivityRecord | null,
-  seasonalContext: SeasonalRecord | null,
+  seasonalContext: SeasonalRecord | null
 ): PersonalizationItem[] {
   const personalizations: PersonalizationItem[] = [];
 
@@ -376,22 +380,22 @@ function generatePersonalizations(
       return acc;
     }, {});
     const topActivity = Object.keys(countByType).sort(
-      (a, b) => (countByType[b] ?? 0) - (countByType[a] ?? 0),
+      (a, b) => (countByType[b] ?? 0) - (countByType[a] ?? 0)
     )[0];
     if (topActivity) {
       personalizations.push({
-        type: "activity-focus",
+        type: 'activity-focus',
         value: topActivity,
-        message: `Based on your recent ${topActivity} activity`,
+        message: `Based on your recent ${topActivity} activity`
       });
     }
   }
 
   if (seasonalContext?.currentSeason) {
     personalizations.push({
-      type: "seasonal-content",
+      type: 'seasonal-content',
       value: seasonalContext.currentSeason,
-      message: `${seasonalContext.currentSeason} content and resources`,
+      message: `${seasonalContext.currentSeason} content and resources`
     });
   }
 
@@ -401,50 +405,49 @@ function generatePersonalizations(
 function generateRecommendations(
   activityContext: ActivityRecord | null,
   ministryContext: MinistryRecord | null,
-  seasonalContext: SeasonalRecord | null,
+  seasonalContext: SeasonalRecord | null
 ): RecommendationItem[] {
   const recommendations: RecommendationItem[] = [];
 
   if ((ministryContext?.suggestedMinistries?.length ?? 0) > 0) {
     recommendations.push(
-      ...ministryContext!.suggestedMinistries!.map((ministry) => ({
-        type: "ministry",
+      ...ministryContext!.suggestedMinistries!.map(ministry => ({
+        type: 'ministry',
         title: `Join ${ministry.name}`,
-        description: `Based on your interests in ${ministry.categories.join(", ")}`,
-        priority: "medium",
-        action: { type: "navigate", target: `/ministries/${ministry.slug}` },
-      })),
+        description: `Based on your interests in ${ministry.categories.join(', ')}`,
+        priority: 'medium',
+        action: { type: 'navigate', target: `/ministries/${ministry.slug}` }
+      }))
     );
   }
 
   if ((seasonalContext?.upcomingEvents?.length ?? 0) > 0) {
     recommendations.push(
-      ...seasonalContext!.upcomingEvents!.slice(0, 2).map((event) => ({
-        type: "event",
+      ...seasonalContext!.upcomingEvents!.slice(0, 2).map(event => ({
+        type: 'event',
         title: event.name,
         description: `${event.date} - ${event.description}`,
-        priority: "high",
-        action: { type: "navigate", target: `/events/${event.id}` },
-      })),
+        priority: 'high',
+        action: { type: 'navigate', target: `/events/${event.id}` }
+      }))
     );
   }
 
   if ((activityContext?.suggestedActions?.length ?? 0) > 0) {
     recommendations.push(
-      ...activityContext!.suggestedActions!.slice(0, 3).map((action) => ({
-        type: "action",
+      ...activityContext!.suggestedActions!.slice(0, 3).map(action => ({
+        type: 'action',
         title: action.title,
         description: action.description,
-        priority: action.priority ?? "low",
-        action: action.action,
-      })),
+        priority: action.priority ?? 'low',
+        action: action.action
+      }))
     );
   }
 
   const priorityOrder: Record<string, number> = { high: 0, medium: 1, low: 2 };
   return recommendations.sort(
     (a, b) =>
-      (priorityOrder[a.priority] ?? 3) - (priorityOrder[b.priority] ?? 3),
+      (priorityOrder[a.priority] ?? 3) - (priorityOrder[b.priority] ?? 3)
   );
 }
-

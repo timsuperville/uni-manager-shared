@@ -14,10 +14,10 @@
  * @see docs/product/06-ux-design.md
  * @see frontend/shared/auth/config/appConfigs
  */
-import React from "react";
-import { getCurrentAppConfig } from "../config/appConfigs";
-import { AuthShellContext } from "./_authUI/AuthContainer";
-import { ThemeToggle } from "../../components/ThemeToggle";
+import React from 'react';
+import { getCurrentAppConfig } from '../config/appConfigs';
+import { AuthShellContext } from './_authUI/AuthContainer';
+import { ThemeToggle } from '../../components/ThemeToggle';
 import {
   ChurchIcon,
   MusicIcon,
@@ -36,12 +36,12 @@ import {
   SpeakerIcon,
   LockIcon,
   GlobeIcon,
-  LightningIcon,
-} from "../../components/icons";
+  LightningIcon
+} from '../../components/icons';
 
 // ─── Per-app Visual Identity Fencing ──────────────────────────────────────────
 
-type AppType = "church" | "home" | "personal" | "work" | "playback" | "default";
+type AppType = 'church' | 'home' | 'personal' | 'work' | 'playback' | 'default';
 
 interface PillarItem {
   icon: React.ReactNode;
@@ -59,98 +59,98 @@ interface AppIdentity {
 
 const APP_IDENTITY: Record<AppType, AppIdentity> = {
   church: {
-    tagline: "Stewardship, Empowered.",
+    tagline: 'Stewardship, Empowered.',
     description:
-      "Ministry leadership, relational intelligence, and liturgical orchestration — unified for your congregation.",
-    gradient: "from-violet-600 via-purple-600 to-indigo-700",
-    glowColor: "rgba(139, 92, 246, 0.25)",
-    accentLight: "rgba(167, 139, 250, 0.15)",
+      'Ministry leadership, relational intelligence, and liturgical orchestration — unified for your congregation.',
+    gradient: 'from-violet-600 via-purple-600 to-indigo-700',
+    glowColor: 'rgba(139, 92, 246, 0.25)',
+    accentLight: 'rgba(167, 139, 250, 0.15)',
     pillars: [
-      { icon: <ChurchIcon size={22} />, label: "Member & Ministry Management" },
+      { icon: <ChurchIcon size={22} />, label: 'Member & Ministry Management' },
       {
         icon: <MusicIcon size={22} />,
-        label: "Liturgical Scheduling & Playback",
+        label: 'Liturgical Scheduling & Playback'
       },
       {
         icon: <CoinsIcon size={22} />,
-        label: "Tithing & Fiduciary Stewardship",
-      },
-    ],
+        label: 'Tithing & Fiduciary Stewardship'
+      }
+    ]
   },
   home: {
-    tagline: "Domestic Harmony, Orchestrated.",
+    tagline: 'Domestic Harmony, Orchestrated.',
     description:
-      "Household orchestration, stewardship rituals, and physical asset maintenance — all in one Domestic Nucleus.",
-    gradient: "from-amber-500 via-orange-500 to-rose-500",
-    glowColor: "rgba(245, 158, 11, 0.25)",
-    accentLight: "rgba(252, 211, 77, 0.15)",
+      'Household orchestration, stewardship rituals, and physical asset maintenance — all in one Domestic Nucleus.',
+    gradient: 'from-amber-500 via-orange-500 to-rose-500',
+    glowColor: 'rgba(245, 158, 11, 0.25)',
+    accentLight: 'rgba(252, 211, 77, 0.15)',
     pillars: [
-      { icon: <HomeIcon size={22} />, label: "Household & Asset Management" },
+      { icon: <HomeIcon size={22} />, label: 'Household & Asset Management' },
       {
         icon: <ShoppingCartIcon size={22} />,
-        label: "Budget, Pantry & Meal Planning",
+        label: 'Budget, Pantry & Meal Planning'
       },
-      { icon: <UsersIcon size={22} />, label: "Family Scheduling & Messaging" },
-    ],
+      { icon: <UsersIcon size={22} />, label: 'Family Scheduling & Messaging' }
+    ]
   },
   personal: {
-    tagline: "Your Sovereign Sanctuary.",
+    tagline: 'Your Sovereign Sanctuary.',
     description:
-      "Sovereign development, physiological intelligence, and relational accountability — a Personal OS built for you alone.",
-    gradient: "from-purple-600 via-indigo-600 to-blue-700",
-    glowColor: "rgba(139, 92, 246, 0.25)",
-    accentLight: "rgba(165, 180, 252, 0.15)",
+      'Sovereign development, physiological intelligence, and relational accountability — a Personal OS built for you alone.',
+    gradient: 'from-purple-600 via-indigo-600 to-blue-700',
+    glowColor: 'rgba(139, 92, 246, 0.25)',
+    accentLight: 'rgba(165, 180, 252, 0.15)',
     pillars: [
-      { icon: <BrainIcon size={22} />, label: "Second Brain & Deep Work" },
-      { icon: <TargetIcon size={22} />, label: "Habits, Goals & Journal" },
-      { icon: <DiamondIcon size={22} />, label: "Personal Finance & Identity" },
-    ],
+      { icon: <BrainIcon size={22} />, label: 'Second Brain & Deep Work' },
+      { icon: <TargetIcon size={22} />, label: 'Habits, Goals & Journal' },
+      { icon: <DiamondIcon size={22} />, label: 'Personal Finance & Identity' }
+    ]
   },
   work: {
-    tagline: "Professional Velocity, Mastered.",
+    tagline: 'Professional Velocity, Mastered.',
     description:
-      "Strategic toolset for high-performance SMB operations — CRM, inventory, and margin-focused fiduciary velocity.",
-    gradient: "from-emerald-500 via-teal-600 to-cyan-700",
-    glowColor: "rgba(16, 185, 129, 0.25)",
-    accentLight: "rgba(110, 231, 183, 0.15)",
+      'Strategic toolset for high-performance SMB operations — CRM, inventory, and margin-focused fiduciary velocity.',
+    gradient: 'from-emerald-500 via-teal-600 to-cyan-700',
+    glowColor: 'rgba(16, 185, 129, 0.25)',
+    accentLight: 'rgba(110, 231, 183, 0.15)',
     pillars: [
       {
         icon: <BarChartIcon size={22} />,
-        label: "CRM & Pipeline Intelligence",
+        label: 'CRM & Pipeline Intelligence'
       },
-      { icon: <PackageIcon size={22} />, label: "Inventory & Operations" },
-      { icon: <BriefcaseIcon size={22} />, label: "Finance & Team Management" },
-    ],
+      { icon: <PackageIcon size={22} />, label: 'Inventory & Operations' },
+      { icon: <BriefcaseIcon size={22} />, label: 'Finance & Team Management' }
+    ]
   },
   playback: {
-    tagline: "Frame-Accurate. Stage-Ready.",
+    tagline: 'Frame-Accurate. Stage-Ready.',
     description:
-      "A precision audio engine for live multitrack, MIDI performance, and stage automation — built for ministry teams.",
-    gradient: "from-rose-600 via-pink-600 to-fuchsia-700",
-    glowColor: "rgba(244, 63, 94, 0.25)",
-    accentLight: "rgba(251, 146, 60, 0.12)",
+      'A precision audio engine for live multitrack, MIDI performance, and stage automation — built for ministry teams.',
+    gradient: 'from-rose-600 via-pink-600 to-fuchsia-700',
+    glowColor: 'rgba(244, 63, 94, 0.25)',
+    accentLight: 'rgba(251, 146, 60, 0.12)',
     pillars: [
-      { icon: <MicIcon size={22} />, label: "Live Multitrack Performance" },
-      { icon: <KeyboardIcon size={22} />, label: "MIDI & Stage Automation" },
+      { icon: <MicIcon size={22} />, label: 'Live Multitrack Performance' },
+      { icon: <KeyboardIcon size={22} />, label: 'MIDI & Stage Automation' },
       {
         icon: <SpeakerIcon size={22} />,
-        label: "In-Ear Monitor & Stem Control",
-      },
-    ],
+        label: 'In-Ear Monitor & Stem Control'
+      }
+    ]
   },
   default: {
-    tagline: "Total Life Orchestration.",
+    tagline: 'Total Life Orchestration.',
     description:
-      "Uni-Manager bridges your professional, spiritual, and domestic life through a single unified identity.",
-    gradient: "from-blue-600 via-indigo-600 to-violet-700",
-    glowColor: "rgba(99, 102, 241, 0.25)",
-    accentLight: "rgba(165, 180, 252, 0.15)",
+      'Uni-Manager bridges your professional, spiritual, and domestic life through a single unified identity.',
+    gradient: 'from-blue-600 via-indigo-600 to-violet-700',
+    glowColor: 'rgba(99, 102, 241, 0.25)',
+    accentLight: 'rgba(165, 180, 252, 0.15)',
     pillars: [
-      { icon: <LockIcon size={22} />, label: "Secure, unified identity" },
-      { icon: <GlobeIcon size={22} />, label: "Six specialized life contexts" },
-      { icon: <LightningIcon size={22} />, label: "Sub-second resonance" },
-    ],
-  },
+      { icon: <LockIcon size={22} />, label: 'Secure, unified identity' },
+      { icon: <GlobeIcon size={22} />, label: 'Six specialized life contexts' },
+      { icon: <LightningIcon size={22} />, label: 'Sub-second resonance' }
+    ]
+  }
 };
 
 // Pillar entry animation — defined once outside the component so it's not
@@ -174,19 +174,19 @@ interface AuthLayoutProps {
 const AuthLayout = ({
   children,
   appType,
-  showLogo = true,
+  showLogo = true
 }: AuthLayoutProps) => {
   const appConfig = getCurrentAppConfig(appType);
 
   // Resolve identity: prefer explicit appType, fall back to auto-detected config
   const identityKey = (appType ??
     appConfig?.appName?.toLowerCase() ??
-    "default") as AppType;
+    'default') as AppType;
   const identity =
     APP_IDENTITY[identityKey] ??
     APP_IDENTITY[
-      Object.keys(APP_IDENTITY).find((k) =>
-        identityKey.includes(k as AppType),
+      Object.keys(APP_IDENTITY).find(k =>
+        identityKey.includes(k as AppType)
       ) as AppType
     ] ??
     APP_IDENTITY.default;
@@ -265,9 +265,9 @@ const AuthLayout = ({
                   <div
                     className="w-9 h-9 rounded-xl shadow-lg flex items-center justify-center"
                     style={{
-                      background: "hsla(0,0%,100%,0.15)",
-                      backdropFilter: "blur(12px)",
-                      border: "1px solid hsla(0,0%,100%,0.25)",
+                      background: 'hsla(0,0%,100%,0.15)',
+                      backdropFilter: 'blur(12px)',
+                      border: '1px solid hsla(0,0%,100%,0.25)'
                     }}
                     aria-hidden="true"
                   />
@@ -301,11 +301,11 @@ const AuthLayout = ({
                     key={pillar.label}
                     className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 hover:scale-[1.02] hover:bg-white/15"
                     style={{
-                      background: "hsla(0,0%,100%,0.08)",
-                      backdropFilter: "blur(12px)",
-                      border: "1px solid hsla(0,0%,100%,0.12)",
-                      animation: "pillarSlideIn 0.4s ease both",
-                      animationDelay: `${0.2 + i * 0.1}s`,
+                      background: 'hsla(0,0%,100%,0.08)',
+                      backdropFilter: 'blur(12px)',
+                      border: '1px solid hsla(0,0%,100%,0.12)',
+                      animation: 'pillarSlideIn 0.4s ease both',
+                      animationDelay: `${0.2 + i * 0.1}s`
                     }}
                   >
                     <span

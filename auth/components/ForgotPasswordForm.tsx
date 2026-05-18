@@ -2,17 +2,17 @@
  * ForgotPasswordForm — Email-only reset request form.
  * Works both standalone (legacy) and nested inside AuthLayout.
  */
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { validateEmail } from "../utils/authValidation";
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { validateEmail } from '../utils/authValidation';
 import {
   AuthContainer,
   AuthCardContent,
   AuthButton,
   AuthInput,
-  Alert,
-} from "./_authUI";
-import { LockIcon } from "../../components/icons";
+  Alert
+} from './_authUI';
+import { LockIcon } from '../../components/icons';
 
 // Seconds to wait before auto-redirecting to login after a successful submission
 const SUCCESS_REDIRECT_DELAY = 5;
@@ -30,11 +30,11 @@ const ForgotPasswordForm = ({
   onBackToLogin,
   isLoading = false,
   error = null,
-  success = null,
+  success = null
 }: ForgotPasswordFormProps) => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [localError, setLocalError] = useState("");
+  const [email, setEmail] = useState('');
+  const [localError, setLocalError] = useState('');
   const [countdown, setCountdown] = useState<number | null>(null);
 
   // After success, start a countdown and auto-redirect to login
@@ -42,10 +42,10 @@ const ForgotPasswordForm = ({
     if (!success) return;
     setCountdown(SUCCESS_REDIRECT_DELAY);
     const interval = setInterval(() => {
-      setCountdown((prev) => {
+      setCountdown(prev => {
         if (prev === null || prev <= 1) {
           clearInterval(interval);
-          navigate("/auth/login");
+          navigate('/auth/login');
           return 0;
         }
         return prev - 1;
@@ -59,26 +59,26 @@ const ForgotPasswordForm = ({
       onBackToLogin();
     } else {
       // Safe fallback: always stay in-app, never use navigate(-1)
-      navigate("/auth/login");
+      navigate('/auth/login');
     }
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLocalError("");
+    setLocalError('');
 
     const { isValid, errors: validationErrors } = validateEmail(email);
     if (!isValid) {
-      setLocalError(validationErrors?.[0] ?? "Invalid email address");
+      setLocalError(validationErrors?.[0] ?? 'Invalid email address');
       return;
     }
 
     if (!onSubmit) {
       if (import.meta.env?.DEV) {
         console.error(
-          "[ForgotPasswordForm] No onSubmit handler provided. " +
-            "Use the app-specific wrapper (e.g. ForgotPasswordWrapper) " +
-            "rather than the raw shared component directly.",
+          '[ForgotPasswordForm] No onSubmit handler provided. ' +
+            'Use the app-specific wrapper (e.g. ForgotPasswordWrapper) ' +
+            'rather than the raw shared component directly.'
         );
       }
       return;
@@ -154,9 +154,9 @@ const ForgotPasswordForm = ({
               type="email"
               label="Email address"
               value={email}
-              onChange={(e) => {
+              onChange={e => {
                 setEmail(e.target.value);
-                setLocalError("");
+                setLocalError('');
               }}
               placeholder="Enter your email address"
               error={localError}
@@ -188,7 +188,7 @@ const ForgotPasswordForm = ({
                 loading={isLoading}
                 variant="primary"
               >
-                {isLoading ? "Sending reset link…" : "Send reset link"}
+                {isLoading ? 'Sending reset link…' : 'Send reset link'}
               </AuthButton>
             </div>
           </form>
@@ -196,7 +196,7 @@ const ForgotPasswordForm = ({
 
         {/* Footer link */}
         <p className="text-center text-sm text-gray-500 dark:text-gray-400">
-          {"Remember your password? "}
+          {'Remember your password? '}
           <button
             type="button"
             onClick={handleBack}

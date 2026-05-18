@@ -4,11 +4,11 @@ import React, {
   useEffect,
   useState,
   useRef,
-  useCallback,
-} from "react";
-import { AuthContext } from "../auth/context/AuthContext";
-import { getWebSocketUrl } from "../config/environment";
-import { logger } from "@shared/utils/logger";
+  useCallback
+} from 'react';
+import { AuthContext } from '../auth/context/AuthContext';
+import { getWebSocketUrl } from '../config/environment';
+import { logger } from '@shared/utils/logger';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -26,7 +26,7 @@ export const PresenceContext = createContext<PresenceContextValue | null>(null);
 // ── Provider ──────────────────────────────────────────────────────────────────
 
 export const PresenceProvider = ({
-  children,
+  children
 }: {
   children: React.ReactNode;
 }) => {
@@ -42,13 +42,13 @@ export const PresenceProvider = ({
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [status, setStatus] = useState(() => {
-    return localStorage.getItem("user_presence_status") || "available";
+    return localStorage.getItem('user_presence_status') || 'available';
   });
 
   // Refs for socket management and state access inside callbacks
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
-    null,
+    null
   );
   const reconnectAttemptsRef = useRef(0);
   const isMountedRef = useRef(true);
@@ -57,7 +57,7 @@ export const PresenceProvider = ({
   // Update ref when status changes
   useEffect(() => {
     statusRef.current = status;
-    localStorage.setItem("user_presence_status", status);
+    localStorage.setItem('user_presence_status', status);
   }, [status]);
 
   useEffect(() => {
@@ -75,17 +75,17 @@ export const PresenceProvider = ({
     // blocked by authService chain fragility at mount time.
     const token =
       auth?.authService?.getStoredToken?.() ??
-      sessionStorage.getItem("admin_auth_access_token") ??
-      sessionStorage.getItem("church_auth_access_token") ??
-      localStorage.getItem("admin_auth_access_token") ??
-      localStorage.getItem("church_auth_access_token") ??
+      sessionStorage.getItem('admin_auth_access_token') ??
+      sessionStorage.getItem('church_auth_access_token') ??
+      localStorage.getItem('admin_auth_access_token') ??
+      localStorage.getItem('church_auth_access_token') ??
       null;
 
     // Never connect without a token — the server will reject it with 1008
     if (!token) {
       if (import.meta.env.DEV) {
         logger.debug(
-          "[PresenceContext] No token available — skipping WS connection",
+          '[PresenceContext] No token available — skipping WS connection'
         );
       }
       return;
@@ -94,9 +94,9 @@ export const PresenceProvider = ({
     // Build the presence WebSocket URL — append /presence path to the API base.
     // PresenceServer is mounted at ws://host/presence?token=<JWT>
     const wsBase = getWebSocketUrl();
-    const presenceBase = wsBase.endsWith("/presence")
+    const presenceBase = wsBase.endsWith('/presence')
       ? wsBase
-      : wsBase.replace(/\/+$/, "") + "/presence";
+      : wsBase.replace(/\/+$/, '') + '/presence';
     const urlWithAuth = `${presenceBase}?token=${token}`;
 
     try {
@@ -112,18 +112,18 @@ export const PresenceProvider = ({
         if (ws.readyState === WebSocket.OPEN) {
           ws.send(
             JSON.stringify({
-              type: "presence",
-              action: "update",
-              data: { status: statusRef.current },
-            }),
+              type: 'presence',
+              action: 'update',
+              data: { status: statusRef.current }
+            })
           );
         }
       };
 
-      ws.onclose = (event) => {
+      ws.onclose = event => {
         if (!isMountedRef.current) return;
         if (import.meta.env.DEV) {
-          logger.debug("WebSocket disconnected:", event.code, event.reason);
+          logger.debug('WebSocket disconnected:', event.code, event.reason);
         }
         setIsConnected(false);
         setSocket(null);
@@ -140,11 +140,11 @@ export const PresenceProvider = ({
         ) {
           const delay = Math.min(
             1000 * Math.pow(2, reconnectAttemptsRef.current),
-            30000,
+            30000
           );
           if (import.meta.env.DEV) {
             logger.debug(
-              `Reconnecting in ${delay}ms... (Attempt ${reconnectAttemptsRef.current + 1}/${MAX_RECONNECT_ATTEMPTS})`,
+              `Reconnecting in ${delay}ms... (Attempt ${reconnectAttemptsRef.current + 1}/${MAX_RECONNECT_ATTEMPTS})`
             );
           }
           reconnectTimeoutRef.current = setTimeout(() => {
@@ -156,18 +156,18 @@ export const PresenceProvider = ({
           import.meta.env.DEV
         ) {
           logger.debug(
-            "[PresenceContext] WS server unavailable — presence feature inactive until server is running.",
+            '[PresenceContext] WS server unavailable — presence feature inactive until server is running.'
           );
         }
       };
 
-      ws.onerror = (error) => {
+      ws.onerror = error => {
         if (import.meta.env.DEV) {
-          logger.error("WebSocket error:", error);
+          logger.error('WebSocket error:', error);
         }
       };
 
-      ws.onmessage = (event) => {
+      ws.onmessage = event => {
         try {
           const message = JSON.parse(event.data as string) as {
             type: string;
@@ -176,16 +176,16 @@ export const PresenceProvider = ({
           };
 
           // Heartbeat reply — no action needed
-          if (message.type === "pong") return;
+          if (message.type === 'pong') return;
 
           // Presence events (join, leave, update, roster snapshot) — handled by consumers
           // via the socket ref; context-level state can be extended here if needed
-          if (message.type === "presence") {
+          if (message.type === 'presence') {
             if (import.meta.env.DEV) {
               logger.debug(
-                "[PresenceContext] Presence event:",
+                '[PresenceContext] Presence event:',
                 message.action,
-                message.data,
+                message.data
               );
             }
             return;
@@ -193,15 +193,15 @@ export const PresenceProvider = ({
         } catch (e) {
           if (import.meta.env.DEV) {
             logger.error(
-              "[PresenceContext] Error parsing WebSocket message:",
-              e,
+              '[PresenceContext] Error parsing WebSocket message:',
+              e
             );
           }
         }
       };
     } catch (error) {
       if (import.meta.env.DEV) {
-        logger.error("Failed to create WebSocket connection:", error);
+        logger.error('Failed to create WebSocket connection:', error);
       }
     }
   }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -212,7 +212,7 @@ export const PresenceProvider = ({
       reconnectTimeoutRef.current = null;
     }
     if (wsRef.current) {
-      wsRef.current.close(1000, "User logged out or component unmounted");
+      wsRef.current.close(1000, 'User logged out or component unmounted');
       wsRef.current = null;
     }
     setIsConnected(false);
@@ -239,10 +239,10 @@ export const PresenceProvider = ({
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
       wsRef.current.send(
         JSON.stringify({
-          type: "presence",
-          action: "update",
-          data: { status: newStatus },
-        }),
+          type: 'presence',
+          action: 'update',
+          data: { status: newStatus }
+        })
       );
     }
   }, []);
@@ -261,7 +261,7 @@ export const PresenceProvider = ({
 export const usePresence = (): PresenceContextValue => {
   const context = useContext(PresenceContext);
   if (!context) {
-    throw new Error("usePresence must be used within a PresenceProvider");
+    throw new Error('usePresence must be used within a PresenceProvider');
   }
   return context;
 };

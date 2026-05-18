@@ -1,14 +1,14 @@
-import { useEffect, useState, useRef } from "react";
-import * as Y from "yjs";
-import { WebsocketProvider } from "y-websocket";
-import { useAuth } from "@shared/auth/hooks/useAuth";
-import { getWebSocketUrl } from "@shared/api";
+import { useEffect, useState, useRef } from 'react';
+import * as Y from 'yjs';
+import { WebsocketProvider } from 'y-websocket';
+import { useAuth } from '@shared/auth/hooks/useAuth';
+import { getWebSocketUrl } from '@shared/api';
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
-export type SyncStatus = "connected" | "disconnected" | "connecting";
+export type SyncStatus = 'connected' | 'disconnected' | 'connecting';
 
 export interface AwarenessUser {
   name: string;
@@ -38,7 +38,7 @@ export interface UseSyncResult {
  */
 export function useSync(roomName: string | null): UseSyncResult {
   const { user } = useAuth();
-  const [status, setStatus] = useState<SyncStatus>("disconnected");
+  const [status, setStatus] = useState<SyncStatus>('disconnected');
   const [awareness, setAwareness] = useState<AwarenessUser[]>([]);
 
   const docRef = useRef<Y.Doc | null>(null);
@@ -46,8 +46,8 @@ export function useSync(roomName: string | null): UseSyncResult {
 
   // Extract primitives to avoid deep-equality teardowns in the dependency array
   const userId = (user as any)?.id;
-  const userFirstName = (user as any)?.firstName ?? "Unknown";
-  const userColor = (user as any)?.color ?? "#3b82f6";
+  const userFirstName = (user as any)?.firstName ?? 'Unknown';
+  const userColor = (user as any)?.color ?? '#3b82f6';
 
   useEffect(() => {
     if (!roomName || !userId) return;
@@ -59,22 +59,22 @@ export function useSync(roomName: string | null): UseSyncResult {
     const provider = new WebsocketProvider(wsUrl, roomName, doc);
     providerRef.current = provider;
 
-    provider.awareness.setLocalStateField("user", {
+    provider.awareness.setLocalStateField('user', {
       name: userFirstName,
       color: userColor,
-      userId: userId,
+      userId: userId
     });
 
-    provider.on("status", (event: { status: SyncStatus }) => {
+    provider.on('status', (event: { status: SyncStatus }) => {
       setStatus(event.status);
     });
 
-    provider.awareness.on("change", () => {
+    provider.awareness.on('change', () => {
       const states = Array.from(
-        provider.awareness.getStates().values(),
+        provider.awareness.getStates().values()
       ) as Array<{ user?: AwarenessUser }>;
       const users = states
-        .map((s) => s.user)
+        .map(s => s.user)
         .filter((u): u is AwarenessUser => !!u);
       setAwareness(users);
     });
@@ -91,6 +91,6 @@ export function useSync(roomName: string | null): UseSyncResult {
     doc: docRef.current,
     status,
     awareness,
-    provider: providerRef.current,
+    provider: providerRef.current
   };
 }

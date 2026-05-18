@@ -1,20 +1,20 @@
-import { renderHook, act } from "@testing-library/react";
-import { vi, describe, it, expect, beforeEach } from "vitest";
-import { useMFA } from "../hooks/useMFA";
-import { useAuth } from "../hooks/useAuth";
-import { MFAService } from "../services/mfaService";
+import { renderHook, act } from '@testing-library/react';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { useMFA } from '../hooks/useMFA';
+import { useAuth } from '../hooks/useAuth';
+import { MFAService } from '../services/mfaService';
 
 // Mock dependencies
-vi.mock("../hooks/useAuth");
-vi.mock("../services/mfaService");
+vi.mock('../hooks/useAuth');
+vi.mock('../services/mfaService');
 
-describe("useMFA", () => {
+describe('useMFA', () => {
   const mockUser = {
-    id: "user123",
-    email: "test@example.com",
-    mfaStatus: "disabled",
+    id: 'user123',
+    email: 'test@example.com',
+    mfaStatus: 'disabled'
   };
-  const mockToken = "fake-jwt-token";
+  const mockToken = 'fake-jwt-token';
 
   // Mock service instance methods
   const mockServiceMethods = {
@@ -23,7 +23,7 @@ describe("useMFA", () => {
     verifyTOTPSetup: vi.fn(),
     verifyTOTP: vi.fn(),
     disableMFA: vi.fn(),
-    generateBackupCodes: vi.fn(),
+    generateBackupCodes: vi.fn()
   };
 
   beforeEach(() => {
@@ -33,7 +33,7 @@ describe("useMFA", () => {
     // Mock useAuth
     (useAuth as any).mockReturnValue({
       user: mockUser,
-      token: mockToken,
+      token: mockToken
     });
 
     // Mock MFAService constructor to return instance with our mock methods
@@ -42,28 +42,28 @@ describe("useMFA", () => {
     });
   });
 
-  it("should initialize with default state", () => {
+  it('should initialize with default state', () => {
     const { result } = renderHook(() => useMFA());
-    expect(result.current.mfaStatus).toBe("disabled");
+    expect(result.current.mfaStatus).toBe('disabled');
     expect(result.current.isLoading).toBe(false);
     expect(result.current.error).toBe(null);
     expect(result.current.backupCodes).toEqual([]);
   });
 
-  it("should initialize MFAService with token", () => {
+  it('should initialize MFAService with token', () => {
     renderHook(() => useMFA());
     expect(MFAService).toHaveBeenCalledWith(mockToken);
   });
 
-  it("should handle MFA setup for TOTP", async () => {
-    const mockSetupResponse = { qrCode: "data:image/...", secret: "XYZ" };
+  it('should handle MFA setup for TOTP', async () => {
+    const mockSetupResponse = { qrCode: 'data:image/...', secret: 'XYZ' };
     mockServiceMethods.setupTOTP.mockResolvedValue(mockSetupResponse);
 
     const { result } = renderHook(() => useMFA());
 
     let setupResult;
     await act(async () => {
-      setupResult = await result.current.setupMFA("totp");
+      setupResult = await result.current.setupMFA('totp');
     });
 
     expect(mockServiceMethods.setupTOTP).toHaveBeenCalledWith(mockUser.email);
@@ -72,9 +72,9 @@ describe("useMFA", () => {
     expect(result.current.error).toBe(null);
   });
 
-  it("should handle MFA verification during setup", async () => {
+  it('should handle MFA verification during setup', async () => {
     const mockVerifyResponse = { success: true };
-    const mockBackupCodes = { backupCodes: ["code1", "code2"] };
+    const mockBackupCodes = { backupCodes: ['code1', 'code2'] };
 
     mockServiceMethods.verifyTOTPSetup.mockResolvedValue(mockVerifyResponse);
     mockServiceMethods.generateBackupCodes.mockResolvedValue(mockBackupCodes);
@@ -82,36 +82,36 @@ describe("useMFA", () => {
     const { result } = renderHook(() => useMFA());
 
     await act(async () => {
-      await result.current.verifyCode("123456", true);
+      await result.current.verifyCode('123456', true);
     });
 
-    expect(mockServiceMethods.verifyTOTPSetup).toHaveBeenCalledWith("123456");
+    expect(mockServiceMethods.verifyTOTPSetup).toHaveBeenCalledWith('123456');
     expect(mockServiceMethods.generateBackupCodes).toHaveBeenCalled();
-    expect(result.current.backupCodes).toEqual(["code1", "code2"]);
+    expect(result.current.backupCodes).toEqual(['code1', 'code2']);
   });
 
-  it("should handle MFA disable", async () => {
+  it('should handle MFA disable', async () => {
     mockServiceMethods.disableMFA.mockResolvedValue({ success: true });
 
     const { result } = renderHook(() => useMFA());
 
     await act(async () => {
-      await result.current.disableMFA("totp");
+      await result.current.disableMFA('totp');
     });
 
-    expect(mockServiceMethods.disableMFA).toHaveBeenCalledWith("totp", null);
+    expect(mockServiceMethods.disableMFA).toHaveBeenCalledWith('totp', null);
     expect(result.current.error).toBe(null);
   });
 
-  it("should handle errors correctly", async () => {
-    const errorMsg = "Invalid code";
+  it('should handle errors correctly', async () => {
+    const errorMsg = 'Invalid code';
     mockServiceMethods.verifyTOTP.mockRejectedValue(new Error(errorMsg));
 
     const { result } = renderHook(() => useMFA());
 
     await act(async () => {
       try {
-        await result.current.verifyCode("000000", false);
+        await result.current.verifyCode('000000', false);
       } catch (e) {
         // Expected error
       }

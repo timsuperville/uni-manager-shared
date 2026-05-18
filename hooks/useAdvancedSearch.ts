@@ -3,13 +3,13 @@
  * Custom hooks for search functionality, filtering, and pagination
  */
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback } from 'react';
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
-export type SortOrder = "asc" | "desc";
+export type SortOrder = 'asc' | 'desc';
 
 export interface FilterOption {
   value: string;
@@ -17,12 +17,12 @@ export interface FilterOption {
 }
 
 export type FilterType =
-  | "text"
-  | "select"
-  | "autocomplete"
-  | "checkbox"
-  | "date"
-  | "dateRange";
+  | 'text'
+  | 'select'
+  | 'autocomplete'
+  | 'checkbox'
+  | 'date'
+  | 'dateRange';
 
 export interface SearchFilter {
   key: string;
@@ -57,7 +57,7 @@ export interface SearchResponse<T = unknown> {
 export interface SuggestionItem {
   text: string;
   category: string;
-  type: "data" | "filter" | "history";
+  type: 'data' | 'filter' | 'history';
   filters?: Record<string, unknown>;
 }
 
@@ -129,12 +129,12 @@ export interface ProcessSearchDataResult<T = unknown> {
 // ---------------------------------------------------------------------------
 
 export function useAdvancedSearch<T = unknown>({
-  initialSearchValue = "",
+  initialSearchValue = '',
   initialFilters = {},
-  initialSortBy = "",
-  initialSortOrder = "asc",
+  initialSortBy = '',
+  initialSortOrder = 'asc',
   searchFunction,
-  debounceDelay = 300,
+  debounceDelay = 300
 }: UseAdvancedSearchOptions<T>): UseAdvancedSearchResult<T> {
   const [searchValue, setSearchValue] = useState(initialSearchValue);
   const [filters, setFilters] =
@@ -155,7 +155,7 @@ export function useAdvancedSearch<T = unknown>({
           query: searchValue,
           filters,
           sortBy,
-          sortOrder,
+          sortOrder
         });
         setResults(response.results ?? []);
         setTotalCount(response.totalCount ?? 0);
@@ -179,7 +179,7 @@ export function useAdvancedSearch<T = unknown>({
     (newFilters: Record<string, unknown>): void => {
       setFilters(newFilters);
     },
-    [],
+    []
   );
 
   const handleSortChange = useCallback(
@@ -187,11 +187,11 @@ export function useAdvancedSearch<T = unknown>({
       setSortBy(field);
       setSortOrder(order);
     },
-    [],
+    []
   );
 
   const clearSearch = useCallback((): void => {
-    setSearchValue("");
+    setSearchValue('');
     setFilters(initialFilters);
     setSortBy(initialSortBy);
     setSortOrder(initialSortOrder);
@@ -209,7 +209,7 @@ export function useAdvancedSearch<T = unknown>({
     handleSearch,
     handleFilterChange,
     handleSortChange,
-    clearSearch,
+    clearSearch
   };
 }
 
@@ -220,22 +220,22 @@ export function useAdvancedSearch<T = unknown>({
 export function usePagination({
   initialPage = 1,
   initialPageSize = 10,
-  totalCount = 0,
+  totalCount = 0
 }: UsePaginationOptions): UsePaginationResult {
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [pageSize, setPageSize] = useState(initialPageSize);
 
   const totalPages = useMemo(
     () => Math.ceil(totalCount / pageSize),
-    [totalCount, pageSize],
+    [totalCount, pageSize]
   );
   const startIndex = useMemo(
     () => (currentPage - 1) * pageSize,
-    [currentPage, pageSize],
+    [currentPage, pageSize]
   );
   const endIndex = useMemo(
     () => Math.min(startIndex + pageSize - 1, totalCount - 1),
-    [startIndex, pageSize, totalCount],
+    [startIndex, pageSize, totalCount]
   );
 
   const hasNextPage = currentPage < totalPages;
@@ -245,15 +245,15 @@ export function usePagination({
     (page: number): void => {
       if (page >= 1 && page <= totalPages) setCurrentPage(page);
     },
-    [totalPages],
+    [totalPages]
   );
 
   const nextPage = useCallback((): void => {
-    if (hasNextPage) setCurrentPage((prev) => prev + 1);
+    if (hasNextPage) setCurrentPage(prev => prev + 1);
   }, [hasNextPage]);
 
   const previousPage = useCallback((): void => {
-    if (hasPreviousPage) setCurrentPage((prev) => prev - 1);
+    if (hasPreviousPage) setCurrentPage(prev => prev - 1);
   }, [hasPreviousPage]);
 
   const changePageSize = useCallback((newPageSize: number): void => {
@@ -279,7 +279,7 @@ export function usePagination({
     goToPage,
     nextPage,
     previousPage,
-    changePageSize,
+    changePageSize
   };
 }
 
@@ -288,70 +288,70 @@ export function usePagination({
 // ---------------------------------------------------------------------------
 
 export const createSearchFilters = {
-  text: (key: string, label: string, placeholder = ""): SearchFilter => ({
+  text: (key: string, label: string, placeholder = ''): SearchFilter => ({
     key,
     label,
-    type: "text",
-    placeholder,
+    type: 'text',
+    placeholder
   }),
   select: (
     key: string,
     label: string,
     options: FilterOption[],
-    multiple = false,
+    multiple = false
   ): SearchFilter => ({
     key,
     label,
-    type: "select",
+    type: 'select',
     options,
-    multiple,
+    multiple
   }),
   autocomplete: (
     key: string,
     label: string,
     options: FilterOption[],
-    multiple = false,
+    multiple = false
   ): SearchFilter => ({
     key,
     label,
-    type: "autocomplete",
+    type: 'autocomplete',
     options,
-    multiple,
+    multiple
   }),
   checkbox: (
     key: string,
     label: string,
-    options: FilterOption[],
+    options: FilterOption[]
   ): SearchFilter => ({
     key,
     label,
-    type: "checkbox",
+    type: 'checkbox',
     options,
-    multiple: true,
+    multiple: true
   }),
   date: (key: string, label: string): SearchFilter => ({
     key,
     label,
-    type: "date",
+    type: 'date'
   }),
   dateRange: (key: string, label: string): SearchFilter => ({
     key,
     label,
-    type: "dateRange",
+    type: 'dateRange'
   }),
   quickFilter: (
     key: string,
     label: string,
-    options: FilterOption[],
+    options: FilterOption[]
   ): SearchFilter => ({
     key,
     label,
-    type: "select",
+    type: 'select',
     options,
     multiple: true,
     quickFilter: true,
-    quickFilterOptions: options,
-  }),
+    quickFilterOptions: options
+  })
 };
 
 // ---------------------------------------------------------------------------
@@ -362,18 +362,18 @@ export const createSortOptions = {
   field: (
     value: string,
     label: string,
-    defaultOrder: SortOrder = "asc",
+    defaultOrder: SortOrder = 'asc'
   ): SortOption => ({
     value,
     label,
-    defaultOrder,
+    defaultOrder
   }),
   common: (): SortOption[] => [
-    { value: "name", label: "Name", defaultOrder: "asc" },
-    { value: "createdAt", label: "Date Created", defaultOrder: "desc" },
-    { value: "updatedAt", label: "Last Modified", defaultOrder: "desc" },
-    { value: "status", label: "Status", defaultOrder: "asc" },
-  ],
+    { value: 'name', label: 'Name', defaultOrder: 'asc' },
+    { value: 'createdAt', label: 'Date Created', defaultOrder: 'desc' },
+    { value: 'updatedAt', label: 'Last Modified', defaultOrder: 'desc' },
+    { value: 'status', label: 'Status', defaultOrder: 'asc' }
+  ]
 };
 
 // ---------------------------------------------------------------------------
@@ -383,36 +383,36 @@ export const createSortOptions = {
 export const createSuggestions = {
   fromData: (
     data: Record<string, unknown>[],
-    fields: string[] = ["name", "title", "email"],
+    fields: string[] = ['name', 'title', 'email']
   ): SuggestionItem[] => {
     const suggestions: SuggestionItem[] = [];
 
-    data.forEach((item) => {
-      fields.forEach((field) => {
-        if (item[field] && typeof item[field] === "string") {
+    data.forEach(item => {
+      fields.forEach(field => {
+        if (item[field] && typeof item[field] === 'string') {
           suggestions.push({
             text: item[field] as string,
             category: field,
-            type: "data",
+            type: 'data'
           });
         }
       });
     });
 
-    return [...new Set(suggestions.map((s) => s.text))]
-      .map((text) => suggestions.find((s) => s.text === text)!)
+    return [...new Set(suggestions.map(s => s.text))]
+      .map(text => suggestions.find(s => s.text === text)!)
       .sort((a, b) => a.text.localeCompare(b.text));
   },
 
   fromFilters: (filters: SearchFilter[]): SuggestionItem[] => {
     const suggestions: SuggestionItem[] = [];
-    filters.forEach((filter) => {
-      filter.options?.forEach((option) => {
+    filters.forEach(filter => {
+      filter.options?.forEach(option => {
         suggestions.push({
           text: option.label,
           category: filter.label,
-          type: "filter",
-          filters: { [filter.key]: option.value },
+          type: 'filter',
+          filters: { [filter.key]: option.value }
         });
       });
     });
@@ -420,18 +420,18 @@ export const createSuggestions = {
   },
 
   fromHistory: (
-    searchHistory: Array<{ query: string; filters?: Record<string, unknown> }>,
+    searchHistory: Array<{ query: string; filters?: Record<string, unknown> }>
   ): SuggestionItem[] => {
     return searchHistory
       .slice(-10)
       .reverse()
-      .map((search) => ({
+      .map(search => ({
         text: search.query,
-        category: "Recent",
-        type: "history" as const,
-        filters: search.filters,
+        category: 'Recent',
+        type: 'history' as const,
+        filters: search.filters
       }));
-  },
+  }
 };
 
 // ---------------------------------------------------------------------------
@@ -441,29 +441,29 @@ export const createSuggestions = {
 export const searchUtils = {
   highlightText: (text: string, searchTerm: string): string => {
     if (!searchTerm || !text) return text;
-    const regex = new RegExp(`(${searchTerm})`, "gi");
-    return text.replace(regex, "<mark>$1</mark>");
+    const regex = new RegExp(`(${searchTerm})`, 'gi');
+    return text.replace(regex, '<mark>$1</mark>');
   },
 
   extractTerms: (query: string): string[] => {
     return query
       .toLowerCase()
       .split(/\s+/)
-      .filter((term) => term.length > 0);
+      .filter(term => term.length > 0);
   },
 
   calculateRelevance: (
     item: Record<string, unknown>,
     searchTerms: string[],
-    fields: string[] = [],
+    fields: string[] = []
   ): number => {
     let score = 0;
-    searchTerms.forEach((term) => {
-      fields.forEach((field) => {
+    searchTerms.forEach(term => {
+      fields.forEach(field => {
         const value =
-          typeof item[field] === "string"
+          typeof item[field] === 'string'
             ? (item[field] as string).toLowerCase()
-            : "";
+            : '';
         if (value.includes(term)) {
           score += value.indexOf(term) === 0 ? 3 : 1;
         }
@@ -476,30 +476,30 @@ export const searchUtils = {
     data: T[],
     searchValue: string,
     filters: Record<string, unknown>,
-    searchFields: string[] = [],
+    searchFields: string[] = []
   ): T[] => {
     let filteredData = [...data];
 
     if (searchValue && searchFields.length > 0) {
       const searchTerms = searchUtils.extractTerms(searchValue);
-      filteredData = filteredData.filter((item) =>
-        searchTerms.some((term) =>
+      filteredData = filteredData.filter(item =>
+        searchTerms.some(term =>
           searchFields.some(
-            (field) =>
-              typeof item[field] === "string" &&
-              (item[field] as string).toLowerCase().includes(term),
-          ),
-        ),
+            field =>
+              typeof item[field] === 'string' &&
+              (item[field] as string).toLowerCase().includes(term)
+          )
+        )
       );
     }
 
     Object.entries(filters).forEach(([key, value]) => {
-      if (value && (Array.isArray(value) ? value.length > 0 : value !== "")) {
-        filteredData = filteredData.filter((item) => {
+      if (value && (Array.isArray(value) ? value.length > 0 : value !== '')) {
+        filteredData = filteredData.filter(item => {
           if (Array.isArray(value)) return value.includes(item[key]);
           return (
             item[key] === value ||
-            (typeof item[key] === "string" &&
+            (typeof item[key] === 'string' &&
               (item[key] as string)
                 .toLowerCase()
                 .includes((value as string).toLowerCase()))
@@ -514,7 +514,7 @@ export const searchUtils = {
   sortData: <T extends Record<string, unknown>>(
     data: T[],
     sortBy: string,
-    sortOrder: SortOrder,
+    sortOrder: SortOrder
   ): T[] => {
     if (!sortBy) return data;
 
@@ -526,7 +526,7 @@ export const searchUtils = {
 
       if (aValue == null) comparison = 1;
       else if (bValue == null) comparison = -1;
-      else if (typeof aValue === "string" && typeof bValue === "string") {
+      else if (typeof aValue === 'string' && typeof bValue === 'string') {
         comparison = aValue.localeCompare(bValue);
       } else if (aValue instanceof Date && bValue instanceof Date) {
         comparison = aValue.getTime() - bValue.getTime();
@@ -534,14 +534,14 @@ export const searchUtils = {
         comparison = aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
       }
 
-      return sortOrder === "desc" ? -comparison : comparison;
+      return sortOrder === 'desc' ? -comparison : comparison;
     });
   },
 
   paginateData: <T>(data: T[], currentPage: number, pageSize: number): T[] => {
     const startIndex = (currentPage - 1) * pageSize;
     return data.slice(startIndex, startIndex + pageSize);
-  },
+  }
 };
 
 // ---------------------------------------------------------------------------
@@ -556,27 +556,27 @@ export function processSearchData<T extends Record<string, unknown>>({
   sortOrder,
   currentPage,
   pageSize,
-  searchFields = ["name", "email", "title"],
+  searchFields = ['name', 'email', 'title']
 }: ProcessSearchDataOptions<T>): ProcessSearchDataResult<T> {
   let processedData = searchUtils.filterData(
     data,
     searchValue,
     filters,
-    searchFields,
+    searchFields
   );
   processedData = searchUtils.sortData(processedData, sortBy, sortOrder);
   const totalCount = processedData.length;
   const results = searchUtils.paginateData(
     processedData,
     currentPage,
-    pageSize,
+    pageSize
   );
 
   return {
     results,
     totalCount,
     filteredCount: totalCount,
-    originalCount: data.length,
+    originalCount: data.length
   };
 }
 
@@ -586,62 +586,62 @@ export function processSearchData<T extends Record<string, unknown>>({
 
 export const memberSearchConfig = {
   filters: [
-    createSearchFilters.text("name", "Name"),
-    createSearchFilters.text("email", "Email"),
-    createSearchFilters.select("role", "Role", [
-      { value: "admin", label: "Administrator" },
-      { value: "moderator", label: "Moderator" },
-      { value: "member", label: "Member" },
+    createSearchFilters.text('name', 'Name'),
+    createSearchFilters.text('email', 'Email'),
+    createSearchFilters.select('role', 'Role', [
+      { value: 'admin', label: 'Administrator' },
+      { value: 'moderator', label: 'Moderator' },
+      { value: 'member', label: 'Member' }
     ]),
-    createSearchFilters.quickFilter("status", "Status", [
-      { value: "active", label: "Active" },
-      { value: "inactive", label: "Inactive" },
-      { value: "pending", label: "Pending" },
+    createSearchFilters.quickFilter('status', 'Status', [
+      { value: 'active', label: 'Active' },
+      { value: 'inactive', label: 'Inactive' },
+      { value: 'pending', label: 'Pending' }
     ]),
-    createSearchFilters.date("joinedAfter", "Joined After"),
-    createSearchFilters.checkbox("permissions", "Permissions", [
-      { value: "read", label: "Read" },
-      { value: "write", label: "Write" },
-      { value: "delete", label: "Delete" },
-      { value: "admin", label: "Admin" },
-    ]),
+    createSearchFilters.date('joinedAfter', 'Joined After'),
+    createSearchFilters.checkbox('permissions', 'Permissions', [
+      { value: 'read', label: 'Read' },
+      { value: 'write', label: 'Write' },
+      { value: 'delete', label: 'Delete' },
+      { value: 'admin', label: 'Admin' }
+    ])
   ] as SearchFilter[],
   sortOptions: [
-    { value: "name", label: "Name" },
-    { value: "email", label: "Email" },
-    { value: "role", label: "Role" },
-    { value: "joinedAt", label: "Join Date" },
-    { value: "lastActive", label: "Last Active" },
+    { value: 'name', label: 'Name' },
+    { value: 'email', label: 'Email' },
+    { value: 'role', label: 'Role' },
+    { value: 'joinedAt', label: 'Join Date' },
+    { value: 'lastActive', label: 'Last Active' }
   ] as SortOption[],
-  searchFields: ["name", "email", "phone"] as string[],
-  defaultSort: { field: "name", order: "asc" as SortOrder },
+  searchFields: ['name', 'email', 'phone'] as string[],
+  defaultSort: { field: 'name', order: 'asc' as SortOrder }
 };
 
 export const invitationSearchConfig = {
   filters: [
-    createSearchFilters.text("email", "Email"),
-    createSearchFilters.text("name", "Name"),
-    createSearchFilters.quickFilter("status", "Status", [
-      { value: "pending", label: "Pending" },
-      { value: "accepted", label: "Accepted" },
-      { value: "declined", label: "Declined" },
-      { value: "expired", label: "Expired" },
+    createSearchFilters.text('email', 'Email'),
+    createSearchFilters.text('name', 'Name'),
+    createSearchFilters.quickFilter('status', 'Status', [
+      { value: 'pending', label: 'Pending' },
+      { value: 'accepted', label: 'Accepted' },
+      { value: 'declined', label: 'Declined' },
+      { value: 'expired', label: 'Expired' }
     ]),
-    createSearchFilters.select("role", "Role", [
-      { value: "admin", label: "Administrator" },
-      { value: "moderator", label: "Moderator" },
-      { value: "member", label: "Member" },
+    createSearchFilters.select('role', 'Role', [
+      { value: 'admin', label: 'Administrator' },
+      { value: 'moderator', label: 'Moderator' },
+      { value: 'member', label: 'Member' }
     ]),
-    createSearchFilters.date("sentAfter", "Sent After"),
-    createSearchFilters.date("expiresBefore", "Expires Before"),
+    createSearchFilters.date('sentAfter', 'Sent After'),
+    createSearchFilters.date('expiresBefore', 'Expires Before')
   ] as SearchFilter[],
   sortOptions: [
-    { value: "recipientEmail", label: "Email" },
-    { value: "recipientName", label: "Name" },
-    { value: "status", label: "Status" },
-    { value: "sentAt", label: "Sent Date" },
-    { value: "expiresAt", label: "Expiry Date" },
+    { value: 'recipientEmail', label: 'Email' },
+    { value: 'recipientName', label: 'Name' },
+    { value: 'status', label: 'Status' },
+    { value: 'sentAt', label: 'Sent Date' },
+    { value: 'expiresAt', label: 'Expiry Date' }
   ] as SortOption[],
-  searchFields: ["recipientEmail", "recipientName"] as string[],
-  defaultSort: { field: "sentAt", order: "desc" as SortOrder },
+  searchFields: ['recipientEmail', 'recipientName'] as string[],
+  defaultSort: { field: 'sentAt', order: 'desc' as SortOrder }
 };

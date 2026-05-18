@@ -5,13 +5,13 @@
  * with React applications across the Uni-Manager ecosystem.
  */
 
-import { useCallback, useContext, useState } from "react";
-import type { ApiClient } from "../core/ApiClient";
+import { useCallback, useContext, useState } from 'react';
+import type { ApiClient } from '../core/ApiClient';
 
-import { ApiContext, ApiContextValue } from "../components/ApiProvider";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { syncEngine } from "../syncEngine";
-import { useOnlineStatus } from "../../hooks/useOnlineStatus";
+import { ApiContext, ApiContextValue } from '../components/ApiProvider';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { syncEngine } from '../syncEngine';
+import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 
 // ==================== TYPES ====================
 
@@ -35,10 +35,10 @@ export interface ApiQueryOptions {
 export const useApi = (): { apiClient: ApiClient } => {
   const context = useContext(ApiContext);
   if (!context) {
-    throw new Error("useApi must be used within an ApiProvider");
+    throw new Error('useApi must be used within an ApiProvider');
   }
   if (!context.isInitialized || !context.apiClient) {
-    throw new Error("API services not yet initialized");
+    throw new Error('API services not yet initialized');
   }
   return { apiClient: context.apiClient };
 };
@@ -54,7 +54,7 @@ export function useApiQuery<T>(
     refetchOnMount?: boolean;
     cacheTime?: number;
     staleTime?: number;
-  },
+  }
 ) {
   const { enabled = true, refetchOnMount = true, staleTime } = options || {};
 
@@ -63,7 +63,7 @@ export function useApiQuery<T>(
     queryFn,
     enabled,
     refetchOnMount,
-    staleTime,
+    staleTime
   });
 
   return {
@@ -71,7 +71,7 @@ export function useApiQuery<T>(
     isLoading,
     error: error ?? null,
     isFetched,
-    refetch,
+    refetch
   };
 }
 
@@ -85,16 +85,16 @@ export function useApiMutation<TData, TVariables>(
     onError?: (error: Error, variables: TVariables) => void;
     mutationKey?: string;
     mutationName?: string; // e.g., 'ministry.create'
-  },
+  }
 ) {
   const isOnline = useOnlineStatus();
   const { mutateAsync, data, isPending, error, reset } = useMutation({
     mutationFn: async (variables: TVariables) => {
       if (!isOnline && options?.mutationName) {
         await syncEngine.queueMutation(
-          options.mutationKey || "general",
+          options.mutationKey || 'general',
           [variables],
-          options.mutationName,
+          options.mutationName
         );
         // Offline path: queue mutation for sync when connection is restored.
         // Returns a sentinel value conforming to TData so callers can check `data.offline`.
@@ -104,16 +104,16 @@ export function useApiMutation<TData, TVariables>(
     },
     ...options,
     onError: (err: Error, variables: TVariables) => {
-      if (typeof window !== "undefined") {
+      if (typeof window !== 'undefined') {
         window.dispatchEvent(
-          new CustomEvent("api-mutation-failure", {
-            detail: { error: err, mutationName: options?.mutationName },
-          }),
+          new CustomEvent('api-mutation-failure', {
+            detail: { error: err, mutationName: options?.mutationName }
+          })
         );
       }
       options?.onError?.(err, variables);
     },
-    mutationKey: options?.mutationKey ? [options.mutationKey] : undefined,
+    mutationKey: options?.mutationKey ? [options.mutationKey] : undefined
   });
 
   return {
@@ -124,7 +124,7 @@ export function useApiMutation<TData, TVariables>(
     /** TanStack Query v5 canonical name — alias for isLoading */
     isPending,
     error: error ?? null,
-    reset,
+    reset
   };
 }
 
@@ -137,7 +137,7 @@ export const useFileUpload = <TResult = unknown>(
     onProgress?: (progress: number) => void;
     onSuccess?: (result: TResult) => void;
     onError?: (error: Error) => void;
-  },
+  }
 ) => {
   const [isUploading, setIsUploading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -161,15 +161,15 @@ export const useFileUpload = <TResult = unknown>(
           onProgress?.(pct);
         };
 
-        if (typeof window !== "undefined") {
-          window.addEventListener("avatar-upload-progress", progressHandler);
+        if (typeof window !== 'undefined') {
+          window.addEventListener('avatar-upload-progress', progressHandler);
           window.addEventListener(
-            "church-logo-upload-progress",
-            progressHandler,
+            'church-logo-upload-progress',
+            progressHandler
           );
           window.addEventListener(
-            "church-cover-upload-progress",
-            progressHandler,
+            'church-cover-upload-progress',
+            progressHandler
           );
         }
 
@@ -183,25 +183,25 @@ export const useFileUpload = <TResult = unknown>(
           const error =
             caughtError instanceof Error
               ? caughtError
-              : new Error("Upload failed");
+              : new Error('Upload failed');
           setError(error.message);
           onError?.(error);
           throw error;
         } finally {
           // Always remove listeners — even on upload failure.
           // Without this, every failed attempt adds a permanent ghost listener.
-          if (typeof window !== "undefined") {
+          if (typeof window !== 'undefined') {
             window.removeEventListener(
-              "avatar-upload-progress",
-              progressHandler,
+              'avatar-upload-progress',
+              progressHandler
             );
             window.removeEventListener(
-              "church-logo-upload-progress",
-              progressHandler,
+              'church-logo-upload-progress',
+              progressHandler
             );
             window.removeEventListener(
-              "church-cover-upload-progress",
-              progressHandler,
+              'church-cover-upload-progress',
+              progressHandler
             );
           }
         }
@@ -209,7 +209,7 @@ export const useFileUpload = <TResult = unknown>(
         setIsUploading(false);
       }
     },
-    [uploadFn, onProgress, onSuccess, onError],
+    [uploadFn, onProgress, onSuccess, onError]
   );
 
   const reset = useCallback(() => {
@@ -225,7 +225,7 @@ export const useFileUpload = <TResult = unknown>(
     progress,
     error,
     result,
-    reset,
+    reset
   };
 };
 

@@ -1,7 +1,7 @@
-import React from "react";
+import React from 'react';
 
-type ButtonVariant = "primary" | "secondary" | "success" | "danger";
-type ButtonType = "button" | "submit" | "reset";
+type ButtonVariant = 'primary' | 'secondary' | 'success' | 'danger';
+type ButtonType = 'button' | 'submit' | 'reset';
 
 interface AuthButtonProps {
   children: React.ReactNode;
@@ -12,8 +12,8 @@ interface AuthButtonProps {
   fullWidth?: boolean;
   loading?: boolean;
   className?: string;
-  "aria-label"?: string;
-  "aria-describedby"?: string;
+  'aria-label'?: string;
+  'aria-describedby'?: string;
 }
 
 /**
@@ -29,40 +29,40 @@ interface AuthButtonProps {
  */
 export const AuthButton = ({
   children,
-  type = "button",
+  type = 'button',
   onClick,
   disabled = false,
-  variant = "primary",
+  variant = 'primary',
   fullWidth = true,
   loading = false,
-  className = "",
-  "aria-label": ariaLabel,
-  "aria-describedby": ariaDescribedby,
+  className = '',
+  'aria-label': ariaLabel,
+  'aria-describedby': ariaDescribedby
 }: AuthButtonProps) => {
   const base =
-    "inline-flex items-center justify-center px-4 py-3 sm:py-3.5 border border-transparent text-sm sm:text-base font-semibold rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-200 disabled:opacity-60 transform active:scale-[0.98] cursor-pointer disabled:cursor-not-allowed";
+    'inline-flex items-center justify-center px-4 py-3 sm:py-3.5 border border-transparent text-sm sm:text-base font-semibold rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-200 disabled:opacity-60 transform active:scale-[0.98] cursor-pointer disabled:cursor-not-allowed';
 
   const variants: Record<ButtonVariant, string> = {
-    primary: "", // style applied inline below for CSS-var fidelity
+    primary: '', // style applied inline below for CSS-var fidelity
     secondary:
-      "bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white focus:ring-white/50",
+      'bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white focus:ring-white/50',
     success:
-      "text-white bg-linear-to-r from-emerald-500 to-teal-700 hover:from-emerald-600 hover:to-teal-800 focus:ring-emerald-500 shadow-emerald-500/30 hover:shadow-emerald-500/40",
+      'text-white bg-linear-to-r from-emerald-500 to-teal-700 hover:from-emerald-600 hover:to-teal-800 focus:ring-emerald-500 shadow-emerald-500/30 hover:shadow-emerald-500/40',
     danger:
-      "text-white bg-linear-to-r from-red-500 to-rose-700 hover:from-red-600 hover:to-rose-800 focus:ring-red-500 shadow-red-500/30 hover:shadow-red-500/40",
+      'text-white bg-linear-to-r from-red-500 to-rose-700 hover:from-red-600 hover:to-rose-800 focus:ring-red-500 shadow-red-500/30 hover:shadow-red-500/40'
   };
 
   const primaryStyle: React.CSSProperties | undefined =
-    variant === "primary"
+    variant === 'primary'
       ? {
-          boxShadow: "0 4px 18px var(--primary-glow, hsla(272,65%,62%,0.32))",
+          boxShadow: '0 4px 18px var(--primary-glow, hsla(272,65%,62%,0.32))'
         }
       : undefined;
 
   const primaryClasses =
-    variant === "primary"
-      ? "bg-violet-600 hover:bg-violet-700 text-white dark:bg-[var(--primary-resonance,hsl(272,65%,62%))] dark:hover:bg-[var(--accent-indigo,var(--primary-resonance,hsl(239,72%,66%)))]"
-      : "";
+    variant === 'primary'
+      ? 'bg-violet-600 hover:bg-violet-700 text-white dark:bg-[var(--primary-resonance,hsl(272,65%,62%))] dark:hover:bg-[var(--accent-indigo,var(--primary-resonance,hsl(239,72%,66%)))]'
+      : '';
 
   return (
     <button
@@ -72,7 +72,7 @@ export const AuthButton = ({
       aria-busy={loading}
       aria-label={ariaLabel}
       aria-describedby={ariaDescribedby}
-      className={`${base} ${variants[variant]} ${primaryClasses} ${fullWidth ? "w-full" : ""} ${className}`}
+      className={`${base} ${variants[variant]} ${primaryClasses} ${fullWidth ? 'w-full' : ''} ${className}`}
       style={primaryStyle}
     >
       {loading && (

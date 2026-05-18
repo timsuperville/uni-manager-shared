@@ -1,4 +1,4 @@
-import { Chip, CHIP_VARIANTS } from "./Chip";
+import { Chip, CHIP_VARIANTS } from './Chip';
 
 type ChipVariantKey = keyof typeof CHIP_VARIANTS;
 
@@ -33,7 +33,7 @@ export function StatusBadge({ label, variant, customStyle }: StatusBadgeProps) {
       />
     );
   }
-  return <Chip variant={variant ?? "muted"} label={label} dot size="sm" />;
+  return <Chip variant={variant ?? 'muted'} label={label} dot size="sm" />;
 }
 
 /** Re-exported for backward-compat — callers that used STATUS_VARIANTS don't need to change. */

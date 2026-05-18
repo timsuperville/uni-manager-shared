@@ -1,25 +1,25 @@
-import { BaseService } from "../../../api/services/BaseService";
-import { ApiClient } from "../../../api/core/ApiClient";
-import { ApiError } from "../../../api/core/ErrorHandler";
+import { BaseService } from '../../../api/services/BaseService';
+import { ApiClient } from '../../../api/core/ApiClient';
+import { ApiError } from '../../../api/core/ErrorHandler';
 import {
   ReportFilters,
   ReportData,
   GenerateOptions,
-  ParameterDefinition,
-} from "../../../api/types";
+  ParameterDefinition
+} from '../../../api/types';
 
 export class ReportingService extends BaseService {
   constructor(client: ApiClient) {
     // Keep internal path clean, we'll supply full relative paths from the base /api
-    super(client, "", "ReportingService");
+    super(client, '', 'ReportingService');
   }
 
   async getReports(filters: ReportFilters = {}): Promise<unknown> {
     const params = new URLSearchParams();
-    if (filters.category) params.append("category", filters.category);
-    if (filters.type) params.append("type", filters.type);
+    if (filters.category) params.append('category', filters.category);
+    if (filters.type) params.append('type', filters.type);
     if (filters.active !== undefined)
-      params.append("active", String(filters.active));
+      params.append('active', String(filters.active));
     return this.get<unknown>(`/reporting/reports?${params.toString()}`);
   }
 
@@ -28,12 +28,12 @@ export class ReportingService extends BaseService {
   }
 
   async createReport(reportData: ReportData): Promise<unknown> {
-    return this.post<unknown>("/shared/reports", reportData);
+    return this.post<unknown>('/shared/reports', reportData);
   }
 
   async updateReport(
     reportId: string,
-    reportData: ReportData,
+    reportData: ReportData
   ): Promise<unknown> {
     return this.put<unknown>(`/reporting/reports/${reportId}`, reportData);
   }
@@ -44,51 +44,51 @@ export class ReportingService extends BaseService {
 
   async generateReport(
     reportId: string,
-    parameters: GenerateOptions = {},
+    parameters: GenerateOptions = {}
   ): Promise<unknown> {
     return this.post<unknown>(`/reporting/reports/${reportId}/generate`, {
       parameters,
-      format: parameters.format ?? "pdf",
+      format: parameters.format ?? 'pdf'
     });
   }
 
   async getReportStatus(
     reportId: string,
-    executionId: string,
+    executionId: string
   ): Promise<unknown> {
     return this.get<unknown>(
-      `/reporting/reports/${reportId}/status/${executionId}`,
+      `/reporting/reports/${reportId}/status/${executionId}`
     );
   }
 
-  async downloadReport(reportId: string, format = "pdf"): Promise<Blob> {
+  async downloadReport(reportId: string, format = 'pdf'): Promise<Blob> {
     try {
       const blob = await this.download(
         `/reporting/reports/${reportId}/download`,
-        { params: { format } },
+        { params: { format } }
       );
       return new Blob([blob], {
-        type: this.getContentType(format),
+        type: this.getContentType(format)
       });
     } catch (error) {
-      this.handleError(error as ApiError, "downloadReport");
+      this.handleError(error as ApiError, 'downloadReport');
       throw error;
     }
   }
 
   async previewReport(
     reportId: string,
-    parameters: ReportData = {},
+    parameters: ReportData = {}
   ): Promise<unknown> {
     return this.post<unknown>(`/reporting/reports/${reportId}/preview`, {
-      parameters,
+      parameters
     });
   }
 
   async getTemplates(filters: ReportFilters = {}): Promise<unknown> {
     const params = new URLSearchParams();
-    if (filters.category) params.append("category", filters.category);
-    if (filters.type) params.append("type", filters.type);
+    if (filters.category) params.append('category', filters.category);
+    if (filters.type) params.append('type', filters.type);
     return this.get<unknown>(`/reporting/templates?${params.toString()}`);
   }
 
@@ -97,16 +97,16 @@ export class ReportingService extends BaseService {
   }
 
   async createTemplate(templateData: ReportData): Promise<unknown> {
-    return this.post<unknown>("/shared/report-templates", templateData);
+    return this.post<unknown>('/shared/report-templates', templateData);
   }
 
   async updateTemplate(
     templateId: string,
-    templateData: ReportData,
+    templateData: ReportData
   ): Promise<unknown> {
     return this.put<unknown>(
       `/reporting/templates/${templateId}`,
-      templateData,
+      templateData
     );
   }
 
@@ -117,11 +117,11 @@ export class ReportingService extends BaseService {
   async previewTemplate(
     templateId: string,
     sampleData: ReportData = {},
-    format = "html",
+    format = 'html'
   ): Promise<unknown> {
     return this.post<unknown>(`/reporting/templates/${templateId}/preview`, {
       sampleData,
-      format,
+      format
     });
   }
 
@@ -129,22 +129,22 @@ export class ReportingService extends BaseService {
     return this.get<unknown>(`/reporting/recent?limit=${limit}`);
   }
 
-  async getReportAnalytics(period = "30d"): Promise<unknown> {
+  async getReportAnalytics(period = '30d'): Promise<unknown> {
     return this.get<unknown>(`/reporting/analytics?period=${period}`);
   }
 
   async scheduleReport(
     reportId: string,
-    scheduleData: ReportData,
+    scheduleData: ReportData
   ): Promise<unknown> {
     return this.post<unknown>(
       `/reporting/reports/${reportId}/schedule`,
-      scheduleData,
+      scheduleData
     );
   }
 
   async getScheduledReports(): Promise<unknown> {
-    return this.get<unknown>("/shared/scheduled-reports");
+    return this.get<unknown>('/shared/scheduled-reports');
   }
 
   async cancelScheduledReport(scheduleId: string): Promise<void> {
@@ -152,35 +152,35 @@ export class ReportingService extends BaseService {
   }
 
   async validateReport(reportData: ReportData): Promise<unknown> {
-    return this.post<unknown>("/shared/report-validation", reportData);
+    return this.post<unknown>('/shared/report-validation', reportData);
   }
 
   async getDataSources(): Promise<unknown> {
-    return this.get<unknown>("/shared/data-sources");
+    return this.get<unknown>('/shared/data-sources');
   }
 
   async testDataSource(dataSourceConfig: ReportData): Promise<unknown> {
-    return this.post<unknown>("/shared/data-sources/test", dataSourceConfig);
+    return this.post<unknown>('/shared/data-sources/test', dataSourceConfig);
   }
 
   async getDataSourceFields(
     dataSourceId: string,
-    table: string | null = null,
+    table: string | null = null
   ): Promise<unknown> {
-    const params = table ? `?table=${table}` : "";
+    const params = table ? `?table=${table}` : '';
     return this.get<unknown>(
-      `/reporting/data-sources/${dataSourceId}/fields${params}`,
+      `/reporting/data-sources/${dataSourceId}/fields${params}`
     );
   }
 
   async executeTestQuery(
     dataSourceId: string,
     query: string,
-    limit = 100,
+    limit = 100
   ): Promise<unknown> {
     return this.post<unknown>(
       `/reporting/data-sources/${dataSourceId}/test-query`,
-      { query, limit },
+      { query, limit }
     );
   }
 
@@ -190,24 +190,22 @@ export class ReportingService extends BaseService {
 
   async updateReportPermissions(
     reportId: string,
-    permissions: ReportData,
+    permissions: ReportData
   ): Promise<unknown> {
     return this.put<unknown>(
       `/reporting/reports/${reportId}/permissions`,
-      permissions,
+      permissions
     );
   }
 
   async exportReportConfig(reportId: string): Promise<Blob> {
     try {
-      const blob = await this.download(
-        `/reporting/reports/${reportId}/export`,
-      );
+      const blob = await this.download(`/reporting/reports/${reportId}/export`);
       return new Blob([blob], {
-        type: "application/json",
+        type: 'application/json'
       });
     } catch (error) {
-      this.handleError(error as ApiError, "exportReportConfig");
+      this.handleError(error as ApiError, 'exportReportConfig');
       throw error;
     }
   }
@@ -215,51 +213,51 @@ export class ReportingService extends BaseService {
   async importReportConfig(configFile: File): Promise<unknown> {
     try {
       const formData = new FormData();
-      formData.append("config", configFile);
+      formData.append('config', configFile);
       const response = await this.post<unknown>(
-        "/shared/reports/import",
+        '/shared/reports/import',
         formData,
         {
-          headers: { "Content-Type": "multipart/form-data" },
-        },
+          headers: { 'Content-Type': 'multipart/form-data' }
+        }
       );
       return response;
     } catch (error) {
-      this.handleError(error as ApiError, "importReportConfig");
+      this.handleError(error as ApiError, 'importReportConfig');
       throw error;
     }
   }
 
   getContentType(format: string): string {
     const contentTypes: Record<string, string> = {
-      pdf: "application/pdf",
+      pdf: 'application/pdf',
       excel:
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      csv: "text/csv",
-      json: "application/json",
-      html: "text/html",
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      csv: 'text/csv',
+      json: 'application/json',
+      html: 'text/html'
     };
-    return contentTypes[format] ?? "application/octet-stream";
+    return contentTypes[format] ?? 'application/octet-stream';
   }
 
   generateFilename(
     reportName: string,
     format: string,
-    timestamp: string | null = null,
+    timestamp: string | null = null
   ): string {
     const date = timestamp ? new Date(timestamp) : new Date();
-    const dateStr = date.toISOString().split("T")[0];
+    const dateStr = date.toISOString().split('T')[0];
     const sanitizedName = reportName
-      .replace(/[^a-zA-Z0-9]/g, "_")
+      .replace(/[^a-zA-Z0-9]/g, '_')
       .toLowerCase();
     return `${sanitizedName}_${dateStr}.${format}`;
   }
 
   formatFileSize(bytes: number): string {
-    if (bytes === 0) return "0 Bytes";
+    if (bytes === 0) return '0 Bytes';
     const k = 1_024;
-    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
   }
@@ -270,33 +268,33 @@ export class ReportingService extends BaseService {
 
   validateParameters(
     parameters: Record<string, unknown>,
-    parameterDefinitions: ParameterDefinition[] = [],
+    parameterDefinitions: ParameterDefinition[] = []
   ): string[] {
     const errors: string[] = [];
 
-    parameterDefinitions.forEach((paramDef) => {
+    parameterDefinitions.forEach(paramDef => {
       const value = parameters[paramDef.name];
 
       if (
         paramDef.required &&
-        (value === undefined || value === null || value === "")
+        (value === undefined || value === null || value === '')
       ) {
         errors.push(`${paramDef.label ?? paramDef.name} is required`);
       }
 
-      if (value && paramDef.type === "date") {
+      if (value && paramDef.type === 'date') {
         const date = new Date(value as string);
         if (Number.isNaN(date.getTime())) {
           errors.push(
-            `${paramDef.label ?? paramDef.name} must be a valid date`,
+            `${paramDef.label ?? paramDef.name} must be a valid date`
           );
         }
       }
 
-      if (value && paramDef.type === "number") {
+      if (value && paramDef.type === 'number') {
         if (Number.isNaN(Number(value))) {
           errors.push(
-            `${paramDef.label ?? paramDef.name} must be a valid number`,
+            `${paramDef.label ?? paramDef.name} must be a valid number`
           );
         }
       }

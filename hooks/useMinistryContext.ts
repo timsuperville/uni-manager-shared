@@ -3,7 +3,7 @@
  * Manages ministry-related context and data
  */
 
-import { useState, useCallback } from "react";
+import { useState, useCallback } from 'react';
 
 export interface MinistryData {
   id?: string;

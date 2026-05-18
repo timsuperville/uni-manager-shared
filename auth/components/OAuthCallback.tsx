@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import { getCurrentAppConfig } from "../config/appConfigs";
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { getCurrentAppConfig } from '../config/appConfigs';
 
-type CallbackStatus = "processing" | "success" | "error";
+type CallbackStatus = 'processing' | 'success' | 'error';
 
 interface OAuthCallbackProps {
   onSuccess?: (authData: unknown) => void;
@@ -19,47 +19,47 @@ interface OAuthCallbackProps {
 const OAuthCallback = ({
   onSuccess,
   onError,
-  redirectPath = "/",
+  redirectPath = '/'
 }: OAuthCallbackProps) => {
   const { handleOAuthCallback, loading } = useAuth();
   const navigate = useNavigate();
-  const [status, setStatus] = useState<CallbackStatus>("processing");
-  const [message, setMessage] = useState("Processing authentication...");
+  const [status, setStatus] = useState<CallbackStatus>('processing');
+  const [message, setMessage] = useState('Processing authentication...');
 
   useEffect(() => {
     const processCallback = async () => {
       try {
         // Parse URL parameters
         const urlParams =
-          typeof window !== "undefined"
+          typeof window !== 'undefined'
             ? new URLSearchParams(window.location.search)
             : new URLSearchParams();
 
-        const error = urlParams.get("error");
-        const errorDescription = urlParams.get("error_description");
+        const error = urlParams.get('error');
+        const errorDescription = urlParams.get('error_description');
 
         if (error) {
           const errorMsg = errorDescription ?? `OAuth error: ${error}`;
-          setStatus("error");
+          setStatus('error');
           setMessage(errorMsg);
           onError?.(new Error(errorMsg));
           return;
         }
 
-        const code = urlParams.get("code");
+        const code = urlParams.get('code');
         if (!code) {
-          const errorMsg = "No authorization code received";
-          setStatus("error");
+          const errorMsg = 'No authorization code received';
+          setStatus('error');
           setMessage(errorMsg);
           onError?.(new Error(errorMsg));
           return;
         }
 
-        setMessage("Exchanging authorization code...");
+        setMessage('Exchanging authorization code...');
 
         const authData = await handleOAuthCallback?.(urlParams);
-        setStatus("success");
-        setMessage("Authentication successful! Redirecting...");
+        setStatus('success');
+        setMessage('Authentication successful! Redirecting...');
 
         if (onSuccess) {
           onSuccess(authData);
@@ -69,9 +69,9 @@ const OAuthCallback = ({
       } catch (err) {
         const error = err instanceof Error ? err : new Error(String(err));
         if (import.meta.env?.DEV)
-          console.error("[OAuthCallback] callback error:", error.message);
-        setStatus("error");
-        setMessage(error.message || "Authentication failed");
+          console.error('[OAuthCallback] callback error:', error.message);
+        setStatus('error');
+        setMessage(error.message || 'Authentication failed');
         onError?.(error);
       }
     };
@@ -99,7 +99,7 @@ const OAuthCallback = ({
           </h2>
 
           <div className="mb-6">
-            {status === "processing" && (
+            {status === 'processing' && (
               <div className="flex items-center justify-center space-x-2">
                 <div
                   className="animate-spin rounded-full h-6 w-6 border-b-2"
@@ -108,7 +108,7 @@ const OAuthCallback = ({
                 <span className="text-gray-600">Processing...</span>
               </div>
             )}
-            {status === "success" && (
+            {status === 'success' && (
               <div className="flex items-center justify-center space-x-2 text-green-600">
                 <svg
                   className="h-6 w-6"
@@ -126,7 +126,7 @@ const OAuthCallback = ({
                 <span>Success!</span>
               </div>
             )}
-            {status === "error" && (
+            {status === 'error' && (
               <div className="flex items-center justify-center space-x-2 text-red-600">
                 <svg
                   className="h-6 w-6"
@@ -148,17 +148,17 @@ const OAuthCallback = ({
 
           <p className="text-sm text-gray-600 mb-4">{message}</p>
 
-          {status === "error" && (
+          {status === 'error' && (
             <div className="space-y-4">
               <button
-                onClick={() => navigate("/auth/login")}
+                onClick={() => navigate('/auth/login')}
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer"
                 style={{ backgroundColor: brandColor }}
               >
                 Back to Login
               </button>
               <button
-                onClick={() => navigate("/")}
+                onClick={() => navigate('/')}
                 className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer"
               >
                 Go Home
@@ -166,14 +166,14 @@ const OAuthCallback = ({
             </div>
           )}
 
-          {status === "processing" && (
+          {status === 'processing' && (
             <div className="mt-4">
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div
                   className="h-2 rounded-full animate-pulse"
                   style={{
                     backgroundColor: brandColor,
-                    width: loading ? "60%" : "100%",
+                    width: loading ? '60%' : '100%'
                   }}
                 />
               </div>

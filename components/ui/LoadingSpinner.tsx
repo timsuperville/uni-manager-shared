@@ -9,5 +9,5 @@
  *
  * @deprecated Prefer importing `{ Spinner }` from "@shared/components/ui"
  */
-export { Spinner as LoadingSpinner, Spinner } from "./Spinner";
-export { default } from "./Spinner";
+export { Spinner as LoadingSpinner, Spinner } from './Spinner';
+export { default } from './Spinner';

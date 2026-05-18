@@ -84,9 +84,9 @@ frontend/apps/church/src/features/
 
 ```tsx
 // main.tsx
-import React from "react";
-import { ApiProvider } from "@shared/api";
-import { getApiBaseUrl } from "@shared/api";
+import React from 'react';
+import { ApiProvider } from '@shared/api';
+import { getApiBaseUrl } from '@shared/api';
 
 const App: React.FC = () => (
   <ApiProvider
@@ -96,12 +96,12 @@ const App: React.FC = () => (
       cacheEnabled: true,
       authEnabled: true,
       authConfig: {
-        tokenKey: "uni_auth_access_token",
-        refreshTokenKey: "uni_auth_refresh_token",
-        tokenStorage: "sessionStorage",
-      },
+        tokenKey: 'uni_auth_access_token',
+        refreshTokenKey: 'uni_auth_refresh_token',
+        tokenStorage: 'sessionStorage'
+      }
     }}
-    onError={(error) => console.error("[API]", error)}
+    onError={error => console.error('[API]', error)}
   >
     <YourApplication />
   </ApiProvider>
@@ -111,13 +111,15 @@ const App: React.FC = () => (
 ### 2. Use hooks in components
 
 ```tsx
-import { useAuth, useApiQuery, useApi } from "@shared/api";
+import { useAuth, useApiQuery, useApi } from '@shared/api';
 
 const Dashboard: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
   const api = useApi();
 
-  const { data: profile, isLoading } = useApiQuery("user-profile", () => api.auth.getCurrentUser());
+  const { data: profile, isLoading } = useApiQuery('user-profile', () =>
+    api.auth.getCurrentUser()
+  );
 
   if (isLoading) return <Spinner />;
   return <div>Welcome, {profile?.displayName}</div>;
@@ -142,10 +144,10 @@ In production (Firebase Hosting + Cloud Run backend), the Vite proxy rewrites `/
 Always use this helper instead of reading `import.meta.See [SERVICE_AUTHOR_GUIDE.md](./SERVICE_AUTHOR_GUIDE.md).irectly:
 
 ```typescript
-import { getApiBaseUrl, getAbsoluteUrl } from "@shared/api";
+import { getApiBaseUrl, getAbsoluteUrl } from '@shared/api';
 
 const base = getApiBaseUrl(); // "/api" or "http://localhost:5000/api"
-const avatarUrl = getAbsoluteUrl("/uploads/avatar.jpg");
+const avatarUrl = getAbsoluteUrl('/uploads/avatar.jpg');
 ```
 
 ### `ApiClientConfig` Reference
@@ -161,7 +163,7 @@ interface ApiClientConfig {
   authConfig?: {
     tokenKey: string; // localStorage/sessionStorage key
     refreshTokenKey: string;
-    tokenStorage: "localStorage" | "sessionStorage" | "memory";
+    tokenStorage: 'localStorage' | 'sessionStorage' | 'memory';
     refreshEndpoint?: string; // Default: "/auth/refresh"
     onTokenRefreshFailure?: () => void;
   };
@@ -184,7 +186,7 @@ await api.files.uploadFile(request);
 await api.notifications.getUnreadCount();
 
 // Outside React (e.g. in a utility)
-import { getApiServices } from "@shared/api";
+import { getApiServices } from '@shared/api';
 const api = getApiServices();
 ```
 
@@ -225,7 +227,7 @@ const api = getApiServices();
 **Progress tracking:**
 
 ```typescript
-import type { AxiosProgressEvent } from "axios";
+import type { AxiosProgressEvent } from 'axios';
 
 await api.files.uploadFile(request, (event: AxiosProgressEvent) => {
   const pct = Math.round((event.loaded * 100) / (event.total ?? event.loaded));
@@ -256,22 +258,22 @@ await api.files.uploadFile(request, (event: AxiosProgressEvent) => {
 ### Building Custom Feature Services
 
 ```typescript
-import { BaseService, ValidationSchema } from "@shared/api";
-import type { ApiClient } from "@shared/api";
+import { BaseService, ValidationSchema } from '@shared/api';
+import type { ApiClient } from '@shared/api';
 
 export class ChurchService extends BaseService {
   constructor(client: ApiClient) {
     // Relative path — ApiClient.baseURL (/api/v1) is prepended automatically.
     // Do NOT include the /api/v1 prefix here.
-    super(client, "/churches", "ChurchService");
+    super(client, '/churches', 'ChurchService');
   }
 
   async getChurches(filters?: ChurchFilters) {
-    return this.getMany<Church>("", filters);
+    return this.getMany<Church>('', filters);
   }
 
   async createChurch(data: CreateChurchRequest) {
-    return this.post<Church>("", data);
+    return this.post<Church>('', data);
   }
 }
 ```
@@ -299,7 +301,7 @@ const {
   error, // string | null
   login, // (credentials: LoginRequest) => Promise<void>
   logout, // () => Promise<void>
-  signup, // (data: SignupRequest) => Promise<void>
+  signup // (data: SignupRequest) => Promise<void>
 } = useAuth();
 ```
 
@@ -322,13 +324,22 @@ const { data, isLoading, error, refetch } = useApiQuery(
 ### `useApiMutation` — Data Modifications
 
 ```typescript
-const { mutate, isLoading, error, reset } = useApiMutation((data: CreateNotificationRequest) => api.notifications.createNotification(data), {
-  onSuccess: (result) => toast.success("Sent!"),
-  onError: (error) => toast.error(error.message),
-});
+const { mutate, isLoading, error, reset } = useApiMutation(
+  (data: CreateNotificationRequest) =>
+    api.notifications.createNotification(data),
+  {
+    onSuccess: result => toast.success('Sent!'),
+    onError: error => toast.error(error.message)
+  }
+);
 
 // Call it:
-mutate({ title: "Hello", message: "World", type: "info", recipients: [userId] });
+mutate({
+  title: 'Hello',
+  message: 'World',
+  type: 'info',
+  recipients: [userId]
+});
 ```
 
 ### `useFileUpload` — Upload with Progress Bar
@@ -339,12 +350,12 @@ const {
   progress, // number (0–100)
   isUploading, // boolean
   error, // string | null
-  result, // T | null
+  result // T | null
 } = useFileUpload({
-  uploadFn: (file) => api.auth.uploadAvatar(file),
-  onSuccess: (result) => setAvatarUrl(result.avatar),
-  onError: (err) => toast.error(err.message),
-  onProgress: (pct) => console.log(`${pct}%`),
+  uploadFn: file => api.auth.uploadAvatar(file),
+  onSuccess: result => setAvatarUrl(result.avatar),
+  onError: err => toast.error(err.message),
+  onProgress: pct => console.log(`${pct}%`)
 });
 ```
 
@@ -368,9 +379,9 @@ Tokens flow automatically:
 
 ```typescript
 useEffect(() => {
-  const handler = () => navigate("/login");
-  window.addEventListener("auth:failure", handler);
-  return () => window.removeEventListener("auth:failure", handler);
+  const handler = () => navigate('/login');
+  window.addEventListener('auth:failure', handler);
+  return () => window.removeEventListener('auth:failure', handler);
 }, [navigate]);
 ```
 
@@ -381,7 +392,7 @@ useEffect(() => {
 All errors are classified by `ErrorHandler` into typed `ApiError` objects:
 
 ```typescript
-import { ApiErrorType } from "@shared/api";
+import { ApiErrorType } from '@shared/api';
 
 try {
   await api.auth.login(credentials);
@@ -429,17 +440,21 @@ Cache TTL is configured per-service or per-request via `RequestOptions.cacheTTL`
 `syncEngine` (backed by `idb-keyval`) queues mutations made while offline. Call `processQueue()` when the device reconnects:
 
 ```typescript
-import { syncEngine } from "@shared/api";
+import { syncEngine } from '@shared/api';
 
 // Queue a mutation
-await syncEngine.queueMutation("notifications.create", [notificationData], "notifications.createNotification");
+await syncEngine.queueMutation(
+  'notifications.create',
+  [notificationData],
+  'notifications.createNotification'
+);
 
 // Drain on reconnect
-window.addEventListener("online", async () => {
+window.addEventListener('online', async () => {
   const api = getApiServices();
   await syncEngine.processQueue({
     notifications: api.notifications,
-    files: api.files,
+    files: api.files
   });
 });
 ```
@@ -453,16 +468,16 @@ Failed entries are retried up to **5 times**. The retry counter is persisted to 
 `ArtNetBridgeService` triggers ArtNet UDP presets on a connected lighting console. It is initialized automatically when `ApiServices` is instantiated — no manual setup required.
 
 ```typescript
-import { artNetBridgeService } from "@shared/api";
+import { artNetBridgeService } from '@shared/api';
 
-await artNetBridgeService.triggerPreset("192.168.1.100", presetId, universe);
+await artNetBridgeService.triggerPreset('192.168.1.100', presetId, universe);
 ```
 
 If you need to use it outside the `ApiServices` lifecycle:
 
 ```typescript
-import { initArtNetBridge, artNetBridgeService } from "@shared/api";
-import { ApiClient } from "@shared/api";
+import { initArtNetBridge, artNetBridgeService } from '@shared/api';
+import { ApiClient } from '@shared/api';
 
 const client = new ApiClient({ baseURL: getApiBaseUrl() });
 initArtNetBridge(client);

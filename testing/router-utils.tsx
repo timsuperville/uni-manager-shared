@@ -2,9 +2,9 @@
  * React Router Test Utilities
  * Provides standardized router wrappers with React Router v6/v7 compatibility
  */
-import React from "react";
-import { MemoryRouter } from "react-router-dom";
-import type { MemoryRouterProps } from "react-router-dom";
+import React from 'react';
+import { MemoryRouter } from 'react-router-dom';
+import type { MemoryRouterProps } from 'react-router-dom';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -31,7 +31,7 @@ interface MemoryRouterV7Props extends MemoryRouterProps {
 
 export const routerFutureFlags: Record<string, boolean> = {
   v7_startTransition: true,
-  v7_relativeSplatPath: true,
+  v7_relativeSplatPath: true
 };
 
 // ---------------------------------------------------------------------------
@@ -64,7 +64,7 @@ export const createMemoryRouter = ({
  */
 export const RouterTestWrapper: React.FC<RouterTestWrapperProps> = ({
   children,
-  initialEntries = ["/"],
+  initialEntries = ['/']
 }) => createMemoryRouter({ children, initialEntries });
 
 /**

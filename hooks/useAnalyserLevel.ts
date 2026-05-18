@@ -10,11 +10,11 @@
  * @returns         - normalized level 0–1 (0 = silence, 1 = full)
  */
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from 'react';
 
 export function useAnalyserLevel(
   analyser: AnalyserNode | null,
-  smoothing = 0.85,
+  smoothing = 0.85
 ): number {
   const [level, setLevel] = useState(0);
   const rafRef = useRef<number | null>(null);

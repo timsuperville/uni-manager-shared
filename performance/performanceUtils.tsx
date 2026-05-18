@@ -11,8 +11,8 @@ import React, {
   Component,
   ComponentType,
   ReactNode,
-  ErrorInfo,
-} from "react";
+  ErrorInfo
+} from 'react';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -63,7 +63,7 @@ interface VirtualListResult<T> {
 
 export function withMemo<P extends object>(
   WrappedComponent: ComponentType<P>,
-  customCompare?: ((prev: P, next: P) => boolean) | null,
+  customCompare?: ((prev: P, next: P) => boolean) | null
 ): ComponentType<P> {
   return memo(WrappedComponent, customCompare ?? undefined) as ComponentType<P>;
 }
@@ -72,7 +72,7 @@ export function withMemo<P extends object>(
 
 export function withLazyLoading<P extends object>(
   importFunc: () => Promise<{ default: ComponentType<P> }>,
-  fallback: ReactNode = <div>Loading...</div>,
+  fallback: ReactNode = <div>Loading...</div>
 ): ComponentType<P> {
   const LazyComponent = lazy(importFunc);
 
@@ -82,7 +82,7 @@ export function withLazyLoading<P extends object>(
     </Suspense>
   );
 
-  LazyWrapper.displayName = "LazyWrapper";
+  LazyWrapper.displayName = 'LazyWrapper';
   return LazyWrapper;
 }
 
@@ -90,7 +90,7 @@ export function withLazyLoading<P extends object>(
 
 export function useOptimizedMemo<T>(
   factory: () => T,
-  deps: React.DependencyList,
+  deps: React.DependencyList
 ): T {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   return useMemo(() => factory(), deps);
@@ -100,7 +100,7 @@ export function useOptimizedMemo<T>(
 
 export function useOptimizedCallback<Args extends unknown[], R>(
   callback: (...args: Args) => R,
-  deps: React.DependencyList,
+  deps: React.DependencyList
 ): (...args: Args) => R {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   return useCallback((...args: Args) => callback(...args), deps);
@@ -123,7 +123,7 @@ export function useDebounce<T>(value: T, delay: number): T {
 
 export function useThrottle<Args extends unknown[]>(
   callback: (...args: Args) => void,
-  delay: number,
+  delay: number
 ): (...args: Args) => void {
   const [isThrottled, setIsThrottled] = useState(false);
 
@@ -135,7 +135,7 @@ export function useThrottle<Args extends unknown[]>(
         setTimeout(() => setIsThrottled(false), delay);
       }
     },
-    [callback, delay, isThrottled],
+    [callback, delay, isThrottled]
   );
 
   return throttledCallback;
@@ -146,7 +146,7 @@ export function useThrottle<Args extends unknown[]>(
 export function useVirtualList<T extends object>(
   items: T[],
   containerHeight: number,
-  itemHeight: number,
+  itemHeight: number
 ): VirtualListResult<T> {
   const [scrollTop, setScrollTop] = useState(0);
 
@@ -154,7 +154,7 @@ export function useVirtualList<T extends object>(
     const startIndex = Math.floor(scrollTop / itemHeight);
     const endIndex = Math.min(
       startIndex + Math.ceil(containerHeight / itemHeight) + 1,
-      items.length,
+      items.length
     );
     return { startIndex, endIndex };
   }, [scrollTop, itemHeight, containerHeight, items.length]);
@@ -165,9 +165,9 @@ export function useVirtualList<T extends object>(
         .slice(visibleRange.startIndex, visibleRange.endIndex)
         .map((item, index) => ({
           ...item,
-          index: visibleRange.startIndex + index,
+          index: visibleRange.startIndex + index
         })),
-    [items, visibleRange.startIndex, visibleRange.endIndex],
+    [items, visibleRange.startIndex, visibleRange.endIndex]
   );
 
   const totalHeight = items.length * itemHeight;
@@ -185,7 +185,7 @@ export function usePerformanceMonitor(componentName: string): void {
       const renderTime = performance.now() - startTime;
       if (renderTime > 16 && import.meta.env.DEV) {
         console.warn(
-          `[Performance] ${componentName} render took ${renderTime.toFixed(2)}ms`,
+          `[Performance] ${componentName} render took ${renderTime.toFixed(2)}ms`
         );
       }
     };
@@ -196,7 +196,7 @@ export function usePerformanceMonitor(componentName: string): void {
 
 export function useLazyImage(
   src: string,
-  placeholder: string,
+  placeholder: string
 ): LazyImageResult {
   const [imageSrc, setImageSrc] = useState(placeholder);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -204,7 +204,7 @@ export function useLazyImage(
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      (entries) => {
+      entries => {
         if (entries[0].isIntersecting) {
           const img = new Image();
           img.onload = () => {
@@ -215,7 +215,7 @@ export function useLazyImage(
           observer.disconnect();
         }
       },
-      { threshold: 0.1 },
+      { threshold: 0.1 }
     );
 
     if (imgRef.current) observer.observe(imgRef.current);
@@ -229,7 +229,7 @@ export function useLazyImage(
 
 export function useOptimizedFetch<T = unknown>(
   url: string,
-  options: OptimizedFetchOptions = {},
+  options: OptimizedFetchOptions = {}
 ): OptimizedFetchResult<T> {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(true);
@@ -276,11 +276,9 @@ export function useOptimizedFetch<T = unknown>(
 // ── createAsyncComponent ──────────────────────────────────────────────────────
 
 export function createAsyncComponent<P extends object>(
-  importFunc: () => Promise<{ default: ComponentType<P> }>,
+  importFunc: () => Promise<{ default: ComponentType<P> }>
 ): React.LazyExoticComponent<ComponentType<P>> {
-  return lazy(() =>
-    importFunc().then((module) => ({ default: module.default })),
-  );
+  return lazy(() => importFunc().then(module => ({ default: module.default })));
 }
 
 // ── OptimizedComponent ────────────────────────────────────────────────────────
@@ -288,7 +286,7 @@ export function createAsyncComponent<P extends object>(
 const OptimizedComponentInner: React.FC<OptimizedComponentProps> = ({
   children,
   trackPerformance = false,
-  componentName = "Anonymous",
+  componentName = 'Anonymous'
 }) => {
   if (trackPerformance) {
     // Hook called at top-level — this is safe because trackPerformance is stable
@@ -298,7 +296,7 @@ const OptimizedComponentInner: React.FC<OptimizedComponentProps> = ({
 };
 
 export const OptimizedComponent = memo(OptimizedComponentInner);
-OptimizedComponent.displayName = "OptimizedComponent";
+OptimizedComponent.displayName = 'OptimizedComponent';
 
 // ── PerformanceErrorBoundary ──────────────────────────────────────────────────
 
@@ -353,5 +351,5 @@ export default {
   useOptimizedFetch,
   createAsyncComponent,
   OptimizedComponent,
-  PerformanceErrorBoundary,
+  PerformanceErrorBoundary
 };

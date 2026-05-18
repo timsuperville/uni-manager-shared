@@ -1,4 +1,4 @@
-import { AxiosRequestConfig } from "axios";
+import { AxiosRequestConfig } from 'axios';
 
 /**
  * SovereignApiGuard.ts
@@ -24,10 +24,10 @@ export class SovereignApiGuard {
   static shouldBlockRequest(config: AxiosRequestConfig): boolean {
     if (!isShutdownLocked()) return false;
 
-    const url = config.url || "";
+    const url = config.url || '';
 
     // Block church and work API requests
-    if (url.includes("/api/church") || url.includes("/api/work")) {
+    if (url.includes('/api/church') || url.includes('/api/work')) {
       return true;
     }
 

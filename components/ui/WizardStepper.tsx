@@ -1,6 +1,6 @@
-import React from "react";
-import { CheckCircle } from "lucide-react";
-import { flex1 } from "@shared/styles/styleUtils";
+import React from 'react';
+import { CheckCircle } from 'lucide-react';
+import { flex1 } from '@shared/styles/styleUtils';
 
 interface WizardStep {
   label?: string;
@@ -22,17 +22,17 @@ export function WizardStepper({
   steps = [],
   activeStep = 0,
   completed = new Set<number>(),
-  className = "",
+  className = ''
 }: WizardStepperProps) {
   return (
     <div
       className={className}
       style={{
-        display: "flex",
-        alignItems: "center",
-        gap: "0.5rem",
-        overflowX: "auto",
-        paddingBottom: "0.5rem",
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.5rem',
+        overflowX: 'auto',
+        paddingBottom: '0.5rem'
       }}
     >
       {steps.map((step, i) => {
@@ -41,42 +41,42 @@ export function WizardStepper({
         return (
           <div
             key={step.label ?? i}
-            style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
+            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
           >
             <div
               style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
                 minWidth: 72,
-                textAlign: "center",
+                textAlign: 'center'
               }}
             >
               <div
                 style={{
                   width: 32,
                   height: 32,
-                  borderRadius: "50%",
+                  borderRadius: '50%',
                   background: isDone
-                    ? "var(--accent-emerald, var(--color-success, #22c55e))"
+                    ? 'var(--accent-emerald, var(--color-success, #22c55e))'
                     : isActive
-                      ? "var(--primary-resonance, var(--color-primary, #6366f1))"
-                      : "var(--glass-outline, var(--glass-border, rgba(255,255,255,0.1)))",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  marginBottom: "0.25rem",
-                  transition: "background 0.2s ease",
+                      ? 'var(--primary-resonance, var(--color-primary, #6366f1))'
+                      : 'var(--glass-outline, var(--glass-border, rgba(255,255,255,0.1)))',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginBottom: '0.25rem',
+                  transition: 'background 0.2s ease'
                 }}
               >
                 {isDone ? (
-                  <CheckCircle size={16} style={{ color: "#fff" }} />
+                  <CheckCircle size={16} style={{ color: '#fff' }} />
                 ) : (
                   <span
                     style={{
                       fontSize: 12,
-                      color: isActive ? "#fff" : "var(--text-muted, #94a3b8)",
-                      fontWeight: isActive ? 600 : 400,
+                      color: isActive ? '#fff' : 'var(--text-muted, #94a3b8)',
+                      fontWeight: isActive ? 600 : 400
                     }}
                   >
                     {i + 1}
@@ -85,14 +85,14 @@ export function WizardStepper({
               </div>
               <p
                 style={{
-                  fontSize: "0.65rem",
+                  fontSize: '0.65rem',
                   color: isActive
-                    ? "var(--text-primary, #f1f5f9)"
-                    : "var(--text-muted, #94a3b8)",
+                    ? 'var(--text-primary, #f1f5f9)'
+                    : 'var(--text-muted, #94a3b8)',
                   margin: 0,
                   fontWeight: isActive ? 600 : 400,
                   lineHeight: 1.2,
-                  whiteSpace: "nowrap",
+                  whiteSpace: 'nowrap'
                 }}
               >
                 {step.label}
@@ -104,13 +104,13 @@ export function WizardStepper({
                   height: 2,
                   minWidth: 16,
                   background: isDone
-                    ? "var(--accent-emerald, var(--color-success, #22c55e))"
-                    : "var(--glass-outline, rgba(255,255,255,0.1))",
+                    ? 'var(--accent-emerald, var(--color-success, #22c55e))'
+                    : 'var(--glass-outline, rgba(255,255,255,0.1))',
                   borderRadius: 1,
-                  alignSelf: "flex-start",
+                  alignSelf: 'flex-start',
                   marginTop: 15,
-                  transition: "background 0.2s ease",
-                  ...flex1,
+                  transition: 'background 0.2s ease',
+                  ...flex1
                 }}
               />
             )}

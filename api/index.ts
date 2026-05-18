@@ -6,75 +6,75 @@
  */
 
 // Configuration exports (Single source of truth)
-export type { ApiConfig } from "./config/apiConfig";
+export type { ApiConfig } from './config/apiConfig';
 export {
   getApiBaseUrl,
   getWebSocketUrl,
   getAbsoluteUrl,
   getDefaultApiConfig,
   createDevApiConfig,
-  createProdApiConfig,
-} from "./config/apiConfig";
+  createProdApiConfig
+} from './config/apiConfig';
 
 // Core exports
-export { ApiClient, initializeApiClient, getApiClient } from "./core/ApiClient";
+export { ApiClient, initializeApiClient, getApiClient } from './core/ApiClient';
 export type {
   ApiClientConfig,
   RequestOptions,
-  ApiResponse,
-} from "./core/ApiClient";
+  ApiResponse
+} from './core/ApiClient';
 
-export { GlobalContextManager, contextManager } from "./core/ContextManager";
+export { GlobalContextManager, contextManager } from './core/ContextManager';
 
 export {
   SovereignApiGuard,
   isShutdownLocked,
-  setShutdownLocked,
-} from "./core/SovereignApiGuard";
+  setShutdownLocked
+} from './core/SovereignApiGuard';
 
-export { ErrorHandler, ApiErrorType } from "./core/ErrorHandler";
-export type { ApiError, ErrorContext } from "./core/ErrorHandler";
+export { ErrorHandler, ApiErrorType } from './core/ErrorHandler';
+export type { ApiError, ErrorContext } from './core/ErrorHandler';
 
-export { AuthInterceptor } from "./core/AuthInterceptor";
+export { AuthInterceptor } from './core/AuthInterceptor';
 export type {
   AuthTokens,
   AuthInterceptorConfig,
-  TokenRefreshResponse,
-} from "./core/AuthInterceptor";
+  TokenRefreshResponse
+} from './core/AuthInterceptor';
 
 // Service exports
-export { BaseService } from "./services/BaseService";
+export { BaseService } from './services/BaseService';
 export type {
   ValidationSchema,
   PaginationParams,
-  PaginatedResponse,
-} from "./services/BaseService";
+  PaginatedResponse
+} from './services/BaseService';
 
 // Type exports
-export * from "./types";
+export * from './types';
 
 // React integration exports
-export { useApi, useApiQuery, useApiMutation, useFileUpload } from "./hooks";
-export type { ApiQueryOptions } from "./hooks";
+export { useApi, useApiQuery, useApiMutation, useFileUpload } from './hooks';
+export type { ApiQueryOptions } from './hooks';
 
-export { ApiProvider } from "./components/ApiProvider";
+export { ApiProvider } from './components/ApiProvider';
 
 // Offline sync queue (IndexedDB-backed — used by church App.jsx on network recovery)
-export { syncEngine } from "./syncEngine";
-export type { SyncEntry, ServiceMap } from "./syncEngine";
+export { syncEngine } from './syncEngine';
+export type { SyncEntry, ServiceMap } from './syncEngine';
 
 // ==================== CONVENIENCE EXPORTS ====================
 
-export const VERSION = "1.0.0";
-export const API_VERSION = "v1";
+export const VERSION = '1.0.0';
+export const API_VERSION = 'v1';
 
 export {
   artNetBridgeService,
-  initArtNetBridge,
-} from "./services/ArtNetBridgeService";
+  initArtNetBridge
+} from './services/ArtNetBridgeService';
 
 export {
   CapacityService,
   capacityService,
-  initCapacityService,
-} from "./services/CapacityService";
+  initCapacityService
+} from './services/CapacityService';

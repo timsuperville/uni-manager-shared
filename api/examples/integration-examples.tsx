@@ -9,17 +9,17 @@
  * See: frontend/apps/church/src for ecclesiastical service patterns.
  */
 
-import React from "react";
+import React from 'react';
 import {
   ApiProvider,
   useApi,
   useApiQuery,
   useApiMutation,
-  getApiBaseUrl,
-} from "../index";
-import { useAuth } from "../../auth";
-import type { UserProfile } from "../types";
-import { AuthService } from "../../auth/services/AuthService";
+  getApiBaseUrl
+} from '../index';
+import { useAuth } from '../../auth';
+import type { UserProfile } from '../types';
+import { AuthService } from '../../auth/services/AuthService';
 
 // ==================== BASIC SETUP ====================
 
@@ -31,13 +31,13 @@ const AppWithApiProvider: React.FC = () => {
     baseURL: getApiBaseUrl(),
     timeout: 10000,
     enableCaching: true,
-    enableAuth: true,
+    enableAuth: true
   };
 
   return (
     <ApiProvider
       config={apiConfig}
-      onError={(error) => console.error("API Error:", error)}
+      onError={error => console.error('API Error:', error)}
     >
       <div className="app">
         <AuthSection />
@@ -59,8 +59,8 @@ const AuthSection: React.FC = () => {
   const handleLogin = async () => {
     try {
       await login({
-        email: "user@example.com",
-        password: "password123",
+        email: 'user@example.com',
+        password: 'password123'
       });
     } catch (_err) {
       // console.error('Login failed:', err);
@@ -70,10 +70,10 @@ const AuthSection: React.FC = () => {
   const handleSignup = async () => {
     try {
       await signup?.({
-        firstName: "New",
-        lastName: "User",
-        email: "newuser@example.com",
-        password: "password123",
+        firstName: 'New',
+        lastName: 'User',
+        email: 'newuser@example.com',
+        password: 'password123'
       });
     } catch (_err) {
       // console.error('Signup failed:', err);
@@ -93,7 +93,7 @@ const AuthSection: React.FC = () => {
       {isAuthenticated ? (
         <div>
           <h2>
-            Welcome, {String(user?.displayName || user?.firstName || "User")}!
+            Welcome, {String(user?.displayName || user?.firstName || 'User')}!
           </h2>
           <button onClick={logout}>Logout</button>
         </div>
@@ -120,8 +120,8 @@ const QueryExample: React.FC = () => {
   const {
     data: userProfile,
     isLoading: profileLoading,
-    error: profileError,
-  } = useApiQuery("user-profile", () => authService.getCurrentUser());
+    error: profileError
+  } = useApiQuery('user-profile', () => authService.getCurrentUser());
 
   return (
     <div className="query-section">
@@ -133,7 +133,7 @@ const QueryExample: React.FC = () => {
         {profileError && <div>Error: {profileError.message}</div>}
         {userProfile && (
           <div>
-            Profile loaded for:{" "}
+            Profile loaded for:{' '}
             {userProfile.displayName || userProfile.firstName}
           </div>
         )}
@@ -155,24 +155,24 @@ const MutationExample: React.FC = () => {
   const {
     mutate: updateProfile,
     isLoading: updateLoading,
-    error: updateError,
+    error: updateError
   } = useApiMutation(
     (profileData: Partial<UserProfile>) =>
       authService.updateProfile(profileData),
     {
-      onSuccess: (_data) => {
+      onSuccess: _data => {
         // console.log('Profile updated successfully:', data);
       },
-      onError: (_error) => {
+      onError: _error => {
         // console.error('Profile update failed:', error);
-      },
-    },
+      }
+    }
   );
 
   const handleUpdateProfile = () => {
     updateProfile({
-      location: "New Location",
-      bio: "Updated bio information",
+      location: 'New Location',
+      bio: 'Updated bio information'
     });
   };
 
@@ -182,7 +182,7 @@ const MutationExample: React.FC = () => {
 
       <div className="profile-update">
         <button onClick={handleUpdateProfile} disabled={updateLoading}>
-          {updateLoading ? "Updating..." : "Update Profile"}
+          {updateLoading ? 'Updating...' : 'Update Profile'}
         </button>
         {updateError && <div>Error: {updateError.message}</div>}
       </div>
@@ -228,7 +228,7 @@ export {
   AuthSection,
   QueryExample,
   MutationExample,
-  DirectApiExample,
+  DirectApiExample
 };
 
 export default AppWithApiProvider;

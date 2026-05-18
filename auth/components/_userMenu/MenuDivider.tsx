@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 /** Thin horizontal menu separator. */
 export default function MenuDivider() {
@@ -6,9 +6,9 @@ export default function MenuDivider() {
     <div
       role="separator"
       style={{
-        height: "1px",
-        background: "var(--glass-outline)",
-        margin: "4px 8px",
+        height: '1px',
+        background: 'var(--glass-outline)',
+        margin: '4px 8px'
       }}
     />
   );

@@ -1,10 +1,10 @@
-import { MFAService } from "../services/mfaService";
-import { vi, describe, it, expect, beforeEach } from "vitest";
+import { MFAService } from '../services/mfaService';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 // Mock fetch globally
 global.fetch = vi.fn() as any;
 
-describe("MFA Integration Tests", () => {
+describe('MFA Integration Tests', () => {
   let mfaService: any;
 
   beforeEach(() => {
@@ -12,19 +12,19 @@ describe("MFA Integration Tests", () => {
     vi.clearAllMocks();
   });
 
-  describe("MFA Setup Flow Integration", () => {
-    it("should complete TOTP setup flow successfully", async () => {
+  describe('MFA Setup Flow Integration', () => {
+    it('should complete TOTP setup flow successfully', async () => {
       // Mock TOTP setup
       (fetch as any).mockResolvedValueOnce({
         ok: true,
         json: vi.fn().mockResolvedValue({
           success: true,
-          secret: "ABCD1234EFGH5678",
-          qrCodeUrl: "data:image/png;base64,test",
-        }),
+          secret: 'ABCD1234EFGH5678',
+          qrCodeUrl: 'data:image/png;base64,test'
+        })
       });
 
-      const setupResult = await mfaService.setupTOTP("test@example.com");
+      const setupResult = await mfaService.setupTOTP('test@example.com');
       expect(setupResult.success).toBe(true);
       expect(setupResult.secret).toBeDefined();
 
@@ -33,11 +33,11 @@ describe("MFA Integration Tests", () => {
         ok: true,
         json: vi.fn().mockResolvedValue({
           success: true,
-          verified: true,
-        }),
+          verified: true
+        })
       });
 
-      const verifyResult = await mfaService.verifyTOTP("123456");
+      const verifyResult = await mfaService.verifyTOTP('123456');
       expect(verifyResult.verified).toBe(true);
 
       // Mock backup codes generation
@@ -45,25 +45,25 @@ describe("MFA Integration Tests", () => {
         ok: true,
         json: vi.fn().mockResolvedValue({
           success: true,
-          backupCodes: ["123456", "789012", "345678", "901234", "567890"],
-        }),
+          backupCodes: ['123456', '789012', '345678', '901234', '567890']
+        })
       });
 
       const backupResult = await mfaService.generateBackupCodes();
       expect(backupResult.backupCodes).toHaveLength(5);
     });
 
-    it("should complete SMS setup flow successfully", async () => {
+    it('should complete SMS setup flow successfully', async () => {
       // Mock SMS setup
       (fetch as any).mockResolvedValueOnce({
         ok: true,
         json: vi.fn().mockResolvedValue({
           success: true,
-          message: "SMS setup complete",
-        }),
+          message: 'SMS setup complete'
+        })
       });
 
-      const setupResult = await mfaService.setupSMS("+1234567890");
+      const setupResult = await mfaService.setupSMS('+1234567890');
       expect(setupResult.success).toBe(true);
 
       // Mock SMS code sending
@@ -71,8 +71,8 @@ describe("MFA Integration Tests", () => {
         ok: true,
         json: vi.fn().mockResolvedValue({
           success: true,
-          message: "Code sent",
-        }),
+          message: 'Code sent'
+        })
       });
 
       const sendResult = await mfaService.sendSMSCode();
@@ -83,25 +83,25 @@ describe("MFA Integration Tests", () => {
         ok: true,
         json: vi.fn().mockResolvedValue({
           success: true,
-          verified: true,
-        }),
+          verified: true
+        })
       });
 
-      const verifyResult = await mfaService.verifySMS("123456");
+      const verifyResult = await mfaService.verifySMS('123456');
       expect(verifyResult.verified).toBe(true);
     });
 
-    it("should complete email setup flow successfully", async () => {
+    it('should complete email setup flow successfully', async () => {
       // Mock email setup
       (fetch as any).mockResolvedValueOnce({
         ok: true,
         json: vi.fn().mockResolvedValue({
           success: true,
-          message: "Email MFA enabled",
-        }),
+          message: 'Email MFA enabled'
+        })
       });
 
-      const setupResult = await mfaService.setupEmail("test@example.com");
+      const setupResult = await mfaService.setupEmail('test@example.com');
       expect(setupResult.success).toBe(true);
 
       // Mock email code sending
@@ -109,8 +109,8 @@ describe("MFA Integration Tests", () => {
         ok: true,
         json: vi.fn().mockResolvedValue({
           success: true,
-          message: "Verification email sent",
-        }),
+          message: 'Verification email sent'
+        })
       });
 
       const sendResult = await mfaService.sendEmailCode();
@@ -121,30 +121,30 @@ describe("MFA Integration Tests", () => {
         ok: true,
         json: vi.fn().mockResolvedValue({
           success: true,
-          verified: true,
-        }),
+          verified: true
+        })
       });
 
-      const verifyResult = await mfaService.verifyEmail("123456");
+      const verifyResult = await mfaService.verifyEmail('123456');
       expect(verifyResult.verified).toBe(true);
     });
   });
 
-  describe("MFA Login Flow Integration", () => {
-    it("should handle MFA challenge and verification during login", async () => {
+  describe('MFA Login Flow Integration', () => {
+    it('should handle MFA challenge and verification during login', async () => {
       // Mock MFA challenge
       (fetch as any).mockResolvedValueOnce({
         ok: true,
         json: vi.fn().mockResolvedValue({
-          challengeId: "abc123",
-          availableMethods: ["totp", "sms"],
-          requiresMFA: true,
-        }),
+          challengeId: 'abc123',
+          availableMethods: ['totp', 'sms'],
+          requiresMFA: true
+        })
       });
 
-      const challengeResult = await mfaService.challengeMFA("user123");
+      const challengeResult = await mfaService.challengeMFA('user123');
       expect(challengeResult.requiresMFA).toBe(true);
-      expect(challengeResult.availableMethods).toContain("totp");
+      expect(challengeResult.availableMethods).toContain('totp');
 
       // Mock MFA verification
       (fetch as any).mockResolvedValueOnce({
@@ -152,47 +152,47 @@ describe("MFA Integration Tests", () => {
         json: vi.fn().mockResolvedValue({
           success: true,
           verified: true,
-          token: "auth-token-123",
-        }),
+          token: 'auth-token-123'
+        })
       });
 
       const verifyResult = await mfaService.verifyMFAChallenge(
         challengeResult.challengeId,
-        "totp",
-        "123456",
+        'totp',
+        '123456'
       );
       expect(verifyResult.verified).toBe(true);
       expect(verifyResult.token).toBeDefined();
     });
 
-    it("should handle backup code usage during login", async () => {
+    it('should handle backup code usage during login', async () => {
       // Mock backup code verification
       (fetch as any).mockResolvedValueOnce({
         ok: true,
         json: vi.fn().mockResolvedValue({
           success: true,
           verified: true,
-          codesRemaining: 2,
-        }),
+          codesRemaining: 2
+        })
       });
 
-      const result = await mfaService.useBackupCode("123456");
+      const result = await mfaService.useBackupCode('123456');
       expect(result.verified).toBe(true);
       expect(result.codesRemaining).toBe(2);
     });
   });
 
-  describe("MFA Management Integration", () => {
-    it("should get comprehensive MFA status", async () => {
+  describe('MFA Management Integration', () => {
+    it('should get comprehensive MFA status', async () => {
       (fetch as any).mockResolvedValueOnce({
         ok: true,
         json: vi.fn().mockResolvedValue({
           enabled: true,
-          methods: ["totp", "sms"],
+          methods: ['totp', 'sms'],
           recoveryCodesRemaining: 3,
-          lastUsed: "2024-01-15T10:00:00Z",
-          setupDate: "2024-01-01T12:00:00Z",
-        }),
+          lastUsed: '2024-01-15T10:00:00Z',
+          setupDate: '2024-01-01T12:00:00Z'
+        })
       });
 
       const status = await mfaService.getMFAStatus();
@@ -201,63 +201,63 @@ describe("MFA Integration Tests", () => {
       expect(status.recoveryCodesRemaining).toBe(3);
     });
 
-    it("should disable MFA methods correctly", async () => {
+    it('should disable MFA methods correctly', async () => {
       (fetch as any).mockResolvedValueOnce({
         ok: true,
         json: vi.fn().mockResolvedValue({
           success: true,
-          remainingMethods: ["sms"],
-        }),
+          remainingMethods: ['sms']
+        })
       });
 
-      const result = await mfaService.disableMFA("totp");
+      const result = await mfaService.disableMFA('totp');
       expect(result.success).toBe(true);
-      expect(result.remainingMethods).toContain("sms");
+      expect(result.remainingMethods).toContain('sms');
     });
   });
 
-  describe("Error Recovery Integration", () => {
-    it("should handle MFA setup failures gracefully", async () => {
+  describe('Error Recovery Integration', () => {
+    it('should handle MFA setup failures gracefully', async () => {
       (fetch as any).mockResolvedValueOnce({
         ok: false,
         json: vi.fn().mockResolvedValue({
           success: false,
-          error: "Invalid phone number format",
-        }),
+          error: 'Invalid phone number format'
+        })
       });
 
-      await expect(mfaService.setupSMS("invalid-phone")).rejects.toThrow(
-        "Invalid phone number format",
+      await expect(mfaService.setupSMS('invalid-phone')).rejects.toThrow(
+        'Invalid phone number format'
       );
     });
 
-    it("should handle verification failures with retry information", async () => {
+    it('should handle verification failures with retry information', async () => {
       (fetch as any).mockResolvedValueOnce({
         ok: false,
         json: vi.fn().mockResolvedValue({
           success: false,
-          message: "Invalid code",
-          attemptsRemaining: 2,
-        }),
+          message: 'Invalid code',
+          attemptsRemaining: 2
+        })
       });
 
-      await expect(mfaService.verifyTOTP("000000")).rejects.toThrow(
-        "Invalid code",
+      await expect(mfaService.verifyTOTP('000000')).rejects.toThrow(
+        'Invalid code'
       );
     });
 
-    it("should handle account lockout scenarios", async () => {
+    it('should handle account lockout scenarios', async () => {
       (fetch as any).mockResolvedValueOnce({
         ok: false,
         json: vi.fn().mockResolvedValue({
           success: false,
-          message: "Account temporarily locked",
-          lockoutUntil: "2024-01-15T11:00:00Z",
-        }),
+          message: 'Account temporarily locked',
+          lockoutUntil: '2024-01-15T11:00:00Z'
+        })
       });
 
-      await expect(mfaService.verifyTOTP("123456")).rejects.toThrow(
-        "Account temporarily locked",
+      await expect(mfaService.verifyTOTP('123456')).rejects.toThrow(
+        'Account temporarily locked'
       );
     });
   });

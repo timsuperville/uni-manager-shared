@@ -1,6 +1,6 @@
-import { get, set } from "idb-keyval";
+import { get, set } from 'idb-keyval';
 
-const SYNC_STORE_NAME = "offline-mutations";
+const SYNC_STORE_NAME = 'offline-mutations';
 
 export interface SyncEntry {
   id: string;
@@ -31,7 +31,7 @@ export const syncEngine = {
   async queueMutation(
     mutationKey: string,
     variables: unknown[],
-    mutationFnName: string,
+    mutationFnName: string
   ): Promise<string> {
     const id = `${mutationKey}_${Date.now()}`;
     const entry: SyncEntry = {
@@ -40,7 +40,7 @@ export const syncEngine = {
       variables,
       mutationFnName,
       timestamp: Date.now(),
-      retries: 0,
+      retries: 0
     };
 
     const queue: SyncEntry[] = (await get(SYNC_STORE_NAME)) ?? [];
@@ -62,7 +62,7 @@ export const syncEngine = {
    */
   async dequeueMutation(id: string): Promise<void> {
     const queue: SyncEntry[] = (await get(SYNC_STORE_NAME)) ?? [];
-    const filtered = queue.filter((item) => item.id !== id);
+    const filtered = queue.filter(item => item.id !== id);
     await set(SYNC_STORE_NAME, filtered);
   },
 
@@ -77,16 +77,16 @@ export const syncEngine = {
 
     if (import.meta.env.DEV) {
       console.log(
-        `[SyncEngine] Processing ${queue.length} queued mutations...`,
+        `[SyncEngine] Processing ${queue.length} queued mutations...`
       );
     }
 
     for (const entry of queue) {
       try {
-        const [serviceName, fnName] = entry.mutationFnName.split(".");
+        const [serviceName, fnName] = entry.mutationFnName.split('.');
         const service = serviceName ? serviceMap[serviceName] : undefined;
 
-        if (service && fnName && typeof service[fnName] === "function") {
+        if (service && fnName && typeof service[fnName] === 'function') {
           await service[fnName](...entry.variables);
           await this.dequeueMutation(entry.id);
           if (import.meta.env.DEV) {
@@ -95,7 +95,7 @@ export const syncEngine = {
         } else {
           if (import.meta.env.DEV) {
             console.warn(
-              `[SyncEngine] Service or method not found for ${entry.mutationFnName}`,
+              `[SyncEngine] Service or method not found for ${entry.mutationFnName}`
             );
           }
         }
@@ -108,7 +108,7 @@ export const syncEngine = {
           await this.dequeueMutation(entry.id);
           if (import.meta.env.DEV) {
             console.error(
-              `[SyncEngine] Max retries reached for ${entry.id}. Dropping.`,
+              `[SyncEngine] Max retries reached for ${entry.id}. Dropping.`
             );
           }
         } else {
@@ -116,12 +116,12 @@ export const syncEngine = {
           // Without this write-back, the counter resets to 0 on every
           // processQueue() call and entries can never be dropped.
           const currentQueue: SyncEntry[] = (await get(SYNC_STORE_NAME)) ?? [];
-          const updated = currentQueue.map((item) =>
-            item.id === entry.id ? { ...item, retries: entry.retries } : item,
+          const updated = currentQueue.map(item =>
+            item.id === entry.id ? { ...item, retries: entry.retries } : item
           );
           await set(SYNC_STORE_NAME, updated);
         }
       }
     }
-  },
+  }
 };
