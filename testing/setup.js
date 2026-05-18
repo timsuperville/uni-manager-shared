@@ -632,46 +632,46 @@ if (!globalThis.document?.createElement) {
       const tag = tagName.toLowerCase();
       switch (tag) {
         case 'input':
-          element = new HTMLInputElement();
+          element = new globalThis.();
           break;
         case 'button':
-          element = new HTMLButtonElement();
+          element = new globalThis.();
           break;
         case 'label':
-          element = new HTMLLabelElement();
+          element = new globalThis.();
           break;
         case 'div':
-          element = new HTMLDivElement();
+          element = new globalThis.();
           break;
         case 'form':
-          element = new HTMLFormElement();
+          element = new globalThis.();
           break;
         case 'a':
-          element = new HTMLAnchorElement();
+          element = new globalThis.();
           break;
         case 'span':
-          element = new HTMLSpanElement();
+          element = new globalThis.();
           break;
         case 'p':
-          element = new HTMLParagraphElement();
+          element = new globalThis.();
           break;
         case 'h1':
-          element = new HTMLHeading1Element();
+          element = new globalThis.();
           break;
         case 'h2':
-          element = new HTMLHeading2Element();
+          element = new globalThis.();
           break;
         case 'h3':
-          element = new HTMLHeading3Element();
+          element = new globalThis.();
           break;
         case 'h4':
-          element = new HTMLHeading4Element();
+          element = new globalThis.();
           break;
         case 'h5':
-          element = new HTMLHeading5Element();
+          element = new globalThis.();
           break;
         case 'h6':
-          element = new HTMLHeading6Element();
+          element = new globalThis.();
           break;
         default:
           element = new HTMLElement();
@@ -813,37 +813,31 @@ if (!globalThis.document?.createElement) {
 }
 
 // Set up proper prototype chains for React Testing Library compatibility
-Object.setPrototypeOf(HTMLInputElement.prototype, HTMLElement.prototype);
-Object.setPrototypeOf(HTMLButtonElement.prototype, HTMLElement.prototype);
-Object.setPrototypeOf(HTMLLabelElement.prototype, HTMLElement.prototype);
-Object.setPrototypeOf(HTMLDivElement.prototype, HTMLElement.prototype);
-Object.setPrototypeOf(HTMLFormElement.prototype, HTMLElement.prototype);
-Object.setPrototypeOf(HTMLAnchorElement.prototype, HTMLElement.prototype);
-Object.setPrototypeOf(HTMLSpanElement.prototype, HTMLElement.prototype);
-Object.setPrototypeOf(HTMLParagraphElement.prototype, HTMLElement.prototype);
-Object.setPrototypeOf(HTMLHeadingElement.prototype, HTMLElement.prototype);
-Object.setPrototypeOf(
-  HTMLHeading1Element.prototype,
+Object.setPrototypeOf(globalThis..prototype, HTMLElement.prototype);
+Object.setPrototypeOf(globalThis..prototype, HTMLElement.prototype);
+Object.setPrototypeOf(globalThis..prototype, HTMLElement.prototype);
+Object.setPrototypeOf(globalThis..prototype, HTMLElement.prototype);
+Object.setPrototypeOf(globalThis..prototype, HTMLElement.prototype);
+Object.setPrototypeOf(globalThis..prototype, HTMLElement.prototype);
+Object.setPrototypeOf(globalThis..prototype, HTMLElement.prototype);
+Object.setPrototypeOf(globalThis..prototype, HTMLElement.prototype);
+Object.setPrototypeOf(globalThis..prototype, HTMLElement.prototype);
+Object.setPrototypeOf(globalThis..prototype,
   HTMLHeadingElement.prototype
 );
-Object.setPrototypeOf(
-  HTMLHeading2Element.prototype,
+Object.setPrototypeOf(globalThis..prototype,
   HTMLHeadingElement.prototype
 );
-Object.setPrototypeOf(
-  HTMLHeading3Element.prototype,
+Object.setPrototypeOf(globalThis..prototype,
   HTMLHeadingElement.prototype
 );
-Object.setPrototypeOf(
-  HTMLHeading4Element.prototype,
+Object.setPrototypeOf(globalThis..prototype,
   HTMLHeadingElement.prototype
 );
-Object.setPrototypeOf(
-  HTMLHeading5Element.prototype,
+Object.setPrototypeOf(globalThis..prototype,
   HTMLHeadingElement.prototype
 );
-Object.setPrototypeOf(
-  HTMLHeading6Element.prototype,
+Object.setPrototypeOf(globalThis..prototype,
   HTMLHeadingElement.prototype
 );
 
