@@ -236,7 +236,7 @@ const StatCard: React.FC<StatCardProps> = ({
     <button
       type="button"
       onClick={onClick}
-      className={`flex flex-col items-start gap-2 px-4 py-3.5 rounded-xl transition-all w-full text-left ${className}`}
+      className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all w-full text-left ${className}`}
       style={{
         border: `1px solid ${variantBorder}`,
         backdropFilter: "var(--glass-blur)",
@@ -245,60 +245,55 @@ const StatCard: React.FC<StatCardProps> = ({
       }}
       {...props}
     >
-      <div className="flex items-center justify-between w-full">
-        {isEmojiIcon ? (
-          <span className="text-xl" style={{ color: variantIconColor }}>
-            {Icon as string}
+      {isEmojiIcon ? (
+        <span className="text-lg shrink-0" style={{ color: variantIconColor }}>
+          {Icon as string}
+        </span>
+      ) : (
+        Icon && (
+          <div
+            className="flex items-center justify-center rounded-md shrink-0"
+            style={{
+              width: 28,
+              height: 28,
+              background: `${variantIconColor}18`,
+              border: `1px solid ${variantIconColor}30`,
+            }}
+          >
+            <Icon className="w-3.5 h-3.5" style={{ color: variantIconColor }} />
+          </div>
+        )
+      )}
+      <div className="flex-1 min-w-0 flex items-center justify-between gap-2">
+        <div className="flex items-baseline gap-2 truncate">
+          <span
+            className="text-base font-bold leading-none"
+            style={{
+              color: "var(--text-primary)",
+              fontFamily: "var(--font-display)",
+            }}
+          >
+            {value}
           </span>
-        ) : (
-          Icon && (
-            <div
-              className="flex items-center justify-center rounded-lg shrink-0"
-              style={{
-                width: 36,
-                height: 36,
-                background: `${variantIconColor}18`,
-                border: `1px solid ${variantIconColor}30`,
-              }}
-            >
-              <Icon className="w-4 h-4" style={{ color: variantIconColor }} />
-            </div>
-          )
-        )}
+          <span
+            className="text-xs font-medium truncate leading-none"
+            style={{ color: "var(--text-secondary)" }}
+          >
+            {resolvedTitle}
+            {(resolvedSubtitle || caption) && (
+              <span className="ml-1 opacity-70">
+                {resolvedSubtitle || caption}
+              </span>
+            )}
+          </span>
+        </div>
         {change && (
           <span
-            className="text-xs font-semibold px-1.5 py-0.5 rounded-full"
+            className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full shrink-0"
             style={{ background: changeBg, color: changeColor }}
           >
             {change}
           </span>
-        )}
-      </div>
-      <div>
-        <p
-          className="text-2xl font-bold"
-          style={{
-            color: "var(--text-primary)",
-            fontFamily: "var(--font-display)",
-          }}
-        >
-          {value}
-        </p>
-        <p
-          className="text-xs font-medium"
-          style={{ color: "var(--text-secondary)" }}
-        >
-          {resolvedTitle}
-        </p>
-        {resolvedSubtitle && (
-          <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>
-            {resolvedSubtitle}
-          </p>
-        )}
-        {caption && (
-          <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>
-            {caption}
-          </p>
         )}
       </div>
     </button>

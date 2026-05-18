@@ -67,7 +67,7 @@ export function useApiQuery<T>(
   });
 
   return {
-    data: data ?? null,
+    data: data !== undefined ? data : undefined,
     isLoading,
     error: error ?? null,
     isFetched,
@@ -119,7 +119,7 @@ export function useApiMutation<TData, TVariables>(
   return {
     mutate: mutateAsync,
     mutateAsync,
-    data: data ?? null,
+    data: data !== undefined ? data : undefined,
     isLoading: isPending,
     /** TanStack Query v5 canonical name — alias for isLoading */
     isPending,
