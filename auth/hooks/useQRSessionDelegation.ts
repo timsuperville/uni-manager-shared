@@ -76,7 +76,9 @@ export function useQRSessionDelegation({
             if (pollRef.current) clearInterval(pollRef.current);
             setQrStatus('expired');
           }
-        } catch (_err) {}
+        } catch (_err) {
+          globalThis.conditionalLog?.('warn', '[EmptyCatch]', _err);
+        }
       }, pollIntervalMs);
     },
     [apiBaseUrl, qrInitError, pollIntervalMs, onApprove]

@@ -274,6 +274,7 @@ export function useAuthActions(
         try {
           await authService.logout();
         } catch (_e) {
+          globalThis.conditionalLog?.('warn', '[EmptyCatch]', _e);
           // Intentionally silent — best-effort server logout after refresh failure
         }
         notifyStateChange({ user: null, isAuthenticated: false });

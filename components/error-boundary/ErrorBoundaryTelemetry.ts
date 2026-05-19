@@ -65,6 +65,7 @@ export function getUserContext(): UserContext {
         userInfo = (parsed?.user as Record<string, unknown>) || parsed || {};
         if (userInfo.id || userInfo._id) break;
       } catch (_) {
+        globalThis.conditionalLog?.('warn', '[EmptyCatch]', _);
         /* malformed JSON */
       }
     }
@@ -173,6 +174,7 @@ export function flushPendingErrorReports(appType?: string): void {
       });
     });
   } catch (_) {
+    globalThis.conditionalLog?.('warn', '[EmptyCatch]', _);
     /* localStorage unavailable */
   }
 }
@@ -286,6 +288,7 @@ export function reportError(
         JSON.stringify(pending.slice(-10))
       );
     } catch (_) {
+      globalThis.conditionalLog?.('warn', '[EmptyCatch]', _);
       /* localStorage unavailable */
     }
   });

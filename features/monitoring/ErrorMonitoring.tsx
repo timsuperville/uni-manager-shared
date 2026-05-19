@@ -291,6 +291,7 @@ export const setupGlobalErrorHandling = () => {
         JSON.stringify(activities.slice(-10))
       );
     } catch (_) {
+      globalThis.conditionalLog?.('warn', '[EmptyCatch]', _);
       /* sessionStorage unavailable */
     }
   };
@@ -615,6 +616,7 @@ export const setupPerformanceMonitoring = () => {
       });
       observer.observe({ entryTypes: ['longtask'] });
     } catch (_) {
+      globalThis.conditionalLog?.('warn', '[EmptyCatch]', _);
       /* entryType 'longtask' not supported in this browser */
     }
   }

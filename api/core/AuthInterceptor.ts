@@ -428,6 +428,7 @@ export class AuthInterceptor {
               }
             }
           } catch (_err) {
+            globalThis.conditionalLog?.('warn', '[EmptyCatch]', _err);
             // Intentionally silent — decoding is best-effort; refresh will still
             // fire on 401 via the onError interceptor.
           }

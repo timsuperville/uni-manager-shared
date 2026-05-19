@@ -205,6 +205,7 @@ class UnifiedTestManager {
         const testFiles = await glob(pattern);
         if (testFiles.length > 0) return true;
       } catch (_err) {
+        globalThis.conditionalLog?.('warn', '[EmptyCatch]', _err);
         // Intentionally silent — pattern may not match any path; try next pattern
       }
     }

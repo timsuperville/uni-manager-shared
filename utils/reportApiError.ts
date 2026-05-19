@@ -131,6 +131,7 @@ export async function reportApiError(report: ApiErrorReport): Promise<void> {
       })
     });
   } catch (_err) {
+    globalThis.conditionalLog?.('warn', '[EmptyCatch]', _err);
     // Intentionally silent — this reporter must never surface errors itself.
   }
 }

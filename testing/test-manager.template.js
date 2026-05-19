@@ -159,6 +159,7 @@ class UnifiedTestManager {
         }
       }
     } catch (_error) {
+      globalThis.conditionalLog?.('warn', '[EmptyCatch]', _error);
       // console.error('[ERROR] Error discovering test suites:', error.message);
     }
 
@@ -298,6 +299,7 @@ class UnifiedTestManager {
     try {
       execSync(command, { stdio: 'inherit', cwd: process.cwd() });
     } catch (_err) {
+      globalThis.conditionalLog?.('warn', '[EmptyCatch]', _err);
       // console.error(`[ERROR] Tests failed for ${ featureName }`);
       process.exit(1);
     }
@@ -320,6 +322,7 @@ class UnifiedTestManager {
     try {
       execSync(command, { stdio: 'inherit', cwd: process.cwd() });
     } catch (_err) {
+      globalThis.conditionalLog?.('warn', '[EmptyCatch]', _err);
       // console.error(`[ERROR] Tests failed for ${ mode } mode`);
       process.exit(1);
     }

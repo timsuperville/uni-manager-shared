@@ -113,6 +113,7 @@ describe('useMFA', () => {
       try {
         await result.current.verifyCode('000000', false);
       } catch (e) {
+        globalThis.conditionalLog?.('warn', '[EmptyCatch]', e);
         // Expected error
       }
     });

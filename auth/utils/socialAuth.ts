@@ -366,6 +366,7 @@ export const trackUserActivity = async (
 
     sessionStorage.setItem('userActivities', JSON.stringify(activities));
   } catch (_err) {
+    globalThis.conditionalLog?.('warn', '[EmptyCatch]', _err);
     // Intentionally silent — activity tracking is non-critical; loss is acceptable
   }
 };

@@ -351,6 +351,7 @@ export class SharedDataCache {
               appName
             });
           } catch (_err) {
+            globalThis.conditionalLog?.('warn', '[EmptyCatch]', _err);
             // Intentionally silent — one bad subscriber must not break others
           }
         }
@@ -409,6 +410,7 @@ export class SharedDataCache {
         this.set(key, newValue, { ttl: meta?.ttl });
       }
     } catch (_err) {
+      globalThis.conditionalLog?.('warn', '[EmptyCatch]', _err);
       // Intentionally silent — stale data remains until next cleanup tick
     } finally {
       this.pendingOperations.delete(key);
@@ -428,6 +430,7 @@ export class SharedDataCache {
       };
       localStorage.setItem(`uni_cache_${key}`, JSON.stringify(data));
     } catch (_err) {
+      globalThis.conditionalLog?.('warn', '[EmptyCatch]', _err);
       // Intentionally silent — persistence is best-effort
     }
   }
@@ -437,6 +440,7 @@ export class SharedDataCache {
       if (typeof localStorage !== 'undefined')
         localStorage.removeItem(`uni_cache_${key}`);
     } catch (_err) {
+      globalThis.conditionalLog?.('warn', '[EmptyCatch]', _err);
       // Intentionally silent
     }
   }
@@ -465,6 +469,7 @@ export class SharedDataCache {
         }
       }
     } catch (_err) {
+      globalThis.conditionalLog?.('warn', '[EmptyCatch]', _err);
       // localStorage may be entirely unavailable (SSR, private browsing)
     }
   }
@@ -482,6 +487,7 @@ export class SharedDataCache {
         this.cache.set(key, data.value);
         this.metadata.set(key, data.metadata);
       } catch (_err) {
+        globalThis.conditionalLog?.('warn', '[EmptyCatch]', _err);
         // Intentionally silent — corrupted entry; skip
       }
     }

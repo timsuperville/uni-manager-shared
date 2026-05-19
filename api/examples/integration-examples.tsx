@@ -63,6 +63,7 @@ const AuthSection: React.FC = () => {
         password: 'password123'
       });
     } catch (_err) {
+      globalThis.conditionalLog?.('warn', '[EmptyCatch]', _err);
       // console.error('Login failed:', err);
     }
   };
@@ -76,6 +77,7 @@ const AuthSection: React.FC = () => {
         password: 'password123'
       });
     } catch (_err) {
+      globalThis.conditionalLog?.('warn', '[EmptyCatch]', _err);
       // console.error('Signup failed:', err);
     }
   };
@@ -209,6 +211,7 @@ const DirectApiExample: React.FC = () => {
       const currentUser = await authService.getCurrentUser();
       // console.log('Current user:', currentUser);
     } catch (_error) {
+      globalThis.conditionalLog?.('warn', '[EmptyCatch]', _error);
       // console.error('Direct API call failed:', error);
     }
   };
