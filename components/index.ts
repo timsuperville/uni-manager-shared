@@ -4,6 +4,7 @@
 
 // ── Layout / infrastructure ───────────────────────────────────────────────────
 export { default as LoadingSpinner } from './LoadingSpinner';
+export { SabbathOverlay } from './SabbathOverlay';
 export { default as RoleGuard } from './RoleGuard';
 export { ThemeProvider, useTheme, tokens } from './ThemeProvider';
 export { default as ThemeToggle } from './ThemeToggle';
