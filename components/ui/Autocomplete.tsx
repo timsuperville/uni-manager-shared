@@ -137,25 +137,6 @@ const Autocomplete: React.FC<SelectProps> = ({
         justifyContent: 'space-between',
         width: '100%',
         padding: `${padY} 36px ${padY} 12px`,
-        fontSize,
-        fontFamily: 'var(--font-body)',
-        borderRadius: 'var()',
-        border: error
-          ? '1px solid var()'
-          : isOpen
-            ? '1px solid var()'
-            : '1px solid var(--glass-outline, rgba(255,255,255,0.1))',
-        background: disabled
-          ? 'var(--glass-input-disabled, rgba(255,255,255,0.02))'
-          : 'var(--glass-input, rgba(255,255,255,0.06))',
-        color: hasValue ? 'var(--text-primary)' : 'var(--text-muted)',
-        cursor: disabled ? 'not-allowed' : 'pointer',
-        opacity: disabled ? 0.5 : 1,
-        backdropFilter: 'blur(8px)',
-        boxShadow: isOpen
-          ? '0 0 0 2px var(--primary-glow, hsla(272,65%,62%,0.25))'
-          : 'none',
-        transition: 'border-color 0.15s, box-shadow 0.15s',
         textAlign: 'left',
         position: 'relative'
       };
@@ -259,16 +240,7 @@ const Autocomplete: React.FC<SelectProps> = ({
         style={triggerStyle}
         onClick={handleOpen}
         onKeyDown={handleKeyDown}
-        onMouseEnter={e => {
-          if (!disabled && !isOpen)
-            e.currentTarget.style.border = '1px solid var()';
-        }}
-        onMouseLeave={e => {
-          if (!isOpen)
-            e.currentTarget.style.border = error
-              ? '1px solid var(--accent-rose)'
-              : '1px solid var(--glass-outline, rgba(255,255,255,0.1))';
-        }}
+        className={!isChip ? `lg-input ${error ? 'lg-input-error' : ''}` : ''}
       >
         {isChip ? (
           <>
@@ -433,7 +405,7 @@ const Autocomplete: React.FC<SelectProps> = ({
               width: dropdownPos.width,
               background: 'var(--glass-surface, rgba(15,15,35,0.96))',
               border: '1px solid var(--glass-outline, rgba(255,255,255,0.12))',
-              borderRadius: 'var()',
+              borderRadius: 'var(--radius-sm, 12px)',
               backdropFilter: 'blur(20px) saturate(150%)',
               boxShadow: dropdownPos.flipUp
                 ? '0 -16px 40px rgba(0,0,0,0.5)'
@@ -471,7 +443,7 @@ const Autocomplete: React.FC<SelectProps> = ({
                     fontSize: '12px',
                     fontFamily: 'var(--font-body)',
                     background: 'var(--glass-input, rgba(255,255,255,0.06))',
-                    borderRadius: 'var()',
+                    borderRadius: 'var(--radius-sm, 12px)',
                     color: 'var(--text-primary)',
                     outline: 'none',
                     ...glassBorder

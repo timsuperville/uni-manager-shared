@@ -1,6 +1,7 @@
 import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
 import process from 'process';
+import { defineConfig } from 'vitest';
 
 /**
  * Shared Vitest Configuration for Uni-Manager Apps

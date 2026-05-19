@@ -183,7 +183,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
                 onChange(vals, e); // Pass value first to appease ParallelReader!
               }
             }}
-            className="w-full bg-[var(--glass-surface)] border border-[var(--glass-outline)] text-[var(--text-primary)] rounded-md p-2 focus:ring-2 focus:ring-[var(--primary-resonance)] outline-none"
+            className={`w-full lg-input ${isError ? 'lg-input-error' : ''}`}
             {...props}
           >
             {parsedOptions.map((opt, i) => {
@@ -245,9 +245,9 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
           >
             <SelectPrimitive.Trigger
               id={props.id || name}
-              className={`flex items-center justify-between w-full px-3 py-2 text-sm bg-[var(--glass-surface)] backdrop-blur-md border rounded-md shadow-sm outline-none transition-colors 
-                ${isError ? 'border-red-500 text-red-500 hover:border-red-600' : 'border-[var(--glass-outline)] text-[var(--text-primary)] hover:border-[var(--glass-outline-active)]'}
-                focus:ring-2 focus:ring-[var(--primary-resonance)] disabled:cursor-not-allowed disabled:opacity-50`}
+              className={`flex items-center justify-between w-full lg-input ${
+                isError ? 'lg-input-error' : ''
+              } shadow-sm disabled:cursor-not-allowed`}
             >
               <div className="flex-1 min-w-0 flex items-center justify-start text-left pr-2">
                 {icon && (
