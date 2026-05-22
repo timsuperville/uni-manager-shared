@@ -5,13 +5,19 @@
  * particularly device fingerprint caching.
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, beforeAll } from 'vitest';
 import { generateDeviceFingerprint } from '../../../utils/socialAuth.ts';
 import {
   clearCachedDeviceFingerprint,
   getCachedDeviceFingerprint,
   hasCachedFingerprint
 } from '../../../utils/deviceFingerprintCache.ts';
+
+beforeAll(() => {
+  if (typeof HTMLCanvasElement !== 'undefined') {
+    HTMLCanvasElement.prototype.toDataURL = () => 'data:image/png;base64,mock';
+  }
+});
 
 describe('Auth Performance Benchmarks', () => {
   beforeEach(() => {
