@@ -372,8 +372,8 @@ export function LoginForm({
                 const result = await loginWithGoogle();
                 const res = result as any;
                 if (res.success || res.user) {
-                  onSuccess?.(result as any);
-                  if (redirectPath) navigate(redirectPath, { replace: true });
+                  if (onSuccess) onSuccess(result as any);
+                  else navigate(finalRedirect, { replace: true });
                 }
               } else {
                 console.warn('Google OAuth login method is not available.');
@@ -396,7 +396,7 @@ export function LoginForm({
         <form className="space-y-5 sm:space-y-6" onSubmit={handleLoginSubmit}>
           {/* Error banner */}
           {(error || localError) && (
-            <Alert type="error" message={error || localError} />
+            <Alert type="error" message={error || localError || ''} />
           )}
 
           {/* Email */}
