@@ -73,6 +73,7 @@ export { SectionTabBar } from './SectionTabBar';
 export { Heading } from './Heading';
 export { Text } from './Text';
 export * from './ProgressRing';
+export * from './KV';
 
 // TextArea — alias for Textarea (capitalization variant used in groups feature)
 export { Textarea as TextArea } from './Input';
