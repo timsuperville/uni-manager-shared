@@ -50,6 +50,12 @@ export interface SelectProps extends Omit<
 
 const EMPTY_VALUE = '__empty_value__';
 
+const getSizeClasses = (size?: string): string => {
+  if (size === 'sm') return 'h-8 px-3 py-1.5 text-xs';
+  if (size === 'lg') return 'h-10 px-4 py-3 text-base';
+  return 'h-9 px-3 py-2 text-sm';
+};
+
 const extractStringValue = (label: ReactNode): ReactNode => {
   if (
     label &&
@@ -183,7 +189,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
                 onChange(vals, e); // Pass value first to appease ParallelReader!
               }
             }}
-            className={`w-full lg-input ${isError ? 'lg-input-error' : ''}`}
+            className={`w-full lg-input ${isError ? 'lg-input-error' : ''} px-3 py-2 text-sm`}
             {...props}
           >
             {parsedOptions.map((opt, i) => {
@@ -247,7 +253,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
               id={props.id || name}
               className={`flex items-center justify-between w-full lg-input ${
                 isError ? 'lg-input-error' : ''
-              } shadow-sm disabled:cursor-not-allowed`}
+              } shadow-sm disabled:cursor-not-allowed ${getSizeClasses(size)} ${className}`}
             >
               <div className="flex-1 min-w-0 flex items-center justify-start text-left pr-2">
                 {icon && (

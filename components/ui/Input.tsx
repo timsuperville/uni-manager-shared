@@ -26,9 +26,9 @@ interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement
 }
 
 const getSizeClasses = (size: InputSize): string => {
-  if (size === 'sm') return 'px-3 py-1.5 text-xs';
-  if (size === 'lg') return 'px-4 py-3 text-base';
-  return 'px-3 py-2 text-sm';
+  if (size === 'sm') return 'h-8 px-3 py-1.5 text-xs';
+  if (size === 'lg') return 'h-10 px-4 py-3 text-base';
+  return 'h-9 px-3 py-2 text-sm';
 };
 
 const hasError = (error?: boolean | string) => !!error;

@@ -81,8 +81,15 @@ export function useApiQuery<T>(
 export function useApiMutation<TData, TVariables>(
   mutationFn: (variables: TVariables) => Promise<TData>,
   options?: {
-    onSuccess?: (data: TData, variables: TVariables) => void;
-    onError?: (error: Error, variables: TVariables) => void;
+    onSuccess?: (data: TData, variables: TVariables, context?: any) => void;
+    onError?: (error: Error, variables: TVariables, context?: any) => void;
+    onMutate?: (variables: TVariables) => Promise<any> | any;
+    onSettled?: (
+      data: TData | undefined,
+      error: Error | null,
+      variables: TVariables,
+      context?: any
+    ) => void;
     mutationKey?: string;
     mutationName?: string; // e.g., 'ministry.create'
   }
