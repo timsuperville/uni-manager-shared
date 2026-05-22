@@ -18,7 +18,7 @@ let mockDoc = null;
 let mockStatus = 'disconnected';
 let mockAwareness = [];
 
-vi.mock('./useSync.js', () => ({
+vi.mock('../useSync.js', () => ({
   useSync: vi.fn(roomName => {
     if (!roomName) {
       return {
@@ -38,8 +38,8 @@ vi.mock('./useSync.js', () => ({
 }));
 
 // Import AFTER vi.mock so the factory is applied
-import { useProjectSync } from './useProjectSync.js';
-import { useSync } from './useSync.js';
+import { useProjectSync } from '../useProjectSync.js';
+import { useSync } from '../useSync.js';
 
 const SEED_TASKS = [
   {

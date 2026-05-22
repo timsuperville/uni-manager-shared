@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { collectSystemContext } from './collectSystemContext';
+import { collectSystemContext } from '../collectSystemContext';
 
 describe('collectSystemContext', () => {
   beforeEach(() => {

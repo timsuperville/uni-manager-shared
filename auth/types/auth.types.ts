@@ -73,6 +73,14 @@ export interface UserPreferences {
   theme: 'light' | 'dark' | 'auto';
   language: string;
   notifications: NotificationPreferences;
+  sabbathSequence?: {
+    isActive: boolean;
+    autoReplyMessage?: string;
+    suppressNotifications?: boolean;
+    lockAppUI: boolean;
+    scheduledStartDay: number | null;
+    scheduledStartTime: string | null;
+  };
 }
 
 export interface NotificationPreferences {

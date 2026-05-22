@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseChordPro, ParsedChordPro } from './parseChordPro';
+import { parseChordPro } from '../parseChordPro';
 
 describe('parseChordPro', () => {
   it('should extract title, artist, subtitle, key, tempo, and time signature', () => {

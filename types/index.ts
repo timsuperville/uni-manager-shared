@@ -5,6 +5,105 @@
  * now expressed as TypeScript interfaces (previously JSDoc @typedefs).
  */
 
+// ─── Pagination ───────────────────────────────────────────────────────────────
+
+export interface PaginationParams {
+  page?: number;
+  limit?: number;
+  sort?: string;
+  order?: 'asc' | 'desc';
+}
+
+export interface PaginatedResult<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+// ─── Skill Resonance Engine (ECO-R-56) ────────────────────────────────────────
+
+/**
+ * Proficiency scale used across both Work and Church skill domains.
+ * Enables the Talent Discovery bridge to compare professional certifications
+ * against equivalent ministry skill requirements.
+ */
+export type SkillProficiency =
+  | 'beginner'
+  | 'intermediate'
+  | 'advanced'
+  | 'expert';
+
+/**
+ * Canonical skill categories shared between the Professional Merit graph
+ * and the Ministry Skill graph. New categories must be added here first.
+ */
+export type SkillCategory =
+  | 'audio_visual' // Sound engineering, lighting, livestream production
+  | 'music' // Instrumental, vocal, arrangement
+  | 'teaching' // Preaching, facilitation, curriculum
+  | 'administration' // Scheduling, finance, communications
+  | 'technology' // Software, infrastructure, web
+  | 'counselling' // Pastoral care, crisis support
+  | 'hospitality' // Events, guest services, food
+  | 'leadership' // Team management, vision casting
+  | 'creative' // Design, writing, media production
+  | 'physical' // Facilities, construction, maintenance
+  | 'other';
+
+/**
+ * ProfessionalMerit — A verified skill or certification in the Work domain.
+ * Sourced from the Merit Graph (MeritGraphPage) and exposed via the
+ * Skill Resonance Engine for cross-domain talent discovery.
+ */
+export interface ProfessionalMerit {
+  id: string;
+  name: string;
+  category: SkillCategory;
+  proficiencyLevel: SkillProficiency;
+  /** ISO date string of when this merit was verified/awarded. */
+  verifiedAt?: string;
+  /** External certification body, institution, or endorser. */
+  issuedBy?: string;
+  /** Optional expiry for credentials that lapse (e.g. OSHA-30). */
+  expiresAt?: string;
+  tags?: string[];
+}
+
+/**
+ * MinistrySkill — A skill requirement or declaration in the Church domain.
+ * Stored on Ministry documents and used by the CAHA talent-discovery bridge
+ * to match professionals with appropriate ministry roles.
+ */
+export interface MinistrySkill {
+  id: string;
+  name: string;
+  domain: SkillCategory;
+  minimumProficiency: SkillProficiency;
+  /** Whether this skill is required (blocker) vs preferred (nice-to-have). */
+  isRequired: boolean;
+  /** Human-readable description of what the skill is used for in this ministry. */
+  description?: string;
+}
+
+/**
+ * SkillResonanceMap — A single mapping entry produced by the Skill Resonance Engine.
+ * Maps one ProfessionalMerit to a compatible MinistrySkill with a resonance score.
+ *
+ * resonanceScore 0–1:
+ *   1.0  = exact category + proficiency match
+ *   0.6+ = category match, proficiency one level lower
+ *   < 0.5 = partial category overlap only
+ */
+export interface SkillResonanceMap {
+  professionalMeritId: string;
+  ministrySkillId: string;
+  ministryId: string;
+  resonanceScore: number;
+  matchReason: string;
+}
+
 // ─── Auth / Identity ──────────────────────────────────────────────────────────
 
 export type AppType =

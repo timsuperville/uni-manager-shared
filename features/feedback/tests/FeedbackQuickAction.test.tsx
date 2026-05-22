@@ -1,4 +1,4 @@
-﻿/**
+/**
  * FeedbackQuickAction.test.jsx
  *
  * Tests for the shared FeedbackQuickAction component focusing on:
@@ -24,8 +24,8 @@ import { MemoryRouter } from 'react-router-dom';
 import {
   FeedbackQuickAction,
   submitFeedbackSilently
-} from './FeedbackQuickAction.tsx';
-import { AuthContext } from '../../auth/context/AuthContext.tsx';
+} from '../FeedbackQuickAction';
+import { AuthContext } from '../../../auth/context/AuthContext';
 
 // â”€â”€â”€ Mocks â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
