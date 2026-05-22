@@ -141,6 +141,36 @@ export function LoginForm({
     else if (mfaSetupRequired) setCurrentStep('mfa-setup');
   }, [mfaRequired, mfaSetupRequired, enableMFA]);
 
+  // Sync autofilled/password manager filled credentials to React state
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const emailEl = document.getElementById(
+        'login-email'
+      ) as HTMLInputElement | null;
+      const passwordEl = document.getElementById(
+        'login-password'
+      ) as HTMLInputElement | null;
+
+      if (emailEl && passwordEl) {
+        const domEmail = emailEl.value;
+        const domPassword = passwordEl.value;
+
+        if (
+          (domEmail && domEmail !== formData.email) ||
+          (domPassword && domPassword !== formData.password)
+        ) {
+          setFormData(prev => ({
+            ...prev,
+            email: domEmail || prev.email,
+            password: domPassword || prev.password
+          }));
+        }
+      }
+    }, 500);
+
+    return () => clearInterval(timer);
+  }, [formData.email, formData.password]);
+
   // ─── Handlers ────────────────────────────────────────────────────────────────
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -153,11 +183,40 @@ export function LoginForm({
   const handleLoginSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     clearError?.();
+    setLocalError(null);
+
+    // Fallback DOM extraction for browser / password manager auto-fills
+    const emailEl = document.getElementById(
+      'login-email'
+    ) as HTMLInputElement | null;
+    const passwordEl = document.getElementById(
+      'login-password'
+    ) as HTMLInputElement | null;
+
+    const emailVal = (emailEl?.value || formData.email).trim();
+    const passwordVal = passwordEl?.value || formData.password;
+
+    if (!emailVal) {
+      setLocalError('Email address is required.');
+      return;
+    }
+    const emailValidation = validateEmail(emailVal);
+    if (!emailValidation.isValid) {
+      setLocalError(
+        emailValidation.errors.email || 'Please enter a valid email address.'
+      );
+      return;
+    }
+    if (!passwordVal) {
+      setLocalError('Password is required.');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const result = await login({
-        email: formData.email.trim(),
-        password: formData.password,
+        email: emailVal,
+        password: passwordVal,
         rememberMe: formData.rememberMe,
         deviceInfo: { fingerprint: deviceFingerprint || undefined },
         appType: appType as Parameters<typeof login>[0]['appType']
@@ -414,7 +473,7 @@ export function LoginForm({
           <div className="pt-1">
             <AuthButton
               type="submit"
-              disabled={!isFormValid || isFormLoading}
+              disabled={isFormLoading}
               loading={isFormLoading}
               variant="primary"
             >
