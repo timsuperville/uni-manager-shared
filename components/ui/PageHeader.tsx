@@ -39,19 +39,17 @@ export function PageHeader({
   if (image) {
     const heightClass = IMAGE_HEIGHT[size] ?? IMAGE_HEIGHT.md;
     return (
-      <div
-        className={`relative overflow-hidden rounded-xl ${heightClass} ${className}`}
-      >
+      <div className={`relative ${heightClass} ${className}`}>
         <img
           src={image}
           alt={title}
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full object-cover rounded-xl"
           onError={e => {
             e.currentTarget.style.display = 'none';
           }}
         />
         <div
-          className="absolute inset-0"
+          className="absolute inset-0 rounded-xl"
           style={{
             background:
               'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.2) 60%, transparent 100%)'

@@ -304,7 +304,14 @@ export class AuthInterceptor {
         baseURL: this.axiosInstance?.defaults?.baseURL
       });
 
-      const response = await refreshAxios.post(this.config.refreshEndpoint, {
+      let endpoint = this.config.refreshEndpoint;
+      if (endpoint.startsWith('/api/v1')) {
+        endpoint = endpoint.substring(7);
+      } else if (endpoint.startsWith('api/v1')) {
+        endpoint = endpoint.substring(6);
+      }
+
+      const response = await refreshAxios.post(endpoint, {
         refreshToken: this.tokens?.refreshToken
       });
 

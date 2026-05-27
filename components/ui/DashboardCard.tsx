@@ -265,7 +265,7 @@ const StatCard: React.FC<StatCardProps> = ({
         )
       )}
       <div className="flex-1 min-w-0 flex items-center justify-between gap-2">
-        <div className="flex items-baseline gap-2 truncate">
+        <div className="flex items-baseline gap-2 flex-wrap">
           <span
             className="text-base font-bold leading-none"
             style={{
@@ -276,7 +276,7 @@ const StatCard: React.FC<StatCardProps> = ({
             {value}
           </span>
           <span
-            className="text-xs font-medium truncate leading-none"
+            className="text-xs font-medium leading-tight"
             style={{ color: 'var(--text-secondary)' }}
           >
             {resolvedTitle}

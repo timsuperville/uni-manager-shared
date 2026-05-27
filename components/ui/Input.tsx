@@ -49,6 +49,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       helperText,
       label,
       icon,
+      name,
       ...props
     },
     ref
@@ -56,6 +57,9 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     const errorMsg = typeof error === 'string' ? error : undefined;
     const isError = hasError(error);
     const showHelper = errorMsg || helperText;
+
+    const uniqueId = React.useId();
+    const inputId = props.id || name || uniqueId;
 
     const inputEl = (
       <div className={`relative flex items-center${icon ? '' : ''}`}>
@@ -71,6 +75,8 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           value={value}
           onChange={onChange}
           disabled={disabled}
+          id={inputId}
+          name={name}
           className={`block w-full lg-input ${isError ? 'lg-input-error' : ''} shadow-sm ${getSizeClasses(size)} ${icon ? 'pl-10' : ''} ${className}`}
           {...props}
         />
@@ -83,6 +89,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       <div className="w-full">
         {label && (
           <label
+            htmlFor={inputId}
             className="block text-sm font-medium mb-1"
             style={{ color: 'var(--text-secondary)' }}
           >
@@ -118,6 +125,7 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
       fullWidth: _fw,
       helperText,
       label,
+      name,
       ...props
     },
     ref
@@ -126,9 +134,14 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
     const isError = hasError(error);
     const showHelper = errorMsg || helperText;
 
+    const uniqueId = React.useId();
+    const textareaId = props.id || name || uniqueId;
+
     const textareaEl = (
       <textarea
         ref={ref}
+        id={textareaId}
+        name={name}
         placeholder={placeholder}
         value={value}
         onChange={onChange}
@@ -145,6 +158,7 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
       <div className="w-full">
         {label && (
           <label
+            htmlFor={textareaId}
             className="block text-sm font-medium mb-1"
             style={{ color: 'var(--text-secondary)' }}
           >

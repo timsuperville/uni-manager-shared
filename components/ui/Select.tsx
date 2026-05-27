@@ -165,11 +165,15 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
       onChange(event, mappedVal); // Pass both!
     };
 
+    const uniqueId = React.useId();
+    const selectId = props.id || name || uniqueId;
+
     if (multiple) {
       return (
         <div className={className ? className : 'w-full'}>
           {label && (
             <label
+              htmlFor={selectId}
               className="block text-sm font-medium mb-1"
               style={{ color: 'var(--text-secondary)' }}
             >
@@ -177,6 +181,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
             </label>
           )}
           <select
+            id={selectId}
             multiple
             value={value as string[]}
             onChange={e => {
@@ -196,10 +201,14 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
               if ('options' in opt) {
                 return (
                   <optgroup key={i} label={opt.label as string}>
-                    {opt.options.map(subOpt => {
+                    {opt.options.map((subOpt, subIdx) => {
                       return (
                         <option
-                          key={subOpt.value}
+                          key={
+                            subOpt.value === ''
+                              ? `empty-${i}-${subIdx}`
+                              : `${subOpt.value}-${i}-${subIdx}`
+                          }
                           value={subOpt.value}
                           disabled={subOpt.disabled}
                         >
@@ -212,7 +221,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
               }
               return (
                 <option
-                  key={opt.value}
+                  key={opt.value === '' ? `empty-${i}` : `${opt.value}-${i}`}
                   value={opt.value}
                   disabled={opt.disabled}
                 >
@@ -236,6 +245,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
       <div className={className ? className : 'w-full'}>
         {label && (
           <label
+            htmlFor={selectId}
             className="block text-sm font-medium mb-1"
             style={{ color: 'var(--text-secondary)' }}
           >
@@ -248,9 +258,11 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
             onValueChange={handleValueChange}
             disabled={props.disabled}
             name={name}
+            autoComplete={props.autoComplete}
           >
             <SelectPrimitive.Trigger
-              id={props.id || name}
+              id={selectId}
+              aria-label={props['aria-label']}
               className={`flex items-center justify-between w-full lg-input ${
                 isError ? 'lg-input-error' : ''
               } shadow-sm disabled:cursor-not-allowed ${getSizeClasses(size)} ${className}`}
@@ -284,10 +296,12 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
                           <SelectPrimitive.Label className="px-3 py-1.5 text-xs font-semibold text-[var(--text-muted)]">
                             {opt.label}
                           </SelectPrimitive.Label>
-                          {opt.options.map(subOpt => (
+                          {opt.options.map((subOpt, subIdx) => (
                             <SelectPrimitive.Item
                               key={
-                                subOpt.value === '' ? EMPTY_VALUE : subOpt.value
+                                subOpt.value === ''
+                                  ? `empty-${i}-${subIdx}`
+                                  : `${subOpt.value}-${i}-${subIdx}`
                               }
                               value={
                                 subOpt.value === '' ? EMPTY_VALUE : subOpt.value
@@ -310,7 +324,9 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
                     }
                     return (
                       <SelectPrimitive.Item
-                        key={opt.value === '' ? EMPTY_VALUE : opt.value}
+                        key={
+                          opt.value === '' ? `empty-${i}` : `${opt.value}-${i}`
+                        }
                         value={opt.value === '' ? EMPTY_VALUE : opt.value}
                         disabled={opt.disabled}
                         className="relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm text-[var(--text-primary)] outline-none focus:bg-[var(--primary-resonance)] focus:text-white data-disabled:pointer-events-none data-disabled:opacity-50"

@@ -10,6 +10,7 @@ interface ToggleProps extends Omit<
   label?: string;
   disabled?: boolean;
   className?: string;
+  id?: string;
 }
 
 /** Toggle — Liquid Glass accessible switch. Brand colour via --primary-resonance. */
@@ -19,6 +20,7 @@ export function Toggle({
   label,
   disabled = false,
   className = '',
+  id,
   ...props
 }: ToggleProps) {
   const handleClick = () => {
@@ -36,10 +38,14 @@ export function Toggle({
       className={`flex items-center gap-2 ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} ${className}`}
       {...props}
     >
-      <span
+      <button
+        id={id}
+        type="button"
         role="switch"
         aria-checked={checked}
         aria-disabled={disabled}
+        aria-label={props['aria-label'] || label}
+        aria-labelledby={props['aria-labelledby']}
         tabIndex={disabled ? -1 : 0}
         onClick={handleClick}
         onKeyDown={handleKey}
@@ -56,6 +62,8 @@ export function Toggle({
           cursor: disabled ? 'not-allowed' : 'pointer',
           flexShrink: 0,
           outline: 'none',
+          border: 'none',
+          padding: 0,
           ...glassBorder
         }}
       >
@@ -72,7 +80,7 @@ export function Toggle({
             boxShadow: '0 1px 3px rgba(0,0,0,0.3)'
           }}
         />
-      </span>
+      </button>
       {label && (
         <span
           style={{

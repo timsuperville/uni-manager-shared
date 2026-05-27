@@ -169,7 +169,17 @@ export function useAuthActions(
       try {
         updateState({ isLoading: true, error: null });
         const result = await authService.signup(userData);
-        updateState({ isLoading: false });
+        if (result && !result['requiresVerification']) {
+          const newState = {
+            user: result['user'],
+            isAuthenticated: true,
+            isLoading: false
+          };
+          updateState(newState);
+          notifyStateChange(newState);
+        } else {
+          updateState({ isLoading: false });
+        }
         return result;
       } catch (error) {
         const errorMessage =

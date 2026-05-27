@@ -114,6 +114,67 @@ const SignupForm = ({
     }
   }, [formData.password]);
 
+  // Sync autofilled/password manager filled credentials to React state
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const firstNameEl = document.getElementById(
+        'firstName'
+      ) as HTMLInputElement | null;
+      const lastNameEl = document.getElementById(
+        'lastName'
+      ) as HTMLInputElement | null;
+      const emailEl = document.getElementById(
+        'email'
+      ) as HTMLInputElement | null;
+      const passwordEl = document.getElementById(
+        'password'
+      ) as HTMLInputElement | null;
+      const confirmPasswordEl = document.getElementById(
+        'confirmPassword'
+      ) as HTMLInputElement | null;
+
+      if (
+        firstNameEl &&
+        lastNameEl &&
+        emailEl &&
+        passwordEl &&
+        confirmPasswordEl
+      ) {
+        const domFirstName = firstNameEl.value;
+        const domLastName = lastNameEl.value;
+        const domEmail = emailEl.value;
+        const domPassword = passwordEl.value;
+        const domConfirmPassword = confirmPasswordEl.value;
+
+        if (
+          (domFirstName && domFirstName !== formData.firstName) ||
+          (domLastName && domLastName !== formData.lastName) ||
+          (domEmail && domEmail !== formData.email) ||
+          (domPassword && domPassword !== formData.password) ||
+          (domConfirmPassword &&
+            domConfirmPassword !== formData.confirmPassword)
+        ) {
+          setFormData(prev => ({
+            ...prev,
+            firstName: domFirstName || prev.firstName,
+            lastName: domLastName || prev.lastName,
+            email: domEmail || prev.email,
+            password: domPassword || prev.password,
+            confirmPassword: domConfirmPassword || prev.confirmPassword
+          }));
+        }
+      }
+    }, 500);
+
+    return () => clearInterval(timer);
+  }, [
+    formData.firstName,
+    formData.lastName,
+    formData.email,
+    formData.password,
+    formData.confirmPassword
+  ]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({

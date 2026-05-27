@@ -395,8 +395,6 @@ const Autocomplete: React.FC<SelectProps> = ({
       {portalRoot &&
         ReactDOM.createPortal(
           <div
-            role="listbox"
-            aria-multiselectable={multiple}
             style={{
               position: 'absolute',
               zIndex: 99999,
@@ -433,6 +431,10 @@ const Autocomplete: React.FC<SelectProps> = ({
                 <input
                   ref={searchRef}
                   type="text"
+                  id={`${id || name || 'autocomplete'}-search`}
+                  name={`${name || 'autocomplete'}-search`}
+                  autoComplete="off"
+                  aria-label="Search options"
                   value={searchTerm}
                   onChange={handleSearchChange}
                   onKeyDown={handleKeyDown}
@@ -454,6 +456,8 @@ const Autocomplete: React.FC<SelectProps> = ({
 
             <ul
               ref={listRef}
+              role="listbox"
+              aria-multiselectable={multiple}
               style={{ listStyle: 'none', margin: 0, padding: '4px 0' }}
             >
               {/* Clear row */}
@@ -592,6 +596,7 @@ const Autocomplete: React.FC<SelectProps> = ({
       {/* Hidden native select for form semantics */}
       <select
         name={name}
+        autoComplete="off"
         value={
           multiple
             ? Array.isArray(value)

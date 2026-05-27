@@ -195,9 +195,17 @@ export class ApiClient {
     data?: unknown,
     options: RequestOptions = {}
   ): Promise<ApiResponse<T>> {
+    // Prevent double /api/v1 prefixing since the default baseURL already includes it
+    let cleanEndpoint = endpoint;
+    if (cleanEndpoint.startsWith('/api/v1')) {
+      cleanEndpoint = cleanEndpoint.substring(7); // remove '/api/v1'
+    } else if (cleanEndpoint.startsWith('api/v1')) {
+      cleanEndpoint = cleanEndpoint.substring(6); // remove 'api/v1'
+    }
+
     const requestConfig: AxiosRequestConfig = {
       method,
-      url: endpoint,
+      url: cleanEndpoint,
       data,
       timeout: options.timeout || this.config.timeout,
       headers: options.headers as RawAxiosRequestHeaders,

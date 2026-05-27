@@ -9,6 +9,7 @@ export const CONGREGATION_SIZES = [
 export const TIMEZONES = [
   { label: 'UTC', value: 'UTC' },
   { label: 'America/New_York (ET)', value: 'America/New_York' },
+  { label: 'America/Toronto (ET)', value: 'America/Toronto' },
   { label: 'America/Chicago (CT)', value: 'America/Chicago' },
   { label: 'America/Denver (MT)', value: 'America/Denver' },
   { label: 'America/Los_Angeles (PT)', value: 'America/Los_Angeles' },

@@ -182,6 +182,13 @@ export class AuthService extends BaseService {
   async logout(): Promise<void> {
     try {
       await this.post<void>('/logout', {}, { cache: false, retry: false });
+    } catch (error: any) {
+      // If the token is already expired (401) or invalid (403), ignore the error
+      // since the goal is to clear local state anyway.
+      const status = error?.response?.status || error?.statusCode;
+      if (status !== 401 && status !== 403 && import.meta.env?.DEV) {
+        console.warn('[AuthService] Logout endpoint failed:', error.message);
+      }
     } finally {
       this.client.clearAuthToken();
     }
