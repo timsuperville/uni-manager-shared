@@ -68,6 +68,8 @@ export { Pagination } from './Pagination';
 export { StatsStrip } from './StatsStrip';
 export { PageHeader } from './PageHeader';
 export { SectionTabBar } from './SectionTabBar';
+export { PageSidebarNav } from './PageSidebarNav';
+export type { PageSidebarNavProps, PageSidebarNavItem } from './PageSidebarNav';
 
 // Typography primitives
 export { Heading } from './Heading';
