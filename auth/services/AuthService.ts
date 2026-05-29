@@ -12,6 +12,7 @@
 import { BaseService, ValidationSchema } from '../../api/services/BaseService';
 import { ApiClient } from '../../api/core/ApiClient';
 import type { AxiosProgressEvent } from 'axios';
+import { TokenStorage } from '../utils/TokenStorage';
 import {
   User,
   LoginRequest,
@@ -83,6 +84,15 @@ export class AuthService extends BaseService {
     // Store token in interceptor so subsequent requests carry the Bearer header
     this.client.setAuthToken(response.accessToken);
 
+    const storageNamespace = this.client.getConfig().storageNamespace || 'uni';
+    const ts = new TokenStorage(storageNamespace);
+    ts.setTokens({
+      accessToken: response.accessToken,
+      refreshToken: response.refreshToken,
+      user: response.user,
+      persistent: credentials.rememberMe
+    });
+
     return response;
   }
 
@@ -100,6 +110,15 @@ export class AuthService extends BaseService {
 
     // Store token in interceptor so subsequent requests carry the Bearer header
     this.client.setAuthToken(response.accessToken);
+
+    const storageNamespace = this.client.getConfig().storageNamespace || 'uni';
+    const ts = new TokenStorage(storageNamespace);
+    ts.setTokens({
+      accessToken: response.accessToken,
+      refreshToken: response.refreshToken,
+      user: response.user,
+      persistent: true
+    });
 
     return response;
   }
@@ -151,6 +170,16 @@ export class AuthService extends BaseService {
     });
 
     this.client.setAuthToken(response.accessToken);
+
+    const storageNamespace = this.client.getConfig().storageNamespace || 'uni';
+    const ts = new TokenStorage(storageNamespace);
+    ts.setTokens({
+      accessToken: response.accessToken,
+      refreshToken: response.refreshToken,
+      user: response.user,
+      persistent: true
+    });
+
     return response;
   }
 
@@ -220,6 +249,15 @@ export class AuthService extends BaseService {
       { cache: false }
     );
     this.client.setAuthToken(response.accessToken);
+
+    const storageNamespace = this.client.getConfig().storageNamespace || 'uni';
+    const ts = new TokenStorage(storageNamespace);
+    ts.setTokens({
+      accessToken: response.accessToken,
+      refreshToken: response.refreshToken,
+      user: response.user
+    });
+
     return response;
   }
 

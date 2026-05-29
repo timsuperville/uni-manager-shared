@@ -142,6 +142,10 @@ export class AuthInterceptor {
 
     // Handle 401 unauthorized errors — but only attempt refresh once per request
     if (error.response?.status === 401 && !originalRequest._retry) {
+      // Skip token refresh logic for logout requests to prevent infinite auth:failure loops
+      if (originalRequest.url?.endsWith('/logout')) {
+        return Promise.reject(error);
+      }
       if (this.isRefreshing) {
         try {
           const token = await new Promise<string>((resolve, reject) => {
@@ -305,10 +309,19 @@ export class AuthInterceptor {
       });
 
       let endpoint = this.config.refreshEndpoint;
-      if (endpoint.startsWith('/api/v1')) {
+      if (endpoint.startsWith('/api/v1/')) {
+        endpoint = endpoint.substring(8);
+      } else if (endpoint.startsWith('/api/v1')) {
+        endpoint = endpoint.substring(7);
+      } else if (endpoint.startsWith('api/v1/')) {
         endpoint = endpoint.substring(7);
       } else if (endpoint.startsWith('api/v1')) {
         endpoint = endpoint.substring(6);
+      }
+
+      // Ensure endpoint doesn't start with a slash so Axios appends it to baseURL
+      if (endpoint.startsWith('/')) {
+        endpoint = endpoint.substring(1);
       }
 
       const response = await refreshAxios.post(endpoint, {

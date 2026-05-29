@@ -1,4 +1,4 @@
-﻿/**
+/**
  * FeedbackModal â€” Centered dialog (bottom sheet on mobile).
  * Rendered exclusively via FeedbackModalPortal to document.body so that
  * position:fixed inset:0 always resolves to the full viewport, even when the
@@ -117,6 +117,15 @@ function FeedbackModal({
     },
     []
   );
+
+  // Close on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
 
   // Stable appName â€” derived once from props, not inside handleSubmit, to keep the
   // systemContext consistent between the preview (ctx below) and the submission payload.
@@ -385,13 +394,13 @@ function FeedbackModal({
                   [
                     {
                       value: 'positive' as const,
-                      emoji: 'ðŸ˜Š',
+                      emoji: '😊',
                       label: 'Great'
                     },
-                    { value: 'neutral' as const, emoji: 'ðŸ˜', label: 'Okay' },
+                    { value: 'neutral' as const, emoji: '😐', label: 'Okay' },
                     {
                       value: 'negative' as const,
-                      emoji: 'ðŸ˜¤',
+                      emoji: '😫',
                       label: 'Frustrated'
                     }
                   ] as const
@@ -465,17 +474,17 @@ function FeedbackModal({
                   [
                     {
                       value: 'bug_report' as FeedbackType,
-                      emoji: 'ðŸ›',
+                      emoji: '🐛',
                       label: 'Bug'
                     },
                     {
                       value: 'feature_request' as FeedbackType,
-                      emoji: 'ðŸ’¡',
+                      emoji: '💡',
                       label: 'Feature'
                     },
                     {
                       value: 'general' as FeedbackType,
-                      emoji: 'ðŸ’¬',
+                      emoji: '💬',
                       label: 'Other'
                     }
                   ] as const
@@ -588,7 +597,7 @@ function FeedbackModal({
                     description: e.target.value.slice(0, 1000)
                   })
                 }
-                placeholder="Describe your feedback â€” steps to reproduce, expected vs actual behavior, etc."
+                placeholder="Describe your feedback — steps to reproduce, expected vs actual behavior, etc."
                 rows={4}
                 required={!feedback.sentiment}
                 maxLength={1000}
@@ -728,7 +737,7 @@ function FeedbackModal({
                   flexShrink: 0
                 }}
               >
-                {isSubmitting ? 'Sendingâ€¦' : 'Send Feedback'}
+                {isSubmitting ? 'Sending…' : 'Send Feedback'}
               </button>
             </div>
           </form>
