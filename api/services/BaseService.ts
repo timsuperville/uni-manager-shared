@@ -108,7 +108,15 @@ export abstract class BaseService {
     const validatedData = { ...data };
 
     for (const [field, rules] of Object.entries(schema)) {
-      const value = (data as Record<string, unknown>)[field];
+      const value = field.includes('.')
+        ? field
+            .split('.')
+            .reduce(
+              (acc: any, part) =>
+                acc && typeof acc === 'object' ? acc[part] : undefined,
+              data
+            )
+        : (data as Record<string, unknown>)[field];
 
       // Check required fields
       if (
