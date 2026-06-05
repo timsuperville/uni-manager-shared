@@ -504,11 +504,21 @@ export class AuthInterceptor {
 
   private removeTokensFromStorage(): void {
     try {
-      const storage = this.getStorage();
+      if (typeof window !== 'undefined') {
+        // Clear from both storage locations to prevent fallback loops
+        window.localStorage.removeItem(this.config.tokenKey);
+        window.localStorage.removeItem(this.config.refreshTokenKey);
+        window.localStorage.removeItem(`${this.config.tokenKey}_expires`);
 
-      storage.removeItem(this.config.tokenKey);
-      storage.removeItem(this.config.refreshTokenKey);
-      storage.removeItem(`${this.config.tokenKey}_expires`);
+        window.sessionStorage.removeItem(this.config.tokenKey);
+        window.sessionStorage.removeItem(this.config.refreshTokenKey);
+        window.sessionStorage.removeItem(`${this.config.tokenKey}_expires`);
+      } else {
+        const storage = this.getStorage();
+        storage.removeItem(this.config.tokenKey);
+        storage.removeItem(this.config.refreshTokenKey);
+        storage.removeItem(`${this.config.tokenKey}_expires`);
+      }
     } catch (error) {
       if (import.meta.env?.DEV) {
         console.warn(

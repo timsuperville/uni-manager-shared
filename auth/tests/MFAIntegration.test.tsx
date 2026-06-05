@@ -22,7 +22,8 @@ describe('MFA Integration Scenarios', () => {
       delete: vi.fn(),
       setAuthToken: vi.fn(),
       clearAuthToken: vi.fn(),
-      hasAuthToken: vi.fn().mockReturnValue(false)
+      hasAuthToken: vi.fn().mockReturnValue(false),
+      getConfig: vi.fn().mockReturnValue({ storageNamespace: 'uni' })
     };
 
     // Create service instances

@@ -82,7 +82,11 @@ export class AuthService extends BaseService {
     });
 
     // Store token in interceptor so subsequent requests carry the Bearer header
-    this.client.setAuthToken(response.accessToken);
+    this.client.setAuthToken(
+      response.accessToken,
+      response.refreshToken,
+      response.expiresIn
+    );
 
     const storageNamespace = this.client.getConfig().storageNamespace || 'uni';
     const ts = new TokenStorage(storageNamespace);
@@ -109,7 +113,11 @@ export class AuthService extends BaseService {
     );
 
     // Store token in interceptor so subsequent requests carry the Bearer header
-    this.client.setAuthToken(response.accessToken);
+    this.client.setAuthToken(
+      response.accessToken,
+      response.refreshToken,
+      response.expiresIn
+    );
 
     const storageNamespace = this.client.getConfig().storageNamespace || 'uni';
     const ts = new TokenStorage(storageNamespace);
@@ -169,7 +177,11 @@ export class AuthService extends BaseService {
       cache: false
     });
 
-    this.client.setAuthToken(response.accessToken);
+    this.client.setAuthToken(
+      response.accessToken,
+      response.refreshToken,
+      response.expiresIn
+    );
 
     const storageNamespace = this.client.getConfig().storageNamespace || 'uni';
     const ts = new TokenStorage(storageNamespace);
@@ -248,7 +260,11 @@ export class AuthService extends BaseService {
       { refreshToken },
       { cache: false }
     );
-    this.client.setAuthToken(response.accessToken);
+    this.client.setAuthToken(
+      response.accessToken,
+      response.refreshToken,
+      response.expiresIn
+    );
 
     const storageNamespace = this.client.getConfig().storageNamespace || 'uni';
     const ts = new TokenStorage(storageNamespace);

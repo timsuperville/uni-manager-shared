@@ -263,14 +263,21 @@ const AuthLayout = ({
               <div className="animate-[fadeInDown_0.5s_ease_both]">
                 <div className="inline-flex items-center gap-3 mb-2">
                   <div
-                    className="w-9 h-9 rounded-xl shadow-lg flex items-center justify-center"
+                    className="w-9 h-9 rounded-xl shadow-lg flex items-center justify-center text-white"
                     style={{
                       background: 'hsla(0,0%,100%,0.15)',
                       backdropFilter: 'blur(12px)',
                       border: '1px solid hsla(0,0%,100%,0.25)'
                     }}
                     aria-hidden="true"
-                  />
+                  >
+                    {React.isValidElement(appConfig.ui?.icon)
+                      ? React.cloneElement(appConfig.ui.icon, {
+                          size: 20,
+                          style: { color: 'white' }
+                        } as any)
+                      : appConfig.ui?.icon}
+                  </div>
                   <span
                     className="auth-layout-headline text-white/90 font-bold text-lg tracking-tight"
                     style={{ fontFamily: "'Outfit', system-ui, sans-serif" }}

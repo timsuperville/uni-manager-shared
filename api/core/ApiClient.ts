@@ -354,8 +354,8 @@ export class ApiClient {
   /**
    * Update authentication token
    */
-  setAuthToken(token: string): void {
-    this.authInterceptor.setToken(token);
+  setAuthToken(token: string, refreshToken?: string, expiresIn?: number): void {
+    this.authInterceptor.setToken(token, refreshToken, expiresIn);
   }
 
   /**
