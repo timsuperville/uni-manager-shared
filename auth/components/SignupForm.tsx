@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   validateEmail,
   validatePassword,
@@ -67,12 +67,30 @@ const SignupForm = ({
   onPrivacyClick
 }: SignupFormProps) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const appConfig = getCurrentAppConfig(appType);
+
+  const returnTo = (() => {
+    try {
+      const param = new URLSearchParams(location.search).get('returnTo');
+      return param && param.startsWith('/') ? param : null;
+    } catch (_err) {
+      return null;
+    }
+  })();
+
+  const initialEmail = (() => {
+    try {
+      return new URLSearchParams(location.search).get('email') || '';
+    } catch (_err) {
+      return '';
+    }
+  })();
 
   const [formData, setFormData] = useState<SignupFormData>({
     firstName: '',
     lastName: '',
-    email: '',
+    email: initialEmail,
     password: '',
     confirmPassword: '',
     agreeToTerms: false
@@ -374,7 +392,7 @@ const SignupForm = ({
             state: { email: formData.email }
           });
         } else {
-          navigate('/onboarding');
+          navigate(returnTo || '/onboarding');
         }
       }
     } catch (err) {

@@ -86,9 +86,17 @@ export function LoginForm({
     }
   })();
 
+  const initialEmail = (() => {
+    try {
+      return new URLSearchParams(location.search).get('email') || '';
+    } catch (_err) {
+      return '';
+    }
+  })();
+
   const [currentStep, setCurrentStep] = useState('login');
   const [formData, setFormData] = useState({
-    email: '',
+    email: initialEmail,
     password: '',
     rememberMe: false
   });

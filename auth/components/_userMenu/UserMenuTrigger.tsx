@@ -58,6 +58,7 @@ function UserMenuTrigger({
       aria-haspopup="true"
       aria-label="User menu"
       aria-controls={isOpen ? panelId : undefined}
+      className="focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:outline-none"
       style={{
         display: 'flex',
         alignItems: 'center',

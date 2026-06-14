@@ -240,7 +240,11 @@ const Autocomplete: React.FC<SelectProps> = ({
         style={triggerStyle}
         onClick={handleOpen}
         onKeyDown={handleKeyDown}
-        className={!isChip ? `lg-input ${error ? 'lg-input-error' : ''}` : ''}
+        className={
+          !isChip
+            ? `lg-input ${error ? 'lg-input-error' : ''}`
+            : 'focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:outline-none'
+        }
       >
         {isChip ? (
           <>

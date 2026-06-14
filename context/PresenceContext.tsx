@@ -135,6 +135,7 @@ export const PresenceProvider = ({
         if (
           event.code !== 1000 &&
           event.code !== 1001 &&
+          event.code !== 1008 && // 1008 is Unauthorized, retrying won't help
           user &&
           reconnectAttemptsRef.current < MAX_RECONNECT_ATTEMPTS
         ) {
