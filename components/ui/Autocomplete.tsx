@@ -111,12 +111,12 @@ const Autocomplete: React.FC<SelectProps> = ({
         padding: '0 10px 0 8px',
         borderRadius: 999,
         border: hasValue
-          ? '1.5px solid var()'
+          ? '1.5px solid var(--primary-resonance, #6366f1)'
           : '1px solid var(--glass-outline, rgba(255,255,255,0.18))',
         background: hasValue
           ? 'var(--primary-glow, hsla(272,65%,62%,0.22))'
           : 'var(--glass-input, rgba(255,255,255,0.07))',
-        color: hasValue ? 'var()' : 'var(--text-secondary)',
+        color: hasValue ? 'var(--text-primary, #fff)' : 'var(--text-secondary)',
         fontSize: 12,
         fontWeight: hasValue ? 600 : 500,
         fontFamily: 'var(--font-body)',
@@ -169,7 +169,7 @@ const Autocomplete: React.FC<SelectProps> = ({
           fontFamily: 'var(--font-body)',
           cursor: 'pointer',
           color: isSelected
-            ? 'var()'
+            ? 'var(--primary-resonance, #6366f1)'
             : isHighlighted
               ? 'var(--text-primary)'
               : 'var(--text-secondary)',

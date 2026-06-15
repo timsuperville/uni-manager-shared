@@ -150,7 +150,7 @@ export function DatePicker({
 
   const triggerFocusStyle = (focused: boolean): React.CSSProperties => ({
     border: focused
-      ? '1px solid var()'
+      ? '1px solid var(--primary-resonance, #6366f1)'
       : '1px solid var(--glass-outline, rgba(255,255,255,0.12))',
     boxShadow: focused
       ? '0 0 0 3px var(--primary-glow, rgba(99,102,241,0.2))'
@@ -279,7 +279,12 @@ export function DatePicker({
                   style={{
                     ...S.day,
                     ...(dis ? { opacity: 0.3, cursor: 'not-allowed' } : {}),
-                    ...(tod && !sel ? { color: 'var()', fontWeight: 700 } : {}),
+                    ...(tod && !sel
+                      ? {
+                          color: 'var(--primary-resonance, #6366f1)',
+                          fontWeight: 700
+                        }
+                      : {}),
                     ...(sel
                       ? {
                           background: 'var(--primary-resonance)',
@@ -301,7 +306,7 @@ export function DatePicker({
                     if (!sel && !dis) {
                       e.currentTarget.style.background = 'transparent';
                       e.currentTarget.style.color = tod
-                        ? 'var()'
+                        ? 'var(--primary-resonance, #6366f1)'
                         : 'var(--text-secondary)';
                     }
                   }}
@@ -340,7 +345,7 @@ export function DatePicker({
                 style={S.clearBtn}
                 onClick={clear}
                 onMouseEnter={e => {
-                  e.currentTarget.style.color = 'var()';
+                  e.currentTarget.style.color = 'var(--accent-rose, #ef4444)';
                 }}
                 onMouseLeave={e => {
                   e.currentTarget.style.color = 'var(--text-muted)';
