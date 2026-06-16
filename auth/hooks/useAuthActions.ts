@@ -271,7 +271,12 @@ export function useAuthActions(
         (error as { message?: string })?.message ?? 'Token refresh failed';
 
       const apiError = error as any;
-      const status = apiError.statusCode;
+      // Prefer HTTP response status from raw AxiosError (error.response?.status),
+      // fall back to the statusCode set by ErrorHandler.transformError on ApiError.
+      // Both paths must be checked: performTokenRefresh() uses a clean axios instance
+      // that bypasses the ErrorHandler transform, so its errors may arrive as raw
+      // AxiosErrors with only error.response?.status populated.
+      const status = apiError.response?.status ?? apiError.statusCode;
       // Only force logout if the token is explicitly rejected (4xx)
       const isRejectedToken = status && status >= 400 && status < 500;
 

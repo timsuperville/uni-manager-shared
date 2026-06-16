@@ -8,6 +8,12 @@ interface AuthActions {
   initializeAuth?: () => Promise<void>;
   refreshAuth?: () => Promise<boolean>;
   logout?: () => Promise<{ success: boolean }>;
+  /**
+   * Synchronous state reset — called immediately on auth:failure BEFORE the
+   * async logout() so React components stop seeing isAuthenticated=true and
+   * TanStack Query stops firing authenticated requests during the async gap.
+   */
+  forceReset?: () => void;
 }
 
 interface CallbackRef<T> {
@@ -87,7 +93,21 @@ export function useAuthCallbacks(
   // Handle auth failure events (cross-tab)
   useEffect(() => {
     const handleAuthFailure = () => {
-      actions?.logout?.();
+      // 1. Synchronously reset React state so isAuthenticated flips to false
+      //    immediately. This prevents components and TanStack Query from firing
+      //    more authenticated requests during the async gap before logout() settles.
+      actions?.forceReset?.();
+
+      // 2. Fire the async logout to clean up server-side session state (best-effort).
+      //    Errors are swallowed here — the session is already locally invalidated.
+      actions?.logout?.().catch(() => {
+        // Intentionally silent — forceReset() already cleared local state.
+        // Server-side cleanup failure is non-critical at this point.
+        globalThis.conditionalLog?.(
+          'warn',
+          '[useAuthCallbacks] logout() after auth:failure failed (non-critical)'
+        );
+      });
     };
 
     if (typeof window !== 'undefined') {
