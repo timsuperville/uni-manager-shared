@@ -60,11 +60,11 @@ const TermsOfService: React.FC = () => {
 
           <div>
             <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
-              3. Sovereign Privacy &amp; Data
+              3. User Owned Privacy &amp; Data
             </h2>
             <p className="leading-relaxed">
               Our use of your data is strictly governed by our Privacy Policy
-              and Sovereign Privacy principles. We do not sell your personal
+              and User Owned Privacy principles. We do not sell your personal
               data. You retain ownership of your data, and we act solely as a
               fiduciary processor.
             </p>

@@ -1,5 +1,5 @@
 /**
- * chipVariants.ts — Liquid Glass Design System
+ * chipVariants.ts — Modern UI Design System
  *
  * Single source of truth for all Chip semantic colour sets across the ecosystem.
  * Covers: user status, feedback status, severity levels, and report categories.

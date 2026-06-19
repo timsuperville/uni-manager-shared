@@ -1,5 +1,5 @@
 /**
- * datePickerUtils.ts — Liquid Glass Design System
+ * datePickerUtils.ts — Modern UI Design System
  *
  * Pure helpers, constants, and style tokens for DatePicker.tsx.
  * Extracted to keep the component file focused on logic and JSX.

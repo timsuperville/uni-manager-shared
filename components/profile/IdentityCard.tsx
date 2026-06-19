@@ -20,7 +20,7 @@ export interface IdentityCardProps {
 }
 
 /**
- * Shared IdentityCard primitive representing the Sovereign Identity core.
+ * Shared IdentityCard primitive representing the UserOwned Identity core.
  * Host applications (Home, Church, Personal) compose this with domain-specific
  * settings to enforce the "Unified Core / Contextual Facets" architecture.
  */

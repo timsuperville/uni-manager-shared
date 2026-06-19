@@ -34,7 +34,7 @@ const sizeClasses: Record<ProgressSize, string> = {
 };
 
 const variantClasses: Record<ProgressVariant, string> = {
-  default: '[background:var(--primary-resonance,#4f46e5)]',
+  default: '[background:var(--primary-live-sync,#4f46e5)]',
   success: '[background:var(--accent-emerald,#22c55e)]',
   warning: '[background:var(--warning,#eab308)]',
   danger: '[background:var(--danger,#ef4444)]',
@@ -43,7 +43,7 @@ const variantClasses: Record<ProgressVariant, string> = {
 };
 
 const variantColors: Record<ProgressVariant, string> = {
-  default: 'var(--primary-resonance, #4f46e5)',
+  default: 'var(--primary-live-sync, #4f46e5)',
   success: 'var(--accent-emerald, #10b981)',
   warning: 'var(--warning, #f59e0b)',
   danger: 'var(--danger, #ef4444)',

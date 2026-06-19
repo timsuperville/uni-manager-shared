@@ -50,7 +50,7 @@ export const SabbathOverlay: React.FC<{ children: React.ReactNode }> = ({
         {children}
       </div>
 
-      {/* Liquid Glass Overlay */}
+      {/* Modern UI Overlay */}
       <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-md">
         <div className="glass-card p-10 max-w-lg text-center border border-[var(--glass-outline)] rounded-2xl shadow-2xl animate-fade-in-up">
           <div className="w-16 h-16 mx-auto mb-6 bg-indigo-500/20 rounded-full flex items-center justify-center border border-indigo-500/50">

@@ -27,10 +27,10 @@ export type {
 export { GlobalContextManager, contextManager } from './core/ContextManager';
 
 export {
-  SovereignApiGuard,
+  UserOwnedApiGuard,
   isShutdownLocked,
   setShutdownLocked
-} from './core/SovereignApiGuard';
+} from './core/UserOwnedApiGuard';
 
 export { ErrorHandler, ApiErrorType } from './core/ErrorHandler';
 export type { ApiError, ErrorContext } from './core/ErrorHandler';

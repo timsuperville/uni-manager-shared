@@ -334,7 +334,7 @@ export abstract class BaseService {
       });
     }
 
-    // Proactive telemetry — surfaces in Admin Error Resonance dashboard.
+    // Proactive telemetry — surfaces in Admin Error LiveSync dashboard.
     // ErrorHandler.logError covers the axios-interceptor path (has endpoint/method).
     // This covers service-level errors that bypass the interceptor.
     reportApiError({

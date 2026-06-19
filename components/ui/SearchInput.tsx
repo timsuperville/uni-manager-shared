@@ -101,7 +101,7 @@ const SIZE_TOKENS: Record<
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
-/** SearchInput — Liquid Glass search field with clear button and loading state. */
+/** SearchInput — Modern UI search field with clear button and loading state. */
 export function SearchInput({
   id: idProp,
   value = '',

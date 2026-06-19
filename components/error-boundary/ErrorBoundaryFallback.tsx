@@ -21,13 +21,13 @@ function injectAnimations(): void {
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
 const T = {
-  primary: 'var(--primary-resonance, hsl(160,84%,39%))',
+  primary: 'var(--primary-live-sync, hsl(160,84%,39%))',
   error: 'var(--color-error, hsl(0,70%,60%))',
   errorSurface: 'var(--color-error-surface, rgba(220,38,38,0.08))',
   errorBorder: 'var(--color-error-border, rgba(220,38,38,0.3))',
   surface: 'var(--glass-surface, hsla(222,47%,11%,0.85))',
   outline: 'var(--glass-outline, hsla(0,0%,100%,0.1))',
-  pageBg: 'var(--bg-obsidian, hsl(222,47%,4%))',
+  pageBg: 'var(--bg-dark-theme, hsl(222,47%,4%))',
   textPrimary: 'var(--text-primary, #f1f5f9)',
   textMuted: 'var(--text-muted, #94a3b8)',
   radiusSm: 'var(--radius-sm, 0.375rem)',
@@ -237,7 +237,7 @@ export function InlineFallback({
         )}
         {resonanceId && (
           <span
-            title="Reference this Resonance ID for backend tracing"
+            title="Reference this LiveSync ID for backend tracing"
             style={{
               fontSize: '0.6875rem',
               color: T.textMuted,
@@ -247,7 +247,7 @@ export function InlineFallback({
               borderLeft: errorId ? `1px solid ${T.outline}` : 'none'
             }}
           >
-            Resonance ID: {resonanceId}
+            LiveSync ID: {resonanceId}
           </span>
         )}
       </div>
@@ -406,7 +406,7 @@ export function FullScreenFallback({
                 letterSpacing: '0.05em'
               }}
             >
-              Resonance
+              LiveSync
             </span>
             <span
               title="Quote this ID when contacting support for API failures"

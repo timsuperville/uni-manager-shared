@@ -12,7 +12,7 @@ interface PanelProps {
   padded?: boolean;
 }
 
-/** Panel — Liquid Glass slide-over drawer anchored to the right. */
+/** Panel — Modern UI slide-over drawer anchored to the right. */
 export function Panel({
   open,
   onClose,

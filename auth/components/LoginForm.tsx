@@ -444,7 +444,7 @@ export function LoginForm({
           <div className="-mt-3 flex justify-end">
             <button
               type="button"
-              className="text-xs font-medium hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--primary-resonance,hsl(272,65%,62%))] rounded cursor-pointer"
+              className="text-xs font-medium hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--primary-live-sync,hsl(272,65%,62%))] rounded cursor-pointer"
               style={textAccent}
               onClick={() => navigate('/auth/forgot-password')}
             >
@@ -461,9 +461,9 @@ export function LoginForm({
                 type="checkbox"
                 checked={formData.rememberMe}
                 onChange={handleChange}
-                className="h-4 w-4 rounded cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--primary-resonance,hsl(272,65%,62%))]"
+                className="h-4 w-4 rounded cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--primary-live-sync,hsl(272,65%,62%))]"
                 style={{
-                  accentColor: 'var(--primary-resonance, hsl(272,65%,62%))',
+                  accentColor: 'var(--primary-live-sync, hsl(272,65%,62%))',
                   ...glassBorder
                 }}
               />
@@ -495,7 +495,7 @@ export function LoginForm({
               {"Don't have an account? "}
               <button
                 type="button"
-                className="font-semibold hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--primary-resonance,hsl(272,65%,62%))] rounded cursor-pointer"
+                className="font-semibold hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--primary-live-sync,hsl(272,65%,62%))] rounded cursor-pointer"
                 style={textAccent}
                 onClick={() => navigate(ui.registerPath)}
               >

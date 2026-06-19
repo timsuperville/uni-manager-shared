@@ -723,7 +723,7 @@ function FeedbackModal({
                   border: 'none',
                   background: isDisabled
                     ? 'rgba(255,255,255,0.1)'
-                    : 'linear-gradient(135deg, var(--primary-resonance), var(--primary-hover, var(--primary-resonance)))',
+                    : 'linear-gradient(135deg, var(--primary-live-sync), var(--primary-hover, var(--primary-live-sync)))',
                   color: isDisabled ? 'var(--text-muted)' : '#fff',
                   fontSize: '13px',
                   fontWeight: '600',

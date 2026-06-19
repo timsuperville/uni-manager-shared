@@ -17,7 +17,7 @@ interface AppLogoProps extends React.SVGProps<SVGSVGElement> {
 }
 
 /**
- * Liquid Glass SVG Logos for the Uni-Manager Ecosystem.
+ * Modern UI SVG Logos for the Uni-Manager Ecosystem.
  * Each app has its own autonomous shape, but shares the same rendering DNA.
  */
 export const AppLogo: React.FC<AppLogoProps> = ({
@@ -29,11 +29,11 @@ export const AppLogo: React.FC<AppLogoProps> = ({
   const getAppTitle = () => {
     switch (app) {
       case 'church':
-        return 'Ecclesiastical Suite';
+        return 'Church Suite';
       case 'home':
         return 'Domestic Nucleus';
       case 'personal':
-        return 'Personal Sanctuary';
+        return 'Private Space';
       case 'work':
         return 'Executive Slate';
       case 'admin':
@@ -112,7 +112,7 @@ export const AppLogo: React.FC<AppLogoProps> = ({
               d="M 50 15 C 30 15, 20 25, 20 40 C 20 65, 50 85, 50 85 C 50 85, 80 65, 80 40 C 80 25, 70 15, 50 15 Z"
               fill="url(#logo-grad-top)"
             />
-            {/* Inner Sanctuary / Shield */}
+            {/* Inner SecureVault / Shield */}
             <path
               d="M 50 30 C 38 30, 32 36, 32 45 C 32 60, 50 72, 50 72 C 50 72, 68 60, 68 45 C 68 36, 62 30, 50 30 Z"
               fill="url(#logo-grad-bottom)"

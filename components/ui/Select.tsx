@@ -307,7 +307,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
                                 subOpt.value === '' ? EMPTY_VALUE : subOpt.value
                               }
                               disabled={subOpt.disabled}
-                              className="relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm text-[var(--text-primary)] outline-none focus:bg-[var(--primary-resonance)] focus:text-white data-disabled:pointer-events-none data-disabled:opacity-50"
+                              className="relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm text-[var(--text-primary)] outline-none focus:bg-[var(--primary-live-sync)] focus:text-white data-disabled:pointer-events-none data-disabled:opacity-50"
                             >
                               <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
                                 <SelectPrimitive.ItemIndicator>
@@ -329,7 +329,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
                         }
                         value={opt.value === '' ? EMPTY_VALUE : opt.value}
                         disabled={opt.disabled}
-                        className="relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm text-[var(--text-primary)] outline-none focus:bg-[var(--primary-resonance)] focus:text-white data-disabled:pointer-events-none data-disabled:opacity-50"
+                        className="relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm text-[var(--text-primary)] outline-none focus:bg-[var(--primary-live-sync)] focus:text-white data-disabled:pointer-events-none data-disabled:opacity-50"
                       >
                         <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
                           <SelectPrimitive.ItemIndicator>

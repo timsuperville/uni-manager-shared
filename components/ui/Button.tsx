@@ -29,16 +29,16 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantMap: Record<ButtonVariant, string> = {
   default:
-    '[background:var(--primary-resonance,#4f46e5)] text-white hover:[background:var(--primary-resonance-dark,#4338ca)] focus-visible:ring-(--primary-resonance,#4f46e5)/50',
+    '[background:var(--primary-live-sync,#4f46e5)] text-white hover:[background:var(--primary-live-sync-dark,#4338ca)] focus-visible:ring-(--primary-live-sync,#4f46e5)/50',
   destructive:
     '[background:var(--danger,#ef4444)] text-white hover:[background:var(--danger-dark,#dc2626)] focus-visible:ring-(--danger,#ef4444)/50',
   outline:
-    'border border-(--glass-outline,rgba(255,255,255,0.18)) [background:var(--glass-surface,rgba(255,255,255,0.05))] text-(--text-primary,inherit) hover:[background:var(--glass-surface-hover,rgba(255,255,255,0.1))] focus-visible:ring-(--primary-resonance,#4f46e5)/50',
+    'border border-(--glass-outline,rgba(255,255,255,0.18)) [background:var(--glass-surface,rgba(255,255,255,0.05))] text-(--text-primary,inherit) hover:[background:var(--glass-surface-hover,rgba(255,255,255,0.1))] focus-visible:ring-(--primary-live-sync,#4f46e5)/50',
   ghost:
     'text-(--text-primary,inherit) hover:[background:var(--glass-surface-hover,rgba(255,255,255,0.08))] focus-visible:ring-(--glass-outline,rgba(255,255,255,0.12))/50',
-  link: 'text-(--primary-resonance,#4f46e5) underline-offset-4 hover:underline focus-visible:ring-(--primary-resonance,#4f46e5)/50',
+  link: 'text-(--primary-live-sync,#4f46e5) underline-offset-4 hover:underline focus-visible:ring-(--primary-live-sync,#4f46e5)/50',
   primary:
-    '[background:var(--primary-resonance,#4f46e5)] text-white hover:[background:var(--primary-resonance-dark,#4338ca)] focus-visible:ring-(--primary-resonance,#4f46e5)/50',
+    '[background:var(--primary-live-sync,#4f46e5)] text-white hover:[background:var(--primary-live-sync-dark,#4338ca)] focus-visible:ring-(--primary-live-sync,#4f46e5)/50',
   secondary:
     '[background:var(--glass-surface,rgba(255,255,255,0.08))] text-(--text-primary,inherit) hover:[background:var(--glass-surface-hover,rgba(255,255,255,0.13))] focus-visible:ring-(--glass-outline,rgba(255,255,255,0.12))/50',
   danger:

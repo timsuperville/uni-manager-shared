@@ -162,7 +162,7 @@ export function Calendar({
             }}
             onMouseEnter={e => {
               e.currentTarget.style.background = 'hsla(272,65%,62%,0.12)';
-              e.currentTarget.style.color = 'var(--primary-resonance)';
+              e.currentTarget.style.color = 'var(--primary-live-sync)';
             }}
             onMouseLeave={e => {
               e.currentTarget.style.background = 'var(--glass-surface-hover)';

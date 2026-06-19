@@ -1,4 +1,4 @@
-// Unified Select component — Liquid Glass Design System
+// Unified Select component — Modern UI Design System
 // Dropdown is rendered via ReactDOM.createPortal so it escapes any stacking
 // context created by backdrop-filter, transform, or will-change on ancestors.
 import React from 'react';
@@ -111,7 +111,7 @@ const Autocomplete: React.FC<SelectProps> = ({
         padding: '0 10px 0 8px',
         borderRadius: 999,
         border: hasValue
-          ? '1.5px solid var(--primary-resonance, #6366f1)'
+          ? '1.5px solid var(--primary-live-sync, #6366f1)'
           : '1px solid var(--glass-outline, rgba(255,255,255,0.18))',
         background: hasValue
           ? 'var(--primary-glow, hsla(272,65%,62%,0.22))'
@@ -169,7 +169,7 @@ const Autocomplete: React.FC<SelectProps> = ({
           fontFamily: 'var(--font-body)',
           cursor: 'pointer',
           color: isSelected
-            ? 'var(--primary-resonance, #6366f1)'
+            ? 'var(--primary-live-sync, #6366f1)'
             : isHighlighted
               ? 'var(--text-primary)'
               : 'var(--text-secondary)',

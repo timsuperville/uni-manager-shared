@@ -13,7 +13,7 @@ interface ToggleProps extends Omit<
   id?: string;
 }
 
-/** Toggle — Liquid Glass accessible switch. Brand colour via --primary-resonance. */
+/** Toggle — Modern UI accessible switch. Brand colour via --primary-live-sync. */
 export function Toggle({
   checked = false,
   onChange,
@@ -55,7 +55,7 @@ export function Toggle({
           height: 20,
           borderRadius: 10,
           background: checked
-            ? 'var(--primary-resonance)'
+            ? 'var(--primary-live-sync)'
             : 'var(--glass-outline)',
           position: 'relative',
           transition: 'background 0.2s',

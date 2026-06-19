@@ -279,7 +279,7 @@ describe('useProjectSync — tenant scope (room name)', () => {
     expect(calls).toContain('work-project-biz-B-p1');
   });
 
-  it('produces null room when workId is null (sovereign guarantee)', () => {
+  it('produces null room when workId is null (userOwned guarantee)', () => {
     renderHook(() => useProjectSync(null, 'p1'));
     expect(useSync).toHaveBeenCalledWith(null);
   });

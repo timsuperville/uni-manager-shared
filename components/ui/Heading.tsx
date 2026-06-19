@@ -1,5 +1,5 @@
 /**
- * Heading — Semantic heading primitive using Liquid Glass CSS tokens.
+ * Heading — Semantic heading primitive using Modern UI CSS tokens.
  * Renders h1–h6 based on the `level` prop (defaults to h2).
  *
  * Per CSP: This primitive replaces all inline heading elements used

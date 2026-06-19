@@ -88,7 +88,7 @@ function UserMenuTrigger({
                 ? statusDotColor
                 : 'var(--color-warning, hsl(38,95%,54%))',
               border:
-                '2px solid var(--bg-sidebar, var(--bg-obsidian, #0a0e1a))',
+                '2px solid var(--bg-sidebar, var(--bg-dark-theme, #0a0e1a))',
               transition: 'background 300ms ease'
             }}
             title={

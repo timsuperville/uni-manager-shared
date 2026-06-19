@@ -11,8 +11,8 @@ interface ColorTokens {
 
 const COLOR_VARS: Record<CompositeColor, ColorTokens> = {
   blue: {
-    bg: 'var(--primary-resonance, #6366f1)',
-    text: 'var(--primary-resonance, #6366f1)',
+    bg: 'var(--primary-live-sync, #6366f1)',
+    text: 'var(--primary-live-sync, #6366f1)',
     light: 'var(--glass-surface, rgba(15,15,35,0.7))',
     border: 'var(--glass-outline, rgba(255,255,255,0.12))'
   },

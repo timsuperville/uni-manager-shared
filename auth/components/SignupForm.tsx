@@ -625,9 +625,9 @@ const SignupForm = ({
                 aria-describedby={
                   errors.agreeToTerms ? 'agreeToTerms-error' : undefined
                 }
-                className="h-4 w-4 rounded cursor-pointer border-gray-300 dark:border-gray-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--primary-resonance,hsl(272,65%,62%))] mt-1"
+                className="h-4 w-4 rounded cursor-pointer border-gray-300 dark:border-gray-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--primary-live-sync,hsl(272,65%,62%))] mt-1"
                 style={{
-                  accentColor: 'var(--primary-resonance, hsl(272,65%,62%))'
+                  accentColor: 'var(--primary-live-sync, hsl(272,65%,62%))'
                 }}
               />
               <label
@@ -637,7 +637,7 @@ const SignupForm = ({
                 I agree to the{' '}
                 <a
                   href="/terms"
-                  className="text-blue-600 hover:text-blue-500 dark:text-blue-400 font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--primary-resonance,hsl(272,65%,62%))] rounded"
+                  className="text-blue-600 hover:text-blue-500 dark:text-blue-400 font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--primary-live-sync,hsl(272,65%,62%))] rounded"
                   onClick={onTermsClick}
                 >
                   Terms of Service
@@ -645,7 +645,7 @@ const SignupForm = ({
                 and{' '}
                 <a
                   href="/privacy"
-                  className="text-blue-600 hover:text-blue-500 dark:text-blue-400 font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--primary-resonance,hsl(272,65%,62%))] rounded"
+                  className="text-blue-600 hover:text-blue-500 dark:text-blue-400 font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--primary-live-sync,hsl(272,65%,62%))] rounded"
                   onClick={onPrivacyClick}
                 >
                   Privacy Policy
@@ -681,7 +681,7 @@ const SignupForm = ({
               Already have an account?{' '}
               <button
                 type="button"
-                className="font-semibold text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 underline underline-offset-2 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--primary-resonance,hsl(272,65%,62%))] rounded"
+                className="font-semibold text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 underline underline-offset-2 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--primary-live-sync,hsl(272,65%,62%))] rounded"
                 onClick={() => {
                   if (onLogin) {
                     onLogin();

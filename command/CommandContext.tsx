@@ -9,7 +9,7 @@ import React, {
 /**
  * @shared/command — Universal Command Core
  *
- * CommandContext is the sovereign state manager for the Ctrl+K
+ * CommandContext is the userOwned state manager for the Ctrl+K
  * command palette. It owns:
  *
  *   - open / close lifecycle
@@ -86,7 +86,7 @@ export const NAMESPACE_LABELS: Record<CommandNamespace | string, string> = {
   work: 'Business Hub',
   church: 'Church Suite',
   home: 'Home Nucleus',
-  personal: 'Personal Sanctuary',
+  personal: 'Private Space',
   playback: 'Playback Engine',
   admin: 'Platform Command',
   universal: 'Ecosystem'

@@ -1,5 +1,5 @@
 /**
- * Sparkline — Lightweight SVG mini-chart for the Liquid Glass design system.
+ * Sparkline — Lightweight SVG mini-chart for the Modern UI design system.
  * Renders a polyline + translucent area fill over a zero-dependency SVG canvas.
  */
 

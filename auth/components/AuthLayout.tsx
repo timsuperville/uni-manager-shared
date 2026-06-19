@@ -1,8 +1,8 @@
 /**
  * AuthLayout — Institutional Auth Shell
  *
- * The sovereign wrapper for all non-admin auth pages (login, signup, forgot password).
- * Renders the split-screen Liquid Glass layout:
+ * The userOwned wrapper for all non-admin auth pages (login, signup, forgot password).
+ * Renders the split-screen Modern UI layout:
  *   - LEFT  (lg+):  Branded gradient panel with app identity, tagline, and feature pillars
  *   - RIGHT (all):  Form slot — children rendered here
  *   - MOBILE:       Full-width glass card with compact branded header
@@ -10,7 +10,7 @@
  * Identity fencing: each app has its own gradient, tagline, and pillars defined
  * in APP_IDENTITY below, aligned with the Visual Identity Fencing spec.
  *
- * @see docs/developer/LIQUID_GLASS_SPEC.md
+ * @see docs/developer/MODERN_UI_SPEC.md
  * @see docs/product/06-ux-design.md
  * @see frontend/shared/auth/config/appConfigs
  */
@@ -61,7 +61,7 @@ const APP_IDENTITY: Record<AppType, AppIdentity> = {
   church: {
     tagline: 'Stewardship, Empowered.',
     description:
-      'Ministry leadership, relational intelligence, and liturgical orchestration — unified for your congregation.',
+      'Ministry leadership, relational intelligence, and service orchestration — unified for your congregation.',
     gradient: 'from-violet-600 via-purple-600 to-indigo-700',
     glowColor: 'rgba(139, 92, 246, 0.25)',
     accentLight: 'rgba(167, 139, 250, 0.15)',
@@ -69,7 +69,7 @@ const APP_IDENTITY: Record<AppType, AppIdentity> = {
       { icon: <ChurchIcon size={22} />, label: 'Member & Ministry Management' },
       {
         icon: <MusicIcon size={22} />,
-        label: 'Liturgical Scheduling & Playback'
+        label: 'Service Scheduling & Playback'
       },
       {
         icon: <CoinsIcon size={22} />,
@@ -80,7 +80,7 @@ const APP_IDENTITY: Record<AppType, AppIdentity> = {
   home: {
     tagline: 'Domestic Harmony, Orchestrated.',
     description:
-      'Household orchestration, stewardship rituals, and physical asset maintenance — all in one Domestic Nucleus.',
+      'Household orchestration, stewardship routines, and physical asset maintenance — all in one Domestic Nucleus.',
     gradient: 'from-amber-500 via-orange-500 to-rose-500',
     glowColor: 'rgba(245, 158, 11, 0.25)',
     accentLight: 'rgba(252, 211, 77, 0.15)',
@@ -94,9 +94,9 @@ const APP_IDENTITY: Record<AppType, AppIdentity> = {
     ]
   },
   personal: {
-    tagline: 'Your Sovereign Sanctuary.',
+    tagline: 'Your UserOwned SecureVault.',
     description:
-      'Sovereign development, physiological intelligence, and relational accountability — a Personal OS built for you alone.',
+      'UserOwned development, physiological intelligence, and relational accountability — a Personal OS built for you alone.',
     gradient: 'from-purple-600 via-indigo-600 to-blue-700',
     glowColor: 'rgba(139, 92, 246, 0.25)',
     accentLight: 'rgba(165, 180, 252, 0.15)',
@@ -148,7 +148,7 @@ const APP_IDENTITY: Record<AppType, AppIdentity> = {
     pillars: [
       { icon: <LockIcon size={22} />, label: 'Secure, unified identity' },
       { icon: <GlobeIcon size={22} />, label: 'Six specialized life contexts' },
-      { icon: <LightningIcon size={22} />, label: 'Sub-second resonance' }
+      { icon: <LightningIcon size={22} />, label: 'Sub-second liveSync' }
     ]
   }
 };
@@ -226,7 +226,7 @@ const AuthLayout = ({
             style={{ background: identity.accentLight }}
           />
 
-          {/* Subtle grid overlay — per Liquid Glass spec */}
+          {/* Subtle grid overlay — per Modern UI spec */}
           <div className="absolute inset-0 opacity-10" aria-hidden="true">
             <svg
               className="absolute inset-0 h-full w-full"

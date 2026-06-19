@@ -22,7 +22,7 @@ export interface PaginatedResult<T> {
   totalPages: number;
 }
 
-// ─── Skill Resonance Engine (ECO-R-56) ────────────────────────────────────────
+// ─── Skill LiveSync Engine (ECO-R-56) ────────────────────────────────────────
 
 /**
  * Proficiency scale used across both Work and Church skill domains.
@@ -55,7 +55,7 @@ export type SkillCategory =
 /**
  * ProfessionalMerit — A verified skill or certification in the Work domain.
  * Sourced from the Merit Graph (MeritGraphPage) and exposed via the
- * Skill Resonance Engine for cross-domain talent discovery.
+ * Skill LiveSync Engine for cross-domain talent discovery.
  */
 export interface ProfessionalMerit {
   id: string;
@@ -88,8 +88,8 @@ export interface MinistrySkill {
 }
 
 /**
- * SkillResonanceMap — A single mapping entry produced by the Skill Resonance Engine.
- * Maps one ProfessionalMerit to a compatible MinistrySkill with a resonance score.
+ * SkillResonanceMap — A single mapping entry produced by the Skill LiveSync Engine.
+ * Maps one ProfessionalMerit to a compatible MinistrySkill with a liveSync score.
  *
  * resonanceScore 0–1:
  *   1.0  = exact category + proficiency match
@@ -127,7 +127,7 @@ export interface AuthUser {
 }
 
 export type CahaRole =
-  | 'tier_8_sovereign'
+  | 'tier_8_user_owned'
   | 'tier_7_architect'
   | 'tier_6_apostolic'
   | 'tier_5_pastoral'
@@ -137,7 +137,7 @@ export type CahaRole =
   | 'tier_1_member';
 
 export const CAHA_TIER: Record<CahaRole, number> = {
-  tier_8_sovereign: 8,
+  tier_8_user_owned: 8,
   tier_7_architect: 7,
   tier_6_apostolic: 6,
   tier_5_pastoral: 5,

@@ -13,13 +13,13 @@ interface ProgressBarProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const variantColor: Record<ProgressBarVariant, string> = {
-  primary: 'var(--primary-resonance, var(--color-primary, #6366f1))',
+  primary: 'var(--primary-live-sync, var(--color-primary, #6366f1))',
   success: 'var(--accent-emerald, var(--color-success, #22c55e))',
   error: 'var(--accent-rose, var(--color-error, #ef4444))',
   warning: 'var(--accent-amber, var(--color-warning, #f59e0b))'
 };
 
-/** ProgressBar — Liquid Glass horizontal fill indicator. */
+/** ProgressBar — Modern UI horizontal fill indicator. */
 export function ProgressBar({
   value = 0,
   max = 100,

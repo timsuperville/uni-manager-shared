@@ -508,7 +508,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
             isSelected ? 'bg-[var(--primary-subtle)]' : '',
             isUnread && !isSelected ? 'bg-[hsla(272,65%,62%,0.04)]' : '',
             isFocused
-              ? 'ring-2 ring-inset ring-[var(--primary-resonance)] ring-opacity-60'
+              ? 'ring-2 ring-inset ring-[var(--primary-live-sync)] ring-opacity-60'
               : '',
             'hover:bg-[var(--glass-surface-hover)]'
           ]
@@ -527,7 +527,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
               }}
               onClick={e => e.stopPropagation()}
               className="w-4 h-4 rounded border-[var(--glass-outline)] bg-transparent
-                text-[var(--primary-resonance)] focus:ring-[var(--primary-resonance)]"
+                text-[var(--primary-live-sync)] focus:ring-[var(--primary-live-sync)]"
               aria-label={`Select: ${notifTitle(n)}`}
             />
           </div>
@@ -545,7 +545,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                     {isUnread && (
                       <span
                         className="inline-block w-1.5 h-1.5 rounded-full mr-2 mb-0.5
-                          bg-[var(--primary-resonance)] shadow-[0_0_6px_var(--primary-glow)]"
+                          bg-[var(--primary-live-sync)] shadow-[0_0_6px_var(--primary-glow)]"
                         aria-hidden
                       />
                     )}
@@ -597,7 +597,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                 {isUnread && (
                   <button
                     className="p-1 rounded hover:bg-[var(--glass-surface)]
-                      text-[var(--text-secondary)] hover:text-[var(--primary-resonance)]
+                      text-[var(--text-secondary)] hover:text-[var(--primary-live-sync)]
                       transition-colors"
                     title="Mark as read  (R)"
                     onClick={() => void handleMarkRead(n)}
@@ -712,7 +712,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <span className="p-1.5 rounded-lg bg-[var(--primary-subtle)]">
-              <FiBell className="w-4 h-4 text-[var(--primary-resonance)]" />
+              <FiBell className="w-4 h-4 text-[var(--primary-live-sync)]" />
             </span>
             <h2 className="text-sm font-semibold text-[var(--text-primary)] m-0">
               Notifications
@@ -725,7 +725,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
               onClick={() => void refreshNotifications()}
               disabled={isLoading}
               className="p-1.5 rounded-md text-[var(--text-secondary)]
-                hover:text-[var(--primary-resonance)] hover:bg-[var(--glass-surface)]
+                hover:text-[var(--primary-live-sync)] hover:bg-[var(--glass-surface)]
                 transition-colors"
               title="Refresh"
               aria-label="Refresh notifications"
@@ -739,7 +739,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
             <button
               onClick={() => setShowPrefs(true)}
               className="p-1.5 rounded-md text-[var(--text-secondary)]
-                hover:text-[var(--primary-resonance)] hover:bg-[var(--glass-surface)]
+                hover:text-[var(--primary-live-sync)] hover:bg-[var(--glass-surface)]
                 transition-colors"
               title="Notification preferences"
               aria-label="Open notification preferences"
@@ -754,7 +754,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                 disabled={isMutating}
                 className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs
                   bg-[var(--primary-subtle)] hover:bg-[hsla(272,65%,62%,0.2)]
-                  text-[var(--text-primary)] border border-[var(--primary-resonance)]
+                  text-[var(--text-primary)] border border-[var(--primary-live-sync)]
                   border-opacity-30 transition-colors disabled:opacity-50"
                 title="Mark all notifications as read"
               >
@@ -792,7 +792,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
               className={`px-3 py-2 text-xs font-medium rounded-t-md transition-colors
                 border-b-2 -mb-px ${
                   activeTab === tab.id
-                    ? 'border-[var(--primary-resonance)] text-[var(--primary-resonance)]'
+                    ? 'border-[var(--primary-live-sync)] text-[var(--primary-live-sync)]'
                     : 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                 }`}
             >
@@ -819,7 +819,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
       {selectedIds.size > 0 && (
         <div
           className="shrink-0 px-4 py-2.5 bg-[var(--primary-subtle)]
-            border-b border-[var(--primary-resonance)] border-opacity-20"
+            border-b border-[var(--primary-live-sync)] border-opacity-20"
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-[var(--text-accent)]">
@@ -925,7 +925,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                   }
                   onChange={toggleSelectAll}
                   className="w-4 h-4 rounded border-[var(--glass-outline)] bg-transparent
-                    text-[var(--primary-resonance)] focus:ring-[var(--primary-resonance)]"
+                    text-[var(--primary-live-sync)] focus:ring-[var(--primary-live-sync)]"
                   aria-label="Select all"
                 />
                 <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-secondary)]">

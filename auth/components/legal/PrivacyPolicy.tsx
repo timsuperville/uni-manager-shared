@@ -32,7 +32,7 @@ const PrivacyPolicy: React.FC = () => {
         <div className="prose dark:prose-invert max-w-none text-sm text-gray-700 dark:text-gray-300 space-y-6 max-h-[50vh] overflow-y-auto pr-4 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-800">
           <p>
             At {config.appName}, we take your privacy extremely seriously. We
-            believe in Sovereign Privacy, meaning your data belongs to you.
+            believe in User Owned Privacy, meaning your data belongs to you.
           </p>
 
           <div>
@@ -61,11 +61,11 @@ const PrivacyPolicy: React.FC = () => {
 
           <div>
             <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
-              3. Sovereign Telemetry
+              3. UserOwned Telemetry
             </h2>
             <p className="leading-relaxed">
               We collect operational telemetry and crash reports to ensure
-              system resonance and health. This data is strictly scrubbed of
+              system liveSync and health. This data is strictly scrubbed of
               Personally Identifiable Information (PII) before transmission to
               our diagnostics center.
             </p>

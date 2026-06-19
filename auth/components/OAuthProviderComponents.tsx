@@ -158,7 +158,7 @@ export const OAuthProviderButton = ({
         bg-white hover:bg-gray-50
         text-gray-700 font-medium
         transition-all duration-200
-        focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--primary-resonance,hsl(272,65%,62%))] focus:border-transparent
+        focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--primary-live-sync,hsl(272,65%,62%))] focus:border-transparent
         disabled:opacity-50 disabled:cursor-not-allowed
         active:transform active:scale-[0.98]
       `}

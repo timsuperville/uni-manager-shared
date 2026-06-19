@@ -17,7 +17,7 @@ shared/
 │   └── index.js      ← @shared/auth barrel
 │
 ├── components/       ← All reusable React components (canonical home for UI)
-│   ├── ui/           ← Liquid Glass primitives (Modal, Button, Card, Badge, Input…)
+│   ├── ui/           ← Modern UI primitives (Modal, Button, Card, Badge, Input…)
 │   ├── ErrorMonitoring.jsx   ← ErrorBoundary + initializeMonitoring + global handler
 │   ├── ApiProvider.jsx       ← Lightweight React context wrapper for API config
 │   ├── PerformanceDashboard.jsx ← Debug overlay (dev-mode perf display)
@@ -118,7 +118,7 @@ import { Button } from '../../shared/components/ui/Button';
 
 All `@shared/components/ui/` primitives use **CSS custom property tokens** defined
 per-app in each app's `index.css`. See the
-[Liquid Glass Spec](../docs/developer/LIQUID_GLASS_SPEC.md) for the full token reference.
+[Modern UI Spec](../docs/developer/MODERN_UI_SPEC.md) for the full token reference.
 
 ```
 var(--primary)         var(--bg-surface-1)    var(--glass-border)
@@ -145,6 +145,6 @@ The following paths still work but point to their new canonical location in `com
 
 1. Create the component in `frontend/shared/components/` (or `ui/` for a primitive)
 2. Export it from `components/index.js`
-3. If it's a Liquid Glass primitive, also export from `components/ui/index.js`
+3. If it's a Modern UI primitive, also export from `components/ui/index.js`
 4. Update this README
 5. Run `npm run build` in at least one app to verify the barrel resolves correctly

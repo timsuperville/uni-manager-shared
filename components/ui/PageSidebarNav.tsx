@@ -107,7 +107,7 @@ export function PageSidebarNav({
               fontSize: '13px',
               fontWeight: isActive ? '600' : '500',
               color: isActive
-                ? 'var(--primary-resonance)'
+                ? 'var(--primary-live-sync)'
                 : 'var(--text-secondary)',
               background: isActive ? 'hsla(187, 84%, 44%, 0.1)' : 'transparent',
               border: '1px solid',
@@ -147,7 +147,7 @@ export function PageSidebarNav({
                     ? 'hsla(187, 84%, 44%, 0.2)'
                     : 'var(--bg-surface-2)',
                   color: isActive
-                    ? 'var(--primary-resonance)'
+                    ? 'var(--primary-live-sync)'
                     : 'var(--text-muted)'
                 }}
               >

@@ -6,10 +6,10 @@ import { flex1 } from '@shared/styles/styleUtils';
 /**
  * CommandPalette — Universal Command Core Omnibox
  *
- * Liquid Glass overlay triggered by Ctrl+K (or ⌘K on Mac).
+ * Modern UI overlay triggered by Ctrl+K (or ⌘K on Mac).
  * Mounts once inside each app's Layout. Reads from CommandContext.
  *
- * Design Identity: Sovereign Obsidian glass — inky void background,
+ * Design Identity: UserOwned DarkTheme glass — inky void background,
  * prismatic cyan/violet accent, sharp typography, micro-animations.
  *
  * Accessibility:
@@ -215,7 +215,7 @@ function ResultRow({ command, isActive, onHover, onExecute }: ResultRowProps) {
             flexShrink: 0,
             fontSize: '14px',
             color: isActive
-              ? 'var(--primary-resonance, hsl(187,84%,44%))'
+              ? 'var(--primary-live-sync, hsl(187,84%,44%))'
               : 'var(--text-muted, #94a3b8)',
             transition: 'all 100ms ease'
           }}
@@ -346,7 +346,7 @@ function EmptyState({ query }: EmptyStateProps) {
         <code
           style={{
             fontFamily: 'var(--font-mono, monospace)',
-            color: 'var(--primary-resonance, hsl(187,84%,44%))',
+            color: 'var(--primary-live-sync, hsl(187,84%,44%))',
             background: 'hsla(187,84%,44%,0.1)',
             padding: '1px 5px',
             borderRadius: '4px'
@@ -576,7 +576,7 @@ export function CommandPalette() {
               fontWeight: 400,
               fontFamily: 'var(--font-body, sans-serif)',
               color: 'var(--text-primary, #f1f5f9)',
-              caretColor: 'var(--primary-resonance, hsl(187,84%,44%))',
+              caretColor: 'var(--primary-live-sync, hsl(187,84%,44%))',
               ...flex1
             }}
             autoComplete="off"
@@ -619,7 +619,7 @@ export function CommandPalette() {
               <br />
               <span
                 style={{
-                  color: 'var(--primary-resonance, hsl(187,84%,44%))',
+                  color: 'var(--primary-live-sync, hsl(187,84%,44%))',
                   fontFamily: 'var(--font-mono, monospace)',
                   fontSize: '11px'
                 }}

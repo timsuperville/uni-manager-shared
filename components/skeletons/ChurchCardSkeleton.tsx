@@ -2,7 +2,7 @@ import React from 'react';
 import { glassBorder } from '@shared/styles/styleUtils';
 
 /**
- * ChurchCardSkeleton — Liquid Glass shimmer placeholder.
+ * ChurchCardSkeleton — Modern UI shimmer placeholder.
  * Mirrors the layout of the redesigned ChurchCard.
  */
 const ChurchCardSkeleton: React.FC = () => (

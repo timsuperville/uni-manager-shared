@@ -1,7 +1,7 @@
 /**
  * LoadingSpinner — compatibility shim for @shared/components/ui
  *
- * The canonical spinner is `Spinner` (Liquid Glass, SVG-based, CSS tokens).
+ * The canonical spinner is `Spinner` (Modern UI, SVG-based, CSS tokens).
  * This file re-exports it as `LoadingSpinner` to satisfy existing imports in
  * notification components that expect the `../ui/LoadingSpinner` path.
  *

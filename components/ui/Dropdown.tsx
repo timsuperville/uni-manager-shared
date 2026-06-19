@@ -29,7 +29,7 @@ const SIZE_STYLES: Record<
   lg: { padding: '10px 16px', fontSize: 16, minWidth: 180 }
 };
 
-/** Dropdown — Liquid Glass accessible select-style menu. */
+/** Dropdown — Modern UI accessible select-style menu. */
 export function Dropdown({
   options = [],
   value,
@@ -157,7 +157,7 @@ export function Dropdown({
                     ? 'var(--primary-surface, rgba(99,102,241,0.12))'
                     : 'transparent',
                   color: isSelected
-                    ? 'var(--primary-resonance, #6366f1)'
+                    ? 'var(--primary-live-sync, #6366f1)'
                     : 'var(--text-primary, inherit)',
                   fontWeight: isSelected ? 600 : 400,
                   transition: 'background 0.12s'

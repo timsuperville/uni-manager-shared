@@ -86,7 +86,7 @@ export function EmptyState({
             gap: '0.5rem'
           }}
         >
-          <span style={{ color: 'var(--primary-resonance, #0ea5e9)' }}>💡</span>
+          <span style={{ color: 'var(--primary-live-sync, #0ea5e9)' }}>💡</span>
           <div>{actionableGuidance}</div>
         </div>
       )}

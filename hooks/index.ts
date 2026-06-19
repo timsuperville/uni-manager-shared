@@ -27,7 +27,7 @@ export * from './useOnlineStatus';
 export { useSync } from './sync/useSync';
 export { useProjectSync } from './sync/useProjectSync';
 
-// Cross-app resonance hooks
+// Cross-app liveSync hooks
 export { useFocusModeListener } from './useFocusModeListener';
 export { useCapacityBridge } from './useCapacityBridge';
 export { useHospitalityBridge } from './useHospitalityBridge';

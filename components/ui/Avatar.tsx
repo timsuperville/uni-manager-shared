@@ -57,7 +57,7 @@ export function Avatar({
     boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
     fontSize: fs,
     fontWeight: 600,
-    background: 'var(--primary-resonance, #6366f1)',
+    background: 'var(--primary-live-sync, #6366f1)',
     color: '#fff',
     userSelect: 'none'
   };

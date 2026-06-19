@@ -4,7 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useChurchRole } from '../hooks/useChurchRole';
 
 export type CahaRole =
-  | 'tier_8_sovereign'
+  | 'tier_8_user_owned'
   | 'tier_7_architect'
   | 'tier_6_apostolic'
   | 'tier_5_pastoral'
@@ -14,7 +14,7 @@ export type CahaRole =
   | 'tier_1_member';
 
 export const CAHA_TIER: Record<CahaRole, number> = {
-  tier_8_sovereign: 8,
+  tier_8_user_owned: 8,
   tier_7_architect: 7,
   tier_6_apostolic: 6,
   tier_5_pastoral: 5,
@@ -36,7 +36,7 @@ export interface CahaGateProps {
  * CahaGate
  *
  * Declarative component for the 8-Tier CAHA Permission Matrix.
- * Replaces legacy RoleGuard / PermissionGuard checks with sovereign architecture.
+ * Replaces legacy RoleGuard / PermissionGuard checks with userOwned architecture.
  */
 export const CahaGate: React.FC<CahaGateProps> = ({
   domain,
@@ -56,14 +56,14 @@ export const CahaGate: React.FC<CahaGateProps> = ({
   // 1. Platform Supremacy Check
   const platformRoles = (user as { roles?: string[] }).roles ?? [];
   const isSovereign =
-    platformRoles.includes('sovereign') || (user as any).role === 'super_admin';
+    platformRoles.includes('userOwned') || (user as any).role === 'super_admin';
   const isArchitect =
     platformRoles.includes('architect') ||
     platformRoles.includes('admin') ||
     platformRoles.includes('org_admin');
 
   if (domain === 'admin') {
-    if (minTier === 'tier_8_sovereign' && !isSovereign) {
+    if (minTier === 'tier_8_user_owned' && !isSovereign) {
       if (redirectTo) return <Navigate to={redirectTo} replace />;
       return <>{fallback}</>;
     }

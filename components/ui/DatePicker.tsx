@@ -14,7 +14,7 @@ import {
 export type { ParsedDate } from './datePickerUtils';
 
 /**
- * DatePicker — Liquid Glass Design System
+ * DatePicker — Modern UI Design System
  *
  * A fully custom, accessible calendar date picker built on CSS custom
  * properties. No native date input. No external date library.
@@ -150,7 +150,7 @@ export function DatePicker({
 
   const triggerFocusStyle = (focused: boolean): React.CSSProperties => ({
     border: focused
-      ? '1px solid var(--primary-resonance, #6366f1)'
+      ? '1px solid var(--primary-live-sync, #6366f1)'
       : '1px solid var(--glass-outline, rgba(255,255,255,0.12))',
     boxShadow: focused
       ? '0 0 0 3px var(--primary-glow, rgba(99,102,241,0.2))'
@@ -281,13 +281,13 @@ export function DatePicker({
                     ...(dis ? { opacity: 0.3, cursor: 'not-allowed' } : {}),
                     ...(tod && !sel
                       ? {
-                          color: 'var(--primary-resonance, #6366f1)',
+                          color: 'var(--primary-live-sync, #6366f1)',
                           fontWeight: 700
                         }
                       : {}),
                     ...(sel
                       ? {
-                          background: 'var(--primary-resonance)',
+                          background: 'var(--primary-live-sync)',
                           color: '#fff',
                           fontWeight: 700,
                           boxShadow:
@@ -306,7 +306,7 @@ export function DatePicker({
                     if (!sel && !dis) {
                       e.currentTarget.style.background = 'transparent';
                       e.currentTarget.style.color = tod
-                        ? 'var(--primary-resonance, #6366f1)'
+                        ? 'var(--primary-live-sync, #6366f1)'
                         : 'var(--text-secondary)';
                     }
                   }}

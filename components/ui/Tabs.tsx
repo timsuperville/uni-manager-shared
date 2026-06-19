@@ -103,7 +103,7 @@ export const TabsTrigger: React.FC<TabsTriggerProps> = ({
   const isActive = activeTab === value;
   return (
     <button
-      className={`py-2 px-1 border-b-2 font-medium text-sm ${isActive ? 'border-(--primary-resonance,#4f46e5) text-(--primary-resonance,#4f46e5)' : 'border-transparent text-(--text-muted,rgba(255,255,255,0.5)) hover:text-(--text-primary,inherit) hover:border-(--glass-outline,rgba(255,255,255,0.3))'} ${className}`}
+      className={`py-2 px-1 border-b-2 font-medium text-sm ${isActive ? 'border-(--primary-live-sync,#4f46e5) text-(--primary-live-sync,#4f46e5)' : 'border-transparent text-(--text-muted,rgba(255,255,255,0.5)) hover:text-(--text-primary,inherit) hover:border-(--glass-outline,rgba(255,255,255,0.3))'} ${className}`}
       onClick={() => setActiveTab?.(value)}
       {...props}
     >

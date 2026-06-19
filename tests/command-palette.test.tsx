@@ -43,7 +43,7 @@ const MOCK_COMMANDS: Command[] = [
   {
     id: 'church:songs',
     namespace: 'church',
-    label: 'Song Sanctuary',
+    label: 'Song SecureVault',
     description: 'Browse songs',
     type: 'navigation',
     section: 'Navigate',
@@ -188,7 +188,7 @@ describe('CommandContext', () => {
     expect(NAMESPACE_LABELS.work).toBe('Business Hub');
     expect(NAMESPACE_LABELS.church).toBe('Church Suite');
     expect(NAMESPACE_LABELS.home).toBe('Home Nucleus');
-    expect(NAMESPACE_LABELS.personal).toBe('Personal Sanctuary');
+    expect(NAMESPACE_LABELS.personal).toBe('Private Space');
   });
 
   it('throws when used outside CommandProvider', () => {
@@ -392,7 +392,7 @@ describe('CommandPalette UI', () => {
     renderPalette({ commands: MOCK_COMMANDS, initialOpen: true });
     await waitFor(() => {
       expect(screen.getByText('Business Dashboard')).toBeInTheDocument();
-      expect(screen.getByText('Song Sanctuary')).toBeInTheDocument();
+      expect(screen.getByText('Song SecureVault')).toBeInTheDocument();
       expect(screen.getByText('Hospitality Checklist')).toBeInTheDocument();
     });
   });
@@ -401,7 +401,7 @@ describe('CommandPalette UI', () => {
     renderPalette({ commands: MOCK_COMMANDS, initialOpen: true });
     const input = await screen.findByRole('combobox');
     fireEvent.change(input, { target: { value: 'song' } });
-    expect(screen.getByText('Song Sanctuary')).toBeInTheDocument();
+    expect(screen.getByText('Song SecureVault')).toBeInTheDocument();
     expect(screen.queryByText('Business Dashboard')).toBeNull();
   });
 

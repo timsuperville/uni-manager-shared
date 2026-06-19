@@ -1,5 +1,5 @@
 /**
- * useSelectState.ts — Liquid Glass Design System
+ * useSelectState.ts — Modern UI Design System
  *
  * All state management, derived data, effects, and callbacks for the Select
  * component. Extracted from Select.tsx to keep the render tree focused on JSX.

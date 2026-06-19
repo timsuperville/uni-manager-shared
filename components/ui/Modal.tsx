@@ -29,7 +29,7 @@ interface ModalProps {
 import React from 'react';
 import { glassBackground, glassBorder, flex1 } from '@shared/styles/styleUtils';
 
-/** Modal — Liquid Glass full-screen backdrop modal. */
+/** Modal — Modern UI full-screen backdrop modal. */
 export function Modal({
   open,
   onClose,

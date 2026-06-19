@@ -9,7 +9,7 @@ interface OptionCardProps extends React.HTMLAttributes<HTMLDivElement> {
   className?: string;
 }
 
-/** OptionCard — Liquid Glass selectable option card. Brand colour via --primary-resonance. */
+/** OptionCard — Modern UI selectable option card. Brand colour via --primary-live-sync. */
 export function OptionCard({
   selected = false,
   onClick,
@@ -31,9 +31,9 @@ export function OptionCard({
         cursor: 'pointer',
         padding: '1rem',
         borderRadius: 'var(--radius-md, 0.5rem)',
-        border: `2px solid ${selected ? 'var(--primary-resonance, var(--color-primary, #6366f1))' : 'var(--glass-outline, var(--glass-border, rgba(255,255,255,0.1)))'}`,
+        border: `2px solid ${selected ? 'var(--primary-live-sync, var(--color-primary, #6366f1))' : 'var(--glass-outline, var(--glass-border, rgba(255,255,255,0.1)))'}`,
         background: selected
-          ? 'color-mix(in srgb, var(--primary-resonance, #6366f1) 8%, transparent)'
+          ? 'color-mix(in srgb, var(--primary-live-sync, #6366f1) 8%, transparent)'
           : 'transparent',
         transition: 'all 0.15s ease',
         outline: 'none'

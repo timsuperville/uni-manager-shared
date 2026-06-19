@@ -1,5 +1,5 @@
 /**
- * UserMenu — Liquid Glass Edition (v3)
+ * UserMenu — Modern UI Edition (v3)
  *
  * Unified user menu used across ALL Uni-Manager apps.
  * This file is the orchestrator: it owns all state, effects, and handlers,
@@ -266,7 +266,7 @@ const UserMenu = ({
 
   const triggerBorder =
     isOpen || triggerHover
-      ? 'var(--glass-outline-active, var(--primary-resonance))'
+      ? 'var(--glass-outline-active, var(--primary-live-sync))'
       : 'var(--glass-outline)';
   const triggerBg = isOpen
     ? 'var(--primary-subtle, hsla(187,84%,44%,0.1))'

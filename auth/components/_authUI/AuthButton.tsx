@@ -22,10 +22,10 @@ interface AuthButtonProps {
  * optional loading spinner.
  *
  * The `primary` variant intentionally uses CSS custom properties
- * (`--primary-resonance`, `--primary-hover`) so that each app's
+ * (`--primary-live-sync`, `--primary-hover`) so that each app's
  * design token overrides drive the button colour automatically.
  * Apps that do not define these tokens fall back to a violet-indigo
- * gradient that harmonises with the default Liquid Glass spec.
+ * gradient that harmonises with the default Modern UI spec.
  */
 export const AuthButton = ({
   children,
@@ -61,7 +61,7 @@ export const AuthButton = ({
 
   const primaryClasses =
     variant === 'primary'
-      ? 'bg-violet-600 hover:bg-violet-700 text-white dark:bg-[var(--primary-resonance,hsl(272,65%,62%))] dark:hover:bg-[var(--accent-indigo,var(--primary-resonance,hsl(239,72%,66%)))]'
+      ? 'bg-violet-600 hover:bg-violet-700 text-white dark:bg-[var(--primary-live-sync,hsl(272,65%,62%))] dark:hover:bg-[var(--accent-indigo,var(--primary-live-sync,hsl(239,72%,66%)))]'
       : '';
 
   return (

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 
 /**
  * Mock hook for Phase 10 BioTelemetry.
- * In a real implementation, this would connect to the Fiduciary Data Ledger
+ * In a real implementation, this would connect to the Secure Audit Log
  * or Apple Health / WHOOP APIs to fetch real-time capacity.
  */
 export const useBioTelemetry = () => {

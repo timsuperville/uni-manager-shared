@@ -8,11 +8,11 @@ interface SectionCardProps extends React.HTMLAttributes<HTMLDivElement> {
   className?: string;
 }
 
-/** SectionCard — Liquid Glass grouping card with optional icon + title header. */
+/** SectionCard — Modern UI grouping card with optional icon + title header. */
 export function SectionCard({
   title,
   icon: Icon,
-  iconColor = 'var(--primary-resonance, #60a5fa)',
+  iconColor = 'var(--primary-live-sync, #60a5fa)',
   children,
   className = '',
   ...props

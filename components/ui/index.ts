@@ -1,4 +1,4 @@
-// UI Components — Liquid Glass Design System
+// UI Components — Modern UI Design System
 // All components use CSS custom properties (var(--*)) so they automatically
 // adopt each app's colour palette (home=emerald, church=violet, admin=cobalt, etc.)
 
@@ -24,9 +24,9 @@ export { Progress, CircularProgress } from './Progress';
 export { Switch } from './Switch';
 export { ProgressCard, QuickActionCard } from './CompositeCards';
 export { SignaturePad } from './SignaturePad';
-export { ResonanceCreditHUD } from './ResonanceCreditHUD';
+export { LiveSyncCreditHUD } from './LiveSyncCreditHUD';
 
-// Liquid Glass primitives (CSS vars — zero hardcoded colours)
+// Modern UI primitives (CSS vars — zero hardcoded colours)
 export { ProgressBar, default as ProgressBarDefault } from './ProgressBar';
 export { Toggle } from './Toggle';
 export { ThemeToggle } from './ThemeToggle';
@@ -48,7 +48,7 @@ export {
 } from './WidgetSkeleton';
 export { Tooltip } from './Tooltip';
 
-// Liquid Glass form primitives (inline-style, CSS token—based)
+// Modern UI form primitives (inline-style, CSS token—based)
 export { Select } from './Select';
 export { default as Autocomplete } from './Autocomplete';
 export { Chip, CHIP_VARIANTS } from './Chip';

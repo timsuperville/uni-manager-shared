@@ -1,5 +1,5 @@
 /**
- * Text — Semantic text primitive using Liquid Glass CSS tokens.
+ * Text — Semantic text primitive using Modern UI CSS tokens.
  * Renders a <p> element with standard body sizing.
  *
  * Per CSP: Replaces all inline text components used across 2+ feature files.

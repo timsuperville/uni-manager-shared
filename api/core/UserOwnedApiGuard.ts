@@ -1,9 +1,9 @@
 import { AxiosRequestConfig } from 'axios';
 
 /**
- * SovereignApiGuard.ts
+ * UserOwnedApiGuard.ts
  *
- * Implements the "Sovereign Shutdown Boundary" (Phase 10: Personal Sanctuary).
+ * Implements the "UserOwned Shutdown Boundary" (Phase 10: Private Space).
  * Physically severs API connections for work and church domains during shutdown hours.
  */
 
@@ -16,9 +16,9 @@ export const setShutdownLocked = (locked: boolean) => {
 
 export const isShutdownLocked = () => _isShutdownLocked;
 
-export class SovereignApiGuard {
+export class UserOwnedApiGuard {
   /**
-   * Evaluates if a request should be severed based on the Sovereign Shutdown Boundary.
+   * Evaluates if a request should be severed based on the UserOwned Shutdown Boundary.
    * Returns true if the request is blocked.
    */
   static shouldBlockRequest(config: AxiosRequestConfig): boolean {

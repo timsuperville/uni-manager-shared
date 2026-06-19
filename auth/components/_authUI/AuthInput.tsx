@@ -28,7 +28,7 @@ interface AuthInputProps {
  * Auth Input — Labelled text input with optional icon, right element, and
  * inline error message for use within auth forms.
  *
- * Focus colours use CSS custom properties (`--primary-resonance`) so each
+ * Focus colours use CSS custom properties (`--primary-live-sync`) so each
  * app's design token drives focus highlight automatically.
  */
 export const AuthInput = ({

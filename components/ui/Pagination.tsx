@@ -11,7 +11,7 @@ interface PaginationProps {
   siblingCount?: number;
 }
 
-/** Pagination — Liquid Glass page-number navigation with smart ellipsis. */
+/** Pagination — Modern UI page-number navigation with smart ellipsis. */
 export function Pagination({
   currentPage,
   totalPages,
@@ -41,9 +41,9 @@ export function Pagination({
   };
   const activeBtn: React.CSSProperties = {
     ...baseBtn,
-    background: 'var(--primary-resonance, #6366f1)',
+    background: 'var(--primary-live-sync, #6366f1)',
     color: '#fff',
-    border: '1px solid var(--primary-resonance, #6366f1)',
+    border: '1px solid var(--primary-live-sync, #6366f1)',
     cursor: 'default'
   };
   const disabledBtn: React.CSSProperties = {

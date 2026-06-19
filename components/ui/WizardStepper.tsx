@@ -15,7 +15,7 @@ interface WizardStepperProps {
 }
 
 /**
- * WizardStepper — Liquid Glass horizontal step indicator.
+ * WizardStepper — Modern UI horizontal step indicator.
  * Active/completed states use CSS vars for per-app branding.
  */
 export function WizardStepper({
@@ -60,7 +60,7 @@ export function WizardStepper({
                   background: isDone
                     ? 'var(--accent-emerald, var(--color-success, #22c55e))'
                     : isActive
-                      ? 'var(--primary-resonance, var(--color-primary, #6366f1))'
+                      ? 'var(--primary-live-sync, var(--color-primary, #6366f1))'
                       : 'var(--glass-outline, var(--glass-border, rgba(255,255,255,0.1)))',
                   display: 'flex',
                   alignItems: 'center',

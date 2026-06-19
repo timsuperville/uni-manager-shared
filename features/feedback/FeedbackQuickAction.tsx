@@ -212,7 +212,7 @@ export const FeedbackQuickAction: React.FC<FeedbackQuickActionProps> = ({
 
   // â”€â”€ VARIANT: sidebar-item â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   if (variant === 'sidebar-item') {
-    const accent = accentColor || 'var(--primary-resonance, #22d3ee)';
+    const accent = accentColor || 'var(--primary-live-sync, #22d3ee)';
     return (
       <>
         <button
@@ -258,7 +258,7 @@ export const FeedbackQuickAction: React.FC<FeedbackQuickActionProps> = ({
 
   // â”€â”€ VARIANT: sidebar-icon â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   if (variant === 'sidebar-icon') {
-    const accent = accentColor || 'var(--primary-resonance, #22d3ee)';
+    const accent = accentColor || 'var(--primary-live-sync, #22d3ee)';
     return (
       <>
         <button
@@ -336,7 +336,7 @@ export const FeedbackQuickAction: React.FC<FeedbackQuickActionProps> = ({
 
   // â”€â”€ VARIANT: bottom-nav-item â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   if (variant === 'bottom-nav-item') {
-    const accent = accentColor || 'var(--primary-resonance, #22d3ee)';
+    const accent = accentColor || 'var(--primary-live-sync, #22d3ee)';
     return (
       <>
         <button
@@ -522,7 +522,7 @@ export const FeedbackQuickAction: React.FC<FeedbackQuickActionProps> = ({
             height: '48px',
             borderRadius: '50%',
             background:
-              'linear-gradient(135deg, var(--primary-resonance), var(--primary-hover, var(--primary-resonance)))',
+              'linear-gradient(135deg, var(--primary-live-sync), var(--primary-hover, var(--primary-live-sync)))',
             border: 'none',
             color: '#fff',
             cursor: 'pointer',

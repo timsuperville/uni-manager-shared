@@ -11,7 +11,7 @@
  *   { type: 'FOCUS_MODE_OFF', deactivatedAt: ISO string, source: 'personal-app' }
  *
  * Contract 6 — Personal → Ecosystem (Focus State Sync)
- * Ref: .agent/plans/cross-app-resonance-map.md
+ * Ref: .agent/plans/cross-app-live-sync-map.md
  */
 
 import { useState, useEffect, useRef } from 'react';

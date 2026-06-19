@@ -1,5 +1,5 @@
 /**
- * timePickerUtils.ts — Liquid Glass Design System
+ * timePickerUtils.ts — Modern UI Design System
  *
  * Pure helpers, constants, and style tokens for TimePicker.tsx.
  * Extracted to keep the component file focused on logic and JSX.

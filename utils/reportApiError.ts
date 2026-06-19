@@ -2,7 +2,7 @@
  * reportApiError — Proactive API Failure Telemetry
  *
  * Silently reports API-layer failures to the backend ErrorLog so they surface
- * in the Admin Error Resonance dashboard WITHOUT requiring a user to manually
+ * in the Admin Error LiveSync dashboard WITHOUT requiring a user to manually
  * submit feedback.
  *
  * Design principles:

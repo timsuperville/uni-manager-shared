@@ -21,7 +21,7 @@ const IMAGE_HEIGHT: Record<string, string> = {
 };
 
 /**
- * PageHeader — Liquid Glass responsive title bar.
+ * PageHeader — Modern UI responsive title bar.
  * Stacks on mobile; single row on sm+. Description hidden on xs.
  * Optionally renders a full-width cover image hero when `image` is provided.
  */

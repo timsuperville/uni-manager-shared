@@ -16,7 +16,7 @@ interface StatusBadgeProps {
 }
 
 /**
- * StatusBadge — Liquid Glass backward-compatible wrapper around Chip.
+ * StatusBadge — Modern UI backward-compatible wrapper around Chip.
  * Renders a pill with a status dot + label.
  */
 export function StatusBadge({ label, variant, customStyle }: StatusBadgeProps) {

@@ -137,7 +137,7 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
                 <Icon
                   className="w-6 h-6"
                   style={{
-                    color: iconColor || 'var(--primary-resonance, #6366f1)'
+                    color: iconColor || 'var(--primary-live-sync, #6366f1)'
                   }}
                 />
               </div>
@@ -321,7 +321,7 @@ const ActionCard: React.FC<ActionCardProps> = ({
   const iconNode =
     typeof icon === 'function'
       ? React.createElement(icon as React.ElementType, {
-          className: 'w-5 h-5 text-(--primary-resonance,#6366f1)'
+          className: 'w-5 h-5 text-(--primary-live-sync,#6366f1)'
         })
       : (icon as React.ReactNode);
 
@@ -329,7 +329,7 @@ const ActionCard: React.FC<ActionCardProps> = ({
     <Card
       variant="outlined"
       interactive
-      className={`group hover:border-(--primary-resonance,#4f46e5) transition-all duration-200 ${className}`}
+      className={`group hover:border-(--primary-live-sync,#4f46e5) transition-all duration-200 ${className}`}
       {...props}
     >
       <CardContent padding="lg">
@@ -349,7 +349,7 @@ const ActionCard: React.FC<ActionCardProps> = ({
               </p>
             )}
             {action && (
-              <div className="text-xs text-(--primary-resonance,#6366f1) font-medium">
+              <div className="text-xs text-(--primary-live-sync,#6366f1) font-medium">
                 {action}
               </div>
             )}

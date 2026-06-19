@@ -10,7 +10,7 @@ export function ProgressRing({
   pct,
   size = 56,
   stroke = 5,
-  color = 'var(--primary-resonance)',
+  color = 'var(--primary-live-sync)',
   className
 }: ProgressRingProps) {
   const r = (size - stroke) / 2;

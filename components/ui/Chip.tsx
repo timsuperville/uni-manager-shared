@@ -5,7 +5,7 @@ import type { ChipVariant, ChipSize } from './chipVariants';
 export { CHIP_VARIANTS } from './chipVariants';
 
 /**
- * Chip — Liquid Glass Design System
+ * Chip — Modern UI Design System
  *
  * The canonical pill badge for the entire ecosystem. Replaces all inline Chip
  * definitions and is the underlying primitive for StatusBadge.

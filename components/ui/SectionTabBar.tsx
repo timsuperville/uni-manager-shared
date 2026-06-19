@@ -23,7 +23,7 @@ interface SectionTabBarProps {
  * SectionTabBar — URL-driven horizontal tab rail for Hub pages.
  *
  * Active state is derived from the current URL pathname so tabs survive
- * page refresh and are fully bookmarkable. Uses Liquid Glass CSS tokens;
+ * page refresh and are fully bookmarkable. Uses Modern UI CSS tokens;
  * no hardcoded colours.
  */
 export function SectionTabBar({ tabs, title, subtitle }: SectionTabBarProps) {
@@ -118,11 +118,11 @@ export function SectionTabBar({ tabs, title, subtitle }: SectionTabBarProps) {
                   fontSize: '13px',
                   fontWeight: isActive ? '700' : '500',
                   color: isActive
-                    ? 'var(--primary-resonance)'
+                    ? 'var(--primary-live-sync)'
                     : 'var(--text-muted)',
                   textDecoration: 'none',
                   borderBottom: isActive
-                    ? '2px solid var(--primary-resonance)'
+                    ? '2px solid var(--primary-live-sync)'
                     : '2px solid transparent',
                   marginBottom: '-1px',
                   transition: 'color 150ms ease, border-color 150ms ease',

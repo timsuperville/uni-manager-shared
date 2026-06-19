@@ -3,7 +3,7 @@
  *
  * Pushes a sanitized church event payload to the Home App's hospitality endpoint
  * when a small-group or in-home event is saved. The Home App then generates a
- * Sanctuary Prep Checklist and a "Hosting Ritual" task cluster for the household.
+ * SecureVault Prep Checklist and a "Hosting Routine" task cluster for the household.
  *
  * Privacy guarantee: this hook NEVER sends CRM contact details — only:
  *   - churchEventId, churchEventTitle, eventType

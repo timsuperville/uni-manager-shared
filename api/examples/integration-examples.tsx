@@ -6,7 +6,7 @@
  *
  * NOTE: Church-specific API examples have been moved to the Church app.
  * The `church` service is not part of the shared ApiServices interface.
- * See: frontend/apps/church/src for ecclesiastical service patterns.
+ * See: frontend/apps/church/src for church service patterns.
  */
 
 import React from 'react';

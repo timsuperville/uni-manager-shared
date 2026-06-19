@@ -35,7 +35,7 @@ export const ThemeToggle: React.FC = () => {
         onClick={handleClick}
         className="relative p-2 rounded-full transition-colors duration-200
           hover:bg-[var(--glass-surface)]
-          focus:outline-none focus:ring-2 focus:ring-[var(--primary-resonance)]"
+          focus:outline-none focus:ring-2 focus:ring-[var(--primary-live-sync)]"
         aria-label={label}
         title={label}
       >
@@ -78,7 +78,7 @@ export const ThemeToggle: React.FC = () => {
           <span
             className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-[var(--bg-surface)]"
             style={{
-              backgroundColor: 'var(--primary-resonance)',
+              backgroundColor: 'var(--primary-live-sync)',
               borderColor: 'var(--bg-surface)'
             }}
             title="Following system theme"
@@ -92,7 +92,7 @@ export const ThemeToggle: React.FC = () => {
           onClick={resetToSystem}
           className="p-1.5 rounded-full transition-colors duration-200
             hover:bg-[var(--glass-surface)]
-            focus:outline-none focus:ring-2 focus:ring-[var(--primary-resonance)]"
+            focus:outline-none focus:ring-2 focus:ring-[var(--primary-live-sync)]"
           style={{ color: 'var(--text-muted)' }}
           aria-label="Reset to system theme"
           title="Reset to system theme (auto)"

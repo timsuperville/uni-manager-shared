@@ -6,7 +6,7 @@ interface LogoProps extends React.SVGProps<SVGSVGElement> {
 }
 
 /**
- * Liquid Glass SVG Logo for Uni-Manager
+ * Modern UI SVG Logo for Uni-Manager
  * Automatically adopts the current app's colour variables if present.
  */
 export const Logo: React.FC<LogoProps> = ({

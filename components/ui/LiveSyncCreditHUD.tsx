@@ -1,13 +1,13 @@
 import React from 'react';
 import { Sparkles } from 'lucide-react';
 
-export interface ResonanceCreditHUDProps {
+export interface LiveSyncCreditHUDProps {
   credits?: number;
   className?: string;
   onClick?: () => void;
 }
 
-export const ResonanceCreditHUD: React.FC<ResonanceCreditHUDProps> = ({
+export const LiveSyncCreditHUD: React.FC<LiveSyncCreditHUDProps> = ({
   credits = 0,
   className = '',
   onClick
@@ -25,7 +25,7 @@ export const ResonanceCreditHUD: React.FC<ResonanceCreditHUDProps> = ({
           ? 'bg-[var(--accent-red-subtle)] border-[var(--border-red)] text-[var(--text-red)]'
           : 'bg-[var(--bg-card)] border-[var(--border-light)] text-[var(--text-primary)]'
       } ${className}`}
-      title={`Resonance Credits: ${credits}`}
+      title={`LiveSync Credits: ${credits}`}
     >
       <Sparkles
         className={`w-4 h-4 ${

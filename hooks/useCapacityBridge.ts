@@ -2,7 +2,7 @@
  * useCapacityBridge — Cross-App Contract 4: Personal → Church Capacity Bridge
  *
  * Queries the Personal App's capacity status endpoint for a given user ID.
- * Used by the Church Service Planner to surface Sovereign Capacity Conflict
+ * Used by the Church Service Planner to surface UserOwned Capacity Conflict
  * warnings when rostering a volunteer for a high-intensity role.
  *
  * Privacy guarantee: This hook NEVER receives raw biometric data. The backend

@@ -11,7 +11,7 @@ interface SpinnerProps extends React.SVGProps<SVGSVGElement> {
 
 const SIZES: Record<SpinnerSize, number> = { sm: 16, md: 24, lg: 36, xl: 48 };
 
-/** Spinner — Liquid Glass inline animation. Inherits brand colour via --primary-resonance. */
+/** Spinner — Modern UI inline animation. Inherits brand colour via --primary-live-sync. */
 export function Spinner({
   size = 'md',
   color,
@@ -46,7 +46,7 @@ export function Spinner({
       <path
         d="M21 12a9 9 0 0 0-9-9"
         stroke={
-          color ?? 'var(--primary-resonance, var(--color-primary, #6366f1))'
+          color ?? 'var(--primary-live-sync, var(--color-primary, #6366f1))'
         }
         strokeWidth={stroke}
         strokeLinecap="round"

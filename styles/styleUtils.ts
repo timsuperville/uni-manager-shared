@@ -3,7 +3,7 @@ import type React from 'react';
 /**
  * @shared/styles/styleUtils
  *
- * Liquid Glass inline-style helpers — one canonical source for the entire platform.
+ * Modern UI inline-style helpers — one canonical source for the entire platform.
  *
  * ──  WHY THIS FILE EXISTS  ──────────────────────────────────────────────────────
  * Every feature file was independently redeclaring:
@@ -40,7 +40,7 @@ export const textSecondary: React.CSSProperties = {
   color: 'var(--text-secondary, rgba(255,255,255,0.7))'
 };
 
-/** var(--text-accent) — ecclesiastical/thematic text highlight */
+/** var(--text-accent) — church/thematic text highlight */
 export const textAccent: React.CSSProperties = {
   color: 'var(--text-accent, hsl(272, 65%, 76%))'
 };
@@ -72,15 +72,15 @@ export const bgEcclesia: React.CSSProperties = {
   background: 'var(--bg-ecclesia, hsl(268, 35%, 5%))'
 };
 
-/** var(--primary-resonance) surface — solid primary background */
+/** var(--primary-live-sync) surface — solid primary background */
 export const primaryResonanceSurface: React.CSSProperties = {
-  background: 'var(--primary-resonance, hsl(272, 65%, 62%))'
+  background: 'var(--primary-live-sync, hsl(272, 65%, 62%))'
 };
 
 // ── Glass surface objects ─────────────────────────────────────────────────────
 
 /**
- * Standard Liquid Glass card / panel surface — blur(24px) saturate(180%).
+ * Standard Modern UI card / panel surface — blur(24px) saturate(180%).
  * Use for any raised container that needs the frosted-glass treatment.
  */
 export const glassPanel: React.CSSProperties = {
@@ -149,7 +149,7 @@ export const glassOverlay: React.CSSProperties = {
 
 /**
  * Base inline style for <input>, <select>, and <textarea> elements.
- * Provides glass surface styling consistent with the Liquid Glass design system.
+ * Provides glass surface styling consistent with the Modern UI design system.
  * For full form field wrappers (label + hint + error), use <FormField> from @shared/components/ui.
  */
 export const inputBase: React.CSSProperties = {

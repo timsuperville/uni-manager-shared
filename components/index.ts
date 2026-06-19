@@ -44,7 +44,7 @@ export {
 // ── Context (canonical: import from @shared/context) ─────────────────────────
 export { PresenceProvider, usePresence, PresenceContext } from '../context';
 
-// ── Liquid Glass UI primitives ────────────────────────────────────────────────
+// ── Modern UI UI primitives ────────────────────────────────────────────────
 // Source of truth for: Modal, Button, Card, Badge, Input, Select, ProgressBar,
 // Toggle, Spinner, EmptyState, FormField, WizardStepper, etc.
 export * from './ui';

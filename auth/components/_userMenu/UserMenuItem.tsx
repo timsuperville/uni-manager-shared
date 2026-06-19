@@ -54,13 +54,13 @@ const UserMenuItem = memo(
       const textColor = isDanger
         ? 'var(--color-error, hsl(0,75%,60%))'
         : active
-          ? 'var(--text-accent, var(--primary-resonance))'
+          ? 'var(--text-accent, var(--primary-live-sync))'
           : 'var(--text-secondary)';
 
       const iconColor = isDanger
         ? 'var(--color-error, hsl(0,75%,60%))'
         : active || (hovered && !disabled)
-          ? 'var(--primary-resonance)'
+          ? 'var(--primary-live-sync)'
           : 'var(--text-muted)';
 
       return (
@@ -105,9 +105,9 @@ const UserMenuItem = memo(
                 height: '60%',
                 width: '2px',
                 borderRadius: '0 2px 2px 0',
-                background: 'var(--primary-resonance)',
+                background: 'var(--primary-live-sync)',
                 boxShadow:
-                  '0 0 6px var(--primary-glow, var(--primary-resonance))'
+                  '0 0 6px var(--primary-glow, var(--primary-live-sync))'
               }}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

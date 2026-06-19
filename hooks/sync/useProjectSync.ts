@@ -47,7 +47,7 @@ export interface UseProjectSyncResult {
  * All mutations are local-first (instant feedback) and merge mathematically
  * via Yjs CRDT semantics. Last-writer-wins per task field.
  *
- * @param workId  - Tenant scope (enforces sovereign data isolation)
+ * @param workId  - Tenant scope (enforces user owned data isolation)
  * @param projectId   - Project scope (e.g. 'p1', 'p2')
  */
 export function useProjectSync(

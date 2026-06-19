@@ -18,7 +18,7 @@ import { glassBorder, glassBackgroundHover } from '@shared/styles/styleUtils';
 export type { ParsedTime } from './timePickerUtils';
 
 /**
- * TimePicker — Liquid Glass Design System
+ * TimePicker — Modern UI Design System
  *
  * Redesigned for speed and clarity:
  *  - Compact inline editor (HH : MM  AM|PM) at the top of the panel
@@ -145,7 +145,7 @@ const DigitInput = forwardRef<HTMLInputElement, DigitInputProps>(
           ...S.digitInput,
           ...(focused || highlight
             ? {
-                borderColor: 'var(--primary-resonance)',
+                borderColor: 'var(--primary-live-sync)',
                 boxShadow: '0 0 0 3px var(--primary-glow, rgba(99,102,241,0.2))'
               }
             : {})
@@ -311,7 +311,7 @@ export function TimePicker({
 
   const triggerFocus = (focused: boolean): React.CSSProperties => ({
     border: focused
-      ? '1px solid var(--primary-resonance, #6366f1)'
+      ? '1px solid var(--primary-live-sync, #6366f1)'
       : '1px solid var(--glass-outline, rgba(255,255,255,0.12))',
     boxShadow: focused
       ? '0 0 0 3px var(--primary-glow, rgba(99,102,241,0.2))'
@@ -322,11 +322,11 @@ export function TimePicker({
     <div ref={wrapRef} style={{ position: 'relative', width: '100%' }}>
       <style>{`
         @keyframes lgFadeIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
-        .tp-preset:hover { background: var(--primary-subtle, hsla(272,65%,62%,0.14)) !important; color: var(--text-primary) !important; border-color: var(--primary-resonance) !important; }
-        .tp-preset-active { background: var(--primary-resonance) !important; color: #fff !important; border-color: transparent !important; }
+        .tp-preset:hover { background: var(--primary-subtle, hsla(272,65%,62%,0.14)) !important; color: var(--text-primary) !important; border-color: var(--primary-live-sync) !important; }
+        .tp-preset-active { background: var(--primary-live-sync) !important; color: #fff !important; border-color: transparent !important; }
         .tp-spin:hover { background: var(--glass-surface-hover) !important; color: var(--text-primary) !important; }
         .tp-ampm:hover:not(.tp-ampm-active) { background: var(--glass-surface-hover) !important; color: var(--text-primary) !important; }
-        .tp-done-btn:hover { background: var(--primary-resonance) !important; color: #fff !important; }
+        .tp-done-btn:hover { background: var(--primary-live-sync) !important; color: #fff !important; }
       `}</style>
 
       {/* ── Trigger ── */}
@@ -445,7 +445,7 @@ export function TimePicker({
                 flexShrink: 0,
                 ...(presetMode === 'ampm'
                   ? {
-                      borderColor: 'var(--primary-resonance)',
+                      borderColor: 'var(--primary-live-sync)',
                       boxShadow:
                         '0 0 0 3px var(--primary-glow, rgba(99,102,241,0.2))'
                     }
@@ -528,7 +528,7 @@ export function TimePicker({
                             ? '1px solid transparent'
                             : '1px solid var(--glass-outline)',
                           background: active
-                            ? 'var(--primary-resonance)'
+                            ? 'var(--primary-live-sync)'
                             : 'var(--glass-surface-hover, rgba(255,255,255,0.04))',
                           color: active ? '#fff' : 'var(--text-muted)',
                           cursor: 'pointer',
@@ -577,7 +577,7 @@ export function TimePicker({
                             ? '1px solid transparent'
                             : '1px solid var(--glass-outline)',
                           background: active
-                            ? 'var(--primary-resonance)'
+                            ? 'var(--primary-live-sync)'
                             : 'var(--glass-surface-hover, rgba(255,255,255,0.04))',
                           color: active ? '#fff' : 'var(--text-muted)',
                           cursor: 'pointer',
@@ -618,7 +618,7 @@ export function TimePicker({
                           ? '1px solid transparent'
                           : '1px solid var(--glass-outline)',
                         background: active
-                          ? 'var(--primary-resonance)'
+                          ? 'var(--primary-live-sync)'
                           : 'var(--glass-surface-hover, rgba(255,255,255,0.04))',
                         color: active ? '#fff' : 'var(--text-muted)',
                         cursor: 'pointer',
