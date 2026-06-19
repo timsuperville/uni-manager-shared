@@ -93,7 +93,7 @@ export class AuthService extends BaseService {
     ts.setTokens({
       accessToken: response.accessToken,
       refreshToken: response.refreshToken,
-      user: response.user,
+      user: response.user as any,
       persistent: credentials.rememberMe
     });
 
@@ -124,7 +124,7 @@ export class AuthService extends BaseService {
     ts.setTokens({
       accessToken: response.accessToken,
       refreshToken: response.refreshToken,
-      user: response.user,
+      user: response.user as any,
       persistent: true
     });
 
@@ -188,7 +188,7 @@ export class AuthService extends BaseService {
     ts.setTokens({
       accessToken: response.accessToken,
       refreshToken: response.refreshToken,
-      user: response.user,
+      user: response.user as any,
       persistent: true
     });
 
@@ -271,7 +271,7 @@ export class AuthService extends BaseService {
     ts.setTokens({
       accessToken: response.accessToken,
       refreshToken: response.refreshToken,
-      user: response.user
+      user: response.user as any
     });
 
     return response;
