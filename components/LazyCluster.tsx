@@ -1,7 +1,7 @@
 import React, { lazy, Suspense } from 'react';
 import { Routes, useLocation } from 'react-router-dom';
-import { ErrorBoundary } from './ErrorBoundary';
-import { WidgetSkeleton } from './WidgetSkeleton';
+import { ErrorBoundary } from './error-boundary';
+import { WidgetSkeleton } from './ui/WidgetSkeleton';
 
 function RouteErrorBoundary({
   children,
