@@ -150,14 +150,3 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({
 };
 
 export { ToastProvider as default };
-
-// Hook for convenient toast usage
-export const useToastNotification = () => {
-  const { showSuccess, showError, showWarning, showInfo } = useToast();
-  return {
-    success: showSuccess,
-    error: showError,
-    warning: showWarning,
-    info: showInfo
-  };
-};

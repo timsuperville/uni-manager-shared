@@ -1,4 +1,4 @@
-﻿// Production Error Monitoring â€” utility functions only.
+// Production Error Monitoring â€” utility functions only.
 // The ErrorBoundary class has been consolidated into @shared/components/ErrorBoundary.jsx.
 //
 // Exports from this file:
@@ -16,6 +16,11 @@ import { getAuthToken } from '../../utils/authToken';
 import { flushPendingErrorReports } from '../../components/error-boundary';
 import { collectSystemContext } from '../feedback/utils/collectSystemContext';
 import { logger } from '../../utils/logger';
+import {
+  type FeedbackType,
+  type ErrorCategory,
+  type ErrorSeverity
+} from '../../types/telemetry';
 
 declare global {
   interface Window {
@@ -225,10 +230,12 @@ const buildGlobalFeedbackPayload = (
   );
 
   return {
-    // â”€â”€ Enum-safe values â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    type: 'error-report', // was: "automatic_global_error" (invalid enum)
-    category: 'bug', // was: "runtime_error" (invalid enum)
-    severity: errorData.type === 'uncaught' ? 'critical' : 'high',
+    // ─── Enum-safe values ──────────────────────────────────────────────────────────
+    type: 'error-report' satisfies FeedbackType,
+    category: 'bug' satisfies ErrorCategory,
+    severity: (errorData.type === 'uncaught'
+      ? 'critical'
+      : 'high') satisfies ErrorSeverity,
 
     // â”€â”€ User-input fields (schema maxlengths respected) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     userInput: {
@@ -804,8 +811,14 @@ export const createMonitoredQueryClient = (
 
   return new QueryClient({
     queryCache: new QueryCache({
-      onError: (error: unknown, query: { queryKey: unknown }) =>
-        reportQueryError(error, { queryKey: query.queryKey })
+      onError: (
+        error: unknown,
+        query: { queryKey: unknown; meta?: Record<string, unknown> }
+      ) => {
+        // Queries can opt out of error telemetry via meta.suppressErrorReporting
+        if (query.meta?.suppressErrorReporting) return;
+        reportQueryError(error, { queryKey: query.queryKey });
+      }
     }),
     mutationCache: new MutationCache({
       onError: (

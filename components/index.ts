@@ -11,13 +11,14 @@ export { default as ThemeToggle } from './ThemeToggle';
 export { ErrorBoundary } from './error-boundary';
 export { withErrorBoundary } from './error-boundary';
 export { flushPendingErrorReports } from './error-boundary';
+export { createLazyCluster, createLazyPage } from './LazyCluster';
 // GlobalErrorBoundary merged into ErrorBoundary (variant="full-screen" is now default)
 export { ApiProvider, useApi } from './ApiProvider';
 export { BioAdaptiveWrapper } from './wrappers/BioAdaptiveWrapper';
 
 // ── Feedback / Notifications ──────────────────────────────────────────────────
 export { default as Toast } from './Toast';
-export { ToastProvider, useToast, useToastNotification } from './ToastProvider';
+export { ToastProvider, useToast } from './ToastProvider';
 export { default as ConfirmDialog } from './ConfirmDialog';
 export {
   FeedbackQuickAction,

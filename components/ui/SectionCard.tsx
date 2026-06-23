@@ -22,8 +22,7 @@ export function SectionCard({
       className={className}
       style={{
         background: 'var(--glass-surface, rgba(255,255,255,0.03))',
-        border:
-          '1px solid var(--glass-outline, var(--glass-border, rgba(255,255,255,0.08)))',
+        border: 'none',
         borderRadius: 'var(--radius-lg, 1rem)',
         marginBottom: '1rem',
         overflow: 'hidden'
