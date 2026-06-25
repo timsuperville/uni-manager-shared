@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 export interface PageSidebarNavItem {
   /** Display label */
@@ -35,57 +36,111 @@ export function PageSidebarNav({
   width = '220px'
 }: PageSidebarNavProps) {
   const { pathname } = useLocation();
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  // Auto-collapse on small screens
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 860) {
+        setIsCollapsed(true);
+      } else {
+        setIsCollapsed(false);
+      }
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const currentWidth = isCollapsed ? '64px' : width;
 
   return (
     <nav
       style={{
-        width,
+        width: currentWidth,
         flexShrink: 0,
         display: 'flex',
         flexDirection: 'column',
         gap: '4px',
         borderRight: '1px solid var(--glass-outline)',
-        paddingRight: '16px',
-        // Fallback minHeight in case the content area is short
-        minHeight: '400px'
+        paddingRight: isCollapsed ? '0' : '16px',
+        minHeight: '400px',
+        transition: 'width 0.2s ease, padding 0.2s ease',
+        overflow: 'hidden'
       }}
     >
-      {(title || subtitle) && (
-        <div
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: isCollapsed ? 'center' : 'space-between',
+          padding: isCollapsed ? '0 0 16px 0' : '0 8px 16px',
+          marginBottom: '8px',
+          borderBottom: '1px solid var(--glass-outline)'
+        }}
+      >
+        {!isCollapsed && (
+          <div style={{ minWidth: 0, paddingRight: '8px' }}>
+            {title && (
+              <h2
+                style={{
+                  fontSize: '14px',
+                  fontWeight: '700',
+                  color: 'var(--text-primary)',
+                  fontFamily: 'var(--font-headline)',
+                  letterSpacing: '-0.01em',
+                  margin: 0,
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis'
+                }}
+              >
+                {title}
+              </h2>
+            )}
+            {subtitle && (
+              <p
+                style={{
+                  fontSize: '11px',
+                  color: 'var(--text-muted)',
+                  marginTop: '4px',
+                  margin: '4px 0 0 0',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis'
+                }}
+              >
+                {subtitle}
+              </p>
+            )}
+          </div>
+        )}
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
           style={{
-            padding: '0 8px 16px',
-            marginBottom: '8px',
-            borderBottom: '1px solid var(--glass-outline)'
+            background: 'transparent',
+            border: 'none',
+            color: 'var(--text-muted)',
+            cursor: 'pointer',
+            padding: '4px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: '4px',
+            flexShrink: 0,
+            transition: 'color 0.2s ease'
           }}
+          title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
+          onMouseEnter={e =>
+            (e.currentTarget.style.color = 'var(--text-primary)')
+          }
+          onMouseLeave={e =>
+            (e.currentTarget.style.color = 'var(--text-muted)')
+          }
         >
-          {title && (
-            <h2
-              style={{
-                fontSize: '14px',
-                fontWeight: '700',
-                color: 'var(--text-primary)',
-                fontFamily: 'var(--font-headline)',
-                letterSpacing: '-0.01em',
-                margin: 0
-              }}
-            >
-              {title}
-            </h2>
-          )}
-          {subtitle && (
-            <p
-              style={{
-                fontSize: '11px',
-                color: 'var(--text-muted)',
-                marginTop: '4px',
-                margin: '4px 0 0 0'
-              }}
-            >
-              {subtitle}
-            </p>
-          )}
-        </div>
-      )}
+          {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+        </button>
+      </div>
 
       {items.map(item => {
         // A route is active if it exactly matches, or if it's a parent of the current route
@@ -97,11 +152,12 @@ export function PageSidebarNav({
           <Link
             key={item.path}
             to={item.path}
+            title={isCollapsed ? item.label : undefined}
             style={{
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '8px 12px',
+              justifyContent: isCollapsed ? 'center' : 'space-between',
+              padding: isCollapsed ? '10px 0' : '8px 12px',
               borderRadius: '8px',
               textDecoration: 'none',
               fontSize: '13px',
@@ -130,13 +186,28 @@ export function PageSidebarNav({
               }
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: isCollapsed ? '0' : '8px',
+                justifyContent: 'center'
+              }}
+            >
               {item.icon && (
-                <span style={{ fontSize: '14px' }}>{item.icon}</span>
+                <span
+                  style={{
+                    fontSize: '14px',
+                    display: 'flex',
+                    alignItems: 'center'
+                  }}
+                >
+                  {item.icon}
+                </span>
               )}
-              <span>{item.label}</span>
+              {!isCollapsed && <span>{item.label}</span>}
             </div>
-            {item.badge && (
+            {!isCollapsed && item.badge && (
               <span
                 style={{
                   fontSize: '10px',
