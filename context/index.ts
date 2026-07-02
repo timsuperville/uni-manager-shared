@@ -4,3 +4,4 @@ export {
   usePresence,
   PresenceContext
 } from './PresenceContext.tsx';
+export { ToastProvider, useToast } from './ToastContext.tsx';

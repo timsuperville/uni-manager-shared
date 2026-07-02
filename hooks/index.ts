@@ -39,7 +39,7 @@ export { default as useNotifications } from './useNotifications';
 export { default as useNotificationPreferences } from './useNotificationPreferences';
 
 // UI helpers (re-exported from components for convenience)
-export { useToast } from '../components/ToastProvider';
+export { useToast } from '../context/ToastContext';
 
 // Audio analysis hooks
 export { useAnalyserLevel } from './useAnalyserLevel';

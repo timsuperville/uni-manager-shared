@@ -1,7 +1,7 @@
 // Unified Toast Provider for all Uni-Manager applications
 import React, { useState, useCallback, createContext, useContext } from 'react';
-import Toast from './Toast';
-import type { ToastType, ToastPosition } from './Toast';
+import Toast from '../components/Toast';
+import type { ToastType, ToastPosition } from '../components/Toast';
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -18,7 +18,7 @@ interface ToastItem {
   showCloseButton: boolean;
 }
 
-type ShowToastFn = (message: string, options?: ToastOptions) => number;
+type ShowToastFn = (_message: string, _options?: ToastOptions) => number;
 
 interface ToastContextValue {
   showSuccess: ShowToastFn;
@@ -26,16 +26,16 @@ interface ToastContextValue {
   showWarning: ShowToastFn;
   showInfo: ShowToastFn;
   showToast: (
-    message: string,
-    type?: ToastType,
-    options?: ToastOptions
+    _message: string,
+    _type?: ToastType,
+    _options?: ToastOptions
   ) => number;
   addToast: (
-    message: string,
-    type?: ToastType,
-    options?: ToastOptions
+    _message: string,
+    _type?: ToastType,
+    _options?: ToastOptions
   ) => number;
-  removeToast: (id: number) => void;
+  removeToast: (_id: number) => void;
   clearAllToasts: () => void;
   toasts: ToastItem[];
 }

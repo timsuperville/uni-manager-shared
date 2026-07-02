@@ -18,7 +18,7 @@ export { BioAdaptiveWrapper } from './wrappers/BioAdaptiveWrapper';
 
 // ── Feedback / Notifications ──────────────────────────────────────────────────
 export { default as Toast } from './Toast';
-export { ToastProvider, useToast } from './ToastProvider';
+export { ToastProvider, useToast } from '../context/ToastContext';
 export { default as ConfirmDialog } from './ConfirmDialog';
 export {
   FeedbackQuickAction,
