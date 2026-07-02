@@ -25,6 +25,7 @@ export interface ApiQueryOptions {
   /** @deprecated Use staleTime instead */
   cacheTime?: number;
   staleTime?: number;
+  meta?: Record<string, unknown>;
 }
 
 // ==================== FUNCTIONS ====================
@@ -54,16 +55,23 @@ export function useApiQuery<T>(
     refetchOnMount?: boolean;
     cacheTime?: number;
     staleTime?: number;
+    meta?: Record<string, unknown>;
   }
 ) {
-  const { enabled = true, refetchOnMount = true, staleTime } = options || {};
+  const {
+    enabled = true,
+    refetchOnMount = true,
+    staleTime,
+    meta
+  } = options || {};
 
   const { data, isLoading, error, isFetched, refetch } = useQuery({
     queryKey: Array.isArray(queryKey) ? queryKey : [queryKey],
     queryFn,
     enabled,
     refetchOnMount,
-    staleTime
+    staleTime,
+    meta
   });
 
   return {
