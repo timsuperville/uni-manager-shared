@@ -36,7 +36,7 @@ import type { AxiosProgressEvent } from 'axios';
 
 export class FileService extends BaseService {
   constructor(client: ApiClient) {
-    super(client, '/files', 'FileService');
+    super(client, '/infra/files', 'FileService');
   }
 
   // ===============================================
@@ -170,7 +170,7 @@ export class FileService extends BaseService {
       formData.append('description', request.description);
     }
 
-    return this.upload<FileMetadata>(this.baseEndpoint + '/upload', formData, {
+    return this.upload<FileMetadata>('', formData, {
       onUploadProgress: (progress: AxiosProgressEvent) => {
         onProgress?.(progress);
 
@@ -322,7 +322,7 @@ export class FileService extends BaseService {
     const schema: ValidationSchema = FileService.SCHEMAS.createFolder;
     this.validateRequest(folderData, schema);
 
-    return this.post<Folder>(this.baseEndpoint + '/folders', folderData);
+    return this.post<Folder>('/folders', folderData);
   }
 
   /**
@@ -411,8 +411,8 @@ export class FileService extends BaseService {
         : '';
 
     const endpoint = queryString
-      ? `${this.baseEndpoint}/folders/tree?${queryString}`
-      : `${this.baseEndpoint}/folders/tree`;
+      ? `/folders/tree?${queryString}`
+      : `/folders/tree`;
 
     return this.get<Folder[]>(endpoint);
   }
@@ -497,7 +497,7 @@ export class FileService extends BaseService {
     return this.post<{
       successful: string[];
       failed: Array<{ fileId: string; error: string }>;
-    }>(this.baseEndpoint + '/bulk', operation);
+    }>('/bulk', operation);
   }
 
   /**
@@ -582,9 +582,7 @@ export class FileService extends BaseService {
         ? new URLSearchParams(queryParams).toString()
         : '';
 
-    const endpoint = queryString
-      ? `${this.baseEndpoint}/analytics?${queryString}`
-      : `${this.baseEndpoint}/analytics`;
+    const endpoint = queryString ? `/analytics?${queryString}` : `/analytics`;
 
     return this.get<StorageAnalytics>(endpoint);
   }
@@ -596,9 +594,7 @@ export class FileService extends BaseService {
     const queryParams = { limit: String(limit) };
     const queryString = new URLSearchParams(queryParams).toString();
 
-    return this.get<FileMetadata[]>(
-      `${this.baseEndpoint}/recent?${queryString}`
-    );
+    return this.get<FileMetadata[]>(`/recent?${queryString}`);
   }
 
   /**
