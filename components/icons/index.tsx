@@ -670,6 +670,7 @@ export {
   ShieldHalf,
   SkipBack,
   SkipForward,
+  Sliders,
   SlidersHorizontal,
   Smile,
   Sparkles,
