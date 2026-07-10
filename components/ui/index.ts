@@ -79,3 +79,5 @@ export * from './KV';
 
 // TextArea — alias for Textarea (capitalization variant used in groups feature)
 export { Textarea as TextArea } from './Input';
+
+export { User } from './User';
