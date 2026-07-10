@@ -105,40 +105,17 @@ export { default as TermsOfService } from './components/legal/TermsOfService';
 export { default as PrivacyPolicy } from './components/legal/PrivacyPolicy';
 export { UserMenu, UserMenuItem } from './components/index';
 
-// RBAC — context (backward compat: wraps useAuth)
-export { RBACProvider, useRBAC } from './components/RBACComponents';
-
-// RBAC — guards (lazy-loaded, avoid bloating the initial bundle)
-export const PermissionGuard = React.lazy(() =>
-  import('./components/RBACComponents').then(m => ({
-    default: m.PermissionGuard
-  }))
-);
-export const RoleGuard = React.lazy(() =>
-  import('./components/RBACComponents').then(m => ({
-    default: m.RoleGuard
-  }))
-);
-export const ApplicationGuard = React.lazy(() =>
-  import('./components/RBACComponents').then(m => ({
-    default: m.ApplicationGuard
-  }))
-);
-export const RouteGuard = React.lazy(() =>
-  import('./components/RBACComponents').then(m => ({
-    default: m.RouteGuard
-  }))
-);
-export const AdminGuard = React.lazy(() =>
-  import('./components/RBACComponents').then(m => ({
-    default: m.AdminGuard
-  }))
-);
-export const FeatureGuard = React.lazy(() =>
-  import('./components/RBACComponents').then(m => ({
-    default: m.FeatureGuard
-  }))
-);
+// RBAC — context & guards (previously lazy-loaded, but compiled statically since RBACProvider is static)
+export {
+  RBACProvider,
+  useRBAC,
+  PermissionGuard,
+  RoleGuard,
+  ApplicationGuard,
+  RouteGuard,
+  AdminGuard,
+  FeatureGuard
+} from './components/RBACComponents';
 
 // Service exports — static re-exports (dynamic lazy-loaders removed: zero consumers,
 // and Rollup resolveDynamicImport on Linux CI cannot resolve extensionless relative imports).
