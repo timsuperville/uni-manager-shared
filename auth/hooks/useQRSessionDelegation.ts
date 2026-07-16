@@ -150,7 +150,8 @@ export function useQRSessionDelegation({
     refreshToken,
     buildQrPayload: () => {
       const churchUrl = getAppUrl('church');
-      return `${churchUrl}/auth/qr-approve?token=${token}&app=${appType}&v=1`;
+      const apiBase = getApiBaseUrl() || window.location.origin;
+      return `${churchUrl}/auth/qr-approve?token=${token}&app=${appType}&apiUrl=${encodeURIComponent(apiBase)}&v=1`;
     }
   };
 }

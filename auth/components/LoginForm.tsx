@@ -113,8 +113,10 @@ export function LoginForm({
   const ui = appConfig?.ui ?? DEFAULT_UI;
   const finalTitle = appTitle || ui.loginTitle;
   const finalDescription = appDescription || ui.loginDescription;
-  // returnTo takes priority over redirectPath prop
-  const finalRedirect = returnTo || redirectPath || '/dashboard';
+  const locationFrom = (location.state as any)?.from;
+  // returnTo takes priority over locationFrom and redirectPath prop
+  const finalRedirect =
+    returnTo || locationFrom || redirectPath || '/dashboard';
 
   const generateFingerprint = useCallback((): string | null => {
     if (typeof document === 'undefined') return null;
