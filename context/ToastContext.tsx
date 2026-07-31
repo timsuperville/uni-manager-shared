@@ -42,9 +42,31 @@ interface ToastContextValue {
 
 const ToastContext = createContext<ToastContextValue | null>(null);
 
+const fallbackToastValue: ToastContextValue = {
+  showSuccess: () => -1,
+  showError: () => -1,
+  showWarning: () => -1,
+  showInfo: () => -1,
+  showToast: () => -1,
+  addToast: () => -1,
+  removeToast: () => {},
+  clearAllToasts: () => {},
+  toasts: []
+};
+
 export const useToast = (): ToastContextValue => {
   const context = useContext(ToastContext);
-  if (!context) throw new Error('useToast must be used within a ToastProvider');
+  if (!context) {
+    if (
+      typeof process !== 'undefined' &&
+      process.env?.NODE_ENV !== 'production'
+    ) {
+      console.warn(
+        '[useToast] ToastProvider not found in context tree. Falling back to no-op provider.'
+      );
+    }
+    return fallbackToastValue;
+  }
   return context;
 };
 

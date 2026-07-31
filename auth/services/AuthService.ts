@@ -330,7 +330,7 @@ export class AuthService extends BaseService {
       phoneNumber: {
         type: 'string',
         required: false,
-        pattern: /^[\+]?[1-9][\d]{0,15}$/
+        pattern: /^[+]?[1-9][\d]{0,15}$/
       },
       bio: { type: 'string', required: false, maxLength: 500 },
       location: { type: 'string', required: false, maxLength: 100 },

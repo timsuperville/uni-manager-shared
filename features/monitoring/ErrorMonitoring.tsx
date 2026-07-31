@@ -28,7 +28,11 @@ declare global {
     __fetchInterceptorInstalled?: boolean;
     __offlineFlushInstalled?: boolean;
     __healthCheckInstalled?: boolean;
+    conditionalLog?: (_level: string, _prefix: string, ..._args: any[]) => void;
   }
+  var conditionalLog:
+    | ((_level: string, _prefix: string, ..._args: any[]) => void)
+    | undefined;
 }
 
 // Environment-specific configuration
@@ -298,7 +302,7 @@ export const setupGlobalErrorHandling = () => {
         JSON.stringify(activities.slice(-10))
       );
     } catch (_) {
-      globalThis.conditionalLog?.('warn', '[EmptyCatch]', _);
+      (globalThis as any).conditionalLog?.('warn', '[EmptyCatch]', _);
       /* sessionStorage unavailable */
     }
   };
@@ -623,7 +627,7 @@ export const setupPerformanceMonitoring = () => {
       });
       observer.observe({ entryTypes: ['longtask'] });
     } catch (_) {
-      globalThis.conditionalLog?.('warn', '[EmptyCatch]', _);
+      (globalThis as any).conditionalLog?.('warn', '[EmptyCatch]', _);
       /* entryType 'longtask' not supported in this browser */
     }
   }
@@ -699,6 +703,10 @@ export const setupHealthCheck = () => {
   };
 
   const intervalId = setInterval(async () => {
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      consecutiveFailures = 0;
+      return;
+    }
     try {
       const res = await fetch(`${getApiBaseUrl()}/health`, {
         cache: 'no-store'
@@ -710,6 +718,10 @@ export const setupHealthCheck = () => {
         reportHealthFailure(`HTTP ${res.status}`, res.status);
       }
     } catch (err: unknown) {
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        consecutiveFailures = 0;
+        return;
+      }
       const error = err as Error;
       reportHealthFailure(error.message || 'Network error');
     }

@@ -121,13 +121,11 @@ type SyntheticUser = User & {
   roles: string[];
 };
 
-class SessionRBAC extends (RBACUtils as new (
-  user: SyntheticUser | null
-) => RBACUtils) {
+class SessionRBAC extends RBACUtils {
   private readonly _resolved: Permission[];
 
   constructor(user: SyntheticUser) {
-    super(user);
+    super(user as any);
     // Note: _resolved may be undefined during super() if super() calls resolveUserPermissions();
     // the guard below handles that.
     this._resolved = user._resolvedPermissions ?? [];

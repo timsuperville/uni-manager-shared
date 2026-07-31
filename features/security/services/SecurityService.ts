@@ -283,17 +283,13 @@ export class SecurityService extends BaseService {
     badges: unknown;
     recommendations: unknown[];
   }> {
-    try {
-      const [profile, journey, badges, recommendations] = await Promise.all([
-        this.getSecurityProfile(userId, false),
-        this.getSecurityJourney(userId),
-        this.getBadgesAndAchievements(userId),
-        this.getSecurityRecommendations(userId, 3)
-      ]);
-      return { profile, journey, badges, recommendations };
-    } catch (error) {
-      throw error;
-    }
+    const [profile, journey, badges, recommendations] = await Promise.all([
+      this.getSecurityProfile(userId, false),
+      this.getSecurityJourney(userId),
+      this.getBadgesAndAchievements(userId),
+      this.getSecurityRecommendations(userId, 3)
+    ]);
+    return { profile, journey, badges, recommendations };
   }
 
   // ──────────────────────────────────────────────────────────────────────────

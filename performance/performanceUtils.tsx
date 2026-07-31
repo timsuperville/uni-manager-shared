@@ -283,16 +283,24 @@ export function createAsyncComponent<P extends object>(
 
 // ── OptimizedComponent ────────────────────────────────────────────────────────
 
+const PerformanceTracker: React.FC<{ componentName: string }> = ({
+  componentName
+}) => {
+  usePerformanceMonitor(componentName);
+  return null;
+};
+
 const OptimizedComponentInner: React.FC<OptimizedComponentProps> = ({
   children,
   trackPerformance = false,
   componentName = 'Anonymous'
 }) => {
-  if (trackPerformance) {
-    // Hook called at top-level — this is safe because trackPerformance is stable
-    usePerformanceMonitor(componentName);
-  }
-  return <>{children}</>;
+  return (
+    <>
+      {trackPerformance && <PerformanceTracker componentName={componentName} />}
+      {children}
+    </>
+  );
 };
 
 export const OptimizedComponent = memo(OptimizedComponentInner);
