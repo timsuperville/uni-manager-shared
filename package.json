@@ -5,6 +5,10 @@
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/timsuperville/uni-manager-shared.git"
+  },
   "type": "module",
   "main": "index.ts",
   "types": "index.ts",
