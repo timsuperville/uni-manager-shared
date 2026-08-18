@@ -171,7 +171,7 @@ class DataExportService {
         }
 
         if (Array.isArray(value))
-          return value.includes(itemValue as string | number);
+          return (value as unknown[]).includes(itemValue);
 
         if (typeof itemValue === 'string' && typeof value === 'string') {
           return itemValue.toLowerCase().includes(value.toLowerCase());
@@ -197,7 +197,8 @@ class DataExportService {
     const { filename = 'export', columns } = options;
     if (data.length === 0) throw new Error('No data to export');
 
-    const exportColumns = columns ?? Object.keys(data[0]);
+    const first = data[0];
+    const exportColumns = columns ?? (first ? Object.keys(first) : []);
     const headers = exportColumns.join(',');
     const rows = data.map(item =>
       exportColumns
@@ -234,7 +235,8 @@ class DataExportService {
     const { filename = 'export', columns, title } = options;
     if (data.length === 0) throw new Error('No data to export');
 
-    const exportColumns = columns ?? Object.keys(data[0]);
+    const first = data[0];
+    const exportColumns = columns ?? (first ? Object.keys(first) : []);
     const wb = XLSX.utils.book_new();
     const wsData = [
       exportColumns,
@@ -280,7 +282,8 @@ class DataExportService {
     const { filename = 'export', columns, title, metadata } = options;
     if (data.length === 0) throw new Error('No data to export');
 
-    const exportColumns = columns ?? Object.keys(data[0]);
+    const first = data[0];
+    const exportColumns = columns ?? (first ? Object.keys(first) : []);
     const doc = new jsPDF();
 
     doc.setFontSize(16);
@@ -443,8 +446,8 @@ class DataExportService {
   ): PreviewResult {
     const { columns, filters = {}, maxRows = 10 } = options;
     const filteredData = this.applyFilters(data, filters);
-    const exportColumns =
-      columns ?? (filteredData.length > 0 ? Object.keys(filteredData[0]) : []);
+    const first = filteredData[0];
+    const exportColumns = columns ?? (first ? Object.keys(first) : []);
     const previewData = filteredData.slice(0, maxRows);
 
     return {

@@ -360,8 +360,8 @@ export function parseChordPro(content: string): ParsedChordPro {
     );
     // Only capture these if we haven't hit a section/lyrics yet to avoid false positives inside lyrics
     if (headerMatch && !inSection && lyricLines.length < 5) {
-      const key = headerMatch[1].toLowerCase();
-      const val = headerMatch[2].trim();
+      const key = headerMatch[1]?.toLowerCase() ?? '';
+      const val = headerMatch[2]?.trim() ?? '';
       if (key === 'title' && !result.title) result.title = val;
       else if (
         (key === 'artist' || key === 'author') &&

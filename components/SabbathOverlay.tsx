@@ -21,7 +21,7 @@ export const SabbathOverlay: React.FC<{ children: React.ReactNode }> = ({
       ) {
         const now = new Date();
         if (now.getDay() === sabbath.scheduledStartDay) {
-          const [hours, minutes] = sabbath.scheduledStartTime
+          const [hours = 0, minutes = 0] = sabbath.scheduledStartTime
             .split(':')
             .map(Number);
           const startDateTime = new Date(now);

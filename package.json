@@ -1,10 +1,13 @@
 {
-  "name": "uni-manager-shared",
+  "name": "@timsuperville/shared",
   "version": "1.0.0",
   "description": "Shared utilities, components, and types for Uni-Manager applications",
-  "private": true,
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
   "type": "module",
   "main": "index.ts",
+  "types": "index.ts",
   "exports": {
     ".": {
       "types": "./index.ts",
@@ -59,14 +62,13 @@
     "./tailwind.preset": "./tailwind.preset.js"
   },
   "scripts": {
-    "build": "echo 'Shared library build placeholder'",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
-    "test:once": "vitest run --reporter=verbose",
-    "lint": "echo 'Shared library lint placeholder'",
-    "lint:fix": "echo 'Shared library lint placeholder'"
+    "test:once": "vitest run --reporter=verbose"
   },
   "peerDependencies": {
     "react": "^18.3.1",
@@ -81,12 +83,16 @@
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
     "jsdom": "^25.0.0",
+    "rollup-plugin-visualizer": "^7.1.1",
+    "typescript": "^7.0.2",
     "vite": "^7.3.0",
     "vitest": "^4.0.16"
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "@radix-ui/react-select": "^2.1.2",
     "@simplewebauthn/browser": "^13.3.0",
+    "@tanstack/react-query": "^5.101.4",
     "@vitest/coverage-v8": "^4.0.16",
     "@vitest/ui": "^4.0.16",
     "axios": "^1.9.0",
@@ -96,12 +102,16 @@
     "framer-motion": "^11.18.2",
     "i18next": "^26.0.8",
     "idb-keyval": "^6.2.2",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.8",
     "lerna": "9.0.3",
     "lucide-react": "^1.7.0",
     "react-i18next": "^17.0.6",
+    "react-icons": "^5.7.0",
     "socket.io-client": "^4.8.3",
     "swagger-jsdoc": "6.2.8",
     "web-vitals": "^5.2.0",
+    "xlsx": "^0.18.5",
     "y-websocket": "^3.0.0",
     "yjs": "^13.6.29"
   }

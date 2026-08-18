@@ -169,9 +169,10 @@ export function useAuthActions(
       try {
         updateState({ isLoading: true, error: null });
         const result = await authService.signup(userData);
-        if (result && !result['requiresVerification']) {
+        const resObj = (result || {}) as Record<string, unknown>;
+        if (result && !resObj['requiresVerification']) {
           const newState = {
-            user: result['user'],
+            user: resObj['user'] as any,
             isAuthenticated: true,
             isLoading: false
           };

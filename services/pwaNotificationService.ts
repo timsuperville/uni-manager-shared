@@ -4,7 +4,7 @@
  * Works with the enhanced backend push notification system
  */
 
-import { apiService } from '../../../shared/services/apiService';
+import apiService from './apiService';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -36,7 +36,7 @@ export interface LocalNotificationOptions {
   silent?: boolean;
   vibrate?: number[];
   data?: Record<string, unknown>;
-  actions?: NotificationAction[];
+  actions?: unknown[];
   timeout?: number;
 }
 
@@ -171,7 +171,7 @@ class PWANotificationService {
     const registration = await navigator.serviceWorker.ready;
     const subscription = await registration.pushManager.subscribe({
       userVisibleOnly: true,
-      applicationServerKey: this.urlBase64ToUint8Array(this.vapidPublicKey!)
+      applicationServerKey: this.urlBase64ToUint8Array(this.vapidPublicKey!) as unknown as BufferSource
     });
 
     this.subscription = subscription;
@@ -308,7 +308,7 @@ class PWANotificationService {
       silent: options.silent ?? false,
       vibrate: options.vibrate ?? [200, 100, 200],
       data: options.data ?? {}
-    });
+    } as NotificationOptions);
 
     if (options.timeout) {
       setTimeout(() => notification.close(), options.timeout);
@@ -377,7 +377,7 @@ class PWANotificationService {
       marketing: 'marketingMessages'
     };
     const prefKey = categoryMap[category];
-    return prefKey ? this.preferences[prefKey] : true;
+    return prefKey ? Boolean(this.preferences[prefKey]) : true;
   }
 }
 

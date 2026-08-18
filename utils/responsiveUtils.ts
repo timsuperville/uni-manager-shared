@@ -3,9 +3,7 @@
  * Provides responsive design patterns, mobile-first styling, and touch optimizations
  */
 
-import { useTheme, useMediaQuery } from '@mui/material';
 import { useState, useEffect, useCallback } from 'react';
-import type { Theme } from '@mui/material/styles';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -66,14 +64,33 @@ interface MobileDialogProps {
 // Hooks
 // ---------------------------------------------------------------------------
 
+/** Pure React media query hook */
+export const useMediaQuery = (query: string): boolean => {
+  const [matches, setMatches] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return window.matchMedia(query).matches;
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const media = window.matchMedia(query);
+    const listener = (e: MediaQueryListEvent) => setMatches(e.matches);
+    setMatches(media.matches);
+    media.addEventListener('change', listener);
+    return () => media.removeEventListener('change', listener);
+  }, [query]);
+
+  return matches;
+};
+
 /** Responsive breakpoints hook */
 export const useResponsive = () => {
-  const theme = useTheme();
-
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
-  const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
-  const isLargeScreen = useMediaQuery(theme.breakpoints.up('lg'));
+  const isMobile = useMediaQuery('(max-width: 639px)');
+  const isTablet = useMediaQuery('(min-width: 640px) and (max-width: 1023px)');
+  const isDesktop = useMediaQuery('(min-width: 1024px)');
+  const isLargeScreen = useMediaQuery('(min-width: 1280px)');
 
   return {
     isMobile,
@@ -363,21 +380,20 @@ export const getResponsiveColumns = (
   return columnConfig[breakpoint] ?? columnConfig.desktop;
 };
 
-/** Converts a breakpoint-keyed styles map into MUI `sx` media query keys. */
+/** Converts a breakpoint-keyed styles map into CSS media query keys. */
 export const createResponsiveStyles = (
-  theme: Theme,
   styles: Partial<Record<Breakpoint, Record<string, unknown>>>
 ): Record<string, unknown> => {
   const responsiveStyles: Record<string, unknown> = {};
 
   (Object.keys(styles) as Breakpoint[]).forEach(breakpoint => {
     if (breakpoint === 'mobile') {
-      responsiveStyles[theme.breakpoints.down('sm')] = styles[breakpoint];
+      responsiveStyles['@media (max-width: 639px)'] = styles[breakpoint];
     } else if (breakpoint === 'tablet') {
-      responsiveStyles[theme.breakpoints.between('sm', 'md')] =
+      responsiveStyles['@media (min-width: 640px) and (max-width: 1023px)'] =
         styles[breakpoint];
     } else if (breakpoint === 'desktop') {
-      responsiveStyles[theme.breakpoints.up('md')] = styles[breakpoint];
+      responsiveStyles['@media (min-width: 1024px)'] = styles[breakpoint];
     }
   });
 

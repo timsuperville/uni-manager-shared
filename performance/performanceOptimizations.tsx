@@ -74,7 +74,7 @@ export function withMemo<P extends object>(
 ): ComponentType<P> {
   const MemoizedComponent = memo(WrappedComponent, customCompare);
   MemoizedComponent.displayName = `Memoized(${WrappedComponent.displayName ?? WrappedComponent.name})`;
-  return MemoizedComponent as ComponentType<P>;
+  return MemoizedComponent as unknown as ComponentType<P>;
 }
 
 // ── HOC: withLazyLoading ──────────────────────────────────────────────────────
@@ -87,7 +87,7 @@ export function withLazyLoading<P extends object>(
 
   const LazyWrapper = (props: P) => (
     <Suspense fallback={fallback}>
-      <LazyComponent {...props} />
+      <LazyComponent {...(props as any)} />
     </Suspense>
   );
 
@@ -180,7 +180,7 @@ export function useLazyImage(
   useEffect(() => {
     const observer = new IntersectionObserver(
       entries => {
-        if (entries[0].isIntersecting) {
+        if (entries[0]?.isIntersecting) {
           const img = new Image();
           img.onload = () => {
             setImageSrc(src);

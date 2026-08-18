@@ -24,14 +24,14 @@ export const createBundleAnalysisConfig = (
       rollupOptions: {
         ...baseConfig.build?.rollupOptions,
         plugins: [
-          ...((baseConfig.build?.rollupOptions?.plugins as unknown[]) ?? []),
+          ...((baseConfig.build?.rollupOptions?.plugins as any[]) ?? []),
           // Visual bundle analysis — output is written next to dist/.
           visualizer({
             filename: 'bundle-visualizer.html',
             open: false,
             gzipSize: true,
             brotliSize: true
-          })
+          }) as any
         ],
         output: {
           manualChunks: {
@@ -55,7 +55,7 @@ export const createBundleAnalysisConfig = (
           drop_debugger: true,
           pure_funcs: ['console.log', 'console.info', 'console.debug']
         }
-      },
+      } as any,
       // Chunk size warnings
       chunkSizeWarningLimit: 500
     }

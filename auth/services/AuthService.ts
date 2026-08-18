@@ -83,7 +83,7 @@ export class AuthService extends BaseService {
 
     // Store token in interceptor so subsequent requests carry the Bearer header
     this.client.setAuthToken(
-      response.accessToken,
+      response.accessToken || (response as any).token || '',
       response.refreshToken,
       response.expiresIn
     );
@@ -91,7 +91,7 @@ export class AuthService extends BaseService {
     const storageNamespace = this.client.getConfig().storageNamespace || 'uni';
     const ts = new TokenStorage(storageNamespace);
     ts.setTokens({
-      accessToken: response.accessToken,
+      accessToken: response.accessToken || (response as any).token || '',
       refreshToken: response.refreshToken,
       user: response.user as any,
       persistent: credentials.rememberMe
@@ -114,7 +114,7 @@ export class AuthService extends BaseService {
 
     // Store token in interceptor so subsequent requests carry the Bearer header
     this.client.setAuthToken(
-      response.accessToken,
+      response.accessToken || (response as any).token || '',
       response.refreshToken,
       response.expiresIn
     );
@@ -178,7 +178,7 @@ export class AuthService extends BaseService {
     });
 
     this.client.setAuthToken(
-      response.accessToken,
+      response.accessToken || (response as any).token || '',
       response.refreshToken,
       response.expiresIn
     );
@@ -186,7 +186,7 @@ export class AuthService extends BaseService {
     const storageNamespace = this.client.getConfig().storageNamespace || 'uni';
     const ts = new TokenStorage(storageNamespace);
     ts.setTokens({
-      accessToken: response.accessToken,
+      accessToken: response.accessToken || (response as any).token || '',
       refreshToken: response.refreshToken,
       user: response.user as any,
       persistent: true
@@ -261,7 +261,7 @@ export class AuthService extends BaseService {
       { cache: false }
     );
     this.client.setAuthToken(
-      response.accessToken,
+      response.accessToken || (response as any).token || '',
       response.refreshToken,
       response.expiresIn
     );

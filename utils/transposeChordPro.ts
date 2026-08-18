@@ -71,7 +71,7 @@ export function transposeChord(
 
   if (!match) return chord; // If it doesn't parse, return as-is
 
-  const root = match[1];
+  const root = match[1] ?? '';
   const mod = match[2] || '';
   const bass = match[3];
 

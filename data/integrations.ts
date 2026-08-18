@@ -20,11 +20,12 @@ import {
   FaStripe,
   FaPaypal,
   FaYoutube,
-  FaFacebook
+  FaFacebook,
+  FaEnvelope
 } from 'react-icons/fa';
 
-import { SiSendgrid, SiQuickbooks, SiTwilio } from 'react-icons/si';
-import { TbBrandZoom } from 'react-icons/tb';
+import { SiQuickbooks } from 'react-icons/si';
+import { TbBrandZoom, TbBrandTwilio } from 'react-icons/tb';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -190,7 +191,7 @@ export const INTEGRATION_DATABASE: IntegrationDatabase = {
     name: 'SendGrid',
     description: 'Reliable transactional email delivery service',
     category: 'email',
-    icon: SiSendgrid,
+    icon: FaEnvelope,
     color: 'blue',
     popular: false,
     verified: true,
@@ -351,7 +352,7 @@ export const INTEGRATION_DATABASE: IntegrationDatabase = {
     name: 'Twilio',
     description: 'SMS messaging and communication platform',
     category: 'communication',
-    icon: SiTwilio,
+    icon: TbBrandTwilio,
     color: 'red',
     popular: false,
     verified: true,

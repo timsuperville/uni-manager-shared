@@ -82,7 +82,7 @@ export const LazyImage: React.FC<LazyImageProps> = ({
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
+        if (entry?.isIntersecting) {
           setIsInView(true);
           observer.disconnect();
         }
@@ -95,16 +95,16 @@ export const LazyImage: React.FC<LazyImageProps> = ({
   }, []);
 
   return (
-    <div ref={imgRef} className={className}>
+    <div ref={imgRef} className={`lazy-image-container ${className}`}>
       {isInView ? (
         <img
           src={src}
           alt={alt}
           onLoad={() => setIsLoaded(true)}
-          style={{ opacity: isLoaded ? 1 : 0, transition: 'opacity 0.3s ease' }}
+          className={`lazy-image ${isLoaded ? 'loaded' : 'loading'}`}
         />
       ) : (
-        (placeholder ?? <div className="image-placeholder" />)
+        placeholder || <div className="lazy-image-placeholder" />
       )}
     </div>
   );
@@ -131,7 +131,7 @@ export const LazySection: React.FC<LazySectionProps> = ({
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) setIsVisible(true);
+        if (entry?.isIntersecting) setIsVisible(true);
       },
       { threshold }
     );

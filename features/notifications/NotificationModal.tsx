@@ -190,7 +190,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
   const getPriorityBadge = useCallback(() => {
     const badge =
       PRIORITY_BADGE[notification.priority ?? 'normal'] ??
-      PRIORITY_BADGE.normal;
+      PRIORITY_BADGE['normal']!;
     return (
       <Badge color={badge.color} size="sm">
         {badge.label}
@@ -200,7 +200,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
 
   const getStatusBadge = useCallback(() => {
     const status =
-      STATUS_BADGE[notification.status ?? 'unread'] ?? STATUS_BADGE.unread;
+      STATUS_BADGE[notification.status ?? 'unread'] ?? STATUS_BADGE['unread']!;
     return (
       <Badge color={status.color} size="sm">
         {status.label}

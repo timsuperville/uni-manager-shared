@@ -9,10 +9,10 @@
 
 import { useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useUserPreferences } from './useUserPreferences.ts';
-import { useMinistryContext } from './useMinistryContext.ts';
-import { useSeasonalContext } from './useSeasonalContext.ts';
-import { useActivityContext } from './useActivityContext.ts';
+import { useUserPreferences } from './useUserPreferences';
+import { useMinistryContext } from './useMinistryContext';
+import { useSeasonalContext } from './useSeasonalContext';
+import { useActivityContext } from './useActivityContext';
 
 // ---------------------------------------------------------------------------
 // Types

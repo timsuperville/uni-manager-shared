@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
-import { useCommandContext } from './CommandContext.tsx';
-import type { Command, CommandNamespace } from './CommandContext.tsx';
+import { useCommandContext } from './CommandContext';
+import type { Command, CommandNamespace } from './CommandContext';
 
 // ---------------------------------------------------------------------------
 // Types

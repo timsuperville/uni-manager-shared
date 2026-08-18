@@ -1,6 +1,6 @@
 import { useEffect, useCallback } from 'react';
-import { useCommandContext } from './CommandContext.tsx';
-import type { Command } from './CommandContext.tsx';
+import { useCommandContext } from './CommandContext';
+import type { Command } from './CommandContext';
 
 // ---------------------------------------------------------------------------
 // Types

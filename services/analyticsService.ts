@@ -30,7 +30,7 @@ export interface InsightOptions {
   parameters?: Record<string, unknown>;
 }
 
-export interface ExportOptions {
+export interface AnalyticsExportOptions {
   format?: 'json' | 'csv' | 'xlsx';
   timeframe?: string;
   dataTypes?: string[];
@@ -248,7 +248,7 @@ export class AnalyticsService extends BaseService {
     return this.post<unknown>('/query/custom', query);
   }
 
-  async exportData(options: ExportOptions = {}): Promise<unknown> {
+  async exportData(options: AnalyticsExportOptions = {}): Promise<unknown> {
     const {
       format = 'json',
       timeframe = '24h',

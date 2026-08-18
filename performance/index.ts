@@ -17,6 +17,5 @@
 export * from './webVitals';
 export * from './lazyLoading';
 export * from './bundleConfig';
-export { PerformanceDashboard } from './PerformanceDashboard';
 // Canonical performance utility set
 export * from './performanceOptimizations';

@@ -24,7 +24,7 @@ class ApiService {
           'http://127.0.0.1:5000';
       }
     }
-    return this._base;
+    return this._base || 'http://127.0.0.1:5000';
   }
 
   protected _token(): string | null {
@@ -93,9 +93,14 @@ class ApiService {
     });
   }
 
-  delete<T = unknown>(endpoint: string): Promise<T> {
-    return this.request<T>(endpoint, { method: 'DELETE' });
+  delete<T = unknown>(endpoint: string, body?: RequestBody): Promise<T> {
+    return this.request<T>(endpoint, {
+      method: 'DELETE',
+      ...(body ? { body: JSON.stringify(body) } : {})
+    });
   }
 }
 
-export default ApiService;
+export const apiService = new ApiService();
+export default apiService;
+export { ApiService };

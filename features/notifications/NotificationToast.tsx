@@ -236,7 +236,7 @@ const NotificationToast: React.FC<NotificationToastProps> = ({
       if (event.key === 'Escape') {
         handleClose();
       } else if (event.key === 'Enter' || event.key === ' ') {
-        if (actions.length > 0) handleActionClick(actions[0]);
+        if (actions[0]) handleActionClick(actions[0]);
         else onView?.(notification);
       }
     };
