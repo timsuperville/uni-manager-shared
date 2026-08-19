@@ -63,7 +63,10 @@
       "import": "./i18n/index.ts",
       "default": "./i18n/index.ts"
     },
-    "./tailwind.preset": "./tailwind.preset.js"
+    "./tailwind.preset": "./tailwind.preset.js",
+    "./index.css": "./index.css",
+    "./styles/*": "./styles/*",
+    "./styles/design-system.css": "./styles/design-system.css"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
