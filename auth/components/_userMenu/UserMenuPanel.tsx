@@ -16,7 +16,7 @@ import type { DropdownCoords } from './positionUtils';
 import { getUserDisplayName } from '../../../utils';
 import type { User } from '../../types/auth.types';
 import type { AppConfig } from '../../config/appConfigs';
-import { glassBorder, flex1, textAccent } from '@shared/styles/styleUtils';
+import { glassBorder, flex1, textAccent } from '../../../styles/styleUtils';
 
 interface UserMenuPanelProps {
   panelRef: React.RefObject<HTMLDivElement>;
@@ -34,7 +34,6 @@ interface UserMenuPanelProps {
   customHeader?: React.ReactNode;
   children?: React.ReactNode;
   showProfile: boolean;
-  showPreferencesLink: boolean;
   isProfileActive: boolean;
   prefsActive: boolean;
   onProfileClick?: () => void;
@@ -68,7 +67,6 @@ function UserMenuPanel({
   customHeader,
   children,
   showProfile,
-  showPreferencesLink,
   isProfileActive,
   prefsActive,
   onProfileClick,
@@ -206,18 +204,6 @@ function UserMenuPanel({
                 onClick={() => {
                   onClose();
                   onProfileClick?.();
-                }}
-              />
-            )}
-
-            {showPreferencesLink && (
-              <UserMenuItem
-                icon={SlidersHorizontal}
-                label="Personal Settings"
-                active={prefsActive}
-                onClick={() => {
-                  onClose();
-                  onPreferencesClick?.();
                 }}
               />
             )}

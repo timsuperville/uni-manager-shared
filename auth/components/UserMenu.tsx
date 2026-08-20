@@ -317,7 +317,6 @@ const UserMenu = ({
             onToggleStatus={handleToggleStatus}
             customHeader={customHeader}
             showProfile={showProfile}
-            showPreferencesLink={showPreferencesLink}
             isProfileActive={isProfileActive}
             prefsActive={prefsActive}
             onProfileClick={onProfileClick}
