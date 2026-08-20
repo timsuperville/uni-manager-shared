@@ -9,11 +9,12 @@ interface AuthActions {
   refreshAuth?: () => Promise<boolean>;
   logout?: () => Promise<{ success: boolean }>;
   /**
-   * Synchronous state reset — called immediately on auth:failure BEFORE the
+   * Synchronous state reset - called immediately on auth:failure BEFORE the
    * async logout() so React components stop seeing isAuthenticated=true and
    * TanStack Query stops firing authenticated requests during the async gap.
    */
   forceReset?: () => void;
+  updateActivity?: () => void;
 }
 
 interface CallbackRef<T> {
@@ -120,12 +121,19 @@ export function useAuthCallbacks(
     };
   }, [actions]);
 
-  // Activity tracking
+    // Activity tracking
   useEffect(() => {
     if (!state.isAuthenticated) return;
 
+    let lastUpdated = 0;
+    const THROTTLE_MS = 60 * 1000; // Only update activity once per minute
+
     const handleActivity = () => {
-      // Throttled naturally by browser event loop
+      const now = Date.now();
+      if (now - lastUpdated > THROTTLE_MS) {
+        lastUpdated = now;
+        actions?.updateActivity?.();
+      }
     };
 
     const events = [
@@ -151,12 +159,20 @@ export function useAuthCallbacks(
     };
   }, [state.isAuthenticated]);
 
-  // Cross-tab synchronization via storage events
+    // Cross-tab synchronization via storage events
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
+    const namespace = (config as any).storageNamespace || 'uni';
+    const namespacedTokenKey = `${namespace}_auth_access_token`;
+
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'accessToken' || e.key === 'auth_token') {
+      if (
+        e.key === namespacedTokenKey ||
+        e.key === 'accessToken' ||
+        e.key === 'auth_token' ||
+        e.key === 'church_auth_access_token'
+      ) {
         if (e.newValue === null && state.isAuthenticated) {
           actions?.logout?.();
         } else if (e.newValue && !state.isAuthenticated) {

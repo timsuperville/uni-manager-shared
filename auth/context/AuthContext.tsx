@@ -261,13 +261,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     callbackRefsRef.current as unknown as Parameters<typeof useAuthActions>[4]
   );
 
-  // Step 3: Set up callbacks with actions available
+    // Step 3: Set up callbacks with actions available
   useAuthCallbacks(
     state as unknown as AuthStateShape,
     // Expose resetState as forceReset so the auth:failure handler can synchronously
     // invalidate isAuthenticated before the async logout() completes. Without this,
     // TanStack Query keeps firing authenticated requests during the async gap.
-    { ...actions, forceReset: resetState },
+    { ...actions, forceReset: resetState, updateActivity },
     onAuthStateChange as ((state: Record<string, unknown>) => void) | undefined,
     onError as ((error: unknown) => void) | undefined,
     config,
