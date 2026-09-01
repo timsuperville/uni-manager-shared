@@ -34,6 +34,7 @@ interface UserMenuPanelProps {
   customHeader?: React.ReactNode;
   children?: React.ReactNode;
   showProfile: boolean;
+  showPreferences?: boolean;
   isProfileActive: boolean;
   prefsActive: boolean;
   onProfileClick?: () => void;
@@ -67,6 +68,7 @@ function UserMenuPanel({
   customHeader,
   children,
   showProfile,
+  showPreferences = true,
   isProfileActive,
   prefsActive,
   onProfileClick,
@@ -204,6 +206,18 @@ function UserMenuPanel({
                 onClick={() => {
                   onClose();
                   onProfileClick?.();
+                }}
+              />
+            )}
+
+            {showPreferences && (
+              <UserMenuItem
+                icon={SlidersHorizontal}
+                label="Personal Settings"
+                active={prefsActive}
+                onClick={() => {
+                  onClose();
+                  onPreferencesClick?.();
                 }}
               />
             )}

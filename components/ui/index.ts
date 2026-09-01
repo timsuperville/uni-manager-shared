@@ -81,3 +81,5 @@ export * from './KV';
 export { Textarea as TextArea } from './Input';
 
 export { User } from './User';
+export { ResonanceTelemetryBanner } from './ResonanceTelemetryBanner';
+export type { ResonanceTelemetryBannerProps } from './ResonanceTelemetryBanner';

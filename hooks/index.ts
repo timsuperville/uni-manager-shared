@@ -31,6 +31,8 @@ export { useProjectSync } from './sync/useProjectSync';
 export { useFocusModeListener } from './useFocusModeListener';
 export { useCapacityBridge } from './useCapacityBridge';
 export { useHospitalityBridge } from './useHospitalityBridge';
+export { useResonanceBus, emitResonanceEvent } from './useResonanceBus';
+export type { ResonanceEvent, ResonanceEventType } from './useResonanceBus';
 
 // Notification hooks
 // NOTE: useNotifications.js/useNotificationPreferences.js were renamed to .ts —

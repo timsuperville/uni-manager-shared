@@ -47,6 +47,7 @@ export interface AppFeatures {
   emailVerification: boolean;
   rememberMe: boolean;
   profileManagement: boolean;
+  preferencesManagement?: boolean;
   deviceFingerprinting: boolean;
   sessionManagement: boolean;
   testLogin: boolean;

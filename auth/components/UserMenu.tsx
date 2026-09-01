@@ -236,6 +236,8 @@ const UserMenu = ({
 
   const showProfile =
     showProfileLink && (appConfig.features?.profileManagement ?? true);
+  const showPreferences =
+    showPreferencesLink && (appConfig.features?.preferencesManagement ?? true);
   const prefsActive =
     location.pathname === '/preferences' || location.pathname === '/settings';
   const isProfileActive = location.pathname === '/profile';
@@ -317,6 +319,7 @@ const UserMenu = ({
             onToggleStatus={handleToggleStatus}
             customHeader={customHeader}
             showProfile={showProfile}
+            showPreferences={showPreferences}
             isProfileActive={isProfileActive}
             prefsActive={prefsActive}
             onProfileClick={onProfileClick}
