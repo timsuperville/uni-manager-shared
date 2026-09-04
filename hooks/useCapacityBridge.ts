@@ -92,7 +92,7 @@ export function useCapacityBridge(userId: string | null): CapacityBridgeState {
 
     const apiClient = getApiClient();
     apiClient
-      .get<CapacityApiResponse>(`/api/v1/personal/capacity-status/${userId}`, {
+      .get<CapacityApiResponse>(`/personal/capacity-status/${userId}`, {
         signal: abortRef.current.signal
       })
       .then(res => {

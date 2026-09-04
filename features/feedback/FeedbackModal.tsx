@@ -163,7 +163,7 @@ function FeedbackModal({
       };
       if (authToken) reqHeaders['Authorization'] = `Bearer ${authToken}`;
 
-      const response = await fetch(`${getApiBaseUrl()}/api/v1/feedback`, {
+      const response = await fetch(`${getApiBaseUrl()}/v1/feedback`, {
         method: 'POST',
         headers: reqHeaders,
         body: JSON.stringify(payload)

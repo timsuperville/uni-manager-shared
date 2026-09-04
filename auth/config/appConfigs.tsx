@@ -120,17 +120,17 @@ export const APP_CONFIGS: Record<AppName, AppConfig> = {
     favicon: '/favicon.svg',
     securityProfile: 'standard',
     apiEndpoints: {
-      login: `${BASE_API_URL}/api/v1/auth/login`,
-      signup: `${BASE_API_URL}/api/v1/auth/signup`,
-      logout: `${BASE_API_URL}/api/v1/auth/logout`,
-      refresh: `${BASE_API_URL}/api/v1/auth/refresh`,
-      refreshToken: `${BASE_API_URL}/api/v1/auth/refresh-token`,
-      profile: `${BASE_API_URL}/api/v1/auth/me`,
-      updateProfile: `${BASE_API_URL}/api/v1/users/profile`,
-      resetPassword: `${BASE_API_URL}/api/v1/auth/reset-password`,
-      changePassword: `${BASE_API_URL}/api/v1/auth/change-password`,
-      uploadAvatar: `${BASE_API_URL}/api/v1/users/profile/avatar`,
-      uploadCoverImage: `${BASE_API_URL}/api/v1/users/profile/cover`
+      login: `${BASE_API_URL}/v1/auth/login`,
+      signup: `${BASE_API_URL}/v1/auth/signup`,
+      logout: `${BASE_API_URL}/v1/auth/logout`,
+      refresh: `${BASE_API_URL}/v1/auth/refresh`,
+      refreshToken: `${BASE_API_URL}/v1/auth/refresh-token`,
+      profile: `${BASE_API_URL}/v1/auth/me`,
+      updateProfile: `${BASE_API_URL}/v1/users/profile`,
+      resetPassword: `${BASE_API_URL}/v1/auth/reset-password`,
+      changePassword: `${BASE_API_URL}/v1/auth/change-password`,
+      uploadAvatar: `${BASE_API_URL}/v1/users/profile/avatar`,
+      uploadCoverImage: `${BASE_API_URL}/v1/users/profile/cover`
     },
     features: {
       registration: true,
@@ -184,15 +184,15 @@ export const APP_CONFIGS: Record<AppName, AppConfig> = {
     favicon: '/favicon.svg',
     securityProfile: 'strict',
     apiEndpoints: {
-      login: `${BASE_API_URL}/api/v1/auth/login`,
-      signup: `${BASE_API_URL}/api/v1/auth/signup`,
-      logout: `${BASE_API_URL}/api/v1/auth/logout`,
-      refresh: `${BASE_API_URL}/api/v1/auth/refresh`,
-      refreshToken: `${BASE_API_URL}/api/v1/auth/refresh-token`,
-      profile: `${BASE_API_URL}/api/v1/auth/me`,
-      updateProfile: `${BASE_API_URL}/api/v1/auth/profile`,
-      resetPassword: `${BASE_API_URL}/api/v1/auth/reset-password`,
-      changePassword: `${BASE_API_URL}/api/v1/auth/change-password`
+      login: `${BASE_API_URL}/v1/auth/login`,
+      signup: `${BASE_API_URL}/v1/auth/signup`,
+      logout: `${BASE_API_URL}/v1/auth/logout`,
+      refresh: `${BASE_API_URL}/v1/auth/refresh`,
+      refreshToken: `${BASE_API_URL}/v1/auth/refresh-token`,
+      profile: `${BASE_API_URL}/v1/auth/me`,
+      updateProfile: `${BASE_API_URL}/v1/auth/profile`,
+      resetPassword: `${BASE_API_URL}/v1/auth/reset-password`,
+      changePassword: `${BASE_API_URL}/v1/auth/change-password`
     },
     features: {
       registration: false,
@@ -245,15 +245,15 @@ export const APP_CONFIGS: Record<AppName, AppConfig> = {
     favicon: '/favicon.svg',
     securityProfile: 'standard',
     apiEndpoints: {
-      login: `${BASE_API_URL}/api/v1/auth/login`,
-      signup: `${BASE_API_URL}/api/v1/auth/signup`,
-      logout: `${BASE_API_URL}/api/v1/auth/logout`,
-      refresh: `${BASE_API_URL}/api/v1/auth/refresh`,
-      refreshToken: `${BASE_API_URL}/api/v1/auth/refresh-token`,
-      profile: `${BASE_API_URL}/api/v1/auth/profile`,
-      updateProfile: `${BASE_API_URL}/api/v1/auth/profile`,
-      resetPassword: `${BASE_API_URL}/api/v1/auth/reset-password`,
-      changePassword: `${BASE_API_URL}/api/v1/auth/change-password`
+      login: `${BASE_API_URL}/v1/auth/login`,
+      signup: `${BASE_API_URL}/v1/auth/signup`,
+      logout: `${BASE_API_URL}/v1/auth/logout`,
+      refresh: `${BASE_API_URL}/v1/auth/refresh`,
+      refreshToken: `${BASE_API_URL}/v1/auth/refresh-token`,
+      profile: `${BASE_API_URL}/v1/auth/profile`,
+      updateProfile: `${BASE_API_URL}/v1/auth/profile`,
+      resetPassword: `${BASE_API_URL}/v1/auth/reset-password`,
+      changePassword: `${BASE_API_URL}/v1/auth/change-password`
     },
     features: {
       registration: true,
@@ -306,15 +306,15 @@ export const APP_CONFIGS: Record<AppName, AppConfig> = {
     favicon: '/favicon.svg',
     securityProfile: 'standard',
     apiEndpoints: {
-      login: `${BASE_API_URL}/api/v1/auth/login`,
-      signup: `${BASE_API_URL}/api/v1/auth/signup`,
-      logout: `${BASE_API_URL}/api/v1/auth/logout`,
-      refresh: `${BASE_API_URL}/api/v1/auth/refresh`,
-      refreshToken: `${BASE_API_URL}/api/v1/auth/refresh-token`,
-      profile: `${BASE_API_URL}/api/v1/auth/profile`,
-      updateProfile: `${BASE_API_URL}/api/v1/auth/profile`,
-      resetPassword: `${BASE_API_URL}/api/v1/auth/reset-password`,
-      changePassword: `${BASE_API_URL}/api/v1/auth/change-password`
+      login: `${BASE_API_URL}/v1/auth/login`,
+      signup: `${BASE_API_URL}/v1/auth/signup`,
+      logout: `${BASE_API_URL}/v1/auth/logout`,
+      refresh: `${BASE_API_URL}/v1/auth/refresh`,
+      refreshToken: `${BASE_API_URL}/v1/auth/refresh-token`,
+      profile: `${BASE_API_URL}/v1/auth/profile`,
+      updateProfile: `${BASE_API_URL}/v1/auth/profile`,
+      resetPassword: `${BASE_API_URL}/v1/auth/reset-password`,
+      changePassword: `${BASE_API_URL}/v1/auth/change-password`
     },
     features: {
       registration: true,
@@ -358,15 +358,15 @@ export const APP_CONFIGS: Record<AppName, AppConfig> = {
     favicon: '/favicon.svg',
     securityProfile: 'standard',
     apiEndpoints: {
-      login: `${BASE_API_URL}/api/v1/auth/login`,
-      signup: `${BASE_API_URL}/api/v1/auth/signup`,
-      logout: `${BASE_API_URL}/api/v1/auth/logout`,
-      refresh: `${BASE_API_URL}/api/v1/auth/refresh`,
-      refreshToken: `${BASE_API_URL}/api/v1/auth/refresh-token`,
-      profile: `${BASE_API_URL}/api/v1/auth/profile`,
-      updateProfile: `${BASE_API_URL}/api/v1/auth/profile`,
-      resetPassword: `${BASE_API_URL}/api/v1/auth/reset-password`,
-      changePassword: `${BASE_API_URL}/api/v1/auth/change-password`
+      login: `${BASE_API_URL}/v1/auth/login`,
+      signup: `${BASE_API_URL}/v1/auth/signup`,
+      logout: `${BASE_API_URL}/v1/auth/logout`,
+      refresh: `${BASE_API_URL}/v1/auth/refresh`,
+      refreshToken: `${BASE_API_URL}/v1/auth/refresh-token`,
+      profile: `${BASE_API_URL}/v1/auth/profile`,
+      updateProfile: `${BASE_API_URL}/v1/auth/profile`,
+      resetPassword: `${BASE_API_URL}/v1/auth/reset-password`,
+      changePassword: `${BASE_API_URL}/v1/auth/change-password`
     },
     features: {
       registration: true,
@@ -423,15 +423,15 @@ export const APP_CONFIGS: Record<AppName, AppConfig> = {
     favicon: '/favicon.svg',
     securityProfile: 'relaxed',
     apiEndpoints: {
-      login: `${BASE_API_URL}/api/v1/auth/login`,
-      signup: `${BASE_API_URL}/api/v1/auth/signup`,
-      logout: `${BASE_API_URL}/api/v1/auth/logout`,
-      refresh: `${BASE_API_URL}/api/v1/auth/refresh`,
-      refreshToken: `${BASE_API_URL}/api/v1/auth/refresh-token`,
-      profile: `${BASE_API_URL}/api/v1/auth/profile`,
-      updateProfile: `${BASE_API_URL}/api/v1/auth/profile`,
-      resetPassword: `${BASE_API_URL}/api/v1/auth/reset-password`,
-      changePassword: `${BASE_API_URL}/api/v1/auth/change-password`
+      login: `${BASE_API_URL}/v1/auth/login`,
+      signup: `${BASE_API_URL}/v1/auth/signup`,
+      logout: `${BASE_API_URL}/v1/auth/logout`,
+      refresh: `${BASE_API_URL}/v1/auth/refresh`,
+      refreshToken: `${BASE_API_URL}/v1/auth/refresh-token`,
+      profile: `${BASE_API_URL}/v1/auth/profile`,
+      updateProfile: `${BASE_API_URL}/v1/auth/profile`,
+      resetPassword: `${BASE_API_URL}/v1/auth/reset-password`,
+      changePassword: `${BASE_API_URL}/v1/auth/change-password`
     },
     features: {
       registration: true,
@@ -491,15 +491,15 @@ export const APP_CONFIGS: Record<AppName, AppConfig> = {
     favicon: '/favicon.svg',
     securityProfile: 'relaxed',
     apiEndpoints: {
-      login: `${BASE_API_URL}/api/v1/auth/login`,
-      signup: `${BASE_API_URL}/api/v1/auth/signup`,
-      logout: `${BASE_API_URL}/api/v1/auth/logout`,
-      refresh: `${BASE_API_URL}/api/v1/auth/refresh`,
-      refreshToken: `${BASE_API_URL}/api/v1/auth/refresh-token`,
-      profile: `${BASE_API_URL}/api/v1/auth/profile`,
-      updateProfile: `${BASE_API_URL}/api/v1/auth/profile`,
-      resetPassword: `${BASE_API_URL}/api/v1/auth/reset-password`,
-      changePassword: `${BASE_API_URL}/api/v1/auth/change-password`
+      login: `${BASE_API_URL}/v1/auth/login`,
+      signup: `${BASE_API_URL}/v1/auth/signup`,
+      logout: `${BASE_API_URL}/v1/auth/logout`,
+      refresh: `${BASE_API_URL}/v1/auth/refresh`,
+      refreshToken: `${BASE_API_URL}/v1/auth/refresh-token`,
+      profile: `${BASE_API_URL}/v1/auth/profile`,
+      updateProfile: `${BASE_API_URL}/v1/auth/profile`,
+      resetPassword: `${BASE_API_URL}/v1/auth/reset-password`,
+      changePassword: `${BASE_API_URL}/v1/auth/change-password`
     },
     features: {
       registration: false,

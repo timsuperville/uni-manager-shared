@@ -1,4 +1,4 @@
-﻿import { getAuthToken } from '../../utils/authToken.js';
+import { getAuthToken } from '../../utils/authToken.js';
 import { collectSystemContext } from '../../features/feedback/utils/collectSystemContext';
 
 type CollectAdvancedFn =
@@ -19,8 +19,8 @@ const _apiOrigin: string =
     import.meta.env &&
     import.meta.env.VITE_API_URL) ??
   '';
-const INGEST_ERRORS = `${_apiOrigin}/api/v1/infra/errors/log`;
-const INGEST_FEEDBACK = `${_apiOrigin}/api/v1/feedback`;
+const INGEST_ERRORS = `${_apiOrigin}/v1/infra/errors/log`;
+const INGEST_FEEDBACK = `${_apiOrigin}/v1/feedback`;
 
 function normaliseEnvironment(
   mode: string | undefined

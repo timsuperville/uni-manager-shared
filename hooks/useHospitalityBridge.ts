@@ -130,7 +130,7 @@ export function useHospitalityBridge(): UseHospitalityBridgeResult {
       try {
         const apiClient = getApiClient();
         const res = await apiClient.post<HospitalityApiResponse>(
-          '/api/v1/home/hospitality/events',
+          '/home/hospitality/events',
           sanitizedPayload
         );
 

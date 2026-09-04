@@ -41,7 +41,7 @@ export interface ReverseGeocodeResult {
 // ---------------------------------------------------------------------------
 
 const API_BASE_URL = getApiBaseUrl() as string;
-const API_BASE = `${API_BASE_URL}/api/v1/locations`;
+const API_BASE = `${API_BASE_URL}/v1/locations`;
 
 async function request<T = unknown>(
   endpoint: string,

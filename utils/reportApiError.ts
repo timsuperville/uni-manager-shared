@@ -106,7 +106,7 @@ export async function reportApiError(report: ApiErrorReport): Promise<void> {
 
     const mode = import.meta.env.MODE ?? 'development';
 
-    await fetch('/api/v1/errors/log', {
+    await fetch('/v1/infra/errors/log', {
       method: 'POST',
       headers,
       body: JSON.stringify({

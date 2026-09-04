@@ -17,7 +17,7 @@ export function useLocalSyncEngine() {
         // Push mutations to backend in order
         for (const entry of queue) {
           try {
-            await api.post('/api/v1/sync/push', { mutations: [entry] });
+            await api.post('/sync/push', { mutations: [entry] });
             await localDB.syncQueue.delete(entry.id);
           } catch (e) {
             // If the server rejects due to conflict or offline, stop queue processing
@@ -66,7 +66,7 @@ export function useLocalSyncEngine() {
     if (navigator.onLine) {
       const api = getApiClient();
       try {
-        await api.post('/api/v1/sync/push', { mutations: [entry] });
+        await api.post('/sync/push', { mutations: [entry] });
         await localDB.syncQueue.delete(entry.id);
       } catch (e) {
         logger.warn('[LocalSync] Immediate push failed, kept in queue', e);

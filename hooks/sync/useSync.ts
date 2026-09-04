@@ -27,6 +27,27 @@ export interface UseSyncResult {
 // Hook
 // ---------------------------------------------------------------------------
 
+function getAuthToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  const namespaces = [
+    'home',
+    'church',
+    'work',
+    'personal',
+    'admin',
+    'playback',
+    'presentation',
+    'uni'
+  ];
+  for (const ns of namespaces) {
+    const sessionToken = sessionStorage.getItem(`${ns}_auth_access_token`);
+    if (sessionToken) return sessionToken;
+    const localToken = localStorage.getItem(`${ns}_auth_access_token`);
+    if (localToken) return localToken;
+  }
+  return sessionStorage.getItem('token') || localStorage.getItem('token');
+}
+
 /**
  * useSync: Multi-Player State Sync Hook (CRDT via Yjs)
  * Phase 5 - Home App Rebuild
@@ -40,6 +61,8 @@ export function useSync(roomName: string | null): UseSyncResult {
   const { user } = useAuth();
   const [status, setStatus] = useState<SyncStatus>('disconnected');
   const [awareness, setAwareness] = useState<AwarenessUser[]>([]);
+  const [doc, setDoc] = useState<Y.Doc | null>(null);
+  const [provider, setProvider] = useState<WebsocketProvider | null>(null);
 
   const docRef = useRef<Y.Doc | null>(null);
   const providerRef = useRef<WebsocketProvider | null>(null);
@@ -50,47 +73,77 @@ export function useSync(roomName: string | null): UseSyncResult {
   const userColor = (user as any)?.color ?? '#3b82f6';
 
   useEffect(() => {
-    if (!roomName || !userId) return;
+    if (!roomName || !userId) {
+      setDoc(null);
+      setProvider(null);
+      return;
+    }
 
-    const doc = new Y.Doc();
-    docRef.current = doc;
+    const newDoc = new Y.Doc();
+    docRef.current = newDoc;
+    setDoc(newDoc);
 
     const wsUrl = getWebSocketUrl();
-    const provider = new WebsocketProvider(wsUrl, roomName, doc);
-    providerRef.current = provider;
+    const token = getAuthToken();
+    const newProvider = new WebsocketProvider(wsUrl, roomName, newDoc, {
+      params: token ? { token } : {}
+    });
+    providerRef.current = newProvider;
+    setProvider(newProvider);
 
-    provider.awareness.setLocalStateField('user', {
+    newProvider.awareness.setLocalStateField('user', {
       name: userFirstName,
       color: userColor,
       userId: userId
     });
 
-    provider.on('status', (event: { status: SyncStatus }) => {
+    newProvider.on('status', (event: { status: SyncStatus }) => {
       setStatus(event.status);
     });
 
-    provider.awareness.on('change', () => {
+    const handleAwarenessChange = () => {
       const states = Array.from(
-        provider.awareness.getStates().values()
+        newProvider.awareness.getStates().values()
       ) as Array<{ user?: AwarenessUser }>;
       const users = states
         .map(s => s.user)
         .filter((u): u is AwarenessUser => !!u);
       setAwareness(users);
-    });
+    };
+
+    newProvider.awareness.on('change', handleAwarenessChange);
 
     return () => {
-      if (providerRef.current?.shouldConnect) {
-        providerRef.current.disconnect();
+      newProvider.awareness.off('change', handleAwarenessChange);
+      try {
+        newProvider.destroy();
+      } catch {
+        // Safe destroy fallback
       }
-      docRef.current?.destroy();
+      try {
+        newDoc.destroy();
+      } catch {
+        // Safe destroy fallback
+      }
+      providerRef.current = null;
+      docRef.current = null;
     };
-  }, [roomName, userId, userFirstName, userColor]);
+  }, [roomName, userId]);
+
+  // Sync awareness fields when user details update without tearing down WebSocket
+  useEffect(() => {
+    if (!providerRef.current || !userId) return;
+    providerRef.current.awareness.setLocalStateField('user', {
+      name: userFirstName,
+      color: userColor,
+      userId: userId
+    });
+  }, [userFirstName, userColor, userId]);
 
   return {
-    doc: docRef.current,
+    doc,
     status,
     awareness,
-    provider: providerRef.current
+    provider
   };
 }

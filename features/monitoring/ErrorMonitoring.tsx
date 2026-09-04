@@ -41,10 +41,10 @@ const isStaging = (import.meta.env?.MODE || 'development') === 'staging';
 
 import { getApiBaseUrl } from '../../api/config/apiConfig';
 
-// â”€â”€ Ingest endpoints â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Ingest endpoints ────────────────────────────────────────────────────────
 // Support remote hosts explicitly if VITE_API_URL is configured
-const INGEST_ERRORS = `${getApiBaseUrl()}/api/v1/infra/errors/log`;
-const INGEST_FEEDBACK = `${getApiBaseUrl()}/api/v1/feedback`;
+const INGEST_ERRORS = `${getApiBaseUrl()}/v1/infra/errors/log`;
+const INGEST_FEEDBACK = `${getApiBaseUrl()}/v1/feedback`;
 
 // ErrorBoundary â€” canonical unified component. Re-exported here so any code
 // that still imports from this module continues to work.

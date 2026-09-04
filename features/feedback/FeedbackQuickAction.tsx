@@ -1,4 +1,4 @@
-﻿/**
+/**
  * FeedbackQuickAction â€” Shared Feedback Submission Component
  *
  * Variants:
@@ -108,7 +108,7 @@ export async function submitFeedbackSilently({
     const systemCtx = collectSystemContext(appName, user ?? null);
     systemCtx.source = resolveSource(source);
 
-    await fetch(`${getApiBaseUrl()}/api/v1/feedback`, {
+    await fetch(`${getApiBaseUrl()}/v1/feedback`, {
       method: 'POST',
       headers,
       body: JSON.stringify({
