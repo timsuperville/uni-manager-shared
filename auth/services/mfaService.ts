@@ -29,7 +29,7 @@ export class MFAService {
 
   constructor(authToken?: string | null) {
     this.authToken = authToken ?? null;
-    this.baseUrl = `${import.meta.env.VITE_API_URL ?? ''}/api/v1/auth/mfa`;
+    this.baseUrl = `${import.meta.env.VITE_API_URL ?? ''}/v1/auth/mfa`;
   }
 
   /** Authenticated POST request helper */

@@ -19,7 +19,7 @@ async function fetchActiveGates(
   try {
     const base = getApiBaseUrl() as string;
     const res = await fetch(
-      `${base}/api/v1/features/active?appType=${encodeURIComponent(appType)}`,
+      `${base}/v1/features/active?appType=${encodeURIComponent(appType)}`,
       {
         method: 'GET',
         headers: {

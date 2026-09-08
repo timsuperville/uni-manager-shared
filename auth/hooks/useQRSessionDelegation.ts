@@ -32,7 +32,7 @@ export function useQRSessionDelegation({
   const registerToken = useCallback(
     async (tok: string) => {
       try {
-        const res = await fetch(`${apiBaseUrl}/api/v1/auth/qr-session/init`, {
+        const res = await fetch(`${apiBaseUrl}/v1/auth/qr-session/init`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ qrToken: tok }),
@@ -67,7 +67,7 @@ export function useQRSessionDelegation({
 
         try {
           const res = await fetch(
-            `${apiBaseUrl}/api/v1/auth/qr-session/status?token=${tok}`,
+            `${apiBaseUrl}/v1/auth/qr-session/status?token=${tok}`,
             { signal: AbortSignal.timeout(2000) }
           );
 

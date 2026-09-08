@@ -47,7 +47,7 @@ class ApiService {
     endpoint: string,
     options: RequestInit & { headers?: Record<string, string> } = {}
   ): Promise<T> {
-    const url = `${this.baseURL}/api/v1${endpoint}`;
+    const url = `${this.baseURL}/v1${endpoint}`;
     const res = await fetch(url, {
       ...options,
       headers: { ...this._headers(), ...(options.headers ?? {}) }

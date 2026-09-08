@@ -195,12 +195,16 @@ export class ApiClient {
     data?: unknown,
     options: RequestOptions = {}
   ): Promise<ApiResponse<T>> {
-    // Prevent double /api/v1 prefixing since the default baseURL already includes it
+    // Prevent double /v1 or /api/v1 prefixing since the default baseURL already includes it
     let cleanEndpoint = endpoint;
     if (cleanEndpoint.startsWith('/api/v1')) {
       cleanEndpoint = cleanEndpoint.substring(7); // remove '/api/v1'
     } else if (cleanEndpoint.startsWith('api/v1')) {
       cleanEndpoint = cleanEndpoint.substring(6); // remove 'api/v1'
+    } else if (cleanEndpoint.startsWith('/v1')) {
+      cleanEndpoint = cleanEndpoint.substring(3); // remove '/v1'
+    } else if (cleanEndpoint.startsWith('v1')) {
+      cleanEndpoint = cleanEndpoint.substring(2); // remove 'v1'
     }
 
     const requestConfig: AxiosRequestConfig = {
