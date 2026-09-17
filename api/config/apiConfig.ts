@@ -3,16 +3,16 @@
  *
  * Single source of truth for all API-related configuration.
  *
- * KEY DESIGN DECISION: baseURL is a RELATIVE path ("/api/v1").
+ * KEY DESIGN DECISION: baseURL is a RELATIVE path ("/v1").
  *
  * Why relative?
- *   - In dev, Vite proxies /api/v1 → http://127.0.0.1:5000/api/v1
- *   - In prod, nginx proxies /api/v1 → the backend
+ *   - In dev, Vite proxies /v1 → http://127.0.0.1:5000/v1
+ *   - In prod, Cloud Run / nginx proxies /v1 → the backend
  *   - No hardcoded hosts anywhere in the frontend bundle
- *   - One proxy rule per vite.config, not ten different baseURLs
+ *   - One proxy rule per vite.config, matching the backend route hierarchy exactly
  *
  * If VITE_API_URL is set (e.g. for cross-origin staging), it is used as the
- * full origin so the path becomes e.g. "https://api.staging.example.com/api/v1".
+ * full origin so the path becomes e.g. "https://api.staging.example.com/v1".
  */
 
 export interface ApiConfig {

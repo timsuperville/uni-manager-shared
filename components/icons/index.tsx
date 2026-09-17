@@ -453,20 +453,134 @@ export const LightningIcon = svg(
   1.5
 );
 
-// ── App Logos (Source of Truth) ────────────────────────────────────────────────
+// ── App Logos (Source of Truth for the Uni-Manager Ecosystem) ───────────────────
 
-export const HomeAppLogo = HomeIcon;
-export const PersonalAppLogo = BrainIcon;
-export const WorkAppLogo = BriefcaseIcon;
-export const AdminAppLogo = ShieldIcon;
-export const PlaybackAppLogo = SpeakerIcon;
+/** Uni-Manager Master Brand: Segmented Liquid Glass 'U' Mark */
+export const UniManagerLogo = svg(
+  <>
+    <path
+      d="M5.5 3.5h3c.55 0 1 .45 1 1v6.5a2.5 2.5 0 0 1-2.5 2.5H5.5c-.55 0-1-.45-1-1v-8c0-.55.45-1 1-1z"
+      strokeWidth="1.8"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M15.5 3.5h3c.55 0 1 .45 1 1v8a2.5 2.5 0 0 1-2.5 2.5h-1.5c-.55 0-1-.45-1-1v-6.5c0-.55.45-1 1-1z"
+      strokeWidth="1.8"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M4.5 13.5c0 4.14 3.36 7.5 7.5 7.5s7.5-3.36 7.5-7.5"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+    />
+    <path
+      d="M8.5 13.5c0 1.93 1.57 3.5 3.5 3.5s3.5-1.57 3.5-3.5"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+    />
+  </>,
+  1.8
+);
+
+/** Admin Portal: Quantum Command Nexus Hexagon Shield with LiveSync Node */
+export const AdminAppLogo = svg(
+  <>
+    <path
+      d="M12 2.2L20.5 7.1V16.9L12 21.8L3.5 16.9V7.1L12 2.2Z"
+      strokeWidth="2"
+      strokeLinejoin="round"
+    />
+    <circle cx="12" cy="12" r="5" strokeWidth="1.6" strokeDasharray="3 3" />
+    <circle cx="12" cy="12" r="2.2" fill="currentColor" />
+  </>,
+  2
+);
+
+/** Domestic Nucleus: Hearth Haven & Interlocking Shelter Roof */
+export const HomeAppLogo = svg(
+  <>
+    <path
+      d="M2.5 10.5L12 3l9.5 7.5v9a1.5 1.5 0 0 1-1.5 1.5H4a1.5 1.5 0 0 1-1.5-1.5v-9Z"
+      strokeWidth="1.8"
+      strokeLinejoin="round"
+    />
+    <path d="M9 21v-5a3 3 0 0 1 6 0v5" strokeWidth="1.8" />
+    <circle cx="12" cy="11.5" r="2" fill="currentColor" />
+  </>,
+  1.8
+);
+
+/** Personal Sanctuary: Sovereign WebCrypto Vault Shield & Inner Light Spark */
+export const PersonalAppLogo = svg(
+  <>
+    <path
+      d="M12 2.5L3.5 7.2v6.5c0 5.2 3.6 9.8 8.5 11 4.9-1.2 8.5-5.8 8.5-11V7.2L12 2.5Z"
+      strokeWidth="1.8"
+      strokeLinejoin="round"
+    />
+    <circle cx="12" cy="12" r="3.5" strokeWidth="1.6" />
+    <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+  </>,
+  1.8
+);
+
+/** Executive Slate: Corporate Velocity Grid with Growth Momentum */
+export const WorkAppLogo = svg(
+  <>
+    <rect x="3" y="4" width="18" height="16" rx="3" strokeWidth="1.8" />
+    <path d="M7 9h10M7 13h6m-6 4h4" strokeWidth="2" strokeLinecap="round" />
+    <path
+      d="M17 12l2 2 3-4"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </>,
+  1.8
+);
+
+/** Playback Pro: Sonic Cyan Resonance Ribbon 'P' with Audio Play Engine */
+export const PlaybackAppLogo = svg(
+  <>
+    <path
+      d="M6 3.5h7a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H10v6H6v-17Z"
+      strokeWidth="1.8"
+      strokeLinejoin="round"
+    />
+    <polygon points="10,6.5 15,9 10,11.5" fill="currentColor" />
+  </>,
+  1.8
+);
+
+/** Presentation Pro: Stage Obsidian Display Canvas with Luminary Projection Beam */
 export const PresentationAppLogo = svg(
   <>
-    <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
-    <line x1="8" y1="21" x2="16" y2="21" />
-    <line x1="12" y1="17" x2="12" y2="21" />
+    <rect x="3" y="4" width="18" height="12" rx="2" strokeWidth="1.8" />
+    <path
+      d="M7 16l-3 4.5h16L17 16"
+      strokeWidth="1.8"
+      strokeLinejoin="round"
+    />
+    <circle cx="12" cy="10" r="2.5" fill="currentColor" />
   </>,
-  1.5
+  1.8
+);
+
+/** Audio Lab: Modular Sound Workbench, Frequency Wave & Potentiometer */
+export const AudioLabAppLogo = svg(
+  <>
+    <circle cx="12" cy="12" r="9" strokeWidth="1.8" strokeDasharray="4 2" />
+    <circle cx="12" cy="12" r="4.5" strokeWidth="1.8" />
+    <line
+      x1="12"
+      y1="12"
+      x2="16"
+      y2="8"
+      strokeWidth="2"
+      strokeLinecap="round"
+    />
+  </>,
+  1.8
 );
 
 // ── Auto-Migrated App Imports ────────────────────────────────
