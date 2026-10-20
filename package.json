@@ -1,5 +1,5 @@
 {
-  "name": "@timsuperville/shared",
+  "name": "@uni-manager/shared",
   "version": "1.0.0",
   "description": "Shared utilities, components, and types for Uni-Manager applications",
   "publishConfig": {
