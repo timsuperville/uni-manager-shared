@@ -1,13 +1,20 @@
-import { getPlan, getPlanPrice } from "./plans.js";
+/**
+ * @shared/pricing/calculator.ts
+ *
+ * Headless calculation engine for checkout totals and promotional discounts.
+ * Operates purely on dynamic plan and add-on records passed in from the caller.
+ */
+
+import { getPlanPriceMatrix } from "./plans.js";
+import { calculateAddOnsTotal } from "./addons.js";
 import { validatePromoCode } from "./discounts.js";
-import { getAddOn } from "./addons.js";
 import type { CheckoutCalculationOptions, CheckoutSummary, SupportedCurrency } from "./types.js";
 
 export function calculateCheckoutSummary(options: CheckoutCalculationOptions): CheckoutSummary {
   const currency: SupportedCurrency = options.currency || "CAD";
   const interval = options.interval || "month";
-  const plan = getPlan(options.planId);
-  const planPrice = getPlanPrice(options.planId, currency);
+  const plan = options.plan;
+  const planPrice = getPlanPriceMatrix(plan, currency);
 
   // 1. Calculate Recurring Base
   const baseRecurringCents = interval === "year" && planPrice.yearly ? planPrice.yearly : planPrice.monthly;
@@ -18,18 +25,12 @@ export function calculateCheckoutSummary(options: CheckoutCalculationOptions): C
   let discountedSetupFeeCents = baseSetupFeeCents;
 
   // 3. Calculate Add-ons
-  let addOnsTotalCents = 0;
-  if (options.selectedAddOns && options.selectedAddOns.length > 0) {
-    for (const addonId of options.selectedAddOns) {
-      const addon = getAddOn(addonId);
-      if (addon) {
-        addOnsTotalCents += addon.prices[currency] || 0;
-      }
-    }
-  }
+  const addOnsTotalCents = options.addOns && options.addOns.length > 0
+    ? calculateAddOnsTotal(options.addOns, currency)
+    : 0;
 
   // 4. Evaluate Promo Code
-  const discountRule = validatePromoCode(options.promoCode, options.planId);
+  const discountRule = validatePromoCode(options.promoCode, plan.id);
   let appliedDiscount: CheckoutSummary["appliedDiscount"] = undefined;
 
   if (discountRule) {

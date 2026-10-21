@@ -44,12 +44,12 @@ export interface AddOnProduct {
 }
 
 export interface CheckoutCalculationOptions {
-  planId: string;
+  plan: PricingPlan;
+  addOns?: AddOnProduct[];
   currency?: SupportedCurrency;
   interval?: BillingInterval;
   includeSetupFee: boolean;
   promoCode?: string;
-  selectedAddOns?: string[];
 }
 
 export interface CheckoutSummary {
