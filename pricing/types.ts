@@ -50,6 +50,7 @@ export interface CheckoutCalculationOptions {
   interval?: BillingInterval;
   includeSetupFee: boolean;
   promoCode?: string;
+  discountRules?: Record<string, DiscountRule>;
 }
 
 export interface CheckoutSummary {

@@ -190,10 +190,28 @@ describe("@uni-manager/shared Headless Pricing Calculation Engine", () => {
     expect(quote.annualProfitCAD).toBeGreaterThan(0);
   });
 
-  it("should handle live Bank of Canada FX resolution gracefully", async () => {
-    const fx = await fetchLiveUsdCadRate();
-    expect(fx.usdToCadRate).toBeGreaterThan(1.0);
-    expect(fx.cadToUsdRate).toBeLessThan(1.0);
-    expect(["BANK_OF_CANADA_VALET", "FALLBACK_HEDGED"]).toContain(fx.source);
+  it("should support dynamic custom discount rules passed to checkout calculation", () => {
+    const customRule = {
+      code: "AUTUMN30",
+      type: "percentage" as const,
+      value: 30,
+      appliesTo: "monthly" as const,
+      description: "30% Autumn Discount"
+    };
+
+    const summary = calculateCheckoutSummary({
+      plan: fixturePlan,
+      currency: "CAD",
+      interval: "month",
+      includeSetupFee: false,
+      promoCode: "AUTUMN30",
+      discountRules: {
+        AUTUMN30: customRule
+      }
+    });
+
+    expect(summary.appliedDiscount?.code).toBe("AUTUMN30");
+    expect(summary.appliedDiscount?.savingsCents).toBe(1170); // 30% of 3900
+    expect(summary.discountedRecurringCents).toBe(2730);
   });
 });

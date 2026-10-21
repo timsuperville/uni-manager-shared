@@ -30,7 +30,7 @@ export function calculateCheckoutSummary(options: CheckoutCalculationOptions): C
     : 0;
 
   // 4. Evaluate Promo Code
-  const discountRule = validatePromoCode(options.promoCode, plan.id);
+  const discountRule = validatePromoCode(options.promoCode, plan.id, options.discountRules);
   let appliedDiscount: CheckoutSummary["appliedDiscount"] = undefined;
 
   if (discountRule) {

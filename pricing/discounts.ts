@@ -24,13 +24,17 @@ export const PROMOTIONAL_DISCOUNTS: Record<string, DiscountRule> = {
   },
 };
 
+/**
+ * Validates a promotion code against provided discount rules (or default promo registry).
+ */
 export function validatePromoCode(
   rawCode: string | undefined | null,
-  planId?: string
+  planId?: string,
+  customRules?: Record<string, DiscountRule>
 ): DiscountRule | null {
   if (!rawCode) return null;
   const normalized = rawCode.trim().toUpperCase();
-  const rule = PROMOTIONAL_DISCOUNTS[normalized];
+  const rule = (customRules && customRules[normalized]) || PROMOTIONAL_DISCOUNTS[normalized];
   if (!rule) return null;
 
   if (rule.validUntil && new Date() > new Date(rule.validUntil)) {
