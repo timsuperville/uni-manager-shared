@@ -1,49 +1,87 @@
+/**
+ * @shared/pricing/addons.ts
+ *
+ * Add-on product contracts and dynamic calculation registry.
+ * Authoritative product definitions, descriptions, and active pricing are fetched
+ * dynamically from the backend API / Stripe product catalog.
+ */
+
 import type { AddOnProduct } from "./types.js";
 
-export const ADDON_PRODUCTS: Record<string, AddOnProduct> = {
-  logo_design: {
-    id: "logo_design",
-    name: "Vector Brand & Logo Identity Suite",
-    description: "High-resolution SVG vector logos, business card ready files, favicon bundle, and brand book.",
-    isRecurring: false,
-    prices: {
-      CAD: 19900, // $199.00 CAD
-      USD: 14900, // $149.00 USD
-      GBP: 11900, // £119.00 GBP
-      EUR: 13900, // €139.00 EUR
-    },
-  },
+/**
+ * In-memory registry of active add-on products.
+ * Populated dynamically via API hydration (e.g. from /v1/billing/addons).
+ */
+const addonRegistry = new Map<string, AddOnProduct>();
+
+/**
+ * Neutral baseline catalog for calculation testing and offline engines.
+ * Contains zero hardcoded trade marketing copy or vendor couplings.
+ */
+export const DEFAULT_ADDON_PRODUCTS: Record<string, AddOnProduct> = {
   ai_voice_secretary: {
     id: "ai_voice_secretary",
-    name: "24/7 AI Voice Dispatch & Receptionist",
-    description: "Instant phone call answering, calendar booking, and SMS triage to technician phones.",
+    name: "AI Voice Receptionist",
+    description: "Autonomous inbound telephone answering, call notes, and emergency escalation alerts.",
     features: [
       "Dedicated inbound telephone DID line",
-      "Strict consent on-call SMS emergency dispatch",
-      "Automatic CRM contact qualification & note syncing"
+      "Emergency escalation SMS notifications",
+      "Automatic CRM contact and activity logging"
     ],
     isRecurring: true,
     prices: {
-      CAD: 9900,  // $99.00 CAD / month
-      USD: 7900,  // $79.00 USD / month
-      GBP: 6900,  // £69.00 GBP / month
-      EUR: 7900,  // €79.00 EUR / month
+      CAD: 9900,
+      USD: 7900,
+      GBP: 6900,
+      EUR: 7900,
     },
   },
   local_visitor_radar: {
     id: "local_visitor_radar",
-    name: "Local Visitor & Call Radar",
-    description: "Real-time edge visitor analytics, geographic caller heatmaps, and conversion tracking.",
+    name: "Visitor & Call Analytics",
+    description: "Edge visitor analytics, caller insights, and conversion metrics.",
     isRecurring: true,
     prices: {
-      CAD: 1900,  // $19.00 CAD / month
-      USD: 1400,  // $14.00 USD / month
-      GBP: 1200,  // £12.00 GBP / month
-      EUR: 1400,  // €14.00 EUR / month
+      CAD: 1900,
+      USD: 1400,
+      GBP: 1200,
+      EUR: 1400,
     },
   },
 };
 
-export function getAddOn(id: string): AddOnProduct | undefined {
-  return ADDON_PRODUCTS[id];
+// Seed baseline items
+for (const [id, addon] of Object.entries(DEFAULT_ADDON_PRODUCTS)) {
+  addonRegistry.set(id, addon);
 }
+
+/**
+ * Registers or updates add-on products dynamically from the backend API catalog.
+ */
+export function registerAddOns(addons: AddOnProduct[]): void {
+  for (const addon of addons) {
+    addonRegistry.set(addon.id, addon);
+  }
+}
+
+/**
+ * Retrieves an add-on product from the registry by ID.
+ */
+export function getAddOn(id: string): AddOnProduct | undefined {
+  return addonRegistry.get(id);
+}
+
+/**
+ * Retrieves all registered add-on products.
+ */
+export function getAllAddOns(): AddOnProduct[] {
+  return Array.from(addonRegistry.values());
+}
+
+/**
+ * Dynamic dictionary proxy for calculation callers.
+ */
+export const ADDON_PRODUCTS: Record<string, AddOnProduct> = new Proxy(DEFAULT_ADDON_PRODUCTS, {
+  get: (_target, prop: string) => addonRegistry.get(prop) || DEFAULT_ADDON_PRODUCTS[prop],
+  has: (_target, prop: string) => addonRegistry.has(prop),
+});

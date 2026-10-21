@@ -24,7 +24,7 @@ describe("@uni-manager/shared Pricing Catalog & Calculation Engine", () => {
   it("should retrieve specific plan by id", () => {
     const growthPlan = getPlan("growth");
     expect(growthPlan).toBeDefined();
-    expect(growthPlan?.name).toBe("Beacon Growth & Domination");
+    expect(growthPlan?.name).toBe("Growth Plan");
     expect(growthPlan?.prices.CAD.monthly).toBe(7900);
     expect(growthPlan?.prices.CAD.setupFee).toBe(14900);
   });
