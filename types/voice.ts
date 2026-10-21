@@ -9,6 +9,13 @@ export interface VoicePersonaSpec {
   voiceId: string;
 }
 
+export interface AvailableVoicePersona {
+  id: string;
+  name: string;
+  tone: string;
+  sampleAudioUrl?: string;
+}
+
 export interface CopilotVoiceSpec {
   useSameAsReceptionist: boolean;
   voiceId: string;
