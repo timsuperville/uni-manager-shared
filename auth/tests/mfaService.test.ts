@@ -29,7 +29,7 @@ describe('MFA Service', () => {
       const result: any = await mfaService.setupTOTP('test@example.com');
 
       expect(result).toEqual(mockResponse);
-      expect(global.fetch).toHaveBeenCalledWith('/api/v1/auth/mfa/totp/setup', {
+      expect(global.fetch).toHaveBeenCalledWith('/v1/auth/mfa/totp/setup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -48,7 +48,7 @@ describe('MFA Service', () => {
 
       expect(result.verified).toBe(true);
       expect(global.fetch).toHaveBeenCalledWith(
-        '/api/v1/auth/mfa/totp/verify',
+        '/v1/auth/mfa/totp/verify',
         {
           method: 'POST',
           headers: {
@@ -86,7 +86,7 @@ describe('MFA Service', () => {
       const result: any = await mfaService.setupSMS('+1234567890');
 
       expect(result).toEqual(mockResponse);
-      expect(global.fetch).toHaveBeenCalledWith('/api/v1/auth/mfa/sms/setup', {
+      expect(global.fetch).toHaveBeenCalledWith('/v1/auth/mfa/sms/setup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -106,7 +106,7 @@ describe('MFA Service', () => {
       const result: any = await mfaService.sendSMSCode();
 
       expect(result).toEqual(mockResponse);
-      expect(global.fetch).toHaveBeenCalledWith('/api/v1/auth/mfa/sms/send', {
+      expect(global.fetch).toHaveBeenCalledWith('/v1/auth/mfa/sms/send', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -129,7 +129,7 @@ describe('MFA Service', () => {
 
       expect(result).toEqual(mockResponse);
       expect(global.fetch).toHaveBeenCalledWith(
-        '/api/v1/auth/mfa/email/setup',
+        '/v1/auth/mfa/email/setup',
         {
           method: 'POST',
           headers: {
@@ -150,7 +150,7 @@ describe('MFA Service', () => {
 
       expect(result.verified).toBe(true);
       expect(global.fetch).toHaveBeenCalledWith(
-        '/api/v1/auth/mfa/email/verify',
+        '/v1/auth/mfa/email/verify',
         {
           method: 'POST',
           headers: {
@@ -176,7 +176,7 @@ describe('MFA Service', () => {
 
       expect(result.backupCodes).toEqual(mockCodes);
       expect(global.fetch).toHaveBeenCalledWith(
-        '/api/v1/auth/mfa/backup-codes/generate',
+        '/v1/auth/mfa/backup-codes/generate',
         {
           method: 'POST',
           headers: {
@@ -197,7 +197,7 @@ describe('MFA Service', () => {
 
       expect(result.verified).toBe(true);
       expect(global.fetch).toHaveBeenCalledWith(
-        '/api/v1/auth/mfa/backup-codes/use',
+        '/v1/auth/mfa/backup-codes/use',
         {
           method: 'POST',
           headers: {
@@ -225,7 +225,7 @@ describe('MFA Service', () => {
       const result: any = await mfaService.getMFAStatus();
 
       expect(result).toEqual(mockStatus);
-      expect(global.fetch).toHaveBeenCalledWith('/api/v1/auth/mfa/status', {
+      expect(global.fetch).toHaveBeenCalledWith('/v1/auth/mfa/status', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -242,7 +242,7 @@ describe('MFA Service', () => {
       const result: any = await mfaService.disableMFA('totp');
 
       expect(result.success).toBe(true);
-      expect(global.fetch).toHaveBeenCalledWith('/api/v1/auth/mfa/disable', {
+      expect(global.fetch).toHaveBeenCalledWith('/v1/auth/mfa/disable', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -265,7 +265,7 @@ describe('MFA Service', () => {
       const result: any = await mfaService.challengeMFA('user123');
 
       expect(result).toEqual(mockChallenge);
-      expect(global.fetch).toHaveBeenCalledWith('/api/v1/auth/mfa/challenge', {
+      expect(global.fetch).toHaveBeenCalledWith('/v1/auth/mfa/challenge', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -324,7 +324,7 @@ describe('MFA Service', () => {
 
       await serviceWithToken.getMFAStatus();
 
-      expect(global.fetch).toHaveBeenCalledWith('/api/v1/auth/mfa/status', {
+      expect(global.fetch).toHaveBeenCalledWith('/v1/auth/mfa/status', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

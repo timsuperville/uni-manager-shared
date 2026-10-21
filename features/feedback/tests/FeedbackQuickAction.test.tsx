@@ -147,7 +147,7 @@ describe('submitFeedbackSilently â€” context shape and device detection', (
       RequestInit
     ];
     const [url, opts] = callArgs;
-    expect(url).toBe('/api/v1/feedback');
+    expect(url).toBe('/v1/feedback');
     expect(opts.method).toBe('POST');
 
     const body = JSON.parse(opts.body as string);
