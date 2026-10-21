@@ -26,6 +26,7 @@ export interface VoiceProfile {
   emergencyDispatchPhone?: string;
   diagnosticFee: number;
   diagnosticFeeCad?: number;
+  serviceFeeLabel?: string;
   currency?: string;
   serviceArea?: string;
   operatingHoursSummary?: string;

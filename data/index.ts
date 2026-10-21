@@ -3,6 +3,7 @@
 
 export * from './integrations';
 export * from './churchConstants';
+export * from './voicePersonas';
 export type {
   IntegrationCategoryId,
   IconComponent,
@@ -10,3 +11,4 @@ export type {
   IntegrationEntry,
   IntegrationDatabase
 } from './integrations';
+export type { AvailableVoicePersona } from './voicePersonas';
