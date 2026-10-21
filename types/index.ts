@@ -215,3 +215,7 @@ export interface PresenceState {
   status: PresenceStatus;
   setStatus: (status: PresenceStatus) => void;
 }
+
+// ─── Voice & Telephony Contracts ─────────────────────────────────────────────
+
+export * from './voice';
