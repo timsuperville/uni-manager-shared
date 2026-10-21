@@ -17,6 +17,11 @@ export const ADDON_PRODUCTS: Record<string, AddOnProduct> = {
     id: "ai_voice_secretary",
     name: "24/7 AI Voice Dispatch & Receptionist",
     description: "Instant phone call answering, calendar booking, and SMS triage to technician phones.",
+    features: [
+      "Dedicated inbound telephone DID line",
+      "Strict consent on-call SMS emergency dispatch",
+      "Automatic CRM contact qualification & note syncing"
+    ],
     isRecurring: true,
     prices: {
       CAD: 9900,  // $99.00 CAD / month

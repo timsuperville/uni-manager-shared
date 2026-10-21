@@ -38,6 +38,7 @@ export interface AddOnProduct {
   id: string;
   name: string;
   description: string;
+  features?: string[];
   prices: Record<SupportedCurrency, number>; // one-time or recurring cents
   isRecurring: boolean;
 }
