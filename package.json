@@ -63,6 +63,11 @@
       "import": "./i18n/index.ts",
       "default": "./i18n/index.ts"
     },
+    "./pricing": {
+      "types": "./pricing/index.ts",
+      "import": "./pricing/index.ts",
+      "default": "./pricing/index.ts"
+    },
     "./tailwind.preset": "./tailwind.preset.js",
     "./index.css": "./index.css",
     "./styles/*": "./styles/*",
