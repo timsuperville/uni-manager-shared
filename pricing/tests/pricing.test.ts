@@ -11,7 +11,25 @@ import {
   fetchLiveUsdCadRate,
   type PricingPlan,
   type AddOnProduct,
+  type DiscountRule,
 } from "../index";
+
+const fixtureDiscounts: Record<string, DiscountRule> = {
+  LAUNCH50: {
+    code: "LAUNCH50",
+    type: "percentage",
+    value: 50,
+    appliesTo: "monthly",
+    description: "50% Off First Month",
+  },
+  WAIVESETUP: {
+    code: "WAIVESETUP",
+    type: "waive_setup_fee",
+    value: 100,
+    appliesTo: "setup_fee",
+    description: "$0 Setup Fee",
+  },
+};
 
 const fixturePlan: PricingPlan = {
   id: "test-starter",
@@ -115,6 +133,7 @@ describe("@uni-manager/shared Headless Pricing Calculation Engine", () => {
       interval: "month",
       includeSetupFee: false,
       promoCode: "LAUNCH50",
+      discountRules: fixtureDiscounts,
     });
 
     expect(summary.appliedDiscount).toBeDefined();
@@ -131,6 +150,7 @@ describe("@uni-manager/shared Headless Pricing Calculation Engine", () => {
       interval: "month",
       includeSetupFee: true,
       promoCode: "WAIVESETUP",
+      discountRules: fixtureDiscounts,
     });
 
     expect(summary.appliedDiscount).toBeDefined();
@@ -213,5 +233,16 @@ describe("@uni-manager/shared Headless Pricing Calculation Engine", () => {
     expect(summary.appliedDiscount?.code).toBe("AUTUMN30");
     expect(summary.appliedDiscount?.savingsCents).toBe(1170); // 30% of 3900
     expect(summary.discountedRecurringCents).toBe(2730);
+  });
+
+  it("should validate dynamic promo code against rules or return null for unknown codes", () => {
+    const valid = validatePromoCode("LAUNCH50", "test-starter", fixtureDiscounts);
+    expect(valid?.code).toBe("LAUNCH50");
+
+    const unknown = validatePromoCode("UNKNOWN", "test-starter", fixtureDiscounts);
+    expect(unknown).toBeNull();
+
+    const empty = validatePromoCode(undefined, "test-starter", fixtureDiscounts);
+    expect(empty).toBeNull();
   });
 });
