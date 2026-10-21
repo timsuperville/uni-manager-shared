@@ -219,3 +219,8 @@ export interface PresenceState {
 // ─── Voice & Telephony Contracts ─────────────────────────────────────────────
 
 export * from './voice';
+
+// ─── Billing & Subscription Contracts ────────────────────────────────────────
+
+export * from './billing';
+
