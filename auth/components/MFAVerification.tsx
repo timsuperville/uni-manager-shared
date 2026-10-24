@@ -91,6 +91,7 @@ interface MFAVerificationProps {
     deviceTrusted: boolean;
     usedBackupCode: boolean;
     bypassedDueToTrust: boolean;
+    token?: string;
   }) => void;
   onCancel: () => void;
   className?: string;
@@ -198,7 +199,8 @@ const MFAVerification = ({
           verified: true,
           deviceTrusted: data.data.deviceTrusted,
           usedBackupCode: data.data.usedBackupCode,
-          bypassedDueToTrust: data.data.bypassedDueToTrust
+          bypassedDueToTrust: data.data.bypassedDueToTrust,
+          token
         });
       } else {
         const errorMessage = data?.message || 'Invalid verification code';

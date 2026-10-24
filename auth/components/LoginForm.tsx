@@ -77,10 +77,19 @@ export function LoginForm({
 
   // returnTo: safe redirect after login (used by AcceptInvitePage invite flow)
   // Only honour paths that start with / to prevent open-redirect attacks.
+  // Blocks protocol-relative (//) and malformed backslash (/\\) bypasses.
   const returnTo = (() => {
     try {
       const param = new URLSearchParams(location.search).get('returnTo');
-      return param && param.startsWith('/') ? param : null;
+      if (
+        param &&
+        param.startsWith('/') &&
+        !param.startsWith('//') &&
+        !param.startsWith('/\\')
+      ) {
+        return param;
+      }
+      return null;
     } catch (_err) {
       return null;
     }
@@ -150,36 +159,6 @@ export function LoginForm({
     if (mfaRequired) setCurrentStep('mfa-verification');
     else if (mfaSetupRequired) setCurrentStep('mfa-setup');
   }, [mfaRequired, mfaSetupRequired, enableMFA]);
-
-  // Sync autofilled/password manager filled credentials to React state
-  useEffect(() => {
-    const timer = setInterval(() => {
-      const emailEl = document.getElementById(
-        'login-email'
-      ) as HTMLInputElement | null;
-      const passwordEl = document.getElementById(
-        'login-password'
-      ) as HTMLInputElement | null;
-
-      if (emailEl && passwordEl) {
-        const domEmail = emailEl.value;
-        const domPassword = passwordEl.value;
-
-        if (
-          (domEmail && domEmail !== formData.email) ||
-          (domPassword && domPassword !== formData.password)
-        ) {
-          setFormData(prev => ({
-            ...prev,
-            email: domEmail || prev.email,
-            password: domPassword || prev.password
-          }));
-        }
-      }
-    }, 500);
-
-    return () => clearInterval(timer);
-  }, [formData.email, formData.password]);
 
   // ─── Handlers ────────────────────────────────────────────────────────────────
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -320,7 +299,9 @@ export function LoginForm({
           </div>
           <MFAVerification
             onVerificationSuccess={result =>
-              handleMFAVerification(result?.verified ? 'verified' : '')
+              handleMFAVerification(
+                result?.token || (result?.verified ? 'verified' : '')
+              )
             }
             onCancel={handleBackToLogin}
             deviceFingerprint={deviceFingerprint}
@@ -365,42 +346,42 @@ export function LoginForm({
           >
             {ui.icon}
           </div>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">
             {finalTitle}
-          </h2>
+          </h1>
           <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
             {finalDescription}
           </p>
         </div>
 
-        {/* Google OAuth */}
-        <OAuthButton
-          provider="Google"
-          onClick={async () => {
-            try {
-              if (loginWithGoogle) {
-                const result = await loginWithGoogle();
-                const res = result as any;
-                if (res.success || res.user) {
-                  if (onSuccess) onSuccess(result as any);
-                  else navigate(finalRedirect, { replace: true });
+        {/* Google OAuth (conditional on provider availability) */}
+        {Boolean(loginWithGoogle) && (
+          <>
+            <OAuthButton
+              provider="Google"
+              onClick={async () => {
+                try {
+                  const result = await loginWithGoogle!();
+                  const res = result as any;
+                  if (res?.success || res?.user) {
+                    if (onSuccess) onSuccess(result as any);
+                    else navigate(finalRedirect, { replace: true });
+                  }
+                } catch (err: any) {
+                  setLocalError(
+                    err.message || 'An error occurred during Google sign in.'
+                  );
+                  onError?.(err);
                 }
-              } else {
-                console.warn('Google OAuth login method is not available.');
-              }
-            } catch (err: any) {
-              setLocalError(
-                err.message || 'An error occurred during Google sign in.'
-              );
-              onError?.(err);
-            }
-          }}
-          icon={<GoogleIcon className="w-5 h-5 sm:w-6 sm:h-6" />}
-        >
-          Sign in with Google
-        </OAuthButton>
+              }}
+              icon={<GoogleIcon className="w-5 h-5 sm:w-6 sm:h-6" />}
+            >
+              Sign in with Google
+            </OAuthButton>
 
-        <AuthDivider text="Or continue with email" />
+            <AuthDivider text="Or continue with email" />
+          </>
+        )}
 
         {/* Email + password form */}
         <form className="space-y-5 sm:space-y-6" onSubmit={handleLoginSubmit}>
@@ -442,8 +423,34 @@ export function LoginForm({
             }
           />
 
-          {/* Forgot password */}
-          <div className="-mt-3 flex justify-end">
+          {/* Options row: Remember me & Forgot password */}
+          <div className="flex items-center justify-between gap-2">
+            {showRememberMe ? (
+              <div className="flex items-center gap-2">
+                <input
+                  id="login-rememberMe"
+                  name="rememberMe"
+                  type="checkbox"
+                  checked={formData.rememberMe}
+                  onChange={handleChange}
+                  className="h-4 w-4 rounded cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--primary-live-sync,hsl(272,65%,62%))]"
+                  style={{
+                    accentColor: 'var(--primary-live-sync, hsl(272,65%,62%))',
+                    ...glassBorder
+                  }}
+                />
+                <label
+                  htmlFor="login-rememberMe"
+                  className="text-sm cursor-pointer select-none"
+                  style={textSecondary}
+                >
+                  Remember me
+                </label>
+              </div>
+            ) : (
+              <div />
+            )}
+
             <button
               type="button"
               className="text-xs font-medium hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--primary-live-sync,hsl(272,65%,62%))] rounded cursor-pointer"
@@ -453,31 +460,6 @@ export function LoginForm({
               Forgot password?
             </button>
           </div>
-
-          {/* Remember me */}
-          {showRememberMe && (
-            <div className="flex items-center gap-2">
-              <input
-                id="login-rememberMe"
-                name="rememberMe"
-                type="checkbox"
-                checked={formData.rememberMe}
-                onChange={handleChange}
-                className="h-4 w-4 rounded cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--primary-live-sync,hsl(272,65%,62%))]"
-                style={{
-                  accentColor: 'var(--primary-live-sync, hsl(272,65%,62%))',
-                  ...glassBorder
-                }}
-              />
-              <label
-                htmlFor="login-rememberMe"
-                className="text-sm cursor-pointer select-none"
-                style={textSecondary}
-              >
-                Remember me
-              </label>
-            </div>
-          )}
 
           {/* Submit */}
           <div className="pt-1">

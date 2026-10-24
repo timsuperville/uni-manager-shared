@@ -94,9 +94,9 @@ const APP_IDENTITY: Record<AppType, AppIdentity> = {
     ]
   },
   personal: {
-    tagline: 'Your UserOwned SecureVault.',
+    tagline: 'Your Personal Sanctuary.',
     description:
-      'UserOwned development, physiological intelligence, and relational accountability — a Personal OS built for you alone.',
+      'Personal development, physiological intelligence, and relational accountability — a Personal OS built for you alone.',
     gradient: 'from-purple-600 via-indigo-600 to-blue-700',
     glowColor: 'rgba(139, 92, 246, 0.25)',
     accentLight: 'rgba(165, 180, 252, 0.15)',
@@ -148,7 +148,7 @@ const APP_IDENTITY: Record<AppType, AppIdentity> = {
     pillars: [
       { icon: <LockIcon size={22} />, label: 'Secure, unified identity' },
       { icon: <GlobeIcon size={22} />, label: 'Six specialized life contexts' },
-      { icon: <LightningIcon size={22} />, label: 'Sub-second liveSync' }
+      { icon: <LightningIcon size={22} />, label: 'Sub-second real-time sync' }
     ]
   }
 };
@@ -193,15 +193,10 @@ const AuthLayout = ({
 
   return (
     <>
-      {/*
-        Font & animation styles — inserted once per route mount.
-        Using a <link> would require document access; this is the safe React way
-        for a shared component that may mount in any app context.
-      */}
+      {/* Local animation keyframes and layout font classes */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap');
-        .auth-layout-root { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
-        .auth-layout-headline { font-family: 'Outfit', system-ui, sans-serif; }
+        .auth-layout-root { font-family: var(--font-body, system-ui, -apple-system, sans-serif); }
+        .auth-layout-headline { font-family: var(--font-display, system-ui, sans-serif); }
         ${PILLAR_KEYFRAMES}
       `}</style>
 
@@ -291,12 +286,14 @@ const AuthLayout = ({
 
             <div className="space-y-8">
               <div>
-                <h1
-                  className="text-4xl xl:text-5xl font-extrabold text-white leading-tight tracking-tight drop-shadow-sm mb-4"
+                <p
+                  role="heading"
+                  aria-level={2}
+                  className="auth-layout-headline text-4xl xl:text-5xl font-extrabold text-white leading-tight tracking-tight drop-shadow-sm mb-4"
                   style={{ fontFamily: "'Outfit', system-ui, sans-serif" }}
                 >
                   {identity.tagline}
-                </h1>
+                </p>
                 <p className="text-base text-white/70 max-w-xs leading-relaxed">
                   {identity.description}
                 </p>
@@ -342,6 +339,29 @@ const AuthLayout = ({
         <div className="flex-1 flex flex-col overflow-y-auto relative z-10 bg-white dark:bg-[hsl(222,47%,6%)]">
           <div className="flex flex-col items-center px-4 sm:px-8 lg:px-12 py-4 sm:py-6 w-full min-h-full">
             <div className="my-auto w-full max-w-md">
+              {/* Compact mobile branding header */}
+              {showLogo && (
+                <div className="lg:hidden flex items-center justify-center gap-2.5 mb-6 animate-[fadeInDown_0.4s_ease_both]">
+                  <div
+                    className={`w-9 h-9 rounded-xl shadow-md flex items-center justify-center text-white shrink-0 bg-linear-to-br ${identity.gradient}`}
+                    style={{
+                      border: '1px solid rgba(255, 255, 255, 0.25)'
+                    }}
+                    aria-hidden="true"
+                  >
+                    {React.isValidElement(appConfig?.ui?.icon)
+                      ? React.cloneElement(appConfig.ui.icon, {
+                          size: 18,
+                          style: { color: 'white' }
+                        } as any)
+                      : appConfig?.ui?.icon}
+                  </div>
+                  <span className="auth-layout-headline text-gray-900 dark:text-white font-bold text-lg tracking-tight">
+                    {appConfig?.appName || 'Uni-Manager'}
+                  </span>
+                </div>
+              )}
+
               <AuthShellContext.Provider value={true}>
                 <div className="animate-[fadeInUp_0.5s_ease_0.05s_both]">
                   {children}
