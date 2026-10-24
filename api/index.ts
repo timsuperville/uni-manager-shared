@@ -25,6 +25,8 @@ export type {
 } from './core/ApiClient';
 
 export { GlobalContextManager, contextManager } from './core/ContextManager';
+export { isApiEnvelope, unwrap } from './core/envelope';
+export type { ApiEnvelope } from './core/envelope';
 
 export {
   UserOwnedApiGuard,
