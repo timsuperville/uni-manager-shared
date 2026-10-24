@@ -224,3 +224,7 @@ export * from './voice';
 
 export * from './billing';
 
+// ─── Service Bridge & Real-Time Sync Contracts ───────────────────────────────
+
+export * from './serviceBridge';
+
